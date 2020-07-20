@@ -18,10 +18,12 @@
 package fr.igred.omero;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.TableContainer;
@@ -1751,5 +1753,67 @@ public class AppTest
             for(int i = 1; i < tags.size(); i++) {
             assert(tags.get(i - 1).getId() <= tags.get(i).getId());
         }
+    }
+
+    public void testAddFileDataset()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        DatasetContainer dataset = root.getDataset(1L);
+
+        File file = new File("./test.txt");
+        file.createNewFile();
+
+        FileWriter fWriter = new FileWriter("./test.txt");
+        fWriter.write("test");
+        fWriter.close();
+
+        Long id = dataset.addFile(root, file).getId().getValue();
+
+        List<File> files = dataset.getFiles(root);
+
+        assertEquals(1, files.size());
+        assertEquals("test.txt", files.get(0).getName());
+
+        Scanner reader = new Scanner(files.get(0));
+        assertEquals("test", reader.nextLine());
+
+        root.deleteFile(id);
+
+        files = dataset.getFiles(root);
+        assertEquals(0, files.size());
+    }
+
+    public void testAddFileimage()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        ImageContainer image = root.getImage(1L);
+
+        File file = new File("./test.txt");
+        file.createNewFile();
+
+        FileWriter fWriter = new FileWriter("./test.txt");
+        fWriter.write("test");
+        fWriter.close();
+
+        Long id = image.addFile(root, file).getId().getValue();
+
+        List<File> files = image.getFiles(root);
+
+        assertEquals(1, files.size());
+        assertEquals("test.txt", files.get(0).getName());
+
+        Scanner reader = new Scanner(files.get(0));
+        assertEquals("test", reader.nextLine());
+
+        root.deleteFile(id);
+
+        files = image.getFiles(root);
+        assertEquals(0, files.size());
     }
 }

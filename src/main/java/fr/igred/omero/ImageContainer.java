@@ -17,6 +17,11 @@
 
 package fr.igred.omero;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +30,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
+
+import org.apache.commons.io.FilenameUtils;
 
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.annotation.MapAnnotationContainer;
@@ -37,23 +44,33 @@ import ij.measure.Calibration;
 import ij.process.ImageProcessor;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
+import omero.ServerError;
+import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
+import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 import omero.gateway.model.TagAnnotationData;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ChecksumAlgorithmI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.Length;
 import omero.model.NamedValue;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.TagAnnotationI;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 
 /**
  * Class containing an ImageData.
@@ -300,7 +317,7 @@ public class ImageContainer {
      * 
      * @param client The user
      * 
-     * @return Collection of TagAnnotationContainer each containing a tag linked to the image
+     * @return List of TagAnnotationContainer each containing a tag linked to the image
      * 
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
@@ -334,8 +351,42 @@ public class ImageContainer {
         return tags;
     }
 
+    /**
+     * Get all File linked to an image in OMERO
+     * 
+     * @param client The user
+     * 
+     * @return List of File 
+     * 
+     * @throws DSOutOfServiceException Cannot connect to OMERO
+     * @throws DSAccessException       Cannot access data
+     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     */
+    public List<File> getFiles(Client client)
+        throws 
+            DSOutOfServiceException,
+            DSAccessException,
+            ExecutionException
+    {
+        List<Long> userIds = new ArrayList<Long>();
+        userIds.add(client.getId());
 
+        List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>();
+        types.add(FileAnnotationData.class);
 
+        List<AnnotationData> annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
+
+        List<File> files = new ArrayList<File>(annotations.size());
+
+        if(annotations != null) {
+            for (AnnotationData annotation : annotations) {
+                FileAnnotationData file = (FileAnnotationData) annotation;
+                files.add(file.getAttachedFile());
+            }
+        }
+
+        return files;
+    }
 
     /**
      * Get the List of NamedValue (Key-Value pair) associated to an image.
@@ -733,6 +784,84 @@ public class ImageContainer {
     }
 
 
+
+    
+
+    /**
+     * Link a file to the Dataset
+     * 
+     * @param client The user
+     * @param file   File to add
+     * 
+     * @return File created in OMERO
+     * 
+     * @throws DSOutOfServiceException Cannot connect to OMERO
+     * @throws DSAccessException       Cannot access data
+     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ServerError              
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public IObject addFile(Client client, 
+                        File file) 
+        throws 
+            DSOutOfServiceException,
+            DSAccessException,
+            ExecutionException,
+            ServerError,
+            FileNotFoundException,
+            IOException
+    {
+        int INC = 262144;
+
+        String name = file.getName();
+        String absolutePath = file.getAbsolutePath();
+        String path = absolutePath.substring(0,
+                absolutePath.length()-name.length());
+
+        OriginalFile originalFile = new OriginalFileI();
+        originalFile.setName(omero.rtypes.rstring(name));
+        originalFile.setPath(omero.rtypes.rstring(path));
+        originalFile.setSize(omero.rtypes.rlong(file.length()));
+        final ChecksumAlgorithm checksumAlgorithm = new ChecksumAlgorithmI();
+        checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
+        originalFile.setHasher(checksumAlgorithm);
+        originalFile.setMimetype(omero.rtypes.rstring(FilenameUtils.getExtension(file.getName())));
+        originalFile = (OriginalFile) client.getDm().saveAndReturnObject(client.getCtx(), originalFile);
+
+        RawFileStorePrx rawFileStore = client.getGateway().getRawFileService(client.getCtx());
+
+        long pos = 0;
+        int rlen;
+        byte[] buf = new byte[INC];
+        ByteBuffer bbuf;
+        try {
+            FileInputStream stream = new FileInputStream(file);
+            rawFileStore.setFileId(originalFile.getId().getValue());
+            while ((rlen = stream.read(buf)) > 0) {
+                rawFileStore.write(buf, pos, rlen);
+                pos += rlen;
+                bbuf = ByteBuffer.wrap(buf);
+                bbuf.limit(rlen);
+            }
+            originalFile = rawFileStore.save();
+            stream.close();
+        } finally {
+            rawFileStore.close();
+        }
+
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setFile(originalFile);
+        fa.setDescription(omero.rtypes.rstring(""));
+        fa.setNs(omero.rtypes.rstring(file.getName())); 
+
+        fa = (FileAnnotation) client.getDm().saveAndReturnObject(client.getCtx(), fa);
+
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setChild(fa);
+        link.setParent(image.asImage());
+        return client.getDm().saveAndReturnObject(client.getCtx(), link);                      
+    }
 
 
 
