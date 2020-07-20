@@ -17,6 +17,9 @@ before_install:
   - git clone --recurse-submodules git://github.com/openmicroscopy/omero-test-infra .omero
   - export DOCKER_ARGS="-v $HOME/.m2:/root/.m2 -v $(pwd)/target:/src/target"
 
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
 jobs:
   include:
     - stage: build
