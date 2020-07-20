@@ -1,3 +1,29 @@
-:q
-:q
+env:
+  - OMERO_SERVER_VERSION=5.6
+
+sudo: required
+
+language: java
+jdk: openjdk8
+
+services:
+  - docker
+
+cache:
+  directories:
+  - $HOME/.m2
+
+before_install:
+  - git clone --recurse-submodules git://github.com/openmicroscopy/omero-test-infra .omero
+  - export DOCKER_ARGS="-v $HOME/.m2:/root/.m2 -v $(pwd)/target:/src/target"
+
+jobs:
+  include:
+    - stage: build
+      script:
+        - mvn compile
+    - stage: test
+      script:
+        - set -e
+        - .omero/lib-docker
 
