@@ -52,7 +52,7 @@ TAG3=$(omero obj new TagAnnotation textValue=tag3)
 omero obj new ImageAnnotationLink parent=$IMAGE1 child=$TAG1
 omero obj new ImageAnnotationLink parent=$IMAGE1 child=$TAG2
 omero obj new ImageAnnotationLink parent=$IMAGE2 child=$TAG1
-omero obj new ImageAnnotationLink parent=$IMAGE3 child=$TAG1 
+omero obj new ImageAnnotationLink parent=$IMAGE4 child=$TAG1
 
 MAP1=$(omero obj new MapAnnotation)
 omero obj map-set $MAP1 mapValue testKey1 testValue1
