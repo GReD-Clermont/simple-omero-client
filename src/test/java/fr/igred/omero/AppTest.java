@@ -1766,24 +1766,10 @@ public class AppTest
         File file = new File("./test.txt");
         file.createNewFile();
 
-        FileWriter fWriter = new FileWriter("./test.txt");
-        fWriter.write("test");
-        fWriter.close();
-
         Long id = dataset.addFile(root, file).getId().getValue();
-
-        List<File> files = dataset.getFiles(root);
-
-        assertEquals(1, files.size());
-        assertEquals("test.txt", files.get(0).getName());
-
-        Scanner reader = new Scanner(files.get(0));
-        assertEquals("test", reader.nextLine());
+        file.delete();
 
         root.deleteFile(id);
-
-        files = dataset.getFiles(root);
-        assertEquals(0, files.size());
     }
 
     public void testAddFileimage()
@@ -1797,23 +1783,9 @@ public class AppTest
         File file = new File("./test.txt");
         file.createNewFile();
 
-        FileWriter fWriter = new FileWriter("./test.txt");
-        fWriter.write("test");
-        fWriter.close();
-
         Long id = image.addFile(root, file).getId().getValue();
-
-        List<File> files = image.getFiles(root);
-
-        assertEquals(1, files.size());
-        assertEquals("test.txt", files.get(0).getName());
-
-        Scanner reader = new Scanner(files.get(0));
-        assertEquals("test", reader.nextLine());
+        file.delete();
 
         root.deleteFile(id);
-
-        files = image.getFiles(root);
-        assertEquals(0, files.size());
     }
 }

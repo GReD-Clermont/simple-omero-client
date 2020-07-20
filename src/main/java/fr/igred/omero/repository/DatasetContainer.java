@@ -330,43 +330,6 @@ public class DatasetContainer {
         return tags;
     }
 
-    /**
-     * Get all File linked to a dataset in OMERO
-     * 
-     * @param client The user
-     * 
-     * @return List of File
-     * 
-     * @throws DSOutOfServiceException Cannot connect to OMERO
-     * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
-     */
-    public List<File> getFiles(Client client)
-        throws 
-            DSOutOfServiceException,
-            DSAccessException,
-            ExecutionException
-    {
-        List<Long> userIds = new ArrayList<Long>();
-        userIds.add(client.getId());
-
-        List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>();
-        types.add(TagAnnotationData.class);
-
-        List<AnnotationData> annotations = client.getMetadata().getAnnotations(client.getCtx(), dataset, types, userIds);
-
-        List<File> files = new ArrayList<File>(annotations.size());
-
-        if(annotations != null) {
-            for (AnnotationData annotation : annotations) {
-                FileAnnotationData file = (FileAnnotationData) annotation;
-                files.add(file.getAttachedFile());
-            }
-        }
-
-        return files;
-    }
-
 
 
 
