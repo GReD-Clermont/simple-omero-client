@@ -1,6 +1,14 @@
 language: java
 jdk: openjdk8
 
+stages:
+  - name: build
+  - name: test
+  - name: snapshot
+    if: branch = master
+  - name: release
+    if: tag IS present
+
 services:
   - docker
 
@@ -11,6 +19,7 @@ cache:
 before_install:
   - git clone --recurse-submodules git://github.com/openmicroscopy/omero-test-infra .omero
   - export DOCKER_ARGS="-v $HOME/.m2:/root/.m2 -v $(pwd)/target:/src/target"
+  - cp .travis.settings.xml $HOME/.m2/settings.xml
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
@@ -24,4 +33,15 @@ jobs:
       script:
         - set -e
         - .omero/lib-docker
+    - stage: snapshot
+      script:
+        - mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
+        - export project_version=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
+        - mvn versions:set -DnewVersion=$project_version-SNAPSHOT
+        - mvn package -DskipTests
+        - mvn deploy -DskipTests
+    - stage: release
+      script:
+        - mvn package -DskipTests
+        - mvn deploy -DskipTests
 
