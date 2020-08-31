@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -27,7 +27,7 @@ import omero.model.Length;
 /**
  * Class containing a PixelData
  * Implements function using the PixelData contained
- */ 
+ */
 public class PixelContainer {
 
     ///PixelData contained
@@ -36,7 +36,7 @@ public class PixelContainer {
 
     /**
      * Get the size of a single image pixel on the X axis.
-     * 
+     *
      * @return Size of a pixel on the X axis
      */
     public Length getPixelSizeX()
@@ -46,7 +46,7 @@ public class PixelContainer {
 
     /**
      * Get the size of a single image pixel on the Y axis.
-     * 
+     *
      * @return Size of a pixel on the Y axis
      */
     public Length getPixelSizeY()
@@ -56,7 +56,7 @@ public class PixelContainer {
 
     /**
      * Get the size of a single image pixel on the Z axis.
-     * 
+     *
      * @return Size of a pixel on the Z axis
      */
     public Length getPixelSizeZ()
@@ -71,7 +71,7 @@ public class PixelContainer {
 
     /**
      * Get the size of the image on the X axis
-     * 
+     *
      * @return Size of the image on the X axis
      */
     public int getSizeX()
@@ -81,7 +81,7 @@ public class PixelContainer {
 
     /**
      * Get the size of the image on the Y axis
-     * 
+     *
      * @return Size of the image on the Y axis
      */
     public int getSizeY()
@@ -91,7 +91,7 @@ public class PixelContainer {
 
     /**
      * Get the size of the image on the Z axis
-     * 
+     *
      * @return Size of the image on the Z axis
      */
     public int getSizeZ()
@@ -101,7 +101,7 @@ public class PixelContainer {
 
     /**
      * Get the size of the image on the C axis
-     * 
+     *
      * @return Size of the image on the C axis
      */
     public int getSizeC()
@@ -111,7 +111,7 @@ public class PixelContainer {
 
     /**
      * Get the size of the image on the T axis
-     * 
+     *
      * @return Size of the image on the T axis
      */
     public int getSizeT()
@@ -120,12 +120,12 @@ public class PixelContainer {
     }
 
     /**
-     * Return an array containing the value for each voxels 
-     * 
+     * Return an array containing the value for each voxels
+     *
      * @param client The user
-     * 
-     * @return Array containing the value for each voxels of the image 
-     * 
+     *
+     * @return Array containing the value for each voxels of the image
+     *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException  A Facility can't be retrieved or instancied
      */
@@ -139,16 +139,16 @@ public class PixelContainer {
 
     /**
      * Return an array containing the value for each voxels corresponding to the bounds
-     * 
+     *
      * @param client The user
-     * @param xBound Array containing the X bound from which the pixels should be retrieved 
-     * @param yBound Array containing the Y bound from which the pixels should be retrieved 
-     * @param cBound Array containing the C bound from which the pixels should be retrieved 
-     * @param zBound Array containing the Z bound from which the pixels should be retrieved 
-     * @param tBound Array containing the T bound from which the pixels should be retrieved 
-     * 
-     * @return Array containing the value for each voxels of the image 
-     * 
+     * @param xBound Array containing the X bound from which the pixels should be retrieved
+     * @param yBound Array containing the Y bound from which the pixels should be retrieved
+     * @param cBound Array containing the C bound from which the pixels should be retrieved
+     * @param zBound Array containing the Z bound from which the pixels should be retrieved
+     * @param tBound Array containing the T bound from which the pixels should be retrieved
+     *
+     * @return Array containing the value for each voxels of the image
+     *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException  A Facility can't be retrieved or instancied
      */
@@ -237,7 +237,7 @@ public class PixelContainer {
 
     /**
      * Copy the value from the plane at the corresponding position in the array
-     * 
+     *
      * @param tab    Array containing the results
      * @param p      Plane2D containing the voxels value
      * @param x      x start
@@ -253,7 +253,7 @@ public class PixelContainer {
                       int     x,
                       int     y,
                       int     c,
-                      int     z, 
+                      int     z,
                       int     t,
                       int     width,
                       int     height)
@@ -269,10 +269,10 @@ public class PixelContainer {
 
     /**
      * Return an array containing the raw values for each voxels for each planes
-     * 
+     *
      * @param client The user
      * @param bpp    bytes per pixels of the image
-     * 
+     *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException  A Facility can't be retrieved or instancied
      */
@@ -286,15 +286,15 @@ public class PixelContainer {
 
     /**
      * Return an array containing the raw values for each voxels for each planes corresponding to the bounds
-     * 
+     *
      * @param client The user
-     * @param xBound Array containing the X bound from which the pixels should be retrieved 
-     * @param yBound Array containing the Y bound from which the pixels should be retrieved 
-     * @param cBound Array containing the C bound from which the pixels should be retrieved 
-     * @param zBound Array containing the Z bound from which the pixels should be retrieved 
-     * @param tBound Array containing the T bound from which the pixels should be retrieved 
+     * @param xBound Array containing the X bound from which the pixels should be retrieved
+     * @param yBound Array containing the Y bound from which the pixels should be retrieved
+     * @param cBound Array containing the C bound from which the pixels should be retrieved
+     * @param zBound Array containing the Z bound from which the pixels should be retrieved
+     * @param tBound Array containing the T bound from which the pixels should be retrieved
      * @param bpp    bytes per pixels of the image
-     * 
+     *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException  A Facility can't be retrieved or instancied
      */
@@ -384,7 +384,7 @@ public class PixelContainer {
 
     /**
      * Copy the value from the plane at the corresponding position in the array
-     * 
+     *
      * @param bytes     Array containing the results
      * @param p         Plane2D containing the voxels value
      * @param x         x start
@@ -395,29 +395,29 @@ public class PixelContainer {
      * @param width     width of the plane
      * @param height    height of the plane
      * @param trueWidth width of the image
-     * @param bpp       bytes per pixels of the image 
+     * @param bpp       bytes per pixels of the image
      */
     private void copy(byte    bytes[][][][],
                       Plane2D p,
                       int     x,
                       int     y,
                       int     c,
-                      int     z, 
+                      int     z,
                       int     t,
                       int     width,
                       int     height,
                       int     trueWidth,
                       int     bpp)
     {
-        for(int iteX = 0; iteX < width; iteX++) 
-            for(int iteY = 0; iteY < height; iteY++) 
-                for(int i = 0; i < bpp; i++) 
+        for(int iteX = 0; iteX < width; iteX++)
+            for(int iteY = 0; iteY < height; iteY++)
+                for(int i = 0; i < bpp; i++)
                     bytes[t][z][c][((iteY + y) * trueWidth + iteX + x) * bpp + i] = p.getRawValue((iteX + iteY * width) * bpp + i);
     }
 
     /**
      * Constructor of the PixelContainer class
-     * 
+     *
      * @param pixels PixelData to be contained
      */
     public PixelContainer(PixelsData pixels)

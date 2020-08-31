@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -36,7 +36,7 @@ public class TagAnnotationContainer {
 
     /**
      * Get the name of the TagData.
-     * 
+     *
      * @return TagData name
      */
     public String getName()
@@ -46,7 +46,7 @@ public class TagAnnotationContainer {
 
     /**
      * Get the description of the TagData.
-     * 
+     *
      * @return TagData description
      */
     public String getDescription()
@@ -56,7 +56,7 @@ public class TagAnnotationContainer {
 
     /**
      * Get the TagData id.
-     * 
+     *
      * @return TagData id
      */
     public Long getId()
@@ -66,7 +66,7 @@ public class TagAnnotationContainer {
 
     /**
      * Return the TagAnnotationData contained.
-     * 
+     *
      * @return
      */
     public TagAnnotationData getTag()
@@ -76,7 +76,7 @@ public class TagAnnotationContainer {
 
     /**
      * Constructor of the TagAnnotationContainer class.
-     * 
+     *
      * @param tag Tag to be contained
      */
     public TagAnnotationContainer(TagAnnotationData tag)
@@ -88,7 +88,7 @@ public class TagAnnotationContainer {
     /**
      * Constructor of the TagAnnotationContainer class.
      * Create the tag and save it in OMERO
-     * 
+     *
      * @param client      The user
      * @param name        Tag name
      * @param description Tag description
@@ -96,10 +96,10 @@ public class TagAnnotationContainer {
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public TagAnnotationContainer(Client client, 
-                                  String name, 
+    public TagAnnotationContainer(Client client,
+                                  String name,
                                   String description)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException

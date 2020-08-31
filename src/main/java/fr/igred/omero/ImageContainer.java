@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -49,8 +49,10 @@ import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
+import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.ROIData;
@@ -60,6 +62,7 @@ import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
@@ -78,20 +81,20 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 public class ImageContainer {
     ///ImageData contained
     ImageData image;
-    
+
     /**
      * Return the ImageData id
-     * 
+     *
      * @return id
      */
     public Long getId()
-    {   
+    {
         return image.getId();
     }
 
     /**
      * Return the ImageData name
-     * 
+     *
      * @return name
      */
     public String getName()
@@ -101,7 +104,7 @@ public class ImageContainer {
 
     /**
      * Return the ImageData description
-     * 
+     *
      * @return description
      */
     public String getDescription()
@@ -111,7 +114,7 @@ public class ImageContainer {
 
     /**
      * Return the ImageData creation date
-     * 
+     *
      * @return creation date
      */
     public Timestamp getCreated()
@@ -121,7 +124,7 @@ public class ImageContainer {
 
     /**
      * Return the ImageData acquisition date
-     * 
+     *
      * @return acquisition date
      */
     public Timestamp getAcquisitionDate()
@@ -130,13 +133,13 @@ public class ImageContainer {
     }
 
     /**
-     * @return ImageData contained 
+     * @return ImageData contained
      */
     public ImageData getImage()
     {
         return image;
     }
-    
+
 
 
 
@@ -144,21 +147,21 @@ public class ImageContainer {
     /**
      * Add a tag to the image in OMERO.
      * The tag is created from the name and description in parameters.
-     * 
+     *
      * @param client      The user
      * @param name        Name of the tag
      * @param description Description of the tag
-     * 
+     *
      * @return The object saved in OMERO.
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public IObject addTag(Client client, 
-                          String name, 
+    public IObject addTag(Client client,
+                          String name,
                           String description)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -174,19 +177,19 @@ public class ImageContainer {
     /**
      * Add a tag to the image in OMERO.
      * The tag to be added is already created.
-     * 
+     *
      * @param client The user
      * @param tag    TagAnnotationContainer containing the tag to be added
-     * 
+     *
      * @return The object saved in OMERO.
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public IObject addTag(Client                  client, 
+    public IObject addTag(Client                  client,
                           TagAnnotationContainer  tag)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -199,19 +202,19 @@ public class ImageContainer {
     /**
      * Private function.
      * Add a tag to the image in OMERO.
-     * 
+     *
      * @param client  The user
      * @param tagData Tag to be added
-     * 
-     * @return The object saved in OMERO. 
-     * 
+     *
+     * @return The object saved in OMERO.
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    private IObject addTag(Client            client, 
+    private IObject addTag(Client            client,
                            TagAnnotationData tagData)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -228,19 +231,19 @@ public class ImageContainer {
     /**
      * Add a tag to the image in OMERO.
      * The tag id is used.
-     * 
+     *
      * @param client The user
      * @param id     Id of the tag
-     * 
-     * @return The object saved in OMERO. 
-     * 
+     *
+     * @return The object saved in OMERO.
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public IObject addTag(Client client, 
+    public IObject addTag(Client client,
                           Long   id)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -255,19 +258,19 @@ public class ImageContainer {
 
     /**
      * Add multiple tag to the image in OMERO.
-     * 
+     *
      * @param client The user
-     * @param tags   Table of TagAnnotationContainer to add 
-     * 
+     * @param tags   Table of TagAnnotationContainer to add
+     *
      * @return The objects saved in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public Collection<IObject> addTags(Client                    client, 
+    public Collection<IObject> addTags(Client                    client,
                                        TagAnnotationContainer... tags)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -278,26 +281,26 @@ public class ImageContainer {
             IObject r = addTag(client, tag.getTag());
             objects.add(r);
         }
-        
+
         return objects;
     }
 
     /**
      * Add multiple tag to the image in OMERO.
      * The tags id is used
-     * 
+     *
      * @param client The user
      * @param ids    Table of tag id to add
-     * 
+     *
      * @return The objects saved in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public Collection<IObject> addTags(Client  client, 
+    public Collection<IObject> addTags(Client  client,
                                        Long... ids)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -307,23 +310,23 @@ public class ImageContainer {
             IObject r = addTag(client, id);
             objects.add(r);
         }
-        
+
         return objects;
     }
 
     /**
      * Get all tag linked to an image in OMERO
-     * 
+     *
      * @param client The user
-     * 
+     *
      * @return List of TagAnnotationContainer each containing a tag linked to the image
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<TagAnnotationContainer> getTags(Client client)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -341,7 +344,7 @@ public class ImageContainer {
         if(annotations != null) {
             for (AnnotationData annotation : annotations) {
                 TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
-                
+
                 tags.add(new TagAnnotationContainer(tagAnnotation));
             }
         }
@@ -352,17 +355,17 @@ public class ImageContainer {
 
     /**
      * Get the List of NamedValue (Key-Value pair) associated to an image.
-     * 
+     *
      * @param client The user
-     * 
+     *
      * @return Collection of NamedValue
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<NamedValue> getKeyValuePairs(Client client)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -378,7 +381,7 @@ public class ImageContainer {
         List<NamedValue> keyValuePairs = new ArrayList<NamedValue>();
 
         if(annotations != null) {
-            for (AnnotationData annotation : annotations)  {    
+            for (AnnotationData annotation : annotations)  {
                 MapAnnotationData mapAnnotation = (MapAnnotationData) annotation;
 
                 List<NamedValue> list = (List<NamedValue>) mapAnnotation.getContent();
@@ -393,20 +396,20 @@ public class ImageContainer {
 
     /**
      * Get the value from a Key-Value pair associated to the image
-     * 
+     *
      * @param client The user
      * @param key    Key researched
-     * 
+     *
      * @return Value associated to the key
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws NoSuchElementException  Key not found
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public String getValue(Client client, 
+    public String getValue(Client client,
                            String key)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             NoSuchElementException,
@@ -429,16 +432,16 @@ public class ImageContainer {
     /**
      * Add a List of Key-Value pair to the image
      * The list is contained in the MapAnnotationContainer
-     * 
+     *
      * @param client The user
      * @param data   MapAnnotationContainer containing a list of NamedValue
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public void addMapAnnotation(Client                 client, 
+    public void addMapAnnotation(Client                 client,
                                  MapAnnotationContainer data)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -448,19 +451,19 @@ public class ImageContainer {
 
     /**
      * Add a single Key-Value pair to the image.
-     * 
+     *
      * @param client The user
      * @param key    Name of the key
      * @param value  Value associated to the key
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public void addPairKeyValue(Client client, 
+    public void addPairKeyValue(Client client,
                                 String key,
                                 String value)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -480,17 +483,17 @@ public class ImageContainer {
     /**
      * Link a ROI to the image in OMERO
      * !!! DO NOT USE IT IF A SHAPE WAS DELETED !!!
-     *  
+     *
      * @param client The user
      * @param roi    ROI to be added
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public void saveROI(Client       client, 
+    public void saveROI(Client       client,
                         ROIContainer roi)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -501,18 +504,18 @@ public class ImageContainer {
     }
 
     /**
-     * Get all ROIs linked to the image in OMERO 
-     * 
+     * Get all ROIs linked to the image in OMERO
+     *
      * @param client The user
-     * 
+     *
      * @return List of ROIs linked to the image
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<ROIContainer> getROIs(Client client)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -524,14 +527,80 @@ public class ImageContainer {
 
         List<ROIContainer> roiContainers = new ArrayList<ROIContainer>(rois.size());
 
-        for(ROIData roi : rois) 
+        for(ROIData roi : rois)
         {
             ROIContainer temp = new ROIContainer(roi);
-                
+
             roiContainers.add(temp);
         }
 
         return roiContainers;
+    }
+
+    /**
+     * Get the list of Folder linked to the image
+     * Associate the folder to the image
+     *
+     * @param client The user
+     *
+     * @return List of FolderContainer containing the folder
+     *
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     * @throws ExecutionException
+     */
+    public List<FolderContainer> getFolders(Client client)
+        throws
+            DSOutOfServiceException,
+            DSAccessException,
+            ExecutionException
+    {
+        ROIFacility roifac = client.getRoiFacility();
+
+        Collection<FolderData> folders = roifac.getROIFolders(client.getCtx(), this.image.getId());
+
+        List<FolderContainer> roiFolders = new ArrayList<FolderContainer>(folders.size());
+
+        for (FolderData folder : folders) {
+            FolderContainer roiFolder = new FolderContainer(folder);
+            roiFolder.setImage(this.image.getId());
+
+            roiFolders.add(roiFolder);
+        }
+
+        return roiFolders;
+    }
+
+    /**
+     * Get the folder with the specified id on OMERO.
+     *
+     * @param client   The user
+     * @param folderId Id of the folder
+     *
+     * @return The folder if it exist
+     *
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     * @throws ExecutionException
+     * @throws ServerError
+     */
+    public FolderContainer getFolder(Client client, Long folderId)
+        throws
+            DSOutOfServiceException,
+            DSAccessException,
+            ExecutionException,
+            ServerError
+    {
+        List<IObject> os = client.getQueryService().findAllByQuery("select f " +
+                                                                   "from Folder as f " +
+                                                                   "where f.id = " +
+                                                                   folderId, null);
+
+        FolderContainer folderContainer = new FolderContainer((Folder)os.get(0));
+
+        folderContainer.setImage(this.image.getId());
+
+        return folderContainer;
     }
 
 
@@ -539,7 +608,7 @@ public class ImageContainer {
 
     /**
      * Get the PixelContainer of the image
-     * 
+     *
      * @return Contains the PixelsData associated with the image
      */
     public PixelContainer getPixels()
@@ -553,11 +622,11 @@ public class ImageContainer {
     /**
      * Generate the ImagePlus from the ij library corresponding to the image from OMERO
      * WARNING : you need to include the ij library to use this function
-     * 
+     *
      * @param client The user
-     * 
+     *
      * @return ImagePlus generated from the current image
-     * 
+     *
      * @throws DataSourceException
      * @throws ExecutionException
      */
@@ -573,17 +642,17 @@ public class ImageContainer {
 
     /**
      * Return the imagePlus generated from the image from OMERO corresponding to the bound
-     * 
+     *
      * @param client The user
-     * @param xBound Array containing the X bound from which the pixels should be retrieved 
-     * @param yBound Array containing the Y bound from which the pixels should be retrieved 
-     * @param cBound Array containing the C bound from which the pixels should be retrieved 
-     * @param zBound Array containing the Z bound from which the pixels should be retrieved 
-     * @param tBound Array containing the T bound from which the pixels should be retrieved 
-     *  
+     * @param xBound Array containing the X bound from which the pixels should be retrieved
+     * @param yBound Array containing the Y bound from which the pixels should be retrieved
+     * @param cBound Array containing the C bound from which the pixels should be retrieved
+     * @param zBound Array containing the Z bound from which the pixels should be retrieved
+     * @param tBound Array containing the T bound from which the pixels should be retrieved
+     *
      * @return an ImagePlus from the ij library
-     * 
-     * @throws DataSourceException 
+     *
+     * @throws DataSourceException
      * @throws ExecutionException  A Facility can't be retrieved or instancied
      */
     public ImagePlus toImagePlus(Client client,
@@ -660,10 +729,10 @@ public class ImageContainer {
         int pixels_type = FormatTools.pixelTypeFromString(pixtype);
         int bpp = FormatTools.getBytesPerPixel(pixels_type);
 
-        ImagePlus imp = IJ.createHyperStack("tmp", sizeX, sizeY, sizeC, sizeZ, sizeT, bpp*8);
+        ImagePlus imp = IJ.createHyperStack(image.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp*8);
 
-        Calibration cal   = imp.getCalibration();
-        
+        Calibration cal = imp.getCalibration();
+
         if (spacingX != null) {
             cal.setXUnit(spacingX.getUnit().name());
             cal.pixelWidth  = spacingX.getValue();
@@ -687,11 +756,11 @@ public class ImageContainer {
         double min = imp.getProcessor().getMin();
         double max = 0;
 
-        for(int t = 0; t < sizeT; t++) {
+        for(int t = tStart; t < tEnd; t++) {
             int tBoundTemp[] = {t, t};
-            for(int z = 0; z < sizeZ; z++) {
+            for(int z = zStart; z < zEnd; z++) {
                 int zBoundTemp[] = {z, z};
-                for(int c = 0; c < sizeC; c++) {
+                for(int c = cStart; c < cEnd; c++) {
                     int cBoundTemp[] = {c, c};
                     int n = imp.getStackIndex(c+1, z+1, t+1);
 
@@ -719,54 +788,52 @@ public class ImageContainer {
     }
 
 
-
-
     /**
-     * Return the name of the channel 
-     * 
+     * Return the name of the channel
+     *
      * @param client The user
      * @param index  Channel number
-     * 
+     *
      * @return name of the channel
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public String getChannelName(Client client, 
-                                 int index) 
-        throws 
+    public String getChannelName(Client client,
+                                 int index)
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
     {
         List<ChannelData> channels = client.getMetadata().getChannelData(client.getCtx(), this.image.getId());
-        
+
         return channels.get(index).getChannelLabeling();
     }
 
 
 
-    
+
 
     /**
      * Link a file to the Dataset
-     * 
+     *
      * @param client The user
      * @param file   File to add
-     * 
+     *
      * @return File created in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
-     * @throws ServerError              
+     * @throws ServerError
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public IObject addFile(Client client, 
-                        File file) 
-        throws 
+    public IObject addFile(Client client,
+                        File file)
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException,
@@ -815,21 +882,21 @@ public class ImageContainer {
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(originalFile);
         fa.setDescription(omero.rtypes.rstring(""));
-        fa.setNs(omero.rtypes.rstring(file.getName())); 
+        fa.setNs(omero.rtypes.rstring(file.getName()));
 
         fa = (FileAnnotation) client.getDm().saveAndReturnObject(client.getCtx(), fa);
 
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(fa);
         link.setParent(image.asImage());
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);                      
+        return client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
 
     /**
      * Constructor of the class ImageContainer
-     * 
+     *
      * @param image The image contained in the ImageContainer
      */
     public ImageContainer(ImageData image)

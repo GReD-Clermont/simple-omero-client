@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -25,6 +25,7 @@ import omero.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
+import omero.model.Roi;
 
 /**
  * Class containing a ROIData
@@ -36,8 +37,8 @@ public class ROIContainer {
 
     /**
      * Return the ROIData id.
-     * 
-     * @return id 
+     *
+     * @return id
      */
     public Long getId()
     {
@@ -51,7 +52,7 @@ public class ROIContainer {
 
     /**
      * Add a list of ShapeData to the ROIData
-     * 
+     *
      * @param shapes List of ShapeData
      */
     public void addShapes(List<ShapeData> shapes)
@@ -62,7 +63,7 @@ public class ROIContainer {
 
     /**
      * Add a ShapeData to the ROIData
-     * 
+     *
      * @param shape ShapeData to add
      */
     public void addShape(ShapeData shape)
@@ -72,7 +73,7 @@ public class ROIContainer {
 
     /**
      * Return the list of shape contained in the ROIData
-     * 
+     *
      * @return List of ShapeData
      */
     public List<ShapeData> getShapes()
@@ -82,11 +83,11 @@ public class ROIContainer {
 
     /**
      * Set the image linked to the ROI.
-     * 
+     *
      * @param client The user
      * @param image  Image linked to the ROIData
      */
-    public void setImage(Client         client, 
+    public void setImage(Client         client,
                          ImageContainer image)
     {
         data.setImage(image.getImage().asImage());
@@ -94,8 +95,8 @@ public class ROIContainer {
 
     /**
      * Return the ROIData contained.
-     * 
-     * @return 
+     *
+     * @return
      */
     public ROIData getROI()
     {
@@ -104,7 +105,7 @@ public class ROIContainer {
 
     /**
      * Delete a ShapeData from the ROIData.
-     * 
+     *
      * @param shape ShapeData to delete
      */
     public void deleteShape(ShapeData shape)
@@ -114,10 +115,10 @@ public class ROIContainer {
 
     /**
      * Delete a ShapeData from the ROIData.
-     * 
+     *
      * @param pos Position of the ShapeData in the ShapeData list from the ROIData
-     * 
-     * @throws IndexOutOfBoundsException 
+     *
+     * @throws IndexOutOfBoundsException
      */
     public void deleteShape(int pos)
         throws
@@ -126,12 +127,14 @@ public class ROIContainer {
         data.removeShapeData(data.getShapes().get(pos));
     }
 
-    public void updateROI(Client client) 
-        throws 
+    public void saveROI(Client client)
+        throws
             ServerError,
             DSOutOfServiceException
     {
-        client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
+        Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
+
+        data = new ROIData(roi);
     }
 
     /**
@@ -144,7 +147,7 @@ public class ROIContainer {
 
     /**
      * Constructor of the ROIContainer class.
-     * 
+     *
      * @param shapes List of shapes to add to the ROIData
      */
     public ROIContainer(List<ShapeData> shapes)
@@ -157,7 +160,7 @@ public class ROIContainer {
 
     /**
      * Constructor of the ROIContainer class.
-     * 
+     *
      * @param data ROIData to be contained
      */
     public ROIContainer(ROIData data)

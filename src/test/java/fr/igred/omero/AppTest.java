@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -18,12 +18,10 @@
 package fr.igred.omero;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.TableContainer;
@@ -42,8 +40,7 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ShapeData;
 import omero.model.NamedValue;
-
-public class AppTest 
+public class AppTest
     extends TestCase
 {
     /**
@@ -63,7 +60,7 @@ public class AppTest
     {
         return new TestSuite( AppTest.class );
     }
-    
+
     public void testConnection()
         throws Exception
     {
@@ -71,6 +68,8 @@ public class AppTest
         root.connect("omero", 4064, "root", "omero", 3L);
 
         assert(0L == root.getId());
+
+        root.disconnect();
     }
 
     public void testConnection2()
@@ -134,7 +133,7 @@ public class AppTest
             assert(true);
         }
     }
-    
+
     public void testConnectionErrorGroupNotExist()
         throws Exception
     {
@@ -143,7 +142,7 @@ public class AppTest
 
         assert(root.getGroupId() == 3L);
     }
-    
+
     public void testConnectionErrorNotInGroup()
         throws Exception
     {
@@ -160,7 +159,7 @@ public class AppTest
 
         assertEquals("TestProject", root.getProject(2L).getName());
     }
-    
+
     public void testGetSingleProjectError()
         throws Exception
     {
@@ -174,7 +173,7 @@ public class AppTest
             assert(true);
         }
     }
-    
+
     public void testGetAllProjects()
         throws Exception
     {
@@ -194,7 +193,7 @@ public class AppTest
 
         Collection<ProjectContainer> projects = root.getProjects("TestProject");
 
-	assert(projects.size() == 2);
+        assert(projects.size() == 2);
 
         for(ProjectContainer project : projects)
         {
@@ -203,7 +202,7 @@ public class AppTest
     }
 
     public void testDeleteProject()
-	throws Exception
+        throws Exception
     {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 0L);
@@ -248,7 +247,7 @@ public class AppTest
 
         Collection<DatasetContainer> datasets = root.getDatasets("TestDataset");
 
-	assert(datasets.size() == 2);
+        assert(datasets.size() == 2);
 
         for(DatasetContainer dataset : datasets)
         {
@@ -256,13 +255,13 @@ public class AppTest
         }
     }
 
-    
+
     public void testGetImages()
         throws Exception
     {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
-        
+
         List<ImageContainer> images = root.getImages();
 
         assert(images.size() == 4);
@@ -374,7 +373,7 @@ public class AppTest
                 imagesCond.add(image);
             }
         }
-	
+
         assert(imagesCond.size() == 1);
     }
 
@@ -383,7 +382,7 @@ public class AppTest
     {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
-        
+
         Client test = root.SudoGetUser("testUser");
 
         TagAnnotationContainer tag = new TagAnnotationContainer(test, "Tag", "This is a tag");
@@ -428,7 +427,7 @@ public class AppTest
         ProjectContainer project = root.getProject(2L);
 
         List<DatasetContainer> datasets = project.getDatasets();
-        
+
         assert(datasets.size() == 2);
     }
 
@@ -441,7 +440,7 @@ public class AppTest
         ProjectContainer project = root.getProject(2L);
 
         List<DatasetContainer> datasets = project.getDatasets("TestDataset");
-        
+
         assert(datasets.size() == 1);
     }
 
@@ -454,7 +453,7 @@ public class AppTest
         ProjectContainer project = root.getProject(2L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        
+
         project.addTag(root, tag);
 
         List<TagAnnotationContainer> tags = project.getTags(root);
@@ -467,15 +466,15 @@ public class AppTest
 
         assert(tags.size() == 0);
     }
-    
+
     public void testAddTagToProject2()
         throws Exception
-    {    
+    {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
         ProjectContainer project = root.getProject(2L);
-        
+
         project.addTag(root, "test", "test");
 
         List<TagAnnotationContainer> tags = root.getTags("test");
@@ -496,7 +495,7 @@ public class AppTest
         ProjectContainer project = root.getProject(2L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        
+
         project.addTag(root, tag.getId());
 
         List<TagAnnotationContainer> tags = project.getTags(root);
@@ -522,7 +521,7 @@ public class AppTest
         TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
         TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
         TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        
+
         project.addTags(root, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
         List<TagAnnotationContainer> tags = project.getTags(root);
@@ -551,7 +550,7 @@ public class AppTest
         TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
         TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
         TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        
+
         project.addTags(root, tag1, tag2, tag3, tag4);
 
         List<TagAnnotationContainer> tags = project.getTags(root);
@@ -581,7 +580,7 @@ public class AppTest
         assert(images.size() == 3);
     }
 
-    
+
     public void testGetImagesByNameInProject()
         throws Exception
     {
@@ -657,7 +656,7 @@ public class AppTest
         ProjectContainer project = root.getProject(2L);
 
         List<ImageContainer> images = project.getImagesPairKeyValue(root, "testKey1", "testValue1");
-        
+
         assert(images.size() == 2);
     }
 
@@ -674,7 +673,7 @@ public class AppTest
         Long id = project.addDataset(root, name, "Dataset which will ne deleted").getId();
 
         DatasetContainer dataset = root.getDataset(id);
-        
+
         assertEquals(dataset.getName(), name);
 
         root.deleteDataset(dataset);
@@ -703,7 +702,7 @@ public class AppTest
         Long id = project.addDataset(root, dataset).getId();
 
         dataset = root.getDataset(id);
-        
+
         assertEquals(dataset.getDescription(), description);
 
         root.deleteDataset(dataset);
@@ -755,7 +754,7 @@ public class AppTest
         DatasetContainer dataset = root.getDataset(1L);
 
         assertEquals("TestDataset", dataset.getName());
-	assertEquals("description", dataset.getDescription()); 
+        assertEquals("description", dataset.getDescription());
         assert(dataset.getId() == 1L);
     }
 
@@ -768,7 +767,7 @@ public class AppTest
         DatasetContainer dataset = root.getDataset(1L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        
+
         dataset.addTag(root, tag);
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
@@ -789,7 +788,7 @@ public class AppTest
         root.connect("omero", 4064, "root", "omero", 3L);
 
         DatasetContainer dataset = root.getDataset(1L);
-        
+
         dataset.addTag(root, "Dataset tag", "tag attached to a dataset");
 
         List<TagAnnotationContainer> tags = root.getTags("Dataset tag");
@@ -810,7 +809,7 @@ public class AppTest
         DatasetContainer dataset = root.getDataset(1L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        
+
         dataset.addTag(root, tag.getId());
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
@@ -836,7 +835,7 @@ public class AppTest
         TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
         TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
         TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        
+
         dataset.addTags(root, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
@@ -865,7 +864,7 @@ public class AppTest
         TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
         TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
         TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        
+
         dataset.addTags(root, tag1, tag2, tag3, tag4);
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
@@ -984,7 +983,7 @@ public class AppTest
 
         List<ImageContainer> images = dataset.getImages(root);
 
-        assertEquals(3, images.size()); 
+        assertEquals(3, images.size());
     }
 
     public void testImportImage()
@@ -1001,13 +1000,13 @@ public class AppTest
 
         DatasetContainer dataset = root.getDataset(2L);
 
-        dataset.importImages(root, 
-			     "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake",
-			     "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
+        dataset.importImages(root,
+                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake",
+                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
 
         List<ImageContainer> images =  dataset.getImages(root);
 
-	    assertEquals(2, images.size());
+        assertEquals(2, images.size());
 
         for(ImageContainer image : images)
         {
@@ -1031,24 +1030,32 @@ public class AppTest
 
         TableContainer table = new TableContainer(2, "TableTest");
 
-	assertEquals(2, table.getColumnCount());
+        assertEquals(2, table.getColumnCount());
 
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
+        assertEquals("Image", table.getColumns()[0].getName());
+        assertEquals("Name", table.getColumns()[1].getName());
 
         table.setRowCount(images.size());
 
+        assertEquals(images.size(), table.getRowCount());
+
         for(ImageContainer image : images)
         {
+            assert(!table.isComplete());
             table.addRow(image.getImage(), image.getName());
         }
+
+        assertEquals(images.get(0).getImage(), table.getData(0, 0));
+        assertEquals(images.get(1).getName(), table.getData(0, 1));
 
         dataset.addTable(root, table);
 
         List<TableContainer> tables = dataset.getTables(root);
 
         assertEquals(1, tables.size());
-        
+
         root.deleteTable(tables.get(0));
 
         tables = dataset.getTables(root);
@@ -1067,6 +1074,10 @@ public class AppTest
         List<ImageContainer> images = dataset.getImages(root);
 
         TableContainer table = new TableContainer(2, "TableTest");
+        table.setName("TableTestNewName");
+
+        assertEquals("TableTestNewName", table.getName());
+
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
 
@@ -1080,7 +1091,26 @@ public class AppTest
         }
         catch(IndexOutOfBoundsException e) {
             assert(true);
-        }    
+        }
+    }
+
+    public void testErrorTableColumn()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        TableContainer table = new TableContainer(2, "TableTest");
+        table.setColumn(0, "Image", ImageData.class);
+        table.setColumn(1, "Name", String.class);
+
+        try {
+            table.setColumn(2, "Id", Long.class);
+            assert(false);
+        }
+        catch(IndexOutOfBoundsException e) {
+            assert(true);
+        }
     }
 
     public void testErrorTableUnitialized()
@@ -1100,12 +1130,12 @@ public class AppTest
         try {
             for(ImageContainer image : images) {
                 table.addRow(image.getImage(), image.getName());
-            }   
+            }
             assert(false);
         }
         catch(IndexOutOfBoundsException e) {
             assert(true);
-        }    
+        }
     }
 
     public void testErrorTableNotEnoughArgs()
@@ -1127,14 +1157,14 @@ public class AppTest
         try {
             for(ImageContainer image : images) {
                 table.addRow(image.getImage());
-            }   
+            }
             assert(false);
         }
         catch(IllegalArgumentException e) {
             assert(true);
-        }    
+        }
     }
-    
+
     public void testPairKeyValue()
         throws Exception
     {
@@ -1162,7 +1192,9 @@ public class AppTest
 
         MapAnnotationContainer mapAnnotation1 = new MapAnnotationContainer(result1);
         MapAnnotationContainer mapAnnotation2 = new MapAnnotationContainer(result2);
-        
+
+        assertEquals(result1, mapAnnotation1.getContent());
+
         image.addMapAnnotation(root, mapAnnotation1);
         image.addMapAnnotation(root, mapAnnotation2);
 
@@ -1173,7 +1205,7 @@ public class AppTest
 
         root.deleteImage(image);
     }
-    
+
     public void testPairKeyValue2()
         throws Exception
     {
@@ -1197,7 +1229,7 @@ public class AppTest
 
         MapAnnotationContainer mapAnnotation = new MapAnnotationContainer();
         mapAnnotation.setContent(root, result);
-        
+
         image.addMapAnnotation(root, mapAnnotation);
 
         List<NamedValue> results = image.getKeyValuePairs(root);
@@ -1207,7 +1239,7 @@ public class AppTest
 
         root.deleteImage(image);
     }
-    
+
     public void testPairKeyValue3()
         throws Exception
     {
@@ -1224,7 +1256,7 @@ public class AppTest
         List<ImageContainer> images =  dataset.getImages(root);
 
         ImageContainer image = images.get(0);
-        
+
         image.addPairKeyValue(root, "Test result1", "Valeur Test");
         image.addPairKeyValue(root, "Test result2", "Valeur Test2");
 
@@ -1250,11 +1282,11 @@ public class AppTest
         root.connect("omero", 4064, "root", "omero", 3L);
 
         ROIContainer roiContainer = new ROIContainer();
-        
+
         ImageContainer image = root.getImage(1L);
 
         roiContainer.setImage(root, image);
-        
+
         for(int i = 0; i < 4; i++)
         {
             RectangleData rectangle = new RectangleData(10, 10, 10, 10);
@@ -1289,11 +1321,11 @@ public class AppTest
     {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
-        
+
         ImageContainer image = root.getImage(1L);
 
         List<ShapeData> shapes = new ArrayList<ShapeData>(4);
-        
+
         for(int i = 0; i < 4; i++)
         {
             RectangleData rectangle = new RectangleData(10, 10, 10, 10);
@@ -1324,32 +1356,32 @@ public class AppTest
 
         assert(rois.size() == 0);
     }
-    
+
     public void testRoiAddShapeAndDeleteIt()
         throws Exception
     {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
-        
+
         ImageContainer image = root.getImage(1L);
 
-	List<ShapeData> shapes = new ArrayList<ShapeData>(4);
-	for(int i = 0; i < 4; i++)
-       	{	
-	    RectangleData rectangle = new RectangleData(10, 10, 10, 10); 
-	    rectangle.setZ(0);
-	    rectangle.setT(0);
-	    rectangle.setC(0);
-	    rectangle.setY(i * 2);
-	    rectangle.setX(i * 2);
+        List<ShapeData> shapes = new ArrayList<ShapeData>(4);
+        for(int i = 0; i < 4; i++)
+       	{
+            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+            rectangle.setY(i * 2);
+            rectangle.setX(i * 2);
 
-	    shapes.add(rectangle);
-	}
+            shapes.add(rectangle);
+        }
 
         ROIContainer roiContainer = new ROIContainer();
         roiContainer.addShapes(shapes);
-	roiContainer.setImage(root, image);
-	image.saveROI(root, roiContainer);
+        roiContainer.setImage(root, image);
+        image.saveROI(root, roiContainer);
 
         List<ROIContainer> rois = image.getROIs(root);
 
@@ -1365,7 +1397,7 @@ public class AppTest
         rectangle.setX(2);
 
         roiContainer.addShape(rectangle);
-        roiContainer.updateROI(root);
+        roiContainer.saveROI(root);
 
         rois = image.getROIs(root);
         roiContainer = rois.get(0);
@@ -1373,7 +1405,7 @@ public class AppTest
         assert(ROInunmber == rois.size());
 
         roiContainer.deleteShape(roiContainer.getShapes().size() - 1);
-        roiContainer.updateROI(root);
+        roiContainer.saveROI(root);
 
         rois = image.getROIs(root);
         roiContainer = rois.get(0);
@@ -1390,9 +1422,10 @@ public class AppTest
         ImageContainer image = root.getImage(1L);
 
         assertEquals("8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake" , image.getName());
+        assertEquals(null, image.getDescription());
         assert(1L == image.getId());
     }
-    
+
     public void testGetImageTag()
         throws Exception
     {
@@ -1446,6 +1479,28 @@ public class AppTest
 
         assertEquals(sizeX, value[0][0][0][0].length);
         assertEquals(sizeY, value[0][0][0].length);
+        assertEquals(sizeC, value[0][0].length);
+        assertEquals(sizeZ, value[0].length);
+        assertEquals(sizeT, value.length);
+    }
+
+    public void testGetRawData2()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        ImageContainer image = root.getImage(1L);
+        PixelContainer pixels = image.getPixels();
+        byte[][][][] value = pixels.getRawPixels(root, 1);
+
+        int sizeX = pixels.getSizeX();
+        int sizeY = pixels.getSizeY();
+        int sizeZ = pixels.getSizeZ();
+        int sizeC = pixels.getSizeC();
+        int sizeT = pixels.getSizeT();
+
+        assertEquals(sizeX * sizeY, value[0][0][0].length);
         assertEquals(sizeC, value[0][0].length);
         assertEquals(sizeZ, value[0].length);
         assertEquals(sizeT, value.length);
@@ -1518,7 +1573,7 @@ public class AppTest
         root.connect("omero", 4064, "root", "omero", 3L);
 
         ImageContainer image = root.getImage(1L);
-        
+
         int xBound[] = {0, 2};
         int yBound[] = {0, 2};
         int cBound[] = {0, 2};
@@ -1543,7 +1598,7 @@ public class AppTest
         root.connect("omero", 4064, "root", "omero", 3L);
 
         ImageContainer image = root.getImage(1L);
-        
+
         ImagePlus imp = image.toImagePlus(root);
 
         int dimensions[] = imp.getDimensions();
@@ -1591,7 +1646,7 @@ public class AppTest
         ImageContainer image = root.getImage(3L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(root, "image tag", "tag attached to an image");
-        
+
         image.addTag(root, tag);
 
         List<TagAnnotationContainer> tags = image.getTags(root);
@@ -1612,7 +1667,7 @@ public class AppTest
         root.connect("omero", 4064, "root", "omero", 3L);
 
         ImageContainer image = root.getImage(3L);
-        
+
         image.addTag(root, "image tag", "tag attached to an image");
 
         List<TagAnnotationContainer> tags = root.getTags("image tag");
@@ -1633,7 +1688,7 @@ public class AppTest
         ImageContainer image = root.getImage(3L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(root, "image tag", "tag attached to an image");
-        
+
         image.addTag(root, tag.getId());
 
         List<TagAnnotationContainer> tags = image.getTags(root);
@@ -1659,7 +1714,7 @@ public class AppTest
         TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
         TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
         TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        
+
         image.addTags(root, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
         List<TagAnnotationContainer> tags = image.getTags(root);
@@ -1688,7 +1743,7 @@ public class AppTest
         TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
         TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
         TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        
+
         image.addTags(root, tag1, tag2, tag3, tag4);
 
         List<TagAnnotationContainer> tags = image.getTags(root);
@@ -1787,5 +1842,186 @@ public class AppTest
         file.delete();
 
         root.deleteFile(id);
+    }
+    public void testFolder1()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        FolderContainer folder = new FolderContainer(root, "Test1");
+        try {
+            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+            rectangle.setY(0);
+            rectangle.setX(0);
+
+            ROIContainer roi = new ROIContainer();
+            roi.addShape(rectangle);
+            roi.saveROI(root);
+
+            folder.addROI(root, roi);
+            assert(false);
+        }
+        catch(Exception e) {
+            assert(true);
+        }
+    }
+
+    public void testFolder2()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        ImageContainer image = root.getImage(3L);
+
+        FolderContainer folder = new FolderContainer(root, "Test");
+        folder.setImage(image);
+
+        for(int i = 0; i < 8; i++) {
+            ROIContainer roi = new ROIContainer();
+
+            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+            rectangle.setY(i * 2);
+            rectangle.setX(i * 2);
+
+            roi.addShape(rectangle);
+            roi.saveROI(root);
+
+            folder.addROI(root, roi);
+        }
+
+        folder = image.getFolder(root, folder.getId());
+        List<ROIContainer> rois = folder.getROIs(root);
+        assertEquals(8, rois.size());
+        assertEquals("Test", folder.getName());
+        assertEquals(8, image.getROIs(root).size());
+
+        for(ROIContainer roi : rois) {
+            root.deleteROI(roi);
+        }
+
+        rois = folder.getROIs(root);
+        assertEquals(0, rois.size());
+        assertEquals(0, image.getROIs(root).size());
+
+        root.deleteFolder(folder);
+
+        try {
+            image.getFolder(root, folder.getId());
+            assert(false);
+        }catch (Exception e) {
+            assert(true);
+        }
+    }
+
+    public void testFolder3()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        FolderContainer folder = new FolderContainer(root, "Test");
+        folder.setImage(3L);
+
+        for(int i = 0; i < 8; i++) {
+            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+            rectangle.setY(i * 2);
+            rectangle.setX(i * 2);
+
+            ROIContainer roi = new ROIContainer();
+            roi.addShape(rectangle);
+            roi.saveROI(root);
+
+            folder.addROI(root, roi);
+        }
+
+        List<ROIContainer> rois = folder.getROIs(root);
+        assertEquals(8, rois.size());
+
+        folder.unlinkROI(root, rois.get(0));
+        root.deleteROI(rois.get(0));
+        rois = folder.getROIs(root);
+        assertEquals(7, rois.size());
+
+        root.deleteFolder(folder);
+
+        for(ROIContainer roi : rois) {
+            root.deleteROI(roi);
+        }
+    }
+
+    public void testFolder4()
+        throws Exception
+    {
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        ImageContainer image = root.getImage(3L);
+
+        FolderContainer folder = new FolderContainer(root, "Test1");
+        folder.setImage(image);
+
+        for(int i = 0; i < 8; i++) {
+            ROIContainer roi = new ROIContainer();
+
+            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+            rectangle.setY(i * 2);
+            rectangle.setX(i * 2);
+
+            roi.addShape(rectangle);
+            roi.saveROI(root);
+
+            folder.addROI(root, roi);
+        }
+
+        folder = new FolderContainer(root, "Test2");
+        folder.setImage(image);
+
+        for(int i = 0; i < 8; i++) {
+            ROIContainer roi = new ROIContainer();
+
+            RectangleData rectangle = new RectangleData(5, 5, 5, 5);
+            rectangle.setZ(i);
+            rectangle.setT(0);
+            rectangle.setC(0);
+            rectangle.setY(i * 2);
+            rectangle.setX(i * 2);
+
+            roi.addShape(rectangle);
+            roi.saveROI(root);
+
+            folder.addROI(root, roi);
+        }
+
+        List<FolderContainer> folders = image.getFolders(root);
+        assertEquals(2, folders.size());
+        assertEquals(16, image.getROIs(root).size());
+
+        for(FolderContainer RoiFolder : folders) {
+            root.deleteFolder(RoiFolder);
+        }
+
+        folders = image.getFolders(root);
+        assertEquals(0, folders.size());
+        assertEquals(16, image.getROIs(root).size());
+
+        List<ROIContainer> rois = image.getROIs(root);
+        for(ROIContainer roi : rois) {
+            root.deleteROI(roi);
+        }
+        assertEquals(0, image.getROIs(root).size());
     }
 }

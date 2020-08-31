@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -28,18 +28,18 @@ public class SortTagAnnotationContainer implements Comparator<TagAnnotationConta
     /**
      * Compare 2 tagAnnotationContainer.
      * Compare the id of the tagAnnotationContainer.
-     * 
+     *
      * @param tag1 First tag to compare
      * @param tag2 Second tag to compare
-     * 
-     * @return 
+     *
+     * @return
      *      -1 if the id of tag1 is lower than the id tag2.
      *      0  if the ids are the same.
      *      1  if the id of tag1 is greater than the id of tag2.
      */
-    public int compare(TagAnnotationContainer tag1, 
+    public int compare(TagAnnotationContainer tag1,
                        TagAnnotationContainer tag2)
     {
         return Long.compare(tag1.getId(), tag2.getId());
-    } 
+    }
 }

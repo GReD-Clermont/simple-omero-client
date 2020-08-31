@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -22,7 +22,7 @@ import omero.gateway.model.TableDataColumn;
 
 /**
  * Class containing the information to create a Table in OMERO
- * The TableData itself is not contained, only the elements to create it, because once created the TableData cannot be altered 
+ * The TableData itself is not contained, only the elements to create it, because once created the TableData cannot be altered
  * To get the TableData corresponding to the elements contained use createTable
  */
 public class TableContainer {
@@ -49,33 +49,33 @@ public class TableContainer {
 
     /**
      * Return the TableDataColumn which contains informations on each column of the table
-     * 
+     *
      * @return table columns information
      */
-    public TableDataColumn[] getColumn() 
+    public TableDataColumn[] getColumns()
     {
         return columns.clone();
     }
 
     /**
      * Return the value contained in the table
-     * 
+     *
      * @return data
      */
-    public Object[][] getData() 
+    public Object[][] getData()
     {
         return data.clone();
     }
 
     /**
      * Return a certain value of the table
-     * 
+     *
      * @param x row position
      * @param y column position
-     * 
+     *
      * @return the value at position data[y][x]
      */
-    public Object getData(int x, 
+    public Object getData(int x,
                           int y)
     {
         return data[y][x];
@@ -83,7 +83,7 @@ public class TableContainer {
 
     /**
      * Set the fileId of the table.
-     * 
+     *
      * @param fileId New fileId
      */
     public void setFileId(Long fileId)
@@ -101,7 +101,7 @@ public class TableContainer {
 
     /**
      * Set the id of the table.
-     * 
+     *
      * @param id New id
      */
     public void setId(
@@ -120,7 +120,7 @@ public class TableContainer {
 
     /**
      * Set the name of the table.
-     * 
+     *
      * @param name New name
      */
     public void setName(String name)
@@ -153,9 +153,9 @@ public class TableContainer {
 
     /**
      * Return if the table is complete
-     * 
-     * @return true  if the table is completed. 
-     *         false if some row are still empty 
+     *
+     * @return true  if the table is completed.
+     *         false if some row are still empty
      */
     public boolean isComplete()
     {
@@ -164,18 +164,18 @@ public class TableContainer {
 
     /**
      * Set the information about a certain column.
-     * 
+     *
      * @param column Column number
      * @param name   Name of the column
      * @param type   Type of the column
-     * 
+     *
      * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table
      */
-    public void setColumn(int column, 
+    public void setColumn(int column,
                           String name,
-                          Class<?> type) 
-        throws 
-            IndexOutOfBoundsException 
+                          Class<?> type)
+        throws
+            IndexOutOfBoundsException
     {
         if (column < columnCount)
             columns[column] = new TableDataColumn(name, column, type);
@@ -186,10 +186,10 @@ public class TableContainer {
     /**
      * Set the number of row in the table.
      * Copy already existing data if some were already in the data
-     * 
-     * @param rowCount New rowCount 
+     *
+     * @param rowCount New rowCount
      */
-    public void setRowCount(int rowCount) 
+    public void setRowCount(int rowCount)
     {
         Object[][] temp = new Object[columnCount][rowCount];
 
@@ -206,16 +206,16 @@ public class TableContainer {
 
     /**
      * Add a row to the table.
-     * 
+     *
      * @param os Value for each column for the row
-     * 
+     *
      * @throws IndexOutOfBoundsException Table is not initialized or already full
      * @throws IllegalArgumentException  Incorrect argument number
      */
-    public void addRow(Object... os) 
-        throws 
-            IndexOutOfBoundsException, 
-            IllegalArgumentException 
+    public void addRow(Object... os)
+        throws
+            IndexOutOfBoundsException,
+            IllegalArgumentException
     {
         if (row < rowCount && os.length == columnCount) {
             for (int i = 0; i < os.length; i++) {
@@ -253,7 +253,7 @@ public class TableContainer {
 
     /**
      * Contructor of the class TableContainer
-     * 
+     *
      * @param columnCount Number of column in the table
      * @param name        Name of the table
      */
@@ -273,8 +273,8 @@ public class TableContainer {
     /**
      * Constructor of the class TableContainer.
      * Use a already existing table to create.
-     * 
-     * @param table 
+     *
+     * @param table
      */
     public TableContainer(TableData table)
     {

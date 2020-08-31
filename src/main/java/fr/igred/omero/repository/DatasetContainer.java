@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -75,7 +75,7 @@ import omero.model.TagAnnotationI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 
 /**
- * Class containing a DatasetData 
+ * Class containing a DatasetData.
  * Implements function using the DatasetData contained
  */
 public class DatasetContainer {
@@ -85,7 +85,7 @@ public class DatasetContainer {
 
     /**
      * Get the DatasetData id
-     * 
+     *
      * @return DatasetData id
      */
     public Long getId()
@@ -95,7 +95,7 @@ public class DatasetContainer {
 
     /**
      * Get the DatasetData name
-     * 
+     *
      * @return DatasetData name
      */
     public String getName()
@@ -105,7 +105,7 @@ public class DatasetContainer {
 
     /**
      * Get the DatasetData description
-     * 
+     *
      * @return DatasetData description
      */
     public String getDescription()
@@ -128,21 +128,21 @@ public class DatasetContainer {
     /**
      * Add a tag to the dataset in OMERO.
      * Create the tag.
-     * 
+     *
      * @param client      The user
      * @param name        Tag Name
      * @param description Tag description
-     * 
-     * @return The object saved in OMERO. 
-     * 
+     *
+     * @return The object saved in OMERO.
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public IObject addTag(Client client, 
-                          String name, 
+    public IObject addTag(Client client,
+                          String name,
                           String description)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -157,19 +157,19 @@ public class DatasetContainer {
 
     /**
      * Add a tag to the dataset in OMERO.
-     * 
+     *
      * @param client The user
-     * @param tag    Tag to be added 
-     * 
-     * @return The object saved in OMERO. 
-     * 
+     * @param tag    Tag to be added
+     *
+     * @return The object saved in OMERO.
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public IObject addTag(Client                  client, 
+    public IObject addTag(Client                  client,
                           TagAnnotationContainer  tag)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -182,19 +182,19 @@ public class DatasetContainer {
     /**
      * Private function.
      * Add a tag to the dataset in OMERO.
-     * 
+     *
      * @param client  The user
      * @param tagData Tag to be added
-     * 
-     * @return The object saved in OMERO. 
-     * 
+     *
+     * @return The object saved in OMERO.
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    private IObject addTag(Client              client, 
+    private IObject addTag(Client              client,
                            TagAnnotationData   tagData)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -209,19 +209,19 @@ public class DatasetContainer {
 
     /**
      * Add multiple tag to the dataset in OMERO.
-     * 
+     *
      * @param client The user
-     * @param id     Id in OMERO of tag to add 
-     * 
+     * @param id     Id in OMERO of tag to add
+     *
      * @return The objects saved in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public IObject addTag(Client client, 
+    public IObject addTag(Client client,
                           Long   id)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -236,19 +236,19 @@ public class DatasetContainer {
 
     /**
      * Add multiple tag to the dataset in OMERO.
-     * 
+     *
      * @param client The user
-     * @param tags   Array of TagAnnotationContainer to add 
-     * 
+     * @param tags   Array of TagAnnotationContainer to add
+     *
      * @return The objects saved in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public Collection<IObject> addTags(Client                    client, 
+    public Collection<IObject> addTags(Client                    client,
                                        TagAnnotationContainer... tags)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -258,26 +258,26 @@ public class DatasetContainer {
             IObject r = addTag(client, tag.getTag());
             objects.add(r);
         }
-        
+
         return objects;
     }
 
     /**
      * Add multiple tag to the dataset in OMERO.
      * The tags id is used
-     * 
+     *
      * @param client The user
      * @param ids    Array of tag Id in OMERO to add
-     * 
+     *
      * @return The objects saved in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public Collection<IObject> addTags(Client  client, 
+    public Collection<IObject> addTags(Client  client,
                                        Long... ids)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -287,41 +287,38 @@ public class DatasetContainer {
             IObject r = addTag(client, id);
             objects.add(r);
         }
-        
+
         return objects;
     }
 
     /**
      * Get all tag linked to a dataset in OMERO
-     * 
+     *
      * @param client The user
-     * 
+     *
      * @return Collection of TagAnnotationContainer each containing a tag linked to the dataset
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<TagAnnotationContainer> getTags(Client client)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
     {
-        List<Long> userIds = new ArrayList<Long>();
-        userIds.add(client.getId());
-
         List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>();
         types.add(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = client.getMetadata().getAnnotations(client.getCtx(), dataset, types, userIds);
+        List<AnnotationData> annotations = client.getMetadata().getAnnotations(client.getCtx(), dataset, types, null);
 
         List<TagAnnotationContainer> tags = new ArrayList<TagAnnotationContainer>();
 
         if(annotations != null) {
             for (AnnotationData annotation : annotations) {
                 TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
-                
+
                 tags.add(new TagAnnotationContainer(tagAnnotation));
             }
         }
@@ -336,9 +333,9 @@ public class DatasetContainer {
 
     /**
      * Transform a collection of ImageData in a list of ImageContainer sorted by the ImageData id.
-     * 
-     * @param images ImageData Collection 
-     * 
+     *
+     * @param images ImageData Collection
+     *
      * @return ImageContainer list sorted
      */
     private List<ImageContainer> toImagesContainer(Collection<ImageData> images)
@@ -355,16 +352,16 @@ public class DatasetContainer {
 
     /**
      * Get all images in the dataset available from OMERO.
-     * 
+     *
      * @param client The user
-     * 
+     *
      * @return ImageContainer list
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      */
     public List<ImageContainer> getImages(Client client)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException
     {
@@ -375,18 +372,18 @@ public class DatasetContainer {
 
     /**
      * Get all images in the dataset with a certain from OMERO.
-     * 
+     *
      * @param client The user
      * @param name   Name searched
-     * 
+     *
      * @return ImageContainer list
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      */
-    public List<ImageContainer> getImages(Client client, 
+    public List<ImageContainer> getImages(Client client,
                                           String name)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException
     {
@@ -403,18 +400,18 @@ public class DatasetContainer {
 
     /**
      * Get all images in the dataset with a certain motif in their name from OMERO.
-     * 
+     *
      * @param client The user
      * @param motif  Motif searched in an Image name
-     * 
+     *
      * @return ImageContainer list
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      */
-    public List<ImageContainer> getImagesLike(Client client, 
+    public List<ImageContainer> getImagesLike(Client client,
                                               String motif)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException
     {
@@ -434,29 +431,29 @@ public class DatasetContainer {
 
     /**
      * Get all images in the dataset tagged with a specified tag from OMERO.
-     * 
+     *
      * @param client The user
      * @param tag    TagAnnotationContainer containing the tag researched
-     * 
+     *
      * @return ImageContainer list
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public List<ImageContainer> getImagesTagged(Client                 client, 
+    public List<ImageContainer> getImagesTagged(Client                 client,
                                                 TagAnnotationContainer tag)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException,
             ServerError
     {
         List<IObject> os = client.getQueryService().findAllByQuery("select link.parent " +
-                                                                   "from ImageAnnotationLink link " + 
-                                                                   "where link.child = " + 
-                                                                   tag.getId() + 
-                                                                   " and link.parent in (select link2.child from DatasetImageLink link2 where link2.parent = " + 
+                                                                   "from ImageAnnotationLink link " +
+                                                                   "where link.child = " +
+                                                                   tag.getId() +
+                                                                   " and link.parent in (select link2.child from DatasetImageLink link2 where link2.parent = " +
                                                                    dataset.getId() + ")", null);
 
         Collection<ImageData> selected = new ArrayList<ImageData>();
@@ -471,29 +468,29 @@ public class DatasetContainer {
 
     /**
      * Get all images in the dataset tagged with a specified tag from OMERO.
-     * 
+     *
      * @param client The user
      * @param tagId  Id of the tag researched
-     * 
+     *
      * @return ImageContainer list
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public List<ImageContainer> getImagesTagged(Client client, 
+    public List<ImageContainer> getImagesTagged(Client client,
                                                 Long   tagId)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException,
             ServerError
     {
         List<IObject> os = client.getQueryService().findAllByQuery("select link.parent " +
-                                                                   "from ImageAnnotationLink link " + 
-                                                                   "where link.child = " + 
-                                                                   tagId + 
-                                                                   " and link.parent in (select link2.child from DatasetImageLink link2 where link2.parent = " + 
+                                                                   "from ImageAnnotationLink link " +
+                                                                   "where link.child = " +
+                                                                   tagId +
+                                                                   " and link.parent in (select link2.child from DatasetImageLink link2 where link2.parent = " +
                                                                    dataset.getId() + ")", null);
 
         Collection<ImageData> selected = new ArrayList<ImageData>();
@@ -508,19 +505,19 @@ public class DatasetContainer {
 
     /**
      * Get all images in the dataset with a certain key
-     * 
+     *
      * @param client The user
      * @param key    Name of the key researched
-     * 
+     *
      * @return ImageContainer list
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public List<ImageContainer> getImagesKey(Client client, 
+    public List<ImageContainer> getImagesKey(Client client,
                                              String key)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -530,7 +527,7 @@ public class DatasetContainer {
 
         for(ImageData image : images) {
             ImageContainer imageContainer = new ImageContainer(image);
-            
+
             Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(client);
 
             for(NamedValue pairKeyValue : pairsKeyValue) {
@@ -546,21 +543,21 @@ public class DatasetContainer {
 
     /**
      * Get all images in the dataset with a certain key value pair from OMERO
-     * 
+     *
      * @param client The user
      * @param key    Name of the key researched
      * @param value  Value associated with the key
-     * 
+     *
      * @return ImageContainer list
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public List<ImageContainer> getImagesPairKeyValue(Client client, 
-                                                      String key, 
+    public List<ImageContainer> getImagesPairKeyValue(Client client,
+                                                      String key,
                                                       String value)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -570,7 +567,7 @@ public class DatasetContainer {
 
         for(ImageData image : images) {
             ImageContainer imageContainer = new ImageContainer(image);
-            
+
             Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(client);
 
             for(NamedValue pairKeyValue : pairsKeyValue) {
@@ -589,19 +586,19 @@ public class DatasetContainer {
 
     /**
      * Add a list of image to the dataset in OMERO.
-     * 
+     *
      * @param client The user
      * @param images Image to add to the dataset
-     * 
+     *
      * @return The objects saved in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public Collection<IObject> addImages(Client               client, 
+    public Collection<IObject> addImages(Client               client,
                                          List<ImageContainer> images)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -617,19 +614,19 @@ public class DatasetContainer {
 
     /**
      * Add a single image to the dataset in OMERO
-     * 
+     *
      * @param client The user
      * @param image  Image to add
-     * 
+     *
      * @return The object saved in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public IObject addImage(Client         client, 
+    public IObject addImage(Client         client,
                             ImageContainer image)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -645,16 +642,16 @@ public class DatasetContainer {
 
     /**
      * Import all images candidates in the paths to the dataset in OMERO.
-     * 
+     *
      * @param client The user
      * @param paths  Paths to the image on your computer
-     * 
+     *
      * @throws Exception   OMEROMetadataStorClient creation failed
      * @throws ServerError Server connexion error
      */
-    public void importImages(Client    client, 
-                             String... paths) 
-        throws 
+    public void importImages(Client    client,
+                             String... paths)
+        throws
             ServerError,
             Exception
     {
@@ -679,22 +676,22 @@ public class DatasetContainer {
 
     /**
      * Link a file to the Dataset
-     * 
+     *
      * @param client The user
      * @param file   File to add
-     * 
+     *
      * @return File created in OMERO
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
-     * @throws ServerError              
+     * @throws ServerError
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public IObject addFile(Client client, 
-                        File file) 
-        throws 
+    public IObject addFile(Client client,
+                        File file)
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException,
@@ -743,14 +740,14 @@ public class DatasetContainer {
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(originalFile);
         fa.setDescription(omero.rtypes.rstring(""));
-        fa.setNs(omero.rtypes.rstring(file.getName())); 
+        fa.setNs(omero.rtypes.rstring(file.getName()));
 
         fa = (FileAnnotation) client.getDm().saveAndReturnObject(client.getCtx(), fa);
 
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(fa);
         link.setParent(dataset.asDataset());
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);                      
+        return client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
@@ -758,17 +755,17 @@ public class DatasetContainer {
 
     /**
      * Add a table to the dataset in OMERO
-     * 
+     *
      * @param client The user
      * @param table  Table to add to the dataset
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public void addTable(Client client, 
+    public void addTable(Client client,
                          TableContainer table)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -780,19 +777,19 @@ public class DatasetContainer {
 
     /**
      * Get a certain table linked to the dataset in OMERO
-     * 
+     *
      * @param client The user.
      * @param fileId FileId of the table researched
-     * 
+     *
      * @return TableContainer containing the table informations
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
-    public TableContainer getTable(Client client, 
+    public TableContainer getTable(Client client,
                                    Long   fileId)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -804,17 +801,17 @@ public class DatasetContainer {
 
     /**
      * Get all table linked to the dataset in OMERO.
-     * 
+     *
      * @param client The user
-     * 
+     *
      * @return List of TableContainer containing the tables informations
-     * 
+     *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
      * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<TableContainer> getTables(Client client)
-        throws 
+        throws
             DSOutOfServiceException,
             DSAccessException,
             ExecutionException
@@ -835,11 +832,11 @@ public class DatasetContainer {
 
     /**
      * Constructor of the DatasetContainer class
-     * 
+     *
      * @param name        name of the dataset
      * @param description description of the dataset
      */
-    public DatasetContainer(String name, 
+    public DatasetContainer(String name,
                             String description)
     {
         this.dataset = new DatasetData();
@@ -849,7 +846,7 @@ public class DatasetContainer {
 
     /**
      * Constructor of the DatasetContainer class
-     * 
+     *
      * @param dataset Dataset to be contained
      */
     public DatasetContainer(DatasetData dataset)

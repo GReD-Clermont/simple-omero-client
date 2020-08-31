@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 GReD
- *  
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
@@ -34,7 +34,7 @@ public class MapAnnotationContainer {
 
     /**
      * Get the List of NamedValue contained in the MapAnnotationData.
-     * 
+     *
      * @return MapAnnotationData content
      */
     public List<NamedValue> getContent()
@@ -44,8 +44,8 @@ public class MapAnnotationContainer {
 
     /**
      * Return the MapAnnotationData contained.
-     * 
-     * @return 
+     *
+     * @return
      */
     public MapAnnotationData getMapAnnotation()
     {
@@ -58,7 +58,7 @@ public class MapAnnotationContainer {
 
     /**
      * Set the content of the MapAnnotationData.
-     * 
+     *
      * @param client The user
      * @param result List of NamedValue(Key-Value pair)
      */
@@ -71,7 +71,7 @@ public class MapAnnotationContainer {
 
     /**
      * Constructor of the MapAnnotationContainer class.
-     * 
+     *
      * @param data MapAnnotationData to be contained
      */
     public MapAnnotationContainer(MapAnnotationData data)
@@ -82,7 +82,7 @@ public class MapAnnotationContainer {
     /**
      * Constructor of the MapAnnotationContainer class.
      * Set the content of the MapAnnotationData
-     * 
+     *
      * @param result List of NamedValue(Key-Value pair)
      */
     public MapAnnotationContainer(List<NamedValue> result)
