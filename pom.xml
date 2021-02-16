@@ -4,7 +4,7 @@
   <groupId>fr.igred</groupId>
   <artifactId>simple-omero-client</artifactId>
   <packaging>jar</packaging>
-  <version>5.6.0</version>
+  <version>5.6.1</version>
   <name>omero</name>
 
   <dependencies>
@@ -18,13 +18,13 @@
     <dependency>
       <groupId>org.openmicroscopy</groupId>
       <artifactId>omero-gateway</artifactId>
-      <version>5.6.3</version>
+      <version>5.6.5</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/ome/pom-bio-formats -->
     <dependency>
       <groupId>ome</groupId>
       <artifactId>pom-bio-formats</artifactId>
-      <version>5.8.0</version>
+      <version>6.6.0</version>
       <type>pom</type>
     </dependency>
     <dependency>
@@ -67,7 +67,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.2</version>
+        <version>0.8.6</version>
         <executions>
           <execution>
             <goals>
