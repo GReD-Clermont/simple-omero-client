@@ -23,7 +23,7 @@
     <!-- https://mvnrepository.com/artifact/ome/pom-bio-formats -->
     <dependency>
       <groupId>ome</groupId>
-      <artifactId>pom-bio-formats</artifactId>
+      <artifactId>bioformats_package</artifactId>
       <version>6.6.0</version>
       <type>pom</type>
     </dependency>
@@ -137,4 +137,9 @@
       <url>https://maven.pkg.github.com/GReD-Clermont/simple-omero-client</url>
     </repository>
   </distributionManagement>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+  </properties>
 </project>

@@ -36,9 +36,9 @@ public class ROIContainer {
     ROIData data;
 
     /**
-     * Return the ROIData id.
+     * Gets the ROIData id.
      *
-     * @return id
+     * @return the {@link ROIData} ID
      */
     public Long getId()
     {
@@ -51,7 +51,7 @@ public class ROIContainer {
     }
 
     /**
-     * Add a list of ShapeData to the ROIData
+     * Adds a list of ShapeData to the ROIData
      *
      * @param shapes List of ShapeData
      */
@@ -62,7 +62,7 @@ public class ROIContainer {
     }
 
     /**
-     * Add a ShapeData to the ROIData
+     * Adds a ShapeData to the ROIData
      *
      * @param shape ShapeData to add
      */
@@ -72,9 +72,9 @@ public class ROIContainer {
     }
 
     /**
-     * Return the list of shape contained in the ROIData
+     * Returns the list of shape contained in the ROIData
      *
-     * @return List of ShapeData
+     * @return list of shape contained in the ROIData
      */
     public List<ShapeData> getShapes()
     {
@@ -82,7 +82,7 @@ public class ROIContainer {
     }
 
     /**
-     * Set the image linked to the ROI.
+     * Sets the image linked to the ROI.
      *
      * @param client The user
      * @param image  Image linked to the ROIData
@@ -94,9 +94,9 @@ public class ROIContainer {
     }
 
     /**
-     * Return the ROIData contained.
+     * Returns the ROIData contained.
      *
-     * @return
+     * @return the {@link ROIData} contained
      */
     public ROIData getROI()
     {
@@ -104,7 +104,7 @@ public class ROIContainer {
     }
 
     /**
-     * Delete a ShapeData from the ROIData.
+     * Deletes a ShapeData from the ROIData.
      *
      * @param shape ShapeData to delete
      */
@@ -114,11 +114,11 @@ public class ROIContainer {
     }
 
     /**
-     * Delete a ShapeData from the ROIData.
+     * Deletes a ShapeData from the ROIData.
      *
      * @param pos Position of the ShapeData in the ShapeData list from the ROIData
      *
-     * @throws IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException if pos is out of the ShapeData list bounds
      */
     public void deleteShape(int pos)
         throws
@@ -127,6 +127,10 @@ public class ROIContainer {
         data.removeShapeData(data.getShapes().get(pos));
     }
 
+    /**
+     * Saves the ROI.
+     * @param client The user
+     */
     public void saveROI(Client client)
         throws
             ServerError,

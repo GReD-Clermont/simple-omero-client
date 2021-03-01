@@ -28,9 +28,9 @@ import omero.gateway.model.TableDataColumn;
 public class TableContainer {
 
     ///Number of column in the table
-    int columnCount;
-    ///Informations of each column (Name, Type)
-    TableDataColumn[] columns;
+    final int columnCount;
+    ///Information of each column (Name, Type)
+    final TableDataColumn[] columns;
 
     ///Number of row in the table
     int rowCount;
@@ -48,9 +48,9 @@ public class TableContainer {
     Long id;
 
     /**
-     * Return the TableDataColumn which contains informations on each column of the table
+     * Gets the {@link TableDataColumn} which contains information on each column of the table
      *
-     * @return table columns information
+     * @return the {@link TableDataColumn} which contains information on each column of the table
      */
     public TableDataColumn[] getColumns()
     {
@@ -58,9 +58,9 @@ public class TableContainer {
     }
 
     /**
-     * Return the value contained in the table
+     * Gets the value contained in the table
      *
-     * @return data
+     * @return the value contained in the table
      */
     public Object[][] getData()
     {
@@ -68,7 +68,7 @@ public class TableContainer {
     }
 
     /**
-     * Return a certain value of the table
+     * Gets a certain value of the table
      *
      * @param x row position
      * @param y column position
@@ -82,7 +82,7 @@ public class TableContainer {
     }
 
     /**
-     * Set the fileId of the table.
+     * Sets the fileId of the table.
      *
      * @param fileId New fileId
      */
@@ -100,7 +100,7 @@ public class TableContainer {
     }
 
     /**
-     * Set the id of the table.
+     * Sets the id of the table.
      *
      * @param id New id
      */
@@ -119,7 +119,7 @@ public class TableContainer {
     }
 
     /**
-     * Set the name of the table.
+     * Sets the name of the table.
      *
      * @param name New name
      */
@@ -152,7 +152,7 @@ public class TableContainer {
     }
 
     /**
-     * Return if the table is complete
+     * Checks if the table is complete
      *
      * @return true  if the table is completed.
      *         false if some row are still empty
@@ -163,7 +163,7 @@ public class TableContainer {
     }
 
     /**
-     * Set the information about a certain column.
+     * Sets the information about a certain column.
      *
      * @param column Column number
      * @param name   Name of the column
@@ -184,8 +184,8 @@ public class TableContainer {
     }
 
     /**
-     * Set the number of row in the table.
-     * Copy already existing data if some were already in the data
+     * Sets the number of row in the table.
+     * Copies already existing data if some were already in the data
      *
      * @param rowCount New rowCount
      */
@@ -194,7 +194,7 @@ public class TableContainer {
         Object[][] temp = new Object[columnCount][rowCount];
 
         if(data != null) {
-            row = rowCount < row ? rowCount : row;
+            row = Math.min(rowCount, row);
             for(int i = 0; i < row; i++)
                 for(int j = 0; j < columnCount; j++)
                     temp[j][i] = data[j][i];
@@ -205,7 +205,7 @@ public class TableContainer {
     }
 
     /**
-     * Add a row to the table.
+     * Adds a row to the table.
      *
      * @param os Value for each column for the row
      *
@@ -236,7 +236,7 @@ public class TableContainer {
     }
 
     /**
-     * Delete all unused row in the table
+     * Deletes all unused row in the table
      */
     public void truncateRow()
     {
@@ -246,13 +246,12 @@ public class TableContainer {
     public TableData createTable()
     {
         truncateRow();
-        TableData tableData = new TableData(columns, data);
 
-        return tableData;
+        return new TableData(columns, data);
     }
 
     /**
-     * Contructor of the class TableContainer
+     * Constructor of the class TableContainer
      *
      * @param columnCount Number of column in the table
      * @param name        Name of the table

@@ -33,7 +33,7 @@ public class MapAnnotationContainer {
     private MapAnnotationData data;
 
     /**
-     * Get the List of NamedValue contained in the MapAnnotationData.
+     * Gets the List of NamedValue contained in the MapAnnotationData.
      *
      * @return MapAnnotationData content
      */
@@ -43,9 +43,9 @@ public class MapAnnotationContainer {
     }
 
     /**
-     * Return the MapAnnotationData contained.
+     * Gets the MapAnnotationData contained.
      *
-     * @return
+     * @return the {@link MapAnnotationData} contained
      */
     public MapAnnotationData getMapAnnotation()
     {
@@ -57,7 +57,7 @@ public class MapAnnotationContainer {
 
 
     /**
-     * Set the content of the MapAnnotationData.
+     * Sets the content of the MapAnnotationData.
      *
      * @param client The user
      * @param result List of NamedValue(Key-Value pair)
@@ -81,7 +81,7 @@ public class MapAnnotationContainer {
 
     /**
      * Constructor of the MapAnnotationContainer class.
-     * Set the content of the MapAnnotationData
+     * Sets the content of the MapAnnotationData
      *
      * @param result List of NamedValue(Key-Value pair)
      */

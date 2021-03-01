@@ -32,10 +32,10 @@ import omero.gateway.model.TagAnnotationData;
  */
 public class TagAnnotationContainer {
     ///TagAnnotationContainer contained
-    private TagAnnotationData tag;
+    private final TagAnnotationData tag;
 
     /**
-     * Get the name of the TagData.
+     * Gets the name of the TagData.
      *
      * @return TagData name
      */
@@ -45,7 +45,7 @@ public class TagAnnotationContainer {
     }
 
     /**
-     * Get the description of the TagData.
+     * Gets the description of the TagData.
      *
      * @return TagData description
      */
@@ -55,7 +55,7 @@ public class TagAnnotationContainer {
     }
 
     /**
-     * Get the TagData id.
+     * Gets the TagData id.
      *
      * @return TagData id
      */
@@ -65,9 +65,9 @@ public class TagAnnotationContainer {
     }
 
     /**
-     * Return the TagAnnotationData contained.
+     * Gets the TagAnnotationData contained.
      *
-     * @return
+     * @return the {@link TagAnnotationData} contained
      */
     public TagAnnotationData getTag()
     {
@@ -87,14 +87,14 @@ public class TagAnnotationContainer {
 
     /**
      * Constructor of the TagAnnotationContainer class.
-     * Create the tag and save it in OMERO
+     * Creates the tag and save it in OMERO
      *
      * @param client      The user
      * @param name        Tag name
      * @param description Tag description
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public TagAnnotationContainer(Client client,
                                   String name,

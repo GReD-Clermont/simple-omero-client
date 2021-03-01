@@ -31,11 +31,11 @@ import omero.model.Length;
 public class PixelContainer {
 
     ///PixelData contained
-    PixelsData pixels;
-    static public int maxDist = 5000;
+    final PixelsData pixels;
+    static public final int maxDist = 5000;
 
     /**
-     * Get the size of a single image pixel on the X axis.
+     * Gets the size of a single image pixel on the X axis.
      *
      * @return Size of a pixel on the X axis
      */
@@ -45,7 +45,7 @@ public class PixelContainer {
     }
 
     /**
-     * Get the size of a single image pixel on the Y axis.
+     * Gets the size of a single image pixel on the Y axis.
      *
      * @return Size of a pixel on the Y axis
      */
@@ -55,7 +55,7 @@ public class PixelContainer {
     }
 
     /**
-     * Get the size of a single image pixel on the Z axis.
+     * Gets the size of a single image pixel on the Z axis.
      *
      * @return Size of a pixel on the Z axis
      */
@@ -70,7 +70,7 @@ public class PixelContainer {
     }
 
     /**
-     * Get the size of the image on the X axis
+     * Gets the size of the image on the X axis
      *
      * @return Size of the image on the X axis
      */
@@ -80,7 +80,7 @@ public class PixelContainer {
     }
 
     /**
-     * Get the size of the image on the Y axis
+     * Gets the size of the image on the Y axis
      *
      * @return Size of the image on the Y axis
      */
@@ -90,7 +90,7 @@ public class PixelContainer {
     }
 
     /**
-     * Get the size of the image on the Z axis
+     * Gets the size of the image on the Z axis
      *
      * @return Size of the image on the Z axis
      */
@@ -100,7 +100,7 @@ public class PixelContainer {
     }
 
     /**
-     * Get the size of the image on the C axis
+     * Gets the size of the image on the C axis
      *
      * @return Size of the image on the C axis
      */
@@ -110,7 +110,7 @@ public class PixelContainer {
     }
 
     /**
-     * Get the size of the image on the T axis
+     * Gets the size of the image on the T axis
      *
      * @return Size of the image on the T axis
      */
@@ -120,14 +120,14 @@ public class PixelContainer {
     }
 
     /**
-     * Return an array containing the value for each voxels
+     * Returns an array containing the value for each voxels
      *
      * @param client The user
      *
      * @return Array containing the value for each voxels of the image
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instancied
+     * @throws ExecutionException  A Facility can't be retrieved or instantiated
      */
     public double[][][][][] getAllPixels(Client client)
         throws
@@ -138,7 +138,7 @@ public class PixelContainer {
     }
 
     /**
-     * Return an array containing the value for each voxels corresponding to the bounds
+     * Returns an array containing the value for each voxels corresponding to the bounds
      *
      * @param client The user
      * @param xBound Array containing the X bound from which the pixels should be retrieved
@@ -150,14 +150,14 @@ public class PixelContainer {
      * @return Array containing the value for each voxels of the image
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instancied
+     * @throws ExecutionException  A Facility can't be retrieved or instantiated
      */
     public double[][][][][] getAllPixels(Client client,
-                                         int    xBound[],
-                                         int    yBound[],
-                                         int    cBound[],
-                                         int    zBound[],
-                                         int    tBound[])
+                                         int[] xBound,
+                                         int[] yBound,
+                                         int[] cBound,
+                                         int[] zBound,
+                                         int[] tBound)
         throws
             DataSourceException,
             ExecutionException
@@ -167,61 +167,66 @@ public class PixelContainer {
         int tEnd, zEnd, cEnd, xEnd, yEnd;
 
         if(tBound != null) {
-            tStart = tBound[0];
-            tEnd   = tBound[1] + 1;
-        } else {
-            tStart = 0;
-            tEnd   = pixels.getSizeT();
+            tStart = Math.max(0,tBound[0]);
+            tEnd   = Math.min(pixels.getSizeT() - 1, tBound[1]);
         }
-        sizeT = tEnd - tStart;
+        else {
+            tStart = 0;
+            tEnd   = pixels.getSizeT() - 1;
+        }
+        sizeT = tEnd - tStart + 1;
 
         if(zBound != null) {
-            zStart = zBound[0];
-            zEnd   = zBound[1] + 1;
-        } else {
-            zStart = 0;
-            zEnd   = pixels.getSizeZ();
+            zStart = Math.max(0,zBound[0]);
+            zEnd   = Math.min(pixels.getSizeZ() - 1, zBound[1]);
         }
-        sizeZ = zEnd - zStart;
+        else {
+            zStart = 0;
+            zEnd   = pixels.getSizeZ() - 1;
+        }
+        sizeZ = zEnd - zStart + 1;
 
         if(cBound != null) {
-            cStart = cBound[0];
-            cEnd   = cBound[1] + 1;
-        } else {
-            cStart = 0;
-            cEnd   = pixels.getSizeC();
+            cStart = Math.max(0,cBound[0]);
+            cEnd   = Math.min(pixels.getSizeC() - 1, cBound[1]);
         }
-        sizeC = cEnd - cStart;
+        else {
+            cStart = 0;
+            cEnd   = pixels.getSizeC() - 1;
+        }
+        sizeC = cEnd - cStart + 1;
 
         if(xBound != null) {
-            xStart = xBound[0];
-            xEnd   = xBound[1] + 1;
-        } else {
-            xStart = 0;
-            xEnd = pixels.getSizeX();
+            xStart = Math.max(0,xBound[0]);
+            xEnd   = Math.min(pixels.getSizeX() - 1, xBound[1]);
         }
-        sizeX = xEnd - xStart;
+        else {
+            xStart = 0;
+            xEnd   = pixels.getSizeX() - 1;
+        }
+        sizeX = xEnd - xStart + 1;
 
         if(yBound != null) {
-            yStart = yBound[0];
-            yEnd   = yBound[1] + 1;
-        } else {
-            yStart = 0;
-            yEnd   = pixels.getSizeY();
+            yStart = Math.max(0,yBound[0]);
+            yEnd   = Math.min(pixels.getSizeY() - 1, yBound[1]);
         }
-        sizeY = yEnd - yStart;
+        else {
+            yStart = 0;
+            yEnd   = pixels.getSizeY() - 1;
+        }
+        sizeY = yEnd - yStart + 1;
 
-        double tab[][][][][] = new double[sizeT][sizeZ][sizeC][sizeY][sizeX];
+        double[][][][][] tab = new double[sizeT][sizeZ][sizeC][sizeY][sizeX];
 
         Plane2D p;
 
-        for (int z = zStart; z < zEnd; z++) {
-            for (int t = tStart; t < tEnd; t++) {
-                for (int c = cStart; c < cEnd; c++) {
-                    for(int x = xStart; x < xEnd; x += maxDist) {
-                        int width = x + maxDist < xEnd ? maxDist : xEnd - x;
-                        for(int y = yStart; y < yEnd; y += maxDist) {
-                            int height = y + maxDist < yEnd ? maxDist : yEnd - y;
+        for (int z = zStart; z <= zEnd; z++) {
+            for (int t = tStart; t <= tEnd; t++) {
+                for (int c = cStart; c <= cEnd; c++) {
+                    for(int x = xStart; x <= xEnd; x += maxDist) {
+                        int width = x + maxDist <= xEnd ? maxDist : xEnd - x + 1;
+                        for(int y = yStart; y <= yEnd; y += maxDist) {
+                            int height = y + maxDist <= yEnd ? maxDist : yEnd - y + 1;
 
                             p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
 
@@ -236,7 +241,7 @@ public class PixelContainer {
     }
 
     /**
-     * Copy the value from the plane at the corresponding position in the array
+     * Copies the value from the plane at the corresponding position in the array
      *
      * @param tab    Array containing the results
      * @param p      Plane2D containing the voxels value
@@ -248,7 +253,7 @@ public class PixelContainer {
      * @param width  width of the plane
      * @param height height of the plane
      */
-    private void copy(double  tab[][][][][],
+    private void copy(double[][][][][] tab,
                       Plane2D p,
                       int     x,
                       int     y,
@@ -268,13 +273,13 @@ public class PixelContainer {
     }
 
     /**
-     * Return an array containing the raw values for each voxels for each planes
+     * Returns an array containing the raw values for each voxels for each planes
      *
      * @param client The user
      * @param bpp    bytes per pixels of the image
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instancied
+     * @throws ExecutionException  A Facility can't be retrieved or instantiated
      */
     public byte[][][][] getRawPixels(Client client, int bpp)
         throws
@@ -285,7 +290,7 @@ public class PixelContainer {
     }
 
     /**
-     * Return an array containing the raw values for each voxels for each planes corresponding to the bounds
+     * Returns an array containing the raw values for each voxels for each planes corresponding to the bounds
      *
      * @param client The user
      * @param xBound Array containing the X bound from which the pixels should be retrieved
@@ -296,14 +301,14 @@ public class PixelContainer {
      * @param bpp    bytes per pixels of the image
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instancied
+     * @throws ExecutionException  A Facility can't be retrieved or instantiated
      */
     public byte[][][][] getRawPixels(Client client,
-                                     int    xBound[],
-                                     int    yBound[],
-                                     int    cBound[],
-                                     int    zBound[],
-                                     int    tBound[],
+                                     int[] xBound,
+                                     int[] yBound,
+                                     int[] cBound,
+                                     int[] zBound,
+                                     int[] tBound,
                                      int    bpp)
         throws
             DataSourceException,
@@ -314,61 +319,66 @@ public class PixelContainer {
         int tEnd, zEnd, cEnd, xEnd, yEnd;
 
         if(tBound != null) {
-            tStart = tBound[0];
-            tEnd   = tBound[1] + 1;
-        } else {
-            tStart = 0;
-            tEnd   = pixels.getSizeT();
+            tStart = Math.max(0,tBound[0]);
+            tEnd   = Math.min(pixels.getSizeT() - 1, tBound[1]);
         }
-        sizeT = tEnd - tStart;
+        else {
+            tStart = 0;
+            tEnd   = pixels.getSizeT() - 1;
+        }
+        sizeT = tEnd - tStart + 1;
 
         if(zBound != null) {
-            zStart = zBound[0];
-            zEnd   = zBound[1] + 1;
-        } else {
-            zStart = 0;
-            zEnd   = pixels.getSizeZ();
+            zStart = Math.max(0,zBound[0]);
+            zEnd   = Math.min(pixels.getSizeZ() - 1, zBound[1]);
         }
-        sizeZ = zEnd - zStart;
+        else {
+            zStart = 0;
+            zEnd   = pixels.getSizeZ() - 1;
+        }
+        sizeZ = zEnd - zStart + 1;
 
         if(cBound != null) {
-            cStart = cBound[0];
-            cEnd   = cBound[1] + 1;
-        } else {
-            cStart = 0;
-            cEnd   = pixels.getSizeC();
+            cStart = Math.max(0,cBound[0]);
+            cEnd   = Math.min(pixels.getSizeC() - 1, cBound[1]);
         }
-        sizeC = cEnd - cStart;
+        else {
+            cStart = 0;
+            cEnd   = pixels.getSizeC() - 1;
+        }
+        sizeC = cEnd - cStart + 1;
 
         if(xBound != null) {
-            xStart = xBound[0];
-            xEnd   = xBound[1] + 1;
-        } else {
-            xStart = 0;
-            xEnd = pixels.getSizeX();
+            xStart = Math.max(0,xBound[0]);
+            xEnd   = Math.min(pixels.getSizeX() - 1, xBound[1]);
         }
-        sizeX = xEnd - xStart;
+        else {
+            xStart = 0;
+            xEnd   = pixels.getSizeX() - 1;
+        }
+        sizeX = xEnd - xStart + 1;
 
         if(yBound != null) {
-            yStart = yBound[0];
-            yEnd   = yBound[1] + 1;
-        } else {
-            yStart = 0;
-            yEnd   = pixels.getSizeY();
+            yStart = Math.max(0,yBound[0]);
+            yEnd   = Math.min(pixels.getSizeY() - 1, yBound[1]);
         }
-        sizeY = yEnd - yStart;
+        else {
+            yStart = 0;
+            yEnd   = pixels.getSizeY() - 1;
+        }
+        sizeY = yEnd - yStart + 1;
 
-        byte bytes[][][][] = new byte[sizeT][sizeZ][sizeC][sizeX * sizeY * bpp];
+        byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][sizeX * sizeY * bpp];
 
         Plane2D p;
 
-        for (int z = zStart; z < zEnd; z++) {
-            for (int t = tStart; t < tEnd; t++) {
-                for (int c = cStart; c < cEnd; c++) {
-                    for(int x = xStart; x < xEnd; x += maxDist) {
-                        int width = x + maxDist < xEnd ? maxDist : xEnd - x;
-                        for(int y = yStart; y < yEnd; y += maxDist) {
-                            int height = y + maxDist < yEnd ? maxDist : yEnd - y;
+        for (int z = zStart; z <= zEnd; z++) {
+            for (int t = tStart; t <= tEnd; t++) {
+                for (int c = cStart; c <= cEnd; c++) {
+                    for(int x = xStart; x <= xEnd; x += maxDist) {
+                        int width = x + maxDist <= xEnd ? maxDist : xEnd - x + 1;
+                        for(int y = yStart; y <= yEnd; y += maxDist) {
+                            int height = y + maxDist <= yEnd ? maxDist : yEnd - y + 1;
 
                             p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
 
@@ -383,7 +393,7 @@ public class PixelContainer {
     }
 
     /**
-     * Copy the value from the plane at the corresponding position in the array
+     * Copies the value from the plane at the corresponding position in the array
      *
      * @param bytes     Array containing the results
      * @param p         Plane2D containing the voxels value
@@ -397,7 +407,7 @@ public class PixelContainer {
      * @param trueWidth width of the image
      * @param bpp       bytes per pixels of the image
      */
-    private void copy(byte    bytes[][][][],
+    private void copy(byte[][][][] bytes,
                       Plane2D p,
                       int     x,
                       int     y,

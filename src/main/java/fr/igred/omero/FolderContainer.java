@@ -17,10 +17,7 @@
 
 package fr.igred.omero;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import fr.igred.omero.metadata.ROIContainer;
@@ -34,17 +31,17 @@ import omero.gateway.model.ROIResult;
 import omero.model.Folder;
 
 /**
- * Class containing a FodlerData.
+ * Class containing a FolderData.
  * Implements function using the FolderData contained.
  */
 public class FolderContainer {
     //Folder contained
-    FolderData folder;
+    final FolderData folder;
     //Id of the associated image
     Long imageId;
 
     /**
-     * Get the folder contained in the FolderContainer
+     * Gets the folder contained in the FolderContainer
      *
      * @return the FolderData
      */
@@ -54,7 +51,7 @@ public class FolderContainer {
     }
 
     /**
-     * Get the folder id
+     * Gets the folder id
      *
      * @return Id
      */
@@ -63,7 +60,7 @@ public class FolderContainer {
     }
 
     /**
-     * Get the name of the folder
+     * Gets the name of the folder
      *
      * @return name
      */
@@ -72,7 +69,7 @@ public class FolderContainer {
     }
 
     /**
-     * Set the image associated to the folder
+     * Sets the image associated to the folder
      *
      * @param id Id of the image to associate
      */
@@ -82,7 +79,7 @@ public class FolderContainer {
     }
 
     /**
-     * Set the image associated to the folder
+     * Sets the image associated to the folder
      *
      * @param image image to associate
      */
@@ -107,13 +104,13 @@ public class FolderContainer {
             DSAccessException,
             ExecutionException
     {
-        ROIFacility roifac = client.getRoiFacility();
+        ROIFacility roiFac = client.getRoiFacility();
 
-        roifac.addRoisToFolders(client.getCtx(), imageId, Arrays.asList(roi.getROI()), Arrays.asList(folder));
+        roiFac.addRoisToFolders(client.getCtx(), imageId, Collections.singletonList(roi.getROI()), Collections.singletonList(folder));
     }
 
     /**
-     * Get the ROI contained in the folder associated with the image id set (an image need to be associated)
+     * Gets the ROI contained in the folder associated with the image id set (an image need to be associated)
      *
      * @param client The user
      *
@@ -129,17 +126,17 @@ public class FolderContainer {
             DSAccessException,
             ExecutionException
     {
-        ROIFacility roifac = client.getRoiFacility();
+        ROIFacility roiFac = client.getRoiFacility();
 
-        Collection<ROIResult> roiresults = roifac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());
+        Collection<ROIResult> roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());
         List<ROIContainer> roiContainers;
 
-        if(roiresults.size() != 0)
+        if(roiResults.size() != 0)
         {
-            ROIResult r = roiresults.iterator().next();
+            ROIResult r = roiResults.iterator().next();
             Collection<ROIData> rois = r.getROIs();
 
-            roiContainers = new ArrayList<ROIContainer>(rois.size());
+            roiContainers = new ArrayList<>(rois.size());
             for(ROIData roi : rois) {
                 ROIContainer temp = new ROIContainer(roi);
 
@@ -147,7 +144,7 @@ public class FolderContainer {
             }
         }
         else{
-            roiContainers =new ArrayList<ROIContainer>();
+            roiContainers = new ArrayList<>();
         }
 
         return roiContainers;
@@ -172,7 +169,7 @@ public class FolderContainer {
         List<ROIContainer> rois = getROIs(client);
 
         for(ROIContainer roi : rois) {
-            client.getRoiFacility().removeRoisFromFolders(client.getCtx(), this.imageId, Arrays.asList(roi.getROI()), Arrays.asList(folder));
+            client.getRoiFacility().removeRoisFromFolders(client.getCtx(), this.imageId, Collections.singletonList(roi.getROI()), Collections.singletonList(folder));
         }
     }
 
@@ -193,7 +190,7 @@ public class FolderContainer {
             DSAccessException,
             ExecutionException
     {
-        client.getRoiFacility().removeRoisFromFolders(client.getCtx(), this.imageId, Arrays.asList(roi.getROI()), Arrays.asList(folder));
+        client.getRoiFacility().removeRoisFromFolders(client.getCtx(), this.imageId, Collections.singletonList(roi.getROI()), Collections.singletonList(folder));
     }
 
     /**

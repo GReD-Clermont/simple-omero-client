@@ -19,7 +19,6 @@ package fr.igred.omero;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
@@ -89,10 +88,9 @@ public class Client {
     private RawDataFacility     rdf;
     private IQueryPrx           qs;
     /**
-     * Return the security context of the user.
      * Contains the permissions of the user in the group.
      *
-     * @return ctx, the security context
+     * @return the {@link SecurityContext} of the user
      */
     public SecurityContext getCtx()
     {
@@ -100,10 +98,9 @@ public class Client {
     }
 
     /**
-     * Return the BrowseFacility linked to the gateway.
      * The BrowseFacility is used to access the data from OMERO.
      *
-     * @return browse
+     * @return the {@link BrowseFacility} linked to the gateway
      */
     public BrowseFacility getBrowseFacility()
     {
@@ -111,10 +108,9 @@ public class Client {
     }
 
     /**
-     * Return the DataManagerFacility linked to the gateway.
      * Permet de gérer la sauvergarde de données sur OMERO depuis le code.
      *
-     * @return dm
+     * @return the {@link DataManagerFacility} linked to the gateway
      *
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated
      */
@@ -128,10 +124,9 @@ public class Client {
     }
 
     /**
-     * Return MetadataFacility linked to the gateway.
      * The MetadataFacility is used to manipulate metadata from OMERO.
      *
-     * @return metadata
+     * @return the {@link MetadataFacility} linked to the gateway
      *
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated
      */
@@ -146,10 +141,9 @@ public class Client {
     }
 
     /**
-     * Return ROIFacility linked to the gateway.
      * The ROIFacility is used to manipulate ROI from OMERO.
      *
-     * @return roifac
+     * @return the {@link ROIFacility} linked to the gateway
      *
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated
      */
@@ -164,14 +158,13 @@ public class Client {
     }
 
     /**
-     * Return TablesFacility linked to the gateway.
-     * The v is used to manipulate table from OMERO.
+     * The TablesFacility is used to manipulate table from OMERO.
      *
-     * @return fac
+     * @return the {@link TablesFacility} linked to the gateway
      *
      * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated
      */
-    public TablesFacility getTablesFacilitity()
+    public TablesFacility getTablesFacility()
         throws
             ExecutionException
     {
@@ -182,10 +175,10 @@ public class Client {
     }
 
     /**
-     * Return AdminFacility linked to the gateway.
+     * Gets the AdminFacility linked to the gateway.
      * The AdminFacility is used to use admin specific function.
      *
-     * @return admin
+     * @return the {@link AdminFacility} linked to the gateway
      *
      * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated
      */
@@ -200,10 +193,10 @@ public class Client {
     }
 
     /**
-     * Return ExecutionException linked to the gateway.
+     * Gets the ExecutionException linked to the gateway.
      * The ExecutionException is used to access the raw data of the images.
      *
-     * @return rdf
+     * @return the {@link ExecutionException} linked to the gateway
      *
      * @throws ExecutionException If the ExecutionException can't be retrieved or instantiated
      */
@@ -227,7 +220,7 @@ public class Client {
     }
 
     /**
-     * Return the importation config for the user.
+     * Gets the importation config for the user.
      *
      * @return config
      */
@@ -237,7 +230,7 @@ public class Client {
     }
 
     /**
-     * Return the user id.
+     * Gets the user id.
      *
      * @return id
      */
@@ -260,9 +253,9 @@ public class Client {
 
 
     /**
-     * Connect the user to OMERO.
-     * Use the argument to connect to the gateway.
-     * Connect to the group specified in the argument.
+     * Connects the user to OMERO.
+     * Uses the argument to connect to the gateway.
+     * Connects to the group specified in the argument.
      *
      *
      * @param hostname name of the host
@@ -272,7 +265,7 @@ public class Client {
      * @param groupID  id of the group to connect
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public void connect(String hostname,
                         int    port,
@@ -293,9 +286,9 @@ public class Client {
     }
 
     /**
-     * Connect the user to OMERO.
-     * Use the argument to connect to the gateway.
-     * Connect to the default group of the user.
+     * Connects the user to OMERO.
+     * Uses the argument to connect to the gateway.
+     * Connects to the default group of the user.
      *
      *
      * @param hostname name of the host
@@ -304,7 +297,7 @@ public class Client {
      * @param password password of the user
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public void connect(String hostname,
                         int    port,
@@ -322,7 +315,7 @@ public class Client {
     }
 
     /**
-     * Create the credential used to log the user to OMERO.
+     * Creates the credential used to log the user to OMERO.
      *
      * @param hostname name of the host
      * @param port     port used by OMERO
@@ -345,7 +338,7 @@ public class Client {
     }
 
     /**
-     * Create the importation config linked to the user.
+     * Creates the importation config linked to the user.
      *
      * @param hostname name of the host
      * @param port     port used by OMERO
@@ -372,13 +365,13 @@ public class Client {
     }
 
     /**
-     * Connect the user to OMERO.
-     * Get the SecurityContext and the BrowseFacility.
+     * Connects the user to OMERO.
+     * Gets the SecurityContext and the BrowseFacility.
      *
      * @param cred user credential
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public void connect(LoginCredentials cred)
         throws
@@ -392,7 +385,7 @@ public class Client {
     }
 
     /**
-     * Disconnect the user
+     * Disconnects the user
      */
     public void disconnect()
     {
@@ -403,7 +396,7 @@ public class Client {
 
 
     /**
-     * Get the project with the specified id from OMERO.
+     * Gets the project with the specified id from OMERO.
      *
      * @param id Id of the project
      *
@@ -432,7 +425,7 @@ public class Client {
     }
 
     /**
-     * Get all projects available from OMERO.
+     * Gets all projects available from OMERO.
      *
      * @return Collection of ProjectContainer
      *
@@ -446,7 +439,7 @@ public class Client {
     {
         Collection<ProjectData> projects =  browse.getProjects(ctx);
 
-        Collection<ProjectContainer> projectsContainer = new ArrayList<ProjectContainer>(projects.size());
+        Collection<ProjectContainer> projectsContainer = new ArrayList<>(projects.size());
 
         for(ProjectData project : projects)
         {
@@ -456,7 +449,7 @@ public class Client {
     }
 
     /**
-     * Get all projects with a certain name from OMERO.
+     * Gets all projects with a certain name from OMERO.
      *
      * @param name Name searched
      *
@@ -472,7 +465,7 @@ public class Client {
     {
         Collection<ProjectData> projects =  browse.getProjects(ctx, name);
 
-        Collection<ProjectContainer> projectsContainer = new ArrayList<ProjectContainer>(projects.size());
+        Collection<ProjectContainer> projectsContainer = new ArrayList<>(projects.size());
 
         for (ProjectData project : projects)
         {
@@ -487,7 +480,7 @@ public class Client {
 
 
     /**
-     * Get the dataset with the specified id from OMERO.
+     * Gets the dataset with the specified id from OMERO.
      *
      * @param id Id of the Dataset
      *
@@ -516,7 +509,7 @@ public class Client {
     }
 
     /**
-     * Get all the datasets available from OMERO.
+     * Gets all the datasets available from OMERO.
      *
      * @return Collection of DatasetContainer.
      *
@@ -530,7 +523,7 @@ public class Client {
     {
         Collection<DatasetData> datasets =  browse.getDatasets(ctx);
 
-        Collection<DatasetContainer> datasetContainer = new ArrayList<DatasetContainer>(datasets.size());
+        Collection<DatasetContainer> datasetContainer = new ArrayList<>(datasets.size());
 
         for(DatasetData dataset : datasets)
         {
@@ -540,7 +533,7 @@ public class Client {
     }
 
     /**
-     * Get all datasets with a certain name from OMERO.
+     * Gets all datasets with a certain name from OMERO.
      *
      * @param name Name searched
      *
@@ -556,7 +549,7 @@ public class Client {
     {
         Collection<DatasetData> datasets =  browse.getDatasets(ctx, name);
 
-        Collection<DatasetContainer> datasetContainer = new ArrayList<DatasetContainer>(datasets.size());
+        Collection<DatasetContainer> datasetContainer = new ArrayList<>(datasets.size());
 
         for (DatasetData dataset : datasets)
         {
@@ -570,7 +563,7 @@ public class Client {
 
 
     /**
-     * Transform a collection of ImageData in a list of ImageContainer sorted by the ImageData id.
+     * Transforms a collection of ImageData in a list of ImageContainer sorted by the ImageData id.
      *
      * @param images ImageData Collection
      *
@@ -578,20 +571,20 @@ public class Client {
      */
     private List<ImageContainer> toImagesContainer(Collection<ImageData> images)
     {
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>(images.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>(images.size());
 
         for(ImageData image : images)
         {
             imagesContainer.add(new ImageContainer(image));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return imagesContainer;
     }
 
     /**
-     * Return an ImageContainer that contains the image with the specified id from OMERO.
+     * Returns an ImageContainer that contains the image with the specified id from OMERO.
      *
      * @param imageId Id of the image
      *
@@ -607,13 +600,11 @@ public class Client {
             DSAccessException,
             NoSuchElementException
     {
-        ImageContainer image = new ImageContainer(browse.getImage(ctx, imageId));
-
-        return image;
+        return new ImageContainer(browse.getImage(ctx, imageId));
     }
 
     /**
-     * Get all images available from OMERO.
+     * Gets all images available from OMERO.
      *
      * @return ImageContainer list
      *
@@ -631,7 +622,7 @@ public class Client {
     }
 
     /**
-     * Get all images with a certain from OMERO.
+     * Gets all images with a certain from OMERO.
      *
      * @param name Name searched
      *
@@ -647,7 +638,7 @@ public class Client {
     {
         Collection<ImageData> images = browse.getImages(ctx, name);
 
-        Collection<ImageData> selected = new ArrayList<ImageData>(images.size());
+        Collection<ImageData> selected = new ArrayList<>(images.size());
 
         for(ImageData image : images) {
             if(image.getName().equals(name)) {
@@ -659,7 +650,7 @@ public class Client {
     }
 
     /**
-     * Get all images with a certain motif in their name from OMERO.
+     * Gets all images with a certain motif in their name from OMERO.
      *
      * @param motif Motif searched in an Image name
      *
@@ -677,7 +668,7 @@ public class Client {
 
         motif = ".*" + motif + ".*";
 
-        Collection<ImageData> selected = new ArrayList<ImageData>(images.size());
+        Collection<ImageData> selected = new ArrayList<>(images.size());
 
         for(ImageData image : images) {
             if(image.getName().matches(motif)) {
@@ -688,7 +679,7 @@ public class Client {
     }
 
     /**
-     * Get all images tagged with a specified tag from OMERO.
+     * Gets all images tagged with a specified tag from OMERO.
      *
      * @param tag TagAnnotationContainer containing the tag researched
      *
@@ -696,13 +687,11 @@ public class Client {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<ImageContainer> getImagesTagged(TagAnnotationContainer tag)
         throws
             DSOutOfServiceException,
             DSAccessException,
-            ExecutionException,
             ServerError
     {
         List<IObject> os = getQueryService().findAllByQuery("select link.parent " +
@@ -710,7 +699,7 @@ public class Client {
                                                             "where link.child = " +
                                                             tag.getId(), null);
 
-        Collection<ImageData> selected = new ArrayList<ImageData>();
+        Collection<ImageData> selected = new ArrayList<>();
 
         for(IObject o : os) {
             ImageData image = browse.getImage(ctx, o.getId().getValue());
@@ -720,7 +709,7 @@ public class Client {
     }
 
     /**
-     * Get all images tagged with a specified tag from OMERO.
+     * Gets all images tagged with a specified tag from OMERO.
      *
      * @param tagId Id of the tag researched
      *
@@ -728,13 +717,11 @@ public class Client {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<ImageContainer> getImagesTagged(Long tagId)
         throws
             DSOutOfServiceException,
             DSAccessException,
-            ExecutionException,
             ServerError
     {
         List<IObject> os = getQueryService().findAllByQuery("select link.parent " +
@@ -742,7 +729,7 @@ public class Client {
                                                             "where link.child = " +
                                                             tagId, null);
 
-        Collection<ImageData> selected = new ArrayList<ImageData>();
+        Collection<ImageData> selected = new ArrayList<>();
 
         for(IObject o : os) {
             ImageData image = browse.getImage(ctx, o.getId().getValue());
@@ -752,7 +739,7 @@ public class Client {
     }
 
     /**
-     * Get all images with a certain key
+     * Gets all images with a certain key
      *
      * @param key Name of the key researched
      *
@@ -760,7 +747,7 @@ public class Client {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public List<ImageContainer> getImagesKey(String key)
         throws
@@ -770,7 +757,7 @@ public class Client {
     {
         Collection<ImageData> images = browse.getUserImages(ctx);
 
-        Collection<ImageData> selected = new ArrayList<ImageData>(images.size());
+        Collection<ImageData> selected = new ArrayList<>(images.size());
 
         for(ImageData image : images)
         {
@@ -792,7 +779,7 @@ public class Client {
     }
 
     /**
-     * Get all images with a certain key value pair from OMERO
+     * Gets all images with a certain key value pair from OMERO
      *
      * @param key   Name of the key researched
      * @param value Value associated with the key
@@ -801,7 +788,7 @@ public class Client {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public List<ImageContainer> getImagesPairKeyValue(String key,
                                                       String value)
@@ -812,7 +799,7 @@ public class Client {
     {
         Collection<ImageData> images = browse.getUserImages(ctx);
 
-        Collection<ImageData> selected = new ArrayList<ImageData>(images.size());
+        Collection<ImageData> selected = new ArrayList<>(images.size());
 
         for(ImageData image : images)
         {
@@ -838,7 +825,7 @@ public class Client {
 
 
     /**
-     * Get the client associated with the username in the parameters.
+     * Gets the client associated with the username in the parameters.
      * The user calling this function needs to have administrator rights.
      * All action realized with the client returned will be considered as his.
      *
@@ -848,7 +835,7 @@ public class Client {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public Client SudoGetUser(String username)
         throws
@@ -876,7 +863,7 @@ public class Client {
 
 
     /**
-     * Get the list of TagAnnotationContainer available to the user
+     * Gets the list of TagAnnotationContainer available to the user
      *
      * @return list of TagAnnotationContainer
      *
@@ -890,19 +877,19 @@ public class Client {
     {
         IQueryPrx qs = gateway.getQueryService(ctx);
         List<IObject> os = qs.findAll(TagAnnotation.class.getSimpleName(), null);
-        List<TagAnnotationContainer> tags = new ArrayList<TagAnnotationContainer>(os.size());
+        List<TagAnnotationContainer> tags = new ArrayList<>(os.size());
 
         for(IObject o : os) {
             TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
             tags.add(new TagAnnotationContainer(tag));
         }
 
-        Collections.sort(tags, new SortTagAnnotationContainer());
+        tags.sort(new SortTagAnnotationContainer());
         return tags;
     }
 
     /**
-     * Get the list of TagAnnotationContainer with the specified name available to the user
+     * Gets the list of TagAnnotationContainer with the specified name available to the user
      *
      * @param name Name of the tag searched
      *
@@ -918,7 +905,7 @@ public class Client {
     {
         IQueryPrx qs = gateway.getQueryService(ctx);
         List<IObject> os = qs.findAll(TagAnnotation.class.getSimpleName(), null);
-        List<TagAnnotationContainer> tags = new ArrayList<TagAnnotationContainer>(os.size());
+        List<TagAnnotationContainer> tags = new ArrayList<>(os.size());
 
         for(IObject o : os) {
             TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
@@ -928,16 +915,16 @@ public class Client {
                 tags.add(new TagAnnotationContainer(tag));
         }
 
-        Collections.sort(tags, new SortTagAnnotationContainer());
+        tags.sort(new SortTagAnnotationContainer());
         return tags;
     }
 
     /**
-     * Get a specific tag from the OMERO database
+     * Gets a specific tag from the OMERO database
      *
      * @param id Id of the tag
      *
-     * @return TagAnnotationContainer containng the specified tag
+     * @return TagAnnotationContainer containing the specified tag
      *
      * @throws ServerError
      * @throws DSOutOfServiceException Cannot connect to OMERO
@@ -960,13 +947,13 @@ public class Client {
 
 
     /**
-     * Delete an image from OMERO
+     * Deletes an image from OMERO
      *
      * @param image ImageContainer containing the image to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws IllegalArgumentException Id not defined
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
@@ -984,13 +971,13 @@ public class Client {
     }
 
     /**
-     * Delete an image from OMERO
+     * Deletes an image from OMERO
      *
      * @param id Id of the image to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
      */
@@ -1008,13 +995,13 @@ public class Client {
     }
 
     /**
-     * Delete a project from OMERO
+     * Deletes a project from OMERO
      *
      * @param project ProjectContainer containing the project to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws IllegalArgumentException Id not defined
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
@@ -1035,13 +1022,13 @@ public class Client {
     }
 
     /**
-     * Delete a project from OMERO
+     * Deletes a project from OMERO
      *
      * @param id Id of the project to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
      */
@@ -1059,13 +1046,13 @@ public class Client {
     }
 
     /**
-     * Delete a dataset from OMERO
+     * Deletes a dataset from OMERO
      *
      * @param dataset DatasetContainer containing the dataset to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws IllegalArgumentException Id not defined
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
@@ -1086,13 +1073,13 @@ public class Client {
     }
 
     /**
-     * Delete a dataset from OMERO
+     * Deletes a dataset from OMERO
      *
      * @param id Id of the dataset to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
      */
@@ -1110,13 +1097,13 @@ public class Client {
     }
 
     /**
-     * Delete a tag from OMERO
+     * Deletes a tag from OMERO
      *
      * @param tag TagContainer containing the tag to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws IllegalArgumentException Id not defined
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
@@ -1137,13 +1124,13 @@ public class Client {
     }
 
     /**
-     * Delete a tag from OMERO
+     * Deletes a tag from OMERO
      *
      * @param id Id of the tag to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
      */
@@ -1161,13 +1148,13 @@ public class Client {
     }
 
     /**
-     * Delete a ROI from OMERO
+     * Deletes a ROI from OMERO
      *
      * @param roi ROIContainer containing the ROI to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws IllegalArgumentException Id not defined
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
@@ -1188,13 +1175,13 @@ public class Client {
     }
 
     /**
-     * Delete a ROI from OMERO
+     * Deletes a ROI from OMERO
      *
      * @param id Id of the ROI to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
      */
@@ -1212,13 +1199,13 @@ public class Client {
     }
 
     /**
-     * Delete a table from OMERO
+     * Deletes a table from OMERO
      *
      * @param table TableContainer containing the table to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws IllegalArgumentException Id not defined
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
@@ -1235,13 +1222,13 @@ public class Client {
     }
 
     /**
-     * Delete a file from OMERO
+     * Deletes a file from OMERO
      *
      * @param id Id of the file to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
      */
@@ -1259,13 +1246,13 @@ public class Client {
     }
 
     /**
-     * Delete a Folder from OMERO
+     * Deletes a Folder from OMERO
      *
      * @param folder FolderContainer containing the folder to delete
      *
      * @throws DSOutOfServiceException  Cannot connect to OMERO
      * @throws DSAccessException        Cannot access data
-     * @throws ExecutionException       A Facility can't be retrieved or instancied
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated
      * @throws IllegalArgumentException Id not defined
      * @throws LockTimeout              If the thread was interrupted
      * @throws InterruptedException     If block(long) does not return
@@ -1289,7 +1276,7 @@ public class Client {
 
     /**
      * Constructor of the Client class.
-     * Initialize the gateway.
+     * Initializes the gateway.
      */
     public Client()
     {

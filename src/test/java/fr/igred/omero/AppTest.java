@@ -18,9 +18,10 @@
 package fr.igred.omero;
 
 import java.io.File;
+import java.util.List;
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import fr.igred.omero.metadata.ROIContainer;
@@ -31,6 +32,9 @@ import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
 
 import ij.ImagePlus;
+import ij.plugin.Duplicator;
+import ij.plugin.ImageCalculator;
+import ij.process.ImageStatistics;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -40,6 +44,11 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ShapeData;
 import omero.model.NamedValue;
+import loci.plugins.BF;
+
+import static org.junit.Assert.assertNotEquals;
+
+
 public class AppTest
     extends TestCase
 {
@@ -85,7 +94,7 @@ public class AppTest
     {
         Client root = new Client();
         try  {
-            root.connect("omero", 4064, "blabla", "omero", 3L);
+            root.connect("omero", 4064, "badUser", "omero", 3L);
             assert(false);
         }
         catch (DSOutOfServiceException e) {
@@ -93,12 +102,12 @@ public class AppTest
         }
     }
 
-    public void testConnectionErrorMdp()
+    public void testConnectionErrorPassword()
         throws Exception
     {
         Client root = new Client();
         try  {
-            root.connect("omero", 4064, "root", "ba", 3L);
+            root.connect("omero", 4064, "root", "badPassword", 3L);
             assert(false);
         }
         catch (DSOutOfServiceException e) {
@@ -106,9 +115,7 @@ public class AppTest
         }
     }
 
-    public void testConnectionErrorHost()
-        throws Exception
-    {
+    public void testConnectionErrorHost() {
         Client root = new Client();
         try  {
             root.connect("google.com", 4064, "root", "omero", 3L);
@@ -120,9 +127,7 @@ public class AppTest
         }
     }
 
-    public void testConnectionErrorPort()
-        throws Exception
-    {
+    public void testConnectionErrorPort() {
         Client root = new Client();
         try  {
             root.connect("local", 5000, "root", "omero", 3L);
@@ -360,7 +365,7 @@ public class AppTest
         //Load the image with the key
         List<ImageContainer> images = root.getImagesKey(key);
 
-        List<ImageContainer> imagesCond = new ArrayList<ImageContainer>();
+        List<ImageContainer> imagesCond = new ArrayList<>();
 
         for(ImageContainer image : images)
         {
@@ -716,7 +721,7 @@ public class AppTest
         }
     }
 
-    public void testCopieDataset()
+    public void testCopyDataset()
         throws Exception
     {
         Client root = new Client();
@@ -1113,7 +1118,7 @@ public class AppTest
         }
     }
 
-    public void testErrorTableUnitialized()
+    public void testErrorTableUninitialized()
         throws Exception
     {
         Client root = new Client();
@@ -1182,13 +1187,13 @@ public class AppTest
 
         ImageContainer image = images.get(0);
 
-        List<NamedValue> result1 = new ArrayList<NamedValue>();
-        result1.add(new NamedValue("Test result1", "Valeur Test"));
-        result1.add(new NamedValue("Test2 result1", "Valeur Test2"));
+        List<NamedValue> result1 = new ArrayList<>();
+        result1.add(new NamedValue("Test result1", "Value Test"));
+        result1.add(new NamedValue("Test2 result1", "Value Test2"));
 
-        List<NamedValue> result2 = new ArrayList<NamedValue>();
-        result2.add(new NamedValue("Test result2" , "Valeur Test"));
-        result2.add(new NamedValue("Test2 result2", "Valeur Test2"));
+        List<NamedValue> result2 = new ArrayList<>();
+        result2.add(new NamedValue("Test result2" , "Value Test"));
+        result2.add(new NamedValue("Test2 result2", "Value Test2"));
 
         MapAnnotationContainer mapAnnotation1 = new MapAnnotationContainer(result1);
         MapAnnotationContainer mapAnnotation2 = new MapAnnotationContainer(result2);
@@ -1201,7 +1206,7 @@ public class AppTest
         List<NamedValue> result = image.getKeyValuePairs(root);
 
         assert(result.size() == 4);
-        assertEquals(image.getValue(root, "Test result1"), "Valeur Test");
+        assertEquals(image.getValue(root, "Test result1"), "Value Test");
 
         root.deleteImage(image);
     }
@@ -1223,9 +1228,9 @@ public class AppTest
 
         ImageContainer image = images.get(0);
 
-        List<NamedValue> result = new ArrayList<NamedValue>();
-        result.add(new NamedValue("Test result1", "Valeur Test"));
-        result.add(new NamedValue("Test2 result1", "Valeur Test2"));
+        List<NamedValue> result = new ArrayList<>();
+        result.add(new NamedValue("Test result1", "Value Test"));
+        result.add(new NamedValue("Test2 result1", "Value Test2"));
 
         MapAnnotationContainer mapAnnotation = new MapAnnotationContainer();
         mapAnnotation.setContent(root, result);
@@ -1235,7 +1240,7 @@ public class AppTest
         List<NamedValue> results = image.getKeyValuePairs(root);
 
         assert(results.size() == 2);
-        assertEquals(image.getValue(root, "Test result1"), "Valeur Test");
+        assertEquals(image.getValue(root, "Test result1"), "Value Test");
 
         root.deleteImage(image);
     }
@@ -1257,14 +1262,14 @@ public class AppTest
 
         ImageContainer image = images.get(0);
 
-        image.addPairKeyValue(root, "Test result1", "Valeur Test");
-        image.addPairKeyValue(root, "Test result2", "Valeur Test2");
+        image.addPairKeyValue(root, "Test result1", "Value Test");
+        image.addPairKeyValue(root, "Test result2", "Value Test2");
 
         List<NamedValue> results = image.getKeyValuePairs(root);
 
         assert(results.size() == 2);
         try {
-            image.getValue(root, "Inexistant value");
+            image.getValue(root, "Nonexistent value");
             assert(false);
         }
         catch(Exception e) {
@@ -1324,7 +1329,7 @@ public class AppTest
 
         ImageContainer image = root.getImage(1L);
 
-        List<ShapeData> shapes = new ArrayList<ShapeData>(4);
+        List<ShapeData> shapes = new ArrayList<>(4);
 
         for(int i = 0; i < 4; i++)
         {
@@ -1365,7 +1370,7 @@ public class AppTest
 
         ImageContainer image = root.getImage(1L);
 
-        List<ShapeData> shapes = new ArrayList<ShapeData>(4);
+        List<ShapeData> shapes = new ArrayList<>(4);
         for(int i = 0; i < 4; i++)
        	{
             RectangleData rectangle = new RectangleData(10, 10, 10, 10);
@@ -1387,7 +1392,7 @@ public class AppTest
 
         roiContainer = rois.get(0);
         int size = roiContainer.getShapes().size();
-        int ROInunmber = rois.size();
+        int ROINumber = rois.size();
 
         RectangleData rectangle = new RectangleData(10, 10, 8, 8);
         rectangle.setZ(2);
@@ -1402,7 +1407,7 @@ public class AppTest
         rois = image.getROIs(root);
         roiContainer = rois.get(0);
         assert(size + 1 == roiContainer.getShapes().size());
-        assert(ROInunmber == rois.size());
+        assert(ROINumber == rois.size());
 
         roiContainer.deleteShape(roiContainer.getShapes().size() - 1);
         roiContainer.saveROI(root);
@@ -1410,7 +1415,7 @@ public class AppTest
         rois = image.getROIs(root);
         roiContainer = rois.get(0);
         assert(size == roiContainer.getShapes().size());
-        assert(ROInunmber == rois.size());
+        assert(ROINumber == rois.size());
     }
 
     public void testGetImageInfo()
@@ -1422,7 +1427,7 @@ public class AppTest
         ImageContainer image = root.getImage(1L);
 
         assertEquals("8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake" , image.getName());
-        assertEquals(null, image.getDescription());
+        assertNull(image.getDescription());
         assert(1L == image.getId());
     }
 
@@ -1515,11 +1520,11 @@ public class AppTest
         ImageContainer image = root.getImage(1L);
         PixelContainer pixels = image.getPixels();
 
-        int xBound[] = {0, 2};
-        int yBound[] = {0, 2};
-        int cBound[] = {0, 2};
-        int zBound[] = {0, 2};
-        int tBound[] = {0, 2};
+        int[] xBound = {0, 2};
+        int[] yBound = {0, 2};
+        int[] cBound = {0, 2};
+        int[] zBound = {0, 2};
+        int[] tBound = {0, 2};
 
         double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
 
@@ -1539,10 +1544,14 @@ public class AppTest
         ImageContainer image = root.getImage(1L);
         PixelContainer pixels = image.getPixels();
 
-        int xBound[] = {500, 550};
+        int[] xBound = {511, 513};
+        int[] yBound = {0, 2};
+        int[] cBound = {0, 2};
+        int[] zBound = {0, 2};
+        int[] tBound = {0, 2};
         try {
-            pixels.getAllPixels(root, xBound, null, null, null, null);
-            assert(false);
+            double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
+            assertNotEquals(3, value[0][0][0][0].length);
         } catch (Exception e) {
             assert(true);
         }
@@ -1557,10 +1566,14 @@ public class AppTest
         ImageContainer image = root.getImage(1L);
         PixelContainer pixels = image.getPixels();
 
-        int xBound[] = {-1, 3};
+        int[] xBound = {-1, 1};
+        int[] yBound = {0, 2};
+        int[] cBound = {0, 2};
+        int[] zBound = {0, 2};
+        int[] tBound = {0, 2};
         try {
-            pixels.getAllPixels(root, xBound, null, null, null, null);
-            assert(false);
+            double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
+            assertNotEquals(3, value[0][0][0][0].length);
         } catch (Exception e) {
             assert(true);
         }
@@ -1569,31 +1582,62 @@ public class AppTest
     public void testToImagePlusBound()
         throws Exception
     {
+        int[] xBound = {0, 2};
+        int[] yBound = {0, 2};
+        int[] cBound = {0, 2};
+        int[] zBound = {0, 2};
+        int[] tBound = {0, 2};
+
+        Random random = new Random();
+        xBound[0] = random.nextInt(500);
+        yBound[0] = random.nextInt(500);
+        cBound[0] = random.nextInt(3);
+        tBound[0] = random.nextInt(5);
+        xBound[1] = random.nextInt(507-xBound[0])+xBound[0]+5;
+        yBound[1] = random.nextInt(507-yBound[0])+yBound[0]+5;
+        cBound[1] = random.nextInt(3-cBound[0])+cBound[0]+2;
+        tBound[1] = random.nextInt(5-tBound[0])+tBound[0]+2;
+
+        String fake = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        File fakeFile = new File(fake);
+        fakeFile.createNewFile();
+        ImagePlus reference = BF.openImagePlus(fake)[0];
+        fakeFile.delete();
+        Duplicator duplicator = new Duplicator();
+        reference.setRoi(xBound[0], yBound[0], xBound[1] - xBound[0] + 1, yBound[1] - yBound[0] + 1);
+        ImagePlus crop = duplicator.run(reference, cBound[0], cBound[1], zBound[0], zBound[1], tBound[0], tBound[1]);
+
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
         ImageContainer image = root.getImage(1L);
 
-        int xBound[] = {0, 2};
-        int yBound[] = {0, 2};
-        int cBound[] = {0, 2};
-        int zBound[] = {0, 2};
-        int tBound[] = {0, 2};
-
         ImagePlus imp = image.toImagePlus(root, xBound, yBound, cBound, zBound, tBound);
 
-        int dimensions[] = imp.getDimensions();
+        int[] dimensions = imp.getDimensions();
+        int[] referenceDimensions = crop.getDimensions();
 
-        assertEquals(3, dimensions[0]);
-        assertEquals(3, dimensions[1]);
-        assertEquals(3, dimensions[2]);
-        assertEquals(3, dimensions[3]);
-        assertEquals(3, dimensions[4]);
+        ImageCalculator calculator = new ImageCalculator();
+        ImagePlus difference = calculator.run("difference create stack", crop, imp);
+        ImageStatistics stats = difference.getStatistics();
+
+        assertEquals(referenceDimensions[0], dimensions[0]);
+        assertEquals(referenceDimensions[1], dimensions[1]);
+        assertEquals(referenceDimensions[2], dimensions[2]);
+        assertEquals(referenceDimensions[3], dimensions[3]);
+        assertEquals(referenceDimensions[4], dimensions[4]);
+        assertEquals(0, (int) stats.max);
     }
 
     public void testToImagePlus()
         throws Exception
     {
+        String fake = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        File fakeFile = new File(fake);
+        fakeFile.createNewFile();
+        ImagePlus reference = BF.openImagePlus(fake)[0];
+        fakeFile.delete();
+
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1601,13 +1645,19 @@ public class AppTest
 
         ImagePlus imp = image.toImagePlus(root);
 
-        int dimensions[] = imp.getDimensions();
+        int[] dimensions = imp.getDimensions();
+        int[] referenceDimensions = reference.getDimensions();
 
-        assert(512 == dimensions[0]);
-        assert(512 == dimensions[1]);
-        assert(5 == dimensions[2]);
-        assert(3 == dimensions[3]);
-        assert(7 == dimensions[4]);
+        ImageCalculator calculator = new ImageCalculator();
+        ImagePlus difference = calculator.run("difference create stack", reference, imp);
+        ImageStatistics stats = difference.getStatistics();
+
+        assertEquals(referenceDimensions[0], dimensions[0]);
+        assertEquals(referenceDimensions[1], dimensions[1]);
+        assertEquals(referenceDimensions[2], dimensions[2]);
+        assertEquals(referenceDimensions[3], dimensions[3]);
+        assertEquals(referenceDimensions[4], dimensions[4]);
+        assertEquals(0, (int) stats.max);
     }
 
     public void testGetImageChannel()
@@ -1827,7 +1877,7 @@ public class AppTest
         root.deleteFile(id);
     }
 
-    public void testAddFileimage()
+    public void testAddFileImage()
         throws Exception
     {
         Client root = new Client();

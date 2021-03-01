@@ -48,10 +48,10 @@ import omero.model.TagAnnotationI;
  */
 public class ProjectContainer {
     ///ProjectData contained
-    private ProjectData project;
+    private final ProjectData project;
 
     /**
-     * Get the ProjectData id
+     * Gets the ProjectData id
      *
      * @return ProjectData id
      */
@@ -61,7 +61,7 @@ public class ProjectContainer {
     }
 
     /**
-     * Get the ProjectData name
+     * Gets the ProjectData name
      *
      * @return ProjectData name
      */
@@ -71,7 +71,7 @@ public class ProjectContainer {
     }
 
     /**
-     * Get the ProjectData description
+     * Gets the ProjectData description
      *
      * @return ProjectData description
      */
@@ -92,14 +92,14 @@ public class ProjectContainer {
 
 
     /**
-     * Get all the datasets in the project available from OMERO.
+     * Gets all the datasets in the project available from OMERO.
      *
      * @return Collection of DatasetContainer.
      */
     public List<DatasetContainer> getDatasets() {
         Collection<DatasetData> datasets = project.getDatasets();
 
-        List<DatasetContainer> datasetsContainer = new ArrayList<DatasetContainer>(datasets.size());
+        List<DatasetContainer> datasetsContainer = new ArrayList<>(datasets.size());
 
         for (DatasetData dataset : datasets)
             datasetsContainer.add(new DatasetContainer(dataset));
@@ -108,7 +108,7 @@ public class ProjectContainer {
     }
 
     /**
-     * Get the dataset with the specified name from OMERO
+     * Gets the dataset with the specified name from OMERO
      *
      * @param name name of the Dataset searched
      *
@@ -117,7 +117,7 @@ public class ProjectContainer {
     public List<DatasetContainer> getDatasets(String name) {
         Collection<DatasetData> datasets = project.getDatasets();
 
-        List<DatasetContainer> datasetsContainer = new ArrayList<DatasetContainer>(datasets.size());
+        List<DatasetContainer> datasetsContainer = new ArrayList<>(datasets.size());
 
         for(DatasetData dataset : datasets)
             if (dataset.getName().equals(name))
@@ -142,7 +142,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public DataObject addDataset(Client client,
                                  String name,
@@ -156,9 +156,7 @@ public class ProjectContainer {
         datasetData.setName(name);
         datasetData.setDescription(description);
 
-        DataObject  r = addDataset(client, datasetData);
-
-        return r;
+        return addDataset(client, datasetData);
     }
 
     /**
@@ -171,7 +169,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public DataObject addDataset(Client           client,
                                  DatasetContainer dataset)
@@ -180,9 +178,7 @@ public class ProjectContainer {
             DSAccessException,
             ExecutionException
     {
-        DataObject r = addDataset(client, dataset.getDataset());
-
-        return r;
+        return addDataset(client, dataset.getDataset());
     }
 
     /**
@@ -196,7 +192,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     private DataObject addDataset(Client      client,
                                   DatasetData datasetData)
@@ -206,9 +202,8 @@ public class ProjectContainer {
             ExecutionException
     {
         datasetData.setProjects(Collections.singleton(project));
-        DataObject r = client.getDm().saveAndReturnObject(client.getCtx(), datasetData);
 
-        return r;
+        return client.getDm().saveAndReturnObject(client.getCtx(), datasetData);
     }
 
 
@@ -227,7 +222,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public IObject addTag(Client client,
                           String name,
@@ -240,8 +235,7 @@ public class ProjectContainer {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
 
-        IObject r = addTag(client, tagData);
-        return r;
+        return addTag(client, tagData);
     }
 
     /**
@@ -254,7 +248,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public IObject addTag(Client                 client,
                           TagAnnotationContainer tag)
@@ -263,8 +257,7 @@ public class ProjectContainer {
             DSAccessException,
             ExecutionException
     {
-        IObject r = addTag(client, tag.getTag());
-        return r;
+        return addTag(client, tag.getTag());
     }
 
     /**
@@ -278,7 +271,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     private IObject addTag(Client            client,
                            TagAnnotationData tagData)
@@ -291,8 +284,7 @@ public class ProjectContainer {
         link.setChild(tagData.asAnnotation());
         link.setParent(new ProjectI(project.getId(), false));
 
-        IObject r = client.getDm().saveAndReturnObject(client.getCtx(), link);
-        return r;
+        return client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
     /**
@@ -305,7 +297,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public IObject addTag(Client client,
                           Long   id)
@@ -317,9 +309,8 @@ public class ProjectContainer {
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new ProjectI(project.getId(), false));
-        IObject r = client.getDm().saveAndReturnObject(client.getCtx(), link);
 
-        return r;
+        return client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
     /**
@@ -332,7 +323,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public Collection<IObject> addTags(Client                    client,
                                        TagAnnotationContainer... tags)
@@ -341,7 +332,7 @@ public class ProjectContainer {
             DSAccessException,
             ExecutionException
     {
-        Collection<IObject> objects = new ArrayList<IObject>();
+        Collection<IObject> objects = new ArrayList<>();
         for(TagAnnotationContainer tag : tags) {
             IObject r = addTag(client, tag.getTag());
             objects.add(r);
@@ -361,7 +352,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public Collection<IObject> addTags(Client  client,
                                        Long... ids)
@@ -370,7 +361,7 @@ public class ProjectContainer {
             DSAccessException,
             ExecutionException
     {
-        Collection<IObject> objects = new ArrayList<IObject>();
+        Collection<IObject> objects = new ArrayList<>();
         for(Long id : ids) {
             IObject r = addTag(client, id);
             objects.add(r);
@@ -380,7 +371,7 @@ public class ProjectContainer {
     }
 
     /**
-     * Get all tag linked to a project in OMERO
+     * Gets all tag linked to a project in OMERO
      *
      * @param client The user
      *
@@ -388,7 +379,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public List<TagAnnotationContainer> getTags(Client client)
         throws
@@ -396,15 +387,15 @@ public class ProjectContainer {
             DSAccessException,
             ExecutionException
     {
-        List<Long> userIds = new ArrayList<Long>();
+        List<Long> userIds = new ArrayList<>();
         userIds.add(client.getId());
 
-        List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>();
+        List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
 
         List<AnnotationData> annotations = client.getMetadata().getAnnotations(client.getCtx(), project, types, userIds);
 
-        List<TagAnnotationContainer> tags = new ArrayList<TagAnnotationContainer>();
+        List<TagAnnotationContainer> tags = new ArrayList<>();
 
         if(annotations != null) {
             for (AnnotationData annotation : annotations) {
@@ -414,12 +405,12 @@ public class ProjectContainer {
             }
         }
 
-        Collections.sort(tags, new SortTagAnnotationContainer());
+        tags.sort(new SortTagAnnotationContainer());
         return tags;
     }
 
     /**
-     * Get all images in the dataset available from OMERO.
+     * Gets all images in the dataset available from OMERO.
      *
      * @return ImageContainer list
      *
@@ -428,11 +419,11 @@ public class ProjectContainer {
      */
     private List<ImageContainer> purge(List<ImageContainer> images)
     {
-        List<ImageContainer> purged = new ArrayList<ImageContainer>();
+        List<ImageContainer> purged = new ArrayList<>();
 
         for(ImageContainer image : images)
         {
-            if(purged.isEmpty() || purged.get(purged.size() - 1).getId() != image.getId())
+            if(purged.isEmpty() || !purged.get(purged.size() - 1).getId().equals(image.getId()))
             {
                 purged.add(image);
             }
@@ -442,7 +433,7 @@ public class ProjectContainer {
     }
 
     /**
-     * Get all images in the project available from OMERO.
+     * Gets all images in the project available from OMERO.
      *
      * @param client The user
      *
@@ -458,19 +449,19 @@ public class ProjectContainer {
     {
         Collection<DatasetContainer> datasets = getDatasets();
 
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
         for(DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImages(client));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return purge(imagesContainer);
     }
 
     /**
-     * Get all images in the project with a certain from OMERO.
+     * Gets all images in the project with a certain from OMERO.
      *
      * @param client The user
      * @param name   Name searched
@@ -488,19 +479,19 @@ public class ProjectContainer {
     {
         Collection<DatasetContainer> datasets = getDatasets();
 
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
         for(DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImages(client, name));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return purge(imagesContainer);
     }
 
     /**
-     * Get all images in the project with a certain motif in their name from OMERO.
+     * Gets all images in the project with a certain motif in their name from OMERO.
      *
      * @param client The user
      * @param motif  Motif searched in an Image name
@@ -518,19 +509,19 @@ public class ProjectContainer {
     {
         Collection<DatasetContainer> datasets = getDatasets();
 
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>(datasets.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
 
         for(DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesLike(client, motif));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return purge(imagesContainer);
     }
 
     /**
-     * Get all images in the project tagged with a specified tag from OMERO.
+     * Gets all images in the project tagged with a specified tag from OMERO.
      *
      * @param client The user
      * @param tag    TagAnnotationContainer containing the tag researched
@@ -539,31 +530,29 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<ImageContainer> getImagesTagged(Client                 client,
                                                 TagAnnotationContainer tag)
         throws
             DSOutOfServiceException,
             DSAccessException,
-            ExecutionException,
             ServerError
     {
         Collection<DatasetContainer> datasets = getDatasets();
 
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>(datasets.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
 
         for(DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesTagged(client, tag));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return purge(imagesContainer);
     }
 
     /**
-     * Get all images in the project tagged with a specified tag from OMERO.
+     * Gets all images in the project tagged with a specified tag from OMERO.
      *
      * @param client The user
      * @param tagId   Id of the tag researched
@@ -572,31 +561,29 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
      */
     public List<ImageContainer> getImagesTagged(Client client,
                                                 Long   tagId)
         throws
             DSOutOfServiceException,
             DSAccessException,
-            ExecutionException,
             ServerError
     {
         Collection<DatasetContainer> datasets = getDatasets();
 
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>(datasets.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
 
         for(DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesTagged(client, tagId));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return purge(imagesContainer);
     }
 
     /**
-     * Get all images in the project with a certain key
+     * Gets all images in the project with a certain key
      *
      * @param client The user
      * @param key    Name of the key researched
@@ -605,7 +592,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public List<ImageContainer> getImagesKey(Client client,
                                              String key)
@@ -616,19 +603,19 @@ public class ProjectContainer {
     {
         Collection<DatasetContainer> datasets = getDatasets();
 
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>(datasets.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
 
         for(DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesKey(client, key));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return purge(imagesContainer);
     }
 
     /**
-     * Get all images in the project with a certain key value pair from OMERO.
+     * Gets all images in the project with a certain key value pair from OMERO.
      *
      * @param client The user
      * @param key    Name of the key researched
@@ -638,7 +625,7 @@ public class ProjectContainer {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO
      * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated
      */
     public List<ImageContainer> getImagesPairKeyValue(Client client,
                                                       String key,
@@ -650,13 +637,13 @@ public class ProjectContainer {
     {
         Collection<DatasetContainer> datasets = getDatasets();
 
-        List<ImageContainer> imagesContainer = new ArrayList<ImageContainer>(datasets.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
 
         for(DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesPairKeyValue(client, key, value));
         }
 
-        Collections.sort(imagesContainer, new SortImageContainer());
+        imagesContainer.sort(new SortImageContainer());
 
         return purge(imagesContainer);
     }

@@ -30,7 +30,7 @@ public class SortImageContainer implements Comparator<ImageContainer> {
      * Compare the id of the imageContainer.
      *
      * @param img1 First image to compare
-     * @param img2 Second image to comapre
+     * @param img2 Second image to compare
      *
      * @return
      *      -1 if the id of img1 is lower than the id img2.
