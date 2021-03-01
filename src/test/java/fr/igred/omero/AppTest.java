@@ -1605,7 +1605,7 @@ public class AppTest
         fakeFile.delete();
         Duplicator duplicator = new Duplicator();
         reference.setRoi(xBound[0], yBound[0], xBound[1] - xBound[0] + 1, yBound[1] - yBound[0] + 1);
-        ImagePlus crop = duplicator.run(reference, cBound[0], cBound[1], zBound[0], zBound[1], tBound[0], tBound[1]);
+        ImagePlus crop = duplicator.run(reference, cBound[0]+1, cBound[1]+1, zBound[0]+1, zBound[1]+1, tBound[0]+1, tBound[1]+1);
 
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
