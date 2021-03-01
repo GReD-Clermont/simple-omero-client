@@ -762,7 +762,7 @@ public class ImageContainer {
                 int zBoundTemp[] = {z, z};
                 for(int c = cStart; c < cEnd; c++) {
                     int cBoundTemp[] = {c, c};
-                    int n = imp.getStackIndex(c+1, z+1, t+1);
+                    int n = imp.getStackIndex(c-cStart+1, z-zStart+1, t-tStart+1);
 
                     byte tiles[] = pixels.getRawPixels(client, xBound, yBound, cBoundTemp, zBoundTemp, tBoundTemp, bpp)[0][0][0];
 
