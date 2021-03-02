@@ -252,7 +252,7 @@ public class AppTest
 
         ImageContainer image = root.getImage(1L);
 
-        assertEquals("8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake", image.getName());
+        assertEquals("image1.fake", image.getName());
     }
 
 
@@ -274,7 +274,7 @@ public class AppTest
         root.connect("omero", 4064, "root", "omero", 3L);
 
         List<ImageContainer> images =
-                root.getImages("8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+                root.getImages("image1.fake");
 
         assert (images.size() == 3);
     }
@@ -542,8 +542,7 @@ public class AppTest
 
         ProjectContainer project = root.getProject(2L);
 
-        List<ImageContainer> images = project.getImages(root,
-                                                        "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        List<ImageContainer> images = project.getImages(root, "image1.fake");
 
         assert (images.size() == 2);
     }
@@ -838,8 +837,7 @@ public class AppTest
 
         DatasetContainer dataset = root.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(root,
-                                                        "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        List<ImageContainer> images = dataset.getImages(root, "image1.fake");
 
         assert (images.size() == 2);
     }
@@ -922,17 +920,17 @@ public class AppTest
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
-        File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
         f.createNewFile();
 
-        File f2 = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
+        File f2 = new File("./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
         f2.createNewFile();
 
         DatasetContainer dataset = root.getDataset(2L);
 
         dataset.importImages(root,
-                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake",
-                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
+                             "./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake",
+                             "./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
 
         List<ImageContainer> images = dataset.getImages(root);
 
@@ -1326,7 +1324,7 @@ public class AppTest
 
         ImageContainer image = root.getImage(1L);
 
-        assertEquals("8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake", image.getName());
+        assertEquals("image1.fake", image.getName());
         assertNull(image.getDescription());
         assert (1L == image.getId());
     }
@@ -1515,6 +1513,10 @@ public class AppTest
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
         ImageStatistics stats      = difference.getStatistics();
 
+        assertEquals(0.5, imp.getCalibration().pixelHeight);
+        assertEquals(0.5, imp.getCalibration().pixelWidth);
+        assertEquals(1.0, imp.getCalibration().pixelDepth);
+        assertEquals("MICROMETER", imp.getCalibration().getUnit());
         assertEquals(referenceDimensions[0], dimensions[0]);
         assertEquals(referenceDimensions[1], dimensions[1]);
         assertEquals(referenceDimensions[2], dimensions[2]);
@@ -1545,6 +1547,10 @@ public class AppTest
         ImagePlus       difference = calculator.run("difference create stack", reference, imp);
         ImageStatistics stats      = difference.getStatistics();
 
+        assertEquals(0.5, imp.getCalibration().pixelHeight);
+        assertEquals(0.5, imp.getCalibration().pixelWidth);
+        assertEquals(1.0, imp.getCalibration().pixelDepth);
+        assertEquals("MICROMETER", imp.getCalibration().getUnit());
         assertEquals(referenceDimensions[0], dimensions[0]);
         assertEquals(referenceDimensions[1], dimensions[1]);
         assertEquals(referenceDimensions[2], dimensions[2]);

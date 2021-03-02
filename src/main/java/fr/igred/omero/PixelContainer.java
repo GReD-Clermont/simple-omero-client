@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class PixelContainer {
 
+    /** Size of tiles when retrieving pixels */
     static public final int        maxDist = 5000;
     /** PixelData contained */
     final               PixelsData pixels;
