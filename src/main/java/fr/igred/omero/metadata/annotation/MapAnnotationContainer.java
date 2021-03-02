@@ -18,7 +18,6 @@
 package fr.igred.omero.metadata.annotation;
 
 
-import fr.igred.omero.Client;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
 
@@ -69,8 +68,8 @@ public class MapAnnotationContainer {
      *
      * @return MapAnnotationData content.
      */
+    @SuppressWarnings("unchecked")
     public List<NamedValue> getContent() {
-        //noinspection unchecked
         return (List<NamedValue>) data.getContent();
     }
 
@@ -88,10 +87,9 @@ public class MapAnnotationContainer {
     /**
      * Sets the content of the MapAnnotationData.
      *
-     * @param client The user.
      * @param result List of NamedValue(Key-Value pair).
      */
-    public void setContent(Client client, List<NamedValue> result) {
+    public void setContent(List<NamedValue> result) {
         data = new MapAnnotationData();
         data.setContent(result);
     }

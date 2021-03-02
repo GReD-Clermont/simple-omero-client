@@ -606,6 +606,7 @@ public class Client {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws DSAccessException       Cannot access data.
+     * @throws ServerError             Server connection error.
      */
     public List<ImageContainer> getImagesTagged(TagAnnotationContainer tag)
     throws DSOutOfServiceException, DSAccessException, ServerError {
@@ -633,6 +634,7 @@ public class Client {
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws DSAccessException       Cannot access data.
+     * @throws ServerError             Server connection error.
      */
     public List<ImageContainer> getImagesTagged(Long tagId)
     throws DSOutOfServiceException, DSAccessException, ServerError {

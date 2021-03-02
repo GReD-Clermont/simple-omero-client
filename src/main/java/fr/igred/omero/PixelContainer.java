@@ -273,6 +273,8 @@ public class PixelContainer {
      * @param client The user.
      * @param bpp    Bytes per pixels of the image.
      *
+     * @return a table of bytes containing the pixel values
+     *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException  A Facility can't be retrieved or instantiated.
      */
@@ -291,6 +293,8 @@ public class PixelContainer {
      * @param zBound Array containing the Z bound from which the pixels should be retrieved.
      * @param tBound Array containing the T bound from which the pixels should be retrieved.
      * @param bpp    Bytes per pixels of the image.
+     *
+     * @return a table of bytes containing the pixel values
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException  A Facility can't be retrieved or instantiated.

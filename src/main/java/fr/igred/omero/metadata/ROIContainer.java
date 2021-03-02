@@ -163,6 +163,9 @@ public class ROIContainer {
      * Saves the ROI.
      *
      * @param client The user.
+     *
+     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws ServerError             Server connection error.
      */
     public void saveROI(Client client) throws ServerError, DSOutOfServiceException {
         Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());

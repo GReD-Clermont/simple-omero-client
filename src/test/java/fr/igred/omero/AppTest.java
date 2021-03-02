@@ -34,6 +34,7 @@ import junit.framework.TestSuite;
 import loci.plugins.BF;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ShapeData;
 import omero.model.NamedValue;
@@ -1107,7 +1108,10 @@ public class AppTest
         result2.add(new NamedValue("Test2 result2", "Value Test2"));
 
         MapAnnotationContainer mapAnnotation1 = new MapAnnotationContainer(result1);
-        MapAnnotationContainer mapAnnotation2 = new MapAnnotationContainer(result2);
+
+        MapAnnotationData mapData2 = new MapAnnotationData();
+        mapData2.setContent(result2);
+        MapAnnotationContainer mapAnnotation2 = new MapAnnotationContainer(mapData2);
 
         assertEquals(result1, mapAnnotation1.getContent());
 
@@ -1143,7 +1147,7 @@ public class AppTest
         result.add(new NamedValue("Test2 result1", "Value Test2"));
 
         MapAnnotationContainer mapAnnotation = new MapAnnotationContainer();
-        mapAnnotation.setContent(root, result);
+        mapAnnotation.setContent(result);
 
         image.addMapAnnotation(root, mapAnnotation);
 

@@ -343,7 +343,7 @@ public class ImageContainer {
             for (AnnotationData annotation : annotations) {
                 MapAnnotationData mapAnnotation = (MapAnnotationData) annotation;
 
-                //noinspection unchecked
+                @SuppressWarnings("unchecked")
                 List<NamedValue> list = (List<NamedValue>) mapAnnotation.getContent();
 
                 keyValuePairs.addAll(list);
@@ -393,7 +393,8 @@ public class ImageContainer {
      */
     public void addMapAnnotation(Client client, MapAnnotationContainer data)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        client.getDm().attachAnnotation(client.getCtx(), data.getMapAnnotation(),
+        client.getDm().attachAnnotation(client.getCtx(),
+                                        data.getMapAnnotation(),
                                         new ImageData(new ImageI(image.getId(), false)));
     }
 
