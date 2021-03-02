@@ -17,186 +17,191 @@
 
 package fr.igred.omero.metadata;
 
+
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
+
 /**
- * Class containing the information to create a Table in OMERO
- * The TableData itself is not contained, only the elements to create it, because once created the TableData cannot be altered
- * To get the TableData corresponding to the elements contained use createTable
+ * Class containing the information to create a Table in OMERO.
+ * <p> The TableData itself is not contained, only the elements to create it, because once created the TableData cannot
+ * be altered.
+ * <p> To get the TableData corresponding to the elements contained use createTable.
  */
 public class TableContainer {
 
-    ///Number of column in the table
-    final int columnCount;
-    ///Information of each column (Name, Type)
+    /** Number of column in the table */
+    final int               columnCount;
+    /** Information of each column (Name, Type) */
     final TableDataColumn[] columns;
 
-    ///Number of row in the table
-    int rowCount;
-    ///Content of the table
+    /** Number of row in the table */
+    int        rowCount;
+    /** Content of the table */
     Object[][] data;
 
-    ///Current position in the table
-    int row;
-    ///Name of the table
+    /** Current position in the table */
+    int    row;
+    /** Name of the table */
     String name;
 
-    ///File id of the table
+    /** File id of the table */
     Long fileId;
-    ///Id of the table
+    /** Id of the table */
     Long id;
+
+
+    /**
+     * Constructor of the class TableContainer
+     *
+     * @param columnCount Number of column in the table.
+     * @param name        Name of the table.
+     */
+    public TableContainer(int columnCount,
+                          String name) {
+        this.columnCount = columnCount;
+        columns = new TableDataColumn[columnCount];
+
+        rowCount = 0;
+
+        this.name = name;
+
+        row = 0;
+    }
+
+
+    /**
+     * Constructor of the class TableContainer. Uses an already existing table to create.
+     *
+     * @param table The table.
+     */
+    public TableContainer(TableData table) {
+        this.columns = table.getColumns();
+        columnCount = columns.length;
+
+        data = table.getData();
+        rowCount = (int) table.getNumberOfRows();
+        row = rowCount;
+    }
+
 
     /**
      * Gets the {@link TableDataColumn} which contains information on each column of the table
      *
-     * @return the {@link TableDataColumn} which contains information on each column of the table
+     * @return the {@link TableDataColumn} which contains information on each column of the table.
      */
-    public TableDataColumn[] getColumns()
-    {
+    public TableDataColumn[] getColumns() {
         return columns.clone();
     }
+
 
     /**
      * Gets the value contained in the table
      *
-     * @return the value contained in the table
+     * @return the value contained in the table.
      */
-    public Object[][] getData()
-    {
+    public Object[][] getData() {
         return data.clone();
     }
+
 
     /**
      * Gets a certain value of the table
      *
-     * @param x row position
-     * @param y column position
+     * @param x Row position.
+     * @param y Column position.
      *
-     * @return the value at position data[y][x]
+     * @return the value at position data[y][x].
      */
     public Object getData(int x,
-                          int y)
-    {
+                          int y) {
         return data[y][x];
     }
 
-    /**
-     * Sets the fileId of the table.
-     *
-     * @param fileId New fileId
-     */
-    public void setFileId(Long fileId)
-    {
-        this.fileId = fileId;
-    }
 
     /**
      * @return fileId of the table.
      */
-    public Long getFileId()
-    {
+    public Long getFileId() {
         return fileId;
     }
+
+
+    /**
+     * Sets the fileId of the table.
+     *
+     * @param fileId New fileId.
+     */
+    public void setFileId(Long fileId) {
+        this.fileId = fileId;
+    }
+
+
+    /**
+     * @return id of the table.
+     */
+    public Long getId() {
+        return id;
+    }
+
 
     /**
      * Sets the id of the table.
      *
-     * @param id New id
+     * @param id New id.
      */
     public void setId(
-        Long id)
-    {
+            Long id) {
         this.id = id;
     }
 
-    /**
-     * @return id of the table
-     */
-    public Long getId()
-    {
-        return id;
-    }
 
     /**
-     * Sets the name of the table.
-     *
-     * @param name New name
-     */
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    /**
-     * @return name of the table
+     * @return name of the table.
      */
     public String getName() {
         return name;
     }
 
+
     /**
-     * @return number of column in the table
+     * Sets the name of the table.
+     *
+     * @param name New name.
      */
-    public int getColumnCount()
-    {
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    /**
+     * @return number of column in the table.
+     */
+    public int getColumnCount() {
         return columnCount;
     }
 
+
     /**
-     * @return number of row in the table
+     * @return number of row in the table.
      */
-    public int getRowCount()
-    {
+    public int getRowCount() {
         return rowCount;
     }
 
-    /**
-     * Checks if the table is complete
-     *
-     * @return true  if the table is completed.
-     *         false if some row are still empty
-     */
-    public boolean isComplete()
-    {
-        return row == rowCount;
-    }
 
     /**
-     * Sets the information about a certain column.
+     * Sets the number of row in the table. Copies already existing data if some were already in the data
      *
-     * @param column Column number
-     * @param name   Name of the column
-     * @param type   Type of the column
-     *
-     * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table
+     * @param rowCount New rowCount.
      */
-    public void setColumn(int column,
-                          String name,
-                          Class<?> type)
-        throws
-            IndexOutOfBoundsException
-    {
-        if (column < columnCount)
-            columns[column] = new TableDataColumn(name, column, type);
-        else
-            throw new IndexOutOfBoundsException("Column " + column + " doesn't exist");
-    }
-
-    /**
-     * Sets the number of row in the table.
-     * Copies already existing data if some were already in the data
-     *
-     * @param rowCount New rowCount
-     */
-    public void setRowCount(int rowCount)
-    {
+    public void setRowCount(int rowCount) {
         Object[][] temp = new Object[columnCount][rowCount];
 
-        if(data != null) {
+        if (data != null) {
             row = Math.min(rowCount, row);
-            for(int i = 0; i < row; i++)
-                for(int j = 0; j < columnCount; j++)
+            for (int i = 0; i < row; i++)
+                for (int j = 0; j < columnCount; j++)
                     temp[j][i] = data[j][i];
         }
 
@@ -204,19 +209,43 @@ public class TableContainer {
         data = temp;
     }
 
+
+    /**
+     * Checks if the table is complete
+     *
+     * @return true  if the table is completed. false if some row are still empty.
+     */
+    public boolean isComplete() {
+        return row == rowCount;
+    }
+
+
+    /**
+     * Sets the information about a certain column.
+     *
+     * @param column Column number.
+     * @param name   Name of the column.
+     * @param type   Type of the column.
+     *
+     * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
+     */
+    public void setColumn(int column, String name, Class<?> type) throws IndexOutOfBoundsException {
+        if (column < columnCount)
+            columns[column] = new TableDataColumn(name, column, type);
+        else
+            throw new IndexOutOfBoundsException("Column " + column + " doesn't exist");
+    }
+
+
     /**
      * Adds a row to the table.
      *
-     * @param os Value for each column for the row
+     * @param os Value for each column for the row.
      *
-     * @throws IndexOutOfBoundsException Table is not initialized or already full
-     * @throws IllegalArgumentException  Incorrect argument number
+     * @throws IndexOutOfBoundsException Table is not initialized or already full.
+     * @throws IllegalArgumentException  Incorrect argument number.
      */
-    public void addRow(Object... os)
-        throws
-            IndexOutOfBoundsException,
-            IllegalArgumentException
-    {
+    public void addRow(Object... os) throws IndexOutOfBoundsException, IllegalArgumentException {
         if (row < rowCount && os.length == columnCount) {
             for (int i = 0; i < os.length; i++) {
                 Object o = os[i];
@@ -235,53 +264,19 @@ public class TableContainer {
         }
     }
 
+
     /**
      * Deletes all unused row in the table
      */
-    public void truncateRow()
-    {
+    public void truncateRow() {
         setRowCount(row);
     }
 
-    public TableData createTable()
-    {
+
+    public TableData createTable() {
         truncateRow();
 
         return new TableData(columns, data);
     }
 
-    /**
-     * Constructor of the class TableContainer
-     *
-     * @param columnCount Number of column in the table
-     * @param name        Name of the table
-     */
-    public TableContainer(int    columnCount,
-                          String name)
-    {
-        this.columnCount = columnCount;
-        columns = new TableDataColumn[columnCount];
-
-        rowCount = 0;
-
-        this.name = name;
-
-        row = 0;
-    }
-
-    /**
-     * Constructor of the class TableContainer.
-     * Use a already existing table to create.
-     *
-     * @param table
-     */
-    public TableContainer(TableData table)
-    {
-        this.columns = table.getColumns();
-        columnCount = columns.length;
-
-        data = table.getData();
-        rowCount = (int)table.getNumberOfRows();
-        row = rowCount;
-    }
 }
