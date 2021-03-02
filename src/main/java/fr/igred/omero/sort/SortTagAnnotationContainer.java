@@ -17,29 +17,28 @@
 
 package fr.igred.omero.sort;
 
-import java.util.Comparator;
 
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+
+import java.util.Comparator;
+
 
 /**
  * Class used to sort TagAnnotationContainers
  */
 public class SortTagAnnotationContainer implements Comparator<TagAnnotationContainer> {
+
     /**
-     * Compare 2 tagAnnotationContainer.
-     * Compare the id of the tagAnnotationContainer.
+     * Compare 2 tagAnnotationContainer. Compare the id of the tagAnnotationContainer.
      *
-     * @param tag1 First tag to compare
-     * @param tag2 Second tag to compare
+     * @param tag1 First tag to compare.
+     * @param tag2 Second tag to compare.
      *
-     * @return
-     *      -1 if the id of tag1 is lower than the id tag2.
-     *      0  if the ids are the same.
-     *      1  if the id of tag1 is greater than the id of tag2.
+     * @return -1 if the id of tag1 is lower than the id tag2. 0  if the ids are the same. 1  if the id of tag1 is.
+     * greater than the id of tag2.
      */
-    public int compare(TagAnnotationContainer tag1,
-                       TagAnnotationContainer tag2)
-    {
+    public int compare(TagAnnotationContainer tag1, TagAnnotationContainer tag2) {
         return Long.compare(tag1.getId(), tag2.getId());
     }
+
 }

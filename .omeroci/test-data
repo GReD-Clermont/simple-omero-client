@@ -39,12 +39,32 @@ omero obj new ProjectDatasetLink parent=$PROJECT1 child=$DATASET2
 omero obj new ProjectDatasetLink parent=$PROJECT2 child=$DATASET3
 
 
-touch "$WORKDIR/8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake"
-IMAGE1=$(omero import --output=ids  "$WORKDIR/8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake" -T Dataset:id:1)
-IMAGE2=$(omero import --output=ids  "$WORKDIR/8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake" -T Dataset:id:1)
-touch "$WORKDIR/8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake"
-IMAGE3=$(omero import --output=ids  "$WORKDIR/8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake" -T Dataset:id:1)
-IMAGE4=$(omero import --output=ids  "$WORKDIR/8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake" -T Dataset:id:3)
+touch "$WORKDIR/image1.fake"
+echo "pixelType=uint8" >> $WORKDIR/image1.fake.ini
+echo "sizeX=512" >> $WORKDIR/image1.fake.ini
+echo "sizeY=512" >> $WORKDIR/image1.fake.ini
+echo "sizeZ=3" >> $WORKDIR/image1.fake.ini
+echo "sizeC=5" >> $WORKDIR/image1.fake.ini
+echo "sizeT=7" >> $WORKDIR/image1.fake.ini
+echo "physicalSizeX=0.5µm" >> $WORKDIR/image1.fake.ini
+echo "physicalSizeY=0.5µm" >> $WORKDIR/image1.fake.ini
+echo "physicalSizeZ=1µm" >> $WORKDIR/image1.fake.ini
+
+touch "$WORKDIR/image2.fake"
+echo "pixelType=uint8" >> $WORKDIR/image2.fake.ini
+echo "sizeX=512" >> $WORKDIR/image2.fake.ini
+echo "sizeY=512" >> $WORKDIR/image2.fake.ini
+echo "sizeZ=2" >> $WORKDIR/image2.fake.ini
+echo "sizeC=5" >> $WORKDIR/image2.fake.ini
+echo "sizeT=7" >> $WORKDIR/image2.fake.ini
+echo "physicalSizeX=1µm" >> $WORKDIR/image2.fake.ini
+echo "physicalSizeY=1µm" >> $WORKDIR/image2.fake.ini
+echo "physicalSizeZ=2µm" >> $WORKDIR/image2.fake.ini
+
+IMAGE1=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:1)
+IMAGE2=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:1)
+IMAGE3=$(omero import --output=ids  "$WORKDIR/image2.fake" -T Dataset:id:1)
+IMAGE4=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:3)
 
 TAG1=$(omero obj new TagAnnotation textValue=tag1 description=description)
 TAG2=$(omero obj new TagAnnotation textValue=tag2)

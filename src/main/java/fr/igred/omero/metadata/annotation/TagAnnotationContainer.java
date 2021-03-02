@@ -17,95 +17,93 @@
 
 package fr.igred.omero.metadata.annotation;
 
-import java.util.concurrent.ExecutionException;
 
 import fr.igred.omero.Client;
-
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.TagAnnotationData;
 
+import java.util.concurrent.ExecutionException;
+
+
 /**
  * Class containing a TagAnnotationData
- * Implements function using the TagAnnotationData contained
+ * <p> Implements function using the TagAnnotationData contained.
  */
 public class TagAnnotationContainer {
-    ///TagAnnotationContainer contained
-    private TagAnnotationData tag;
 
-    /**
-     * Get the name of the TagData.
-     *
-     * @return TagData name
-     */
-    public String getName()
-    {
-        return tag.getNameSpace();
-    }
+    /** TagAnnotationContainer contained */
+    private final TagAnnotationData tag;
 
-    /**
-     * Get the description of the TagData.
-     *
-     * @return TagData description
-     */
-    public String getDescription()
-    {
-        return tag.getDescription();
-    }
-
-    /**
-     * Get the TagData id.
-     *
-     * @return TagData id
-     */
-    public Long getId()
-    {
-        return tag.getId();
-    }
-
-    /**
-     * Return the TagAnnotationData contained.
-     *
-     * @return
-     */
-    public TagAnnotationData getTag()
-    {
-        return tag;
-    }
 
     /**
      * Constructor of the TagAnnotationContainer class.
      *
-     * @param tag Tag to be contained
+     * @param tag Tag to be contained.
      */
-    public TagAnnotationContainer(TagAnnotationData tag)
-    {
+    public TagAnnotationContainer(TagAnnotationData tag) {
         this.tag = tag;
         this.tag.setNameSpace(tag.getContentAsString());
     }
 
+
     /**
-     * Constructor of the TagAnnotationContainer class.
-     * Create the tag and save it in OMERO
+     * Constructor of the TagAnnotationContainer class. Creates the tag and save it in OMERO.
      *
-     * @param client      The user
-     * @param name        Tag name
-     * @param description Tag description
-     * @throws DSOutOfServiceException Cannot connect to OMERO
-     * @throws DSAccessException       Cannot access data
-     * @throws ExecutionException      A Facility can't be retrieved or instancied
+     * @param client      The user.
+     * @param name        Tag name.
+     * @param description Tag description.
+     *
+     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws DSAccessException       Cannot access data.
+     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public TagAnnotationContainer(Client client,
-                                  String name,
-                                  String description)
-        throws
-            DSOutOfServiceException,
-            DSAccessException,
-            ExecutionException
-    {
+    public TagAnnotationContainer(Client client, String name, String description)
+    throws DSOutOfServiceException, DSAccessException, ExecutionException {
         this.tag = new TagAnnotationData(name, description);
         DataObject o = client.getDm().saveAndReturnObject(client.getCtx(), tag);
         this.tag.setId(o.getId());
     }
+
+
+    /**
+     * Gets the name of the TagData.
+     *
+     * @return TagData name.
+     */
+    public String getName() {
+        return tag.getNameSpace();
+    }
+
+
+    /**
+     * Gets the description of the TagData.
+     *
+     * @return TagData description.
+     */
+    public String getDescription() {
+        return tag.getDescription();
+    }
+
+
+    /**
+     * Gets the TagData id.
+     *
+     * @return TagData id.
+     */
+    public Long getId() {
+        return tag.getId();
+    }
+
+
+    /**
+     * Gets the TagAnnotationData contained.
+     *
+     * @return the {@link TagAnnotationData} contained.
+     */
+    public TagAnnotationData getTag() {
+        return tag;
+    }
+
 }

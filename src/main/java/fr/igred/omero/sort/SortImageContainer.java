@@ -17,29 +17,28 @@
 
 package fr.igred.omero.sort;
 
-import java.util.Comparator;
 
 import fr.igred.omero.ImageContainer;
+
+import java.util.Comparator;
+
 
 /**
  * Class used to sort ImageContainers
  */
 public class SortImageContainer implements Comparator<ImageContainer> {
+
     /**
-     * Compare 2 imageContainer.
-     * Compare the id of the imageContainer.
+     * Compare 2 imageContainer. Compare the id of the imageContainer.
      *
-     * @param img1 First image to compare
-     * @param img2 Second image to comapre
+     * @param img1 First image to compare.
+     * @param img2 Second image to compare.
      *
-     * @return
-     *      -1 if the id of img1 is lower than the id img2.
-     *      0  if the ids are the same.
-     *      1  if the id of img1 is greater than the id of img2.
+     * @return -1 if the id of img1 is lower than the id img2. 0  if the ids are the same. 1  if the id of img1 is.
+     * greater than the id of img2.
      */
-    public int compare(ImageContainer img1,
-                       ImageContainer img2)
-    {
+    public int compare(ImageContainer img1, ImageContainer img2) {
         return Long.compare(img1.getId(), img2.getId());
     }
+
 }
