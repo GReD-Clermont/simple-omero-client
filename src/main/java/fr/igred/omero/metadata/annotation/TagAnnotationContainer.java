@@ -19,9 +19,10 @@ package fr.igred.omero.metadata.annotation;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.model.DataObject;
 import omero.gateway.model.TagAnnotationData;
 
 import java.util.concurrent.ExecutionException;
@@ -55,15 +56,22 @@ public class TagAnnotationContainer {
      * @param name        Tag name.
      * @param description Tag description.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public TagAnnotationContainer(Client client, String name, String description)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         this.tag = new TagAnnotationData(name, description);
-        DataObject o = client.getDm().saveAndReturnObject(client.getCtx(), tag);
-        this.tag.setId(o.getId());
+        TagAnnotationData newTag;
+        try {
+            newTag = (TagAnnotationData) client.getDm().saveAndReturnObject(client.getCtx(), tag);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+        this.tag.setId(newTag.getId());
     }
 
 

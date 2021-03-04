@@ -21,6 +21,21 @@
         </dependency>
         <dependency>
             <groupId>org.openmicroscopy</groupId>
+            <artifactId>omero-model</artifactId>
+            <version>5.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.openmicroscopy</groupId>
             <artifactId>omero-blitz</artifactId>
             <version>5.5.8</version>
             <exclusions>
@@ -101,7 +116,9 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

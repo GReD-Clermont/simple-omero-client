@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.AccessException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.model.PixelsData;
 import omero.gateway.rnd.Plane2D;
@@ -140,10 +141,10 @@ public class PixelContainer {
      *
      * @return Array containing the value for each voxels of the image.
      *
-     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public double[][][][][] getAllPixels(Client client) throws DataSourceException, ExecutionException {
+    public double[][][][][] getAllPixels(Client client) throws AccessException, ExecutionException {
         return getAllPixels(client, null, null, null, null, null);
     }
 
@@ -160,8 +161,8 @@ public class PixelContainer {
      *
      * @return Array containing the value for each voxels of the image.
      *
-     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public double[][][][][] getAllPixels(Client client,
                                          int[] xBound,
@@ -169,7 +170,7 @@ public class PixelContainer {
                                          int[] cBound,
                                          int[] zBound,
                                          int[] tBound)
-    throws DataSourceException, ExecutionException {
+    throws AccessException, ExecutionException {
 
         int sizeT, sizeZ, sizeC, sizeX, sizeY;
         int tStart, zStart, cStart, xStart, yStart;
@@ -232,7 +233,11 @@ public class PixelContainer {
                         for (int y = yStart; y <= yEnd; y += maxDist) {
                             int height = y + maxDist <= yEnd ? maxDist : yEnd - y + 1;
 
-                            p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
+                            try {
+                                p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
+                            } catch (DataSourceException dse) {
+                                throw new AccessException("Cannot read tile", dse);
+                            }
 
                             copy(tab, p, x - xStart, y - yStart, c - cStart, z - zStart, t - tStart, width, height);
                         }
@@ -275,10 +280,10 @@ public class PixelContainer {
      *
      * @return a table of bytes containing the pixel values
      *
-     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public byte[][][][] getRawPixels(Client client, int bpp) throws DataSourceException, ExecutionException {
+    public byte[][][][] getRawPixels(Client client, int bpp) throws AccessException, ExecutionException {
         return getRawPixels(client, null, null, null, null, null, bpp);
     }
 
@@ -296,8 +301,8 @@ public class PixelContainer {
      *
      * @return a table of bytes containing the pixel values
      *
-     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public byte[][][][] getRawPixels(Client client,
                                      int[] xBound,
@@ -306,7 +311,7 @@ public class PixelContainer {
                                      int[] zBound,
                                      int[] tBound,
                                      int bpp)
-    throws DataSourceException, ExecutionException {
+    throws ExecutionException, AccessException {
 
         int sizeT, sizeZ, sizeC, sizeX, sizeY;
         int tStart, zStart, cStart, xStart, yStart;
@@ -369,7 +374,11 @@ public class PixelContainer {
                         for (int y = yStart; y <= yEnd; y += maxDist) {
                             int height = y + maxDist <= yEnd ? maxDist : yEnd - y + 1;
 
-                            p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
+                            try {
+                                p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
+                            } catch (DataSourceException dse) {
+                                throw new AccessException("Cannot retrieve tile", dse);
+                            }
 
                             copy(bytes, p, x - xStart, y - yStart, c - cStart, z - zStart, t - tStart, width, height,
                                  sizeX, bpp);
