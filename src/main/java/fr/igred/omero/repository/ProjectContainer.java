@@ -31,7 +31,6 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
-import omero.model.IObject;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectI;
@@ -213,7 +212,7 @@ public class ProjectContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, String name, String description)
+    public ProjectAnnotationLink addTag(Client client, String name, String description)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
@@ -234,7 +233,7 @@ public class ProjectContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, TagAnnotationContainer tag)
+    public ProjectAnnotationLink addTag(Client client, TagAnnotationContainer tag)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         return addTag(client, tag.getTag());
     }
@@ -252,13 +251,13 @@ public class ProjectContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    private IObject addTag(Client client, TagAnnotationData tagData)
+    private ProjectAnnotationLink addTag(Client client, TagAnnotationData tagData)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new ProjectI(project.getId(), false));
 
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
@@ -274,13 +273,13 @@ public class ProjectContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, Long id)
+    public ProjectAnnotationLink addTag(Client client, Long id)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new ProjectI(project.getId(), false));
 
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
@@ -296,12 +295,12 @@ public class ProjectContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public Collection<IObject> addTags(Client client, TagAnnotationContainer... tags)
+    public Collection<ProjectAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<IObject> objects = new ArrayList<>();
+        Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
-            IObject r = addTag(client, tag.getTag());
-            objects.add(r);
+            ProjectAnnotationLink link = addTag(client, tag.getTag());
+            objects.add(link);
         }
 
         return objects;
@@ -320,12 +319,12 @@ public class ProjectContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public Collection<IObject> addTags(Client client, Long... ids)
+    public Collection<ProjectAnnotationLink> addTags(Client client, Long... ids)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<IObject> objects = new ArrayList<>();
+        Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
-            IObject r = addTag(client, id);
-            objects.add(r);
+            ProjectAnnotationLink link = addTag(client, id);
+            objects.add(link);
         }
 
         return objects;

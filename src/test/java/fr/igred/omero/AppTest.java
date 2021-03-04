@@ -32,6 +32,7 @@ import ij.process.ImageStatistics;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import loci.common.DebugTools;
 import loci.plugins.BF;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ImageData;
@@ -50,8 +51,7 @@ import java.util.NoSuchElementException;
 import static org.junit.Assert.assertNotEquals;
 
 
-public class AppTest
-        extends TestCase {
+public class AppTest extends TestCase {
 
     /**
      * Create the test case
@@ -72,6 +72,7 @@ public class AppTest
 
 
     public void testConnection() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -82,6 +83,7 @@ public class AppTest
 
 
     public void testConnection2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "testUser", "password");
         assert (root.getGroupId() == 3L);
@@ -89,6 +91,7 @@ public class AppTest
 
 
     public void testConnectionErrorUsername() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
             root.connect("omero", 4064, "badUser", "omero", 3L);
@@ -100,6 +103,7 @@ public class AppTest
 
 
     public void testConnectionErrorPassword() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
             root.connect("omero", 4064, "root", "badPassword", 3L);
@@ -111,9 +115,10 @@ public class AppTest
 
 
     public void testConnectionErrorHost() {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
-            root.connect("google.com", 4064, "root", "omero", 3L);
+            root.connect("127.0.0.1", 4064, "root", "omero", 3L);
             assert (false);
         } catch (Exception e) {
             assert (true);
@@ -122,9 +127,10 @@ public class AppTest
 
 
     public void testConnectionErrorPort() {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
-            root.connect("local", 5000, "root", "omero", 3L);
+            root.connect("omero", 5000, "root", "omero", 3L);
             assert (false);
         } catch (Exception e) {
             assert (true);
@@ -133,6 +139,7 @@ public class AppTest
 
 
     public void testConnectionErrorGroupNotExist() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 200L);
 
@@ -141,6 +148,7 @@ public class AppTest
 
 
     public void testConnectionErrorNotInGroup() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "testUser", "password", 54L);
         assert (root.getGroupId() == 3L);
@@ -148,6 +156,7 @@ public class AppTest
 
 
     public void testGetSingleProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -156,6 +165,7 @@ public class AppTest
 
 
     public void testGetSingleProjectError() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
             root.connect("omero", 4064, "root", "omero");
@@ -168,6 +178,7 @@ public class AppTest
 
 
     public void testGetAllProjects() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -178,6 +189,7 @@ public class AppTest
 
 
     public void testGetProjectByName() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -192,6 +204,7 @@ public class AppTest
 
 
     public void testDeleteProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 0L);
 
@@ -207,6 +220,7 @@ public class AppTest
 
 
     public void testGetSingleDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -215,6 +229,7 @@ public class AppTest
 
 
     public void testGetAllDatasets() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -225,6 +240,7 @@ public class AppTest
 
 
     public void testGetDatasetByName() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -239,6 +255,7 @@ public class AppTest
 
 
     public void testGetImages() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -249,6 +266,7 @@ public class AppTest
 
 
     public void testGetImage() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -259,6 +277,7 @@ public class AppTest
 
 
     public void testGetImageError() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -272,6 +291,7 @@ public class AppTest
 
 
     public void testGetImagesName() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -283,6 +303,7 @@ public class AppTest
 
 
     public void testGetImagesLike() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -293,6 +314,7 @@ public class AppTest
 
 
     public void testGetImagesTagged() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -303,6 +325,7 @@ public class AppTest
 
 
     public void testGetImagesKey() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -313,6 +336,7 @@ public class AppTest
 
 
     public void testGetImagesKeyValue() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -323,6 +347,7 @@ public class AppTest
 
 
     public void testGetImagesCond() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -348,6 +373,7 @@ public class AppTest
 
 
     public void testSudoTag() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -372,6 +398,7 @@ public class AppTest
 
 
     public void testProjectBasic() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -385,6 +412,7 @@ public class AppTest
 
 
     public void testGetDatasetFromProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -397,6 +425,7 @@ public class AppTest
 
 
     public void testGetDatasetFromProject2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -409,6 +438,7 @@ public class AppTest
 
 
     public void testAddTagToProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -431,6 +461,7 @@ public class AppTest
 
 
     public void testAddTagToProject2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -449,6 +480,7 @@ public class AppTest
 
 
     public void testAddTagIdToProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -471,6 +503,7 @@ public class AppTest
 
 
     public void testAddTagsToProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -499,6 +532,7 @@ public class AppTest
 
 
     public void testAddTagsToProject2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -527,6 +561,7 @@ public class AppTest
 
 
     public void testGetImagesInProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -539,6 +574,7 @@ public class AppTest
 
 
     public void testGetImagesByNameInProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -551,6 +587,7 @@ public class AppTest
 
 
     public void testGetImagesLikeInProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -563,6 +600,7 @@ public class AppTest
 
 
     public void testGetImagesTaggedInProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -575,6 +613,7 @@ public class AppTest
 
 
     public void testGetImagesTaggedInProject2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -588,6 +627,7 @@ public class AppTest
 
 
     public void testGetImagesKeyInProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -600,6 +640,7 @@ public class AppTest
 
 
     public void testGetImagesPairKeyValueInProject() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -612,6 +653,7 @@ public class AppTest
 
 
     public void testCreateDatasetAndDeleteIt1() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -637,6 +679,7 @@ public class AppTest
 
 
     public void testCreateDatasetAndDeleteIt2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -664,6 +707,7 @@ public class AppTest
 
 
     public void testCopyDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -692,6 +736,7 @@ public class AppTest
 
 
     public void testDatasetBasic() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -704,6 +749,7 @@ public class AppTest
 
 
     public void testAddTagToDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -726,6 +772,7 @@ public class AppTest
 
 
     public void testAddTagToDataset2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -744,6 +791,7 @@ public class AppTest
 
 
     public void testAddTagIdToDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -766,6 +814,7 @@ public class AppTest
 
 
     public void testAddTagsToDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -794,6 +843,7 @@ public class AppTest
 
 
     public void testAddTagsToDataset2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -822,6 +872,7 @@ public class AppTest
 
 
     public void testGetImagesInDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -834,6 +885,7 @@ public class AppTest
 
 
     public void testGetImagesByNameInDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -846,6 +898,7 @@ public class AppTest
 
 
     public void testGetImagesLikeInDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -858,6 +911,7 @@ public class AppTest
 
 
     public void testGetImagesTaggedInDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -870,6 +924,7 @@ public class AppTest
 
 
     public void testGetImagesTaggedInDataset2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -883,6 +938,7 @@ public class AppTest
 
 
     public void testGetImagesKeyInDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -895,6 +951,7 @@ public class AppTest
 
 
     public void testGetImagesPairKeyValueInDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -907,6 +964,7 @@ public class AppTest
 
 
     public void testGetImagesFromDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -919,6 +977,7 @@ public class AppTest
 
 
     public void testImportImage() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -949,6 +1008,7 @@ public class AppTest
 
 
     public void testCreateTable() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -992,6 +1052,7 @@ public class AppTest
 
 
     public void testErrorTableFull() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1021,6 +1082,7 @@ public class AppTest
 
 
     public void testErrorTableColumn() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1038,6 +1100,7 @@ public class AppTest
 
 
     public void testErrorTableUninitialized() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1061,6 +1124,7 @@ public class AppTest
 
 
     public void testErrorTableNotEnoughArgs() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1086,6 +1150,7 @@ public class AppTest
 
 
     public void testPairKeyValue() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1129,6 +1194,7 @@ public class AppTest
 
 
     public void testPairKeyValue2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1162,6 +1228,7 @@ public class AppTest
 
 
     public void testPairKeyValue3() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1194,6 +1261,7 @@ public class AppTest
 
 
     public void testROI() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1231,6 +1299,7 @@ public class AppTest
 
 
     public void testROI2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1268,6 +1337,7 @@ public class AppTest
 
 
     public void testRoiAddShapeAndDeleteIt() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1320,6 +1390,7 @@ public class AppTest
 
 
     public void testGetImageInfo() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1332,6 +1403,7 @@ public class AppTest
 
 
     public void testGetImageTag() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1343,6 +1415,7 @@ public class AppTest
 
 
     public void testGetImageSize() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1365,6 +1438,7 @@ public class AppTest
 
 
     public void testGetRawData() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1387,6 +1461,7 @@ public class AppTest
 
 
     public void testGetRawData2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1408,6 +1483,7 @@ public class AppTest
 
 
     public void testGetRawDataBound() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1431,6 +1507,7 @@ public class AppTest
 
 
     public void testGetRawDataBoundError() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1452,6 +1529,7 @@ public class AppTest
 
 
     public void testGetRawDataBoundErrorNegative() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1473,6 +1551,7 @@ public class AppTest
 
 
     public void testToImagePlusBound() throws Exception {
+        DebugTools.enableLogging("OFF");
         int[] xBound = {0, 2};
         int[] yBound = {0, 2};
         int[] cBound = {0, 2};
@@ -1528,6 +1607,8 @@ public class AppTest
 
 
     public void testToImagePlus() throws Exception {
+        DebugTools.enableLogging("OFF");
+
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
         fakeFile.createNewFile();
@@ -1562,6 +1643,7 @@ public class AppTest
 
 
     public void testGetImageChannel() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1571,6 +1653,7 @@ public class AppTest
 
 
     public void testGetImageChannelError() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1586,6 +1669,7 @@ public class AppTest
 
 
     public void testAddTagToImage() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1608,6 +1692,7 @@ public class AppTest
 
 
     public void testAddTagToImage2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1626,6 +1711,7 @@ public class AppTest
 
 
     public void testAddTagIdToImage() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1648,6 +1734,7 @@ public class AppTest
 
 
     public void testAddTagsToImage() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1676,6 +1763,7 @@ public class AppTest
 
 
     public void testAddTagsToImage2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1704,6 +1792,7 @@ public class AppTest
 
 
     public void testImageOrder() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1716,6 +1805,7 @@ public class AppTest
 
 
     public void testGetTagInfo() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1728,6 +1818,7 @@ public class AppTest
 
 
     public void testGetTags() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1738,6 +1829,7 @@ public class AppTest
 
 
     public void testGetTagsSorted() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1750,6 +1842,7 @@ public class AppTest
 
 
     public void testAddFileDataset() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1766,6 +1859,7 @@ public class AppTest
 
 
     public void testAddFileImage() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1782,6 +1876,7 @@ public class AppTest
 
 
     public void testFolder1() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1806,6 +1901,7 @@ public class AppTest
 
 
     public void testFolder2() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1855,6 +1951,7 @@ public class AppTest
 
 
     public void testFolder3() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1892,6 +1989,7 @@ public class AppTest
 
 
     public void testFolder4() throws Exception {
+        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
@@ -1983,8 +2081,10 @@ public class AppTest
         double[] rectangleCoordinates = {2, 2, 5, 5};
 
         text.setPointCoordinates(textCoordinates[0], textCoordinates[1]);
-        text.setText("Text");
         text.setCoordinates(rectangleCoordinates);
+        text.setText("Text");
+        text.setFontSize(25);
+        double fontSize = text.getFontSize();
 
         double[] checkCoordinates = text.getCoordinates();
 
@@ -1993,6 +2093,7 @@ public class AppTest
             difference += Math.abs(checkCoordinates[i] - textCoordinates[i]);
 
         assertEquals(0, difference, 0.001);
+        assertEquals(25, fontSize, 0.001);
         assertEquals("Text", text.getText());
     }
 
@@ -2128,6 +2229,7 @@ public class AppTest
 
     public void testLineShapeContainer() {
         ShapeContainer line = new ShapeContainer(ShapeContainer.LINE);
+
         double[] lineCoordinates = {3, 3, 10, 10};
         line.setLineCoordinates(lineCoordinates[0],
                                 lineCoordinates[1],

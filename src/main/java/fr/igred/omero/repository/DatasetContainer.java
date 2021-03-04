@@ -156,7 +156,7 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, String name, String description)
+    public DatasetAnnotationLink addTag(Client client, String name, String description)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
@@ -177,7 +177,7 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, TagAnnotationContainer tag)
+    public DatasetAnnotationLink addTag(Client client, TagAnnotationContainer tag)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         return addTag(client, tag.getTag());
     }
@@ -195,13 +195,13 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    private IObject addTag(Client client, TagAnnotationData tagData)
+    private DatasetAnnotationLink addTag(Client client, TagAnnotationData tagData)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (DatasetAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
@@ -217,13 +217,13 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, Long id)
+    public DatasetAnnotationLink addTag(Client client, Long id)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (DatasetAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
@@ -239,12 +239,12 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public Collection<IObject> addTags(Client client, TagAnnotationContainer... tags)
+    public Collection<DatasetAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<IObject> objects = new ArrayList<>();
+        Collection<DatasetAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
-            IObject r = addTag(client, tag.getTag());
-            objects.add(r);
+            DatasetAnnotationLink link = addTag(client, tag.getTag());
+            objects.add(link);
         }
 
         return objects;
@@ -263,12 +263,12 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public Collection<IObject> addTags(Client client, Long... ids)
+    public Collection<DatasetAnnotationLink> addTags(Client client, Long... ids)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<IObject> objects = new ArrayList<>();
+        Collection<DatasetAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
-            IObject r = addTag(client, id);
-            objects.add(r);
+            DatasetAnnotationLink link = addTag(client, id);
+            objects.add(link);
         }
 
         return objects;
@@ -358,8 +358,9 @@ public class DatasetContainer {
      */
     public List<ImageContainer> getImages(Client client, String name)
     throws DSOutOfServiceException, DSAccessException {
-        Collection<ImageData> images = client.getBrowseFacility().getImagesForDatasets(client.getCtx(), Collections
-                .singletonList(dataset.getId()));
+        Collection<ImageData> images = client.getBrowseFacility()
+                                             .getImagesForDatasets(client.getCtx(),
+                                                                   Collections.singletonList(dataset.getId()));
         Collection<ImageData> selected = new ArrayList<>(images.size());
 
         for (ImageData image : images) {
@@ -548,12 +549,12 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public Collection<IObject> addImages(Client client, List<ImageContainer> images)
+    public Collection<DatasetImageLink> addImages(Client client, List<ImageContainer> images)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<IObject> iObjects = new ArrayList<>(images.size());
+        Collection<DatasetImageLink> iObjects = new ArrayList<>(images.size());
         for (ImageContainer image : images) {
-            IObject r = addImage(client, image);
-            iObjects.add(r);
+            DatasetImageLink link = addImage(client, image);
+            iObjects.add(link);
         }
 
         return iObjects;
@@ -572,14 +573,14 @@ public class DatasetContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addImage(Client client, ImageContainer image)
+    public DatasetImageLink addImage(Client client, ImageContainer image)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
 
         link.setChild(image.getImage().asImage());
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (DatasetImageLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 

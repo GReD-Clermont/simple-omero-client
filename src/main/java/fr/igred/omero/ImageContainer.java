@@ -161,7 +161,7 @@ public class ImageContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, String name, String description)
+    public ImageAnnotationLink addTag(Client client, String name, String description)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
@@ -182,7 +182,7 @@ public class ImageContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, TagAnnotationContainer tag)
+    public ImageAnnotationLink addTag(Client client, TagAnnotationContainer tag)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         return addTag(client, tag.getTag());
     }
@@ -200,13 +200,13 @@ public class ImageContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    private IObject addTag(Client client, TagAnnotationData tagData)
+    private ImageAnnotationLink addTag(Client client, TagAnnotationData tagData)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(image.asImage());
 
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
@@ -222,13 +222,13 @@ public class ImageContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public IObject addTag(Client client, Long id)
+    public ImageAnnotationLink addTag(Client client, Long id)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(image.asImage());
 
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 
@@ -244,12 +244,12 @@ public class ImageContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public Collection<IObject> addTags(Client client, TagAnnotationContainer... tags)
+    public Collection<ImageAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<IObject> objects = new ArrayList<>();
+        Collection<ImageAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
-            IObject r = addTag(client, tag.getTag());
-            objects.add(r);
+            ImageAnnotationLink link = addTag(client, tag.getTag());
+            objects.add(link);
         }
 
         return objects;
@@ -268,12 +268,12 @@ public class ImageContainer {
      * @throws DSAccessException       Cannot access data.
      * @throws ExecutionException      A Facility can't be retrieved or instantiated.
      */
-    public Collection<IObject> addTags(Client client, Long... ids)
+    public Collection<ImageAnnotationLink> addTags(Client client, Long... ids)
     throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<IObject> objects = new ArrayList<>();
+        Collection<ImageAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
-            IObject r = addTag(client, id);
-            objects.add(r);
+            ImageAnnotationLink link = addTag(client, id);
+            objects.add(link);
         }
 
         return objects;
@@ -513,8 +513,7 @@ public class ImageContainer {
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server connection error.
      */
-    public FolderContainer getFolder(Client client, Long folderId) throws DSOutOfServiceException,
-                                                                          ServerError {
+    public FolderContainer getFolder(Client client, Long folderId) throws DSOutOfServiceException, ServerError {
         List<IObject> os = client.getQueryService().findAllByQuery("select f " +
                                                                    "from Folder as f " +
                                                                    "where f.id = " +
@@ -729,13 +728,13 @@ public class ImageContainer {
      * @throws FileNotFoundException   The file could not be found.
      * @throws IOException             If an I/O error occurs.
      */
-    public IObject addFile(Client client, File file) throws
-                                                     DSOutOfServiceException,
-                                                     DSAccessException,
-                                                     ExecutionException,
-                                                     ServerError,
-                                                     FileNotFoundException,
-                                                     IOException {
+    public ImageAnnotationLink addFile(Client client, File file) throws
+                                                                 DSOutOfServiceException,
+                                                                 DSAccessException,
+                                                                 ExecutionException,
+                                                                 ServerError,
+                                                                 FileNotFoundException,
+                                                                 IOException {
         int INC = 262144;
 
         String name         = file.getName();
@@ -783,7 +782,7 @@ public class ImageContainer {
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(fa);
         link.setParent(image.asImage());
-        return client.getDm().saveAndReturnObject(client.getCtx(), link);
+        return (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
     }
 
 }
