@@ -36,6 +36,7 @@ import loci.plugins.BF;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.ShapeData;
 import omero.model.NamedValue;
 
 import java.awt.geom.Point2D;
@@ -1955,73 +1956,121 @@ public class AppTest
     public void testPointShapeContainer() {
         ShapeContainer point = new ShapeContainer(ShapeContainer.POINT);
 
-        point.setPointCoordinates(0, 0);
+        double[] pointCoordinates = {0, 0};
+        double[] lineCoordinates  = {2, 2, 4, 4};
+
+        point.setPointCoordinates(pointCoordinates[0], pointCoordinates[1]);
         point.setLineCoordinates(2, 2, 4, 4);
+        point.setCoordinates(null);
+        point.setCoordinates(lineCoordinates);
         point.setText("Point");
 
-        double[] pointCoordinates = point.getCoordinates();
+        double[] checkCoordinates = point.getCoordinates();
 
-        assertEquals(0.0, pointCoordinates[0], 0.001);
-        assertEquals(0.0, pointCoordinates[1], 0.001);
+        double difference = 0;
+        for (int i = 0; i < 2; i++)
+            difference += Math.abs(checkCoordinates[i] - pointCoordinates[i]);
+
+        assertEquals(0, difference, 0.001);
         assertEquals("Point", point.getText());
     }
 
 
     public void testTextShapeContainer() {
         ShapeContainer text = new ShapeContainer(ShapeContainer.TEXT);
-        text.setPointCoordinates(1, 1);
+
+        double[] textCoordinates      = {1, 1};
+        double[] rectangleCoordinates = {2, 2, 5, 5};
+
+        text.setPointCoordinates(textCoordinates[0], textCoordinates[1]);
         text.setText("Text");
+        text.setCoordinates(rectangleCoordinates);
 
-        double[] textCoordinates = text.getCoordinates();
+        double[] checkCoordinates = text.getCoordinates();
 
-        assertEquals(1.0, textCoordinates[0], 0.001);
-        assertEquals(1.0, textCoordinates[1], 0.001);
+        double difference = 0;
+        for (int i = 0; i < 2; i++)
+            difference += Math.abs(checkCoordinates[i] - textCoordinates[i]);
+
+        assertEquals(0, difference, 0.001);
         assertEquals("Text", text.getText());
     }
 
 
     public void testRectangleShapeContainer() {
         ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
-        rectangle.setRectangleCoordinates(2, 2, 5, 5);
+
+        double[] pointCoordinates     = {0, 0};
+        double[] rectangleCoordinates = {2, 2, 5, 5};
+
+        rectangle.setCoordinates(rectangleCoordinates);
+        rectangle.setCoordinates(pointCoordinates);
         rectangle.setPointCoordinates(0, 0);
 
-        double[] rectangleCoordinates = rectangle.getCoordinates();
+        double[] checkCoordinates = rectangle.getCoordinates();
+
+        double difference = 0;
+        for (int i = 0; i < 4; i++)
+            difference += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
 
         int[][] maskValues = new int[10][10];
         rectangle.setMask(maskValues);
 
-        assertEquals(2.0, rectangleCoordinates[0], 0.001);
-        assertEquals(2.0, rectangleCoordinates[1], 0.001);
-        assertEquals(5.0, rectangleCoordinates[2], 0.001);
-        assertEquals(5.0, rectangleCoordinates[3], 0.001);
+        int[][] checkValues = rectangle.getMask();
+
+        assertNull(checkValues);
+        assertEquals(0, difference, 0.001);
     }
 
 
     public void testRectangleShapeContainerCZT() {
         ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
-        rectangle.setRectangleCoordinates(2, 2, 5, 5);
-        rectangle.setText("Rectangle");
-        rectangle.setC(1);
-        rectangle.setZ(2);
-        rectangle.setT(3);
 
-        assertEquals(1, rectangle.getC());
-        assertEquals(2, rectangle.getZ());
-        assertEquals(3, rectangle.getT());
+        double[] rectangleCoordinates = {2, 2, 5, 5};
+        int      c                    = 1;
+        int      z                    = 2;
+        int      t                    = 3;
+
+        rectangle.setCoordinates(rectangleCoordinates);
+        rectangle.setEllipseCoordinates(9, 11, 5, 10);
+        rectangle.setText("Rectangle");
+        rectangle.setC(c);
+        rectangle.setZ(z);
+        rectangle.setT(t);
+
+        double[] checkCoordinates = rectangle.getCoordinates();
+
+        double difference = 0;
+        for (int i = 0; i < 4; i++)
+            difference += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
+
+        int c2 = rectangle.getC();
+        int z2 = rectangle.getZ();
+        int t2 = rectangle.getT();
+        difference += Math.abs(c2 - c) + Math.abs(z2 - z) + Math.abs(t2 - t);
+
+        assertEquals(0, difference, 0.001);
         assertEquals("Rectangle", rectangle.getText());
     }
 
 
     public void testMaskShapeContainer() {
         ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
-        mask.setRectangleCoordinates(3, 3, 10, 10);
 
-        double[] maskCoordinates = mask.getCoordinates();
+        double[] maskCoordinates = {3, 3, 10, 10};
+        mask.setCoordinates(maskCoordinates);
 
-        assertEquals(3.00, maskCoordinates[0], 0.001);
-        assertEquals(3.00, maskCoordinates[1], 0.001);
-        assertEquals(10.0, maskCoordinates[2], 0.001);
-        assertEquals(10.0, maskCoordinates[3], 0.001);
+        double[] pointCoordinates = {0, 0};
+        mask.setEllipseCoordinates(6, 6, 20, 20);
+        mask.setCoordinates(pointCoordinates);
+
+        double[] checkCoordinates = mask.getCoordinates();
+
+        double difference = 0;
+        for (int i = 0; i < 4; i++)
+            difference += Math.abs(checkCoordinates[i] - maskCoordinates[i]);
+
+        assertEquals(0, difference, 0.001);
     }
 
 
@@ -2054,31 +2103,48 @@ public class AppTest
 
     public void testEllipseShapeContainer() {
         ShapeContainer ellipse = new ShapeContainer(ShapeContainer.ELLIPSE);
-        ellipse.setEllipseCoordinates(9, 11, 5, 10);
+
+        double[] ellipseCoordinates = {9, 11, 5, 10};
+        ellipse.setEllipseCoordinates(ellipseCoordinates[0],
+                                      ellipseCoordinates[1],
+                                      ellipseCoordinates[2],
+                                      ellipseCoordinates[3]);
         ellipse.setRectangleCoordinates(3, 3, 4, 9);
         ellipse.setText("Ellipse");
 
-        double[] ellipseCoordinates = ellipse.getCoordinates();
+        double[] pointCoordinates = {0, 0};
+        ellipse.setCoordinates(pointCoordinates);
 
-        assertEquals(9.00, ellipseCoordinates[0], 0.001);
-        assertEquals(11.0, ellipseCoordinates[1], 0.001);
-        assertEquals(5.00, ellipseCoordinates[2], 0.001);
-        assertEquals(10.0, ellipseCoordinates[3], 0.001);
+        double[] checkCoordinates = ellipse.getCoordinates();
+
+        double difference = 0;
+        for (int i = 0; i < 4; i++)
+            difference += Math.abs(checkCoordinates[i] - ellipseCoordinates[i]);
+
+        assertEquals(0, difference, 0.001);
         assertEquals("Ellipse", ellipse.getText());
     }
 
 
     public void testLineShapeContainer() {
         ShapeContainer line = new ShapeContainer(ShapeContainer.LINE);
-        line.setLineCoordinates(3, 3, 10, 10);
+        double[] lineCoordinates = {3, 3, 10, 10};
+        line.setLineCoordinates(lineCoordinates[0],
+                                lineCoordinates[1],
+                                lineCoordinates[2],
+                                lineCoordinates[3]);
         line.setText("Line");
 
-        double[] lineCoordinates = line.getCoordinates();
+        double[] pointCoordinates = {0, 0};
+        line.setCoordinates(pointCoordinates);
 
-        assertEquals(3.00, lineCoordinates[0], 0.001);
-        assertEquals(3.00, lineCoordinates[1], 0.001);
-        assertEquals(10.0, lineCoordinates[2], 0.001);
-        assertEquals(10.0, lineCoordinates[3], 0.001);
+        double[] checkCoordinates = line.getCoordinates();
+
+        double difference = 0;
+        for (int i = 0; i < 4; i++)
+            difference += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
+
+        assertEquals(0, difference, 0.001);
         assertEquals("Line", line.getText());
     }
 
@@ -2094,17 +2160,23 @@ public class AppTest
         points.add(p2);
         points.add(p3);
 
-        line.setLineCoordinates(3, 3, 10, 10);
+        double[] lineCoordinates = {3, 3, 10, 10};
+        line.setLineCoordinates(lineCoordinates[0],
+                                lineCoordinates[1],
+                                lineCoordinates[2],
+                                lineCoordinates[3]);
         line.setPoints(points);
         List<Point2D.Double> points2 = line.getPoints();
 
-        double[] maskCoordinates = line.getCoordinates();
+        double[] checkCoordinates = line.getCoordinates();
+
+        double difference = 0;
+        for (int i = 0; i < 4; i++)
+            difference += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
+
 
         assertNull(points2);
-        assertEquals(3.00, maskCoordinates[0], 0.001);
-        assertEquals(3.00, maskCoordinates[1], 0.001);
-        assertEquals(10.0, maskCoordinates[2], 0.001);
-        assertEquals(10.0, maskCoordinates[3], 0.001);
+        assertEquals(0, difference, 0.001);
     }
 
 
@@ -2170,6 +2242,30 @@ public class AppTest
 
         assertEquals(points, points2);
         assertEquals("Polygon", polygon.getText());
+    }
+
+
+    public void testEmptyShapeData() {
+        ShapeData            shape            = null;
+        ShapeContainer       empty            = new ShapeContainer(shape);
+        List<Point2D.Double> points           = new ArrayList<>();
+        double[]             pointCoordinates = {1, 1};
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        empty.setPointCoordinates(0, 0);
+        empty.setCoordinates(pointCoordinates);
+        empty.setPoints(points);
+        empty.setText("Empty");
+
+        assertNull(empty.getText());
+        assertNull(empty.getPoints());
+        assertNull(empty.getCoordinates());
     }
 
 }

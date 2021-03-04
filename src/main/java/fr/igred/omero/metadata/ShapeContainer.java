@@ -104,22 +104,24 @@ public class ShapeContainer {
      * @return the ShapeData type.
      */
     public String getShapeType() {
-        if (PointData.class.equals(shape.getClass())) {
-            return POINT;
-        } else if (RectangleData.class.equals(shape.getClass())) {
-            return RECTANGLE;
-        } else if (LineData.class.equals(shape.getClass())) {
-            return LINE;
-        } else if (EllipseData.class.equals(shape.getClass())) {
-            return ELLIPSE;
-        } else if (PolygonData.class.equals(shape.getClass())) {
-            return POLYGON;
-        } else if (PolylineData.class.equals(shape.getClass())) {
-            return POLYLINE;
-        } else if (MaskData.class.equals(shape.getClass())) {
-            return MASK;
-        } else if (TextData.class.equals(shape.getClass())) {
-            return TEXT;
+        if (shape != null) {
+            if (PointData.class.equals(shape.getClass())) {
+                return POINT;
+            } else if (RectangleData.class.equals(shape.getClass())) {
+                return RECTANGLE;
+            } else if (LineData.class.equals(shape.getClass())) {
+                return LINE;
+            } else if (EllipseData.class.equals(shape.getClass())) {
+                return ELLIPSE;
+            } else if (PolygonData.class.equals(shape.getClass())) {
+                return POLYGON;
+            } else if (PolylineData.class.equals(shape.getClass())) {
+                return POLYLINE;
+            } else if (MaskData.class.equals(shape.getClass())) {
+                return MASK;
+            } else if (TextData.class.equals(shape.getClass())) {
+                return TEXT;
+            }
         }
         return OTHER;
     }
@@ -313,12 +315,9 @@ public class ShapeContainer {
      */
     public void setPointCoordinates(double x, double y) {
         String shapeType = getShapeType();
-        if (shapeType.equals(POINT)) {
-            ((PointData) shape).setX(x);
-            ((PointData) shape).setY(y);
-        } else if (shapeType.equals(TEXT)) {
-            ((TextData) shape).setX(x);
-            ((TextData) shape).setY(y);
+        if (shapeType.equals(POINT) || shapeType.equals(TEXT)) {
+            double[] coordinates = {x, y};
+            setCoordinates(coordinates);
         } else {
             System.err.println("ShapeData is neither a PointData nor a TextData object.");
         }
@@ -335,16 +334,9 @@ public class ShapeContainer {
      */
     public void setRectangleCoordinates(double x, double y, double width, double height) {
         String shapeType = getShapeType();
-        if (shapeType.equals(RECTANGLE)) {
-            ((RectangleData) shape).setX(x);
-            ((RectangleData) shape).setY(y);
-            ((RectangleData) shape).setWidth(width);
-            ((RectangleData) shape).setHeight(height);
-        } else if (shapeType.equals(MASK)) {
-            ((MaskData) shape).setX(x);
-            ((MaskData) shape).setY(y);
-            ((MaskData) shape).setWidth(width);
-            ((MaskData) shape).setHeight(height);
+        if (shapeType.equals(RECTANGLE) || shapeType.equals(MASK)) {
+            double[] coordinates = {x, y, width, height};
+            setCoordinates(coordinates);
         } else {
             System.err.println("ShapeData is neither a RectangleData nor a MaskData object.");
         }
@@ -361,10 +353,8 @@ public class ShapeContainer {
      */
     public void setLineCoordinates(double x1, double y1, double x2, double y2) {
         if (getShapeType().equals(LINE)) {
-            ((LineData) shape).setX1(x1);
-            ((LineData) shape).setY1(y1);
-            ((LineData) shape).setX2(x2);
-            ((LineData) shape).setY2(y2);
+            double[] coordinates = {x1, y1, x2, y2};
+            setCoordinates(coordinates);
         } else {
             System.err.println("ShapeData is not a LineData object.");
         }
@@ -381,10 +371,8 @@ public class ShapeContainer {
      */
     public void setEllipseCoordinates(double x, double y, double radiusX, double radiusY) {
         if (getShapeType().equals(ELLIPSE)) {
-            ((EllipseData) shape).setX(x);
-            ((EllipseData) shape).setY(y);
-            ((EllipseData) shape).setRadiusX(radiusX);
-            ((EllipseData) shape).setRadiusY(radiusY);
+            double[] coordinates = {x, y, radiusX, radiusY};
+            setCoordinates(coordinates);
         } else {
             System.err.println("ShapeData is not an EllipseData object.");
         }
@@ -496,6 +484,98 @@ public class ShapeContainer {
                 break;
         }
         return coordinates;
+    }
+
+
+    /**
+     * Sets the coordinates of either:
+     * <ul>
+     *     <li>a PointData object</li>
+     *     <li>a TextData object</li>
+     *     <li>a RectangleData object</li>
+     *     <li>a MaskData object</li>
+     *     <li>an EllipseData object</li>
+     *     <li>a LineData object</li>
+     * </ul>
+     *
+     * @param coordinates Array of coordinates depending on the object type:
+     *                    <ul>
+     *                        <li>PointData: {X,Y}</li>
+     *                        <li>TextData: {X,Y}</li>
+     *                        <li>RectangleData: {X,Y,Width,Height}</li>
+     *                        <li>MaskData: {X,Y,Width,Height}</li>
+     *                        <li>EllipseData: {X,Y,RadiusX,RadiusY}</li>
+     *                        <li>LineData: {X1,Y1,X2,Y2}</li>
+     *                        <li>Other: null</li>
+     *                    </ul>
+     */
+    public void setCoordinates(double[] coordinates) {
+        String shapeType = getShapeType();
+        if (coordinates != null) {
+            switch (shapeType) {
+                case POINT:
+                    if (coordinates.length == 2) {
+                        ((PointData) shape).setX(coordinates[0]);
+                        ((PointData) shape).setY(coordinates[1]);
+                    } else {
+                        System.err.println("2 coordinates required for PointData.");
+                    }
+                    break;
+                case TEXT:
+                    if (coordinates.length == 2) {
+                        ((TextData) shape).setX(coordinates[0]);
+                        ((TextData) shape).setY(coordinates[1]);
+                    } else {
+                        System.err.println("2 coordinates required for TextData.");
+                    }
+                    break;
+                case RECTANGLE:
+                    if (coordinates.length == 4) {
+                        ((RectangleData) shape).setX(coordinates[0]);
+                        ((RectangleData) shape).setY(coordinates[1]);
+                        ((RectangleData) shape).setWidth(coordinates[2]);
+                        ((RectangleData) shape).setHeight(coordinates[3]);
+                    } else {
+                        System.err.println("4 coordinates required for RectangleData.");
+                    }
+                    break;
+                case MASK:
+                    if (coordinates.length == 4) {
+                        ((MaskData) shape).setX(coordinates[0]);
+                        ((MaskData) shape).setY(coordinates[1]);
+                        ((MaskData) shape).setWidth(coordinates[2]);
+                        ((MaskData) shape).setHeight(coordinates[3]);
+                    } else {
+                        System.err.println("4 coordinates required for MaskData.");
+                    }
+                    break;
+                case ELLIPSE:
+                    if (coordinates.length == 4) {
+                        ((EllipseData) shape).setX(coordinates[0]);
+                        ((EllipseData) shape).setY(coordinates[1]);
+                        ((EllipseData) shape).setRadiusX(coordinates[2]);
+                        ((EllipseData) shape).setRadiusY(coordinates[3]);
+                    } else {
+                        System.err.println("4 coordinates required for EllipseData.");
+                    }
+                    break;
+                case LINE:
+                    if (coordinates.length == 4) {
+                        ((LineData) shape).setX1(coordinates[0]);
+                        ((LineData) shape).setY1(coordinates[1]);
+                        ((LineData) shape).setX2(coordinates[2]);
+                        ((LineData) shape).setY2(coordinates[3]);
+                    } else {
+                        System.err.println("2 coordinates required for LineData.");
+                    }
+                    break;
+                default:
+                    System.err.println("ShapeData does not have coordinates.");
+                    break;
+            }
+        } else {
+            System.err.println("ShapeContainer cannot set null coordinates.");
+        }
     }
 
 }
