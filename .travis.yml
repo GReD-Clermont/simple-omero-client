@@ -5,7 +5,7 @@ stages:
   - name: build
   - name: test
   - name: snapshot
-    if: branch = master
+    if: branch = master AND type = push AND fork = false
   - name: release
     if: tag IS present
 

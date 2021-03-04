@@ -26,6 +26,7 @@ import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.Roi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -52,11 +53,11 @@ public class ROIContainer {
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIContainer(List<ShapeData> shapes) {
+    public ROIContainer(List<ShapeContainer> shapes) {
         data = new ROIData();
 
-        for (ShapeData shape : shapes)
-            data.addShapeData(shape);
+        for (ShapeContainer shape : shapes)
+            addShape(shape);
     }
 
 
@@ -86,23 +87,23 @@ public class ROIContainer {
 
 
     /**
-     * Adds a list of ShapeData to the ROIData
+     * Adds ShapeData objects from a list of ShapeContainer to the ROIData
      *
-     * @param shapes List of ShapeData.
+     * @param shapes List of ShapeContainer.
      */
-    public void addShapes(List<ShapeData> shapes) {
-        for (ShapeData shape : shapes)
-            data.addShapeData(shape);
+    public void addShapes(List<ShapeContainer> shapes) {
+        for (ShapeContainer shape : shapes)
+            addShape(shape);
     }
 
 
     /**
-     * Adds a ShapeData to the ROIData
+     * Adds a ShapeData from a ShapeContainer to the ROIData
      *
-     * @param shape ShapeData to add.
+     * @param shape ShapeContainer to add.
      */
-    public void addShape(ShapeData shape) {
-        data.addShapeData(shape);
+    public void addShape(ShapeContainer shape) {
+        data.addShapeData(shape.getShape());
     }
 
 
@@ -111,18 +112,21 @@ public class ROIContainer {
      *
      * @return list of shape contained in the ROIData.
      */
-    public List<ShapeData> getShapes() {
-        return data.getShapes();
+    public List<ShapeContainer> getShapes() {
+        List<ShapeContainer> shapes = new ArrayList<>();
+        for(ShapeData shape : data.getShapes()) {
+            shapes.add(new ShapeContainer(shape));
+        }
+        return shapes;
     }
 
 
     /**
      * Sets the image linked to the ROI.
      *
-     * @param client The user.
      * @param image  Image linked to the ROIData.
      */
-    public void setImage(Client client, ImageContainer image) {
+    public void setImage(ImageContainer image) {
         data.setImage(image.getImage().asImage());
     }
 

@@ -19,6 +19,7 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.metadata.ROIContainer;
+import fr.igred.omero.metadata.ShapeContainer;
 import fr.igred.omero.metadata.TableContainer;
 import fr.igred.omero.metadata.annotation.MapAnnotationContainer;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
@@ -35,10 +36,9 @@ import loci.plugins.BF;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
-import omero.gateway.model.RectangleData;
-import omero.gateway.model.ShapeData;
 import omero.model.NamedValue;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.List;
 import java.util.Random;
@@ -1200,15 +1200,14 @@ public class AppTest
 
         ImageContainer image = root.getImage(1L);
 
-        roiContainer.setImage(root, image);
+        roiContainer.setImage(image);
 
         for (int i = 0; i < 4; i++) {
-            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(i * 2);
-            rectangle.setX(i * 2);
 
             roiContainer.addShape(rectangle);
         }
@@ -1236,21 +1235,20 @@ public class AppTest
 
         ImageContainer image = root.getImage(1L);
 
-        List<ShapeData> shapes = new ArrayList<>(4);
+        List<ShapeContainer> shapes = new ArrayList<>(4);
 
         for (int i = 0; i < 4; i++) {
-            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(i * 2);
-            rectangle.setX(i * 2);
 
             shapes.add(rectangle);
         }
 
         ROIContainer roiContainer = new ROIContainer(shapes);
-        roiContainer.setImage(root, image);
+        roiContainer.setImage(image);
         image.saveROI(root, roiContainer);
 
         List<ROIContainer> rois = image.getROIs(root);
@@ -1274,21 +1272,20 @@ public class AppTest
 
         ImageContainer image = root.getImage(1L);
 
-        List<ShapeData> shapes = new ArrayList<>(4);
+        List<ShapeContainer> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
-            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(i * 2);
-            rectangle.setX(i * 2);
 
             shapes.add(rectangle);
         }
 
         ROIContainer roiContainer = new ROIContainer();
         roiContainer.addShapes(shapes);
-        roiContainer.setImage(root, image);
+        roiContainer.setImage(image);
         image.saveROI(root, roiContainer);
 
         List<ROIContainer> rois = image.getROIs(root);
@@ -1297,12 +1294,11 @@ public class AppTest
         int size      = roiContainer.getShapes().size();
         int ROINumber = rois.size();
 
-        RectangleData rectangle = new RectangleData(10, 10, 8, 8);
+        ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+        rectangle.setRectangleCoordinates(2, 2, 8, 8);
         rectangle.setZ(2);
         rectangle.setT(2);
         rectangle.setC(2);
-        rectangle.setY(2);
-        rectangle.setX(2);
 
         roiContainer.addShape(rectangle);
         roiContainer.saveROI(root);
@@ -1790,12 +1786,11 @@ public class AppTest
 
         FolderContainer folder = new FolderContainer(root, "Test1");
         try {
-            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(0, 0, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(0);
-            rectangle.setX(0);
 
             ROIContainer roi = new ROIContainer();
             roi.addShape(rectangle);
@@ -1821,12 +1816,11 @@ public class AppTest
         for (int i = 0; i < 8; i++) {
             ROIContainer roi = new ROIContainer();
 
-            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(i * 2);
-            rectangle.setX(i * 2);
 
             roi.addShape(rectangle);
             roi.saveROI(root);
@@ -1867,12 +1861,11 @@ public class AppTest
         folder.setImage(3L);
 
         for (int i = 0; i < 8; i++) {
-            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(i * 2);
-            rectangle.setX(i * 2);
 
             ROIContainer roi = new ROIContainer();
             roi.addShape(rectangle);
@@ -1909,12 +1902,11 @@ public class AppTest
         for (int i = 0; i < 8; i++) {
             ROIContainer roi = new ROIContainer();
 
-            RectangleData rectangle = new RectangleData(10, 10, 10, 10);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(i * 2);
-            rectangle.setX(i * 2);
 
             roi.addShape(rectangle);
             roi.saveROI(root);
@@ -1928,12 +1920,11 @@ public class AppTest
         for (int i = 0; i < 8; i++) {
             ROIContainer roi = new ROIContainer();
 
-            RectangleData rectangle = new RectangleData(5, 5, 5, 5);
+            ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+            rectangle.setRectangleCoordinates(i * 2, i * 2, 5, 5);
             rectangle.setZ(i);
             rectangle.setT(0);
             rectangle.setC(0);
-            rectangle.setY(i * 2);
-            rectangle.setX(i * 2);
 
             roi.addShape(rectangle);
             roi.saveROI(root);
@@ -1958,6 +1949,227 @@ public class AppTest
             root.deleteROI(roi);
         }
         assertEquals(0, image.getROIs(root).size());
+    }
+
+
+    public void testPointShapeContainer() {
+        ShapeContainer point = new ShapeContainer(ShapeContainer.POINT);
+
+        point.setPointCoordinates(0, 0);
+        point.setLineCoordinates(2, 2, 4, 4);
+        point.setText("Point");
+
+        double[] pointCoordinates = point.getCoordinates();
+
+        assertEquals(0.0, pointCoordinates[0], 0.001);
+        assertEquals(0.0, pointCoordinates[1], 0.001);
+        assertEquals("Point", point.getText());
+    }
+
+
+    public void testTextShapeContainer() {
+        ShapeContainer text = new ShapeContainer(ShapeContainer.TEXT);
+        text.setPointCoordinates(1, 1);
+        text.setText("Text");
+
+        double[] textCoordinates = text.getCoordinates();
+
+        assertEquals(1.0, textCoordinates[0], 0.001);
+        assertEquals(1.0, textCoordinates[1], 0.001);
+        assertEquals("Text", text.getText());
+    }
+
+
+    public void testRectangleShapeContainer() {
+        ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+        rectangle.setRectangleCoordinates(2, 2, 5, 5);
+        rectangle.setPointCoordinates(0, 0);
+
+        double[] rectangleCoordinates = rectangle.getCoordinates();
+
+        int[][] maskValues = new int[10][10];
+        rectangle.setMask(maskValues);
+
+        assertEquals(2.0, rectangleCoordinates[0], 0.001);
+        assertEquals(2.0, rectangleCoordinates[1], 0.001);
+        assertEquals(5.0, rectangleCoordinates[2], 0.001);
+        assertEquals(5.0, rectangleCoordinates[3], 0.001);
+    }
+
+
+    public void testRectangleShapeContainerCZT() {
+        ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+        rectangle.setRectangleCoordinates(2, 2, 5, 5);
+        rectangle.setText("Rectangle");
+        rectangle.setC(1);
+        rectangle.setZ(2);
+        rectangle.setT(3);
+
+        assertEquals(1, rectangle.getC());
+        assertEquals(2, rectangle.getZ());
+        assertEquals(3, rectangle.getT());
+        assertEquals("Rectangle", rectangle.getText());
+    }
+
+
+    public void testMaskShapeContainer() {
+        ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
+        mask.setRectangleCoordinates(3, 3, 10, 10);
+
+        double[] maskCoordinates = mask.getCoordinates();
+
+        assertEquals(3.00, maskCoordinates[0], 0.001);
+        assertEquals(3.00, maskCoordinates[1], 0.001);
+        assertEquals(10.0, maskCoordinates[2], 0.001);
+        assertEquals(10.0, maskCoordinates[3], 0.001);
+    }
+
+
+    public void testValuesMaskShapeContainer() {
+        ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
+        mask.setRectangleCoordinates(3, 3, 10, 10);
+        mask.setText("Mask");
+
+        int[][] maskValues = new int[10][10];
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                maskValues[i][j] = i >= 5 ? 1 : 0;
+            }
+        }
+        mask.setMask(maskValues);
+
+        int[][] checkValues = mask.getMask();
+
+        int difference = 0;
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                difference += Math.abs(maskValues[i][j] - checkValues[i][j]);
+            }
+        }
+
+        assertEquals(0, difference);
+        assertEquals("Mask", mask.getText());
+    }
+
+
+    public void testEllipseShapeContainer() {
+        ShapeContainer ellipse = new ShapeContainer(ShapeContainer.ELLIPSE);
+        ellipse.setEllipseCoordinates(9, 11, 5, 10);
+        ellipse.setRectangleCoordinates(3, 3, 4, 9);
+        ellipse.setText("Ellipse");
+
+        double[] ellipseCoordinates = ellipse.getCoordinates();
+
+        assertEquals(9.00, ellipseCoordinates[0], 0.001);
+        assertEquals(11.0, ellipseCoordinates[1], 0.001);
+        assertEquals(5.00, ellipseCoordinates[2], 0.001);
+        assertEquals(10.0, ellipseCoordinates[3], 0.001);
+        assertEquals("Ellipse", ellipse.getText());
+    }
+
+
+    public void testLineShapeContainer() {
+        ShapeContainer line = new ShapeContainer(ShapeContainer.LINE);
+        line.setLineCoordinates(3, 3, 10, 10);
+        line.setText("Line");
+
+        double[] lineCoordinates = line.getCoordinates();
+
+        assertEquals(3.00, lineCoordinates[0], 0.001);
+        assertEquals(3.00, lineCoordinates[1], 0.001);
+        assertEquals(10.0, lineCoordinates[2], 0.001);
+        assertEquals(10.0, lineCoordinates[3], 0.001);
+        assertEquals("Line", line.getText());
+    }
+
+
+    public void testPointsLineShapeContainer() {
+        ShapeContainer       line   = new ShapeContainer(ShapeContainer.LINE);
+        List<Point2D.Double> points = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        line.setLineCoordinates(3, 3, 10, 10);
+        line.setPoints(points);
+        List<Point2D.Double> points2 = line.getPoints();
+
+        double[] maskCoordinates = line.getCoordinates();
+
+        assertNull(points2);
+        assertEquals(3.00, maskCoordinates[0], 0.001);
+        assertEquals(3.00, maskCoordinates[1], 0.001);
+        assertEquals(10.0, maskCoordinates[2], 0.001);
+        assertEquals(10.0, maskCoordinates[3], 0.001);
+    }
+
+
+    public void testPolylineShapeContainer() {
+        ShapeContainer       polyline = new ShapeContainer(ShapeContainer.POLYLINE);
+        List<Point2D.Double> points   = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        polyline.setText("Polyline");
+        polyline.setPoints(points);
+        List<Point2D.Double> points2 = polyline.getPoints();
+
+        assertEquals(points, points2);
+        assertEquals("Polyline", polyline.getText());
+    }
+
+
+    public void testCoordinatesPolylineShapeContainer() {
+        ShapeContainer       polyline = new ShapeContainer(ShapeContainer.POLYLINE);
+        List<Point2D.Double> points   = new ArrayList<>();
+
+        polyline.setLineCoordinates(3, 3, 10, 10);
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        polyline.setPoints(points);
+
+        List<Point2D.Double> points2 = polyline.getPoints();
+
+        double[] polylineCoordinates = polyline.getCoordinates();
+
+        assertNull(polylineCoordinates);
+        assertEquals(points, points2);
+    }
+
+
+    public void testPolygonShapeContainer() {
+        ShapeContainer       polygon = new ShapeContainer(ShapeContainer.POLYGON);
+        List<Point2D.Double> points  = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        polygon.setPoints(points);
+        polygon.setText("Polygon");
+
+        List<Point2D.Double> points2 = polygon.getPoints();
+
+        assertEquals(points, points2);
+        assertEquals("Polygon", polygon.getText());
     }
 
 }
