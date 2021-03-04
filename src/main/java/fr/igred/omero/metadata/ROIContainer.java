@@ -20,7 +20,8 @@ package fr.igred.omero.metadata;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
-import omero.ServerError;
+import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.exception.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
@@ -114,7 +115,7 @@ public class ROIContainer {
      */
     public List<ShapeContainer> getShapes() {
         List<ShapeContainer> shapes = new ArrayList<>();
-        for(ShapeData shape : data.getShapes()) {
+        for (ShapeData shape : data.getShapes()) {
             shapes.add(new ShapeContainer(shape));
         }
         return shapes;
@@ -124,7 +125,7 @@ public class ROIContainer {
     /**
      * Sets the image linked to the ROI.
      *
-     * @param image  Image linked to the ROIData.
+     * @param image Image linked to the ROIData.
      */
     public void setImage(ImageContainer image) {
         data.setImage(image.getImage().asImage());
@@ -168,13 +169,18 @@ public class ROIContainer {
      *
      * @param client The user.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws ServerError      Server error.
      */
-    public void saveROI(Client client) throws ServerError, DSOutOfServiceException {
-        Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
-
-        data = new ROIData(roi);
+    public void saveROI(Client client) throws ServerError, ServiceException {
+        try {
+            Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
+            data = new ROIData(roi);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (omero.ServerError se) {
+            throw new ServerError("Server error", se);
+        }
     }
 
 }

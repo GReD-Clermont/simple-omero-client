@@ -1,6 +1,7 @@
 package fr.igred.omero.metadata;
 
 
+import ome.model.units.BigResult;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.PointData;
 import omero.gateway.model.RectangleData;
@@ -10,6 +11,8 @@ import omero.gateway.model.PolylineData;
 import omero.gateway.model.MaskData;
 import omero.gateway.model.TextData;
 import omero.gateway.model.LineData;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -576,6 +579,34 @@ public class ShapeContainer {
         } else {
             System.err.println("ShapeContainer cannot set null coordinates.");
         }
+    }
+
+
+    /**
+     * Gets ShapeData font size
+     *
+     * @return The font size (in typography points)
+     */
+    public double getFontSize() {
+        double fontSize = Double.NaN;
+        try {
+            fontSize = shape.getShapeSettings().getFontSize(UnitsLength.POINT).getValue();
+        } catch (BigResult bigResult) {
+            System.err.println("Error while getting font size from ShapeData.");
+            bigResult.printStackTrace();
+        }
+        return fontSize;
+    }
+
+
+    /**
+     * Sets ShapeData font size
+     *
+     * @param value The font size (in typography points)
+     */
+    public void setFontSize(double value) {
+        LengthI size = new LengthI(value, UnitsLength.POINT);
+        shape.getShapeSettings().setFontSize(size);
     }
 
 }
