@@ -20,14 +20,15 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.sort.SortImageContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
-import omero.ServerError;
+import fr.igred.omero.exception.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
-import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
@@ -147,12 +148,12 @@ public class ProjectContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DataObject addDataset(Client client, String name, String description)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    public DatasetContainer addDataset(Client client, String name, String description)
+    throws ServiceException, AccessException, ExecutionException {
         DatasetData datasetData = new DatasetData();
         datasetData.setName(name);
         datasetData.setDescription(description);
@@ -169,12 +170,12 @@ public class ProjectContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DataObject addDataset(Client client, DatasetContainer dataset)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    public DatasetContainer addDataset(Client client, DatasetContainer dataset)
+    throws ServiceException, AccessException, ExecutionException {
         return addDataset(client, dataset.getDataset());
     }
 
@@ -187,15 +188,25 @@ public class ProjectContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private DataObject addDataset(Client client, DatasetData datasetData)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        datasetData.setProjects(Collections.singleton(project));
-
-        return client.getDm().saveAndReturnObject(client.getCtx(), datasetData);
+    private DatasetContainer addDataset(Client client, DatasetData datasetData)
+    throws ServiceException, AccessException, ExecutionException {
+        DatasetContainer newDataset;
+        try {
+            datasetData.setProjects(Collections.singleton(project));
+            DatasetData dataset = (DatasetData) client.getDm()
+                                                      .saveAndReturnObject(client.getCtx(),
+                                                                           datasetData);
+            newDataset = new DatasetContainer(dataset);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+        return newDataset;
     }
 
 
@@ -208,12 +219,12 @@ public class ProjectContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ProjectAnnotationLink addTag(Client client, String name, String description)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
 
@@ -229,12 +240,12 @@ public class ProjectContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ProjectAnnotationLink addTag(Client client, TagAnnotationContainer tag)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         return addTag(client, tag.getTag());
     }
 
@@ -247,17 +258,24 @@ public class ProjectContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     private ProjectAnnotationLink addTag(Client client, TagAnnotationData tagData)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
+        ProjectAnnotationLink newLink;
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new ProjectI(project.getId(), false));
-
-        return (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        try {
+            newLink = (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+        return newLink;
     }
 
 
@@ -269,17 +287,26 @@ public class ProjectContainer {
      *
      * @return The objects saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ProjectAnnotationLink addTag(Client client, Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
+        ProjectAnnotationLink newLink;
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new ProjectI(project.getId(), false));
 
-        return (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        try {
+            newLink = (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+
+        return newLink;
     }
 
 
@@ -291,12 +318,12 @@ public class ProjectContainer {
      *
      * @return The objects saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public Collection<ProjectAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
             ProjectAnnotationLink link = addTag(client, tag.getTag());
@@ -315,12 +342,12 @@ public class ProjectContainer {
      *
      * @return The objects saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public Collection<ProjectAnnotationLink> addTags(Client client, Long... ids)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
             ProjectAnnotationLink link = addTag(client, id);
@@ -338,27 +365,32 @@ public class ProjectContainer {
      *
      * @return Collection of TagAnnotationContainer each containing a tag linked to the dataset.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<TagAnnotationContainer> getTags(Client client)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<Long> userIds = new ArrayList<>();
         userIds.add(client.getId());
 
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
 
-        List<AnnotationData> annotations =
-                client.getMetadata().getAnnotations(client.getCtx(), project, types, userIds);
+        List<AnnotationData> annotations;
+        try {
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), project, types, userIds);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
 
         List<TagAnnotationContainer> tags = new ArrayList<>();
 
         if (annotations != null) {
             for (AnnotationData annotation : annotations) {
                 TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
-
                 tags.add(new TagAnnotationContainer(tagAnnotation));
             }
         }
@@ -393,10 +425,10 @@ public class ProjectContainer {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImages(Client client) throws DSOutOfServiceException, DSAccessException {
+    public List<ImageContainer> getImages(Client client) throws ServiceException, AccessException {
         Collection<DatasetContainer> datasets = getDatasets();
 
         List<ImageContainer> imagesContainer = new ArrayList<>();
@@ -419,11 +451,11 @@ public class ProjectContainer {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImages(Client client, String name)
-    throws DSOutOfServiceException, DSAccessException {
+    throws ServiceException, AccessException {
         Collection<DatasetContainer> datasets = getDatasets();
 
         List<ImageContainer> imagesContainer = new ArrayList<>();
@@ -446,11 +478,11 @@ public class ProjectContainer {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImagesLike(Client client, String motif)
-    throws DSOutOfServiceException, DSAccessException {
+    throws ServiceException, AccessException {
         Collection<DatasetContainer> datasets = getDatasets();
 
         List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
@@ -473,12 +505,12 @@ public class ProjectContainer {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws ServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
-    throws DSOutOfServiceException, DSAccessException, ServerError {
+    throws ServiceException, AccessException, ServerError {
         Collection<DatasetContainer> datasets = getDatasets();
 
         List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
@@ -501,12 +533,12 @@ public class ProjectContainer {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws ServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
-    throws DSOutOfServiceException, DSAccessException, ServerError {
+    throws ServiceException, AccessException, ServerError {
         Collection<DatasetContainer> datasets = getDatasets();
 
         List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
@@ -529,12 +561,12 @@ public class ProjectContainer {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageContainer> getImagesKey(Client client, String key)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetContainer> datasets = getDatasets();
 
         List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
@@ -558,12 +590,12 @@ public class ProjectContainer {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageContainer> getImagesPairKeyValue(Client client, String key, String value)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetContainer> datasets = getDatasets();
 
         List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());

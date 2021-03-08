@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.ShapeContainer;
 import fr.igred.omero.metadata.TableContainer;
@@ -34,7 +35,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import loci.common.DebugTools;
 import loci.plugins.BF;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.ShapeData;
@@ -96,7 +96,7 @@ public class AppTest extends TestCase {
         try {
             root.connect("omero", 4064, "badUser", "omero", 3L);
             assert (false);
-        } catch (DSOutOfServiceException e) {
+        } catch (ServiceException e) {
             assert (true);
         }
     }
@@ -108,7 +108,7 @@ public class AppTest extends TestCase {
         try {
             root.connect("omero", 4064, "root", "badPassword", 3L);
             assert (false);
-        } catch (DSOutOfServiceException e) {
+        } catch (ServiceException e) {
             assert (true);
         }
     }

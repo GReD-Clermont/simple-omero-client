@@ -18,6 +18,9 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.exception.ServerError;
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.annotation.MapAnnotationContainer;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
@@ -29,11 +32,9 @@ import ij.measure.Calibration;
 import ij.process.ImageProcessor;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
-import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
@@ -43,20 +44,7 @@ import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 import omero.gateway.model.TagAnnotationData;
-import omero.model.ChecksumAlgorithm;
-import omero.model.ChecksumAlgorithmI;
-import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
-import omero.model.Folder;
-import omero.model.IObject;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
-import omero.model.Length;
-import omero.model.NamedValue;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
-import omero.model.TagAnnotationI;
+import omero.model.*;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import org.apache.commons.io.FilenameUtils;
 
@@ -157,12 +145,12 @@ public class ImageContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ImageAnnotationLink addTag(Client client, String name, String description)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
 
@@ -178,12 +166,12 @@ public class ImageContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ImageAnnotationLink addTag(Client client, TagAnnotationContainer tag)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         return addTag(client, tag.getTag());
     }
 
@@ -196,17 +184,26 @@ public class ImageContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     private ImageAnnotationLink addTag(Client client, TagAnnotationData tagData)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
+        ImageAnnotationLink newLink;
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(image.asImage());
 
-        return (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        try {
+            newLink = (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+
+        return newLink;
     }
 
 
@@ -218,17 +215,26 @@ public class ImageContainer {
      *
      * @return The object saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ImageAnnotationLink addTag(Client client, Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
+        ImageAnnotationLink newLink;
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(image.asImage());
 
-        return (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        try {
+            newLink = (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+
+        return newLink;
     }
 
 
@@ -240,12 +246,12 @@ public class ImageContainer {
      *
      * @return The objects saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public Collection<ImageAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ImageAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
             ImageAnnotationLink link = addTag(client, tag.getTag());
@@ -264,12 +270,12 @@ public class ImageContainer {
      *
      * @return The objects saved in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public Collection<ImageAnnotationLink> addTags(Client client, Long... ids)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ImageAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
             ImageAnnotationLink link = addTag(client, id);
@@ -287,19 +293,26 @@ public class ImageContainer {
      *
      * @return List of TagAnnotationContainer each containing a tag linked to the image.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<TagAnnotationContainer> getTags(Client client)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<Long> userIds = new ArrayList<>();
         userIds.add(client.getId());
 
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
+        List<AnnotationData> annotations;
+        try {
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
 
         List<TagAnnotationContainer> tags = new ArrayList<>();
 
@@ -323,19 +336,26 @@ public class ImageContainer {
      *
      * @return Collection of NamedValue.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<NamedValue> getKeyValuePairs(Client client)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<Long> userIds = new ArrayList<>();
         userIds.add(client.getId());
 
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(MapAnnotationData.class);
 
-        List<AnnotationData> annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
+        List<AnnotationData> annotations;
+        try {
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
 
         List<NamedValue> keyValuePairs = new ArrayList<>();
 
@@ -362,13 +382,13 @@ public class ImageContainer {
      *
      * @return Value associated to the key.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws NoSuchElementException  Key not found.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException Key not found.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     public String getValue(Client client, String key)
-    throws DSOutOfServiceException, DSAccessException, NoSuchElementException, ExecutionException {
+    throws ServiceException, AccessException, NoSuchElementException, ExecutionException {
         Collection<NamedValue> keyValuePairs = getKeyValuePairs(client);
 
         for (NamedValue namedValue : keyValuePairs) {
@@ -387,15 +407,21 @@ public class ImageContainer {
      * @param client The user.
      * @param data   MapAnnotationContainer containing a list of NamedValue.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void addMapAnnotation(Client client, MapAnnotationContainer data)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        client.getDm().attachAnnotation(client.getCtx(),
-                                        data.getMapAnnotation(),
-                                        new ImageData(new ImageI(image.getId(), false)));
+    throws ServiceException, AccessException, ExecutionException {
+        try {
+            client.getDm().attachAnnotation(client.getCtx(),
+                                            data.getMapAnnotation(),
+                                            new ImageData(new ImageI(image.getId(), false)));
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
     }
 
 
@@ -406,19 +432,24 @@ public class ImageContainer {
      * @param key    Name of the key.
      * @param value  Value associated to the key.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void addPairKeyValue(Client client, String key, String value)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<NamedValue> result = new ArrayList<>();
         result.add(new NamedValue(key, value));
 
         MapAnnotationData data = new MapAnnotationData();
         data.setContent(result);
-
-        client.getDm().attachAnnotation(client.getCtx(), data, new ImageData(new ImageI(image.getId(), false)));
+        try {
+            client.getDm().attachAnnotation(client.getCtx(), data, new ImageData(new ImageI(image.getId(), false)));
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
     }
 
 
@@ -428,17 +459,24 @@ public class ImageContainer {
      * @param client The user.
      * @param roi    ROI to be added.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void saveROI(Client client, ROIContainer roi)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        ROIData roiData = client.getRoiFacility()
-                                .saveROIs(client.getCtx(), image.getId(), Collections.singletonList(roi.getROI()))
-                                .iterator().next();
-
-        roi.setData(roiData);
+    throws ServiceException, AccessException, ExecutionException {
+        try {
+            ROIData roiData = client.getRoiFacility()
+                                    .saveROIs(client.getCtx(),
+                                              image.getId(),
+                                              Collections.singletonList(roi.getROI()))
+                                    .iterator().next();
+            roi.setData(roiData);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
     }
 
 
@@ -449,14 +487,21 @@ public class ImageContainer {
      *
      * @return List of ROIs linked to the image.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ROIContainer> getROIs(Client client)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        List<ROIResult> roiResults = client.getRoiFacility().loadROIs(client.getCtx(), image.getId());
-        ROIResult       r          = roiResults.iterator().next();
+    throws ServiceException, AccessException, ExecutionException {
+        List<ROIResult> roiResults;
+        try {
+            roiResults = client.getRoiFacility().loadROIs(client.getCtx(), image.getId());
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+        ROIResult r = roiResults.iterator().next();
 
         Collection<ROIData> rois = r.getROIs();
 
@@ -464,7 +509,6 @@ public class ImageContainer {
 
         for (ROIData roi : rois) {
             ROIContainer temp = new ROIContainer(roi);
-
             roiContainers.add(temp);
         }
 
@@ -479,18 +523,24 @@ public class ImageContainer {
      *
      * @return List of FolderContainer containing the folder.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<FolderContainer> getFolders(Client client)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = client.getRoiFacility();
 
-        Collection<FolderData> folders = roiFacility.getROIFolders(client.getCtx(), this.image.getId());
+        Collection<FolderData> folders;
+        try {
+            folders = roiFacility.getROIFolders(client.getCtx(), this.image.getId());
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
 
         List<FolderContainer> roiFolders = new ArrayList<>(folders.size());
-
         for (FolderData folder : folders) {
             FolderContainer roiFolder = new FolderContainer(folder);
             roiFolder.setImage(this.image.getId());
@@ -510,14 +560,21 @@ public class ImageContainer {
      *
      * @return The folder if it exist.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws ServerError      Server error.
      */
-    public FolderContainer getFolder(Client client, Long folderId) throws DSOutOfServiceException, ServerError {
-        List<IObject> os = client.getQueryService().findAllByQuery("select f " +
-                                                                   "from Folder as f " +
-                                                                   "where f.id = " +
-                                                                   folderId, null);
+    public FolderContainer getFolder(Client client, Long folderId) throws ServiceException, ServerError {
+        List<IObject> os;
+        try {
+            os = client.getQueryService().findAllByQuery("select f " +
+                                                         "from Folder as f " +
+                                                         "where f.id = " +
+                                                         folderId, null);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (omero.ServerError se) {
+            throw new ServerError("Server error", se);
+        }
 
         FolderContainer folderContainer = new FolderContainer((Folder) os.get(0));
         folderContainer.setImage(this.image.getId());
@@ -544,10 +601,10 @@ public class ImageContainer {
      *
      * @return ImagePlus generated from the current image.
      *
-     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client) throws DataSourceException, ExecutionException {
+    public ImagePlus toImagePlus(Client client) throws AccessException, ExecutionException {
         return this.toImagePlus(client, null, null, null, null, null);
     }
 
@@ -564,11 +621,11 @@ public class ImageContainer {
      *
      * @return an ImagePlus from the ij library.
      *
-     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException  A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ImagePlus toImagePlus(Client client, int[] xBound, int[] yBound, int[] cBound, int[] zBound, int[] tBound)
-    throws DataSourceException, ExecutionException {
+    throws AccessException, ExecutionException {
         PixelContainer pixels = this.getPixels();
 
         int sizeT, sizeZ, sizeC, sizeX, sizeY;
@@ -701,13 +758,20 @@ public class ImageContainer {
      *
      * @return name of the channel.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public String getChannelName(Client client, int index)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        List<ChannelData> channels = client.getMetadata().getChannelData(client.getCtx(), this.image.getId());
+    throws ServiceException, AccessException, ExecutionException {
+        List<ChannelData> channels;
+        try {
+            channels = client.getMetadata().getChannelData(client.getCtx(), this.image.getId());
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
 
         return channels.get(index).getChannelLabeling();
     }
@@ -721,21 +785,24 @@ public class ImageContainer {
      *
      * @return File created in OMERO.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
-     * @throws ServerError             Server connection error.
-     * @throws FileNotFoundException   The file could not be found.
-     * @throws IOException             If an I/O error occurs.
+     * @throws ServiceException      Cannot connect to OMERO.
+     * @throws AccessException       Cannot access data on server.
+     * @throws ExecutionException    A Facility can't be retrieved or instantiated.
+     * @throws ServerError           Server error.
+     * @throws FileNotFoundException The file could not be found.
+     * @throws IOException           If an I/O error occurs.
      */
     public ImageAnnotationLink addFile(Client client, File file) throws
-                                                                 DSOutOfServiceException,
-                                                                 DSAccessException,
+                                                                 ServiceException,
+                                                                 AccessException,
                                                                  ExecutionException,
                                                                  ServerError,
                                                                  FileNotFoundException,
                                                                  IOException {
         int INC = 262144;
+
+        ImageAnnotationLink newLink;
+        RawFileStorePrx     rawFileStore;
 
         String name         = file.getName();
         String absolutePath = file.getAbsolutePath();
@@ -745,20 +812,26 @@ public class ImageContainer {
         originalFile.setName(omero.rtypes.rstring(name));
         originalFile.setPath(omero.rtypes.rstring(path));
         originalFile.setSize(omero.rtypes.rlong(file.length()));
+
         final ChecksumAlgorithm checksumAlgorithm = new ChecksumAlgorithmI();
         checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
         originalFile.setHasher(checksumAlgorithm);
         originalFile.setMimetype(omero.rtypes.rstring(FilenameUtils.getExtension(file.getName())));
-        originalFile = (OriginalFile) client.getDm().saveAndReturnObject(client.getCtx(), originalFile);
 
-        RawFileStorePrx rawFileStore = client.getGateway().getRawFileService(client.getCtx());
+        try {
+            originalFile = (OriginalFile) client.getDm().saveAndReturnObject(client.getCtx(), originalFile);
+            rawFileStore = client.getGateway().getRawFileService(client.getCtx());
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
 
         long       pos = 0;
         int        rLen;
         byte[]     buf = new byte[INC];
         ByteBuffer bBuf;
-        try {
-            FileInputStream stream = new FileInputStream(file);
+        try (FileInputStream stream = new FileInputStream(file)) {
             rawFileStore.setFileId(originalFile.getId().getValue());
             while ((rLen = stream.read(buf)) > 0) {
                 rawFileStore.write(buf, pos, rLen);
@@ -767,9 +840,9 @@ public class ImageContainer {
                 bBuf.limit(rLen);
             }
             originalFile = rawFileStore.save();
-            stream.close();
-        } finally {
             rawFileStore.close();
+        } catch (omero.ServerError se) {
+            throw new ServerError("Server error", se);
         }
 
         FileAnnotation fa = new FileAnnotationI();
@@ -777,12 +850,19 @@ public class ImageContainer {
         fa.setDescription(omero.rtypes.rstring(""));
         fa.setNs(omero.rtypes.rstring(file.getName()));
 
-        fa = (FileAnnotation) client.getDm().saveAndReturnObject(client.getCtx(), fa);
+        try {
+            fa = (FileAnnotation) client.getDm().saveAndReturnObject(client.getCtx(), fa);
 
-        ImageAnnotationLink link = new ImageAnnotationLinkI();
-        link.setChild(fa);
-        link.setParent(image.asImage());
-        return (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+            ImageAnnotationLink link = new ImageAnnotationLinkI();
+            link.setChild(fa);
+            link.setParent(image.asImage());
+            newLink = (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+        return newLink;
     }
 
 }
