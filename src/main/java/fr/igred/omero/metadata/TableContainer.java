@@ -113,8 +113,7 @@ public class TableContainer {
      *
      * @return the value at position data[y][x].
      */
-    public Object getData(int x,
-                          int y) {
+    public Object getData(int x, int y) {
         return data[y][x];
     }
 
@@ -150,8 +149,7 @@ public class TableContainer {
      *
      * @param id New id.
      */
-    public void setId(
-            Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

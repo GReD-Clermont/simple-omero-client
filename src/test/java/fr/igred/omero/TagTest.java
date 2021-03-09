@@ -2,64 +2,49 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.List;
 
-
-public class TagTest extends TestCase {
-
-    /**
-     * Create the test case for Client
-     *
-     * @param testName Name of the test case.
-     */
-    public TagTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.assertEquals;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(TagTest.class);
-    }
+public class TagTest extends BasicTest {
 
 
+    @Test
     public void testGetTagInfo() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        TagAnnotationContainer tag = root.getTag(1L);
+        TagAnnotationContainer tag = client.getTag(1L);
+        client.disconnect();
 
-        assert (1L == tag.getId());
+        assertEquals(1L, tag.getId().longValue());
         assertEquals("tag1", tag.getName());
         assertEquals("description", tag.getDescription());
     }
 
 
+    @Test
     public void testGetTags() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<TagAnnotationContainer> tags = root.getTags();
+        List<TagAnnotationContainer> tags = client.getTags();
+        client.disconnect();
 
-        assert (tags.size() == 3);
+        assertEquals(3, tags.size());
     }
 
 
+    @Test
     public void testGetTagsSorted() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<TagAnnotationContainer> tags = root.getTags();
+        List<TagAnnotationContainer> tags = client.getTags();
+        client.disconnect();
 
         for (int i = 1; i < tags.size(); i++) {
             assert (tags.get(i - 1).getId() <= tags.get(i).getId());

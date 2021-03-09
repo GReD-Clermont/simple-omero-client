@@ -24,7 +24,7 @@ omero user add testUser firstname lastname testGroup -P password
 omero obj new Project name=ToDelete
 
 omero quit
-omero login root@localhost -w omero -g testGroup
+omero login testUser@localhost -w password -g testGroup
 
 # create a simple project/dataset/image hierarchy
 DATASET1=$(omero obj new Dataset name=TestDataset description=description)
@@ -57,9 +57,6 @@ echo "sizeY=512" >> $WORKDIR/image2.fake.ini
 echo "sizeZ=2" >> $WORKDIR/image2.fake.ini
 echo "sizeC=5" >> $WORKDIR/image2.fake.ini
 echo "sizeT=7" >> $WORKDIR/image2.fake.ini
-echo "physicalSizeX=1µm" >> $WORKDIR/image2.fake.ini
-echo "physicalSizeY=1µm" >> $WORKDIR/image2.fake.ini
-echo "physicalSizeZ=2µm" >> $WORKDIR/image2.fake.ini
 
 IMAGE1=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:1)
 IMAGE2=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:1)

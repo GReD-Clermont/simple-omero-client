@@ -20,40 +20,22 @@ package fr.igred.omero;
 
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.ShapeContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.List;
 
-
-public class FolderTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public FolderTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.*;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(FolderTest.class);
-    }
+public class FolderTest extends BasicTest {
 
 
+    @Test
     public void testFolder1() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        FolderContainer folder = new FolderContainer(root, "Test1");
+        FolderContainer folder = new FolderContainer(client, "Test1");
         try {
             ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
             rectangle.setRectangleCoordinates(0, 0, 10, 10);
@@ -63,24 +45,25 @@ public class FolderTest extends TestCase {
 
             ROIContainer roi = new ROIContainer();
             roi.addShape(rectangle);
-            roi.saveROI(root);
+            roi.saveROI(client);
 
-            folder.addROI(root, roi);
-            assert (false);
+            folder.addROI(client, roi);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testFolder2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        FolderContainer folder = new FolderContainer(root, "Test");
+        FolderContainer folder = new FolderContainer(client, "Test");
         folder.setImage(image);
 
         for (int i = 0; i < 8; i++) {
@@ -93,42 +76,43 @@ public class FolderTest extends TestCase {
             rectangle.setC(0);
 
             roi.addShape(rectangle);
-            roi.saveROI(root);
+            roi.saveROI(client);
 
-            folder.addROI(root, roi);
+            folder.addROI(client, roi);
         }
 
-        folder = image.getFolder(root, folder.getId());
-        List<ROIContainer> rois = folder.getROIs(root);
+        folder = image.getFolder(client, folder.getId());
+        List<ROIContainer> rois = folder.getROIs(client);
         assertEquals(8, rois.size());
         assertEquals("Test", folder.getName());
-        assertEquals(8, image.getROIs(root).size());
+        assertEquals(8, image.getROIs(client).size());
 
         for (ROIContainer roi : rois) {
-            root.deleteROI(roi);
+            client.deleteROI(roi);
         }
 
-        rois = folder.getROIs(root);
+        rois = folder.getROIs(client);
         assertEquals(0, rois.size());
-        assertEquals(0, image.getROIs(root).size());
+        assertEquals(0, image.getROIs(client).size());
 
-        root.deleteFolder(folder);
+        client.deleteFolder(folder);
 
         try {
-            image.getFolder(root, folder.getId());
-            assert (false);
+            image.getFolder(client, folder.getId());
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testFolder3() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        FolderContainer folder = new FolderContainer(root, "Test");
+        FolderContainer folder = new FolderContainer(client, "Test");
         folder.setImage(3L);
 
         for (int i = 0; i < 8; i++) {
@@ -140,35 +124,36 @@ public class FolderTest extends TestCase {
 
             ROIContainer roi = new ROIContainer();
             roi.addShape(rectangle);
-            roi.saveROI(root);
+            roi.saveROI(client);
 
-            folder.addROI(root, roi);
+            folder.addROI(client, roi);
         }
 
-        List<ROIContainer> rois = folder.getROIs(root);
+        List<ROIContainer> rois = folder.getROIs(client);
         assertEquals(8, rois.size());
 
-        folder.unlinkROI(root, rois.get(0));
-        root.deleteROI(rois.get(0));
-        rois = folder.getROIs(root);
+        folder.unlinkROI(client, rois.get(0));
+        client.deleteROI(rois.get(0));
+        rois = folder.getROIs(client);
         assertEquals(7, rois.size());
 
-        root.deleteFolder(folder);
+        client.deleteFolder(folder);
 
         for (ROIContainer roi : rois) {
-            root.deleteROI(roi);
+            client.deleteROI(roi);
         }
+        client.disconnect();
     }
 
 
+    @Test
     public void testFolder4() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        FolderContainer folder = new FolderContainer(root, "Test1");
+        FolderContainer folder = new FolderContainer(client, "Test1");
         folder.setImage(image);
 
         for (int i = 0; i < 8; i++) {
@@ -181,12 +166,12 @@ public class FolderTest extends TestCase {
             rectangle.setC(0);
 
             roi.addShape(rectangle);
-            roi.saveROI(root);
+            roi.saveROI(client);
 
-            folder.addROI(root, roi);
+            folder.addROI(client, roi);
         }
 
-        folder = new FolderContainer(root, "Test2");
+        folder = new FolderContainer(client, "Test2");
         folder.setImage(image);
 
         for (int i = 0; i < 8; i++) {
@@ -199,28 +184,31 @@ public class FolderTest extends TestCase {
             rectangle.setC(0);
 
             roi.addShape(rectangle);
-            roi.saveROI(root);
+            roi.saveROI(client);
 
-            folder.addROI(root, roi);
+            folder.addROI(client, roi);
         }
 
-        List<FolderContainer> folders = image.getFolders(root);
+        List<FolderContainer> folders = image.getFolders(client);
         assertEquals(2, folders.size());
-        assertEquals(16, image.getROIs(root).size());
+        assertEquals(16, image.getROIs(client).size());
 
         for (FolderContainer RoiFolder : folders) {
-            root.deleteFolder(RoiFolder);
+            client.deleteFolder(RoiFolder);
         }
 
-        folders = image.getFolders(root);
+        folders = image.getFolders(client);
         assertEquals(0, folders.size());
-        assertEquals(16, image.getROIs(root).size());
+        assertEquals(16, image.getROIs(client).size());
 
-        List<ROIContainer> rois = image.getROIs(root);
+        List<ROIContainer> rois = image.getROIs(client);
         for (ROIContainer roi : rois) {
-            root.deleteROI(roi);
+            client.deleteROI(roi);
         }
-        assertEquals(0, image.getROIs(root).size());
+        client.disconnect();
+
+        assertEquals(0, image.getROIs(client).size());
+        client.disconnect();
     }
 
 }
