@@ -108,9 +108,9 @@ public class ProjectContainer {
      * @return Collection of DatasetContainer.
      */
     public List<DatasetContainer> getDatasets() {
-        Collection<DatasetData> datasets = project.getDatasets();
+        List<DatasetContainer> datasetsContainer = new ArrayList<>();
 
-        List<DatasetContainer> datasetsContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetData> datasets = project.getDatasets();
 
         for (DatasetData dataset : datasets)
             datasetsContainer.add(new DatasetContainer(dataset));
@@ -127,15 +127,9 @@ public class ProjectContainer {
      * @return List of dataset with the given name.
      */
     public List<DatasetContainer> getDatasets(String name) {
-        Collection<DatasetData> datasets = project.getDatasets();
-
-        List<DatasetContainer> datasetsContainer = new ArrayList<>(datasets.size());
-
-        for (DatasetData dataset : datasets)
-            if (dataset.getName().equals(name))
-                datasetsContainer.add(new DatasetContainer(dataset));
-
-        return datasetsContainer;
+        List<DatasetContainer> datasets = getDatasets();
+        datasets.removeIf(dataset -> !dataset.getName().equals(name));
+        return datasets;
     }
 
 
@@ -157,7 +151,6 @@ public class ProjectContainer {
         DatasetData datasetData = new DatasetData();
         datasetData.setName(name);
         datasetData.setDescription(description);
-
         return addDataset(client, datasetData);
     }
 
@@ -371,7 +364,8 @@ public class ProjectContainer {
      */
     public List<TagAnnotationContainer> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long> userIds = new ArrayList<>();
+        List<TagAnnotationContainer> tags    = new ArrayList<>();
+        List<Long>                   userIds = new ArrayList<>();
         userIds.add(client.getId());
 
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
@@ -385,8 +379,6 @@ public class ProjectContainer {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        List<TagAnnotationContainer> tags = new ArrayList<>();
 
         if (annotations != null) {
             for (AnnotationData annotation : annotations) {
@@ -429,9 +421,8 @@ public class ProjectContainer {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImages(Client client) throws ServiceException, AccessException {
-        Collection<DatasetContainer> datasets = getDatasets();
-
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageContainer>         imagesContainer = new ArrayList<>();
+        Collection<DatasetContainer> datasets        = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImages(client));
@@ -456,9 +447,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImages(Client client, String name)
     throws ServiceException, AccessException {
-        Collection<DatasetContainer> datasets = getDatasets();
-
         List<ImageContainer> imagesContainer = new ArrayList<>();
+
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImages(client, name));
@@ -483,9 +474,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesLike(client, motif));
@@ -511,9 +502,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, ServerError {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesTagged(client, tag));
@@ -539,9 +530,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, ServerError {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesTagged(client, tagId));
@@ -567,9 +558,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesKey(client, key));
@@ -596,9 +587,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesPairKeyValue(client, key, value));

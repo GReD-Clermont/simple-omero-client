@@ -413,7 +413,8 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public Collection<ProjectContainer> getProjects() throws ServiceException, AccessException {
-        Collection<ProjectData> projects;
+        Collection<ProjectContainer> projectsContainer = new ArrayList<>();
+        Collection<ProjectData>      projects;
         try {
             projects = browse.getProjects(ctx);
         } catch (DSOutOfServiceException oos) {
@@ -421,8 +422,6 @@ public class Client {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        Collection<ProjectContainer> projectsContainer = new ArrayList<>(projects.size());
 
         for (ProjectData project : projects) {
             projectsContainer.add(new ProjectContainer(project));
@@ -442,7 +441,8 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public Collection<ProjectContainer> getProjects(String name) throws ServiceException, AccessException {
-        Collection<ProjectData> projects;
+        Collection<ProjectContainer> projectsContainer = new ArrayList<>();
+        Collection<ProjectData>      projects;
         try {
             projects = browse.getProjects(ctx, name);
         } catch (DSOutOfServiceException oos) {
@@ -450,8 +450,6 @@ public class Client {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        Collection<ProjectContainer> projectsContainer = new ArrayList<>(projects.size());
 
         for (ProjectData project : projects) {
             projectsContainer.add(new ProjectContainer(project));
@@ -501,7 +499,8 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public Collection<DatasetContainer> getDatasets() throws ServiceException, AccessException {
-        Collection<DatasetData> datasets;
+        Collection<DatasetContainer> datasetContainer = new ArrayList<>();
+        Collection<DatasetData>      datasets;
         try {
             datasets = browse.getDatasets(ctx);
         } catch (DSOutOfServiceException oos) {
@@ -509,8 +508,6 @@ public class Client {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        Collection<DatasetContainer> datasetContainer = new ArrayList<>(datasets.size());
 
         for (DatasetData dataset : datasets) {
             datasetContainer.add(new DatasetContainer(dataset));
@@ -530,7 +527,8 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public Collection<DatasetContainer> getDatasets(String name) throws ServiceException, AccessException {
-        Collection<DatasetData> datasets;
+        Collection<DatasetContainer> datasetContainer = new ArrayList<>();
+        Collection<DatasetData>      datasets;
         try {
             datasets = browse.getDatasets(ctx, name);
         } catch (DSOutOfServiceException oos) {
@@ -538,8 +536,6 @@ public class Client {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        Collection<DatasetContainer> datasetContainer = new ArrayList<>(datasets.size());
 
         for (DatasetData dataset : datasets) {
             datasetContainer.add(new DatasetContainer(dataset));
@@ -557,7 +553,7 @@ public class Client {
      * @return ImageContainer list sorted.
      */
     private List<ImageContainer> toImagesContainer(Collection<ImageData> images) {
-        List<ImageContainer> imagesContainer = new ArrayList<>(images.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
         for (ImageData image : images) {
             imagesContainer.add(new ImageContainer(image));
@@ -625,6 +621,7 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImages(String name) throws ServiceException, AccessException {
+        List<ImageContainer>  selected = new ArrayList<>();
         Collection<ImageData> images;
         try {
             images = browse.getImages(ctx, name);
@@ -634,15 +631,13 @@ public class Client {
             throw new AccessException("Cannot access data", ae);
         }
 
-        Collection<ImageData> selected = new ArrayList<>(images.size());
-
         for (ImageData image : images) {
             if (image.getName().equals(name)) {
-                selected.add(image);
+                selected.add(new ImageContainer(image));
             }
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -657,25 +652,10 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImagesLike(String motif) throws ServiceException, AccessException {
-        Collection<ImageData> images;
-        try {
-            images = browse.getUserImages(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-
-        motif = ".*" + motif + ".*";
-
-        Collection<ImageData> selected = new ArrayList<>(images.size());
-
-        for (ImageData image : images) {
-            if (image.getName().matches(motif)) {
-                selected.add(image);
-            }
-        }
-        return toImagesContainer(selected);
+        List<ImageContainer> images = getImages();
+        final String         regexp = ".*" + motif + ".*";
+        images.removeIf(image -> !image.getName().matches(regexp));
+        return images;
     }
 
 
@@ -692,12 +672,11 @@ public class Client {
      */
     public List<ImageContainer> getImagesTagged(TagAnnotationContainer tag)
     throws ServiceException, AccessException, ServerError {
+        List<ImageContainer> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
                                        "where link.child = " +
                                        tag.getId());
-
-        List<ImageContainer> selected = new ArrayList<>();
 
         for (IObject o : os) {
             selected.add(getImage(o.getId().getValue()));
@@ -720,12 +699,11 @@ public class Client {
      */
     public List<ImageContainer> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, ServerError {
+        List<ImageContainer> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
                                        "where link.child = " +
                                        tagId);
-
-        List<ImageContainer> selected = new ArrayList<>();
 
         for (IObject o : os) {
             selected.add(getImage(o.getId().getValue()));
@@ -748,22 +726,11 @@ public class Client {
      */
     public List<ImageContainer> getImagesKey(String key)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images;
-        try {
-            images = browse.getUserImages(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
+        List<ImageContainer> selected = new ArrayList<>();
+        List<ImageContainer> images   = getImages();
 
-        Collection<ImageData> selected = new ArrayList<>(images.size());
-
-        for (ImageData image : images) {
-            ImageContainer imageContainer = new ImageContainer(image);
-
-            Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(this);
-
+        for (ImageContainer image : images) {
+            Collection<NamedValue> pairsKeyValue = image.getKeyValuePairs(this);
             for (NamedValue pairKeyValue : pairsKeyValue) {
                 if (pairKeyValue.name.equals(key)) {
                     selected.add(image);
@@ -772,7 +739,7 @@ public class Client {
             }
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -790,22 +757,11 @@ public class Client {
      */
     public List<ImageContainer> getImagesPairKeyValue(String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images;
-        try {
-            images = browse.getUserImages(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-
-        Collection<ImageData> selected = new ArrayList<>(images.size());
-
-        for (ImageData image : images) {
-            ImageContainer imageContainer = new ImageContainer(image);
-
-            Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(this);
-
+        final NamedValue     pair     = new NamedValue(key, value);
+        List<ImageContainer> selected = new ArrayList<>();
+        List<ImageContainer> images   = getImages();
+        for (ImageContainer image : images) {
+            Collection<NamedValue> pairsKeyValue = image.getKeyValuePairs(this);
             for (NamedValue pairKeyValue : pairsKeyValue) {
                 if (pairKeyValue.name.equals(key) && pairKeyValue.value.equals(value)) {
                     selected.add(image);
@@ -814,7 +770,7 @@ public class Client {
             }
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -830,7 +786,7 @@ public class Client {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Client SudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
+    public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
         Client c = new Client();
 
         ExperimenterData sudoUser;
@@ -864,17 +820,17 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<TagAnnotationContainer> getTags() throws ServerError, ServiceException {
-        IQueryPrx     qs;
+        List<TagAnnotationContainer> tags = new ArrayList<>();
+
         List<IObject> os;
         try {
-            qs = gateway.getQueryService(ctx);
+            if (qs == null) qs = gateway.getQueryService(ctx);
             os = qs.findAll(TagAnnotation.class.getSimpleName(), null);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
         } catch (omero.ServerError se) {
             throw new ServerError("Server error", se);
         }
-        List<TagAnnotationContainer> tags = new ArrayList<>(os.size());
 
         for (IObject o : os) {
             TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
@@ -897,26 +853,8 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<TagAnnotationContainer> getTags(String name) throws ServerError, ServiceException {
-        IQueryPrx     qs;
-        List<IObject> os;
-        try {
-            qs = gateway.getQueryService(ctx);
-            os = qs.findAll(TagAnnotation.class.getSimpleName(), null);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
-        }
-        List<TagAnnotationContainer> tags = new ArrayList<>(os.size());
-
-        for (IObject o : os) {
-            TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
-            tag.setNameSpace(tag.getContentAsString());
-
-            if (tag.getNameSpace().equals(name))
-                tags.add(new TagAnnotationContainer(tag));
-        }
-
+        List<TagAnnotationContainer> tags = getTags();
+        tags.removeIf(tag -> !tag.getName().equals(name));
         tags.sort(new SortTagAnnotationContainer());
         return tags;
     }
@@ -933,10 +871,9 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public TagAnnotationContainer getTag(Long id) throws ServerError, ServiceException {
-        IQueryPrx qs;
-        IObject   o;
+        IObject o;
         try {
-            qs = gateway.getQueryService(ctx);
+            if (qs == null) qs = gateway.getQueryService(ctx);
             o = qs.find(TagAnnotation.class.getSimpleName(), id);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());

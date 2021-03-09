@@ -299,6 +299,8 @@ public class ImageContainer {
      */
     public List<TagAnnotationContainer> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
+        List<TagAnnotationContainer> tags = new ArrayList<>();
+
         List<Long> userIds = new ArrayList<>();
         userIds.add(client.getId());
 
@@ -313,8 +315,6 @@ public class ImageContainer {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        List<TagAnnotationContainer> tags = new ArrayList<>();
 
         if (annotations != null) {
             for (AnnotationData annotation : annotations) {
@@ -342,6 +342,8 @@ public class ImageContainer {
      */
     public List<NamedValue> getKeyValuePairs(Client client)
     throws ServiceException, AccessException, ExecutionException {
+        List<NamedValue> keyValuePairs = new ArrayList<>();
+
         List<Long> userIds = new ArrayList<>();
         userIds.add(client.getId());
 
@@ -356,8 +358,6 @@ public class ImageContainer {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        List<NamedValue> keyValuePairs = new ArrayList<>();
 
         if (annotations != null) {
             for (AnnotationData annotation : annotations) {
@@ -493,7 +493,8 @@ public class ImageContainer {
      */
     public List<ROIContainer> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIResult> roiResults;
+        List<ROIContainer> roiContainers = new ArrayList<>();
+        List<ROIResult>    roiResults;
         try {
             roiResults = client.getRoiFacility().loadROIs(client.getCtx(), image.getId());
         } catch (DSOutOfServiceException oos) {
@@ -504,8 +505,6 @@ public class ImageContainer {
         ROIResult r = roiResults.iterator().next();
 
         Collection<ROIData> rois = r.getROIs();
-
-        List<ROIContainer> roiContainers = new ArrayList<>(rois.size());
 
         for (ROIData roi : rois) {
             ROIContainer temp = new ROIContainer(roi);
@@ -529,7 +528,8 @@ public class ImageContainer {
      */
     public List<FolderContainer> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFacility = client.getRoiFacility();
+        List<FolderContainer> roiFolders  = new ArrayList<>();
+        ROIFacility           roiFacility = client.getRoiFacility();
 
         Collection<FolderData> folders;
         try {
@@ -540,7 +540,6 @@ public class ImageContainer {
             throw new AccessException("Cannot access data", ae);
         }
 
-        List<FolderContainer> roiFolders = new ArrayList<>(folders.size());
         for (FolderData folder : folders) {
             FolderContainer roiFolder = new FolderContainer(folder);
             roiFolder.setImage(this.image.getId());

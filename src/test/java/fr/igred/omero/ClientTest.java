@@ -358,7 +358,7 @@ public class ClientTest extends TestCase {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
-        Client test = root.SudoGetUser("testUser");
+        Client test = root.sudoGetUser("testUser");
 
         TagAnnotationContainer tag = new TagAnnotationContainer(test, "Tag", "This is a tag");
 
