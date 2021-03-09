@@ -252,13 +252,13 @@ public class ImageContainer {
      */
     public Collection<ImageAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageAnnotationLink> objects = new ArrayList<>();
+        Collection<ImageAnnotationLink> links = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
             ImageAnnotationLink link = addTag(client, tag.getTag());
-            objects.add(link);
+            links.add(link);
         }
 
-        return objects;
+        return links;
     }
 
 
@@ -276,13 +276,13 @@ public class ImageContainer {
      */
     public Collection<ImageAnnotationLink> addTags(Client client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageAnnotationLink> objects = new ArrayList<>();
+        Collection<ImageAnnotationLink> links = new ArrayList<>();
         for (Long id : ids) {
             ImageAnnotationLink link = addTag(client, id);
-            objects.add(link);
+            links.add(link);
         }
 
-        return objects;
+        return links;
     }
 
 
@@ -564,17 +564,10 @@ public class ImageContainer {
      * @throws ServerError      Server error.
      */
     public FolderContainer getFolder(Client client, Long folderId) throws ServiceException, ServerError {
-        List<IObject> os;
-        try {
-            os = client.getQueryService().findAllByQuery("select f " +
-                                                         "from Folder as f " +
-                                                         "where f.id = " +
-                                                         folderId, null);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
-        }
+        List<IObject> os = client.findByQuery("select f " +
+                                              "from Folder as f " +
+                                              "where f.id = " +
+                                              folderId);
 
         FolderContainer folderContainer = new FolderContainer((Folder) os.get(0));
         folderContainer.setImage(this.image.getId());

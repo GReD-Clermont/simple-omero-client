@@ -462,32 +462,23 @@ public class DatasetContainer {
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, ServerError {
-        Collection<ImageData> selected;
-        try {
-            List<IObject> os = client.getQueryService().findAllByQuery("select link.parent " +
-                                                                       "from ImageAnnotationLink link " +
-                                                                       "where link.child = " +
-                                                                       tag.getId() +
-                                                                       " and link.parent in " +
-                                                                       "(select link2.child " +
-                                                                       "from DatasetImageLink link2 " +
-                                                                       "where link2.parent = " +
-                                                                       dataset.getId() + ")", null);
-            selected = new ArrayList<>();
+        List<IObject> os = client.findByQuery("select link.parent " +
+                                              "from ImageAnnotationLink link " +
+                                              "where link.child = " +
+                                              tag.getId() +
+                                              " and link.parent in " +
+                                              "(select link2.child " +
+                                              "from DatasetImageLink link2 " +
+                                              "where link2.parent = " +
+                                              dataset.getId() + ")");
 
-            for (IObject o : os) {
-                ImageData image = client.getBrowseFacility().getImage(client.getCtx(), o.getId().getValue());
-                selected.add(image);
-            }
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+        List<ImageContainer> selected = new ArrayList<>();
+
+        for (IObject o : os) {
+            selected.add(client.getImage(o.getId().getValue()));
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -505,32 +496,23 @@ public class DatasetContainer {
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, ServerError {
-        Collection<ImageData> selected;
-        try {
-            List<IObject> os = client.getQueryService().findAllByQuery("select link.parent " +
-                                                                       "from ImageAnnotationLink link " +
-                                                                       "where link.child = " +
-                                                                       tagId +
-                                                                       " and link.parent in " +
-                                                                       "(select link2.child " +
-                                                                       "from DatasetImageLink link2 " +
-                                                                       "where link2.parent = " +
-                                                                       dataset.getId() + ")", null);
-            selected = new ArrayList<>();
+        List<IObject> os = client.findByQuery("select link.parent " +
+                                              "from ImageAnnotationLink link " +
+                                              "where link.child = " +
+                                              tagId +
+                                              " and link.parent in " +
+                                              "(select link2.child " +
+                                              "from DatasetImageLink link2 " +
+                                              "where link2.parent = " +
+                                              dataset.getId() + ")");
 
-            for (IObject o : os) {
-                ImageData image = client.getBrowseFacility().getImage(client.getCtx(), o.getId().getValue());
-                selected.add(image);
-            }
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+        List<ImageContainer> selected = new ArrayList<>();
+
+        for (IObject o : os) {
+            selected.add(client.getImage(o.getId().getValue()));
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 

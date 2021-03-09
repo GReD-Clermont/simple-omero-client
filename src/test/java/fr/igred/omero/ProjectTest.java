@@ -1,7 +1,6 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
@@ -10,10 +9,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import loci.common.DebugTools;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 
 public class ProjectTest extends TestCase {
