@@ -207,14 +207,18 @@ public class Client {
     }
 
 
-    public IQueryPrx getQueryService() throws ServiceException {
+    public List<IObject> findByQuery(String query) throws ServiceException, ServerError {
+        List<IObject> results;
         try {
             if (qs == null) qs = gateway.getQueryService(ctx);
+            results = qs.findAllByQuery(query, null);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (omero.ServerError se) {
+            throw new ServerError("Server error", se);
         }
 
-        return qs;
+        return results;
     }
 
 
@@ -270,11 +274,7 @@ public class Client {
 
         createConfig(hostname, port, username, password);
 
-        try {
-            connect(cred);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        }
+        connect(cred);
     }
 
 
@@ -297,11 +297,7 @@ public class Client {
 
         createConfig(hostname, port, username, password);
 
-        try {
-            connect(cred);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        }
+        connect(cred);
     }
 
 
@@ -696,28 +692,18 @@ public class Client {
      */
     public List<ImageContainer> getImagesTagged(TagAnnotationContainer tag)
     throws ServiceException, AccessException, ServerError {
-        Collection<ImageData> selected;
-        try {
-            List<IObject> os = getQueryService().findAllByQuery("select link.parent " +
-                                                                "from ImageAnnotationLink link " +
-                                                                "where link.child = " +
-                                                                tag.getId(), null);
+        List<IObject> os = findByQuery("select link.parent " +
+                                       "from ImageAnnotationLink link " +
+                                       "where link.child = " +
+                                       tag.getId());
 
-            selected = new ArrayList<>();
+        List<ImageContainer> selected = new ArrayList<>();
 
-            for (IObject o : os) {
-                ImageData image = browse.getImage(ctx, o.getId().getValue());
-                selected.add(image);
-            }
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+        for (IObject o : os) {
+            selected.add(getImage(o.getId().getValue()));
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -734,28 +720,18 @@ public class Client {
      */
     public List<ImageContainer> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, ServerError {
-        Collection<ImageData> selected;
-        try {
-            List<IObject> os = getQueryService().findAllByQuery("select link.parent " +
-                                                                "from ImageAnnotationLink link " +
-                                                                "where link.child = " +
-                                                                tagId, null);
+        List<IObject> os = findByQuery("select link.parent " +
+                                       "from ImageAnnotationLink link " +
+                                       "where link.child = " +
+                                       tagId);
 
-            selected = new ArrayList<>();
+        List<ImageContainer> selected = new ArrayList<>();
 
-            for (IObject o : os) {
-                ImageData image = browse.getImage(ctx, o.getId().getValue());
-                selected.add(image);
-            }
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+        for (IObject o : os) {
+            selected.add(getImage(o.getId().getValue()));
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
