@@ -67,11 +67,11 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        if(!f.createNewFile())
+        if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         File f2 = new File("./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
-        if(!f2.createNewFile())
+        if (!f2.createNewFile())
             System.err.println("\"" + f2.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
@@ -79,6 +79,12 @@ public class ImageTest extends TestCase {
         dataset.importImages(root,
                              "./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake",
                              "./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
+
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+
+        if (!f2.delete())
+            System.err.println("\"" + f2.getCanonicalPath() + "\" could not be deleted.");
 
         List<ImageContainer> images = dataset.getImages(root);
 
@@ -100,12 +106,15 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        if(!f.createNewFile())
+        if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
 
         dataset.importImages(root, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
 
         List<ImageContainer> images = dataset.getImages(root);
 
@@ -145,12 +154,15 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        if(!f.createNewFile())
+        if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
 
         dataset.importImages(root, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
 
         List<ImageContainer> images = dataset.getImages(root);
 
@@ -180,12 +192,15 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        if(!f.createNewFile())
+        if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
 
         dataset.importImages(root, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
 
         List<ImageContainer> images = dataset.getImages(root);
 
@@ -390,12 +405,12 @@ public class ImageTest extends TestCase {
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
 
-        if(!fakeFile.createNewFile())
+        if (!fakeFile.createNewFile())
             System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
 
         ImagePlus reference = BF.openImagePlus(fake)[0];
 
-        if(!fakeFile.delete())
+        if (!fakeFile.delete())
             System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
 
         Duplicator duplicator = new Duplicator();
@@ -437,12 +452,12 @@ public class ImageTest extends TestCase {
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
 
-        if(!fakeFile.createNewFile())
+        if (!fakeFile.createNewFile())
             System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
 
         ImagePlus reference = BF.openImagePlus(fake)[0];
 
-        if(!fakeFile.delete())
+        if (!fakeFile.delete())
             System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
 
         Client root = new Client();
@@ -642,11 +657,11 @@ public class ImageTest extends TestCase {
         ImageContainer image = root.getImage(1L);
 
         File file = new File("./test.txt");
-        if(!file.createNewFile())
+        if (!file.createNewFile())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
         Long id = image.addFile(root, file);
-        if(!file.delete())
+        if (!file.delete())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
         root.deleteFile(id);
