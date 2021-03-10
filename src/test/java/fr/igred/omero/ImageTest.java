@@ -628,7 +628,7 @@ public class ImageTest extends TestCase {
         File file = new File("./test.txt");
         file.createNewFile();
 
-        Long id = image.addFile(root, file).getId().getValue();
+        Long id = image.addFile(root, file);
         file.delete();
 
         root.deleteFile(id);
