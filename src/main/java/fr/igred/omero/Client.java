@@ -757,7 +757,6 @@ public class Client {
      */
     public List<ImageContainer> getImagesPairKeyValue(String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        final NamedValue     pair     = new NamedValue(key, value);
         List<ImageContainer> selected = new ArrayList<>();
         List<ImageContainer> images   = getImages();
         for (ImageContainer image : images) {
