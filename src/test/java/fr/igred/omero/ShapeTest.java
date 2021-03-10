@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import omero.gateway.model.ShapeData;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,6 +204,9 @@ public class ShapeTest extends TestCase {
     public void testEllipseShapeContainer() {
         ShapeContainer ellipse = new ShapeContainer(ShapeContainer.ELLIPSE);
 
+        Color stroke = Color.BLUE;
+        ellipse.setStroke(stroke);
+
         double[] ellipseCoordinates = {9, 11, 5, 10};
         ellipse.setEllipseCoordinates(ellipseCoordinates[0],
                                       ellipseCoordinates[1],
@@ -221,6 +225,7 @@ public class ShapeTest extends TestCase {
             difference += Math.abs(checkCoordinates[i] - ellipseCoordinates[i]);
 
         assertEquals(0, difference, 0.001);
+        assertEquals(stroke, ellipse.getStroke());
         assertEquals("Ellipse", ellipse.getText());
     }
 
@@ -346,7 +351,7 @@ public class ShapeTest extends TestCase {
 
 
     public void testEmptyShapeData() {
-        ShapeContainer empty = new ShapeContainer((ShapeData) null);
+        ShapeContainer       empty            = new ShapeContainer((ShapeData) null);
         List<Point2D.Double> points           = new ArrayList<>();
         double[]             pointCoordinates = {1, 1};
 

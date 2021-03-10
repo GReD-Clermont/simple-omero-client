@@ -14,6 +14,7 @@ import omero.gateway.model.LineData;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -607,6 +608,26 @@ public class ShapeContainer {
     public void setFontSize(double value) {
         LengthI size = new LengthI(value, UnitsLength.POINT);
         shape.getShapeSettings().setFontSize(size);
+    }
+
+
+    /**
+     * Sets ShapeData stroke color
+     *
+     * @return The stroke color
+     */
+    public Color getStroke() {
+        return shape.getShapeSettings().getStroke();
+    }
+
+
+    /**
+     * Sets ShapeData stroke color
+     *
+     * @param color The stroke color
+     */
+    public void setStroke(Color color) {
+        shape.getShapeSettings().setStroke(color);
     }
 
 }
