@@ -32,6 +32,7 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
+import omero.gateway.util.PojoMapper;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectI;
@@ -188,17 +189,9 @@ public class ProjectContainer {
     private DatasetContainer addDataset(Client client, DatasetData datasetData)
     throws ServiceException, AccessException, ExecutionException {
         DatasetContainer newDataset;
-        try {
-            datasetData.setProjects(Collections.singleton(project));
-            DatasetData dataset = (DatasetData) client.getDm()
-                                                      .saveAndReturnObject(client.getCtx(),
-                                                                           datasetData);
-            newDataset = new DatasetContainer(dataset);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
+        datasetData.setProjects(Collections.singleton(project));
+        DatasetData dataset = (DatasetData) PojoMapper.asDataObject(client.save(datasetData.asIObject()));
+        newDataset = new DatasetContainer(dataset);
         return newDataset;
     }
 
@@ -257,18 +250,11 @@ public class ProjectContainer {
      */
     private ProjectAnnotationLink addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
-        ProjectAnnotationLink newLink;
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new ProjectI(project.getId(), false));
-        try {
-            newLink = (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-        return newLink;
+
+        return (ProjectAnnotationLink) client.save(link);
     }
 
 
@@ -286,20 +272,11 @@ public class ProjectContainer {
      */
     public ProjectAnnotationLink addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
-        ProjectAnnotationLink newLink;
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new ProjectI(project.getId(), false));
 
-        try {
-            newLink = (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-
-        return newLink;
+        return (ProjectAnnotationLink) client.save(link);
     }
 
 

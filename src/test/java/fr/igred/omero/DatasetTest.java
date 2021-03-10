@@ -385,7 +385,7 @@ public class DatasetTest extends TestCase {
         File file = new File("./test.txt");
         file.createNewFile();
 
-        Long id = dataset.addFile(root, file).getId().getValue();
+        Long id = dataset.addFile(root, file);
         file.delete();
 
         root.deleteFile(id);

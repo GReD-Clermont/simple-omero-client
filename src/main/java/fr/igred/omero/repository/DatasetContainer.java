@@ -199,19 +199,11 @@ public class DatasetContainer {
      */
     private DatasetAnnotationLink addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
-        DatasetAnnotationLink newLink;
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new DatasetI(dataset.getId(), false));
-        try {
-            newLink = (DatasetAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
 
-        return newLink;
+        return (DatasetAnnotationLink) client.save(link);
     }
 
 
@@ -229,19 +221,11 @@ public class DatasetContainer {
      */
     public DatasetAnnotationLink addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
-        DatasetAnnotationLink newLink;
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        try {
-            newLink = (DatasetAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-        return newLink;
+        return (DatasetAnnotationLink) client.save(link);
     }
 
 
@@ -606,21 +590,11 @@ public class DatasetContainer {
      */
     public DatasetImageLink addImage(Client client, ImageContainer image)
     throws ServiceException, AccessException, ExecutionException {
-        DatasetImageLink newLink;
         DatasetImageLink link = new DatasetImageLinkI();
-
         link.setChild(image.getImage().asImage());
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        try {
-            newLink = (DatasetImageLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-
-        return newLink;
+        return (DatasetImageLink) client.save(link);
     }
 
 
@@ -664,7 +638,7 @@ public class DatasetContainer {
      * @param client The user.
      * @param file   File to add.
      *
-     * @return File created in OMERO.
+     * @return ID of the file created in OMERO.
      *
      * @throws ServiceException      Cannot connect to OMERO.
      * @throws AccessException       Cannot access data on server.
@@ -673,7 +647,7 @@ public class DatasetContainer {
      * @throws FileNotFoundException The file could not be found.
      * @throws IOException           If an I/O error occurs.
      */
-    public DatasetAnnotationLink addFile(Client client, File file) throws
+    public long addFile(Client client, File file) throws
                                                                    ServiceException,
                                                                    AccessException,
                                                                    ExecutionException,
@@ -698,14 +672,12 @@ public class DatasetContainer {
         checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
         originalFile.setHasher(checksumAlgorithm);
         originalFile.setMimetype(omero.rtypes.rstring(FilenameUtils.getExtension(file.getName())));
+        originalFile = (OriginalFile) client.save(originalFile);
 
         try {
-            originalFile = (OriginalFile) client.getDm().saveAndReturnObject(client.getCtx(), originalFile);
             rawFileStore = client.getGateway().getRawFileService(client.getCtx());
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
         }
 
         long       pos = 0;
@@ -731,20 +703,14 @@ public class DatasetContainer {
         fa.setDescription(omero.rtypes.rstring(""));
         fa.setNs(omero.rtypes.rstring(file.getName()));
 
-        try {
-            fa = (FileAnnotation) client.getDm().saveAndReturnObject(client.getCtx(), fa);
+        fa = (FileAnnotation) client.save(fa);
 
-            DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-            link.setChild(fa);
-            link.setParent(dataset.asDataset());
-            newLink = (DatasetAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
+        DatasetAnnotationLink link = new DatasetAnnotationLinkI();
+        link.setChild(fa);
+        link.setParent(dataset.asDataset());
+        newLink = (DatasetAnnotationLink) client.save(link);
 
-        return newLink;
+        return newLink.getChild().getId().getValue();
     }
 
 

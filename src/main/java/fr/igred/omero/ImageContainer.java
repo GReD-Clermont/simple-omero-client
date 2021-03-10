@@ -190,20 +190,11 @@ public class ImageContainer {
      */
     private ImageAnnotationLink addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
-        ImageAnnotationLink newLink;
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(image.asImage());
 
-        try {
-            newLink = (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-
-        return newLink;
+        return (ImageAnnotationLink) client.save(link);
     }
 
 
@@ -221,20 +212,11 @@ public class ImageContainer {
      */
     public ImageAnnotationLink addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
-        ImageAnnotationLink newLink;
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(image.asImage());
 
-        try {
-            newLink = (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-
-        return newLink;
+        return (ImageAnnotationLink) client.save(link);
     }
 
 
@@ -454,7 +436,8 @@ public class ImageContainer {
 
 
     /**
-     * Links a ROI to the image in OMERO !!! DO NOT USE IT IF A SHAPE WAS DELETED !!!
+     * Links a ROI to the image in OMERO
+     * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *
      * @param client The user.
      * @param roi    ROI to be added.
@@ -775,7 +758,7 @@ public class ImageContainer {
      * @param client The user.
      * @param file   File to add.
      *
-     * @return File created in OMERO.
+     * @return ID of the file created in OMERO.
      *
      * @throws ServiceException      Cannot connect to OMERO.
      * @throws AccessException       Cannot access data on server.
@@ -784,13 +767,13 @@ public class ImageContainer {
      * @throws FileNotFoundException The file could not be found.
      * @throws IOException           If an I/O error occurs.
      */
-    public ImageAnnotationLink addFile(Client client, File file) throws
-                                                                 ServiceException,
-                                                                 AccessException,
-                                                                 ExecutionException,
-                                                                 ServerError,
-                                                                 FileNotFoundException,
-                                                                 IOException {
+    public long addFile(Client client, File file) throws
+                                                  ServiceException,
+                                                  AccessException,
+                                                  ExecutionException,
+                                                  ServerError,
+                                                  FileNotFoundException,
+                                                  IOException {
         int INC = 262144;
 
         ImageAnnotationLink newLink;
@@ -809,14 +792,12 @@ public class ImageContainer {
         checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
         originalFile.setHasher(checksumAlgorithm);
         originalFile.setMimetype(omero.rtypes.rstring(FilenameUtils.getExtension(file.getName())));
+        originalFile = (OriginalFile) client.save(originalFile);
 
         try {
-            originalFile = (OriginalFile) client.getDm().saveAndReturnObject(client.getCtx(), originalFile);
             rawFileStore = client.getGateway().getRawFileService(client.getCtx());
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
         }
 
         long       pos = 0;
@@ -842,19 +823,14 @@ public class ImageContainer {
         fa.setDescription(omero.rtypes.rstring(""));
         fa.setNs(omero.rtypes.rstring(file.getName()));
 
-        try {
-            fa = (FileAnnotation) client.getDm().saveAndReturnObject(client.getCtx(), fa);
+        fa = (FileAnnotation) client.save(fa);
 
-            ImageAnnotationLink link = new ImageAnnotationLinkI();
-            link.setChild(fa);
-            link.setParent(image.asImage());
-            newLink = (ImageAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-        return newLink;
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setChild(fa);
+        link.setParent(image.asImage());
+        newLink = (ImageAnnotationLink) client.save(link);
+
+        return newLink.getChild().getId().getValue();
     }
 
 }

@@ -193,7 +193,7 @@ public class Client {
 
 
     /**
-     * Gets the ExecutionException linked to the gateway to access the raw image data.
+     * Gets the RawDataFacility linked to the gateway to access the raw image data.
      *
      * @return the {@link ExecutionException} linked to the gateway.
      *
@@ -207,6 +207,16 @@ public class Client {
     }
 
 
+    /**
+     * Finds objects on OMERO through a database query.
+     *
+     * @param query The database query.
+     *
+     * @return A list of OMERO objects.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws ServerError      Server error.
+     */
     public List<IObject> findByQuery(String query) throws ServiceException, ServerError {
         List<IObject> results;
         try {
@@ -911,6 +921,55 @@ public class Client {
 
 
     /**
+     * Saves an object on OMERO.
+     *
+     * @param object The OMERO object.
+     *
+     * @return The saved OMERO object
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
+        IObject result;
+        try {
+            result = getDm().saveAndReturnObject(ctx, object);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        }
+        return result;
+    }
+
+
+    /**
+     * Deletes an object from OMERO.
+     *
+     * @param object The OMERO object.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws ServerError          If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    void delete(IObject object)
+    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+        try {
+            getDm().delete(ctx, object).loop(10, 500);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+        } catch (DSAccessException ae) {
+            throw new AccessException("Cannot access data", ae);
+        } catch (LockTimeout lt) {
+            throw new ServerError("Thread was interrupted", lt);
+        }
+    }
+
+
+    /**
      * Deletes an image from OMERO
      *
      * @param id Id of the image to delete.
@@ -924,16 +983,7 @@ public class Client {
     public void deleteImage(Long id)
     throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
         ImageI image = new ImageI(id, false);
-
-        try {
-            getDm().delete(ctx, image).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
-        }
+        delete(image);
     }
 
 
@@ -977,16 +1027,7 @@ public class Client {
     public void deleteProject(Long id)
     throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
         ProjectI project = new ProjectI(id, false);
-
-        try {
-            getDm().delete(ctx, project).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
-        }
+        delete(project);
     }
 
 
@@ -1030,16 +1071,7 @@ public class Client {
     public void deleteDataset(Long id)
     throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
         DatasetI dataset = new DatasetI(id, false);
-
-        try {
-            getDm().delete(ctx, dataset).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
-        }
+        delete(dataset);
     }
 
 
@@ -1083,16 +1115,7 @@ public class Client {
     public void deleteTag(Long id)
     throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
         TagAnnotationI tag = new TagAnnotationI(id, false);
-
-        try {
-            getDm().delete(ctx, tag).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
-        }
+        delete(tag);
     }
 
 
@@ -1136,16 +1159,7 @@ public class Client {
     public void deleteROI(Long id)
     throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
         RoiI roi = new RoiI(id, false);
-
-        try {
-            getDm().delete(ctx, roi).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
-        }
+        delete(roi);
     }
 
 
@@ -1181,16 +1195,7 @@ public class Client {
     public void deleteFile(Long id)
     throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
         FileAnnotationI table = new FileAnnotationI(id, false);
-
-        try {
-            getDm().delete(ctx, table).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
-        }
+        delete(table);
     }
 
 
@@ -1214,16 +1219,7 @@ public class Client {
                                                      ServerError,
                                                      InterruptedException {
         folder.unlinkAllROI(this);
-
-        try {
-            getDm().delete(ctx, folder.getFolder().asIObject()).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
-        }
+        delete(folder.getFolder().asIObject());
     }
 
 }
