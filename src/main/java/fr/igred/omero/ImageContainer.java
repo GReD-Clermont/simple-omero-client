@@ -143,18 +143,16 @@ public class ImageContainer {
      * @param name        Name of the tag.
      * @param description Description of the tag.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImageAnnotationLink addTag(Client client, String name, String description)
+    public void addTag(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
 
-        return addTag(client, tagData);
+        addTag(client, tagData);
     }
 
 
@@ -164,15 +162,13 @@ public class ImageContainer {
      * @param client The user.
      * @param tag    TagAnnotationContainer containing the tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImageAnnotationLink addTag(Client client, TagAnnotationContainer tag)
+    public void addTag(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, ExecutionException {
-        return addTag(client, tag.getTag());
+        addTag(client, tag.getTag());
     }
 
 
@@ -182,19 +178,17 @@ public class ImageContainer {
      * @param client  The user.
      * @param tagData Tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private ImageAnnotationLink addTag(Client client, TagAnnotationData tagData)
+    private void addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(image.asImage());
 
-        return (ImageAnnotationLink) client.save(link);
+        client.save(link);
     }
 
 
@@ -204,19 +198,17 @@ public class ImageContainer {
      * @param client The user.
      * @param id     Id of the tag.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImageAnnotationLink addTag(Client client, Long id)
+    public void addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(image.asImage());
 
-        return (ImageAnnotationLink) client.save(link);
+        client.save(link);
     }
 
 
@@ -226,21 +218,15 @@ public class ImageContainer {
      * @param client The user.
      * @param tags   Table of TagAnnotationContainer to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<ImageAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
+    public void addTags(Client client, TagAnnotationContainer... tags)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageAnnotationLink> links = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
-            ImageAnnotationLink link = addTag(client, tag.getTag());
-            links.add(link);
+            addTag(client, tag.getTag());
         }
-
-        return links;
     }
 
 
@@ -250,21 +236,15 @@ public class ImageContainer {
      * @param client The user.
      * @param ids    Table of tag id to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<ImageAnnotationLink> addTags(Client client, Long... ids)
+    public void addTags(Client client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageAnnotationLink> links = new ArrayList<>();
         for (Long id : ids) {
-            ImageAnnotationLink link = addTag(client, id);
-            links.add(link);
+            addTag(client, id);
         }
-
-        return links;
     }
 
 
@@ -680,7 +660,6 @@ public class ImageContainer {
         imp.setCalibration(cal);
 
         boolean is_float  = FormatTools.isFloatingPoint(pixels_type);
-        boolean is_little = false;
 
         ImageStack stack = imp.getImageStack();
 
@@ -703,7 +682,7 @@ public class ImageContainer {
                                                        tBoundTemp,
                                                        bpp)[0][0][0];
 
-                    stack.setPixels(DataTools.makeDataArray(tiles, bpp, is_float, is_little), n);
+                    stack.setPixels(DataTools.makeDataArray(tiles, bpp, is_float, false), n);
                     ImageProcessor ip = stack.getProcessor(n);
                     ip.resetMinAndMax();
 

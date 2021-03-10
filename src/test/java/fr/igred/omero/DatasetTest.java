@@ -383,10 +383,12 @@ public class DatasetTest extends TestCase {
         DatasetContainer dataset = root.getDataset(1L);
 
         File file = new File("./test.txt");
-        file.createNewFile();
+        if(!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
         Long id = dataset.addFile(root, file);
-        file.delete();
+        if(!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
         root.deleteFile(id);
     }
