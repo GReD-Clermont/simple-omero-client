@@ -203,18 +203,16 @@ public class ProjectContainer {
      * @param name        Tag Name.
      * @param description Tag description.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectAnnotationLink addTag(Client client, String name, String description)
+    public void addTag(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
 
-        return addTag(client, tagData);
+        addTag(client, tagData);
     }
 
 
@@ -224,15 +222,13 @@ public class ProjectContainer {
      * @param client The user.
      * @param tag    Tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectAnnotationLink addTag(Client client, TagAnnotationContainer tag)
+    public void addTag(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, ExecutionException {
-        return addTag(client, tag.getTag());
+        addTag(client, tag.getTag());
     }
 
 
@@ -242,19 +238,17 @@ public class ProjectContainer {
      * @param client  The user.
      * @param tagData Tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private ProjectAnnotationLink addTag(Client client, TagAnnotationData tagData)
+    private void addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new ProjectI(project.getId(), false));
 
-        return (ProjectAnnotationLink) client.save(link);
+        client.save(link);
     }
 
 
@@ -264,19 +258,17 @@ public class ProjectContainer {
      * @param client The user.
      * @param id     Id in OMERO of the tag to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectAnnotationLink addTag(Client client, Long id)
+    public void addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new ProjectI(project.getId(), false));
 
-        return (ProjectAnnotationLink) client.save(link);
+        client.save(link);
     }
 
 
@@ -286,21 +278,15 @@ public class ProjectContainer {
      * @param client The user.
      * @param tags   Array of TagAnnotationContainer to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<ProjectAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
+    public void addTags(Client client, TagAnnotationContainer... tags)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
-            ProjectAnnotationLink link = addTag(client, tag.getTag());
-            objects.add(link);
+            addTag(client, tag.getTag());
         }
-
-        return objects;
     }
 
 
@@ -310,21 +296,15 @@ public class ProjectContainer {
      * @param client The user.
      * @param ids    Array of tag id to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<ProjectAnnotationLink> addTags(Client client, Long... ids)
+    public void addTags(Client client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
-            ProjectAnnotationLink link = addTag(client, id);
-            objects.add(link);
+            addTag(client, id);
         }
-
-        return objects;
     }
 
 

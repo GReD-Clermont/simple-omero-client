@@ -67,10 +67,12 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if(!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         File f2 = new File("./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
-        f2.createNewFile();
+        if(!f2.createNewFile())
+            System.err.println("\"" + f2.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
 
@@ -98,7 +100,8 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if(!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
 
@@ -142,7 +145,8 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if(!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
 
@@ -176,7 +180,8 @@ public class ImageTest extends TestCase {
         root.connect("omero", 4064, "root", "omero", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if(!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetContainer dataset = root.getDataset(2L);
 
@@ -384,9 +389,15 @@ public class ImageTest extends TestCase {
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
-        fakeFile.createNewFile();
+
+        if(!fakeFile.createNewFile())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
+
         ImagePlus reference = BF.openImagePlus(fake)[0];
-        fakeFile.delete();
+
+        if(!fakeFile.delete())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
+
         Duplicator duplicator = new Duplicator();
         reference.setRoi(xBound[0], yBound[0], xBound[1] - xBound[0] + 1, yBound[1] - yBound[0] + 1);
         ImagePlus crop = duplicator
@@ -425,9 +436,14 @@ public class ImageTest extends TestCase {
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
-        fakeFile.createNewFile();
+
+        if(!fakeFile.createNewFile())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
+
         ImagePlus reference = BF.openImagePlus(fake)[0];
-        fakeFile.delete();
+
+        if(!fakeFile.delete())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
 
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
@@ -626,10 +642,12 @@ public class ImageTest extends TestCase {
         ImageContainer image = root.getImage(1L);
 
         File file = new File("./test.txt");
-        file.createNewFile();
+        if(!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
         Long id = image.addFile(root, file);
-        file.delete();
+        if(!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
         root.deleteFile(id);
     }

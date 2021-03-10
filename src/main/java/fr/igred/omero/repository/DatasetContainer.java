@@ -152,18 +152,16 @@ public class DatasetContainer {
      * @param name        Tag Name.
      * @param description Tag description.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetAnnotationLink addTag(Client client, String name, String description)
+    public void addTag(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
 
-        return addTag(client, tagData);
+        addTag(client, tagData);
     }
 
 
@@ -173,15 +171,13 @@ public class DatasetContainer {
      * @param client The user.
      * @param tag    Tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetAnnotationLink addTag(Client client, TagAnnotationContainer tag)
+    public void addTag(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, ExecutionException {
-        return addTag(client, tag.getTag());
+        addTag(client, tag.getTag());
     }
 
 
@@ -191,19 +187,17 @@ public class DatasetContainer {
      * @param client  The user.
      * @param tagData Tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private DatasetAnnotationLink addTag(Client client, TagAnnotationData tagData)
+    private void addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        return (DatasetAnnotationLink) client.save(link);
+        client.save(link);
     }
 
 
@@ -213,19 +207,17 @@ public class DatasetContainer {
      * @param client The user.
      * @param id     Id in OMERO of tag to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetAnnotationLink addTag(Client client, Long id)
+    public void addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        return (DatasetAnnotationLink) client.save(link);
+        client.save(link);
     }
 
 
@@ -235,21 +227,15 @@ public class DatasetContainer {
      * @param client The user.
      * @param tags   Array of TagAnnotationContainer to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<DatasetAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
+    public void addTags(Client client, TagAnnotationContainer... tags)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
-            DatasetAnnotationLink link = addTag(client, tag.getTag());
-            objects.add(link);
+            addTag(client, tag.getTag());
         }
-
-        return objects;
     }
 
 
@@ -259,21 +245,15 @@ public class DatasetContainer {
      * @param client The user.
      * @param ids    Array of tag id in OMERO to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<DatasetAnnotationLink> addTags(Client client, Long... ids)
+    public void addTags(Client client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
-            DatasetAnnotationLink link = addTag(client, id);
-            objects.add(link);
+            addTag(client, id);
         }
-
-        return objects;
     }
 
 
@@ -559,20 +539,15 @@ public class DatasetContainer {
      * @param client The user.
      * @param images Image to add to the dataset.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<DatasetImageLink> addImages(Client client, List<ImageContainer> images)
+    public void addImages(Client client, List<ImageContainer> images)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetImageLink> newLinks = new ArrayList<>();
         for (ImageContainer image : images) {
-            DatasetImageLink link = addImage(client, image);
-            newLinks.add(link);
+            addImage(client, image);
         }
-        return newLinks;
     }
 
 
@@ -582,19 +557,17 @@ public class DatasetContainer {
      * @param client The user.
      * @param image  Image to add.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetImageLink addImage(Client client, ImageContainer image)
+    public void addImage(Client client, ImageContainer image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.getImage().asImage());
         link.setParent(new DatasetI(dataset.getId(), false));
 
-        return (DatasetImageLink) client.save(link);
+        client.save(link);
     }
 
 
