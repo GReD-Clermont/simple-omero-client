@@ -20,34 +20,18 @@ package fr.igred.omero;
 
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.ShapeContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.List;
 
-
-public class FolderTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public FolderTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.*;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(FolderTest.class);
-    }
+public class FolderTest extends BasicTest {
 
 
+    @Test
     public void testFolder1() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -73,6 +57,7 @@ public class FolderTest extends TestCase {
     }
 
 
+    @Test
     public void testFolder2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -123,6 +108,7 @@ public class FolderTest extends TestCase {
     }
 
 
+    @Test
     public void testFolder3() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -161,6 +147,7 @@ public class FolderTest extends TestCase {
     }
 
 
+    @Test
     public void testFolder4() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();

@@ -3,35 +3,19 @@ package fr.igred.omero;
 
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.ShapeContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class ROITest extends TestCase {
-
-    /**
-     * Create the test case for Client
-     *
-     * @param testName Name of the test case.
-     */
-    public ROITest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.assertEquals;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(ROITest.class);
-    }
+public class ROITest extends BasicTest {
 
 
+    @Test
     public void testROI() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -70,6 +54,7 @@ public class ROITest extends TestCase {
     }
 
 
+    @Test
     public void testROI2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -108,6 +93,7 @@ public class ROITest extends TestCase {
     }
 
 
+    @Test
     public void testRoiAddShapeAndDeleteIt() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();

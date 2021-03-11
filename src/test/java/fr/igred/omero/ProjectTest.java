@@ -4,34 +4,18 @@ package fr.igred.omero;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.List;
 
-
-public class ProjectTest extends TestCase {
-
-    /**
-     * Create the test case for Client
-     *
-     * @param testName Name of the test case.
-     */
-    public ProjectTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.assertEquals;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(ProjectTest.class);
-    }
+public class ProjectTest extends BasicTest {
 
 
+    @Test
     public void testGetDatasetFromProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -45,6 +29,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetDatasetFromProject2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -58,6 +43,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagToProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -81,6 +67,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagToProject2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -100,6 +87,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagIdToProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -123,6 +111,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagsToProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -152,6 +141,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagsToProject2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -181,6 +171,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesInProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -194,6 +185,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesByNameInProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -207,6 +199,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesLikeInProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -220,6 +213,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesTaggedInProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -233,6 +227,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesTaggedInProject2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -247,6 +242,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesKeyInProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -260,6 +256,7 @@ public class ProjectTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesPairKeyValueInProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
