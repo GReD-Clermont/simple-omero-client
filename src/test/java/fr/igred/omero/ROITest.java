@@ -3,7 +3,6 @@ package fr.igred.omero;
 
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.ShapeContainer;
-import loci.common.DebugTools;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -17,13 +16,12 @@ public class ROITest extends BasicTest {
 
     @Test
     public void testROI() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         ROIContainer roiContainer = new ROIContainer();
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
         roiContainer.setImage(image);
 
@@ -37,18 +35,19 @@ public class ROITest extends BasicTest {
             roiContainer.addShape(rectangle);
         }
 
-        image.saveROI(root, roiContainer);
+        image.saveROI(client, roiContainer);
 
-        List<ROIContainer> rois = image.getROIs(root);
+        List<ROIContainer> rois = image.getROIs(client);
 
         assertEquals(1, rois.size());
         assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROIContainer roi : rois) {
-            root.deleteROI(roi);
+            client.deleteROI(roi);
         }
 
-        rois = image.getROIs(root);
+        rois = image.getROIs(client);
+        client.disconnect();
 
         assertEquals(0, rois.size());
     }
@@ -56,11 +55,10 @@ public class ROITest extends BasicTest {
 
     @Test
     public void testROI2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
         List<ShapeContainer> shapes = new ArrayList<>(4);
 
@@ -76,18 +74,19 @@ public class ROITest extends BasicTest {
 
         ROIContainer roiContainer = new ROIContainer(shapes);
         roiContainer.setImage(image);
-        image.saveROI(root, roiContainer);
+        image.saveROI(client, roiContainer);
 
-        List<ROIContainer> rois = image.getROIs(root);
+        List<ROIContainer> rois = image.getROIs(client);
 
         assertEquals(1, rois.size());
         assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROIContainer roi : rois) {
-            root.deleteROI(roi);
+            client.deleteROI(roi);
         }
 
-        rois = image.getROIs(root);
+        rois = image.getROIs(client);
+        client.disconnect();
 
         assertEquals(0, rois.size());
     }
@@ -95,11 +94,10 @@ public class ROITest extends BasicTest {
 
     @Test
     public void testRoiAddShapeAndDeleteIt() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
         List<ShapeContainer> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
@@ -115,9 +113,9 @@ public class ROITest extends BasicTest {
         ROIContainer roiContainer = new ROIContainer();
         roiContainer.addShapes(shapes);
         roiContainer.setImage(image);
-        image.saveROI(root, roiContainer);
+        image.saveROI(client, roiContainer);
 
-        List<ROIContainer> rois = image.getROIs(root);
+        List<ROIContainer> rois = image.getROIs(client);
 
         roiContainer = rois.get(0);
         int size      = roiContainer.getShapes().size();
@@ -130,18 +128,20 @@ public class ROITest extends BasicTest {
         rectangle.setC(2);
 
         roiContainer.addShape(rectangle);
-        roiContainer.saveROI(root);
+        roiContainer.saveROI(client);
 
-        rois = image.getROIs(root);
+        rois = image.getROIs(client);
         roiContainer = rois.get(0);
         assertEquals(size + 1, roiContainer.getShapes().size());
         assertEquals(ROINumber, rois.size());
 
         roiContainer.deleteShape(roiContainer.getShapes().size() - 1);
-        roiContainer.saveROI(root);
+        roiContainer.saveROI(client);
 
-        rois = image.getROIs(root);
+        rois = image.getROIs(client);
         roiContainer = rois.get(0);
+        client.disconnect();
+
         assertEquals(size, roiContainer.getShapes().size());
         assertEquals(ROINumber, rois.size());
     }

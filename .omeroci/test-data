@@ -24,7 +24,7 @@ omero user add testUser firstname lastname testGroup -P password
 omero obj new Project name=ToDelete
 
 omero quit
-omero login root@localhost -w omero -g testGroup
+omero login testUser@localhost -w password -g testGroup
 
 # create a simple project/dataset/image hierarchy
 DATASET1=$(omero obj new Dataset name=TestDataset description=description)

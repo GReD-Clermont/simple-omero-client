@@ -2,7 +2,6 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
-import loci.common.DebugTools;
 import org.junit.Test;
 
 import java.util.List;
@@ -15,11 +14,11 @@ public class TagTest extends BasicTest {
 
     @Test
     public void testGetTagInfo() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        TagAnnotationContainer tag = root.getTag(1L);
+        TagAnnotationContainer tag = client.getTag(1L);
+        client.disconnect();
 
         assertEquals(1L, tag.getId().longValue());
         assertEquals("tag1", tag.getName());
@@ -29,11 +28,11 @@ public class TagTest extends BasicTest {
 
     @Test
     public void testGetTags() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<TagAnnotationContainer> tags = root.getTags();
+        List<TagAnnotationContainer> tags = client.getTags();
+        client.disconnect();
 
         assertEquals(3, tags.size());
     }
@@ -41,11 +40,11 @@ public class TagTest extends BasicTest {
 
     @Test
     public void testGetTagsSorted() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<TagAnnotationContainer> tags = root.getTags();
+        List<TagAnnotationContainer> tags = client.getTags();
+        client.disconnect();
 
         for (int i = 1; i < tags.size(); i++) {
             assert (tags.get(i - 1).getId() <= tags.get(i).getId());

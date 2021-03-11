@@ -4,7 +4,6 @@ package fr.igred.omero;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
-import loci.common.DebugTools;
 import org.junit.Test;
 
 import java.util.List;
@@ -17,11 +16,10 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetDatasetFromProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
         List<DatasetContainer> datasets = project.getDatasets();
 
@@ -31,11 +29,10 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetDatasetFromProject2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
         List<DatasetContainer> datasets = project.getDatasets("TestDataset");
 
@@ -45,23 +42,22 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagToProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
 
-        project.addTag(root, tag);
+        project.addTag(client, tag);
 
-        List<TagAnnotationContainer> tags = project.getTags(root);
+        List<TagAnnotationContainer> tags = project.getTags(client);
 
         assertEquals(1, tags.size());
 
-        root.deleteTag(tag);
+        client.deleteTag(tag);
 
-        tags = project.getTags(root);
+        tags = project.getTags(client);
 
         assertEquals(0, tags.size());
     }
@@ -69,43 +65,41 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagToProject2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        project.addTag(root, "test", "test");
+        project.addTag(client, "test", "test");
 
-        List<TagAnnotationContainer> tags = root.getTags("test");
+        List<TagAnnotationContainer> tags = client.getTags("test");
         assertEquals(1, tags.size());
 
-        root.deleteTag(tags.get(0).getId());
+        client.deleteTag(tags.get(0).getId());
 
-        tags = root.getTags("test");
+        tags = client.getTags("test");
         assertEquals(0, tags.size());
     }
 
 
     @Test
     public void testAddTagIdToProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
 
-        project.addTag(root, tag.getId());
+        project.addTag(client, tag.getId());
 
-        List<TagAnnotationContainer> tags = project.getTags(root);
+        List<TagAnnotationContainer> tags = project.getTags(client);
 
         assertEquals(1, tags.size());
 
-        root.deleteTag(tag);
+        client.deleteTag(tag);
 
-        tags = project.getTags(root);
+        tags = project.getTags(client);
 
         assertEquals(0, tags.size());
     }
@@ -113,29 +107,28 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagsToProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
 
-        project.addTags(root, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
+        project.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
-        List<TagAnnotationContainer> tags = project.getTags(root);
+        List<TagAnnotationContainer> tags = project.getTags(client);
 
         assertEquals(4, tags.size());
 
-        root.deleteTag(tag1);
-        root.deleteTag(tag2);
-        root.deleteTag(tag3);
-        root.deleteTag(tag4);
+        client.deleteTag(tag1);
+        client.deleteTag(tag2);
+        client.deleteTag(tag3);
+        client.deleteTag(tag4);
 
-        tags = project.getTags(root);
+        tags = project.getTags(client);
 
         assertEquals(0, tags.size());
     }
@@ -143,29 +136,29 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagsToProject2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
 
-        project.addTags(root, tag1, tag2, tag3, tag4);
+        project.addTags(client, tag1, tag2, tag3, tag4);
 
-        List<TagAnnotationContainer> tags = project.getTags(root);
+        List<TagAnnotationContainer> tags = project.getTags(client);
 
         assertEquals(4, tags.size());
 
-        root.deleteTag(tag1);
-        root.deleteTag(tag2);
-        root.deleteTag(tag3);
-        root.deleteTag(tag4);
+        client.deleteTag(tag1);
+        client.deleteTag(tag2);
+        client.deleteTag(tag3);
+        client.deleteTag(tag4);
 
-        tags = project.getTags(root);
+        tags = project.getTags(client);
+        client.disconnect();
 
         assertEquals(0, tags.size());
     }
@@ -173,13 +166,13 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesInProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImages(root);
+        List<ImageContainer> images = project.getImages(client);
+        client.disconnect();
 
         assertEquals(3, images.size());
     }
@@ -187,13 +180,13 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesByNameInProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImages(root, "image1.fake");
+        List<ImageContainer> images = project.getImages(client, "image1.fake");
+        client.disconnect();
 
         assertEquals(2, images.size());
     }
@@ -201,13 +194,13 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesLikeInProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesLike(root, ".fake");
+        List<ImageContainer> images = project.getImagesLike(client, ".fake");
+        client.disconnect();
 
         assertEquals(3, images.size());
     }
@@ -215,13 +208,13 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesTaggedInProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesTagged(root, 1L);
+        List<ImageContainer> images = project.getImagesTagged(client, 1L);
+        client.disconnect();
 
         assertEquals(2, images.size());
     }
@@ -229,14 +222,14 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesTaggedInProject2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        TagAnnotationContainer tag     = root.getTag(2L);
-        ProjectContainer       project = root.getProject(2L);
+        TagAnnotationContainer tag     = client.getTag(2L);
+        ProjectContainer       project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesTagged(root, tag);
+        List<ImageContainer> images = project.getImagesTagged(client, tag);
+        client.disconnect();
 
         assertEquals(1, images.size());
     }
@@ -244,13 +237,13 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesKeyInProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesKey(root, "testKey1");
+        List<ImageContainer> images = project.getImagesKey(client, "testKey1");
+        client.disconnect();
 
         assertEquals(3, images.size());
     }
@@ -258,13 +251,13 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesPairKeyValueInProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesPairKeyValue(root, "testKey1", "testValue1");
+        List<ImageContainer> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
+        client.disconnect();
 
         assertEquals(2, images.size());
     }
