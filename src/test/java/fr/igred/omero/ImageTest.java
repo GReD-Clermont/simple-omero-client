@@ -25,42 +25,24 @@ import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
 import ij.process.ImageStatistics;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
 import loci.plugins.BF;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 
-public class ImageTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public ImageTest(String testName) {
-        super(testName);
-    }
+public class ImageTest extends BasicTest {
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(ImageTest.class);
-    }
-
-
+    @Test
     public void testImportImage() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -100,6 +82,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testPairKeyValue() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -148,6 +131,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testPairKeyValue2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -186,6 +170,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testPairKeyValue3() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -223,6 +208,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImageInfo() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -236,6 +222,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImageTag() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -248,6 +235,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImageSize() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -265,6 +253,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetRawData() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -282,6 +271,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetRawData2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -304,6 +294,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetRawDataBound() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -328,6 +319,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetRawDataBoundError() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -350,6 +342,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetRawDataBoundErrorNegative() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -372,6 +365,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testToImagePlusBound() throws Exception {
         DebugTools.enableLogging("OFF");
         int[] xBound = {0, 2};
@@ -419,14 +413,15 @@ public class ImageTest extends TestCase {
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
         ImageStatistics stats      = difference.getStatistics();
 
-        assertEquals(0.5, imp.getCalibration().pixelHeight);
-        assertEquals(0.5, imp.getCalibration().pixelWidth);
-        assertEquals(1.0, imp.getCalibration().pixelDepth);
+        assertEquals(0.5, imp.getCalibration().pixelHeight, 0.001);
+        assertEquals(0.5, imp.getCalibration().pixelWidth, 0.001);
+        assertEquals(1.0, imp.getCalibration().pixelDepth, 0.001);
         assertEquals("MICROMETER", imp.getCalibration().getUnit());
         assertEquals(0, (int) stats.max);
     }
 
 
+    @Test
     public void testToImagePlus() throws Exception {
         DebugTools.enableLogging("OFF");
 
@@ -456,6 +451,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImageChannel() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -466,6 +462,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImageChannelError() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -482,6 +479,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagToImage() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -505,6 +503,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagToImage2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -524,6 +523,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagIdToImage() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -547,6 +547,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagsToImage() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -576,6 +577,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagsToImage2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -605,6 +607,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testImageOrder() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -618,6 +621,7 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testAddFileImage() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();

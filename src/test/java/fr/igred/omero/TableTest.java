@@ -3,37 +3,19 @@ package fr.igred.omero;
 
 import fr.igred.omero.metadata.TableContainer;
 import fr.igred.omero.repository.DatasetContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
 import omero.gateway.model.ImageData;
+import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 
-public class TableTest extends TestCase {
-
-    /**
-     * Create the test case for Client
-     *
-     * @param testName Name of the test case.
-     */
-    public TableTest(String testName) {
-        super(testName);
-    }
+public class TableTest extends BasicTest {
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(TableTest.class);
-    }
-
-
+    @Test
     public void testCreateTable() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -78,6 +60,7 @@ public class TableTest extends TestCase {
     }
 
 
+    @Test
     public void testErrorTableFull() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -108,6 +91,7 @@ public class TableTest extends TestCase {
     }
 
 
+    @Test
     public void testErrorTableColumn() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -126,6 +110,7 @@ public class TableTest extends TestCase {
     }
 
 
+    @Test
     public void testErrorTableUninitialized() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -150,6 +135,7 @@ public class TableTest extends TestCase {
     }
 
 
+    @Test
     public void testErrorTableNotEnoughArgs() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();

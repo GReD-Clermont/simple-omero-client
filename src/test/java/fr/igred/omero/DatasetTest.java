@@ -21,36 +21,20 @@ package fr.igred.omero;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
-public class DatasetTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public DatasetTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.*;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(DatasetTest.class);
-    }
+public class DatasetTest extends BasicTest {
 
 
+    @Test
     public void testCreateDatasetAndDeleteIt1() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -77,6 +61,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testCreateDatasetAndDeleteIt2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -105,6 +90,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testCopyDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -134,6 +120,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testDatasetBasic() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -147,6 +134,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagToDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -170,6 +158,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagToDataset2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -189,6 +178,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagIdToDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -212,6 +202,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagsToDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -241,6 +232,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testAddTagsToDataset2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -270,6 +262,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesInDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -283,6 +276,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesByNameInDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -296,6 +290,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesLikeInDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -309,6 +304,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesTaggedInDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -322,6 +318,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesTaggedInDataset2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -336,6 +333,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesKeyInDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -349,6 +347,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesPairKeyValueInDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -362,6 +361,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesFromDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -375,6 +375,7 @@ public class DatasetTest extends TestCase {
     }
 
 
+    @Test
     public void testAddFileDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();

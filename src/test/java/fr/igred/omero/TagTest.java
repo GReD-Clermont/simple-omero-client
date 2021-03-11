@@ -2,34 +2,18 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.List;
 
-
-public class TagTest extends TestCase {
-
-    /**
-     * Create the test case for Client
-     *
-     * @param testName Name of the test case.
-     */
-    public TagTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.assertEquals;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(TagTest.class);
-    }
+public class TagTest extends BasicTest {
 
 
+    @Test
     public void testGetTagInfo() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -43,6 +27,7 @@ public class TagTest extends TestCase {
     }
 
 
+    @Test
     public void testGetTags() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -54,6 +39,7 @@ public class TagTest extends TestCase {
     }
 
 
+    @Test
     public void testGetTagsSorted() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();

@@ -22,37 +22,21 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
-public class ClientTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public ClientTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.*;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(ClientTest.class);
-    }
+public class ClientTest extends BasicTest {
 
 
+    @Test
     public void testConnection() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -64,6 +48,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testConnection2() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -72,6 +57,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testConnectionErrorUsername() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -84,6 +70,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testConnectionErrorPassword() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -96,6 +83,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testConnectionErrorHost() {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -108,6 +96,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testConnectionErrorPort() {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -120,6 +109,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testConnectionErrorGroupNotExist() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -129,6 +119,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testConnectionErrorNotInGroup() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -137,6 +128,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testProjectBasic() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -150,6 +142,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetSingleProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -159,6 +152,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetSingleProjectError() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -172,6 +166,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetAllProjects() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -183,6 +178,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetProjectByName() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -201,6 +197,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testDeleteProject() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -217,6 +214,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetSingleDataset() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -226,6 +224,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetAllDatasets() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -237,6 +236,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetDatasetByName() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -255,6 +255,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImages() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -266,6 +267,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImage() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -277,6 +279,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImageError() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -291,6 +294,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesName() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -302,6 +306,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesLike() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -313,6 +318,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesTagged() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -324,6 +330,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesKey() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -335,6 +342,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesKeyValue() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -346,6 +354,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testGetImagesCond() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
@@ -372,6 +381,7 @@ public class ClientTest extends TestCase {
     }
 
 
+    @Test
     public void testSudoTag() throws Exception {
         DebugTools.enableLogging("OFF");
         Client root = new Client();

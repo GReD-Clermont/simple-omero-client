@@ -19,37 +19,22 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.metadata.ShapeContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import omero.gateway.model.ShapeData;
+import org.junit.Test;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class ShapeTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public ShapeTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(ShapeTest.class);
-    }
+public class ShapeTest extends BasicTest {
 
 
+    @Test
     public void testPointShapeContainer() {
         final String   text  = "Point";
         ShapeContainer point = new ShapeContainer(ShapeContainer.POINT);
@@ -74,6 +59,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testTextShapeContainer() {
         final String   value = "Point";
         ShapeContainer text  = new ShapeContainer(ShapeContainer.TEXT);
@@ -99,6 +85,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testRectangleShapeContainer() {
         ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
 
@@ -125,6 +112,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testRectangleShapeContainerCZT() {
         final String   text      = "Rectangle";
         ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
@@ -157,6 +145,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testMaskShapeContainer() {
         ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
 
@@ -177,6 +166,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testValuesMaskShapeContainer() {
         final String   text = "Mask";
         ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
@@ -205,6 +195,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testEllipseShapeContainer() {
         final String   text    = "Ellipse";
         ShapeContainer ellipse = new ShapeContainer(ShapeContainer.ELLIPSE);
@@ -235,6 +226,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testLineShapeContainer() {
         final String   text = "Line";
         ShapeContainer line = new ShapeContainer(ShapeContainer.LINE);
@@ -260,6 +252,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testPointsLineShapeContainer() {
         ShapeContainer       line   = new ShapeContainer(ShapeContainer.LINE);
         List<Point2D.Double> points = new ArrayList<>();
@@ -290,6 +283,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testPolylineShapeContainer() {
         final String         text     = "Polyline";
         ShapeContainer       polyline = new ShapeContainer(ShapeContainer.POLYLINE);
@@ -311,6 +305,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testCoordinatesPolylineShapeContainer() {
         ShapeContainer       polyline = new ShapeContainer(ShapeContainer.POLYLINE);
         List<Point2D.Double> points   = new ArrayList<>();
@@ -335,6 +330,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testPolygonShapeContainer() {
         final String         text    = "Polygon";
         ShapeContainer       polygon = new ShapeContainer(ShapeContainer.POLYGON);
@@ -357,6 +353,7 @@ public class ShapeTest extends TestCase {
     }
 
 
+    @Test
     public void testEmptyShapeData() {
         final String         text             = "Empty";
         ShapeContainer       empty            = new ShapeContainer((ShapeData) null);
