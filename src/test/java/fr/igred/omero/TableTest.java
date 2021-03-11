@@ -3,7 +3,6 @@ package fr.igred.omero;
 
 import fr.igred.omero.metadata.TableContainer;
 import fr.igred.omero.repository.DatasetContainer;
-import loci.common.DebugTools;
 import omero.gateway.model.ImageData;
 import org.junit.Test;
 
@@ -17,13 +16,12 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testCreateTable() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(root);
+        List<ImageContainer> images = dataset.getImages(client);
 
         TableContainer table = new TableContainer(2, "TableTest");
 
@@ -46,15 +44,15 @@ public class TableTest extends BasicTest {
         assertEquals(images.get(0).getImage(), table.getData(0, 0));
         assertEquals(images.get(1).getName(), table.getData(0, 1));
 
-        dataset.addTable(root, table);
+        dataset.addTable(client, table);
 
-        List<TableContainer> tables = dataset.getTables(root);
+        List<TableContainer> tables = dataset.getTables(client);
 
         assertEquals(1, tables.size());
 
-        root.deleteTable(tables.get(0));
+        client.deleteTable(tables.get(0));
 
-        tables = dataset.getTables(root);
+        tables = dataset.getTables(client);
 
         assertEquals(0, tables.size());
     }
@@ -62,13 +60,12 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableFull() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(root);
+        List<ImageContainer> images = dataset.getImages(client);
 
         TableContainer table = new TableContainer(2, "TableTest");
         table.setName("TableTestNewName");
@@ -93,9 +90,8 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableColumn() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         TableContainer table = new TableContainer(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
@@ -112,13 +108,12 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableUninitialized() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(root);
+        List<ImageContainer> images = dataset.getImages(client);
 
         TableContainer table = new TableContainer(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
@@ -137,13 +132,12 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableNotEnoughArgs() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(root);
+        List<ImageContainer> images = dataset.getImages(client);
 
         TableContainer table = new TableContainer(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);

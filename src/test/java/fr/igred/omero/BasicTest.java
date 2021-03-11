@@ -1,6 +1,7 @@
 package fr.igred.omero;
 
 
+import loci.common.DebugTools;
 import org.junit.AssumptionViolatedException;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -24,6 +25,7 @@ public abstract class BasicTest {
                                ANSI_CYAN +
                                "STARTED" +
                                ANSI_RESET);
+            DebugTools.enableLogging("OFF");
         }
 
 
