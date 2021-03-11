@@ -51,6 +51,7 @@ public class ShapeTest extends TestCase {
 
 
     public void testPointShapeContainer() {
+        final String   text  = "Point";
         ShapeContainer point = new ShapeContainer(ShapeContainer.POINT);
 
         double[] pointCoordinates = {0, 0};
@@ -60,40 +61,41 @@ public class ShapeTest extends TestCase {
         point.setLineCoordinates(2, 2, 4, 4);
         point.setCoordinates(null);
         point.setCoordinates(lineCoordinates);
-        point.setText("Point");
+        point.setText(text);
 
         double[] checkCoordinates = point.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 2; i++)
-            difference += Math.abs(checkCoordinates[i] - pointCoordinates[i]);
+            differences += Math.abs(checkCoordinates[i] - pointCoordinates[i]);
 
-        assertEquals(0, difference, 0.001);
-        assertEquals("Point", point.getText());
+        assertEquals(0, differences, 0.001);
+        assertEquals(text, point.getText());
     }
 
 
     public void testTextShapeContainer() {
-        ShapeContainer text = new ShapeContainer(ShapeContainer.TEXT);
+        final String   value = "Point";
+        ShapeContainer text  = new ShapeContainer(ShapeContainer.TEXT);
 
         double[] textCoordinates      = {1, 1};
         double[] rectangleCoordinates = {2, 2, 5, 5};
 
         text.setPointCoordinates(textCoordinates[0], textCoordinates[1]);
         text.setCoordinates(rectangleCoordinates);
-        text.setText("Text");
+        text.setText(value);
         text.setFontSize(25);
         double fontSize = text.getFontSize();
 
         double[] checkCoordinates = text.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 2; i++)
-            difference += Math.abs(checkCoordinates[i] - textCoordinates[i]);
+            differences += Math.abs(checkCoordinates[i] - textCoordinates[i]);
 
-        assertEquals(0, difference, 0.001);
+        assertEquals(0, differences, 0.001);
         assertEquals(25, fontSize, 0.001);
-        assertEquals("Text", text.getText());
+        assertEquals(value, text.getText());
     }
 
 
@@ -109,9 +111,9 @@ public class ShapeTest extends TestCase {
 
         double[] checkCoordinates = rectangle.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 4; i++)
-            difference += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
+            differences += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
 
         int[][] maskValues = new int[10][10];
         rectangle.setMask(maskValues);
@@ -119,11 +121,12 @@ public class ShapeTest extends TestCase {
         int[][] checkValues = rectangle.getMask();
 
         assertNull(checkValues);
-        assertEquals(0, difference, 0.001);
+        assertEquals(0, differences, 0.001);
     }
 
 
     public void testRectangleShapeContainerCZT() {
+        final String   text      = "Rectangle";
         ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
 
         double[] rectangleCoordinates = {2, 2, 5, 5};
@@ -133,24 +136,24 @@ public class ShapeTest extends TestCase {
 
         rectangle.setCoordinates(rectangleCoordinates);
         rectangle.setEllipseCoordinates(9, 11, 5, 10);
-        rectangle.setText("Rectangle");
+        rectangle.setText(text);
         rectangle.setC(c);
         rectangle.setZ(z);
         rectangle.setT(t);
 
         double[] checkCoordinates = rectangle.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 4; i++)
-            difference += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
+            differences += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
 
         int c2 = rectangle.getC();
         int z2 = rectangle.getZ();
         int t2 = rectangle.getT();
-        difference += Math.abs(c2 - c) + Math.abs(z2 - z) + Math.abs(t2 - t);
+        differences += Math.abs(c2 - c) + Math.abs(z2 - z) + Math.abs(t2 - t);
 
-        assertEquals(0, difference, 0.001);
-        assertEquals("Rectangle", rectangle.getText());
+        assertEquals(0, differences, 0.001);
+        assertEquals(text, rectangle.getText());
     }
 
 
@@ -166,18 +169,19 @@ public class ShapeTest extends TestCase {
 
         double[] checkCoordinates = mask.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 4; i++)
-            difference += Math.abs(checkCoordinates[i] - maskCoordinates[i]);
+            differences += Math.abs(checkCoordinates[i] - maskCoordinates[i]);
 
-        assertEquals(0, difference, 0.001);
+        assertEquals(0, differences, 0.001);
     }
 
 
     public void testValuesMaskShapeContainer() {
+        final String   text = "Mask";
         ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
         mask.setRectangleCoordinates(3, 3, 10, 10);
-        mask.setText("Mask");
+        mask.setText(text);
 
         int[][] maskValues = new int[10][10];
         for (int i = 0; i < 10; i++) {
@@ -189,19 +193,20 @@ public class ShapeTest extends TestCase {
 
         int[][] checkValues = mask.getMask();
 
-        int difference = 0;
+        int differences = 0;
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-                difference += Math.abs(maskValues[i][j] - checkValues[i][j]);
+                differences += Math.abs(maskValues[i][j] - checkValues[i][j]);
             }
         }
 
-        assertEquals(0, difference);
-        assertEquals("Mask", mask.getText());
+        assertEquals(0, differences);
+        assertEquals(text, mask.getText());
     }
 
 
     public void testEllipseShapeContainer() {
+        final String   text    = "Ellipse";
         ShapeContainer ellipse = new ShapeContainer(ShapeContainer.ELLIPSE);
 
         Color stroke = Color.BLUE;
@@ -213,24 +218,25 @@ public class ShapeTest extends TestCase {
                                       ellipseCoordinates[2],
                                       ellipseCoordinates[3]);
         ellipse.setRectangleCoordinates(3, 3, 4, 9);
-        ellipse.setText("Ellipse");
+        ellipse.setText(text);
 
         double[] pointCoordinates = {0, 0};
         ellipse.setCoordinates(pointCoordinates);
 
         double[] checkCoordinates = ellipse.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 4; i++)
-            difference += Math.abs(checkCoordinates[i] - ellipseCoordinates[i]);
+            differences += Math.abs(checkCoordinates[i] - ellipseCoordinates[i]);
 
-        assertEquals(0, difference, 0.001);
+        assertEquals(0, differences, 0.001);
         assertEquals(stroke, ellipse.getStroke());
-        assertEquals("Ellipse", ellipse.getText());
+        assertEquals(text, ellipse.getText());
     }
 
 
     public void testLineShapeContainer() {
+        final String   text = "Line";
         ShapeContainer line = new ShapeContainer(ShapeContainer.LINE);
 
         double[] lineCoordinates = {3, 3, 10, 10};
@@ -238,19 +244,19 @@ public class ShapeTest extends TestCase {
                                 lineCoordinates[1],
                                 lineCoordinates[2],
                                 lineCoordinates[3]);
-        line.setText("Line");
+        line.setText(text);
 
         double[] pointCoordinates = {0, 0};
         line.setCoordinates(pointCoordinates);
 
         double[] checkCoordinates = line.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 4; i++)
-            difference += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
+            differences += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
 
-        assertEquals(0, difference, 0.001);
-        assertEquals("Line", line.getText());
+        assertEquals(0, differences, 0.001);
+        assertEquals(text, line.getText());
     }
 
 
@@ -275,17 +281,17 @@ public class ShapeTest extends TestCase {
 
         double[] checkCoordinates = line.getCoordinates();
 
-        double difference = 0;
+        double differences = 0;
         for (int i = 0; i < 4; i++)
-            difference += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
-
+            differences += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
 
         assertNull(points2);
-        assertEquals(0, difference, 0.001);
+        assertEquals(0, differences, 0.001);
     }
 
 
     public void testPolylineShapeContainer() {
+        final String         text     = "Polyline";
         ShapeContainer       polyline = new ShapeContainer(ShapeContainer.POLYLINE);
         List<Point2D.Double> points   = new ArrayList<>();
 
@@ -296,12 +302,12 @@ public class ShapeTest extends TestCase {
         points.add(p2);
         points.add(p3);
 
-        polyline.setText("Polyline");
+        polyline.setText(text);
         polyline.setPoints(points);
         List<Point2D.Double> points2 = polyline.getPoints();
 
         assertEquals(points, points2);
-        assertEquals("Polyline", polyline.getText());
+        assertEquals(text, polyline.getText());
     }
 
 
@@ -330,6 +336,7 @@ public class ShapeTest extends TestCase {
 
 
     public void testPolygonShapeContainer() {
+        final String         text    = "Polygon";
         ShapeContainer       polygon = new ShapeContainer(ShapeContainer.POLYGON);
         List<Point2D.Double> points  = new ArrayList<>();
 
@@ -341,16 +348,17 @@ public class ShapeTest extends TestCase {
         points.add(p3);
 
         polygon.setPoints(points);
-        polygon.setText("Polygon");
+        polygon.setText(text);
 
         List<Point2D.Double> points2 = polygon.getPoints();
 
         assertEquals(points, points2);
-        assertEquals("Polygon", polygon.getText());
+        assertEquals(text, polygon.getText());
     }
 
 
     public void testEmptyShapeData() {
+        final String         text             = "Empty";
         ShapeContainer       empty            = new ShapeContainer((ShapeData) null);
         List<Point2D.Double> points           = new ArrayList<>();
         double[]             pointCoordinates = {1, 1};
@@ -365,7 +373,7 @@ public class ShapeTest extends TestCase {
         empty.setPointCoordinates(0, 0);
         empty.setCoordinates(pointCoordinates);
         empty.setPoints(points);
-        empty.setText("Empty");
+        empty.setText(text);
 
         assertNull(empty.getText());
         assertNull(empty.getPoints());

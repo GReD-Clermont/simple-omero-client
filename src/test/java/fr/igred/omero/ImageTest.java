@@ -141,7 +141,7 @@ public class ImageTest extends TestCase {
 
         List<NamedValue> result = image.getKeyValuePairs(root);
 
-        assert (result.size() == 4);
+        assertEquals(4, result.size());
         assertEquals(image.getValue(root, "Test result1"), "Value Test");
 
         root.deleteImage(image);
@@ -179,7 +179,7 @@ public class ImageTest extends TestCase {
 
         List<NamedValue> results = image.getKeyValuePairs(root);
 
-        assert (results.size() == 2);
+        assertEquals(2, results.size());
         assertEquals(image.getValue(root, "Test result1"), "Value Test");
 
         root.deleteImage(image);
@@ -211,12 +211,12 @@ public class ImageTest extends TestCase {
 
         List<NamedValue> results = image.getKeyValuePairs(root);
 
-        assert (results.size() == 2);
+        assertEquals(2, results.size());
         try {
             image.getValue(root, "Nonexistent value");
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         } finally {
             root.deleteImage(image);
         }
@@ -232,7 +232,7 @@ public class ImageTest extends TestCase {
 
         assertEquals("image1.fake", image.getName());
         assertNull(image.getDescription());
-        assert (1L == image.getId());
+        assertEquals(1L, image.getId().longValue());
     }
 
 
@@ -244,7 +244,7 @@ public class ImageTest extends TestCase {
         ImageContainer image = root.getImage(1L);
 
         List<TagAnnotationContainer> tags = image.getTags(root);
-        assert (tags.size() == 2);
+        assertEquals(2, tags.size());
     }
 
 
@@ -257,17 +257,11 @@ public class ImageTest extends TestCase {
 
         PixelContainer pixels = image.getPixels();
 
-        int sizeX = pixels.getSizeX();
-        int sizeY = pixels.getSizeY();
-        int sizeZ = pixels.getSizeZ();
-        int sizeC = pixels.getSizeC();
-        int sizeT = pixels.getSizeT();
-
-        assert (512 == sizeX);
-        assert (512 == sizeY);
-        assert (3 == sizeZ);
-        assert (5 == sizeC);
-        assert (7 == sizeT);
+        assertEquals(512, pixels.getSizeX());
+        assertEquals(512, pixels.getSizeY());
+        assertEquals(5, pixels.getSizeC());
+        assertEquals(3, pixels.getSizeZ());
+        assertEquals(7, pixels.getSizeT());
     }
 
 
@@ -280,17 +274,11 @@ public class ImageTest extends TestCase {
         PixelContainer   pixels = image.getPixels();
         double[][][][][] value  = pixels.getAllPixels(root);
 
-        int sizeX = pixels.getSizeX();
-        int sizeY = pixels.getSizeY();
-        int sizeZ = pixels.getSizeZ();
-        int sizeC = pixels.getSizeC();
-        int sizeT = pixels.getSizeT();
-
-        assertEquals(sizeX, value[0][0][0][0].length);
-        assertEquals(sizeY, value[0][0][0].length);
-        assertEquals(sizeC, value[0][0].length);
-        assertEquals(sizeZ, value[0].length);
-        assertEquals(sizeT, value.length);
+        assertEquals(pixels.getSizeX(), value[0][0][0][0].length);
+        assertEquals(pixels.getSizeY(), value[0][0][0].length);
+        assertEquals(pixels.getSizeC(), value[0][0].length);
+        assertEquals(pixels.getSizeZ(), value[0].length);
+        assertEquals(pixels.getSizeT(), value.length);
     }
 
 
@@ -357,7 +345,7 @@ public class ImageTest extends TestCase {
             double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
             assertNotEquals(3, value[0][0][0][0].length);
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -379,7 +367,7 @@ public class ImageTest extends TestCase {
             double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
             assertNotEquals(3, value[0][0][0][0].length);
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -415,9 +403,10 @@ public class ImageTest extends TestCase {
 
         Duplicator duplicator = new Duplicator();
         reference.setRoi(xBound[0], yBound[0], xBound[1] - xBound[0] + 1, yBound[1] - yBound[0] + 1);
-        ImagePlus crop = duplicator
-                .run(reference, cBound[0] + 1, cBound[1] + 1, zBound[0] + 1, zBound[1] + 1, tBound[0] + 1,
-                     tBound[1] + 1);
+        ImagePlus crop = duplicator.run(reference,
+                                        cBound[0] + 1, cBound[1] + 1,
+                                        zBound[0] + 1, zBound[1] + 1,
+                                        tBound[0] + 1, tBound[1] + 1);
 
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
@@ -425,9 +414,6 @@ public class ImageTest extends TestCase {
         ImageContainer image = root.getImage(1L);
 
         ImagePlus imp = image.toImagePlus(root, xBound, yBound, cBound, zBound, tBound);
-
-        int[] dimensions          = imp.getDimensions();
-        int[] referenceDimensions = crop.getDimensions();
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
@@ -437,11 +423,6 @@ public class ImageTest extends TestCase {
         assertEquals(0.5, imp.getCalibration().pixelWidth);
         assertEquals(1.0, imp.getCalibration().pixelDepth);
         assertEquals("MICROMETER", imp.getCalibration().getUnit());
-        assertEquals(referenceDimensions[0], dimensions[0]);
-        assertEquals(referenceDimensions[1], dimensions[1]);
-        assertEquals(referenceDimensions[2], dimensions[2]);
-        assertEquals(referenceDimensions[3], dimensions[3]);
-        assertEquals(referenceDimensions[4], dimensions[4]);
         assertEquals(0, (int) stats.max);
     }
 
@@ -449,7 +430,7 @@ public class ImageTest extends TestCase {
     public void testToImagePlus() throws Exception {
         DebugTools.enableLogging("OFF");
 
-        String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
 
         if (!fakeFile.createNewFile())
@@ -463,26 +444,14 @@ public class ImageTest extends TestCase {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = root.getImage(3L);
 
         ImagePlus imp = image.toImagePlus(root);
-
-        int[] dimensions          = imp.getDimensions();
-        int[] referenceDimensions = reference.getDimensions();
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", reference, imp);
         ImageStatistics stats      = difference.getStatistics();
 
-        assertEquals(0.5, imp.getCalibration().pixelHeight);
-        assertEquals(0.5, imp.getCalibration().pixelWidth);
-        assertEquals(1.0, imp.getCalibration().pixelDepth);
-        assertEquals("MICROMETER", imp.getCalibration().getUnit());
-        assertEquals(referenceDimensions[0], dimensions[0]);
-        assertEquals(referenceDimensions[1], dimensions[1]);
-        assertEquals(referenceDimensions[2], dimensions[2]);
-        assertEquals(referenceDimensions[3], dimensions[3]);
-        assertEquals(referenceDimensions[4], dimensions[4]);
         assertEquals(0, (int) stats.max);
     }
 
@@ -506,9 +475,9 @@ public class ImageTest extends TestCase {
 
         try {
             image.getChannelName(root, 6);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -526,13 +495,13 @@ public class ImageTest extends TestCase {
 
         List<TagAnnotationContainer> tags = image.getTags(root);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tag);
 
         tags = image.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -546,12 +515,12 @@ public class ImageTest extends TestCase {
         image.addTag(root, "image tag", "tag attached to an image");
 
         List<TagAnnotationContainer> tags = root.getTags("image tag");
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tags.get(0).getId());
 
         tags = root.getTags("image tag");
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -568,13 +537,13 @@ public class ImageTest extends TestCase {
 
         List<TagAnnotationContainer> tags = image.getTags(root);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tag);
 
         tags = image.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -594,7 +563,7 @@ public class ImageTest extends TestCase {
 
         List<TagAnnotationContainer> tags = image.getTags(root);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
         root.deleteTag(tag1);
         root.deleteTag(tag2);
@@ -603,7 +572,7 @@ public class ImageTest extends TestCase {
 
         tags = image.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -623,7 +592,7 @@ public class ImageTest extends TestCase {
 
         List<TagAnnotationContainer> tags = image.getTags(root);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
         root.deleteTag(tag1);
         root.deleteTag(tag2);
@@ -632,7 +601,7 @@ public class ImageTest extends TestCase {
 
         tags = image.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 

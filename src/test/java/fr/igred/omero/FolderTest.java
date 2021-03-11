@@ -66,9 +66,9 @@ public class FolderTest extends TestCase {
             roi.saveROI(root);
 
             folder.addROI(root, roi);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -116,9 +116,9 @@ public class FolderTest extends TestCase {
 
         try {
             image.getFolder(root, folder.getId());
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
