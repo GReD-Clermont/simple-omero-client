@@ -57,8 +57,8 @@ public class ROITest extends TestCase {
 
         List<ROIContainer> rois = image.getROIs(root);
 
-        assert (rois.size() == 1);
-        assert (rois.get(0).getShapes().size() == 4);
+        assertEquals(1, rois.size());
+        assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROIContainer roi : rois) {
             root.deleteROI(roi);
@@ -66,7 +66,7 @@ public class ROITest extends TestCase {
 
         rois = image.getROIs(root);
 
-        assert (rois.size() == 0);
+        assertEquals(0, rois.size());
     }
 
 
@@ -95,8 +95,8 @@ public class ROITest extends TestCase {
 
         List<ROIContainer> rois = image.getROIs(root);
 
-        assert (rois.size() == 1);
-        assert (rois.get(0).getShapes().size() == 4);
+        assertEquals(1, rois.size());
+        assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROIContainer roi : rois) {
             root.deleteROI(roi);
@@ -104,7 +104,7 @@ public class ROITest extends TestCase {
 
         rois = image.getROIs(root);
 
-        assert (rois.size() == 0);
+        assertEquals(0, rois.size());
     }
 
 
@@ -148,16 +148,16 @@ public class ROITest extends TestCase {
 
         rois = image.getROIs(root);
         roiContainer = rois.get(0);
-        assert (size + 1 == roiContainer.getShapes().size());
-        assert (ROINumber == rois.size());
+        assertEquals(size + 1, roiContainer.getShapes().size());
+        assertEquals(ROINumber, rois.size());
 
         roiContainer.deleteShape(roiContainer.getShapes().size() - 1);
         roiContainer.saveROI(root);
 
         rois = image.getROIs(root);
         roiContainer = rois.get(0);
-        assert (size == roiContainer.getShapes().size());
-        assert (ROINumber == rois.size());
+        assertEquals(size, roiContainer.getShapes().size());
+        assertEquals(ROINumber, rois.size());
     }
 
 }

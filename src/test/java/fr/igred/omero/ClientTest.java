@@ -58,7 +58,7 @@ public class ClientTest extends TestCase {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
-        assert (0L == root.getId());
+        assertEquals(0L, root.getId().longValue());
 
         root.disconnect();
     }
@@ -68,7 +68,7 @@ public class ClientTest extends TestCase {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "testUser", "password");
-        assert (root.getGroupId() == 3L);
+        assertEquals(3L, root.getGroupId().longValue());
     }
 
 
@@ -77,9 +77,9 @@ public class ClientTest extends TestCase {
         Client root = new Client();
         try {
             root.connect("omero", 4064, "badUser", "omero", 3L);
-            assert (false);
+            fail();
         } catch (ServiceException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -89,9 +89,9 @@ public class ClientTest extends TestCase {
         Client root = new Client();
         try {
             root.connect("omero", 4064, "root", "badPassword", 3L);
-            assert (false);
+            fail();
         } catch (ServiceException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -101,9 +101,9 @@ public class ClientTest extends TestCase {
         Client root = new Client();
         try {
             root.connect("127.0.0.1", 4064, "root", "omero", 3L);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -113,9 +113,9 @@ public class ClientTest extends TestCase {
         Client root = new Client();
         try {
             root.connect("omero", 5000, "root", "omero", 3L);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -125,7 +125,7 @@ public class ClientTest extends TestCase {
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 200L);
 
-        assert (root.getGroupId() == 3L);
+        assertEquals(3L, root.getGroupId().longValue());
     }
 
 
@@ -133,7 +133,20 @@ public class ClientTest extends TestCase {
         DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "testUser", "password", 54L);
-        assert (root.getGroupId() == 3L);
+        assertEquals(3L, root.getGroupId().longValue());
+    }
+
+
+    public void testProjectBasic() throws Exception {
+        DebugTools.enableLogging("OFF");
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+
+        ProjectContainer project = root.getProject(2L);
+
+        assertEquals(2L, project.getId().longValue());
+        assertEquals("TestProject", project.getName());
+        assertEquals("description", project.getDescription());
     }
 
 
@@ -152,9 +165,9 @@ public class ClientTest extends TestCase {
         try {
             root.connect("omero", 4064, "root", "omero");
             root.getProject(333L);
-            assert (false);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -166,7 +179,7 @@ public class ClientTest extends TestCase {
 
         Collection<ProjectContainer> projects = root.getProjects();
 
-        assert (projects.size() == 2);
+        assertEquals(2, projects.size());
     }
 
 
@@ -177,11 +190,14 @@ public class ClientTest extends TestCase {
 
         Collection<ProjectContainer> projects = root.getProjects("TestProject");
 
-        assert (projects.size() == 2);
-
+        int differences = 0;
         for (ProjectContainer project : projects) {
-            assertEquals(project.getName(), "TestProject");
+            if (!project.getName().equals("TestProject"))
+                differences++;
         }
+
+        assertEquals(2, projects.size());
+        assertEquals(0, differences);
     }
 
 
@@ -194,9 +210,9 @@ public class ClientTest extends TestCase {
 
         try {
             root.getProject(1L);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -217,7 +233,7 @@ public class ClientTest extends TestCase {
 
         Collection<DatasetContainer> datasets = root.getDatasets();
 
-        assert (datasets.size() == 3);
+        assertEquals(3, datasets.size());
     }
 
 
@@ -228,11 +244,14 @@ public class ClientTest extends TestCase {
 
         Collection<DatasetContainer> datasets = root.getDatasets("TestDataset");
 
-        assert (datasets.size() == 2);
-
+        int differences = 0;
         for (DatasetContainer dataset : datasets) {
-            assertEquals("TestDataset", dataset.getName());
+            if (!dataset.getName().equals("TestDataset"))
+                differences++;
         }
+
+        assertEquals(2, datasets.size());
+        assertEquals(0, differences);
     }
 
 
@@ -243,7 +262,7 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> images = root.getImages();
 
-        assert (images.size() == 4);
+        assertEquals(4, images.size());
     }
 
 
@@ -265,9 +284,9 @@ public class ClientTest extends TestCase {
 
         try {
             root.getImage(200L);
-            assert (false);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -279,7 +298,7 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> images = root.getImages("image1.fake");
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -290,7 +309,7 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> images = root.getImagesLike(".fake");
 
-        assert (images.size() == 4);
+        assertEquals(4, images.size());
     }
 
 
@@ -301,7 +320,7 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> images = root.getImagesTagged(1L);
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -312,7 +331,7 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> images = root.getImagesKey("testKey1");
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -323,7 +342,7 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> images = root.getImagesPairKeyValue("testKey1", "testValue1");
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 
@@ -349,7 +368,7 @@ public class ClientTest extends TestCase {
             }
         }
 
-        assert (imagesCond.size() == 1);
+        assertEquals(1, imagesCond.size());
     }
 
 
@@ -370,24 +389,16 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> tagged = test.getImagesTagged(tag);
 
+        int differences = 0;
         for (int i = 0; i < images.size(); i++) {
-            assertEquals(images.get(i).getId(), tagged.get(i).getId());
+            if (!images.get(i).getId().equals(tagged.get(i).getId()))
+                differences++;
         }
 
         root.deleteTag(tag);
-    }
 
-
-    public void testProjectBasic() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        ProjectContainer project = root.getProject(2L);
-
-        assert (project.getId() == 2L);
-        assertEquals("TestProject", project.getName());
-        assertEquals("description", project.getDescription());
+        assertEquals(images.size(), tagged.size());
+        assertEquals(0, differences);
     }
 
 }

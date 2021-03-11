@@ -11,6 +11,8 @@ import omero.gateway.model.ImageData;
 
 import java.util.List;
 
+import static org.junit.Assert.assertNotEquals;
+
 
 public class TableTest extends TestCase {
 
@@ -55,7 +57,7 @@ public class TableTest extends TestCase {
         assertEquals(images.size(), table.getRowCount());
 
         for (ImageContainer image : images) {
-            assert (!table.isComplete());
+            assertNotEquals(true, table.isComplete());
             table.addRow(image.getImage(), image.getName());
         }
 
@@ -99,9 +101,9 @@ public class TableTest extends TestCase {
             for (ImageContainer image : images) {
                 table.addRow(image.getImage(), image.getName());
             }
-            assert (false);
+            fail();
         } catch (IndexOutOfBoundsException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -117,9 +119,9 @@ public class TableTest extends TestCase {
 
         try {
             table.setColumn(2, "Id", Long.class);
-            assert (false);
+            fail();
         } catch (IndexOutOfBoundsException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -141,9 +143,9 @@ public class TableTest extends TestCase {
             for (ImageContainer image : images) {
                 table.addRow(image.getImage(), image.getName());
             }
-            assert (false);
+            fail();
         } catch (IndexOutOfBoundsException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -167,9 +169,9 @@ public class TableTest extends TestCase {
             for (ImageContainer image : images) {
                 table.addRow(image.getImage());
             }
-            assert (false);
+            fail();
         } catch (IllegalArgumentException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 

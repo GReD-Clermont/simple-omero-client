@@ -37,7 +37,7 @@ public class TagTest extends TestCase {
 
         TagAnnotationContainer tag = root.getTag(1L);
 
-        assert (1L == tag.getId());
+        assertEquals(1L, tag.getId().longValue());
         assertEquals("tag1", tag.getName());
         assertEquals("description", tag.getDescription());
     }
@@ -50,7 +50,7 @@ public class TagTest extends TestCase {
 
         List<TagAnnotationContainer> tags = root.getTags();
 
-        assert (tags.size() == 3);
+        assertEquals(3, tags.size());
     }
 
 

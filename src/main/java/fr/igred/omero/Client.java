@@ -898,29 +898,6 @@ public class Client {
 
 
     /**
-     * Deletes an image from OMERO
-     *
-     * @param image ImageContainer containing the image to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteImage(ImageContainer image) throws
-                                                  ServiceException,
-                                                  AccessException,
-                                                  ExecutionException,
-                                                  IllegalArgumentException,
-                                                  ServerError,
-                                                  InterruptedException {
-        deleteImage(image.getId());
-    }
-
-
-    /**
      * Saves an object on OMERO.
      *
      * @param object The OMERO object.
@@ -966,6 +943,29 @@ public class Client {
         } catch (LockTimeout lt) {
             throw new ServerError("Thread was interrupted", lt);
         }
+    }
+
+
+    /**
+     * Deletes an image from OMERO
+     *
+     * @param image ImageContainer containing the image to delete.
+     *
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
+     * @throws IllegalArgumentException Id not defined.
+     * @throws ServerError              If the thread was interrupted.
+     * @throws InterruptedException     If block(long) does not return.
+     */
+    public void deleteImage(ImageContainer image) throws
+                                                  ServiceException,
+                                                  AccessException,
+                                                  ExecutionException,
+                                                  IllegalArgumentException,
+                                                  ServerError,
+                                                  InterruptedException {
+        deleteImage(image.getId());
     }
 
 

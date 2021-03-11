@@ -41,7 +41,7 @@ public class ProjectTest extends TestCase {
 
         List<DatasetContainer> datasets = project.getDatasets();
 
-        assert (datasets.size() == 2);
+        assertEquals(2, datasets.size());
     }
 
 
@@ -54,7 +54,7 @@ public class ProjectTest extends TestCase {
 
         List<DatasetContainer> datasets = project.getDatasets("TestDataset");
 
-        assert (datasets.size() == 1);
+        assertEquals(1, datasets.size());
     }
 
 
@@ -71,13 +71,13 @@ public class ProjectTest extends TestCase {
 
         List<TagAnnotationContainer> tags = project.getTags(root);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tag);
 
         tags = project.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -91,12 +91,12 @@ public class ProjectTest extends TestCase {
         project.addTag(root, "test", "test");
 
         List<TagAnnotationContainer> tags = root.getTags("test");
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tags.get(0).getId());
 
         tags = root.getTags("test");
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -113,13 +113,13 @@ public class ProjectTest extends TestCase {
 
         List<TagAnnotationContainer> tags = project.getTags(root);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tag);
 
         tags = project.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -139,7 +139,7 @@ public class ProjectTest extends TestCase {
 
         List<TagAnnotationContainer> tags = project.getTags(root);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
         root.deleteTag(tag1);
         root.deleteTag(tag2);
@@ -148,7 +148,7 @@ public class ProjectTest extends TestCase {
 
         tags = project.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -168,7 +168,7 @@ public class ProjectTest extends TestCase {
 
         List<TagAnnotationContainer> tags = project.getTags(root);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
         root.deleteTag(tag1);
         root.deleteTag(tag2);
@@ -177,7 +177,7 @@ public class ProjectTest extends TestCase {
 
         tags = project.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -190,7 +190,7 @@ public class ProjectTest extends TestCase {
 
         List<ImageContainer> images = project.getImages(root);
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -203,7 +203,7 @@ public class ProjectTest extends TestCase {
 
         List<ImageContainer> images = project.getImages(root, "image1.fake");
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 
@@ -216,7 +216,7 @@ public class ProjectTest extends TestCase {
 
         List<ImageContainer> images = project.getImagesLike(root, ".fake");
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -229,7 +229,7 @@ public class ProjectTest extends TestCase {
 
         List<ImageContainer> images = project.getImagesTagged(root, 1L);
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 
@@ -243,7 +243,7 @@ public class ProjectTest extends TestCase {
 
         List<ImageContainer> images = project.getImagesTagged(root, tag);
 
-        assert (images.size() == 1);
+        assertEquals(1, images.size());
     }
 
 
@@ -256,7 +256,7 @@ public class ProjectTest extends TestCase {
 
         List<ImageContainer> images = project.getImagesKey(root, "testKey1");
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -269,7 +269,7 @@ public class ProjectTest extends TestCase {
 
         List<ImageContainer> images = project.getImagesPairKeyValue(root, "testKey1", "testValue1");
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 }

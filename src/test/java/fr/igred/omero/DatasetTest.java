@@ -70,9 +70,9 @@ public class DatasetTest extends TestCase {
 
         try {
             root.getDataset(id);
-            assert (false);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -98,9 +98,9 @@ public class DatasetTest extends TestCase {
 
         try {
             root.getDataset(id);
-            assert (false);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
@@ -124,13 +124,13 @@ public class DatasetTest extends TestCase {
 
         newDataset.addImages(root, images);
 
-        assert (newDataset.getImages(root).size() == images.size());
+        assertEquals(images.size(), newDataset.getImages(root).size());
 
         root.deleteDataset(newDataset);
 
         List<ImageContainer> newImages = dataset.getImages(root);
 
-        assert (newImages.size() == images.size());
+        assertEquals(images.size(), newImages.size());
     }
 
 
@@ -143,7 +143,7 @@ public class DatasetTest extends TestCase {
 
         assertEquals("TestDataset", dataset.getName());
         assertEquals("description", dataset.getDescription());
-        assert (dataset.getId() == 1L);
+        assertEquals(1L, dataset.getId().longValue());
     }
 
 
@@ -160,13 +160,13 @@ public class DatasetTest extends TestCase {
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tag);
 
         tags = dataset.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -180,12 +180,12 @@ public class DatasetTest extends TestCase {
         dataset.addTag(root, "Dataset tag", "tag attached to a dataset");
 
         List<TagAnnotationContainer> tags = root.getTags("Dataset tag");
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tags.get(0).getId());
 
         tags = root.getTags("Dataset tag");
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -202,13 +202,13 @@ public class DatasetTest extends TestCase {
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
         root.deleteTag(tag);
 
         tags = dataset.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -228,7 +228,7 @@ public class DatasetTest extends TestCase {
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
         root.deleteTag(tag1);
         root.deleteTag(tag2);
@@ -237,7 +237,7 @@ public class DatasetTest extends TestCase {
 
         tags = dataset.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -257,7 +257,7 @@ public class DatasetTest extends TestCase {
 
         List<TagAnnotationContainer> tags = dataset.getTags(root);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
         root.deleteTag(tag1);
         root.deleteTag(tag2);
@@ -266,7 +266,7 @@ public class DatasetTest extends TestCase {
 
         tags = dataset.getTags(root);
 
-        assert (tags.size() == 0);
+        assertEquals(0, tags.size());
     }
 
 
@@ -279,7 +279,7 @@ public class DatasetTest extends TestCase {
 
         List<ImageContainer> images = dataset.getImages(root);
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -292,7 +292,7 @@ public class DatasetTest extends TestCase {
 
         List<ImageContainer> images = dataset.getImages(root, "image1.fake");
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 
@@ -305,7 +305,7 @@ public class DatasetTest extends TestCase {
 
         List<ImageContainer> images = dataset.getImagesLike(root, ".fake");
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -318,7 +318,7 @@ public class DatasetTest extends TestCase {
 
         List<ImageContainer> images = dataset.getImagesTagged(root, 1L);
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 
@@ -332,7 +332,7 @@ public class DatasetTest extends TestCase {
 
         List<ImageContainer> images = dataset.getImagesTagged(root, tag);
 
-        assert (images.size() == 1);
+        assertEquals(1, images.size());
     }
 
 
@@ -345,7 +345,7 @@ public class DatasetTest extends TestCase {
 
         List<ImageContainer> images = dataset.getImagesKey(root, "testKey1");
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
@@ -358,7 +358,7 @@ public class DatasetTest extends TestCase {
 
         List<ImageContainer> images = dataset.getImagesPairKeyValue(root, "testKey1", "testValue1");
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 
