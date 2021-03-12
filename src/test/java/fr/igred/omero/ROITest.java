@@ -18,6 +18,7 @@ public class ROITest extends BasicTest {
     public void testROI() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ROIContainer roiContainer = new ROIContainer();
 
@@ -57,6 +58,7 @@ public class ROITest extends BasicTest {
     public void testROI2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 
@@ -96,6 +98,7 @@ public class ROITest extends BasicTest {
     public void testRoiAddShapeAndDeleteIt() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 
