@@ -32,8 +32,10 @@ public class FolderTest extends BasicTest {
 
     @Test
     public void testFolder1() throws Exception {
-        Client client = new Client();
+        boolean exception = false;
+        Client  client    = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         FolderContainer folder = new FolderContainer(client, "Test1");
         try {
@@ -48,11 +50,11 @@ public class FolderTest extends BasicTest {
             roi.saveROI(client);
 
             folder.addROI(client, roi);
-            fail();
         } catch (Exception e) {
-            assertTrue(true);
-            client.disconnect();
+            exception = true;
         }
+        client.disconnect();
+        assertTrue(exception);
     }
 
 
@@ -60,6 +62,7 @@ public class FolderTest extends BasicTest {
     public void testFolder2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
@@ -111,6 +114,7 @@ public class FolderTest extends BasicTest {
     public void testFolder3() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         FolderContainer folder = new FolderContainer(client, "Test");
         folder.setImage(3L);
@@ -150,6 +154,7 @@ public class FolderTest extends BasicTest {
     public void testFolder4() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
