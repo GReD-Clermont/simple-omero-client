@@ -18,6 +18,7 @@ public class TableTest extends BasicTest {
     public void testCreateTable() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -60,8 +61,10 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableFull() throws Exception {
-        Client client = new Client();
+        boolean exception = false;
+        Client  client    = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -81,10 +84,11 @@ public class TableTest extends BasicTest {
             for (ImageContainer image : images) {
                 table.addRow(image.getImage(), image.getName());
             }
-            fail();
         } catch (IndexOutOfBoundsException e) {
-            assertTrue(true);
+            exception = true;
         }
+        client.disconnect();
+        assertTrue(exception);
     }
 
 
@@ -110,6 +114,7 @@ public class TableTest extends BasicTest {
     public void testErrorTableUninitialized() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -134,6 +139,7 @@ public class TableTest extends BasicTest {
     public void testErrorTableNotEnoughArgs() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 

@@ -45,6 +45,7 @@ public class ImageTest extends BasicTest {
     public void testImportImage() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
         if (!f.createNewFile())
@@ -85,6 +86,7 @@ public class ImageTest extends BasicTest {
     public void testPairKeyValue() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
         if (!f.createNewFile())
@@ -92,7 +94,8 @@ public class ImageTest extends BasicTest {
 
         DatasetContainer dataset = client.getDataset(2L);
 
-        dataset.importImages(client, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client,
+                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
@@ -134,6 +137,7 @@ public class ImageTest extends BasicTest {
     public void testPairKeyValue2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
         if (!f.createNewFile())
@@ -141,7 +145,8 @@ public class ImageTest extends BasicTest {
 
         DatasetContainer dataset = client.getDataset(2L);
 
-        dataset.importImages(client, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client,
+                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
@@ -171,8 +176,10 @@ public class ImageTest extends BasicTest {
 
     @Test
     public void testPairKeyValue3() throws Exception {
-        Client client = new Client();
+        boolean exception = false;
+        Client  client    = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
         if (!f.createNewFile())
@@ -180,7 +187,8 @@ public class ImageTest extends BasicTest {
 
         DatasetContainer dataset = client.getDataset(2L);
 
-        dataset.importImages(client, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client,
+                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
@@ -197,13 +205,12 @@ public class ImageTest extends BasicTest {
         assertEquals(2, results.size());
         try {
             image.getValue(client, "Nonexistent value");
-            fail();
         } catch (Exception e) {
-            assertTrue(true);
-        } finally {
-            client.deleteImage(image);
-            client.disconnect();
+            exception = true;
         }
+        client.deleteImage(image);
+        client.disconnect();
+        assertTrue(exception);
     }
 
 
@@ -211,6 +218,7 @@ public class ImageTest extends BasicTest {
     public void testGetImageInfo() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 
@@ -224,6 +232,7 @@ public class ImageTest extends BasicTest {
     public void testGetImageTag() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 
@@ -238,6 +247,7 @@ public class ImageTest extends BasicTest {
     public void testGetImageSize() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 
@@ -256,6 +266,7 @@ public class ImageTest extends BasicTest {
     public void testGetRawData() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer   image  = client.getImage(1L);
         PixelContainer   pixels = image.getPixels();
@@ -273,6 +284,7 @@ public class ImageTest extends BasicTest {
     public void testGetRawData2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
@@ -296,6 +308,7 @@ public class ImageTest extends BasicTest {
     public void testGetRawDataBound() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
@@ -321,6 +334,7 @@ public class ImageTest extends BasicTest {
     public void testGetRawDataBoundError() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
@@ -330,13 +344,10 @@ public class ImageTest extends BasicTest {
         int[] cBound = {0, 2};
         int[] zBound = {0, 2};
         int[] tBound = {0, 2};
-        try {
-            double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
-            assertNotEquals(3, value[0][0][0][0].length);
-        } catch (Exception e) {
-            assertTrue(true);
-            client.disconnect();
-        }
+
+        double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
+        assertNotEquals(xBound[1] - xBound[0] + 1, value[0][0][0][0].length);
+        client.disconnect();
     }
 
 
@@ -344,6 +355,7 @@ public class ImageTest extends BasicTest {
     public void testGetRawDataBoundErrorNegative() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
@@ -401,6 +413,7 @@ public class ImageTest extends BasicTest {
 
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 
@@ -435,6 +448,7 @@ public class ImageTest extends BasicTest {
 
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
@@ -453,6 +467,7 @@ public class ImageTest extends BasicTest {
     public void testGetImageChannel() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
         client.disconnect();
@@ -465,6 +480,7 @@ public class ImageTest extends BasicTest {
     public void testGetImageChannelError() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 
@@ -482,6 +498,7 @@ public class ImageTest extends BasicTest {
     public void testAddTagToImage() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
@@ -507,6 +524,7 @@ public class ImageTest extends BasicTest {
     public void testAddTagToImage2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
@@ -529,6 +547,7 @@ public class ImageTest extends BasicTest {
     public void testAddTagIdToImage() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
@@ -554,6 +573,7 @@ public class ImageTest extends BasicTest {
     public void testAddTagsToImage() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
@@ -585,6 +605,7 @@ public class ImageTest extends BasicTest {
     public void testAddTagsToImage2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(3L);
 
@@ -616,6 +637,7 @@ public class ImageTest extends BasicTest {
     public void testImageOrder() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         List<ImageContainer> images = client.getImages();
         client.disconnect();
@@ -630,6 +652,7 @@ public class ImageTest extends BasicTest {
     public void testAddFileImage() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ImageContainer image = client.getImage(1L);
 

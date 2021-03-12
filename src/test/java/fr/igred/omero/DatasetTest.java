@@ -35,14 +35,16 @@ public class DatasetTest extends BasicTest {
 
     @Test
     public void testCreateDatasetAndDeleteIt1() throws Exception {
-        Client client = new Client();
+        boolean exception = false;
+        Client  client    = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ProjectContainer project = client.getProject(2L);
 
         String name = "To delete";
 
-        Long id = project.addDataset(client, name, "Dataset which will ne deleted").getId();
+        Long id = project.addDataset(client, name, "Dataset which will be deleted").getId();
 
         DatasetContainer dataset = client.getDataset(id);
 
@@ -52,22 +54,24 @@ public class DatasetTest extends BasicTest {
 
         try {
             client.getDataset(id);
-            fail();
         } catch (NoSuchElementException e) {
-            assertTrue(true);
-            client.disconnect();
+            exception = true;
         }
+        client.disconnect();
+        assertTrue(exception);
     }
 
 
     @Test
     public void testCreateDatasetAndDeleteIt2() throws Exception {
-        Client client = new Client();
+        boolean exception = false;
+        Client  client    = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         ProjectContainer project = client.getProject(2L);
 
-        String description = "Dataset which will ne deleted";
+        String description = "Dataset which will be deleted";
 
         DatasetContainer dataset = new DatasetContainer("To delete", description);
 
@@ -81,11 +85,11 @@ public class DatasetTest extends BasicTest {
 
         try {
             client.getDataset(id);
-            fail();
         } catch (NoSuchElementException e) {
-            assertTrue(true);
-            client.disconnect();
+            exception = true;
         }
+        client.disconnect();
+        assertTrue(exception);
     }
 
 
@@ -93,6 +97,7 @@ public class DatasetTest extends BasicTest {
     public void testCopyDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -124,6 +129,7 @@ public class DatasetTest extends BasicTest {
     public void testDatasetBasic() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
         client.disconnect();
@@ -138,6 +144,7 @@ public class DatasetTest extends BasicTest {
     public void testAddTagToDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -163,6 +170,7 @@ public class DatasetTest extends BasicTest {
     public void testAddTagToDataset2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -185,6 +193,7 @@ public class DatasetTest extends BasicTest {
     public void testAddTagIdToDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -212,6 +221,7 @@ public class DatasetTest extends BasicTest {
         client.connect("omero", 4064, "testUser", "password", 3L);
 
         DatasetContainer dataset = client.getDataset(1L);
+        assertEquals(2L, client.getId().longValue());
 
         TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
         TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
@@ -241,6 +251,7 @@ public class DatasetTest extends BasicTest {
     public void testAddTagsToDataset2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -272,6 +283,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesInDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -287,6 +299,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesByNameInDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -301,6 +314,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesLikeInDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -315,6 +329,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesTaggedInDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -329,6 +344,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesTaggedInDataset2() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         TagAnnotationContainer tag     = client.getTag(2L);
         DatasetContainer       dataset = client.getDataset(1L);
@@ -344,6 +360,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesKeyInDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -358,6 +375,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesPairKeyValueInDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -372,6 +390,7 @@ public class DatasetTest extends BasicTest {
     public void testGetImagesFromDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
@@ -386,6 +405,7 @@ public class DatasetTest extends BasicTest {
     public void testAddFileDataset() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         DatasetContainer dataset = client.getDataset(1L);
 
