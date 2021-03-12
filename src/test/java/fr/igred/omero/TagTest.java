@@ -16,6 +16,7 @@ public class TagTest extends BasicTest {
     public void testGetTagInfo() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         TagAnnotationContainer tag = client.getTag(1L);
         client.disconnect();
@@ -30,6 +31,7 @@ public class TagTest extends BasicTest {
     public void testGetTags() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         List<TagAnnotationContainer> tags = client.getTags();
         client.disconnect();
@@ -42,6 +44,7 @@ public class TagTest extends BasicTest {
     public void testGetTagsSorted() throws Exception {
         Client client = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
 
         List<TagAnnotationContainer> tags = client.getTags();
         client.disconnect();
