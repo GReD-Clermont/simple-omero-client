@@ -273,9 +273,9 @@ public class ImageContainer {
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         if (annotations != null) {
@@ -316,9 +316,9 @@ public class ImageContainer {
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         if (annotations != null) {
@@ -380,9 +380,9 @@ public class ImageContainer {
                                             data.getMapAnnotation(),
                                             new ImageData(new ImageI(image.getId(), false)));
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
     }
 
@@ -408,9 +408,9 @@ public class ImageContainer {
         try {
             client.getDm().attachAnnotation(client.getCtx(), data, new ImageData(new ImageI(image.getId(), false)));
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
     }
 
@@ -436,9 +436,9 @@ public class ImageContainer {
                                     .iterator().next();
             roi.setData(roiData);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
     }
 
@@ -461,9 +461,9 @@ public class ImageContainer {
         try {
             roiResults = client.getRoiFacility().loadROIs(client.getCtx(), image.getId());
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
         ROIResult r = roiResults.iterator().next();
 
@@ -498,9 +498,9 @@ public class ImageContainer {
         try {
             folders = roiFacility.getROIFolders(client.getCtx(), this.image.getId());
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (FolderData folder : folders) {
@@ -583,62 +583,54 @@ public class ImageContainer {
     throws AccessException, ExecutionException {
         PixelContainer pixels = this.getPixels();
 
-        int sizeT, sizeZ, sizeC, sizeX, sizeY;
-        int tStart, zStart, cStart, xStart, yStart;
-        int tEnd, zEnd, cEnd, xEnd, yEnd;
-
-        if (tBound != null) {
-            tStart = Math.max(0, tBound[0]);
-            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
-        } else {
-            tStart = 0;
-            tEnd = pixels.getSizeT() - 1;
-        }
-        sizeT = tEnd - tStart + 1;
-
-        if (zBound != null) {
-            zStart = Math.max(0, zBound[0]);
-            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
-        } else {
-            zStart = 0;
-            zEnd = pixels.getSizeZ() - 1;
-        }
-        sizeZ = zEnd - zStart + 1;
-
-        if (cBound != null) {
-            cStart = Math.max(0, cBound[0]);
-            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
-        } else {
-            cStart = 0;
-            cEnd = pixels.getSizeC() - 1;
-        }
-        sizeC = cEnd - cStart + 1;
+        int xStart = 0;
+        int yStart = 0;
+        int cStart = 0;
+        int zStart = 0;
+        int tStart = 0;
+        int xEnd   = pixels.getSizeX() - 1;
+        int yEnd   = pixels.getSizeY() - 1;
+        int cEnd   = pixels.getSizeC() - 1;
+        int zEnd   = pixels.getSizeZ() - 1;
+        int tEnd   = pixels.getSizeT() - 1;
 
         if (xBound != null) {
             xStart = Math.max(0, xBound[0]);
             xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
-        } else {
-            xStart = 0;
-            xEnd = pixels.getSizeX() - 1;
         }
-        sizeX = xEnd - xStart + 1;
 
         if (yBound != null) {
             yStart = Math.max(0, yBound[0]);
             yEnd = Math.min(pixels.getSizeY() - 1, yBound[1]);
-        } else {
-            yStart = 0;
-            yEnd = pixels.getSizeY() - 1;
         }
-        sizeY = yEnd - yStart + 1;
+
+        if (cBound != null) {
+            cStart = Math.max(0, cBound[0]);
+            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
+        }
+
+        if (zBound != null) {
+            zStart = Math.max(0, zBound[0]);
+            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
+        }
+
+        if (tBound != null) {
+            tStart = Math.max(0, tBound[0]);
+            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
+        }
+
+        int sizeX = xEnd - xStart + 1;
+        int sizeY = yEnd - yStart + 1;
+        int sizeC = cEnd - cStart + 1;
+        int sizeZ = zEnd - zStart + 1;
+        int sizeT = tEnd - tStart + 1;
 
         Length spacingX = pixels.getPixelSizeX();
         Length spacingY = pixels.getPixelSizeY();
         Length spacingZ = pixels.getPixelSizeZ();
 
-        String pixelType   = pixels.getPixelType();
-        int    pixels_type = FormatTools.pixelTypeFromString(pixelType);
-        int    bpp         = FormatTools.getBytesPerPixel(pixels_type);
+        int pixelType = FormatTools.pixelTypeFromString(pixels.getPixelType());
+        int bpp       = FormatTools.getBytesPerPixel(pixelType);
 
         ImagePlus imp = IJ.createHyperStack(image.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
 
@@ -659,7 +651,7 @@ public class ImageContainer {
 
         imp.setCalibration(cal);
 
-        boolean is_float  = FormatTools.isFloatingPoint(pixels_type);
+        boolean isFloat = FormatTools.isFloatingPoint(pixelType);
 
         ImageStack stack = imp.getImageStack();
 
@@ -682,7 +674,7 @@ public class ImageContainer {
                                                        tBoundTemp,
                                                        bpp)[0][0][0];
 
-                    stack.setPixels(DataTools.makeDataArray(tiles, bpp, is_float, false), n);
+                    stack.setPixels(DataTools.makeDataArray(tiles, bpp, isFloat, false), n);
                     ImageProcessor ip = stack.getProcessor(n);
                     ip.resetMinAndMax();
 
@@ -722,9 +714,9 @@ public class ImageContainer {
         try {
             channels = client.getMetadata().getChannelData(client.getCtx(), this.image.getId());
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         return channels.get(index).getChannelLabeling();
@@ -751,9 +743,8 @@ public class ImageContainer {
                                                   AccessException,
                                                   ExecutionException,
                                                   ServerError,
-                                                  FileNotFoundException,
                                                   IOException {
-        int INC = 262144;
+        final int INC = 262144;
 
         ImageAnnotationLink newLink;
         RawFileStorePrx     rawFileStore;
@@ -776,7 +767,7 @@ public class ImageContainer {
         try {
             rawFileStore = client.getGateway().getRawFileService(client.getCtx());
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         }
 
         long       pos = 0;
@@ -794,7 +785,7 @@ public class ImageContainer {
             originalFile = rawFileStore.save();
             rawFileStore.close();
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
 
         FileAnnotation fa = new FileAnnotationI();

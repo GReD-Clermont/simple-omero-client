@@ -1,7 +1,6 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import org.junit.Test;
 
