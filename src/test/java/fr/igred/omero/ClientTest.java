@@ -22,171 +22,179 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
-public class ClientTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public ClientTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.*;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(ClientTest.class);
-    }
+public class ClientTest extends BasicTest {
 
 
+    @Test
     public void testConnection() throws Exception {
-        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
-
-        assert (0L == root.getId());
-
+        long id = root.getId();
         root.disconnect();
+        assertEquals(0L, id);
     }
 
 
+    @Test
     public void testConnection2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "testUser", "password");
-        assert (root.getGroupId() == 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password");
+        long groupId = client.getGroupId();
+        client.disconnect();
+        assertEquals(3L, groupId);
     }
 
 
+    @Test
     public void testConnectionErrorUsername() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
+        Client client = new Client();
         try {
-            root.connect("omero", 4064, "badUser", "omero", 3L);
-            assert (false);
+            client.connect("omero", 4064, "badUser", "omero", 3L);
+            fail();
         } catch (ServiceException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
 
+    @Test
     public void testConnectionErrorPassword() throws Exception {
-        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
             root.connect("omero", 4064, "root", "badPassword", 3L);
-            assert (false);
+            fail();
         } catch (ServiceException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
 
+    @Test
     public void testConnectionErrorHost() {
-        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
             root.connect("127.0.0.1", 4064, "root", "omero", 3L);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
 
+    @Test
     public void testConnectionErrorPort() {
-        DebugTools.enableLogging("OFF");
         Client root = new Client();
         try {
             root.connect("omero", 5000, "root", "omero", 3L);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
 
+    @Test
     public void testConnectionErrorGroupNotExist() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 200L);
-
-        assert (root.getGroupId() == 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 200L);
+        long groupId = client.getGroupId();
+        client.disconnect();
+        assertEquals(3L, groupId);
     }
 
 
+    @Test
     public void testConnectionErrorNotInGroup() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "testUser", "password", 54L);
-        assert (root.getGroupId() == 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 0L);
+        long groupId = client.getGroupId();
+        client.disconnect();
+        assertEquals(3L, groupId);
     }
 
 
+    @Test
+    public void testProjectBasic() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        ProjectContainer project = client.getProject(2L);
+        long id = project.getId();
+        client.disconnect();
+
+        assertEquals(2L, id);
+        assertEquals("TestProject", project.getName());
+        assertEquals("description", project.getDescription());
+    }
+
+
+    @Test
     public void testGetSingleProject() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+        String name = client.getProject(2L).getName();
+        client.disconnect();
 
-        assertEquals("TestProject", root.getProject(2L).getName());
+        assertEquals("TestProject", name);
     }
 
 
+    @Test
     public void testGetSingleProjectError() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
+        Client client = new Client();
         try {
-            root.connect("omero", 4064, "root", "omero");
-            root.getProject(333L);
-            assert (false);
+            client.connect("omero", 4064, "testUser", "password");
+            client.getProject(333L);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
 
+    @Test
     public void testGetAllProjects() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        Collection<ProjectContainer> projects = root.getProjects();
+        Collection<ProjectContainer> projects = client.getProjects();
+        client.disconnect();
 
-        assert (projects.size() == 2);
+        assertEquals(2, projects.size());
     }
 
 
+    @Test
     public void testGetProjectByName() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        Collection<ProjectContainer> projects = root.getProjects("TestProject");
+        Collection<ProjectContainer> projects = client.getProjects("TestProject");
 
-        assert (projects.size() == 2);
-
+        int differences = 0;
         for (ProjectContainer project : projects) {
-            assertEquals(project.getName(), "TestProject");
+            if (!project.getName().equals("TestProject"))
+                differences++;
         }
+        client.disconnect();
+
+        assertEquals(2, projects.size());
+        assertEquals(0, differences);
     }
 
 
+    @Test
     public void testDeleteProject() throws Exception {
-        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 0L);
 
@@ -194,175 +202,190 @@ public class ClientTest extends TestCase {
 
         try {
             root.getProject(1L);
-            assert (false);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
 
+    @Test
     public void testGetSingleDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+        client.disconnect();
 
-        assertEquals("TestDataset", root.getDataset(1L).getName());
+        assertEquals("TestDataset", client.getDataset(1L).getName());
     }
 
 
+    @Test
     public void testGetAllDatasets() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        Collection<DatasetContainer> datasets = root.getDatasets();
+        Collection<DatasetContainer> datasets = client.getDatasets();
+        client.disconnect();
 
-        assert (datasets.size() == 3);
+        assertEquals(3, datasets.size());
     }
 
 
+    @Test
     public void testGetDatasetByName() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        Collection<DatasetContainer> datasets = root.getDatasets("TestDataset");
+        Collection<DatasetContainer> datasets = client.getDatasets("TestDataset");
 
-        assert (datasets.size() == 2);
-
+        int differences = 0;
         for (DatasetContainer dataset : datasets) {
-            assertEquals("TestDataset", dataset.getName());
+            if (!dataset.getName().equals("TestDataset"))
+                differences++;
         }
+        client.disconnect();
+
+        assertEquals(2, datasets.size());
+        assertEquals(0, differences);
     }
 
 
+    @Test
     public void testGetImages() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<ImageContainer> images = root.getImages();
+        List<ImageContainer> images = client.getImages();
+        client.disconnect();
 
-        assert (images.size() == 4);
+        assertEquals(4, images.size());
     }
 
 
+    @Test
     public void testGetImage() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
+        client.disconnect();
 
         assertEquals("image1.fake", image.getName());
     }
 
 
+    @Test
     public void testGetImageError() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         try {
-            root.getImage(200L);
-            assert (false);
+            client.getImage(200L);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
         }
     }
 
 
+    @Test
     public void testGetImagesName() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<ImageContainer> images = root.getImages("image1.fake");
+        List<ImageContainer> images = client.getImages("image1.fake");
+        client.disconnect();
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
+    @Test
     public void testGetImagesLike() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<ImageContainer> images = root.getImagesLike(".fake");
+        List<ImageContainer> images = client.getImagesLike(".fake");
+        client.disconnect();
 
-        assert (images.size() == 4);
+        assertEquals(4, images.size());
     }
 
 
+    @Test
     public void testGetImagesTagged() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<ImageContainer> images = root.getImagesTagged(1L);
+        List<ImageContainer> images = client.getImagesTagged(1L);
+        client.disconnect();
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
+    @Test
     public void testGetImagesKey() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<ImageContainer> images = root.getImagesKey("testKey1");
+        List<ImageContainer> images = client.getImagesKey("testKey1");
+        client.disconnect();
 
-        assert (images.size() == 3);
+        assertEquals(3, images.size());
     }
 
 
+    @Test
     public void testGetImagesKeyValue() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<ImageContainer> images = root.getImagesPairKeyValue("testKey1", "testValue1");
+        List<ImageContainer> images = client.getImagesPairKeyValue("testKey1", "testValue1");
+        client.disconnect();
 
-        assert (images.size() == 2);
+        assertEquals(2, images.size());
     }
 
 
+    @Test
     public void testGetImagesCond() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         String key = "testKey2";
 
         /* Load the image with the key */
-        List<ImageContainer> images = root.getImagesKey(key);
+        List<ImageContainer> images = client.getImagesKey(key);
 
         List<ImageContainer> imagesCond = new ArrayList<>();
 
         for (ImageContainer image : images) {
             /* Get the value for the key */
-            String value = image.getValue(root, key);
+            String value = image.getValue(client, key);
 
             /* Condition */
             if (value.compareTo("25") > 0) {
                 imagesCond.add(image);
             }
         }
+        client.disconnect();
 
-        assert (imagesCond.size() == 1);
+        assertEquals(1, imagesCond.size());
     }
 
 
+    @Test
     public void testSudoTag() throws Exception {
-        DebugTools.enableLogging("OFF");
         Client root = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
 
-        Client test = root.SudoGetUser("testUser");
+        Client test = root.sudoGetUser("testUser");
 
         TagAnnotationContainer tag = new TagAnnotationContainer(test, "Tag", "This is a tag");
 
         List<ImageContainer> images = test.getImages();
+        test.disconnect();
 
         for (ImageContainer image : images) {
             image.addTag(test, tag);
@@ -370,24 +393,18 @@ public class ClientTest extends TestCase {
 
         List<ImageContainer> tagged = test.getImagesTagged(tag);
 
+        int differences = 0;
         for (int i = 0; i < images.size(); i++) {
-            assertEquals(images.get(i).getId(), tagged.get(i).getId());
+            if (!images.get(i).getId().equals(tagged.get(i).getId()))
+                differences++;
         }
 
         root.deleteTag(tag);
-    }
+        root.disconnect();
 
-
-    public void testProjectBasic() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        ProjectContainer project = root.getProject(2L);
-
-        assert (project.getId() == 2L);
-        assertEquals("TestProject", project.getName());
-        assertEquals("description", project.getDescription());
+        assertNotEquals(0, images.size());
+        assertEquals(images.size(), tagged.size());
+        assertEquals(0, differences);
     }
 
 }

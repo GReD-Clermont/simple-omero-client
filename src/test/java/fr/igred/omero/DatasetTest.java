@@ -21,374 +21,384 @@ package fr.igred.omero;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.repository.DatasetContainer;
 import fr.igred.omero.repository.ProjectContainer;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import loci.common.DebugTools;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
-public class DatasetTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public DatasetTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.*;
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(DatasetTest.class);
-    }
+public class DatasetTest extends BasicTest {
 
 
+    @Test
     public void testCreateDatasetAndDeleteIt1() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
         String name = "To delete";
 
-        Long id = project.addDataset(root, name, "Dataset which will ne deleted").getId();
+        Long id = project.addDataset(client, name, "Dataset which will ne deleted").getId();
 
-        DatasetContainer dataset = root.getDataset(id);
+        DatasetContainer dataset = client.getDataset(id);
 
         assertEquals(dataset.getName(), name);
 
-        root.deleteDataset(dataset);
+        client.deleteDataset(dataset);
 
         try {
-            root.getDataset(id);
-            assert (false);
+            client.getDataset(id);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testCreateDatasetAndDeleteIt2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ProjectContainer project = root.getProject(2L);
+        ProjectContainer project = client.getProject(2L);
 
         String description = "Dataset which will ne deleted";
 
         DatasetContainer dataset = new DatasetContainer("To delete", description);
 
-        Long id = project.addDataset(root, dataset).getId();
+        Long id = project.addDataset(client, dataset).getId();
 
-        dataset = root.getDataset(id);
+        dataset = client.getDataset(id);
 
         assertEquals(dataset.getDescription(), description);
 
-        root.deleteDataset(dataset);
+        client.deleteDataset(dataset);
 
         try {
-            root.getDataset(id);
-            assert (false);
+            client.getDataset(id);
+            fail();
         } catch (NoSuchElementException e) {
-            assert (true);
+            assertTrue(true);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testCopyDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(root);
+        List<ImageContainer> images = dataset.getImages(client);
 
-        ProjectContainer project = root.getProject(3L);
+        ProjectContainer project = client.getProject(3L);
 
         String name = "Will be deleted";
 
-        Long id = project.addDataset(root, name, "Dataset which will be deleted").getId();
+        Long id = project.addDataset(client, name, "Dataset which will be deleted").getId();
 
-        DatasetContainer newDataset = root.getDataset(id);
+        DatasetContainer newDataset = client.getDataset(id);
 
-        newDataset.addImages(root, images);
+        newDataset.addImages(client, images);
 
-        assert (newDataset.getImages(root).size() == images.size());
+        assertEquals(images.size(), newDataset.getImages(client).size());
 
-        root.deleteDataset(newDataset);
+        client.deleteDataset(newDataset);
 
-        List<ImageContainer> newImages = dataset.getImages(root);
+        List<ImageContainer> newImages = dataset.getImages(client);
 
-        assert (newImages.size() == images.size());
+        client.disconnect();
+
+        assertEquals(images.size(), newImages.size());
     }
 
 
+    @Test
     public void testDatasetBasic() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
+        client.disconnect();
 
         assertEquals("TestDataset", dataset.getName());
         assertEquals("description", dataset.getDescription());
-        assert (dataset.getId() == 1L);
+        assertEquals(1L, dataset.getId().longValue());
     }
 
 
+    @Test
     public void testAddTagToDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTag(root, tag);
+        dataset.addTag(client, tag);
 
-        List<TagAnnotationContainer> tags = dataset.getTags(root);
+        List<TagAnnotationContainer> tags = dataset.getTags(client);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
-        root.deleteTag(tag);
+        client.deleteTag(tag);
 
-        tags = dataset.getTags(root);
+        tags = dataset.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagToDataset2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        dataset.addTag(root, "Dataset tag", "tag attached to a dataset");
+        dataset.addTag(client, "Dataset tag", "tag attached to a dataset");
 
-        List<TagAnnotationContainer> tags = root.getTags("Dataset tag");
-        assert (tags.size() == 1);
+        List<TagAnnotationContainer> tags = client.getTags("Dataset tag");
+        assertEquals(1, tags.size());
 
-        root.deleteTag(tags.get(0).getId());
+        client.deleteTag(tags.get(0).getId());
 
-        tags = root.getTags("Dataset tag");
-        assert (tags.size() == 0);
+        tags = client.getTags("Dataset tag");
+
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagIdToDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTag(root, tag.getId());
+        dataset.addTag(client, tag.getId());
 
-        List<TagAnnotationContainer> tags = dataset.getTags(root);
+        List<TagAnnotationContainer> tags = dataset.getTags(client);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
-        root.deleteTag(tag);
+        client.deleteTag(tag);
 
-        tags = dataset.getTags(root);
+        tags = dataset.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagsToDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTags(root, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
+        dataset.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
-        List<TagAnnotationContainer> tags = dataset.getTags(root);
+        List<TagAnnotationContainer> tags = dataset.getTags(client);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
-        root.deleteTag(tag1);
-        root.deleteTag(tag2);
-        root.deleteTag(tag3);
-        root.deleteTag(tag4);
+        client.deleteTag(tag1);
+        client.deleteTag(tag2);
+        client.deleteTag(tag3);
+        client.deleteTag(tag4);
 
-        tags = dataset.getTags(root);
+        tags = dataset.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagsToDataset2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTags(root, tag1, tag2, tag3, tag4);
+        dataset.addTags(client, tag1, tag2, tag3, tag4);
 
-        List<TagAnnotationContainer> tags = dataset.getTags(root);
+        List<TagAnnotationContainer> tags = dataset.getTags(client);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
-        root.deleteTag(tag1);
-        root.deleteTag(tag2);
-        root.deleteTag(tag3);
-        root.deleteTag(tag4);
+        client.deleteTag(tag1);
+        client.deleteTag(tag2);
+        client.deleteTag(tag3);
+        client.deleteTag(tag4);
 
-        tags = dataset.getTags(root);
+        tags = dataset.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testGetImagesInDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(root);
+        List<ImageContainer> images = dataset.getImages(client);
 
-        assert (images.size() == 3);
-    }
-
-
-    public void testGetImagesByNameInDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        DatasetContainer dataset = root.getDataset(1L);
-
-        List<ImageContainer> images = dataset.getImages(root, "image1.fake");
-
-        assert (images.size() == 2);
-    }
-
-
-    public void testGetImagesLikeInDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        DatasetContainer dataset = root.getDataset(1L);
-
-        List<ImageContainer> images = dataset.getImagesLike(root, ".fake");
-
-        assert (images.size() == 3);
-    }
-
-
-    public void testGetImagesTaggedInDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        DatasetContainer dataset = root.getDataset(1L);
-
-        List<ImageContainer> images = dataset.getImagesTagged(root, 1L);
-
-        assert (images.size() == 2);
-    }
-
-
-    public void testGetImagesTaggedInDataset2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        TagAnnotationContainer tag     = root.getTag(2L);
-        DatasetContainer       dataset = root.getDataset(1L);
-
-        List<ImageContainer> images = dataset.getImagesTagged(root, tag);
-
-        assert (images.size() == 1);
-    }
-
-
-    public void testGetImagesKeyInDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        DatasetContainer dataset = root.getDataset(1L);
-
-        List<ImageContainer> images = dataset.getImagesKey(root, "testKey1");
-
-        assert (images.size() == 3);
-    }
-
-
-    public void testGetImagesPairKeyValueInDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        DatasetContainer dataset = root.getDataset(1L);
-
-        List<ImageContainer> images = dataset.getImagesPairKeyValue(root, "testKey1", "testValue1");
-
-        assert (images.size() == 2);
-    }
-
-
-    public void testGetImagesFromDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-
-        DatasetContainer dataset = root.getDataset(1L);
-
-        List<ImageContainer> images = dataset.getImages(root);
+        client.disconnect();
 
         assertEquals(3, images.size());
     }
 
 
-    public void testAddFileDataset() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+    @Test
+    public void testGetImagesByNameInDataset() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        DatasetContainer dataset = root.getDataset(1L);
+        DatasetContainer dataset = client.getDataset(1L);
+
+        List<ImageContainer> images = dataset.getImages(client, "image1.fake");
+        client.disconnect();
+
+        assertEquals(2, images.size());
+    }
+
+
+    @Test
+    public void testGetImagesLikeInDataset() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        DatasetContainer dataset = client.getDataset(1L);
+
+        List<ImageContainer> images = dataset.getImagesLike(client, ".fake");
+        client.disconnect();
+
+        assertEquals(3, images.size());
+    }
+
+
+    @Test
+    public void testGetImagesTaggedInDataset() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        DatasetContainer dataset = client.getDataset(1L);
+
+        List<ImageContainer> images = dataset.getImagesTagged(client, 1L);
+        client.disconnect();
+
+        assertEquals(2, images.size());
+    }
+
+
+    @Test
+    public void testGetImagesTaggedInDataset2() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        TagAnnotationContainer tag     = client.getTag(2L);
+        DatasetContainer       dataset = client.getDataset(1L);
+
+        List<ImageContainer> images = dataset.getImagesTagged(client, tag);
+        client.disconnect();
+
+        assertEquals(1, images.size());
+    }
+
+
+    @Test
+    public void testGetImagesKeyInDataset() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        DatasetContainer dataset = client.getDataset(1L);
+
+        List<ImageContainer> images = dataset.getImagesKey(client, "testKey1");
+        client.disconnect();
+
+        assertEquals(3, images.size());
+    }
+
+
+    @Test
+    public void testGetImagesPairKeyValueInDataset() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        DatasetContainer dataset = client.getDataset(1L);
+
+        List<ImageContainer> images = dataset.getImagesPairKeyValue(client, "testKey1", "testValue1");
+        client.disconnect();
+
+        assertEquals(2, images.size());
+    }
+
+
+    @Test
+    public void testGetImagesFromDataset() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        DatasetContainer dataset = client.getDataset(1L);
+
+        List<ImageContainer> images = dataset.getImages(client);
+        client.disconnect();
+
+        assertEquals(3, images.size());
+    }
+
+
+    @Test
+    public void testAddFileDataset() throws Exception {
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+
+        DatasetContainer dataset = client.getDataset(1L);
 
         File file = new File("./test.txt");
-        file.createNewFile();
+        if (!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
-        Long id = dataset.addFile(root, file).getId().getValue();
-        file.delete();
+        Long id = dataset.addFile(client, file);
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
-        root.deleteFile(id);
+        client.deleteFile(id);
+        client.disconnect();
     }
 
 }

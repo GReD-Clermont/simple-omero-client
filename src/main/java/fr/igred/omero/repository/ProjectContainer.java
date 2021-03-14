@@ -32,6 +32,7 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
+import omero.gateway.util.PojoMapper;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectI;
@@ -108,9 +109,9 @@ public class ProjectContainer {
      * @return Collection of DatasetContainer.
      */
     public List<DatasetContainer> getDatasets() {
-        Collection<DatasetData> datasets = project.getDatasets();
+        List<DatasetContainer> datasetsContainer = new ArrayList<>();
 
-        List<DatasetContainer> datasetsContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetData> datasets = project.getDatasets();
 
         for (DatasetData dataset : datasets)
             datasetsContainer.add(new DatasetContainer(dataset));
@@ -127,15 +128,9 @@ public class ProjectContainer {
      * @return List of dataset with the given name.
      */
     public List<DatasetContainer> getDatasets(String name) {
-        Collection<DatasetData> datasets = project.getDatasets();
-
-        List<DatasetContainer> datasetsContainer = new ArrayList<>(datasets.size());
-
-        for (DatasetData dataset : datasets)
-            if (dataset.getName().equals(name))
-                datasetsContainer.add(new DatasetContainer(dataset));
-
-        return datasetsContainer;
+        List<DatasetContainer> datasets = getDatasets();
+        datasets.removeIf(dataset -> !dataset.getName().equals(name));
+        return datasets;
     }
 
 
@@ -157,7 +152,6 @@ public class ProjectContainer {
         DatasetData datasetData = new DatasetData();
         datasetData.setName(name);
         datasetData.setDescription(description);
-
         return addDataset(client, datasetData);
     }
 
@@ -195,17 +189,9 @@ public class ProjectContainer {
     private DatasetContainer addDataset(Client client, DatasetData datasetData)
     throws ServiceException, AccessException, ExecutionException {
         DatasetContainer newDataset;
-        try {
-            datasetData.setProjects(Collections.singleton(project));
-            DatasetData dataset = (DatasetData) client.getDm()
-                                                      .saveAndReturnObject(client.getCtx(),
-                                                                           datasetData);
-            newDataset = new DatasetContainer(dataset);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
+        datasetData.setProjects(Collections.singleton(project));
+        DatasetData dataset = (DatasetData) PojoMapper.asDataObject(client.save(datasetData.asIObject()));
+        newDataset = new DatasetContainer(dataset);
         return newDataset;
     }
 
@@ -217,18 +203,16 @@ public class ProjectContainer {
      * @param name        Tag Name.
      * @param description Tag description.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectAnnotationLink addTag(Client client, String name, String description)
+    public void addTag(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
 
-        return addTag(client, tagData);
+        addTag(client, tagData);
     }
 
 
@@ -238,15 +222,13 @@ public class ProjectContainer {
      * @param client The user.
      * @param tag    Tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectAnnotationLink addTag(Client client, TagAnnotationContainer tag)
+    public void addTag(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, ExecutionException {
-        return addTag(client, tag.getTag());
+        addTag(client, tag.getTag());
     }
 
 
@@ -256,26 +238,17 @@ public class ProjectContainer {
      * @param client  The user.
      * @param tagData Tag to be added.
      *
-     * @return The object saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private ProjectAnnotationLink addTag(Client client, TagAnnotationData tagData)
+    private void addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
-        ProjectAnnotationLink newLink;
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
         link.setParent(new ProjectI(project.getId(), false));
-        try {
-            newLink = (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-        return newLink;
+
+        client.save(link);
     }
 
 
@@ -285,28 +258,17 @@ public class ProjectContainer {
      * @param client The user.
      * @param id     Id in OMERO of the tag to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectAnnotationLink addTag(Client client, Long id)
+    public void addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
-        ProjectAnnotationLink newLink;
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
         link.setParent(new ProjectI(project.getId(), false));
 
-        try {
-            newLink = (ProjectAnnotationLink) client.getDm().saveAndReturnObject(client.getCtx(), link);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
-
-        return newLink;
+        client.save(link);
     }
 
 
@@ -316,21 +278,15 @@ public class ProjectContainer {
      * @param client The user.
      * @param tags   Array of TagAnnotationContainer to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<ProjectAnnotationLink> addTags(Client client, TagAnnotationContainer... tags)
+    public void addTags(Client client, TagAnnotationContainer... tags)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (TagAnnotationContainer tag : tags) {
-            ProjectAnnotationLink link = addTag(client, tag.getTag());
-            objects.add(link);
+            addTag(client, tag.getTag());
         }
-
-        return objects;
     }
 
 
@@ -340,21 +296,15 @@ public class ProjectContainer {
      * @param client The user.
      * @param ids    Array of tag id to add.
      *
-     * @return The objects saved in OMERO.
-     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Collection<ProjectAnnotationLink> addTags(Client client, Long... ids)
+    public void addTags(Client client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectAnnotationLink> objects = new ArrayList<>();
         for (Long id : ids) {
-            ProjectAnnotationLink link = addTag(client, id);
-            objects.add(link);
+            addTag(client, id);
         }
-
-        return objects;
     }
 
 
@@ -371,7 +321,8 @@ public class ProjectContainer {
      */
     public List<TagAnnotationContainer> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long> userIds = new ArrayList<>();
+        List<TagAnnotationContainer> tags    = new ArrayList<>();
+        List<Long>                   userIds = new ArrayList<>();
         userIds.add(client.getId());
 
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
@@ -385,8 +336,6 @@ public class ProjectContainer {
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
-
-        List<TagAnnotationContainer> tags = new ArrayList<>();
 
         if (annotations != null) {
             for (AnnotationData annotation : annotations) {
@@ -429,9 +378,8 @@ public class ProjectContainer {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImages(Client client) throws ServiceException, AccessException {
-        Collection<DatasetContainer> datasets = getDatasets();
-
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageContainer>         imagesContainer = new ArrayList<>();
+        Collection<DatasetContainer> datasets        = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImages(client));
@@ -456,9 +404,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImages(Client client, String name)
     throws ServiceException, AccessException {
-        Collection<DatasetContainer> datasets = getDatasets();
-
         List<ImageContainer> imagesContainer = new ArrayList<>();
+
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImages(client, name));
@@ -483,9 +431,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesLike(client, motif));
@@ -511,9 +459,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, ServerError {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesTagged(client, tag));
@@ -539,9 +487,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, ServerError {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesTagged(client, tagId));
@@ -567,9 +515,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesKey(client, key));
@@ -596,9 +544,9 @@ public class ProjectContainer {
      */
     public List<ImageContainer> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetContainer> datasets = getDatasets();
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
-        List<ImageContainer> imagesContainer = new ArrayList<>(datasets.size());
+        Collection<DatasetContainer> datasets = getDatasets();
 
         for (DatasetContainer dataset : datasets) {
             imagesContainer.addAll(dataset.getImagesPairKeyValue(client, key, value));

@@ -25,86 +25,79 @@ import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
 import ij.process.ImageStatistics;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import loci.common.DebugTools;
 import loci.plugins.BF;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 
-public class ImageTest extends TestCase {
-
-    /**
-     * Create the test case
-     *
-     * @param testName Name of the test case.
-     */
-    public ImageTest(String testName) {
-        super(testName);
-    }
+public class ImageTest extends BasicTest {
 
 
-    /**
-     * @return the suite of tests being tested.
-     */
-    public static Test suite() {
-        return new TestSuite(ImageTest.class);
-    }
-
-
+    @Test
     public void testImportImage() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if (!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         File f2 = new File("./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
-        f2.createNewFile();
+        if (!f2.createNewFile())
+            System.err.println("\"" + f2.getCanonicalPath() + "\" could not be created.");
 
-        DatasetContainer dataset = root.getDataset(2L);
+        DatasetContainer dataset = client.getDataset(2L);
 
-        dataset.importImages(root,
+        dataset.importImages(client,
                              "./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake",
                              "./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
 
-        List<ImageContainer> images = dataset.getImages(root);
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+
+        if (!f2.delete())
+            System.err.println("\"" + f2.getCanonicalPath() + "\" could not be deleted.");
+
+        List<ImageContainer> images = dataset.getImages(client);
 
         assertEquals(2, images.size());
 
         for (ImageContainer image : images) {
-            root.deleteImage(image);
+            client.deleteImage(image);
         }
 
-        images = dataset.getImages(root);
+        images = dataset.getImages(client);
+        client.disconnect();
 
         assert (images.isEmpty());
     }
 
 
+    @Test
     public void testPairKeyValue() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if (!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        DatasetContainer dataset = root.getDataset(2L);
+        DatasetContainer dataset = client.getDataset(2L);
 
-        dataset.importImages(root, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
 
-        List<ImageContainer> images = dataset.getImages(root);
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+
+        List<ImageContainer> images = dataset.getImages(client);
 
         ImageContainer image = images.get(0);
 
@@ -124,31 +117,36 @@ public class ImageTest extends TestCase {
 
         assertEquals(result1, mapAnnotation1.getContent());
 
-        image.addMapAnnotation(root, mapAnnotation1);
-        image.addMapAnnotation(root, mapAnnotation2);
+        image.addMapAnnotation(client, mapAnnotation1);
+        image.addMapAnnotation(client, mapAnnotation2);
 
-        List<NamedValue> result = image.getKeyValuePairs(root);
+        List<NamedValue> result = image.getKeyValuePairs(client);
 
-        assert (result.size() == 4);
-        assertEquals(image.getValue(root, "Test result1"), "Value Test");
+        assertEquals(4, result.size());
+        assertEquals(image.getValue(client, "Test result1"), "Value Test");
 
-        root.deleteImage(image);
+        client.deleteImage(image);
+        client.disconnect();
     }
 
 
+    @Test
     public void testPairKeyValue2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if (!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        DatasetContainer dataset = root.getDataset(2L);
+        DatasetContainer dataset = client.getDataset(2L);
 
-        dataset.importImages(root, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
 
-        List<ImageContainer> images = dataset.getImages(root);
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+
+        List<ImageContainer> images = dataset.getImages(client);
 
         ImageContainer image = images.get(0);
 
@@ -159,129 +157,127 @@ public class ImageTest extends TestCase {
         MapAnnotationContainer mapAnnotation = new MapAnnotationContainer();
         mapAnnotation.setContent(result);
 
-        image.addMapAnnotation(root, mapAnnotation);
+        image.addMapAnnotation(client, mapAnnotation);
 
-        List<NamedValue> results = image.getKeyValuePairs(root);
+        List<NamedValue> results = image.getKeyValuePairs(client);
 
-        assert (results.size() == 2);
-        assertEquals(image.getValue(root, "Test result1"), "Value Test");
+        assertEquals(2, results.size());
+        assertEquals(image.getValue(client, "Test result1"), "Value Test");
 
-        root.deleteImage(image);
+        client.deleteImage(image);
+        client.disconnect();
     }
 
 
+    @Test
     public void testPairKeyValue3() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
         File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        f.createNewFile();
+        if (!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        DatasetContainer dataset = root.getDataset(2L);
+        DatasetContainer dataset = client.getDataset(2L);
 
-        dataset.importImages(root, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client, "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
 
-        List<ImageContainer> images = dataset.getImages(root);
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+
+        List<ImageContainer> images = dataset.getImages(client);
 
         ImageContainer image = images.get(0);
 
-        image.addPairKeyValue(root, "Test result1", "Value Test");
-        image.addPairKeyValue(root, "Test result2", "Value Test2");
+        image.addPairKeyValue(client, "Test result1", "Value Test");
+        image.addPairKeyValue(client, "Test result2", "Value Test2");
 
-        List<NamedValue> results = image.getKeyValuePairs(root);
+        List<NamedValue> results = image.getKeyValuePairs(client);
 
-        assert (results.size() == 2);
+        assertEquals(2, results.size());
         try {
-            image.getValue(root, "Nonexistent value");
-            assert (false);
+            image.getValue(client, "Nonexistent value");
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
         } finally {
-            root.deleteImage(image);
+            client.deleteImage(image);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testGetImageInfo() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
         assertEquals("image1.fake", image.getName());
         assertNull(image.getDescription());
-        assert (1L == image.getId());
+        assertEquals(1L, image.getId().longValue());
     }
 
 
+    @Test
     public void testGetImageTag() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
-        List<TagAnnotationContainer> tags = image.getTags(root);
-        assert (tags.size() == 2);
+        List<TagAnnotationContainer> tags = image.getTags(client);
+        client.disconnect();
+
+        assertEquals(2, tags.size());
     }
 
 
+    @Test
     public void testGetImageSize() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
         PixelContainer pixels = image.getPixels();
+        client.disconnect();
 
-        int sizeX = pixels.getSizeX();
-        int sizeY = pixels.getSizeY();
-        int sizeZ = pixels.getSizeZ();
-        int sizeC = pixels.getSizeC();
-        int sizeT = pixels.getSizeT();
-
-        assert (512 == sizeX);
-        assert (512 == sizeY);
-        assert (3 == sizeZ);
-        assert (5 == sizeC);
-        assert (7 == sizeT);
+        assertEquals(512, pixels.getSizeX());
+        assertEquals(512, pixels.getSizeY());
+        assertEquals(5, pixels.getSizeC());
+        assertEquals(3, pixels.getSizeZ());
+        assertEquals(7, pixels.getSizeT());
     }
 
 
+    @Test
     public void testGetRawData() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer   image  = root.getImage(1L);
+        ImageContainer   image  = client.getImage(1L);
         PixelContainer   pixels = image.getPixels();
-        double[][][][][] value  = pixels.getAllPixels(root);
+        double[][][][][] value  = pixels.getAllPixels(client);
 
-        int sizeX = pixels.getSizeX();
-        int sizeY = pixels.getSizeY();
-        int sizeZ = pixels.getSizeZ();
-        int sizeC = pixels.getSizeC();
-        int sizeT = pixels.getSizeT();
-
-        assertEquals(sizeX, value[0][0][0][0].length);
-        assertEquals(sizeY, value[0][0][0].length);
-        assertEquals(sizeC, value[0][0].length);
-        assertEquals(sizeZ, value[0].length);
-        assertEquals(sizeT, value.length);
+        assertEquals(pixels.getSizeX(), value[0][0][0][0].length);
+        assertEquals(pixels.getSizeY(), value[0][0][0].length);
+        assertEquals(pixels.getSizeC(), value[0][0].length);
+        assertEquals(pixels.getSizeZ(), value[0].length);
+        assertEquals(pixels.getSizeT(), value.length);
     }
 
 
+    @Test
     public void testGetRawData2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image  = root.getImage(1L);
+        ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
-        byte[][][][]   value  = pixels.getRawPixels(root, 1);
+        byte[][][][]   value  = pixels.getRawPixels(client, 1);
+        client.disconnect();
 
         int sizeX = pixels.getSizeX();
         int sizeY = pixels.getSizeY();
@@ -296,12 +292,12 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetRawDataBound() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image  = root.getImage(1L);
+        ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
 
         int[] xBound = {0, 2};
@@ -310,7 +306,8 @@ public class ImageTest extends TestCase {
         int[] zBound = {0, 2};
         int[] tBound = {0, 2};
 
-        double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
+        double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
+        client.disconnect();
 
         assertEquals(3, value[0][0][0][0].length);
         assertEquals(3, value[0][0][0].length);
@@ -320,12 +317,12 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testGetRawDataBoundError() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image  = root.getImage(1L);
+        ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
 
         int[] xBound = {511, 513};
@@ -334,20 +331,21 @@ public class ImageTest extends TestCase {
         int[] zBound = {0, 2};
         int[] tBound = {0, 2};
         try {
-            double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
+            double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
             assertNotEquals(3, value[0][0][0][0].length);
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testGetRawDataBoundErrorNegative() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image  = root.getImage(1L);
+        ImageContainer image  = client.getImage(1L);
         PixelContainer pixels = image.getPixels();
 
         int[] xBound = {-1, 1};
@@ -356,16 +354,17 @@ public class ImageTest extends TestCase {
         int[] zBound = {0, 2};
         int[] tBound = {0, 2};
         try {
-            double[][][][][] value = pixels.getAllPixels(root, xBound, yBound, cBound, zBound, tBound);
+            double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
             assertNotEquals(3, value[0][0][0][0].length);
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testToImagePlusBound() throws Exception {
-        DebugTools.enableLogging("OFF");
         int[] xBound = {0, 2};
         int[] yBound = {0, 2};
         int[] cBound = {0, 2};
@@ -384,233 +383,242 @@ public class ImageTest extends TestCase {
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
-        fakeFile.createNewFile();
+
+        if (!fakeFile.createNewFile())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
+
         ImagePlus reference = BF.openImagePlus(fake)[0];
-        fakeFile.delete();
+
+        if (!fakeFile.delete())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
+
         Duplicator duplicator = new Duplicator();
         reference.setRoi(xBound[0], yBound[0], xBound[1] - xBound[0] + 1, yBound[1] - yBound[0] + 1);
-        ImagePlus crop = duplicator
-                .run(reference, cBound[0] + 1, cBound[1] + 1, zBound[0] + 1, zBound[1] + 1, tBound[0] + 1,
-                     tBound[1] + 1);
+        ImagePlus crop = duplicator.run(reference,
+                                        cBound[0] + 1, cBound[1] + 1,
+                                        zBound[0] + 1, zBound[1] + 1,
+                                        tBound[0] + 1, tBound[1] + 1);
 
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
-        ImagePlus imp = image.toImagePlus(root, xBound, yBound, cBound, zBound, tBound);
-
-        int[] dimensions          = imp.getDimensions();
-        int[] referenceDimensions = crop.getDimensions();
+        ImagePlus imp = image.toImagePlus(client, xBound, yBound, cBound, zBound, tBound);
+        client.disconnect();
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
         ImageStatistics stats      = difference.getStatistics();
 
-        assertEquals(0.5, imp.getCalibration().pixelHeight);
-        assertEquals(0.5, imp.getCalibration().pixelWidth);
-        assertEquals(1.0, imp.getCalibration().pixelDepth);
+        assertEquals(0.5, imp.getCalibration().pixelHeight, 0.001);
+        assertEquals(0.5, imp.getCalibration().pixelWidth, 0.001);
+        assertEquals(1.0, imp.getCalibration().pixelDepth, 0.001);
         assertEquals("MICROMETER", imp.getCalibration().getUnit());
-        assertEquals(referenceDimensions[0], dimensions[0]);
-        assertEquals(referenceDimensions[1], dimensions[1]);
-        assertEquals(referenceDimensions[2], dimensions[2]);
-        assertEquals(referenceDimensions[3], dimensions[3]);
-        assertEquals(referenceDimensions[4], dimensions[4]);
         assertEquals(0, (int) stats.max);
     }
 
 
+    @Test
     public void testToImagePlus() throws Exception {
-        DebugTools.enableLogging("OFF");
 
-        String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = new File(fake);
-        fakeFile.createNewFile();
+
+        if (!fakeFile.createNewFile())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
+
         ImagePlus reference = BF.openImagePlus(fake)[0];
-        fakeFile.delete();
 
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        if (!fakeFile.delete())
+            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
 
-        ImageContainer image = root.getImage(1L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImagePlus imp = image.toImagePlus(root);
+        ImageContainer image = client.getImage(3L);
 
-        int[] dimensions          = imp.getDimensions();
-        int[] referenceDimensions = reference.getDimensions();
+        ImagePlus imp = image.toImagePlus(client);
+        client.disconnect();
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", reference, imp);
         ImageStatistics stats      = difference.getStatistics();
 
-        assertEquals(0.5, imp.getCalibration().pixelHeight);
-        assertEquals(0.5, imp.getCalibration().pixelWidth);
-        assertEquals(1.0, imp.getCalibration().pixelDepth);
-        assertEquals("MICROMETER", imp.getCalibration().getUnit());
-        assertEquals(referenceDimensions[0], dimensions[0]);
-        assertEquals(referenceDimensions[1], dimensions[1]);
-        assertEquals(referenceDimensions[2], dimensions[2]);
-        assertEquals(referenceDimensions[3], dimensions[3]);
-        assertEquals(referenceDimensions[4], dimensions[4]);
         assertEquals(0, (int) stats.max);
     }
 
 
+    @Test
     public void testGetImageChannel() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
-        assertEquals("0", image.getChannelName(root, 0));
+        ImageContainer image = client.getImage(1L);
+        client.disconnect();
+
+        assertEquals("0", image.getChannelName(client, 0));
     }
 
 
+    @Test
     public void testGetImageChannelError() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
         try {
-            image.getChannelName(root, 6);
-            assert (false);
+            image.getChannelName(client, 6);
+            fail();
         } catch (Exception e) {
-            assert (true);
+            assertTrue(true);
+            client.disconnect();
         }
     }
 
 
+    @Test
     public void testAddTagToImage() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(root, "image tag", "tag attached to an image");
+        TagAnnotationContainer tag = new TagAnnotationContainer(client, "image tag", "tag attached to an image");
 
-        image.addTag(root, tag);
+        image.addTag(client, tag);
 
-        List<TagAnnotationContainer> tags = image.getTags(root);
+        List<TagAnnotationContainer> tags = image.getTags(client);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
-        root.deleteTag(tag);
+        client.deleteTag(tag);
 
-        tags = image.getTags(root);
+        tags = image.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagToImage2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        image.addTag(root, "image tag", "tag attached to an image");
+        image.addTag(client, "image tag", "tag attached to an image");
 
-        List<TagAnnotationContainer> tags = root.getTags("image tag");
-        assert (tags.size() == 1);
+        List<TagAnnotationContainer> tags = client.getTags("image tag");
+        assertEquals(1, tags.size());
 
-        root.deleteTag(tags.get(0).getId());
+        client.deleteTag(tags.get(0).getId());
 
-        tags = root.getTags("image tag");
-        assert (tags.size() == 0);
+        tags = client.getTags("image tag");
+
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagIdToImage() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(root, "image tag", "tag attached to an image");
+        TagAnnotationContainer tag = new TagAnnotationContainer(client, "image tag", "tag attached to an image");
 
-        image.addTag(root, tag.getId());
+        image.addTag(client, tag.getId());
 
-        List<TagAnnotationContainer> tags = image.getTags(root);
+        List<TagAnnotationContainer> tags = image.getTags(client);
 
-        assert (tags.size() == 1);
+        assertEquals(1, tags.size());
 
-        root.deleteTag(tag);
+        client.deleteTag(tag);
 
-        tags = image.getTags(root);
+        tags = image.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagsToImage() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
 
-        image.addTags(root, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
+        image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
-        List<TagAnnotationContainer> tags = image.getTags(root);
+        List<TagAnnotationContainer> tags = image.getTags(client);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
-        root.deleteTag(tag1);
-        root.deleteTag(tag2);
-        root.deleteTag(tag3);
-        root.deleteTag(tag4);
+        client.deleteTag(tag1);
+        client.deleteTag(tag2);
+        client.deleteTag(tag3);
+        client.deleteTag(tag4);
 
-        tags = image.getTags(root);
+        tags = image.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testAddTagsToImage2() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(root, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
+        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Image tag", "tag attached to an image");
 
-        image.addTags(root, tag1, tag2, tag3, tag4);
+        image.addTags(client, tag1, tag2, tag3, tag4);
 
-        List<TagAnnotationContainer> tags = image.getTags(root);
+        List<TagAnnotationContainer> tags = image.getTags(client);
 
-        assert (tags.size() == 4);
+        assertEquals(4, tags.size());
 
-        root.deleteTag(tag1);
-        root.deleteTag(tag2);
-        root.deleteTag(tag3);
-        root.deleteTag(tag4);
+        client.deleteTag(tag1);
+        client.deleteTag(tag2);
+        client.deleteTag(tag3);
+        client.deleteTag(tag4);
 
-        tags = image.getTags(root);
+        tags = image.getTags(client);
 
-        assert (tags.size() == 0);
+        client.disconnect();
+
+        assertEquals(0, tags.size());
     }
 
 
+    @Test
     public void testImageOrder() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        List<ImageContainer> images = root.getImages();
+        List<ImageContainer> images = client.getImages();
+        client.disconnect();
 
         for (int i = 1; i < images.size(); i++) {
             assert (images.get(i - 1).getId() <= images.get(i).getId());
@@ -618,20 +626,23 @@ public class ImageTest extends TestCase {
     }
 
 
+    @Test
     public void testAddFileImage() throws Exception {
-        DebugTools.enableLogging("OFF");
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        Client client = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
 
-        ImageContainer image = root.getImage(1L);
+        ImageContainer image = client.getImage(1L);
 
         File file = new File("./test.txt");
-        file.createNewFile();
+        if (!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
-        Long id = image.addFile(root, file).getId().getValue();
-        file.delete();
+        Long id = image.addFile(client, file);
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
-        root.deleteFile(id);
+        client.deleteFile(id);
+        client.disconnect();
     }
 
 }

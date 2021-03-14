@@ -21,9 +21,8 @@ package fr.igred.omero.metadata.annotation;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.TagAnnotationData;
+import omero.gateway.util.PojoMapper;
 
 import java.util.concurrent.ExecutionException;
 
@@ -63,14 +62,7 @@ public class TagAnnotationContainer {
     public TagAnnotationContainer(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         this.tag = new TagAnnotationData(name, description);
-        TagAnnotationData newTag;
-        try {
-            newTag = (TagAnnotationData) client.getDm().saveAndReturnObject(client.getCtx(), tag);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
-        }
+        TagAnnotationData newTag = (TagAnnotationData) PojoMapper.asDataObject(client.save(tag.asIObject()));
         this.tag.setId(newTag.getId());
     }
 

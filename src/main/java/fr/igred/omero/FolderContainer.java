@@ -183,7 +183,7 @@ public class FolderContainer {
      */
     public List<ROIContainer> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIContainer>    roiContainers;
+        List<ROIContainer>    roiContainers = new ArrayList<>();
         Collection<ROIResult> roiResults;
         ROIFacility           roiFac = client.getRoiFacility();
 
@@ -199,14 +199,10 @@ public class FolderContainer {
             ROIResult           r    = roiResults.iterator().next();
             Collection<ROIData> rois = r.getROIs();
 
-            roiContainers = new ArrayList<>(rois.size());
             for (ROIData roi : rois) {
                 ROIContainer temp = new ROIContainer(roi);
-
                 roiContainers.add(temp);
             }
-        } else {
-            roiContainers = new ArrayList<>();
         }
 
         return roiContainers;
