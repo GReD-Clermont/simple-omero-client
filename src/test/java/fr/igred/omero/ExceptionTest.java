@@ -118,22 +118,22 @@ public class ExceptionTest extends BasicTest {
     @Test
     public void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
-        Client  client2   = new Client();
-        client2.connect("omero", 4064, "testUser2", "password2", 3L);
-        assertEquals(3L, client2.getId().longValue());
+        Client  root      = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+        assertEquals(0L, root.getId().longValue());
 
-        ImageContainer image = client2.getImage(3L);
+        ImageContainer image = root.getImage(3L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(client2, "image tag", "tag attached to an image");
+        TagAnnotationContainer tag = new TagAnnotationContainer(root, "image tag", "tag attached to an image");
 
         try {
-            image.addTag(client2, tag);
+            image.addTag(root, tag);
         } catch (AccessException e) {
             exception = true;
         }
 
-        client2.deleteTag(tag);
-        client2.disconnect();
+        root.deleteTag(tag);
+        root.disconnect();
         assertTrue(exception);
     }
 
