@@ -1,3 +1,18 @@
+/*
+ *  Copyright (C) 2020 GReD
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 package fr.igred.omero;
 
 
@@ -11,15 +26,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 
-public class ProjectTest extends BasicTest {
+public class ProjectTest extends UserTest {
 
 
     @Test
     public void testGetDatasetFromProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<DatasetContainer> datasets = project.getDatasets();
@@ -30,10 +41,6 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetDatasetFromProject2() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<DatasetContainer> datasets = project.getDatasets("TestDataset");
@@ -44,10 +51,6 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagToProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
@@ -68,10 +71,6 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagToProject2() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         project.addTag(client, "test", "test");
@@ -88,10 +87,6 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagIdToProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         TagAnnotationContainer tag = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
@@ -99,23 +94,17 @@ public class ProjectTest extends BasicTest {
         project.addTag(client, tag.getId());
 
         List<TagAnnotationContainer> tags = project.getTags(client);
-
         assertEquals(1, tags.size());
 
         client.deleteTag(tag);
 
         tags = project.getTags(client);
-
         assertEquals(0, tags.size());
     }
 
 
     @Test
     public void testAddTagsToProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
@@ -142,10 +131,6 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testAddTagsToProject2() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
@@ -165,7 +150,6 @@ public class ProjectTest extends BasicTest {
         client.deleteTag(tag4);
 
         tags = project.getTags(client);
-        client.disconnect();
 
         assertEquals(0, tags.size());
     }
@@ -173,14 +157,9 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesInProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<ImageContainer> images = project.getImages(client);
-        client.disconnect();
 
         assertEquals(3, images.size());
     }
@@ -188,14 +167,9 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesByNameInProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<ImageContainer> images = project.getImages(client, "image1.fake");
-        client.disconnect();
 
         assertEquals(2, images.size());
     }
@@ -203,14 +177,9 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesLikeInProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<ImageContainer> images = project.getImagesLike(client, ".fake");
-        client.disconnect();
 
         assertEquals(3, images.size());
     }
@@ -218,14 +187,9 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesTaggedInProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<ImageContainer> images = project.getImagesTagged(client, 1L);
-        client.disconnect();
 
         assertEquals(2, images.size());
     }
@@ -233,15 +197,10 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesTaggedInProject2() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         TagAnnotationContainer tag     = client.getTag(2L);
         ProjectContainer       project = client.getProject(2L);
 
         List<ImageContainer> images = project.getImagesTagged(client, tag);
-        client.disconnect();
 
         assertEquals(1, images.size());
     }
@@ -249,14 +208,9 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesKeyInProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<ImageContainer> images = project.getImagesKey(client, "testKey1");
-        client.disconnect();
 
         assertEquals(3, images.size());
     }
@@ -264,14 +218,9 @@ public class ProjectTest extends BasicTest {
 
     @Test
     public void testGetImagesPairKeyValueInProject() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ProjectContainer project = client.getProject(2L);
 
         List<ImageContainer> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
-        client.disconnect();
 
         assertEquals(2, images.size());
     }

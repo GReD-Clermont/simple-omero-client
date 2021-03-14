@@ -1,3 +1,18 @@
+/*
+ *  Copyright (C) 2020 GReD
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 package fr.igred.omero;
 
 
@@ -11,15 +26,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 
-public class ROITest extends BasicTest {
+public class ROITest extends UserTest {
 
 
     @Test
     public void testROI() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ROIContainer roiContainer = new ROIContainer();
 
         ImageContainer image = client.getImage(1L);
@@ -48,7 +59,6 @@ public class ROITest extends BasicTest {
         }
 
         rois = image.getROIs(client);
-        client.disconnect();
 
         assertEquals(0, rois.size());
     }
@@ -56,10 +66,6 @@ public class ROITest extends BasicTest {
 
     @Test
     public void testROI2() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ImageContainer image = client.getImage(1L);
 
         List<ShapeContainer> shapes = new ArrayList<>(4);
@@ -88,7 +94,6 @@ public class ROITest extends BasicTest {
         }
 
         rois = image.getROIs(client);
-        client.disconnect();
 
         assertEquals(0, rois.size());
     }
@@ -96,10 +101,6 @@ public class ROITest extends BasicTest {
 
     @Test
     public void testRoiAddShapeAndDeleteIt() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ImageContainer image = client.getImage(1L);
 
         List<ShapeContainer> shapes = new ArrayList<>(4);
@@ -143,7 +144,6 @@ public class ROITest extends BasicTest {
 
         rois = image.getROIs(client);
         roiContainer = rois.get(0);
-        client.disconnect();
 
         assertEquals(size, roiContainer.getShapes().size());
         assertEquals(ROINumber, rois.size());

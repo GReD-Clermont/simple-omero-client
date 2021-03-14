@@ -87,9 +87,9 @@ public class FolderContainer {
                                       .saveAndReturnObject(folder.asIObject());
             folder.setFolder(f);
         } catch (DSOutOfServiceException os) {
-            throw new ServiceException("Cannot connect to OMERO", os, os.getConnectionStatus());
+            throw new ServiceException(os, os.getConnectionStatus());
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
     }
 
@@ -163,9 +163,9 @@ public class FolderContainer {
                                     Collections.singletonList(roi.getROI()),
                                     Collections.singletonList(folder));
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
     }
 
@@ -190,12 +190,12 @@ public class FolderContainer {
         try {
             roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
-        if (roiResults.size() != 0) {
+        if (!roiResults.isEmpty()) {
             ROIResult           r    = roiResults.iterator().next();
             Collection<ROIData> rois = r.getROIs();
 
@@ -228,9 +228,9 @@ public class FolderContainer {
                                                               Collections.singletonList(folder));
             }
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
     }
 
@@ -253,9 +253,9 @@ public class FolderContainer {
                                                           Collections.singletonList(roi.getROI()),
                                                           Collections.singletonList(folder));
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
     }
 

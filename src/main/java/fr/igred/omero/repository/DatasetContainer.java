@@ -64,7 +64,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -279,9 +278,9 @@ public class DatasetContainer {
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), dataset, types, null);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         if (annotations != null) {
@@ -332,9 +331,9 @@ public class DatasetContainer {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(), Collections.singletonList(dataset.getId()));
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         return toImagesContainer(images);
@@ -467,9 +466,9 @@ public class DatasetContainer {
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(dataset.getId()));
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (ImageData image : images) {
@@ -511,9 +510,9 @@ public class DatasetContainer {
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(dataset.getId()));
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (ImageData image : images) {
@@ -589,7 +588,7 @@ public class DatasetContainer {
         try {
             store.logVersionInfo(config.getIniVersionNumber());
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
         OMEROWrapper  reader  = new OMEROWrapper(config);
         ImportLibrary library = new ImportLibrary(store, reader);
@@ -617,7 +616,6 @@ public class DatasetContainer {
      * @throws AccessException       Cannot access data on server.
      * @throws ExecutionException    A Facility can't be retrieved or instantiated.
      * @throws ServerError           Server error.
-     * @throws FileNotFoundException The file could not be found.
      * @throws IOException           If an I/O error occurs.
      */
     public long addFile(Client client, File file) throws
@@ -625,9 +623,8 @@ public class DatasetContainer {
                                                                    AccessException,
                                                                    ExecutionException,
                                                                    ServerError,
-                                                                   FileNotFoundException,
                                                                    IOException {
-        int INC = 262144;
+        final int INC = 262144;
 
         DatasetAnnotationLink newLink;
         RawFileStorePrx       rawFileStore;
@@ -650,7 +647,7 @@ public class DatasetContainer {
         try {
             rawFileStore = client.getGateway().getRawFileService(client.getCtx());
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         }
 
         long       pos = 0;
@@ -668,7 +665,7 @@ public class DatasetContainer {
             originalFile = rawFileStore.save();
             rawFileStore.close();
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
 
         FileAnnotation fa = new FileAnnotationI();
@@ -703,9 +700,9 @@ public class DatasetContainer {
         try {
             tableData = client.getTablesFacility().addTable(client.getCtx(), dataset, table.getName(), tableData);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
         table.setFileId(tableData.getOriginalFileId());
     }
@@ -729,9 +726,9 @@ public class DatasetContainer {
         try {
             table = client.getTablesFacility().getTable(client.getCtx(), fileId);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
         return new TableContainer(table);
     }
@@ -756,9 +753,9 @@ public class DatasetContainer {
         try {
             tables = client.getTablesFacility().getAvailableTables(client.getCtx(), dataset);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (FileAnnotationData table : tables) {

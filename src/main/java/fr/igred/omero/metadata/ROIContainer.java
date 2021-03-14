@@ -177,9 +177,9 @@ public class ROIContainer {
             Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
             data = new ROIData(roi);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
     }
 
