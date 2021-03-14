@@ -27,15 +27,12 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 
-public class FolderTest extends BasicTest {
+public class FolderTest extends UserTest {
 
 
     @Test
     public void testFolder1() throws Exception {
         boolean exception = false;
-        Client  client    = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
 
         FolderContainer folder = new FolderContainer(client, "Test1");
         try {
@@ -53,17 +50,12 @@ public class FolderTest extends BasicTest {
         } catch (Exception e) {
             exception = true;
         }
-        client.disconnect();
         assertTrue(exception);
     }
 
 
     @Test
     public void testFolder2() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ImageContainer image = client.getImage(3L);
 
         FolderContainer folder = new FolderContainer(client, "Test");
@@ -105,17 +97,12 @@ public class FolderTest extends BasicTest {
             fail();
         } catch (Exception e) {
             assertTrue(true);
-            client.disconnect();
         }
     }
 
 
     @Test
     public void testFolder3() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         FolderContainer folder = new FolderContainer(client, "Test");
         folder.setImage(3L);
 
@@ -146,16 +133,11 @@ public class FolderTest extends BasicTest {
         for (ROIContainer roi : rois) {
             client.deleteROI(roi);
         }
-        client.disconnect();
     }
 
 
     @Test
     public void testFolder4() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ImageContainer image = client.getImage(3L);
 
         FolderContainer folder = new FolderContainer(client, "Test1");
@@ -210,10 +192,8 @@ public class FolderTest extends BasicTest {
         for (ROIContainer roi : rois) {
             client.deleteROI(roi);
         }
-        client.disconnect();
 
         assertEquals(0, image.getROIs(client).size());
-        client.disconnect();
     }
 
 }

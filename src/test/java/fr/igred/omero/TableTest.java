@@ -11,15 +11,11 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 
-public class TableTest extends BasicTest {
+public class TableTest extends UserTest {
 
 
     @Test
     public void testCreateTable() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         DatasetContainer dataset = client.getDataset(1L);
 
         List<ImageContainer> images = dataset.getImages(client);
@@ -61,12 +57,8 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableFull() throws Exception {
-        boolean exception = false;
-        Client  client    = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
-        DatasetContainer dataset = client.getDataset(1L);
+        boolean          exception = false;
+        DatasetContainer dataset   = client.getDataset(1L);
 
         List<ImageContainer> images = dataset.getImages(client);
 
@@ -87,16 +79,12 @@ public class TableTest extends BasicTest {
         } catch (IndexOutOfBoundsException e) {
             exception = true;
         }
-        client.disconnect();
         assertTrue(exception);
     }
 
 
     @Test
-    public void testErrorTableColumn() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-
+    public void testErrorTableColumn() {
         TableContainer table = new TableContainer(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
@@ -112,10 +100,6 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableUninitialized() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         DatasetContainer dataset = client.getDataset(1L);
 
         List<ImageContainer> images = dataset.getImages(client);
@@ -137,10 +121,6 @@ public class TableTest extends BasicTest {
 
     @Test
     public void testErrorTableNotEnoughArgs() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         DatasetContainer dataset = client.getDataset(1L);
 
         List<ImageContainer> images = dataset.getImages(client);

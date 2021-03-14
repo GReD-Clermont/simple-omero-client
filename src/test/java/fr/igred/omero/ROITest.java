@@ -11,15 +11,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 
-public class ROITest extends BasicTest {
+public class ROITest extends UserTest {
 
 
     @Test
     public void testROI() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ROIContainer roiContainer = new ROIContainer();
 
         ImageContainer image = client.getImage(1L);
@@ -48,7 +44,6 @@ public class ROITest extends BasicTest {
         }
 
         rois = image.getROIs(client);
-        client.disconnect();
 
         assertEquals(0, rois.size());
     }
@@ -56,10 +51,6 @@ public class ROITest extends BasicTest {
 
     @Test
     public void testROI2() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ImageContainer image = client.getImage(1L);
 
         List<ShapeContainer> shapes = new ArrayList<>(4);
@@ -88,7 +79,6 @@ public class ROITest extends BasicTest {
         }
 
         rois = image.getROIs(client);
-        client.disconnect();
 
         assertEquals(0, rois.size());
     }
@@ -96,10 +86,6 @@ public class ROITest extends BasicTest {
 
     @Test
     public void testRoiAddShapeAndDeleteIt() throws Exception {
-        Client client = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         ImageContainer image = client.getImage(1L);
 
         List<ShapeContainer> shapes = new ArrayList<>(4);
@@ -143,7 +129,6 @@ public class ROITest extends BasicTest {
 
         rois = image.getROIs(client);
         roiContainer = rois.get(0);
-        client.disconnect();
 
         assertEquals(size, roiContainer.getShapes().size());
         assertEquals(ROINumber, rois.size());
