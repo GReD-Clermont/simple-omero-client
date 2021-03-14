@@ -22,6 +22,7 @@ import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import org.junit.Test;
 
 import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -149,6 +150,21 @@ public class ExceptionTest extends BasicTest {
 
         root.deleteTag(tag);
         root.disconnect();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testSudoFailGetProjects() {
+        boolean exception = false;
+        Client client = new Client();
+        try {
+            client.connect("omero", 4064, "testUser2", "password2", 3L);
+            client.sudoGetUser("testUser").getProjects();
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            exception = true;
+        }
+        client.disconnect();
         assertTrue(exception);
     }
 
