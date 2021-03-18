@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 
 public class ClientTest extends UserTest {
@@ -34,10 +33,7 @@ public class ClientTest extends UserTest {
     @Test
     public void testProjectBasic() throws Exception {
         ProjectContainer project = client.getProject(2L);
-
-        long id = project.getId();
-
-        assertEquals(2L, id);
+        assertEquals(2L, project.getId().longValue());
         assertEquals("TestProject", project.getName());
         assertEquals("description", project.getDescription());
     }
@@ -46,7 +42,6 @@ public class ClientTest extends UserTest {
     @Test
     public void testGetSingleProject() throws Exception {
         String name = client.getProject(2L).getName();
-
         assertEquals("TestProject", name);
     }
 
@@ -54,7 +49,6 @@ public class ClientTest extends UserTest {
     @Test
     public void testGetAllProjects() throws Exception {
         Collection<ProjectContainer> projects = client.getProjects();
-
         assertEquals(2, projects.size());
     }
 

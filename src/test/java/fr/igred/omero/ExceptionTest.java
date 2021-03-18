@@ -21,14 +21,32 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import org.junit.Test;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 
 public class ExceptionTest extends BasicTest {
+
+    private PrintStream error;
+
+
+    void hideErrors() {
+        error = System.err;
+        System.setErr(new PrintStream(new OutputStream() {
+            public void write(int b) {
+                //DO NOTHING
+            }
+        }));
+    }
+
+
+    void showErrors() {
+        System.setErr(error);
+    }
 
 
     @Test
@@ -111,6 +129,7 @@ public class ExceptionTest extends BasicTest {
         } catch (NoSuchElementException e) {
             exception = true;
         }
+        client.disconnect();
         assertTrue(exception);
     }
 
@@ -127,12 +146,14 @@ public class ExceptionTest extends BasicTest {
         } catch (NoSuchElementException e) {
             exception = true;
         }
+        client.disconnect();
         assertTrue(exception);
     }
 
 
     @Test
     public void testAddTagToImageWrongUser() throws Exception {
+        hideErrors();
         boolean exception = false;
         Client  root      = new Client();
         root.connect("omero", 4064, "root", "omero", 3L);
@@ -150,21 +171,83 @@ public class ExceptionTest extends BasicTest {
 
         root.deleteTag(tag);
         root.disconnect();
+        showErrors();
         assertTrue(exception);
     }
 
 
     @Test
     public void testSudoFailGetProjects() {
+        hideErrors();
         boolean exception = false;
-        Client client = new Client();
+        Client  client    = new Client();
         try {
             client.connect("omero", 4064, "testUser2", "password2", 3L);
             client.sudoGetUser("testUser").getProjects();
         } catch (AccessException | ExecutionException | ServiceException e) {
-            exception = true;
+            if (e instanceof AccessException) {
+                exception = true;
+            }
         }
         client.disconnect();
+        showErrors();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testSudoFailGetSingleProject() {
+        hideErrors();
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect("omero", 4064, "testUser2", "password2", 3L);
+            client.sudoGetUser("testUser").getProject(2L);
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            if (e instanceof AccessException) {
+                exception = true;
+            }
+        }
+        client.disconnect();
+        showErrors();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testSudoFailGetDatasets() {
+        hideErrors();
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect("omero", 4064, "testUser", "password", 3L);
+            client.sudoGetUser("testUser").getDatasets();
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            if (e instanceof AccessException) {
+                exception = true;
+            }
+        }
+        client.disconnect();
+        showErrors();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testSudoFailGetSingleDataset() {
+        hideErrors();
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect("omero", 4064, "testUser2", "password2", 3L);
+            client.sudoGetUser("testUser").getDataset(1L);
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            if (e instanceof AccessException) {
+                exception = true;
+            }
+        }
+        client.disconnect();
+        showErrors();
         assertTrue(exception);
     }
 

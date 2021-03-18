@@ -94,13 +94,11 @@ public class ProjectTest extends UserTest {
         project.addTag(client, tag.getId());
 
         List<TagAnnotationContainer> tags = project.getTags(client);
-
         assertEquals(1, tags.size());
 
         client.deleteTag(tag);
 
         tags = project.getTags(client);
-
         assertEquals(0, tags.size());
     }
 

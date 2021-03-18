@@ -552,7 +552,7 @@ public class Client {
     /**
      * Returns an ImageContainer that contains the image with the specified id from OMERO.
      *
-     * @param imageId Id of the image.
+     * @param id Id of the image.
      *
      * @return ImageContainer containing the image.
      *
@@ -560,15 +560,20 @@ public class Client {
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException No element with such id.
      */
-    public ImageContainer getImage(Long imageId)
+    public ImageContainer getImage(Long id)
     throws ServiceException, AccessException, NoSuchElementException {
+        ImageData image;
         try {
-            return new ImageContainer(browse.getImage(ctx, imageId));
+            image = browse.getImage(ctx, id);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
             throw new AccessException("Cannot access data", ae);
         }
+        if (image == null) {
+            throw new NoSuchElementException("Image " + id + " doesn't exist in this context");
+        }
+        return new ImageContainer(image);
     }
 
 
