@@ -19,7 +19,7 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerError;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.TableContainer;
@@ -30,6 +30,7 @@ import fr.igred.omero.sort.SortImageContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
 import ome.formats.importer.ImportConfig;
 import omero.LockTimeout;
+import omero.ServerError;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
@@ -190,16 +191,16 @@ public class Client {
      * @return A list of OMERO objects.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
-    public List<IObject> findByQuery(String query) throws ServiceException, ServerError {
+    public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
         List<IObject> results;
         try {
             results = gateway.getQueryService(ctx).findAllByQuery(query, null);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
 
         return results;
@@ -657,10 +658,10 @@ public class Client {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(TagAnnotationContainer tag)
-    throws ServiceException, AccessException, ServerError {
+    throws ServiceException, AccessException, OMEROServerError {
         List<ImageContainer> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
@@ -684,10 +685,10 @@ public class Client {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(Long tagId)
-    throws ServiceException, AccessException, ServerError {
+    throws ServiceException, AccessException, OMEROServerError {
         List<ImageContainer> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
@@ -804,10 +805,10 @@ public class Client {
      *
      * @return list of TagAnnotationContainer.
      *
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationContainer> getTags() throws ServerError, ServiceException {
+    public List<TagAnnotationContainer> getTags() throws OMEROServerError, ServiceException {
         List<TagAnnotationContainer> tags = new ArrayList<>();
 
         List<IObject> os;
@@ -815,8 +816,8 @@ public class Client {
             os = gateway.getQueryService(ctx).findAll(TagAnnotation.class.getSimpleName(), null);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
 
         for (IObject o : os) {
@@ -836,10 +837,10 @@ public class Client {
      *
      * @return list of TagAnnotationContainer.
      *
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationContainer> getTags(String name) throws ServerError, ServiceException {
+    public List<TagAnnotationContainer> getTags(String name) throws OMEROServerError, ServiceException {
         List<TagAnnotationContainer> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
         tags.sort(new SortTagAnnotationContainer());
@@ -854,17 +855,17 @@ public class Client {
      *
      * @return TagAnnotationContainer containing the specified tag.
      *
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public TagAnnotationContainer getTag(Long id) throws ServerError, ServiceException {
+    public TagAnnotationContainer getTag(Long id) throws OMEROServerError, ServiceException {
         IObject o;
         try {
             o = gateway.getQueryService(ctx).find(TagAnnotation.class.getSimpleName(), id);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
 
         TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
@@ -906,11 +907,11 @@ public class Client {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerError          If the thread was interrupted.
+     * @throws OMEROServerError          If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
     void delete(IObject object)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         try {
             getDm().delete(ctx, object).loop(10, 500);
         } catch (DSOutOfServiceException oos) {
@@ -918,7 +919,7 @@ public class Client {
         } catch (DSAccessException ae) {
             throw new AccessException(ae);
         } catch (LockTimeout lt) {
-            throw new ServerError("Thread was interrupted", lt);
+            throw new OMEROServerError("Thread was interrupted", lt);
         }
     }
 
@@ -932,7 +933,7 @@ public class Client {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
+     * @throws OMEROServerError              If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteImage(ImageContainer image) throws
@@ -940,7 +941,7 @@ public class Client {
                                                   AccessException,
                                                   ExecutionException,
                                                   IllegalArgumentException,
-                                                  ServerError,
+                                                  OMEROServerError,
                                                   InterruptedException {
         deleteImage(image.getId());
     }
@@ -954,11 +955,11 @@ public class Client {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerError          If the thread was interrupted.
+     * @throws OMEROServerError          If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteImage(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         ImageI image = new ImageI(id, false);
         delete(image);
     }
@@ -973,7 +974,7 @@ public class Client {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
+     * @throws OMEROServerError              If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteProject(ProjectContainer project) throws
@@ -981,7 +982,7 @@ public class Client {
                                                         AccessException,
                                                         ExecutionException,
                                                         IllegalArgumentException,
-                                                        ServerError,
+                                                        OMEROServerError,
                                                         InterruptedException {
         if (project.getId() != null)
             deleteProject(project.getId());
@@ -998,11 +999,11 @@ public class Client {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerError          If the thread was interrupted.
+     * @throws OMEROServerError          If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteProject(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         ProjectI project = new ProjectI(id, false);
         delete(project);
     }
@@ -1017,7 +1018,7 @@ public class Client {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
+     * @throws OMEROServerError              If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteDataset(DatasetContainer dataset) throws
@@ -1025,7 +1026,7 @@ public class Client {
                                                         DSAccessException,
                                                         ExecutionException,
                                                         IllegalArgumentException,
-                                                        ServerError,
+                                                        OMEROServerError,
                                                         InterruptedException {
         if (dataset.getId() != null)
             deleteDataset(dataset.getId());
@@ -1042,11 +1043,11 @@ public class Client {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerError          If the thread was interrupted.
+     * @throws OMEROServerError          If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteDataset(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         DatasetI dataset = new DatasetI(id, false);
         delete(dataset);
     }
@@ -1061,7 +1062,7 @@ public class Client {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
+     * @throws OMEROServerError              If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteTag(TagAnnotationContainer tag) throws
@@ -1069,7 +1070,7 @@ public class Client {
                                                       AccessException,
                                                       ExecutionException,
                                                       IllegalArgumentException,
-                                                      ServerError,
+                                                      OMEROServerError,
                                                       InterruptedException {
         if (tag.getId() != null)
             deleteTag(tag.getId());
@@ -1086,11 +1087,11 @@ public class Client {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerError          If the thread was interrupted.
+     * @throws OMEROServerError          If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteTag(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         TagAnnotationI tag = new TagAnnotationI(id, false);
         delete(tag);
     }
@@ -1105,7 +1106,7 @@ public class Client {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
+     * @throws OMEROServerError              If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteROI(ROIContainer roi) throws
@@ -1113,7 +1114,7 @@ public class Client {
                                             AccessException,
                                             ExecutionException,
                                             IllegalArgumentException,
-                                            ServerError,
+                                            OMEROServerError,
                                             InterruptedException {
         if (roi.getId() != null)
             deleteROI(roi.getId());
@@ -1130,11 +1131,11 @@ public class Client {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerError          If the thread was interrupted.
+     * @throws OMEROServerError          If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteROI(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         RoiI roi = new RoiI(id, false);
         delete(roi);
     }
@@ -1149,11 +1150,11 @@ public class Client {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
+     * @throws OMEROServerError              If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteTable(TableContainer table)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         deleteTag(table.getId());
     }
 
@@ -1166,11 +1167,11 @@ public class Client {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerError          If the thread was interrupted.
+     * @throws OMEROServerError          If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteFile(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         FileAnnotationI table = new FileAnnotationI(id, false);
         delete(table);
     }
@@ -1185,7 +1186,7 @@ public class Client {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws ServerError              If the thread was interrupted.
+     * @throws OMEROServerError              If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteFolder(FolderContainer folder) throws
@@ -1193,7 +1194,7 @@ public class Client {
                                                      AccessException,
                                                      ExecutionException,
                                                      IllegalArgumentException,
-                                                     ServerError,
+                                                     OMEROServerError,
                                                      InterruptedException {
         folder.unlinkAllROI(this);
         delete(folder.getFolder().asIObject());

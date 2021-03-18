@@ -21,7 +21,8 @@ package fr.igred.omero;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.ROIContainer;
-import fr.igred.omero.exception.ServerError;
+import fr.igred.omero.exception.OMEROServerError;
+import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
@@ -76,9 +77,9 @@ public class FolderContainer {
      * @param name   Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
-    public FolderContainer(Client client, String name) throws ServiceException, ServerError {
+    public FolderContainer(Client client, String name) throws ServiceException, OMEROServerError {
         folder = new FolderData();
         folder.setName(name);
         try {
@@ -88,8 +89,8 @@ public class FolderContainer {
             folder.setFolder(f);
         } catch (DSOutOfServiceException os) {
             throw new ServiceException(os, os.getConnectionStatus());
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
     }
 

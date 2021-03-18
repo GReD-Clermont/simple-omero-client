@@ -21,7 +21,8 @@ package fr.igred.omero.metadata;
 import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.exception.ServerError;
+import fr.igred.omero.exception.OMEROServerError;
+import omero.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
@@ -170,16 +171,16 @@ public class ROIContainer {
      * @param client The user.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
-    public void saveROI(Client client) throws ServerError, ServiceException {
+    public void saveROI(Client client) throws OMEROServerError, ServiceException {
         try {
             Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
             data = new ROIData(roi);
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
     }
 

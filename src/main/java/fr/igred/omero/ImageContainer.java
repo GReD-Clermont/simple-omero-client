@@ -20,7 +20,7 @@ package fr.igred.omero;
 
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.exception.ServerError;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.annotation.MapAnnotationContainer;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
@@ -32,6 +32,7 @@ import ij.measure.Calibration;
 import ij.process.ImageProcessor;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
+import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -523,9 +524,9 @@ public class ImageContainer {
      * @return The folder if it exist.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
-    public FolderContainer getFolder(Client client, Long folderId) throws ServiceException, ServerError {
+    public FolderContainer getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
         List<IObject> os = client.findByQuery("select f " +
                                               "from Folder as f " +
                                               "where f.id = " +
@@ -734,7 +735,7 @@ public class ImageContainer {
      * @throws ServiceException      Cannot connect to OMERO.
      * @throws AccessException       Cannot access data on server.
      * @throws ExecutionException    A Facility can't be retrieved or instantiated.
-     * @throws ServerError           Server error.
+     * @throws OMEROServerError           Server error.
      * @throws FileNotFoundException The file could not be found.
      * @throws IOException           If an I/O error occurs.
      */
@@ -742,7 +743,7 @@ public class ImageContainer {
                                                   ServiceException,
                                                   AccessException,
                                                   ExecutionException,
-                                                  ServerError,
+                                                  OMEROServerError,
                                                   IOException {
         final int INC = 262144;
 
@@ -784,8 +785,8 @@ public class ImageContainer {
             }
             originalFile = rawFileStore.save();
             rawFileStore.close();
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
 
         FileAnnotation fa = new FileAnnotationI();
