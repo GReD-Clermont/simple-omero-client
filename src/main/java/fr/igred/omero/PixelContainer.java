@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 public class PixelContainer {
 
     /** Size of tiles when retrieving pixels */
-    static public final int        maxDist = 5000;
+    public static final int        MAX_DIST = 5000;
     /** PixelData contained */
     final               PixelsData pixels;
 
@@ -171,55 +171,47 @@ public class PixelContainer {
                                          int[] zBound,
                                          int[] tBound)
     throws AccessException, ExecutionException {
-
-        int sizeT, sizeZ, sizeC, sizeX, sizeY;
-        int tStart, zStart, cStart, xStart, yStart;
-        int tEnd, zEnd, cEnd, xEnd, yEnd;
-
-        if (tBound != null) {
-            tStart = Math.max(0, tBound[0]);
-            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
-        } else {
-            tStart = 0;
-            tEnd = pixels.getSizeT() - 1;
-        }
-        sizeT = tEnd - tStart + 1;
-
-        if (zBound != null) {
-            zStart = Math.max(0, zBound[0]);
-            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
-        } else {
-            zStart = 0;
-            zEnd = pixels.getSizeZ() - 1;
-        }
-        sizeZ = zEnd - zStart + 1;
-
-        if (cBound != null) {
-            cStart = Math.max(0, cBound[0]);
-            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
-        } else {
-            cStart = 0;
-            cEnd = pixels.getSizeC() - 1;
-        }
-        sizeC = cEnd - cStart + 1;
+        int xStart = 0;
+        int yStart = 0;
+        int cStart = 0;
+        int zStart = 0;
+        int tStart = 0;
+        int xEnd   = pixels.getSizeX() - 1;
+        int yEnd   = pixels.getSizeY() - 1;
+        int cEnd   = pixels.getSizeC() - 1;
+        int zEnd   = pixels.getSizeZ() - 1;
+        int tEnd   = pixels.getSizeT() - 1;
 
         if (xBound != null) {
             xStart = Math.max(0, xBound[0]);
             xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
-        } else {
-            xStart = 0;
-            xEnd = pixels.getSizeX() - 1;
         }
-        sizeX = xEnd - xStart + 1;
 
         if (yBound != null) {
             yStart = Math.max(0, yBound[0]);
             yEnd = Math.min(pixels.getSizeY() - 1, yBound[1]);
-        } else {
-            yStart = 0;
-            yEnd = pixels.getSizeY() - 1;
         }
-        sizeY = yEnd - yStart + 1;
+
+        if (cBound != null) {
+            cStart = Math.max(0, cBound[0]);
+            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
+        }
+
+        if (zBound != null) {
+            zStart = Math.max(0, zBound[0]);
+            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
+        }
+
+        if (tBound != null) {
+            tStart = Math.max(0, tBound[0]);
+            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
+        }
+
+        int sizeX = xEnd - xStart + 1;
+        int sizeY = yEnd - yStart + 1;
+        int sizeC = cEnd - cStart + 1;
+        int sizeZ = zEnd - zStart + 1;
+        int sizeT = tEnd - tStart + 1;
 
         double[][][][][] tab = new double[sizeT][sizeZ][sizeC][sizeY][sizeX];
 
@@ -228,10 +220,10 @@ public class PixelContainer {
         for (int z = zStart; z <= zEnd; z++) {
             for (int t = tStart; t <= tEnd; t++) {
                 for (int c = cStart; c <= cEnd; c++) {
-                    for (int x = xStart; x <= xEnd; x += maxDist) {
-                        int width = x + maxDist <= xEnd ? maxDist : xEnd - x + 1;
-                        for (int y = yStart; y <= yEnd; y += maxDist) {
-                            int height = y + maxDist <= yEnd ? maxDist : yEnd - y + 1;
+                    for (int x = xStart; x <= xEnd; x += MAX_DIST) {
+                        int width = x + MAX_DIST <= xEnd ? MAX_DIST : xEnd - x + 1;
+                        for (int y = yStart; y <= yEnd; y += MAX_DIST) {
+                            int height = y + MAX_DIST <= yEnd ? MAX_DIST : yEnd - y + 1;
 
                             try {
                                 p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
@@ -312,55 +304,47 @@ public class PixelContainer {
                                      int[] tBound,
                                      int bpp)
     throws ExecutionException, AccessException {
-
-        int sizeT, sizeZ, sizeC, sizeX, sizeY;
-        int tStart, zStart, cStart, xStart, yStart;
-        int tEnd, zEnd, cEnd, xEnd, yEnd;
-
-        if (tBound != null) {
-            tStart = Math.max(0, tBound[0]);
-            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
-        } else {
-            tStart = 0;
-            tEnd = pixels.getSizeT() - 1;
-        }
-        sizeT = tEnd - tStart + 1;
-
-        if (zBound != null) {
-            zStart = Math.max(0, zBound[0]);
-            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
-        } else {
-            zStart = 0;
-            zEnd = pixels.getSizeZ() - 1;
-        }
-        sizeZ = zEnd - zStart + 1;
-
-        if (cBound != null) {
-            cStart = Math.max(0, cBound[0]);
-            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
-        } else {
-            cStart = 0;
-            cEnd = pixels.getSizeC() - 1;
-        }
-        sizeC = cEnd - cStart + 1;
+        int xStart = 0;
+        int yStart = 0;
+        int cStart = 0;
+        int zStart = 0;
+        int tStart = 0;
+        int xEnd   = pixels.getSizeX() - 1;
+        int yEnd   = pixels.getSizeY() - 1;
+        int cEnd   = pixels.getSizeC() - 1;
+        int zEnd   = pixels.getSizeZ() - 1;
+        int tEnd   = pixels.getSizeT() - 1;
 
         if (xBound != null) {
             xStart = Math.max(0, xBound[0]);
             xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
-        } else {
-            xStart = 0;
-            xEnd = pixels.getSizeX() - 1;
         }
-        sizeX = xEnd - xStart + 1;
 
         if (yBound != null) {
             yStart = Math.max(0, yBound[0]);
             yEnd = Math.min(pixels.getSizeY() - 1, yBound[1]);
-        } else {
-            yStart = 0;
-            yEnd = pixels.getSizeY() - 1;
         }
-        sizeY = yEnd - yStart + 1;
+
+        if (cBound != null) {
+            cStart = Math.max(0, cBound[0]);
+            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
+        }
+
+        if (zBound != null) {
+            zStart = Math.max(0, zBound[0]);
+            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
+        }
+
+        if (tBound != null) {
+            tStart = Math.max(0, tBound[0]);
+            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
+        }
+
+        int sizeX = xEnd - xStart + 1;
+        int sizeY = yEnd - yStart + 1;
+        int sizeC = cEnd - cStart + 1;
+        int sizeZ = zEnd - zStart + 1;
+        int sizeT = tEnd - tStart + 1;
 
         byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][sizeX * sizeY * bpp];
 
@@ -369,10 +353,10 @@ public class PixelContainer {
         for (int z = zStart; z <= zEnd; z++) {
             for (int t = tStart; t <= tEnd; t++) {
                 for (int c = cStart; c <= cEnd; c++) {
-                    for (int x = xStart; x <= xEnd; x += maxDist) {
-                        int width = x + maxDist <= xEnd ? maxDist : xEnd - x + 1;
-                        for (int y = yStart; y <= yEnd; y += maxDist) {
-                            int height = y + maxDist <= yEnd ? maxDist : yEnd - y + 1;
+                    for (int x = xStart; x <= xEnd; x += MAX_DIST) {
+                        int width = x + MAX_DIST <= xEnd ? MAX_DIST : xEnd - x + 1;
+                        for (int y = yStart; y <= yEnd; y += MAX_DIST) {
+                            int height = y + MAX_DIST <= yEnd ? MAX_DIST : yEnd - y + 1;
 
                             try {
                                 p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);

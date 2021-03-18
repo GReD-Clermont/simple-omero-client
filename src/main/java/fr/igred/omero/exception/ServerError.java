@@ -31,4 +31,14 @@ public class ServerError extends omero.ServerError {
     }
 
 
+    /**
+     * Constructs a new exception with the specified cause and detailed message.
+     *
+     * @param cause   The exception that caused this one to be risen.
+     */
+    public ServerError(Throwable cause) {
+        super(cause);
+        message = "A server error occurred";
+    }
+
 }

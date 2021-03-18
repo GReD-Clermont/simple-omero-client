@@ -197,9 +197,9 @@ public class Client {
         try {
             results = gateway.getQueryService(ctx).findAllByQuery(query, null);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
 
         return results;
@@ -341,7 +341,7 @@ public class Client {
         try {
             this.user = gateway.connect(cred);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         }
 
         this.ctx = new SecurityContext(user.getGroupId());
@@ -374,9 +374,9 @@ public class Client {
         try {
             projects = browse.getProjects(ctx);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (ProjectData project : projects) {
@@ -384,7 +384,7 @@ public class Client {
                 return new ProjectContainer(project);
             }
         }
-        throw new NoSuchElementException("Project " + id + " doesn't exist in this context");
+        throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
     }
 
 
@@ -402,9 +402,9 @@ public class Client {
         try {
             projects = browse.getProjects(ctx);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (ProjectData project : projects) {
@@ -430,9 +430,9 @@ public class Client {
         try {
             projects = browse.getProjects(ctx, name);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (ProjectData project : projects) {
@@ -460,9 +460,9 @@ public class Client {
         try {
             datasets = browse.getDatasets(ctx);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (DatasetData dataset : datasets) {
@@ -470,7 +470,7 @@ public class Client {
                 return new DatasetContainer(dataset);
             }
         }
-        throw new NoSuchElementException("Dataset " + id + " doesn't exist in this context");
+        throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
     }
 
 
@@ -488,9 +488,9 @@ public class Client {
         try {
             datasets = browse.getDatasets(ctx);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (DatasetData dataset : datasets) {
@@ -516,9 +516,9 @@ public class Client {
         try {
             datasets = browse.getDatasets(ctx, name);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (DatasetData dataset : datasets) {
@@ -566,12 +566,12 @@ public class Client {
         try {
             image = browse.getImage(ctx, id);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
         if (image == null) {
-            throw new NoSuchElementException("Image " + id + " doesn't exist in this context");
+            throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
         }
         return new ImageContainer(image);
     }
@@ -590,9 +590,9 @@ public class Client {
         try {
             images = browse.getUserImages(ctx);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         return toImagesContainer(images);
@@ -615,9 +615,9 @@ public class Client {
         try {
             images = browse.getImages(ctx, name);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         for (ImageData image : images) {
@@ -781,9 +781,9 @@ public class Client {
         try {
             sudoUser = getAdminFacility().lookupExperimenter(ctx, username);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         SecurityContext sudoCtx = new SecurityContext(sudoUser.getGroupId());
@@ -814,9 +814,9 @@ public class Client {
         try {
             os = gateway.getQueryService(ctx).findAll(TagAnnotation.class.getSimpleName(), null);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
 
         for (IObject o : os) {
@@ -862,9 +862,9 @@ public class Client {
         try {
             o = gateway.getQueryService(ctx).find(TagAnnotation.class.getSimpleName(), id);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (omero.ServerError se) {
-            throw new ServerError("Server error", se);
+            throw new ServerError(se);
         }
 
         TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
@@ -890,9 +890,9 @@ public class Client {
         try {
             result = getDm().saveAndReturnObject(ctx, object);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
         return result;
     }
@@ -914,9 +914,9 @@ public class Client {
         try {
             getDm().delete(ctx, object).loop(10, 500);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         } catch (LockTimeout lt) {
             throw new ServerError("Thread was interrupted", lt);
         }

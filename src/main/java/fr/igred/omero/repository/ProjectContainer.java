@@ -332,9 +332,9 @@ public class ProjectContainer {
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), project, types, userIds);
         } catch (DSOutOfServiceException oos) {
-            throw new ServiceException("Cannot connect to OMERO", oos, oos.getConnectionStatus());
+            throw new ServiceException(oos, oos.getConnectionStatus());
         } catch (DSAccessException ae) {
-            throw new AccessException("Cannot access data", ae);
+            throw new AccessException(ae);
         }
 
         if (annotations != null) {

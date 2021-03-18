@@ -322,6 +322,8 @@ public class DatasetTest extends UserTest {
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
         client.deleteFile(id);
+
+        assertNotEquals(0L, id.longValue());
     }
 
 }

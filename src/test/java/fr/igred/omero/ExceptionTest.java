@@ -152,6 +152,23 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
+    public void testGetImageError2() throws Exception {
+        boolean exception = false;
+        Client  client    = new Client();
+        client.connect("omero", 4064, "testUser", "password", 3L);
+        assertEquals(2L, client.getId().longValue());
+
+        try {
+            client.getImage(-5L);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
+        client.disconnect();
+        assertTrue(exception);
+    }
+
+
+    @Test
     public void testAddTagToImageWrongUser() throws Exception {
         hideErrors();
         boolean exception = false;

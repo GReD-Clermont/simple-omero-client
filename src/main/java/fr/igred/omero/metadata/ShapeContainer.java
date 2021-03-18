@@ -41,31 +41,31 @@ import java.util.List;
 public class ShapeContainer {
 
     /** Set if shape is PointData. */
-    public final static String POINT = "Point";
+    public static final String POINT = "Point";
 
     /** Set if shape is LineData. */
-    public final static String LINE = "Line";
+    public static final String LINE = "Line";
 
     /** Set if shape is PolylineData. */
-    public final static String POLYLINE = "Polyline";
+    public static final String POLYLINE = "Polyline";
 
     /** Set if shape is RectangleData. */
-    public final static String RECTANGLE = "Rectangle";
+    public static final String RECTANGLE = "Rectangle";
 
     /** Set if shape is PolygonData. */
-    public final static String POLYGON = "Polygon";
+    public static final String POLYGON = "Polygon";
 
     /** Set if shape is EllipseData. */
-    public final static String ELLIPSE = "Ellipse";
+    public static final String ELLIPSE = "Ellipse";
 
     /** Set if shape is MaskData. */
-    public final static String MASK = "Mask";
+    public static final String MASK = "Mask";
 
     /** Set if shape is TextData. */
-    public final static String TEXT = "Text";
+    public static final String TEXT = "Text";
 
     /** Set if shape is ShapeData. */
-    public final static String OTHER = "Other";
+    public static final String OTHER = "Other";
 
     /** Shape contained in the ShapeContainer. */
     private final ShapeData shape;
@@ -529,71 +529,71 @@ public class ShapeContainer {
      *                    </ul>
      */
     public void setCoordinates(double[] coordinates) {
-        String shapeType = getShapeType();
-        if (coordinates != null) {
-            switch (shapeType) {
-                case POINT:
-                    if (coordinates.length == 2) {
-                        ((PointData) shape).setX(coordinates[0]);
-                        ((PointData) shape).setY(coordinates[1]);
-                    } else {
-                        System.err.println("2 coordinates required for PointData.");
-                    }
-                    break;
-                case TEXT:
-                    if (coordinates.length == 2) {
-                        ((TextData) shape).setX(coordinates[0]);
-                        ((TextData) shape).setY(coordinates[1]);
-                    } else {
-                        System.err.println("2 coordinates required for TextData.");
-                    }
-                    break;
-                case RECTANGLE:
-                    if (coordinates.length == 4) {
-                        ((RectangleData) shape).setX(coordinates[0]);
-                        ((RectangleData) shape).setY(coordinates[1]);
-                        ((RectangleData) shape).setWidth(coordinates[2]);
-                        ((RectangleData) shape).setHeight(coordinates[3]);
-                    } else {
-                        System.err.println("4 coordinates required for RectangleData.");
-                    }
-                    break;
-                case MASK:
-                    if (coordinates.length == 4) {
-                        ((MaskData) shape).setX(coordinates[0]);
-                        ((MaskData) shape).setY(coordinates[1]);
-                        ((MaskData) shape).setWidth(coordinates[2]);
-                        ((MaskData) shape).setHeight(coordinates[3]);
-                    } else {
-                        System.err.println("4 coordinates required for MaskData.");
-                    }
-                    break;
-                case ELLIPSE:
-                    if (coordinates.length == 4) {
-                        ((EllipseData) shape).setX(coordinates[0]);
-                        ((EllipseData) shape).setY(coordinates[1]);
-                        ((EllipseData) shape).setRadiusX(coordinates[2]);
-                        ((EllipseData) shape).setRadiusY(coordinates[3]);
-                    } else {
-                        System.err.println("4 coordinates required for EllipseData.");
-                    }
-                    break;
-                case LINE:
-                    if (coordinates.length == 4) {
-                        ((LineData) shape).setX1(coordinates[0]);
-                        ((LineData) shape).setY1(coordinates[1]);
-                        ((LineData) shape).setX2(coordinates[2]);
-                        ((LineData) shape).setY2(coordinates[3]);
-                    } else {
-                        System.err.println("2 coordinates required for LineData.");
-                    }
-                    break;
-                default:
-                    System.err.println("ShapeData does not have coordinates.");
-                    break;
-            }
-        } else {
+        String  shapeType    = getShapeType();
+        int     nCoordinates = 4;
+        boolean exception    = true;
+        if (coordinates == null) {
             System.err.println("ShapeContainer cannot set null coordinates.");
+            return;
+        }
+        switch (shapeType) {
+            case POINT:
+                nCoordinates = 2;
+                if (coordinates.length == nCoordinates) {
+                    ((PointData) shape).setX(coordinates[0]);
+                    ((PointData) shape).setY(coordinates[1]);
+                    exception = false;
+                }
+                break;
+            case TEXT:
+                nCoordinates = 2;
+                if (coordinates.length == nCoordinates) {
+                    ((TextData) shape).setX(coordinates[0]);
+                    ((TextData) shape).setY(coordinates[1]);
+                    exception = false;
+                }
+                break;
+            case RECTANGLE:
+                if (coordinates.length == nCoordinates) {
+                    ((RectangleData) shape).setX(coordinates[0]);
+                    ((RectangleData) shape).setY(coordinates[1]);
+                    ((RectangleData) shape).setWidth(coordinates[2]);
+                    ((RectangleData) shape).setHeight(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            case MASK:
+                if (coordinates.length == nCoordinates) {
+                    ((MaskData) shape).setX(coordinates[0]);
+                    ((MaskData) shape).setY(coordinates[1]);
+                    ((MaskData) shape).setWidth(coordinates[2]);
+                    ((MaskData) shape).setHeight(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            case ELLIPSE:
+                if (coordinates.length == nCoordinates) {
+                    ((EllipseData) shape).setX(coordinates[0]);
+                    ((EllipseData) shape).setY(coordinates[1]);
+                    ((EllipseData) shape).setRadiusX(coordinates[2]);
+                    ((EllipseData) shape).setRadiusY(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            case LINE:
+                if (coordinates.length == nCoordinates) {
+                    ((LineData) shape).setX1(coordinates[0]);
+                    ((LineData) shape).setY1(coordinates[1]);
+                    ((LineData) shape).setX2(coordinates[2]);
+                    ((LineData) shape).setY2(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            default:
+                System.err.println("ShapeData does not have coordinates.");
+        }
+        if (exception) {
+            System.err.println(nCoordinates + "coordinates required for " + shapeType + ".");
         }
     }
 

@@ -32,4 +32,13 @@ public class AccessException extends DSAccessException {
         super(message, cause);
     }
 
+    /**
+     * Constructs a new exception with a general message and the cause.
+     *
+     * @param cause The exception that caused this one to be risen.
+     */
+    public AccessException(Throwable cause) {
+        super("Cannot access data", cause);
+    }
+
 }

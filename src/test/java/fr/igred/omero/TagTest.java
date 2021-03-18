@@ -22,6 +22,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class TagTest extends UserTest {
@@ -47,7 +48,7 @@ public class TagTest extends UserTest {
     public void testGetTagsSorted() throws Exception {
         List<TagAnnotationContainer> tags = client.getTags();
         for (int i = 1; i < tags.size(); i++) {
-            assert (tags.get(i - 1).getId() <= tags.get(i).getId());
+            assertTrue(tags.get(i - 1).getId() <= tags.get(i).getId());
         }
     }
 

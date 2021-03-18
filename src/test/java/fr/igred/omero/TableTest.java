@@ -115,6 +115,8 @@ public class TableTest extends UserTest {
 
     @Test
     public void testErrorTableUninitialized() throws Exception {
+        boolean exception = false;
+
         DatasetContainer dataset = client.getDataset(1L);
 
         List<ImageContainer> images = dataset.getImages(client);
@@ -127,15 +129,17 @@ public class TableTest extends UserTest {
             for (ImageContainer image : images) {
                 table.addRow(image.getImage(), image.getName());
             }
-            fail();
         } catch (IndexOutOfBoundsException e) {
-            assertTrue(true);
+            exception = true;
         }
+        assertTrue(exception);
     }
 
 
     @Test
     public void testErrorTableNotEnoughArgs() throws Exception {
+        boolean exception = false;
+
         DatasetContainer dataset = client.getDataset(1L);
 
         List<ImageContainer> images = dataset.getImages(client);
@@ -150,10 +154,10 @@ public class TableTest extends UserTest {
             for (ImageContainer image : images) {
                 table.addRow(image.getImage());
             }
-            fail();
         } catch (IllegalArgumentException e) {
-            assertTrue(true);
+            exception = true;
         }
+        assertTrue(exception);
     }
 
 }

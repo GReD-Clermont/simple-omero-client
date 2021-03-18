@@ -117,7 +117,7 @@ public class ImageTest extends UserTest {
         List<NamedValue> result = image.getKeyValuePairs(client);
 
         assertEquals(4, result.size());
-        assertEquals(image.getValue(client, "Test result1"), "Value Test");
+        assertEquals("Value Test", image.getValue(client, "Test result1"));
 
         client.deleteImage(image);
     }
@@ -153,7 +153,7 @@ public class ImageTest extends UserTest {
         List<NamedValue> results = image.getKeyValuePairs(client);
 
         assertEquals(2, results.size());
-        assertEquals(image.getValue(client, "Test result1"), "Value Test");
+        assertEquals("Value Test", image.getValue(client, "Test result1"));
 
         client.deleteImage(image);
     }
@@ -523,7 +523,7 @@ public class ImageTest extends UserTest {
     public void testImageOrder() throws Exception {
         List<ImageContainer> images = client.getImages();
         for (int i = 1; i < images.size(); i++) {
-            assert (images.get(i - 1).getId() <= images.get(i).getId());
+            assertTrue(images.get(i - 1).getId() <= images.get(i).getId());
         }
     }
 
@@ -541,6 +541,8 @@ public class ImageTest extends UserTest {
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
         client.deleteFile(id);
+
+        assertNotEquals(0L, id.longValue());
     }
 
 }
