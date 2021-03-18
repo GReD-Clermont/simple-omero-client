@@ -16,8 +16,11 @@
 package fr.igred.omero.exception;
 
 
+import omero.ServerError;
+
+
 /** Reports an error occurred on the server. */
-public class ServerError extends omero.ServerError {
+public class OMEROServerError extends ServerError {
 
     /**
      * Constructs a new exception with the specified cause and detailed message.
@@ -25,7 +28,7 @@ public class ServerError extends omero.ServerError {
      * @param details Short explanation of the problem.
      * @param cause   The exception that caused this one to be risen.
      */
-    public ServerError(String details, Throwable cause) {
+    public OMEROServerError(String details, Throwable cause) {
         super(cause);
         message = details;
     }
@@ -36,7 +39,7 @@ public class ServerError extends omero.ServerError {
      *
      * @param cause   The exception that caused this one to be risen.
      */
-    public ServerError(Throwable cause) {
+    public OMEROServerError(Throwable cause) {
         super(cause);
         message = "A server error occurred";
     }
