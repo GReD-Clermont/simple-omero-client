@@ -22,7 +22,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.exception.ServerError;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.metadata.TableContainer;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.sort.SortImageContainer;
@@ -36,6 +36,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
 import ome.formats.importer.cli.LoggingImportMonitor;
+import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -389,10 +390,10 @@ public class DatasetContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
-    throws ServiceException, AccessException, ServerError {
+    throws ServiceException, AccessException, OMEROServerError {
         List<ImageContainer> selected = new ArrayList<>();
         List<IObject> os = client.findByQuery("select link.parent " +
                                               "from ImageAnnotationLink link " +
@@ -422,10 +423,10 @@ public class DatasetContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
-    throws ServiceException, AccessException, ServerError {
+    throws ServiceException, AccessException, OMEROServerError {
         List<ImageContainer> selected = new ArrayList<>();
         List<IObject> os = client.findByQuery("select link.parent " +
                                               "from ImageAnnotationLink link " +
@@ -577,7 +578,7 @@ public class DatasetContainer {
      * @param paths  Paths to the image on your computer.
      *
      * @throws Exception   OMEROMetadataStoreClient creation failed.
-     * @throws ServerError Server error.
+     * @throws OMEROServerError Server error.
      */
     public void importImages(Client client, String... paths) throws Exception {
         ImportConfig config = client.getConfig();
@@ -587,8 +588,8 @@ public class DatasetContainer {
         store = config.createStore();
         try {
             store.logVersionInfo(config.getIniVersionNumber());
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
         OMEROWrapper  reader  = new OMEROWrapper(config);
         ImportLibrary library = new ImportLibrary(store, reader);
@@ -615,14 +616,14 @@ public class DatasetContainer {
      * @throws ServiceException      Cannot connect to OMERO.
      * @throws AccessException       Cannot access data on server.
      * @throws ExecutionException    A Facility can't be retrieved or instantiated.
-     * @throws ServerError           Server error.
+     * @throws OMEROServerError           Server error.
      * @throws IOException           If an I/O error occurs.
      */
     public long addFile(Client client, File file) throws
                                                                    ServiceException,
                                                                    AccessException,
                                                                    ExecutionException,
-                                                                   ServerError,
+                                                                   OMEROServerError,
                                                                    IOException {
         final int INC = 262144;
 
@@ -664,8 +665,8 @@ public class DatasetContainer {
             }
             originalFile = rawFileStore.save();
             rawFileStore.close();
-        } catch (omero.ServerError se) {
-            throw new ServerError(se);
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
         }
 
         FileAnnotation fa = new FileAnnotationI();

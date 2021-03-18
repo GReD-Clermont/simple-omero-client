@@ -25,7 +25,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.sort.SortImageContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
-import fr.igred.omero.exception.ServerError;
+import fr.igred.omero.exception.OMEROServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
@@ -455,10 +455,10 @@ public class ProjectContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
-    throws ServiceException, AccessException, ServerError {
+    throws ServiceException, AccessException, OMEROServerError {
         List<ImageContainer> imagesContainer = new ArrayList<>();
 
         Collection<DatasetContainer> datasets = getDatasets();
@@ -483,10 +483,10 @@ public class ProjectContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws ServerError      Server error.
+     * @throws OMEROServerError      Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
-    throws ServiceException, AccessException, ServerError {
+    throws ServiceException, AccessException, OMEROServerError {
         List<ImageContainer> imagesContainer = new ArrayList<>();
 
         Collection<DatasetContainer> datasets = getDatasets();
