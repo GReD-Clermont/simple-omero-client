@@ -455,7 +455,7 @@ public class ProjectContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, OMEROServerError {
@@ -483,7 +483,7 @@ public class ProjectContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError {
