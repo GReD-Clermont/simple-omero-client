@@ -188,23 +188,23 @@ public class PixelContainer {
         }
 
         if (yBound != null) {
-            yStart = Math.max(0, yBound[0]);
-            yEnd = Math.min(pixels.getSizeY() - 1, yBound[1]);
+            yStart = Math.max(yStart, yBound[0]);
+            yEnd = Math.min(yEnd, yBound[1]);
         }
 
         if (cBound != null) {
-            cStart = Math.max(0, cBound[0]);
-            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
+            cStart = Math.max(cStart, cBound[0]);
+            cEnd = Math.min(cEnd, cBound[1]);
         }
 
         if (zBound != null) {
-            zStart = Math.max(0, zBound[0]);
-            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
+            zStart = Math.max(zStart, zBound[0]);
+            zEnd = Math.min(zEnd, zBound[1]);
         }
 
         if (tBound != null) {
-            tStart = Math.max(0, tBound[0]);
-            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
+            tStart = Math.max(tStart, tBound[0]);
+            tEnd = Math.min(tEnd, tBound[1]);
         }
 
         int sizeX = xEnd - xStart + 1;
@@ -231,7 +231,13 @@ public class PixelContainer {
                                 throw new AccessException("Cannot read tile", dse);
                             }
 
-                            copy(tab, p, x - xStart, y - yStart, c - cStart, z - zStart, t - tStart, width, height);
+                            Coordinates pos = new Coordinates(x - xStart,
+                                                              y - yStart,
+                                                              c - cStart,
+                                                              z - zStart,
+                                                              t - tStart);
+
+                            copy(tab, p, pos, width, height);
                         }
                     }
                 }
@@ -247,15 +253,17 @@ public class PixelContainer {
      *
      * @param tab    Array containing the results.
      * @param p      Plane2D containing the voxels value.
-     * @param x      X start.
-     * @param y      Y start.
-     * @param c      Value of the c axis.
-     * @param z      Value of the z axis.
-     * @param t      Value of the t axis.
+     * @param start  Starting position coordinates.
      * @param width  Width of the plane.
      * @param height Height of the plane.
      */
-    private void copy(double[][][][][] tab, Plane2D p, int x, int y, int c, int z, int t, int width, int height) {
+    private void copy(double[][][][][] tab, Plane2D p, Coordinates start, int width, int height) {
+        final int x = start.getX();
+        final int y = start.getY();
+        final int c = start.getC();
+        final int z = start.getZ();
+        final int t = start.getT();
+
         for (int iteX = 0; iteX < width; iteX++) {
             for (int iteY = 0; iteY < height; iteY++) {
                 tab[t][z][c][iteY + y][iteX + x] = p.getPixelValue(iteX, iteY);
@@ -321,23 +329,23 @@ public class PixelContainer {
         }
 
         if (yBound != null) {
-            yStart = Math.max(0, yBound[0]);
-            yEnd = Math.min(pixels.getSizeY() - 1, yBound[1]);
+            yStart = Math.max(yStart, yBound[0]);
+            yEnd = Math.min(yEnd, yBound[1]);
         }
 
         if (cBound != null) {
-            cStart = Math.max(0, cBound[0]);
-            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
+            cStart = Math.max(cStart, cBound[0]);
+            cEnd = Math.min(cEnd, cBound[1]);
         }
 
         if (zBound != null) {
-            zStart = Math.max(0, zBound[0]);
-            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
+            zStart = Math.max(zStart, zBound[0]);
+            zEnd = Math.min(zEnd, zBound[1]);
         }
 
         if (tBound != null) {
-            tStart = Math.max(0, tBound[0]);
-            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
+            tStart = Math.max(tStart, tBound[0]);
+            tEnd = Math.min(tEnd, tBound[1]);
         }
 
         int sizeX = xEnd - xStart + 1;
@@ -364,8 +372,12 @@ public class PixelContainer {
                                 throw new AccessException("Cannot retrieve tile", dse);
                             }
 
-                            copy(bytes, p, x - xStart, y - yStart, c - cStart, z - zStart, t - tStart, width, height,
-                                 sizeX, bpp);
+                            Coordinates pos = new Coordinates(x - xStart,
+                                                              y - yStart,
+                                                              c - cStart,
+                                                              z - zStart,
+                                                              t - tStart);
+                            copy(bytes, p, pos, width, height, sizeX, bpp);
                         }
                     }
                 }
@@ -381,11 +393,7 @@ public class PixelContainer {
      *
      * @param bytes     Array containing the results.
      * @param p         Plane2D containing the voxels value.
-     * @param x         X start.
-     * @param y         Y start.
-     * @param c         Value of the c axis.
-     * @param z         Value of the z axis.
-     * @param t         Value of the t axis.
+     * @param start     Starting pixel coordinates.
      * @param width     Width of the plane.
      * @param height    Height of the plane.
      * @param trueWidth Width of the image.
@@ -393,21 +401,67 @@ public class PixelContainer {
      */
     private void copy(byte[][][][] bytes,
                       Plane2D p,
-                      int x,
-                      int y,
-                      int c,
-                      int z,
-                      int t,
+                      Coordinates start,
                       int width,
                       int height,
                       int trueWidth,
                       int bpp) {
+        final int x = start.getX();
+        final int y = start.getY();
+        final int c = start.getC();
+        final int z = start.getZ();
+        final int t = start.getT();
 
         for (int iteX = 0; iteX < width; iteX++)
             for (int iteY = 0; iteY < height; iteY++)
                 for (int i = 0; i < bpp; i++)
                     bytes[t][z][c][((iteY + y) * trueWidth + iteX + x) * bpp + i] =
                             p.getRawValue((iteX + iteY * width) * bpp + i);
+    }
+
+
+    private static class Coordinates {
+
+        private final int x;
+        private final int y;
+        private final int c;
+        private final int z;
+        private final int t;
+
+
+        Coordinates(Integer x, Integer y, Integer c, Integer z, Integer t) {
+            this.x = x == null ? -1 : x;
+            this.y = y == null ? -1 : y;
+            this.c = c == null ? -1 : c;
+            this.z = z == null ? -1 : z;
+            this.t = t == null ? -1 : t;
+        }
+
+
+        int getX() {
+            return x;
+        }
+
+
+        int getY() {
+            return y;
+        }
+
+
+        int getC() {
+            return c;
+        }
+
+
+        int getZ() {
+            return z;
+        }
+
+
+        int getT() {
+            return t;
+        }
+
     }
 
 }

@@ -32,6 +32,7 @@ import omero.model.enums.UnitsLength;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
@@ -69,6 +70,9 @@ public class ShapeContainer {
 
     /** Shape contained in the ShapeContainer. */
     private final ShapeData shape;
+
+    /** Logger **/
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
 
     /**
@@ -250,7 +254,7 @@ public class ShapeContainer {
                 text = ((TextData) this.shape).getText();
                 break;
             default:
-                System.err.println("Cannot get text on this type of ShapeData.");
+                logger.warning("Cannot get text on this type of ShapeData.");
                 break;
         }
         return text;
@@ -290,7 +294,7 @@ public class ShapeContainer {
                 ((TextData) this.shape).setText(text);
                 break;
             default:
-                System.err.println("Cannot set text on this type of ShapeData.");
+                logger.warning("Cannot set text on this type of ShapeData.");
                 break;
         }
     }
@@ -306,7 +310,7 @@ public class ShapeContainer {
         if (getShapeType().equals(MASK)) {
             mask = ((MaskData) shape).getMaskAsBinaryArray();
         } else {
-            System.err.println("ShapeData is not a MaskData object.");
+            logger.warning("ShapeData is not a MaskData object.");
         }
         return mask;
     }
@@ -321,7 +325,7 @@ public class ShapeContainer {
         if (getShapeType().equals(MASK)) {
             ((MaskData) shape).setMask(mask);
         } else {
-            System.err.println("ShapeData is not a MaskData object.");
+            logger.warning("ShapeData is not a MaskData object.");
         }
     }
 
@@ -338,7 +342,7 @@ public class ShapeContainer {
             double[] coordinates = {x, y};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is neither a PointData nor a TextData object.");
+            logger.warning("ShapeData is neither a PointData nor a TextData object.");
         }
     }
 
@@ -357,7 +361,7 @@ public class ShapeContainer {
             double[] coordinates = {x, y, width, height};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is neither a RectangleData nor a MaskData object.");
+            logger.warning("ShapeData is neither a RectangleData nor a MaskData object.");
         }
     }
 
@@ -375,7 +379,7 @@ public class ShapeContainer {
             double[] coordinates = {x1, y1, x2, y2};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is not a LineData object.");
+            logger.warning("ShapeData is not a LineData object.");
         }
     }
 
@@ -393,7 +397,7 @@ public class ShapeContainer {
             double[] coordinates = {x, y, radiusX, radiusY};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is not an EllipseData object.");
+            logger.warning("ShapeData is not an EllipseData object.");
         }
     }
 
@@ -411,7 +415,7 @@ public class ShapeContainer {
         } else if (shapeType.equals(POLYGON)) {
             points = ((PolygonData) shape).getPoints();
         } else {
-            System.err.println("ShapeData is neither a PolylineData nor a PolygonData object.");
+            logger.warning("ShapeData is neither a PolylineData nor a PolygonData object.");
         }
         return points;
     }
@@ -429,7 +433,7 @@ public class ShapeContainer {
         } else if (shapeType.equals(POLYGON)) {
             ((PolygonData) shape).setPoints(points);
         } else {
-            System.err.println("ShapeData is neither a PolylineData nor a PolygonData object.");
+            logger.warning("ShapeData is neither a PolylineData nor a PolygonData object.");
         }
     }
 
@@ -499,7 +503,7 @@ public class ShapeContainer {
                 coordinates[3] = ((LineData) shape).getY2();
                 break;
             default:
-                System.err.println("ShapeData does not have coordinates.");
+                logger.warning("ShapeData does not have coordinates.");
                 break;
         }
         return coordinates;
@@ -533,7 +537,7 @@ public class ShapeContainer {
         int     nCoordinates = 4;
         boolean exception    = true;
         if (coordinates == null) {
-            System.err.println("ShapeContainer cannot set null coordinates.");
+            logger.warning("ShapeContainer cannot set null coordinates.");
             return;
         }
         switch (shapeType) {
@@ -590,10 +594,13 @@ public class ShapeContainer {
                 }
                 break;
             default:
-                System.err.println("ShapeData does not have coordinates.");
+                logger.warning("ShapeData does not have coordinates.");
+                exception = false;
+                break;
         }
         if (exception) {
-            System.err.println(nCoordinates + "coordinates required for " + shapeType + ".");
+            String message = String.format("%d coordinates required for %s.", nCoordinates, shapeType);
+            logger.warning(message);
         }
     }
 
@@ -608,7 +615,7 @@ public class ShapeContainer {
         try {
             fontSize = shape.getShapeSettings().getFontSize(UnitsLength.POINT).getValue();
         } catch (BigResult bigResult) {
-            System.err.println("Error while getting font size from ShapeData.");
+            logger.warning("Error while getting font size from ShapeData.");
             bigResult.printStackTrace();
         }
         return fontSize;
