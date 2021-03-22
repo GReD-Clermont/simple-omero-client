@@ -22,6 +22,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.metadata.ROIContainer;
+import fr.igred.omero.PixelContainer.Coordinates;
 import fr.igred.omero.metadata.annotation.MapAnnotationContainer;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
@@ -524,7 +525,7 @@ public class ImageContainer {
      * @return The folder if it exist.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public FolderContainer getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
         List<IObject> os = client.findByQuery("select f " +
@@ -584,47 +585,17 @@ public class ImageContainer {
     throws AccessException, ExecutionException {
         PixelContainer pixels = this.getPixels();
 
-        int xStart = 0;
-        int yStart = 0;
-        int cStart = 0;
-        int zStart = 0;
-        int tStart = 0;
-        int xEnd   = pixels.getSizeX() - 1;
-        int yEnd   = pixels.getSizeY() - 1;
-        int cEnd   = pixels.getSizeC() - 1;
-        int zEnd   = pixels.getSizeZ() - 1;
-        int tEnd   = pixels.getSizeT() - 1;
+        int[] xLimits = pixels.checkBounds(xBound, pixels.getSizeX());
+        int[] yLimits = pixels.checkBounds(yBound, pixels.getSizeY());
+        int[] cLimits = pixels.checkBounds(cBound, pixels.getSizeC());
+        int[] zLimits = pixels.checkBounds(zBound, pixels.getSizeZ());
+        int[] tLimits = pixels.checkBounds(tBound, pixels.getSizeT());
 
-        if (xBound != null) {
-            xStart = Math.max(0, xBound[0]);
-            xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
-        }
-
-        if (yBound != null) {
-            yStart = Math.max(0, yBound[0]);
-            yEnd = Math.min(pixels.getSizeY() - 1, yBound[1]);
-        }
-
-        if (cBound != null) {
-            cStart = Math.max(0, cBound[0]);
-            cEnd = Math.min(pixels.getSizeC() - 1, cBound[1]);
-        }
-
-        if (zBound != null) {
-            zStart = Math.max(0, zBound[0]);
-            zEnd = Math.min(pixels.getSizeZ() - 1, zBound[1]);
-        }
-
-        if (tBound != null) {
-            tStart = Math.max(0, tBound[0]);
-            tEnd = Math.min(pixels.getSizeT() - 1, tBound[1]);
-        }
-
-        int sizeX = xEnd - xStart + 1;
-        int sizeY = yEnd - yStart + 1;
-        int sizeC = cEnd - cStart + 1;
-        int sizeZ = zEnd - zStart + 1;
-        int sizeT = tEnd - tStart + 1;
+        int sizeX = xLimits[1] - xLimits[0] + 1;
+        int sizeY = yLimits[1] - yLimits[0] + 1;
+        int sizeC = cLimits[1] - cLimits[0] + 1;
+        int sizeZ = zLimits[1] - zLimits[0] + 1;
+        int sizeT = tLimits[1] - tLimits[0] + 1;
 
         Length spacingX = pixels.getPixelSizeX();
         Length spacingY = pixels.getPixelSizeY();
@@ -659,22 +630,18 @@ public class ImageContainer {
         double min = imp.getProcessor().getMin();
         double max = 0;
 
-        for (int t = tStart; t <= tEnd; t++) {
-            int[] tBoundTemp = {t, t};
-            for (int z = zStart; z <= zEnd; z++) {
-                int[] zBoundTemp = {z, z};
-                for (int c = cStart; c <= cEnd; c++) {
-                    int[] cBoundTemp = {c, c};
-                    int   n          = imp.getStackIndex(c - cStart + 1, z - zStart + 1, t - tStart + 1);
+        for (int t = 0; t < sizeT; t++) {
+            int posT = t + tLimits[0];
+            for (int z = 0; z < sizeZ; z++) {
+                int posZ = z + zLimits[0];
+                for (int c = 0; c < sizeC; c++) {
+                    int posC = c + cLimits[0];
 
-                    byte[] tiles = pixels.getRawPixels(client,
-                                                       xBound,
-                                                       yBound,
-                                                       cBoundTemp,
-                                                       zBoundTemp,
-                                                       tBoundTemp,
-                                                       bpp)[0][0][0];
+                    Coordinates pos = new Coordinates(xLimits[0], yLimits[0], posC, posZ, posT);
 
+                    byte[] tiles = pixels.getRawTile(client, pos, sizeX, sizeY, bpp);
+
+                    int n = imp.getStackIndex(c + 1, z + 1, t + 1);
                     stack.setPixels(DataTools.makeDataArray(tiles, bpp, isFloat, false), n);
                     ImageProcessor ip = stack.getProcessor(n);
                     ip.resetMinAndMax();
@@ -735,7 +702,7 @@ public class ImageContainer {
      * @throws ServiceException      Cannot connect to OMERO.
      * @throws AccessException       Cannot access data on server.
      * @throws ExecutionException    A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError           Server error.
+     * @throws OMEROServerError      Server error.
      * @throws FileNotFoundException The file could not be found.
      * @throws IOException           If an I/O error occurs.
      */

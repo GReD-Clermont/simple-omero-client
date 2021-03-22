@@ -77,7 +77,7 @@ public class FolderContainer {
      * @param name   Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public FolderContainer(Client client, String name) throws ServiceException, OMEROServerError {
         folder = new FolderData();
@@ -186,7 +186,7 @@ public class FolderContainer {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIContainer>    roiContainers = new ArrayList<>();
         Collection<ROIResult> roiResults;
-        ROIFacility           roiFac = client.getRoiFacility();
+        ROIFacility           roiFac        = client.getRoiFacility();
 
         try {
             roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());

@@ -390,7 +390,7 @@ public class DatasetContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
     throws ServiceException, AccessException, OMEROServerError {
@@ -423,7 +423,7 @@ public class DatasetContainer {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public List<ImageContainer> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError {
@@ -577,7 +577,7 @@ public class DatasetContainer {
      * @param client The user.
      * @param paths  Paths to the image on your computer.
      *
-     * @throws Exception   OMEROMetadataStoreClient creation failed.
+     * @throws Exception        OMEROMetadataStoreClient creation failed.
      * @throws OMEROServerError Server error.
      */
     public void importImages(Client client, String... paths) throws Exception {
@@ -613,18 +613,18 @@ public class DatasetContainer {
      *
      * @return ID of the file created in OMERO.
      *
-     * @throws ServiceException      Cannot connect to OMERO.
-     * @throws AccessException       Cannot access data on server.
-     * @throws ExecutionException    A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError           Server error.
-     * @throws IOException           If an I/O error occurs.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data on server.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     * @throws IOException        If an I/O error occurs.
      */
     public long addFile(Client client, File file) throws
-                                                                   ServiceException,
-                                                                   AccessException,
-                                                                   ExecutionException,
-                                                                   OMEROServerError,
-                                                                   IOException {
+                                                  ServiceException,
+                                                  AccessException,
+                                                  ExecutionException,
+                                                  OMEROServerError,
+                                                  IOException {
         final int INC = 262144;
 
         DatasetAnnotationLink newLink;

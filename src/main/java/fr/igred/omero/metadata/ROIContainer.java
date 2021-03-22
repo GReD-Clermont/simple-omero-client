@@ -171,7 +171,7 @@ public class ROIContainer {
      * @param client The user.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public void saveROI(Client client) throws OMEROServerError, ServiceException {
         try {
