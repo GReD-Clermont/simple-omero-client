@@ -67,11 +67,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -275,13 +274,11 @@ public class DatasetContainer {
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
 
-        List<AnnotationData> annotations;
+        List<AnnotationData> annotations = null;
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), dataset, types, null);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get tags for dataset ID: " + getId());
         }
 
         if (annotations != null) {
@@ -327,14 +324,13 @@ public class DatasetContainer {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImages(Client client) throws ServiceException, AccessException {
-        Collection<ImageData> images;
+        Collection<ImageData> images = new ArrayList<>();
         try {
             images = client.getBrowseFacility()
-                           .getImagesForDatasets(client.getCtx(), Collections.singletonList(dataset.getId()));
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+                           .getImagesForDatasets(client.getCtx(),
+                                                 Collections.singletonList(dataset.getId()));
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images from dataset ID: " + getId());
         }
 
         return toImagesContainer(images);
@@ -461,15 +457,13 @@ public class DatasetContainer {
     public List<ImageContainer> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> selected = new ArrayList<>();
-        Collection<ImageData> images;
+        Collection<ImageData> images   = new ArrayList<>();
         try {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(dataset.getId()));
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from dataset ID: " + getId());
         }
 
         for (ImageData image : images) {
@@ -505,15 +499,13 @@ public class DatasetContainer {
     public List<ImageContainer> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> selected = new ArrayList<>();
-        Collection<ImageData> images;
+        Collection<ImageData> images   = new ArrayList<>();
         try {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(dataset.getId()));
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images with k/v pair from dataset ID: " + getId());
         }
 
         for (ImageData image : images) {
@@ -700,10 +692,8 @@ public class DatasetContainer {
         TableData tableData = table.createTable();
         try {
             tableData = client.getTablesFacility().addTable(client.getCtx(), dataset, table.getName(), tableData);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot add table to dataset ID: " + getId());
         }
         table.setFileId(tableData.getOriginalFileId());
     }
@@ -723,15 +713,13 @@ public class DatasetContainer {
      */
     public TableContainer getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
-        TableData table;
+        TableData table = null;
         try {
             table = client.getTablesFacility().getTable(client.getCtx(), fileId);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get table from dataset ID: " + getId());
         }
-        return new TableContainer(table);
+        return new TableContainer(Objects.requireNonNull(table));
     }
 
 
@@ -750,13 +738,11 @@ public class DatasetContainer {
     throws ServiceException, AccessException, ExecutionException {
         List<TableContainer> tablesContainer = new ArrayList<>();
 
-        Collection<FileAnnotationData> tables;
+        Collection<FileAnnotationData> tables = new ArrayList<>();
         try {
             tables = client.getTablesFacility().getAvailableTables(client.getCtx(), dataset);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get tables from dataset ID: " + getId());
         }
 
         for (FileAnnotationData table : tables) {

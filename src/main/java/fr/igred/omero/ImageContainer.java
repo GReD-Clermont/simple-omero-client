@@ -59,6 +59,8 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+
 
 /**
  * Class containing an ImageData.
@@ -271,13 +273,11 @@ public class ImageContainer {
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
 
-        List<AnnotationData> annotations;
+        List<AnnotationData> annotations = null;
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get tags for image ID: " + getId());
         }
 
         if (annotations != null) {
@@ -314,13 +314,11 @@ public class ImageContainer {
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(MapAnnotationData.class);
 
-        List<AnnotationData> annotations;
+        List<AnnotationData> annotations = null;
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get k/v pairs for image ID: " + getId());
         }
 
         if (annotations != null) {
@@ -381,10 +379,8 @@ public class ImageContainer {
             client.getDm().attachAnnotation(client.getCtx(),
                                             data.getMapAnnotation(),
                                             new ImageData(new ImageI(image.getId(), false)));
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot add k/v pairs to image ID: " + getId());
         }
     }
 
@@ -409,10 +405,8 @@ public class ImageContainer {
         data.setContent(result);
         try {
             client.getDm().attachAnnotation(client.getCtx(), data, new ImageData(new ImageI(image.getId(), false)));
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot add k/v pair to image ID: " + getId());
         }
     }
 
@@ -437,10 +431,8 @@ public class ImageContainer {
                                               Collections.singletonList(roi.getROI()))
                                     .iterator().next();
             roi.setData(roiData);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot link ROI to image ID: " + getId());
         }
     }
 
@@ -459,13 +451,11 @@ public class ImageContainer {
     public List<ROIContainer> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIContainer> roiContainers = new ArrayList<>();
-        List<ROIResult>    roiResults;
+        List<ROIResult>    roiResults    = new ArrayList<>();
         try {
             roiResults = client.getRoiFacility().loadROIs(client.getCtx(), image.getId());
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get ROIs from image ID: " + getId());
         }
         ROIResult r = roiResults.iterator().next();
 
@@ -496,13 +486,11 @@ public class ImageContainer {
         List<FolderContainer> roiFolders  = new ArrayList<>();
         ROIFacility           roiFacility = client.getRoiFacility();
 
-        Collection<FolderData> folders;
+        Collection<FolderData> folders = new ArrayList<>();
         try {
             folders = roiFacility.getROIFolders(client.getCtx(), this.image.getId());
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get folders for image ID: " + getId());
         }
 
         for (FolderData folder : folders) {
@@ -678,13 +666,11 @@ public class ImageContainer {
      */
     public String getChannelName(Client client, int index)
     throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData> channels;
+        List<ChannelData> channels = new ArrayList<>();
         try {
             channels = client.getMetadata().getChannelData(client.getCtx(), this.image.getId());
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get the channel name for image ID: " + getId());
         }
 
         return channels.get(index).getChannelLabeling();

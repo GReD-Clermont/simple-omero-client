@@ -31,6 +31,8 @@ import omero.model.Roi;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
+
 
 /**
  * Class containing a ROIData
@@ -177,10 +179,8 @@ public class ROIContainer {
         try {
             Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
             data = new ROIData(roi);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Cannot save ROI");
         }
     }
 

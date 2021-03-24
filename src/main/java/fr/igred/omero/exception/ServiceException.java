@@ -29,6 +29,18 @@ public class ServiceException extends DSOutOfServiceException {
     /**
      * Constructs a new exception with the specified cause and a generic message.
      *
+     * @param message          Short explanation of the problem.
+     * @param cause            The exception that caused this one to be risen.
+     * @param connectionStatus The status of the connection to the server.
+     */
+    public ServiceException(String message, Throwable cause, ConnectionStatus connectionStatus) {
+        super(message, cause, connectionStatus);
+    }
+
+
+    /**
+     * Constructs a new exception with the specified cause and a generic message.
+     *
      * @param cause            The exception that caused this one to be risen.
      * @param connectionStatus The status of the connection to the server.
      */
