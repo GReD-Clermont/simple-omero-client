@@ -19,11 +19,12 @@ package fr.igred.omero;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
@@ -31,11 +32,11 @@ import static org.junit.Assert.*;
 
 public class AccessExceptionTest extends BasicTest {
 
-    private PrintStream error;
+    private final PrintStream error = System.err;
+    protected     Client      client;
 
 
     void hideErrors() {
-        error = System.err;
         System.setErr(new PrintStream(new OutputStream() {
             public void write(int b) {
                 //DO NOTHING
@@ -49,104 +50,209 @@ public class AccessExceptionTest extends BasicTest {
     }
 
 
+    @Before
+    public void setUp() {
+        boolean failed = false;
+        client = new Client();
+        try {
+            client.connect("omero", 4064, "testUser2", "password2", 3L);
+            assertEquals("Wrong user", 3L, client.getId().longValue());
+            assertEquals("Wrong group", 3L, client.getGroupId().longValue());
+        } catch (Exception e) {
+            failed = true;
+            logger.severe(ANSI_RED + "Connection failed." + ANSI_RESET);
+        }
+        org.junit.Assume.assumeFalse(failed);
+        hideErrors();
+    }
+
+
+    @After
+    public void cleanUp() {
+        showErrors();
+        try {
+            client.disconnect();
+        } catch (Exception e) {
+            logger.warning(ANSI_YELLOW + "Disconnection failed." + ANSI_RESET);
+        }
+    }
+
+
     @Test
     public void testAddTagToImageWrongUser() throws Exception {
-        hideErrors();
         boolean exception = false;
-        Client  root      = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
-        assertEquals(0L, root.getId().longValue());
+        client.disconnect();
+        client.connect("omero", 4064, "root", "omero", 3L);
+        assertEquals(0L, client.getId().longValue());
 
-        ImageContainer image = root.getImage(3L);
+        ImageContainer image = client.getImage(3L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(root, "image tag", "tag attached to an image");
+        TagAnnotationContainer tag = new TagAnnotationContainer(client, "image tag", "tag attached to an image");
 
         try {
-            image.addTag(root, tag);
+            image.addTag(client, tag);
         } catch (AccessException e) {
             exception = true;
         }
 
-        root.deleteTag(tag);
-        root.disconnect();
-        showErrors();
+        client.deleteTag(tag);
         assertTrue(exception);
     }
 
 
-    @Test
-    public void testSudoFailGetProjects() {
-        hideErrors();
-        boolean exception = false;
-        Client  client    = new Client();
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetProjects() throws Exception {
+        Client sudo = new Client();
         try {
-            client.connect("omero", 4064, "testUser2", "password2", 3L);
-            client.sudoGetUser("testUser").getProjects();
+            sudo = client.sudoGetUser("testUser");
         } catch (AccessException | ExecutionException | ServiceException e) {
-            if (e instanceof AccessException) {
-                exception = true;
-            }
+            fail();
         }
-        client.disconnect();
-        showErrors();
-        assertTrue(exception);
+        sudo.getProjects();
     }
 
 
-    @Test
-    public void testSudoFailGetSingleProject() {
-        hideErrors();
-        boolean exception = false;
-        Client  client    = new Client();
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetSingleProject() throws Exception {
+        Client sudo = new Client();
         try {
-            client.connect("omero", 4064, "testUser2", "password2", 3L);
-            client.sudoGetUser("testUser").getProject(2L);
+            sudo = client.sudoGetUser("testUser");
         } catch (AccessException | ExecutionException | ServiceException e) {
-            if (e instanceof AccessException) {
-                exception = true;
-            }
+            fail();
         }
-        client.disconnect();
-        showErrors();
-        assertTrue(exception);
+        sudo.getProject(2L);
     }
 
 
-    @Test
-    public void testSudoFailGetDatasets() {
-        hideErrors();
-        boolean exception = false;
-        Client  client    = new Client();
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetProjectByName() throws Exception {
+        Client sudo = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password", 3L);
-            client.sudoGetUser("testUser").getDatasets();
+            sudo = client.sudoGetUser("testUser");
         } catch (AccessException | ExecutionException | ServiceException e) {
-            if (e instanceof AccessException) {
-                exception = true;
-            }
+            fail();
         }
-        client.disconnect();
-        showErrors();
-        assertTrue(exception);
+        sudo.getProjects("TestProject");
     }
 
 
-    @Test
-    public void testSudoFailGetSingleDataset() {
-        hideErrors();
-        boolean exception = false;
-        Client  client    = new Client();
+    @Test(expected = AccessException.class)
+    public void testSudoFailDeleteProject() throws Exception {
+        Client sudo = new Client();
         try {
-            client.connect("omero", 4064, "testUser2", "password2", 3L);
-            client.sudoGetUser("testUser").getDataset(1L);
+            sudo = client.sudoGetUser("testUser");
         } catch (AccessException | ExecutionException | ServiceException e) {
-            if (e instanceof AccessException) {
-                exception = true;
-            }
+            fail();
         }
-        client.disconnect();
-        showErrors();
-        assertTrue(exception);
+        sudo.deleteProject(2L);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetDatasets() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getDatasets();
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetSingleDataset() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getDataset(1L);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetDatasetByName() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getDatasets("TestDataset");
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testGetImages() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getImages();
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testGetImage() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getImage(1L);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testGetImagesName() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getImages("image1.fake");
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testGetImagesLike() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getImagesLike("image1");
+    }
+
+
+    @Test(expected = ServiceException.class)
+    public void testGetAllTags() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getTags();
+    }
+
+
+    @Test(expected = ServiceException.class)
+    public void testGetTag() throws Exception {
+        Client sudo = new Client();
+        try {
+            sudo = client.sudoGetUser("testUser");
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            fail();
+        }
+        sudo.getTag(1L);
     }
 
 }

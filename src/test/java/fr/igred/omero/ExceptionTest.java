@@ -16,38 +16,15 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import org.junit.Test;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 
 
 public class ExceptionTest extends BasicTest {
-
-    private PrintStream error;
-
-
-    void hideErrors() {
-        error = System.err;
-        System.setErr(new PrintStream(new OutputStream() {
-            public void write(int b) {
-                //DO NOTHING
-            }
-        }));
-    }
-
-
-    void showErrors() {
-        System.setErr(error);
-    }
-
 
     @Test
     public void testConnectionErrorUsername() throws Exception {
