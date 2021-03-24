@@ -50,120 +50,102 @@ public class AccessExceptionTest extends BasicTest {
 
 
     @Test
-    public void testConnectionErrorUsername() throws Exception {
-        boolean exception = false;
-        Client  client    = new Client();
-        try {
-            client.connect("omero", 4064, "badUser", "omero", 3L);
-        } catch (ServiceException e) {
-            exception = true;
-        }
-        assertTrue(exception);
-    }
-
-
-    @Test
-    public void testConnectionErrorPassword() throws Exception {
+    public void testAddTagToImageWrongUser() throws Exception {
+        hideErrors();
         boolean exception = false;
         Client  root      = new Client();
+        root.connect("omero", 4064, "root", "omero", 3L);
+        assertEquals(0L, root.getId().longValue());
+
+        ImageContainer image = root.getImage(3L);
+
+        TagAnnotationContainer tag = new TagAnnotationContainer(root, "image tag", "tag attached to an image");
+
         try {
-            root.connect("omero", 4064, "root", "badPassword", 3L);
-        } catch (ServiceException e) {
+            image.addTag(root, tag);
+        } catch (AccessException e) {
             exception = true;
         }
+
+        root.deleteTag(tag);
+        root.disconnect();
+        showErrors();
         assertTrue(exception);
     }
 
 
     @Test
-    public void testConnectionErrorHost() {
-        boolean exception = false;
-        Client  root      = new Client();
-        try {
-            root.connect("127.0.0.1", 4064, "root", "omero", 3L);
-        } catch (Exception e) {
-            exception = true;
-        }
-        assertTrue(exception);
-    }
-
-
-    @Test
-    public void testConnectionErrorPort() {
-        boolean exception = false;
-        Client  root      = new Client();
-        try {
-            root.connect("omero", 5000, "root", "omero", 3L);
-        } catch (Exception e) {
-            exception = true;
-        }
-        assertTrue(exception);
-    }
-
-
-    @Test
-    public void testConnectionErrorGroupNotExist() throws Exception {
-        Client clientNoSuchGroup = new Client();
-        clientNoSuchGroup.connect("omero", 4064, "testUser", "password", 200L);
-        assertEquals(2L, clientNoSuchGroup.getId().longValue());
-        assertEquals(3L, clientNoSuchGroup.getGroupId().longValue());
-    }
-
-
-    @Test
-    public void testConnectionErrorNotInGroup() throws Exception {
-        Client clientWrongGroup = new Client();
-        clientWrongGroup.connect("omero", 4064, "testUser", "password", 0L);
-        assertEquals(2L, clientWrongGroup.getId().longValue());
-        assertEquals(3L, clientWrongGroup.getGroupId().longValue());
-    }
-
-
-    @Test
-    public void testGetSingleProjectError() throws Exception {
+    public void testSudoFailGetProjects() {
+        hideErrors();
         boolean exception = false;
         Client  client    = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password");
-            client.getProject(333L);
-        } catch (NoSuchElementException e) {
-            exception = true;
+            client.connect("omero", 4064, "testUser2", "password2", 3L);
+            client.sudoGetUser("testUser").getProjects();
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            if (e instanceof AccessException) {
+                exception = true;
+            }
         }
         client.disconnect();
+        showErrors();
         assertTrue(exception);
     }
 
 
     @Test
-    public void testGetImageError() throws Exception {
+    public void testSudoFailGetSingleProject() {
+        hideErrors();
         boolean exception = false;
         Client  client    = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         try {
-            client.getImage(200L);
-        } catch (NoSuchElementException e) {
-            exception = true;
+            client.connect("omero", 4064, "testUser2", "password2", 3L);
+            client.sudoGetUser("testUser").getProject(2L);
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            if (e instanceof AccessException) {
+                exception = true;
+            }
         }
         client.disconnect();
+        showErrors();
         assertTrue(exception);
     }
 
 
     @Test
-    public void testGetImageError2() throws Exception {
+    public void testSudoFailGetDatasets() {
+        hideErrors();
         boolean exception = false;
         Client  client    = new Client();
-        client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
-
         try {
-            client.getImage(-5L);
-        } catch (NoSuchElementException e) {
-            exception = true;
+            client.connect("omero", 4064, "testUser", "password", 3L);
+            client.sudoGetUser("testUser").getDatasets();
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            if (e instanceof AccessException) {
+                exception = true;
+            }
         }
         client.disconnect();
+        showErrors();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testSudoFailGetSingleDataset() {
+        hideErrors();
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect("omero", 4064, "testUser2", "password2", 3L);
+            client.sudoGetUser("testUser").getDataset(1L);
+        } catch (AccessException | ExecutionException | ServiceException e) {
+            if (e instanceof AccessException) {
+                exception = true;
+            }
+        }
+        client.disconnect();
+        showErrors();
         assertTrue(exception);
     }
 
