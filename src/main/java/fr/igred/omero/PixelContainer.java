@@ -183,9 +183,6 @@ public class PixelContainer {
         int sizeZ = zLimits[1] - zLimits[0] + 1;
         int sizeT = tLimits[1] - tLimits[0] + 1;
 
-        int xStart = xLimits[0];
-        int yStart = yLimits[0];
-
         double[][][][][] tab = new double[sizeT][sizeZ][sizeC][][];
 
         for (int t = 0; t < sizeT; t++) {
@@ -193,8 +190,9 @@ public class PixelContainer {
             for (int z = 0; z < sizeZ; z++) {
                 int posZ = z + zLimits[0];
                 for (int c = 0; c < sizeC; c++) {
-                    int         posC = c + cLimits[0];
-                    Coordinates pos  = new Coordinates(xStart, yStart, posC, posZ, posT);
+                    int posC = c + cLimits[0];
+
+                    Coordinates pos = new Coordinates(xLimits[0], yLimits[0], posC, posZ, posT);
                     tab[t][z][c] = getTile(client, pos, sizeX, sizeY);
                 }
             }
@@ -313,9 +311,6 @@ public class PixelContainer {
         int sizeZ = zLimits[1] - zLimits[0] + 1;
         int sizeT = tLimits[1] - tLimits[0] + 1;
 
-        int xStart = xLimits[0];
-        int yStart = yLimits[0];
-
         byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][];
 
         for (int t = 0; t < sizeT; t++) {
@@ -323,8 +318,9 @@ public class PixelContainer {
             for (int z = 0; z < sizeZ; z++) {
                 int posZ = z + zLimits[0];
                 for (int c = 0; c < sizeC; c++) {
-                    int         posC = c + cLimits[0];
-                    Coordinates pos  = new Coordinates(xStart, yStart, posC, posZ, posT);
+                    int posC = c + cLimits[0];
+
+                    Coordinates pos = new Coordinates(xLimits[0], yLimits[0], posC, posZ, posT);
                     bytes[t][z][c] = getRawTile(client, pos, sizeX, sizeY, bpp);
                 }
             }
