@@ -32,6 +32,7 @@ public class AccessException extends DSAccessException {
         super(message, cause);
     }
 
+
     /**
      * Constructs a new exception with a general message and the cause.
      *

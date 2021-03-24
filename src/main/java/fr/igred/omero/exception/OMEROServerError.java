@@ -37,7 +37,7 @@ public class OMEROServerError extends ServerError {
     /**
      * Constructs a new exception with the specified cause and detailed message.
      *
-     * @param cause   The exception that caused this one to be risen.
+     * @param cause The exception that caused this one to be risen.
      */
     public OMEROServerError(Throwable cause) {
         super(cause);

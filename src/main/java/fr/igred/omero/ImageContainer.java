@@ -524,7 +524,7 @@ public class ImageContainer {
      * @return The folder if it exist.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError      Server error.
+     * @throws OMEROServerError Server error.
      */
     public FolderContainer getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
         List<IObject> os = client.findByQuery("select f " +
@@ -735,7 +735,7 @@ public class ImageContainer {
      * @throws ServiceException      Cannot connect to OMERO.
      * @throws AccessException       Cannot access data on server.
      * @throws ExecutionException    A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError           Server error.
+     * @throws OMEROServerError      Server error.
      * @throws FileNotFoundException The file could not be found.
      * @throws IOException           If an I/O error occurs.
      */

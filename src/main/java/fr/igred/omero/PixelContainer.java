@@ -182,27 +182,27 @@ public class PixelContainer {
         int zEnd   = pixels.getSizeZ() - 1;
         int tEnd   = pixels.getSizeT() - 1;
 
-        if (xBound != null) {
+        if (xBound != null && xBound.length > 1) {
             xStart = Math.max(0, xBound[0]);
             xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
         }
 
-        if (yBound != null) {
+        if (yBound != null && yBound.length > 1) {
             yStart = Math.max(yStart, yBound[0]);
             yEnd = Math.min(yEnd, yBound[1]);
         }
 
-        if (cBound != null) {
+        if (cBound != null && cBound.length > 1) {
             cStart = Math.max(cStart, cBound[0]);
             cEnd = Math.min(cEnd, cBound[1]);
         }
 
-        if (zBound != null) {
+        if (zBound != null && zBound.length > 1) {
             zStart = Math.max(zStart, zBound[0]);
             zEnd = Math.min(zEnd, zBound[1]);
         }
 
-        if (tBound != null) {
+        if (tBound != null && tBound.length > 1) {
             tStart = Math.max(tStart, tBound[0]);
             tEnd = Math.min(tEnd, tBound[1]);
         }
@@ -258,15 +258,9 @@ public class PixelContainer {
      * @param height Height of the plane.
      */
     private void copy(double[][][][][] tab, Plane2D p, Coordinates start, int width, int height) {
-        final int x = start.getX();
-        final int y = start.getY();
-        final int c = start.getC();
-        final int z = start.getZ();
-        final int t = start.getT();
-
         for (int iteX = 0; iteX < width; iteX++) {
             for (int iteY = 0; iteY < height; iteY++) {
-                tab[t][z][c][iteY + y][iteX + x] = p.getPixelValue(iteX, iteY);
+                tab[start.t][start.z][start.c][iteY + start.y][iteX + start.x] = p.getPixelValue(iteX, iteY);
             }
         }
     }
@@ -323,27 +317,27 @@ public class PixelContainer {
         int zEnd   = pixels.getSizeZ() - 1;
         int tEnd   = pixels.getSizeT() - 1;
 
-        if (xBound != null) {
+        if (xBound != null && xBound.length > 1) {
             xStart = Math.max(0, xBound[0]);
             xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
         }
 
-        if (yBound != null) {
+        if (yBound != null && yBound.length > 1) {
             yStart = Math.max(yStart, yBound[0]);
             yEnd = Math.min(yEnd, yBound[1]);
         }
 
-        if (cBound != null) {
+        if (cBound != null && cBound.length > 1) {
             cStart = Math.max(cStart, cBound[0]);
             cEnd = Math.min(cEnd, cBound[1]);
         }
 
-        if (zBound != null) {
+        if (zBound != null && zBound.length > 1) {
             zStart = Math.max(zStart, zBound[0]);
             zEnd = Math.min(zEnd, zBound[1]);
         }
 
-        if (tBound != null) {
+        if (tBound != null && tBound.length > 1) {
             tStart = Math.max(tStart, tBound[0]);
             tEnd = Math.min(tEnd, tBound[1]);
         }
@@ -399,67 +393,45 @@ public class PixelContainer {
      * @param trueWidth Width of the image.
      * @param bpp       Bytes per pixels of the image.
      */
-    private void copy(byte[][][][] bytes,
-                      Plane2D p,
-                      Coordinates start,
-                      int width,
-                      int height,
-                      int trueWidth,
-                      int bpp) {
-        final int x = start.getX();
-        final int y = start.getY();
-        final int c = start.getC();
-        final int z = start.getZ();
-        final int t = start.getT();
-
+    private void copy(byte[][][][] bytes, Plane2D p, Coordinates start, int width, int height, int trueWidth, int bpp) {
         for (int iteX = 0; iteX < width; iteX++)
             for (int iteY = 0; iteY < height; iteY++)
                 for (int i = 0; i < bpp; i++)
-                    bytes[t][z][c][((iteY + y) * trueWidth + iteX + x) * bpp + i] =
+                    bytes[start.t][start.z][start.c][((iteY + start.y) * trueWidth + iteX + start.x) * bpp + i] =
                             p.getRawValue((iteX + iteY * width) * bpp + i);
     }
 
 
+    /** Class containing 5D pixel coordinates */
     private static class Coordinates {
 
+        /** X coordinate */
         private final int x;
+        /** Y coordinate */
         private final int y;
+        /** C coordinate */
         private final int c;
+        /** Z coordinate */
         private final int z;
+        /** T coordinate */
         private final int t;
 
 
-        Coordinates(Integer x, Integer y, Integer c, Integer z, Integer t) {
-            this.x = x == null ? -1 : x;
-            this.y = y == null ? -1 : y;
-            this.c = c == null ? -1 : c;
-            this.z = z == null ? -1 : z;
-            this.t = t == null ? -1 : t;
-        }
-
-
-        int getX() {
-            return x;
-        }
-
-
-        int getY() {
-            return y;
-        }
-
-
-        int getC() {
-            return c;
-        }
-
-
-        int getZ() {
-            return z;
-        }
-
-
-        int getT() {
-            return t;
+        /**
+         * Coordinates constructor.
+         *
+         * @param x X coordinate.
+         * @param y Y coordinate.
+         * @param c C coordinate.
+         * @param z Z coordinate.
+         * @param t T coordinate.
+         */
+        Coordinates(int x, int y, int c, int z, int t) {
+            this.x = x;
+            this.y = y;
+            this.c = c;
+            this.z = z;
+            this.t = t;
         }
 
     }
