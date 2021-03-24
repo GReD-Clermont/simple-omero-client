@@ -171,75 +171,31 @@ public class PixelContainer {
                                          int[] zBound,
                                          int[] tBound)
     throws AccessException, ExecutionException {
-        int xStart = 0;
-        int yStart = 0;
-        int cStart = 0;
-        int zStart = 0;
-        int tStart = 0;
-        int xEnd   = pixels.getSizeX() - 1;
-        int yEnd   = pixels.getSizeY() - 1;
-        int cEnd   = pixels.getSizeC() - 1;
-        int zEnd   = pixels.getSizeZ() - 1;
-        int tEnd   = pixels.getSizeT() - 1;
+        int[] xLimits = checkBounds(xBound, pixels.getSizeX());
+        int[] yLimits = checkBounds(yBound, pixels.getSizeY());
+        int[] cLimits = checkBounds(cBound, pixels.getSizeC());
+        int[] zLimits = checkBounds(zBound, pixels.getSizeZ());
+        int[] tLimits = checkBounds(tBound, pixels.getSizeT());
 
-        if (xBound != null && xBound.length > 1) {
-            xStart = Math.max(0, xBound[0]);
-            xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
-        }
+        int sizeX = xLimits[1] - xLimits[0] + 1;
+        int sizeY = yLimits[1] - yLimits[0] + 1;
+        int sizeC = cLimits[1] - cLimits[0] + 1;
+        int sizeZ = zLimits[1] - zLimits[0] + 1;
+        int sizeT = tLimits[1] - tLimits[0] + 1;
 
-        if (yBound != null && yBound.length > 1) {
-            yStart = Math.max(yStart, yBound[0]);
-            yEnd = Math.min(yEnd, yBound[1]);
-        }
+        int xStart = xLimits[0];
+        int yStart = yLimits[0];
 
-        if (cBound != null && cBound.length > 1) {
-            cStart = Math.max(cStart, cBound[0]);
-            cEnd = Math.min(cEnd, cBound[1]);
-        }
+        double[][][][][] tab = new double[sizeT][sizeZ][sizeC][][];
 
-        if (zBound != null && zBound.length > 1) {
-            zStart = Math.max(zStart, zBound[0]);
-            zEnd = Math.min(zEnd, zBound[1]);
-        }
-
-        if (tBound != null && tBound.length > 1) {
-            tStart = Math.max(tStart, tBound[0]);
-            tEnd = Math.min(tEnd, tBound[1]);
-        }
-
-        int sizeX = xEnd - xStart + 1;
-        int sizeY = yEnd - yStart + 1;
-        int sizeC = cEnd - cStart + 1;
-        int sizeZ = zEnd - zStart + 1;
-        int sizeT = tEnd - tStart + 1;
-
-        double[][][][][] tab = new double[sizeT][sizeZ][sizeC][sizeY][sizeX];
-
-        Plane2D p;
-
-        for (int z = zStart; z <= zEnd; z++) {
-            for (int t = tStart; t <= tEnd; t++) {
-                for (int c = cStart; c <= cEnd; c++) {
-                    for (int x = xStart; x <= xEnd; x += MAX_DIST) {
-                        int width = x + MAX_DIST <= xEnd ? MAX_DIST : xEnd - x + 1;
-                        for (int y = yStart; y <= yEnd; y += MAX_DIST) {
-                            int height = y + MAX_DIST <= yEnd ? MAX_DIST : yEnd - y + 1;
-
-                            try {
-                                p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
-                            } catch (DataSourceException dse) {
-                                throw new AccessException("Cannot read tile", dse);
-                            }
-
-                            Coordinates pos = new Coordinates(x - xStart,
-                                                              y - yStart,
-                                                              c - cStart,
-                                                              z - zStart,
-                                                              t - tStart);
-
-                            copy(tab, p, pos, width, height);
-                        }
-                    }
+        for (int t = 0; t < sizeT; t++) {
+            int posT = t + tLimits[0];
+            for (int z = 0; z < sizeZ; z++) {
+                int posZ = z + zLimits[0];
+                for (int c = 0; c < sizeC; c++) {
+                    int         posC = c + cLimits[0];
+                    Coordinates pos  = new Coordinates(xStart, yStart, posC, posZ, posT);
+                    tab[t][z][c] = getTile(client, pos, sizeX, sizeY);
                 }
             }
         }
@@ -249,18 +205,57 @@ public class PixelContainer {
 
 
     /**
-     * Copies the value from the plane at the corresponding position in the array
+     * Gets the tile at the specified position, with the defined width and height.
      *
-     * @param tab    Array containing the results.
+     * @param client The user.
+     * @param start  Start position of the tile.
+     * @param width  Width of the tile.
+     * @param height Height of the tile.
+     *
+     * @return 2D array containing tile pixel values (as double).
+     *
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    double[][] getTile(Client client, Coordinates start, int width, int height)
+    throws AccessException, ExecutionException {
+        double[][] tile = new double[height][width];
+        Plane2D    p;
+        for (int x = start.x; x < start.x + width; x += MAX_DIST) {
+            int posX  = x - start.x;
+            int sizeX = Math.min(MAX_DIST, width - posX);
+
+            for (int y = start.y; y < start.y + height; y += MAX_DIST) {
+                int posY  = y - start.y;
+                int sizeY = Math.min(MAX_DIST, height - posY);
+
+                try {
+                    p = client.getRdf().getTile(client.getCtx(), pixels, start.z, start.t, start.c, x, y, sizeX, sizeY);
+                } catch (DataSourceException dse) {
+                    throw new AccessException("Cannot read tile", dse);
+                }
+
+                Coordinates pos = new Coordinates(posX, posY, start.c, start.z, start.t);
+                copy(tile, p, pos, sizeX, sizeY);
+            }
+        }
+        return tile;
+    }
+
+
+    /**
+     * Copies the value from the plane at the corresponding position in the 2D array
+     *
+     * @param tab    2D array containing the results.
      * @param p      Plane2D containing the voxels value.
-     * @param start  Starting position coordinates.
+     * @param start  Start position of the tile.
      * @param width  Width of the plane.
      * @param height Height of the plane.
      */
-    private void copy(double[][][][][] tab, Plane2D p, Coordinates start, int width, int height) {
-        for (int iteX = 0; iteX < width; iteX++) {
-            for (int iteY = 0; iteY < height; iteY++) {
-                tab[start.t][start.z][start.c][iteY + start.y][iteX + start.x] = p.getPixelValue(iteX, iteY);
+    private void copy(double[][] tab, Plane2D p, Coordinates start, int width, int height) {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                tab[start.y + y][start.x + x] = p.getPixelValue(x, y);
             }
         }
     }
@@ -306,79 +301,76 @@ public class PixelContainer {
                                      int[] tBound,
                                      int bpp)
     throws ExecutionException, AccessException {
-        int xStart = 0;
-        int yStart = 0;
-        int cStart = 0;
-        int zStart = 0;
-        int tStart = 0;
-        int xEnd   = pixels.getSizeX() - 1;
-        int yEnd   = pixels.getSizeY() - 1;
-        int cEnd   = pixels.getSizeC() - 1;
-        int zEnd   = pixels.getSizeZ() - 1;
-        int tEnd   = pixels.getSizeT() - 1;
+        int[] xLimits = checkBounds(xBound, pixels.getSizeX());
+        int[] yLimits = checkBounds(yBound, pixels.getSizeY());
+        int[] cLimits = checkBounds(cBound, pixels.getSizeC());
+        int[] zLimits = checkBounds(zBound, pixels.getSizeZ());
+        int[] tLimits = checkBounds(tBound, pixels.getSizeT());
 
-        if (xBound != null && xBound.length > 1) {
-            xStart = Math.max(0, xBound[0]);
-            xEnd = Math.min(pixels.getSizeX() - 1, xBound[1]);
-        }
+        int sizeX = xLimits[1] - xLimits[0] + 1;
+        int sizeY = yLimits[1] - yLimits[0] + 1;
+        int sizeC = cLimits[1] - cLimits[0] + 1;
+        int sizeZ = zLimits[1] - zLimits[0] + 1;
+        int sizeT = tLimits[1] - tLimits[0] + 1;
 
-        if (yBound != null && yBound.length > 1) {
-            yStart = Math.max(yStart, yBound[0]);
-            yEnd = Math.min(yEnd, yBound[1]);
-        }
+        int xStart = xLimits[0];
+        int yStart = yLimits[0];
 
-        if (cBound != null && cBound.length > 1) {
-            cStart = Math.max(cStart, cBound[0]);
-            cEnd = Math.min(cEnd, cBound[1]);
-        }
+        byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][];
 
-        if (zBound != null && zBound.length > 1) {
-            zStart = Math.max(zStart, zBound[0]);
-            zEnd = Math.min(zEnd, zBound[1]);
-        }
-
-        if (tBound != null && tBound.length > 1) {
-            tStart = Math.max(tStart, tBound[0]);
-            tEnd = Math.min(tEnd, tBound[1]);
-        }
-
-        int sizeX = xEnd - xStart + 1;
-        int sizeY = yEnd - yStart + 1;
-        int sizeC = cEnd - cStart + 1;
-        int sizeZ = zEnd - zStart + 1;
-        int sizeT = tEnd - tStart + 1;
-
-        byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][sizeX * sizeY * bpp];
-
-        Plane2D p;
-
-        for (int z = zStart; z <= zEnd; z++) {
-            for (int t = tStart; t <= tEnd; t++) {
-                for (int c = cStart; c <= cEnd; c++) {
-                    for (int x = xStart; x <= xEnd; x += MAX_DIST) {
-                        int width = x + MAX_DIST <= xEnd ? MAX_DIST : xEnd - x + 1;
-                        for (int y = yStart; y <= yEnd; y += MAX_DIST) {
-                            int height = y + MAX_DIST <= yEnd ? MAX_DIST : yEnd - y + 1;
-
-                            try {
-                                p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, width, height);
-                            } catch (DataSourceException dse) {
-                                throw new AccessException("Cannot retrieve tile", dse);
-                            }
-
-                            Coordinates pos = new Coordinates(x - xStart,
-                                                              y - yStart,
-                                                              c - cStart,
-                                                              z - zStart,
-                                                              t - tStart);
-                            copy(bytes, p, pos, width, height, sizeX, bpp);
-                        }
-                    }
+        for (int t = 0; t < sizeT; t++) {
+            int posT = t + tLimits[0];
+            for (int z = 0; z < sizeZ; z++) {
+                int posZ = z + zLimits[0];
+                for (int c = 0; c < sizeC; c++) {
+                    int         posC = c + cLimits[0];
+                    Coordinates pos  = new Coordinates(xStart, yStart, posC, posZ, posT);
+                    bytes[t][z][c] = getRawTile(client, pos, sizeX, sizeY, bpp);
                 }
             }
         }
 
         return bytes;
+    }
+
+
+    /**
+     * Gets the tile at the specified position, with the defined width and height.
+     *
+     * @param client The user.
+     * @param start  Start position of the tile.
+     * @param width  Width of the tile.
+     * @param height Height of the tile.
+     * @param bpp    Bytes per pixels of the image.
+     *
+     * @return Array of bytes containing the pixel values.
+     *
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    byte[] getRawTile(Client client, Coordinates start, int width, int height, int bpp)
+    throws AccessException, ExecutionException {
+        byte[]  tile = new byte[height * width * bpp];
+        Plane2D p;
+        for (int x = start.x; x < start.x + width; x += MAX_DIST) {
+            int posX  = x - start.x;
+            int sizeX = Math.min(MAX_DIST, width - posX);
+
+            for (int y = start.y; y < start.y + height; y += MAX_DIST) {
+                int posY  = y - start.y;
+                int sizeY = Math.min(MAX_DIST, height - posY);
+
+                try {
+                    p = client.getRdf().getTile(client.getCtx(), pixels, start.z, start.t, start.c, x, y, sizeX, sizeY);
+                } catch (DataSourceException dse) {
+                    throw new AccessException("Cannot read tile", dse);
+                }
+
+                Coordinates pos = new Coordinates(posX, posY, start.c, start.z, start.t);
+                copy(tile, p, pos, sizeX, sizeY, width, bpp);
+            }
+        }
+        return tile;
     }
 
 
@@ -393,17 +385,35 @@ public class PixelContainer {
      * @param trueWidth Width of the image.
      * @param bpp       Bytes per pixels of the image.
      */
-    private void copy(byte[][][][] bytes, Plane2D p, Coordinates start, int width, int height, int trueWidth, int bpp) {
-        for (int iteX = 0; iteX < width; iteX++)
-            for (int iteY = 0; iteY < height; iteY++)
+    private void copy(byte[] bytes, Plane2D p, Coordinates start, int width, int height, int trueWidth, int bpp) {
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
                 for (int i = 0; i < bpp; i++)
-                    bytes[start.t][start.z][start.c][((iteY + start.y) * trueWidth + iteX + start.x) * bpp + i] =
-                            p.getRawValue((iteX + iteY * width) * bpp + i);
+                    bytes[((y + start.y) * trueWidth + x + start.x) * bpp + i] =
+                            p.getRawValue((x + y * width) * bpp + i);
+    }
+
+
+    /**
+     * Checks bounds
+     *
+     * @param bounds    Array containing the specified bounds for 1 coordinate.
+     * @param imageSize Size of the image (in the corresponding dimension).
+     *
+     * @return New array with valid bounds.
+     */
+    int[] checkBounds(int[] bounds, int imageSize) {
+        int[] newBounds = {0, imageSize - 1};
+        if (bounds != null && bounds.length > 1) {
+            newBounds[0] = Math.max(newBounds[0], bounds[0]);
+            newBounds[1] = Math.min(newBounds[1], bounds[1]);
+        }
+        return newBounds;
     }
 
 
     /** Class containing 5D pixel coordinates */
-    private static class Coordinates {
+    static class Coordinates {
 
         /** X coordinate */
         private final int x;
