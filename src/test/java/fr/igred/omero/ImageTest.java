@@ -31,7 +31,12 @@ import omero.model.NamedValue;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -536,6 +541,13 @@ public class ImageTest extends UserTest {
         if (!file.createNewFile())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
+        byte[] array = new byte[2 * 262144 + 20];
+        new Random().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(new FileOutputStream("./test.txt"))) {
+            out.print(generatedString);
+        }
+
         Long id = image.addFile(client, file);
         if (!file.delete())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
@@ -543,6 +555,27 @@ public class ImageTest extends UserTest {
         client.deleteFile(id);
 
         assertNotEquals(0L, id.longValue());
+    }
+
+
+    @Test
+    public void testGetCreated() throws Exception {
+        Date created = new Date(client.getImage(1L).getCreated().getTime());
+        Date now     = new Date(System.currentTimeMillis());
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+
+        assertEquals(fmt.format(now), fmt.format(created));
+    }
+
+
+    @Test
+    public void testGetAcquisitionDate() throws Exception {
+        Date acquired = new Date(client.getImage(1L).getAcquisitionDate().getTime());
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+
+        assertEquals("2020-04-01_20-04-01", fmt.format(acquired));
     }
 
 }

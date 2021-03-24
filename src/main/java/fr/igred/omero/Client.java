@@ -59,11 +59,10 @@ import omero.model.RoiI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.*;
 
 
 /**
@@ -194,13 +193,11 @@ public class Client {
      * @throws OMEROServerError Server error.
      */
     public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
-        List<IObject> results;
+        List<IObject> results = new ArrayList<>();
         try {
             results = gateway.getQueryService(ctx).findAllByQuery(query, null);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Query failed: " + query);
         }
 
         return results;
@@ -371,13 +368,11 @@ public class Client {
      */
     public ProjectContainer getProject(Long id)
     throws ServiceException, AccessException, NoSuchElementException {
-        Collection<ProjectData> projects;
+        Collection<ProjectData> projects = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get project with ID: " + id);
         }
 
         for (ProjectData project : projects) {
@@ -399,13 +394,11 @@ public class Client {
      */
     public Collection<ProjectContainer> getProjects() throws ServiceException, AccessException {
         Collection<ProjectContainer> projectsContainer = new ArrayList<>();
-        Collection<ProjectData>      projects;
+        Collection<ProjectData>      projects          = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get projects");
         }
 
         for (ProjectData project : projects) {
@@ -427,13 +420,11 @@ public class Client {
      */
     public Collection<ProjectContainer> getProjects(String name) throws ServiceException, AccessException {
         Collection<ProjectContainer> projectsContainer = new ArrayList<>();
-        Collection<ProjectData>      projects;
+        Collection<ProjectData>      projects          = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx, name);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get projects with name: " + name);
         }
 
         for (ProjectData project : projects) {
@@ -457,13 +448,11 @@ public class Client {
      */
     public DatasetContainer getDataset(Long id)
     throws ServiceException, AccessException, NoSuchElementException {
-        Collection<DatasetData> datasets;
+        Collection<DatasetData> datasets = new ArrayList<>();
         try {
             datasets = browse.getDatasets(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get dataset with ID: " + id);
         }
 
         for (DatasetData dataset : datasets) {
@@ -485,13 +474,11 @@ public class Client {
      */
     public Collection<DatasetContainer> getDatasets() throws ServiceException, AccessException {
         Collection<DatasetContainer> datasetContainer = new ArrayList<>();
-        Collection<DatasetData>      datasets;
+        Collection<DatasetData>      datasets         = new ArrayList<>();
         try {
             datasets = browse.getDatasets(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get datasets");
         }
 
         for (DatasetData dataset : datasets) {
@@ -513,13 +500,11 @@ public class Client {
      */
     public Collection<DatasetContainer> getDatasets(String name) throws ServiceException, AccessException {
         Collection<DatasetContainer> datasetContainer = new ArrayList<>();
-        Collection<DatasetData>      datasets;
+        Collection<DatasetData>      datasets         = new ArrayList<>();
         try {
             datasets = browse.getDatasets(ctx, name);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get datasets with name: " + name);
         }
 
         for (DatasetData dataset : datasets) {
@@ -563,13 +548,11 @@ public class Client {
      */
     public ImageContainer getImage(Long id)
     throws ServiceException, AccessException, NoSuchElementException {
-        ImageData image;
+        ImageData image = null;
         try {
             image = browse.getImage(ctx, id);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get image with ID: " + id);
         }
         if (image == null) {
             throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
@@ -587,13 +570,11 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageContainer> getImages() throws ServiceException, AccessException {
-        Collection<ImageData> images;
+        Collection<ImageData> images = new ArrayList<>();
         try {
             images = browse.getUserImages(ctx);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images");
         }
 
         return toImagesContainer(images);
@@ -612,13 +593,11 @@ public class Client {
      */
     public List<ImageContainer> getImages(String name) throws ServiceException, AccessException {
         List<ImageContainer>  selected = new ArrayList<>();
-        Collection<ImageData> images;
+        Collection<ImageData> images   = new ArrayList<>();
         try {
             images = browse.getImages(ctx, name);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images with name: " + name);
         }
 
         for (ImageData image : images) {
@@ -778,13 +757,11 @@ public class Client {
     public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
         Client c = new Client();
 
-        ExperimenterData sudoUser;
+        ExperimenterData sudoUser = user;
         try {
             sudoUser = getAdminFacility().lookupExperimenter(ctx, username);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot switch to user: " + username);
         }
 
         SecurityContext sudoCtx = new SecurityContext(sudoUser.getGroupId());
@@ -811,13 +788,12 @@ public class Client {
     public List<TagAnnotationContainer> getTags() throws OMEROServerError, ServiceException {
         List<TagAnnotationContainer> tags = new ArrayList<>();
 
-        List<IObject> os;
+        List<IObject> os = new ArrayList<>();
+
         try {
             os = gateway.getQueryService(ctx).findAll(TagAnnotation.class.getSimpleName(), null);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Cannot get tags");
         }
 
         for (IObject o : os) {
@@ -859,16 +835,14 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public TagAnnotationContainer getTag(Long id) throws OMEROServerError, ServiceException {
-        IObject o;
+        IObject o = null;
         try {
             o = gateway.getQueryService(ctx).find(TagAnnotation.class.getSimpleName(), id);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Cannot get tag ID: " + id);
         }
 
-        TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
+        TagAnnotationData tag = new TagAnnotationData((TagAnnotation) Objects.requireNonNull(o));
         tag.setNameSpace(tag.getContentAsString());
 
         return new TagAnnotationContainer(tag);
@@ -887,13 +861,11 @@ public class Client {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
-        IObject result;
+        IObject result = object;
         try {
             result = getDm().saveAndReturnObject(ctx, object);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot save object");
         }
         return result;
     }
@@ -914,12 +886,8 @@ public class Client {
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         try {
             getDm().delete(ctx, object).loop(10, 500);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
-        } catch (LockTimeout lt) {
-            throw new OMEROServerError("Thread was interrupted", lt);
+        } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
+            handleException(e, "Cannot delete object");
         }
     }
 
