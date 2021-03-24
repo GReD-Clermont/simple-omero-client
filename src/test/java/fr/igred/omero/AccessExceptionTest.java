@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.Assert.*;
 
 
-public class ExceptionTest extends BasicTest {
+public class AccessExceptionTest extends BasicTest {
 
     private PrintStream error;
 
