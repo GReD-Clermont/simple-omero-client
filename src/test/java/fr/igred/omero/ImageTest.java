@@ -541,7 +541,7 @@ public class ImageTest extends UserTest {
         if (!file.createNewFile())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
-        byte[] array = new byte[2*262144+20];
+        byte[] array = new byte[2 * 262144 + 20];
         new Random().nextBytes(array);
         String generatedString = new String(array, StandardCharsets.UTF_8);
         try (PrintStream out = new PrintStream(new FileOutputStream("./test.txt"))) {

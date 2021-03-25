@@ -44,6 +44,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+
 
 /**
  * Class containing a ProjectData
@@ -328,13 +330,11 @@ public class ProjectContainer {
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
 
-        List<AnnotationData> annotations;
+        List<AnnotationData> annotations = null;
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), project, types, userIds);
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get tags for project ID: " + getId());
         }
 
         if (annotations != null) {

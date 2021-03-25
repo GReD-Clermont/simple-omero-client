@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+
 
 /**
  * Class containing a FolderData.
@@ -163,10 +165,8 @@ public class FolderContainer {
                                     imageId,
                                     Collections.singletonList(roi.getROI()),
                                     Collections.singletonList(folder));
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot add ROI to folder ID: " + getId());
         }
     }
 
@@ -185,15 +185,13 @@ public class FolderContainer {
     public List<ROIContainer> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIContainer>    roiContainers = new ArrayList<>();
-        Collection<ROIResult> roiResults;
+        Collection<ROIResult> roiResults    = new ArrayList<>();
         ROIFacility           roiFac        = client.getRoiFacility();
 
         try {
             roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get ROIs from folder ID: " + getId());
         }
 
         if (!roiResults.isEmpty()) {
@@ -228,10 +226,8 @@ public class FolderContainer {
                                                               Collections.singletonList(roi.getROI()),
                                                               Collections.singletonList(folder));
             }
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot unlink ROIs from folder ID: " + getId());
         }
     }
 
@@ -253,10 +249,8 @@ public class FolderContainer {
                                                           this.imageId,
                                                           Collections.singletonList(roi.getROI()),
                                                           Collections.singletonList(folder));
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        } catch (DSAccessException ae) {
-            throw new AccessException(ae);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot unlink ROI from folder ID: " + getId());
         }
     }
 
