@@ -49,6 +49,7 @@ echo "sizeT=7" >> $WORKDIR/image1.fake.ini
 echo "physicalSizeX=0.5µm" >> $WORKDIR/image1.fake.ini
 echo "physicalSizeY=0.5µm" >> $WORKDIR/image1.fake.ini
 echo "physicalSizeZ=1µm" >> $WORKDIR/image1.fake.ini
+echo "acquisitionDate=2020-04-01_20-04-01" >> $WORKDIR/image1.fake.ini
 
 touch "$WORKDIR/image2.fake"
 echo "pixelType=uint8" >> $WORKDIR/image2.fake.ini

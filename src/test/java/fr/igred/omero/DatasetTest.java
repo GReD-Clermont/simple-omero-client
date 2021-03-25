@@ -24,8 +24,12 @@ import fr.igred.omero.repository.ProjectContainer;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -316,6 +320,13 @@ public class DatasetTest extends UserTest {
         File file = new File("./test.txt");
         if (!file.createNewFile())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+
+        byte[] array = new byte[2*262144+20];
+        new Random().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(new FileOutputStream("./test.txt"))) {
+            out.print(generatedString);
+        }
 
         Long id = dataset.addFile(client, file);
         if (!file.delete())
