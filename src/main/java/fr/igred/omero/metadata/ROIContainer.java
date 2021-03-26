@@ -20,6 +20,8 @@ package fr.igred.omero.metadata;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
+import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
@@ -28,6 +30,8 @@ import omero.model.Roi;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
@@ -114,7 +118,7 @@ public class ROIContainer {
      */
     public List<ShapeContainer> getShapes() {
         List<ShapeContainer> shapes = new ArrayList<>();
-        for(ShapeData shape : data.getShapes()) {
+        for (ShapeData shape : data.getShapes()) {
             shapes.add(new ShapeContainer(shape));
         }
         return shapes;
@@ -124,7 +128,7 @@ public class ROIContainer {
     /**
      * Sets the image linked to the ROI.
      *
-     * @param image  Image linked to the ROIData.
+     * @param image Image linked to the ROIData.
      */
     public void setImage(ImageContainer image) {
         data.setImage(image.getImage().asImage());
@@ -168,13 +172,16 @@ public class ROIContainer {
      *
      * @param client The user.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
      */
-    public void saveROI(Client client) throws ServerError, DSOutOfServiceException {
-        Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
-
-        data = new ROIData(roi);
+    public void saveROI(Client client) throws OMEROServerError, ServiceException {
+        try {
+            Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
+            data = new ROIData(roi);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Cannot save ROI");
+        }
     }
 
 }

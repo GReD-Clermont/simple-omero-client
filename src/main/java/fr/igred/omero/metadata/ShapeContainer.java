@@ -1,6 +1,22 @@
+/*
+ *  Copyright (C) 2020 GReD
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 package fr.igred.omero.metadata;
 
 
+import ome.model.units.BigResult;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.PointData;
 import omero.gateway.model.RectangleData;
@@ -10,9 +26,13 @@ import omero.gateway.model.PolylineData;
 import omero.gateway.model.MaskData;
 import omero.gateway.model.TextData;
 import omero.gateway.model.LineData;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
@@ -22,34 +42,37 @@ import java.util.List;
 public class ShapeContainer {
 
     /** Set if shape is PointData. */
-    public final static String POINT = "Point";
+    public static final String POINT = "Point";
 
     /** Set if shape is LineData. */
-    public final static String LINE = "Line";
+    public static final String LINE = "Line";
 
     /** Set if shape is PolylineData. */
-    public final static String POLYLINE = "Polyline";
+    public static final String POLYLINE = "Polyline";
 
     /** Set if shape is RectangleData. */
-    public final static String RECTANGLE = "Rectangle";
+    public static final String RECTANGLE = "Rectangle";
 
     /** Set if shape is PolygonData. */
-    public final static String POLYGON = "Polygon";
+    public static final String POLYGON = "Polygon";
 
     /** Set if shape is EllipseData. */
-    public final static String ELLIPSE = "Ellipse";
+    public static final String ELLIPSE = "Ellipse";
 
     /** Set if shape is MaskData. */
-    public final static String MASK = "Mask";
+    public static final String MASK = "Mask";
 
     /** Set if shape is TextData. */
-    public final static String TEXT = "Text";
+    public static final String TEXT = "Text";
 
     /** Set if shape is ShapeData. */
-    public final static String OTHER = "Other";
+    public static final String OTHER = "Other";
 
     /** Shape contained in the ShapeContainer. */
     private final ShapeData shape;
+
+    /** Logger **/
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
 
     /**
@@ -231,7 +254,7 @@ public class ShapeContainer {
                 text = ((TextData) this.shape).getText();
                 break;
             default:
-                System.err.println("Cannot get text on this type of ShapeData.");
+                logger.warning("Cannot get text on this type of ShapeData.");
                 break;
         }
         return text;
@@ -271,7 +294,7 @@ public class ShapeContainer {
                 ((TextData) this.shape).setText(text);
                 break;
             default:
-                System.err.println("Cannot set text on this type of ShapeData.");
+                logger.warning("Cannot set text on this type of ShapeData.");
                 break;
         }
     }
@@ -287,7 +310,7 @@ public class ShapeContainer {
         if (getShapeType().equals(MASK)) {
             mask = ((MaskData) shape).getMaskAsBinaryArray();
         } else {
-            System.err.println("ShapeData is not a MaskData object.");
+            logger.warning("ShapeData is not a MaskData object.");
         }
         return mask;
     }
@@ -302,7 +325,7 @@ public class ShapeContainer {
         if (getShapeType().equals(MASK)) {
             ((MaskData) shape).setMask(mask);
         } else {
-            System.err.println("ShapeData is not a MaskData object.");
+            logger.warning("ShapeData is not a MaskData object.");
         }
     }
 
@@ -319,7 +342,7 @@ public class ShapeContainer {
             double[] coordinates = {x, y};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is neither a PointData nor a TextData object.");
+            logger.warning("ShapeData is neither a PointData nor a TextData object.");
         }
     }
 
@@ -338,7 +361,7 @@ public class ShapeContainer {
             double[] coordinates = {x, y, width, height};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is neither a RectangleData nor a MaskData object.");
+            logger.warning("ShapeData is neither a RectangleData nor a MaskData object.");
         }
     }
 
@@ -356,7 +379,7 @@ public class ShapeContainer {
             double[] coordinates = {x1, y1, x2, y2};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is not a LineData object.");
+            logger.warning("ShapeData is not a LineData object.");
         }
     }
 
@@ -374,7 +397,7 @@ public class ShapeContainer {
             double[] coordinates = {x, y, radiusX, radiusY};
             setCoordinates(coordinates);
         } else {
-            System.err.println("ShapeData is not an EllipseData object.");
+            logger.warning("ShapeData is not an EllipseData object.");
         }
     }
 
@@ -392,7 +415,7 @@ public class ShapeContainer {
         } else if (shapeType.equals(POLYGON)) {
             points = ((PolygonData) shape).getPoints();
         } else {
-            System.err.println("ShapeData is neither a PolylineData nor a PolygonData object.");
+            logger.warning("ShapeData is neither a PolylineData nor a PolygonData object.");
         }
         return points;
     }
@@ -410,7 +433,7 @@ public class ShapeContainer {
         } else if (shapeType.equals(POLYGON)) {
             ((PolygonData) shape).setPoints(points);
         } else {
-            System.err.println("ShapeData is neither a PolylineData nor a PolygonData object.");
+            logger.warning("ShapeData is neither a PolylineData nor a PolygonData object.");
         }
     }
 
@@ -480,7 +503,7 @@ public class ShapeContainer {
                 coordinates[3] = ((LineData) shape).getY2();
                 break;
             default:
-                System.err.println("ShapeData does not have coordinates.");
+                logger.warning("ShapeData does not have coordinates.");
                 break;
         }
         return coordinates;
@@ -510,72 +533,123 @@ public class ShapeContainer {
      *                    </ul>
      */
     public void setCoordinates(double[] coordinates) {
-        String shapeType = getShapeType();
-        if (coordinates != null) {
-            switch (shapeType) {
-                case POINT:
-                    if (coordinates.length == 2) {
-                        ((PointData) shape).setX(coordinates[0]);
-                        ((PointData) shape).setY(coordinates[1]);
-                    } else {
-                        System.err.println("2 coordinates required for PointData.");
-                    }
-                    break;
-                case TEXT:
-                    if (coordinates.length == 2) {
-                        ((TextData) shape).setX(coordinates[0]);
-                        ((TextData) shape).setY(coordinates[1]);
-                    } else {
-                        System.err.println("2 coordinates required for TextData.");
-                    }
-                    break;
-                case RECTANGLE:
-                    if (coordinates.length == 4) {
-                        ((RectangleData) shape).setX(coordinates[0]);
-                        ((RectangleData) shape).setY(coordinates[1]);
-                        ((RectangleData) shape).setWidth(coordinates[2]);
-                        ((RectangleData) shape).setHeight(coordinates[3]);
-                    } else {
-                        System.err.println("4 coordinates required for RectangleData.");
-                    }
-                    break;
-                case MASK:
-                    if (coordinates.length == 4) {
-                        ((MaskData) shape).setX(coordinates[0]);
-                        ((MaskData) shape).setY(coordinates[1]);
-                        ((MaskData) shape).setWidth(coordinates[2]);
-                        ((MaskData) shape).setHeight(coordinates[3]);
-                    } else {
-                        System.err.println("4 coordinates required for MaskData.");
-                    }
-                    break;
-                case ELLIPSE:
-                    if (coordinates.length == 4) {
-                        ((EllipseData) shape).setX(coordinates[0]);
-                        ((EllipseData) shape).setY(coordinates[1]);
-                        ((EllipseData) shape).setRadiusX(coordinates[2]);
-                        ((EllipseData) shape).setRadiusY(coordinates[3]);
-                    } else {
-                        System.err.println("4 coordinates required for EllipseData.");
-                    }
-                    break;
-                case LINE:
-                    if (coordinates.length == 4) {
-                        ((LineData) shape).setX1(coordinates[0]);
-                        ((LineData) shape).setY1(coordinates[1]);
-                        ((LineData) shape).setX2(coordinates[2]);
-                        ((LineData) shape).setY2(coordinates[3]);
-                    } else {
-                        System.err.println("2 coordinates required for LineData.");
-                    }
-                    break;
-                default:
-                    System.err.println("ShapeData does not have coordinates.");
-                    break;
-            }
-        } else {
-            System.err.println("ShapeContainer cannot set null coordinates.");
+        String  shapeType    = getShapeType();
+        int     nCoordinates = 4;
+        boolean exception    = true;
+        if (coordinates == null) {
+            logger.warning("ShapeContainer cannot set null coordinates.");
+            return;
         }
+        switch (shapeType) {
+            case POINT:
+                nCoordinates = 2;
+                if (coordinates.length == nCoordinates) {
+                    ((PointData) shape).setX(coordinates[0]);
+                    ((PointData) shape).setY(coordinates[1]);
+                    exception = false;
+                }
+                break;
+            case TEXT:
+                nCoordinates = 2;
+                if (coordinates.length == nCoordinates) {
+                    ((TextData) shape).setX(coordinates[0]);
+                    ((TextData) shape).setY(coordinates[1]);
+                    exception = false;
+                }
+                break;
+            case RECTANGLE:
+                if (coordinates.length == nCoordinates) {
+                    ((RectangleData) shape).setX(coordinates[0]);
+                    ((RectangleData) shape).setY(coordinates[1]);
+                    ((RectangleData) shape).setWidth(coordinates[2]);
+                    ((RectangleData) shape).setHeight(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            case MASK:
+                if (coordinates.length == nCoordinates) {
+                    ((MaskData) shape).setX(coordinates[0]);
+                    ((MaskData) shape).setY(coordinates[1]);
+                    ((MaskData) shape).setWidth(coordinates[2]);
+                    ((MaskData) shape).setHeight(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            case ELLIPSE:
+                if (coordinates.length == nCoordinates) {
+                    ((EllipseData) shape).setX(coordinates[0]);
+                    ((EllipseData) shape).setY(coordinates[1]);
+                    ((EllipseData) shape).setRadiusX(coordinates[2]);
+                    ((EllipseData) shape).setRadiusY(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            case LINE:
+                if (coordinates.length == nCoordinates) {
+                    ((LineData) shape).setX1(coordinates[0]);
+                    ((LineData) shape).setY1(coordinates[1]);
+                    ((LineData) shape).setX2(coordinates[2]);
+                    ((LineData) shape).setY2(coordinates[3]);
+                    exception = false;
+                }
+                break;
+            default:
+                logger.warning("ShapeData does not have coordinates.");
+                exception = false;
+                break;
+        }
+        if (exception) {
+            String message = String.format("%d coordinates required for %s.", nCoordinates, shapeType);
+            logger.warning(message);
+        }
+    }
+
+
+    /**
+     * Gets ShapeData font size
+     *
+     * @return The font size (in typography points)
+     */
+    public double getFontSize() {
+        double fontSize = Double.NaN;
+        try {
+            fontSize = shape.getShapeSettings().getFontSize(UnitsLength.POINT).getValue();
+        } catch (BigResult bigResult) {
+            logger.warning("Error while getting font size from ShapeData.");
+            bigResult.printStackTrace();
+        }
+        return fontSize;
+    }
+
+
+    /**
+     * Sets ShapeData font size
+     *
+     * @param value The font size (in typography points)
+     */
+    public void setFontSize(double value) {
+        LengthI size = new LengthI(value, UnitsLength.POINT);
+        shape.getShapeSettings().setFontSize(size);
+    }
+
+
+    /**
+     * Sets ShapeData stroke color
+     *
+     * @return The stroke color
+     */
+    public Color getStroke() {
+        return shape.getShapeSettings().getStroke();
+    }
+
+
+    /**
+     * Sets ShapeData stroke color
+     *
+     * @param color The stroke color
+     */
+    public void setStroke(Color color) {
+        shape.getShapeSettings().setStroke(color);
     }
 
 }

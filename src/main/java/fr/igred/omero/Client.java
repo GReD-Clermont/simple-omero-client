@@ -18,6 +18,9 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.metadata.TableContainer;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
@@ -28,7 +31,6 @@ import fr.igred.omero.sort.SortTagAnnotationContainer;
 import ome.formats.importer.ImportConfig;
 import omero.LockTimeout;
 import omero.ServerError;
-import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
@@ -57,11 +59,10 @@ import omero.model.RoiI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.*;
 
 
 /**
@@ -72,20 +73,13 @@ import java.util.concurrent.ExecutionException;
 public class Client {
 
     /** User */
-    private ExperimenterData    user;
+    private ExperimenterData user;
     /** Gateway linking the code to OMERO, only linked to one group. */
-    private Gateway             gateway;
+    private Gateway          gateway;
     /** Security context of the user, contains the permissions of the user in this group. */
-    private SecurityContext     ctx;
-    private BrowseFacility      browse;
-    private DataManagerFacility dm;
-    private MetadataFacility    metadata;
-    private ImportConfig        config;
-    private ROIFacility         roiFacility;
-    private TablesFacility      fac;
-    private AdminFacility       admin;
-    private RawDataFacility     rdf;
-    private IQueryPrx           qs;
+    private SecurityContext  ctx;
+    private BrowseFacility   browse;
+    private ImportConfig     config;
 
 
     /**
@@ -124,9 +118,7 @@ public class Client {
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
     public DataManagerFacility getDm() throws ExecutionException {
-        if (dm == null)
-            dm = gateway.getFacility(DataManagerFacility.class);
-        return dm;
+        return gateway.getFacility(DataManagerFacility.class);
     }
 
 
@@ -138,10 +130,7 @@ public class Client {
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
      */
     public MetadataFacility getMetadata() throws ExecutionException {
-        if (metadata == null)
-            metadata = gateway.getFacility(MetadataFacility.class);
-
-        return metadata;
+        return gateway.getFacility(MetadataFacility.class);
     }
 
 
@@ -153,10 +142,7 @@ public class Client {
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
     public ROIFacility getRoiFacility() throws ExecutionException {
-        if (roiFacility == null)
-            roiFacility = gateway.getFacility(ROIFacility.class);
-
-        return roiFacility;
+        return gateway.getFacility(ROIFacility.class);
     }
 
 
@@ -168,10 +154,7 @@ public class Client {
      * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
      */
     public TablesFacility getTablesFacility() throws ExecutionException {
-        if (fac == null)
-            fac = gateway.getFacility(TablesFacility.class);
-
-        return fac;
+        return gateway.getFacility(TablesFacility.class);
     }
 
 
@@ -183,33 +166,41 @@ public class Client {
      * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
      */
     public AdminFacility getAdminFacility() throws ExecutionException {
-        if (admin == null)
-            admin = gateway.getFacility(AdminFacility.class);
-
-        return admin;
+        return gateway.getFacility(AdminFacility.class);
     }
 
 
     /**
-     * Gets the ExecutionException linked to the gateway to access the raw image data.
+     * Gets the RawDataFacility linked to the gateway to access the raw image data.
      *
      * @return the {@link ExecutionException} linked to the gateway.
      *
      * @throws ExecutionException If the ExecutionException can't be retrieved or instantiated.
      */
     public RawDataFacility getRdf() throws ExecutionException {
-        if (rdf == null)
-            rdf = gateway.getFacility(RawDataFacility.class);
-
-        return rdf;
+        return gateway.getFacility(RawDataFacility.class);
     }
 
 
-    public IQueryPrx getQueryService() throws DSOutOfServiceException {
-        if (qs == null)
-            qs = gateway.getQueryService(ctx);
+    /**
+     * Finds objects on OMERO through a database query.
+     *
+     * @param query The database query.
+     *
+     * @return A list of OMERO objects.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     */
+    public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
+        List<IObject> results = new ArrayList<>();
+        try {
+            results = gateway.getQueryService(ctx).findAllByQuery(query, null);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Query failed: " + query);
+        }
 
-        return qs;
+        return results;
     }
 
 
@@ -254,11 +245,11 @@ public class Client {
      * @param password Password of the user.
      * @param groupID  Id of the group to connect.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void connect(String hostname, int port, String username, String password, Long groupID)
-    throws DSOutOfServiceException, ExecutionException {
+    throws ServiceException, ExecutionException {
         LoginCredentials cred = createCred(hostname, port, username, password);
 
         cred.setGroupID(groupID);
@@ -279,11 +270,11 @@ public class Client {
      * @param username Username of the user.
      * @param password Password of the user.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void connect(String hostname, int port, String username, String password)
-    throws DSOutOfServiceException, ExecutionException {
+    throws ServiceException, ExecutionException {
         LoginCredentials cred = createCred(hostname, port, username, password);
 
         createConfig(hostname, port, username, password);
@@ -341,11 +332,15 @@ public class Client {
      *
      * @param cred User credential.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void connect(LoginCredentials cred) throws DSOutOfServiceException, ExecutionException {
-        this.user = gateway.connect(cred);
+    public void connect(LoginCredentials cred) throws ServiceException, ExecutionException {
+        try {
+            this.user = gateway.connect(cred);
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException(oos, oos.getConnectionStatus());
+        }
 
         this.ctx = new SecurityContext(user.getGroupId());
         this.browse = gateway.getFacility(BrowseFacility.class);
@@ -367,20 +362,25 @@ public class Client {
      *
      * @return ProjectContainer containing the project.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws NoSuchElementException  No element with such id.
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException No element with such id.
      */
     public ProjectContainer getProject(Long id)
-    throws DSOutOfServiceException, DSAccessException, NoSuchElementException {
-        Collection<ProjectData> projects = browse.getProjects(ctx);
+    throws ServiceException, AccessException, NoSuchElementException {
+        Collection<ProjectData> projects = new ArrayList<>();
+        try {
+            projects = browse.getProjects(ctx);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get project with ID: " + id);
+        }
 
         for (ProjectData project : projects) {
             if (project.getId() == id) {
                 return new ProjectContainer(project);
             }
         }
-        throw new NoSuchElementException("Project " + id + " doesn't exist in this context");
+        throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
     }
 
 
@@ -389,13 +389,17 @@ public class Client {
      *
      * @return Collection of ProjectContainer.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public Collection<ProjectContainer> getProjects() throws DSOutOfServiceException, DSAccessException {
-        Collection<ProjectData> projects = browse.getProjects(ctx);
-
-        Collection<ProjectContainer> projectsContainer = new ArrayList<>(projects.size());
+    public Collection<ProjectContainer> getProjects() throws ServiceException, AccessException {
+        Collection<ProjectContainer> projectsContainer = new ArrayList<>();
+        Collection<ProjectData>      projects          = new ArrayList<>();
+        try {
+            projects = browse.getProjects(ctx);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get projects");
+        }
 
         for (ProjectData project : projects) {
             projectsContainer.add(new ProjectContainer(project));
@@ -411,13 +415,17 @@ public class Client {
      *
      * @return Collection of ProjectContainer.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public Collection<ProjectContainer> getProjects(String name) throws DSOutOfServiceException, DSAccessException {
-        Collection<ProjectData> projects = browse.getProjects(ctx, name);
-
-        Collection<ProjectContainer> projectsContainer = new ArrayList<>(projects.size());
+    public Collection<ProjectContainer> getProjects(String name) throws ServiceException, AccessException {
+        Collection<ProjectContainer> projectsContainer = new ArrayList<>();
+        Collection<ProjectData>      projects          = new ArrayList<>();
+        try {
+            projects = browse.getProjects(ctx, name);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get projects with name: " + name);
+        }
 
         for (ProjectData project : projects) {
             projectsContainer.add(new ProjectContainer(project));
@@ -434,20 +442,25 @@ public class Client {
      *
      * @return ProjectContainer containing the project.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws NoSuchElementException  No element with such id.
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException No element with such id.
      */
     public DatasetContainer getDataset(Long id)
-    throws DSOutOfServiceException, DSAccessException, NoSuchElementException {
-        Collection<DatasetData> datasets = browse.getDatasets(ctx);
+    throws ServiceException, AccessException, NoSuchElementException {
+        Collection<DatasetData> datasets = new ArrayList<>();
+        try {
+            datasets = browse.getDatasets(ctx);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get dataset with ID: " + id);
+        }
 
         for (DatasetData dataset : datasets) {
             if (dataset.getId() == id) {
                 return new DatasetContainer(dataset);
             }
         }
-        throw new NoSuchElementException("Dataset " + id + " doesn't exist in this context");
+        throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
     }
 
 
@@ -456,13 +469,17 @@ public class Client {
      *
      * @return Collection of DatasetContainer.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public Collection<DatasetContainer> getDatasets() throws DSOutOfServiceException, DSAccessException {
-        Collection<DatasetData> datasets = browse.getDatasets(ctx);
-
-        Collection<DatasetContainer> datasetContainer = new ArrayList<>(datasets.size());
+    public Collection<DatasetContainer> getDatasets() throws ServiceException, AccessException {
+        Collection<DatasetContainer> datasetContainer = new ArrayList<>();
+        Collection<DatasetData>      datasets         = new ArrayList<>();
+        try {
+            datasets = browse.getDatasets(ctx);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get datasets");
+        }
 
         for (DatasetData dataset : datasets) {
             datasetContainer.add(new DatasetContainer(dataset));
@@ -478,13 +495,17 @@ public class Client {
      *
      * @return Collection of DatasetContainer.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public Collection<DatasetContainer> getDatasets(String name) throws DSOutOfServiceException, DSAccessException {
-        Collection<DatasetData> datasets = browse.getDatasets(ctx, name);
-
-        Collection<DatasetContainer> datasetContainer = new ArrayList<>(datasets.size());
+    public Collection<DatasetContainer> getDatasets(String name) throws ServiceException, AccessException {
+        Collection<DatasetContainer> datasetContainer = new ArrayList<>();
+        Collection<DatasetData>      datasets         = new ArrayList<>();
+        try {
+            datasets = browse.getDatasets(ctx, name);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get datasets with name: " + name);
+        }
 
         for (DatasetData dataset : datasets) {
             datasetContainer.add(new DatasetContainer(dataset));
@@ -502,7 +523,7 @@ public class Client {
      * @return ImageContainer list sorted.
      */
     private List<ImageContainer> toImagesContainer(Collection<ImageData> images) {
-        List<ImageContainer> imagesContainer = new ArrayList<>(images.size());
+        List<ImageContainer> imagesContainer = new ArrayList<>();
 
         for (ImageData image : images) {
             imagesContainer.add(new ImageContainer(image));
@@ -517,17 +538,26 @@ public class Client {
     /**
      * Returns an ImageContainer that contains the image with the specified id from OMERO.
      *
-     * @param imageId Id of the image.
+     * @param id Id of the image.
      *
      * @return ImageContainer containing the image.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws NoSuchElementException  No element with such id.
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException No element with such id.
      */
-    public ImageContainer getImage(Long imageId)
-    throws DSOutOfServiceException, DSAccessException, NoSuchElementException {
-        return new ImageContainer(browse.getImage(ctx, imageId));
+    public ImageContainer getImage(Long id)
+    throws ServiceException, AccessException, NoSuchElementException {
+        ImageData image = null;
+        try {
+            image = browse.getImage(ctx, id);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get image with ID: " + id);
+        }
+        if (image == null) {
+            throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
+        }
+        return new ImageContainer(image);
     }
 
 
@@ -536,11 +566,16 @@ public class Client {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImages() throws DSOutOfServiceException, DSAccessException {
-        Collection<ImageData> images = browse.getUserImages(ctx);
+    public List<ImageContainer> getImages() throws ServiceException, AccessException {
+        Collection<ImageData> images = new ArrayList<>();
+        try {
+            images = browse.getUserImages(ctx);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images");
+        }
 
         return toImagesContainer(images);
     }
@@ -553,21 +588,25 @@ public class Client {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImages(String name) throws DSOutOfServiceException, DSAccessException {
-        Collection<ImageData> images = browse.getImages(ctx, name);
-
-        Collection<ImageData> selected = new ArrayList<>(images.size());
+    public List<ImageContainer> getImages(String name) throws ServiceException, AccessException {
+        List<ImageContainer>  selected = new ArrayList<>();
+        Collection<ImageData> images   = new ArrayList<>();
+        try {
+            images = browse.getImages(ctx, name);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images with name: " + name);
+        }
 
         for (ImageData image : images) {
             if (image.getName().equals(name)) {
-                selected.add(image);
+                selected.add(new ImageContainer(image));
             }
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -578,22 +617,14 @@ public class Client {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImagesLike(String motif) throws DSOutOfServiceException, DSAccessException {
-        Collection<ImageData> images = browse.getUserImages(ctx);
-
-        motif = ".*" + motif + ".*";
-
-        Collection<ImageData> selected = new ArrayList<>(images.size());
-
-        for (ImageData image : images) {
-            if (image.getName().matches(motif)) {
-                selected.add(image);
-            }
-        }
-        return toImagesContainer(selected);
+    public List<ImageContainer> getImagesLike(String motif) throws ServiceException, AccessException {
+        List<ImageContainer> images = getImages();
+        final String         regexp = ".*" + motif + ".*";
+        images.removeIf(image -> !image.getName().matches(regexp));
+        return images;
     }
 
 
@@ -604,24 +635,23 @@ public class Client {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws OMEROServerError Server error.
      */
     public List<ImageContainer> getImagesTagged(TagAnnotationContainer tag)
-    throws DSOutOfServiceException, DSAccessException, ServerError {
-        List<IObject> os = getQueryService().findAllByQuery("select link.parent " +
-                                                            "from ImageAnnotationLink link " +
-                                                            "where link.child = " +
-                                                            tag.getId(), null);
-
-        Collection<ImageData> selected = new ArrayList<>();
+    throws ServiceException, AccessException, OMEROServerError {
+        List<ImageContainer> selected = new ArrayList<>();
+        List<IObject> os = findByQuery("select link.parent " +
+                                       "from ImageAnnotationLink link " +
+                                       "where link.child = " +
+                                       tag.getId());
 
         for (IObject o : os) {
-            ImageData image = browse.getImage(ctx, o.getId().getValue());
-            selected.add(image);
+            selected.add(getImage(o.getId().getValue()));
         }
-        return toImagesContainer(selected);
+
+        return selected;
     }
 
 
@@ -632,24 +662,23 @@ public class Client {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws OMEROServerError Server error.
      */
     public List<ImageContainer> getImagesTagged(Long tagId)
-    throws DSOutOfServiceException, DSAccessException, ServerError {
-        List<IObject> os = getQueryService().findAllByQuery("select link.parent " +
-                                                            "from ImageAnnotationLink link " +
-                                                            "where link.child = " +
-                                                            tagId, null);
-
-        Collection<ImageData> selected = new ArrayList<>();
+    throws ServiceException, AccessException, OMEROServerError {
+        List<ImageContainer> selected = new ArrayList<>();
+        List<IObject> os = findByQuery("select link.parent " +
+                                       "from ImageAnnotationLink link " +
+                                       "where link.child = " +
+                                       tagId);
 
         for (IObject o : os) {
-            ImageData image = browse.getImage(ctx, o.getId().getValue());
-            selected.add(image);
+            selected.add(getImage(o.getId().getValue()));
         }
-        return toImagesContainer(selected);
+
+        return selected;
     }
 
 
@@ -660,21 +689,17 @@ public class Client {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageContainer> getImagesKey(String key)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<ImageData> images = browse.getUserImages(ctx);
+    throws ServiceException, AccessException, ExecutionException {
+        List<ImageContainer> selected = new ArrayList<>();
+        List<ImageContainer> images   = getImages();
 
-        Collection<ImageData> selected = new ArrayList<>(images.size());
-
-        for (ImageData image : images) {
-            ImageContainer imageContainer = new ImageContainer(image);
-
-            Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(this);
-
+        for (ImageContainer image : images) {
+            Collection<NamedValue> pairsKeyValue = image.getKeyValuePairs(this);
             for (NamedValue pairKeyValue : pairsKeyValue) {
                 if (pairKeyValue.name.equals(key)) {
                     selected.add(image);
@@ -683,7 +708,7 @@ public class Client {
             }
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -695,21 +720,16 @@ public class Client {
      *
      * @return ImageContainer list.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageContainer> getImagesPairKeyValue(String key, String value)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        Collection<ImageData> images = browse.getUserImages(ctx);
-
-        Collection<ImageData> selected = new ArrayList<>(images.size());
-
-        for (ImageData image : images) {
-            ImageContainer imageContainer = new ImageContainer(image);
-
-            Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(this);
-
+    throws ServiceException, AccessException, ExecutionException {
+        List<ImageContainer> selected = new ArrayList<>();
+        List<ImageContainer> images   = getImages();
+        for (ImageContainer image : images) {
+            Collection<NamedValue> pairsKeyValue = image.getKeyValuePairs(this);
             for (NamedValue pairKeyValue : pairsKeyValue) {
                 if (pairKeyValue.name.equals(key) && pairKeyValue.value.equals(value)) {
                     selected.add(image);
@@ -718,7 +738,7 @@ public class Client {
             }
         }
 
-        return toImagesContainer(selected);
+        return selected;
     }
 
 
@@ -730,14 +750,19 @@ public class Client {
      *
      * @return The client corresponding to the new user.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Client SudoGetUser(String username) throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
         Client c = new Client();
 
-        ExperimenterData sudoUser = getAdminFacility().lookupExperimenter(ctx, username);
+        ExperimenterData sudoUser = user;
+        try {
+            sudoUser = getAdminFacility().lookupExperimenter(ctx, username);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot switch to user: " + username);
+        }
 
         SecurityContext sudoCtx = new SecurityContext(sudoUser.getGroupId());
         sudoCtx.setExperimenter(sudoUser);
@@ -757,13 +782,19 @@ public class Client {
      *
      * @return list of TagAnnotationContainer.
      *
-     * @throws ServerError             Server connection error.
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationContainer> getTags() throws ServerError, DSOutOfServiceException {
-        IQueryPrx                    qs   = gateway.getQueryService(ctx);
-        List<IObject>                os   = qs.findAll(TagAnnotation.class.getSimpleName(), null);
-        List<TagAnnotationContainer> tags = new ArrayList<>(os.size());
+    public List<TagAnnotationContainer> getTags() throws OMEROServerError, ServiceException {
+        List<TagAnnotationContainer> tags = new ArrayList<>();
+
+        List<IObject> os = new ArrayList<>();
+
+        try {
+            os = gateway.getQueryService(ctx).findAll(TagAnnotation.class.getSimpleName(), null);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Cannot get tags");
+        }
 
         for (IObject o : os) {
             TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
@@ -782,22 +813,12 @@ public class Client {
      *
      * @return list of TagAnnotationContainer.
      *
-     * @throws ServerError             Server error.
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationContainer> getTags(String name) throws ServerError, DSOutOfServiceException {
-        IQueryPrx                    qs   = gateway.getQueryService(ctx);
-        List<IObject>                os   = qs.findAll(TagAnnotation.class.getSimpleName(), null);
-        List<TagAnnotationContainer> tags = new ArrayList<>(os.size());
-
-        for (IObject o : os) {
-            TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
-            tag.setNameSpace(tag.getContentAsString());
-
-            if (tag.getNameSpace().equals(name))
-                tags.add(new TagAnnotationContainer(tag));
-        }
-
+    public List<TagAnnotationContainer> getTags(String name) throws OMEROServerError, ServiceException {
+        List<TagAnnotationContainer> tags = getTags();
+        tags.removeIf(tag -> !tag.getName().equals(name));
         tags.sort(new SortTagAnnotationContainer());
         return tags;
     }
@@ -810,17 +831,64 @@ public class Client {
      *
      * @return TagAnnotationContainer containing the specified tag.
      *
-     * @throws ServerError             Server connection error.
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     * @throws ServiceException Cannot connect to OMERO.
      */
-    public TagAnnotationContainer getTag(Long id) throws ServerError, DSOutOfServiceException {
-        IQueryPrx qs = gateway.getQueryService(ctx);
-        IObject   o  = qs.find(TagAnnotation.class.getSimpleName(), id);
+    public TagAnnotationContainer getTag(Long id) throws OMEROServerError, ServiceException {
+        IObject o = null;
+        try {
+            o = gateway.getQueryService(ctx).find(TagAnnotation.class.getSimpleName(), id);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Cannot get tag ID: " + id);
+        }
 
-        TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
+        TagAnnotationData tag = new TagAnnotationData((TagAnnotation) Objects.requireNonNull(o));
         tag.setNameSpace(tag.getContentAsString());
 
         return new TagAnnotationContainer(tag);
+    }
+
+
+    /**
+     * Saves an object on OMERO.
+     *
+     * @param object The OMERO object.
+     *
+     * @return The saved OMERO object
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
+        IObject result = object;
+        try {
+            result = getDm().saveAndReturnObject(ctx, object);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot save object");
+        }
+        return result;
+    }
+
+
+    /**
+     * Deletes an object from OMERO.
+     *
+     * @param object The OMERO object.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    void delete(IObject object)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        try {
+            getDm().delete(ctx, object).loop(10, 500);
+        } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
+            handleException(e, "Cannot delete object");
+        }
     }
 
 
@@ -829,19 +897,19 @@ public class Client {
      *
      * @param image ImageContainer containing the image to delete.
      *
-     * @throws DSOutOfServiceException  Cannot connect to OMERO.
-     * @throws DSAccessException        Cannot access data.
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws LockTimeout              If the thread was interrupted.
+     * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteImage(ImageContainer image) throws
-                                                  DSOutOfServiceException,
-                                                  DSAccessException,
+                                                  ServiceException,
+                                                  AccessException,
                                                   ExecutionException,
                                                   IllegalArgumentException,
-                                                  LockTimeout,
+                                                  OMEROServerError,
                                                   InterruptedException {
         deleteImage(image.getId());
     }
@@ -852,17 +920,16 @@ public class Client {
      *
      * @param id Id of the image to delete.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
-     * @throws LockTimeout             If the thread was interrupted.
-     * @throws InterruptedException    If block(long) does not return.
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
      */
     public void deleteImage(Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException, LockTimeout, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         ImageI image = new ImageI(id, false);
-
-        getDm().delete(ctx, image).loop(10, 500);
+        delete(image);
     }
 
 
@@ -871,19 +938,19 @@ public class Client {
      *
      * @param project ProjectContainer containing the project to delete.
      *
-     * @throws DSOutOfServiceException  Cannot connect to OMERO.
-     * @throws DSAccessException        Cannot access data.
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws LockTimeout              If the thread was interrupted.
+     * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteProject(ProjectContainer project) throws
-                                                        DSOutOfServiceException,
-                                                        DSAccessException,
+                                                        ServiceException,
+                                                        AccessException,
                                                         ExecutionException,
                                                         IllegalArgumentException,
-                                                        LockTimeout,
+                                                        OMEROServerError,
                                                         InterruptedException {
         if (project.getId() != null)
             deleteProject(project.getId());
@@ -897,17 +964,16 @@ public class Client {
      *
      * @param id Id of the project to delete.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
-     * @throws LockTimeout             If the thread was interrupted.
-     * @throws InterruptedException    If block(long) does not return.
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
      */
     public void deleteProject(Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException, LockTimeout, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         ProjectI project = new ProjectI(id, false);
-
-        getDm().delete(ctx, project).loop(10, 500);
+        delete(project);
     }
 
 
@@ -916,11 +982,11 @@ public class Client {
      *
      * @param dataset DatasetContainer containing the dataset to delete.
      *
-     * @throws DSOutOfServiceException  Cannot connect to OMERO.
-     * @throws DSAccessException        Cannot access data.
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws LockTimeout              If the thread was interrupted.
+     * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteDataset(DatasetContainer dataset) throws
@@ -928,7 +994,7 @@ public class Client {
                                                         DSAccessException,
                                                         ExecutionException,
                                                         IllegalArgumentException,
-                                                        LockTimeout,
+                                                        OMEROServerError,
                                                         InterruptedException {
         if (dataset.getId() != null)
             deleteDataset(dataset.getId());
@@ -942,17 +1008,16 @@ public class Client {
      *
      * @param id Id of the dataset to delete.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
-     * @throws LockTimeout             If the thread was interrupted.
-     * @throws InterruptedException    If block(long) does not return.
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
      */
     public void deleteDataset(Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException, LockTimeout, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         DatasetI dataset = new DatasetI(id, false);
-
-        getDm().delete(ctx, dataset).loop(10, 500);
+        delete(dataset);
     }
 
 
@@ -961,19 +1026,19 @@ public class Client {
      *
      * @param tag TagContainer containing the tag to delete.
      *
-     * @throws DSOutOfServiceException  Cannot connect to OMERO.
-     * @throws DSAccessException        Cannot access data.
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws LockTimeout              If the thread was interrupted.
+     * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteTag(TagAnnotationContainer tag) throws
-                                                      DSOutOfServiceException,
-                                                      DSAccessException,
+                                                      ServiceException,
+                                                      AccessException,
                                                       ExecutionException,
                                                       IllegalArgumentException,
-                                                      LockTimeout,
+                                                      OMEROServerError,
                                                       InterruptedException {
         if (tag.getId() != null)
             deleteTag(tag.getId());
@@ -987,17 +1052,16 @@ public class Client {
      *
      * @param id Id of the tag to delete.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
-     * @throws LockTimeout             If the thread was interrupted.
-     * @throws InterruptedException    If block(long) does not return.
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
      */
     public void deleteTag(Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException, LockTimeout, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         TagAnnotationI tag = new TagAnnotationI(id, false);
-
-        getDm().delete(ctx, tag).loop(10, 500);
+        delete(tag);
     }
 
 
@@ -1006,19 +1070,19 @@ public class Client {
      *
      * @param roi ROIContainer containing the ROI to delete.
      *
-     * @throws DSOutOfServiceException  Cannot connect to OMERO.
-     * @throws DSAccessException        Cannot access data.
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws LockTimeout              If the thread was interrupted.
+     * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteROI(ROIContainer roi) throws
-                                            DSOutOfServiceException,
-                                            DSAccessException,
+                                            ServiceException,
+                                            AccessException,
                                             ExecutionException,
                                             IllegalArgumentException,
-                                            LockTimeout,
+                                            OMEROServerError,
                                             InterruptedException {
         if (roi.getId() != null)
             deleteROI(roi.getId());
@@ -1032,17 +1096,16 @@ public class Client {
      *
      * @param id Id of the ROI to delete.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
-     * @throws LockTimeout             If the thread was interrupted.
-     * @throws InterruptedException    If block(long) does not return.
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
      */
     public void deleteROI(Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException, LockTimeout, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         RoiI roi = new RoiI(id, false);
-
-        getDm().delete(ctx, roi).loop(10, 500);
+        delete(roi);
     }
 
 
@@ -1051,15 +1114,15 @@ public class Client {
      *
      * @param table TableContainer containing the table to delete.
      *
-     * @throws DSOutOfServiceException  Cannot connect to OMERO.
-     * @throws DSAccessException        Cannot access data.
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws LockTimeout              If the thread was interrupted.
+     * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteTable(TableContainer table)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException, LockTimeout, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         deleteTag(table.getId());
     }
 
@@ -1069,17 +1132,16 @@ public class Client {
      *
      * @param id Id of the file to delete.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
-     * @throws LockTimeout             If the thread was interrupted.
-     * @throws InterruptedException    If block(long) does not return.
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
      */
     public void deleteFile(Long id)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException, LockTimeout, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         FileAnnotationI table = new FileAnnotationI(id, false);
-
-        getDm().delete(ctx, table).loop(10, 500);
+        delete(table);
     }
 
 
@@ -1088,23 +1150,22 @@ public class Client {
      *
      * @param folder FolderContainer containing the folder to delete.
      *
-     * @throws DSOutOfServiceException  Cannot connect to OMERO.
-     * @throws DSAccessException        Cannot access data.
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException Id not defined.
-     * @throws LockTimeout              If the thread was interrupted.
+     * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteFolder(FolderContainer folder) throws
-                                                     DSOutOfServiceException,
-                                                     DSAccessException,
+                                                     ServiceException,
+                                                     AccessException,
                                                      ExecutionException,
                                                      IllegalArgumentException,
-                                                     LockTimeout,
+                                                     OMEROServerError,
                                                      InterruptedException {
         folder.unlinkAllROI(this);
-
-        getDm().delete(ctx, folder.getFolder().asIObject()).loop(10, 500);
+        delete(folder.getFolder().asIObject());
     }
 
 }
