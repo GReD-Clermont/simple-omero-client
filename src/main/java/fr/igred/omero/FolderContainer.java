@@ -18,7 +18,10 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.ROIContainer;
+import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -33,6 +36,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -73,17 +78,22 @@ public class FolderContainer {
      * @param client The user.
      * @param name   Name of the folder.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ServerError             Server connection error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
      */
-    public FolderContainer(Client client, String name) throws DSOutOfServiceException, ServerError {
+    public FolderContainer(Client client, String name) throws ServiceException, OMEROServerError {
         folder = new FolderData();
         folder.setName(name);
-
-        Folder f = (Folder) client.getGateway()
-                                  .getUpdateService(client.getCtx())
-                                  .saveAndReturnObject(folder.asIObject());
-        folder.setFolder(f);
+        try {
+            Folder f = (Folder) client.getGateway()
+                                      .getUpdateService(client.getCtx())
+                                      .saveAndReturnObject(folder.asIObject());
+            folder.setFolder(f);
+        } catch (DSOutOfServiceException os) {
+            throw new ServiceException(os, os.getConnectionStatus());
+        } catch (ServerError se) {
+            throw new OMEROServerError(se);
+        }
     }
 
 
@@ -143,18 +153,21 @@ public class FolderContainer {
      * @param client The user.
      * @param roi    ROI to add.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      If the ROIFacility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
     public void addROI(Client client, ROIContainer roi)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFac = client.getRoiFacility();
-
-        roiFac.addRoisToFolders(client.getCtx(),
-                                imageId,
-                                Collections.singletonList(roi.getROI()),
-                                Collections.singletonList(folder));
+        try {
+            roiFac.addRoisToFolders(client.getCtx(),
+                                    imageId,
+                                    Collections.singletonList(roi.getROI()),
+                                    Collections.singletonList(folder));
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot add ROI to folder ID: " + getId());
+        }
     }
 
 
@@ -165,29 +178,30 @@ public class FolderContainer {
      *
      * @return List of ROIContainer containing the ROI.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ROIContainer> getROIs(Client client)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        ROIFacility roiFac = client.getRoiFacility();
+    throws ServiceException, AccessException, ExecutionException {
+        List<ROIContainer>    roiContainers = new ArrayList<>();
+        Collection<ROIResult> roiResults    = new ArrayList<>();
+        ROIFacility           roiFac        = client.getRoiFacility();
 
-        Collection<ROIResult> roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());
-        List<ROIContainer>    roiContainers;
+        try {
+            roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get ROIs from folder ID: " + getId());
+        }
 
-        if (roiResults.size() != 0) {
+        if (!roiResults.isEmpty()) {
             ROIResult           r    = roiResults.iterator().next();
             Collection<ROIData> rois = r.getROIs();
 
-            roiContainers = new ArrayList<>(rois.size());
             for (ROIData roi : rois) {
                 ROIContainer temp = new ROIContainer(roi);
-
                 roiContainers.add(temp);
             }
-        } else {
-            roiContainers = new ArrayList<>();
         }
 
         return roiContainers;
@@ -199,18 +213,21 @@ public class FolderContainer {
      *
      * @param client The user.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkAllROI(Client client) throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        List<ROIContainer> rois = getROIs(client);
-
-        for (ROIContainer roi : rois) {
-            client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
-                                                          this.imageId,
-                                                          Collections.singletonList(roi.getROI()),
-                                                          Collections.singletonList(folder));
+    public void unlinkAllROI(Client client) throws ServiceException, AccessException, ExecutionException {
+        try {
+            List<ROIContainer> rois = getROIs(client);
+            for (ROIContainer roi : rois) {
+                client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
+                                                              this.imageId,
+                                                              Collections.singletonList(roi.getROI()),
+                                                              Collections.singletonList(folder));
+            }
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot unlink ROIs from folder ID: " + getId());
         }
     }
 
@@ -221,16 +238,20 @@ public class FolderContainer {
      * @param client The user.
      * @param roi    ROI to unlink.
      *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws DSAccessException       Cannot access data.
-     * @throws ExecutionException      A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void unlinkROI(Client client, ROIContainer roi)
-    throws DSOutOfServiceException, DSAccessException, ExecutionException {
-        client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
-                                                      this.imageId,
-                                                      Collections.singletonList(roi.getROI()),
-                                                      Collections.singletonList(folder));
+    throws ServiceException, AccessException, ExecutionException {
+        try {
+            client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
+                                                          this.imageId,
+                                                          Collections.singletonList(roi.getROI()),
+                                                          Collections.singletonList(folder));
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot unlink ROI from folder ID: " + getId());
+        }
     }
 
 }
