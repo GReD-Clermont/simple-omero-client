@@ -32,6 +32,7 @@ import omero.model.enums.UnitsLength;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -615,8 +616,7 @@ public class ShapeContainer {
         try {
             fontSize = shape.getShapeSettings().getFontSize(UnitsLength.POINT).getValue();
         } catch (BigResult bigResult) {
-            logger.warning("Error while getting font size from ShapeData.");
-            bigResult.printStackTrace();
+            logger.log(Level.WARNING, "Error while getting font size from ShapeData.", bigResult);
         }
         return fontSize;
     }
