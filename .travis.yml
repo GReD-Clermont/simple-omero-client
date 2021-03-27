@@ -1,5 +1,11 @@
 language: java
-jdk: openjdk8
+jdk: openjdk11
+
+addons:
+  sonarcloud:
+    organization: "gred-clermont"
+    token:
+      secure: "UYiqWY0rn7Cc4t5W50TyXC11IIujnzjWcan7lQ0yONQnNbEmEetRdukYfTS5PTY7nS+2T3mR5e/+EAASraey3irSp5WjHELyteBGRDn9rcsMNN1mIRIKIBjiMYUjdQWMoz5DTiuVT1tIDF6OHI+j9RRcADIPZXNvWI2L810aE5iLoTHJxgufUoPjsyYviazUBqHUmE+4YFH/Y7syeeV53oAn9DZqmlo8wwGfYrtKwGkuX6HYQoCOwa8w1jjYxBLFH3+2b4Qi93XwdPKbqFfVU1wP/Rj3rUKPYgiQCmV06YvnR1bqwXkp7Gd0a23fxgZ7GNxcA9XjFrCIi6/ICfnuP0BihiylBtYGLKJ0lOfivzsPg2PMhfLhsBv5DcvdTUCG9vJ9+y6R8jZXQs/92gW+CKV9ZMgtbPUlvkpO/XrJrGwYXg8VEdpoarFqlXhs9dabLxkYvAfLvt5nEki6wYCeiNQelTX6usdHhJNWWYIlm3sKYXS13Zk5H0T00mqzP+J3QSi3kDo3fFZAFN8ckWB+gjSvj6UpfNZK4gU32zNyfxB73VLWjyywwruPK1SvaStt9kXnSOV/jCxm+rlTimbthghGWmUbSOdWdTOx3ZltE7gpXS8UTNELx2j1O9l0oi8wKqNo50sj+6nsrH4evTmMVBqVpBpqA0n3dydGPPCfQqA="
 
 stages:
   - name: build
@@ -34,6 +40,7 @@ jobs:
       script:
         - set -e
         - .omero/lib-docker
+        - mvn sonar:sonar -Dsonar.projectKey=GReD-Clermont_simple-omero-client
     - stage: snapshot
       script:
         - mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
