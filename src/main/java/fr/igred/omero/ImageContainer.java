@@ -23,6 +23,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.metadata.ROIContainer;
 import fr.igred.omero.PixelContainer.Coordinates;
+import fr.igred.omero.PixelContainer.Bounds;
 import fr.igred.omero.metadata.annotation.MapAnnotationContainer;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
@@ -573,17 +574,19 @@ public class ImageContainer {
     throws AccessException, ExecutionException {
         PixelContainer pixels = this.getPixels();
 
-        int[] xLimits = pixels.checkBounds(xBound, pixels.getSizeX());
-        int[] yLimits = pixels.checkBounds(yBound, pixels.getSizeY());
-        int[] cLimits = pixels.checkBounds(cBound, pixels.getSizeC());
-        int[] zLimits = pixels.checkBounds(zBound, pixels.getSizeZ());
-        int[] tLimits = pixels.checkBounds(tBound, pixels.getSizeT());
+        Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
 
-        int sizeX = xLimits[1] - xLimits[0] + 1;
-        int sizeY = yLimits[1] - yLimits[0] + 1;
-        int sizeC = cLimits[1] - cLimits[0] + 1;
-        int sizeZ = zLimits[1] - zLimits[0] + 1;
-        int sizeT = tLimits[1] - tLimits[0] + 1;
+        int startX = bounds.getStart().getX();
+        int startY = bounds.getStart().getY();
+        int startC = bounds.getStart().getC();
+        int startZ = bounds.getStart().getZ();
+        int startT = bounds.getStart().getT();
+
+        int sizeX = bounds.getSize().getX();
+        int sizeY = bounds.getSize().getY();
+        int sizeC = bounds.getSize().getC();
+        int sizeZ = bounds.getSize().getZ();
+        int sizeT = bounds.getSize().getT();
 
         Length spacingX = pixels.getPixelSizeX();
         Length spacingY = pixels.getPixelSizeY();
@@ -619,13 +622,13 @@ public class ImageContainer {
         double max = 0;
 
         for (int t = 0; t < sizeT; t++) {
-            int posT = t + tLimits[0];
+            int posT = t + startT;
             for (int z = 0; z < sizeZ; z++) {
-                int posZ = z + zLimits[0];
+                int posZ = z + startZ;
                 for (int c = 0; c < sizeC; c++) {
-                    int posC = c + cLimits[0];
+                    int posC = c + startC;
 
-                    Coordinates pos = new Coordinates(xLimits[0], yLimits[0], posC, posZ, posT);
+                    Coordinates pos = new Coordinates(startX, startY, posC, posZ, posT);
 
                     byte[] tiles = pixels.getRawTile(client, pos, sizeX, sizeY, bpp);
 
