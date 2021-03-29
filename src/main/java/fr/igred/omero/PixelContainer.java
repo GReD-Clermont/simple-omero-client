@@ -203,28 +203,18 @@ public class PixelContainer {
      */
     double[][] getTile(Client client, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
-        double[][] tile = new double[height][width];
         Plane2D    p;
-
-        int c = start.c;
-        int z = start.z;
-        int t = start.t;
-
-        for (int x = start.x; x < start.x + width; x += MAX_DIST) {
-            int relX  = x - start.x;
+        double[][] tile = new double[height][width];
+        for (int relX = 0, x = start.x; relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
-
-            for (int y = start.y; y < start.y + height; y += MAX_DIST) {
-                int relY  = y - start.y;
+            for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int sizeY = Math.min(MAX_DIST, height - relY);
-
                 try {
-                    p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, sizeX, sizeY);
+                    p = client.getRdf().getTile(client.getCtx(), pixels, start.z, start.t, start.c, x, y, sizeX, sizeY);
                 } catch (DataSourceException dse) {
                     throw new AccessException("Cannot read tile", dse);
                 }
-
-                Coordinates pos = new Coordinates(relX, relY, c, z, t);
+                Coordinates pos = new Coordinates(relX, relY, start.c, start.z, start.t);
                 copy(tile, p, pos, sizeX, sizeY);
             }
         }
@@ -323,32 +313,22 @@ public class PixelContainer {
      */
     byte[] getRawTile(Client client, Coordinates start, int width, int height, int bpp)
     throws AccessException, ExecutionException {
-        byte[]  rawTile = new byte[height * width * bpp];
         Plane2D p;
-
-        int c = start.c;
-        int z = start.z;
-        int t = start.t;
-
-        for (int x = start.x; x < start.x + width; x += MAX_DIST) {
-            int relX = x - start.x;
+        byte[]  tile = new byte[height * width * bpp];
+        for (int relX = 0, x = start.x; relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
-
-            for (int y = start.y; y < start.y + height; y += MAX_DIST) {
-                int relY  = y - start.y;
+            for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int sizeY = Math.min(MAX_DIST, height - relY);
-
                 try {
-                    p = client.getRdf().getTile(client.getCtx(), pixels, z, t, c, x, y, sizeX, sizeY);
+                    p = client.getRdf().getTile(client.getCtx(), pixels, start.z, start.t, start.c, x, y, sizeX, sizeY);
                 } catch (DataSourceException dse) {
-                    throw new AccessException("Cannot read tile", dse);
+                    throw new AccessException("Cannot read raw tile", dse);
                 }
-
-                Coordinates pos = new Coordinates(relX, relY, c, z, t);
-                copy(rawTile, p, pos, sizeX, sizeY, width, bpp);
+                Coordinates pos = new Coordinates(relX, relY, start.c, start.z, start.t);
+                copy(tile, p, pos, sizeX, sizeY, width, bpp);
             }
         }
-        return rawTile;
+        return tile;
     }
 
 
