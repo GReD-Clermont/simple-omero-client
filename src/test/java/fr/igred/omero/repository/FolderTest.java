@@ -15,11 +15,12 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.repository;
 
 
-import fr.igred.omero.metadata.ROIContainer;
-import fr.igred.omero.metadata.ShapeContainer;
+import fr.igred.omero.UserTest;
+import fr.igred.omero.roi.ROIContainer;
+import fr.igred.omero.roi.ShapeContainer;
 import org.junit.Test;
 
 import java.util.List;

@@ -18,7 +18,7 @@
 package fr.igred.omero.sort;
 
 
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.annotations.TagAnnotationContainer;
 
 import java.util.Comparator;
 

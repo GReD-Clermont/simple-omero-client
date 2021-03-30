@@ -19,11 +19,10 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ImageContainer;
 import fr.igred.omero.ObjectContainer;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.annotations.TagAnnotationContainer;
 import fr.igred.omero.sort.SortImageContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
 import fr.igred.omero.exception.OMEROServerError;

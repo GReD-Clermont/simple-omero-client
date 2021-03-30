@@ -17,6 +17,7 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.repository.DatasetContainer;
+import fr.igred.omero.repository.ImageContainer;
 import fr.igred.omero.repository.ProjectContainer;
 import org.junit.Test;
 

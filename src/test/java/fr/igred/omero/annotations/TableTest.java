@@ -13,11 +13,12 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.metadata.TableContainer;
+import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.DatasetContainer;
+import fr.igred.omero.repository.ImageContainer;
 import omero.gateway.model.ImageData;
 import org.junit.Test;
 

@@ -15,17 +15,19 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Client;
+import fr.igred.omero.ObjectContainer;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
-import fr.igred.omero.metadata.ROIContainer;
-import fr.igred.omero.PixelContainer.Coordinates;
-import fr.igred.omero.PixelContainer.Bounds;
-import fr.igred.omero.metadata.annotation.MapAnnotationContainer;
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.roi.ROIContainer;
+import fr.igred.omero.repository.PixelContainer.Coordinates;
+import fr.igred.omero.repository.PixelContainer.Bounds;
+import fr.igred.omero.annotations.MapAnnotationContainer;
+import fr.igred.omero.annotations.TagAnnotationContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
 import ij.IJ;
 import ij.ImagePlus;

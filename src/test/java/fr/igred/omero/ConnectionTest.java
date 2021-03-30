@@ -18,7 +18,8 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.annotations.TagAnnotationContainer;
+import fr.igred.omero.repository.ImageContainer;
 import org.junit.Test;
 
 import java.util.List;

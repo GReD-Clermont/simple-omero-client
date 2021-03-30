@@ -21,10 +21,12 @@ package fr.igred.omero;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.metadata.ROIContainer;
-import fr.igred.omero.metadata.TableContainer;
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.annotations.TableContainer;
+import fr.igred.omero.annotations.TagAnnotationContainer;
+import fr.igred.omero.roi.ROIContainer;
 import fr.igred.omero.repository.DatasetContainer;
+import fr.igred.omero.repository.FolderContainer;
+import fr.igred.omero.repository.ImageContainer;
 import fr.igred.omero.repository.ProjectContainer;
 import fr.igred.omero.sort.SortImageContainer;
 import fr.igred.omero.sort.SortTagAnnotationContainer;
@@ -123,7 +125,7 @@ public class Client {
 
 
     /**
-     * Gets the MetadataFacility used to manipulate metadata from OMERO.
+     * Gets the MetadataFacility used to manipulate annotations from OMERO.
      *
      * @return the {@link MetadataFacility} linked to the gateway.
      *

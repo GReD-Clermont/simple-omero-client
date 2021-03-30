@@ -18,7 +18,8 @@ package fr.igred.omero;
 
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.annotations.TagAnnotationContainer;
+import fr.igred.omero.repository.ImageContainer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

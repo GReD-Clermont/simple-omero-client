@@ -18,7 +18,7 @@
 package fr.igred.omero.sort;
 
 
-import fr.igred.omero.ImageContainer;
+import fr.igred.omero.repository.ImageContainer;
 
 import java.util.Comparator;
 
