@@ -20,6 +20,7 @@ package fr.igred.omero.metadata;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
+import fr.igred.omero.ObjectContainer;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
@@ -38,17 +39,13 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  * Class containing a ROIData
  * <p> Implements function using the ROIData contained
  */
-public class ROIContainer {
-
-    /** ROI contained in the ROIContainer */
-    ROIData data;
-
+public class ROIContainer extends ObjectContainer<ROIData> {
 
     /**
      * Constructor of the ROIContainer class.
      */
     public ROIContainer() {
-        data = new ROIData();
+        super(new ROIData());
     }
 
 
@@ -58,7 +55,7 @@ public class ROIContainer {
      * @param shapes List of shapes to add to the ROIData.
      */
     public ROIContainer(List<ShapeContainer> shapes) {
-        data = new ROIData();
+        super(new ROIData());
 
         for (ShapeContainer shape : shapes)
             addShape(shape);
@@ -71,17 +68,7 @@ public class ROIContainer {
      * @param data ROIData to be contained.
      */
     public ROIContainer(ROIData data) {
-        this.data = data;
-    }
-
-
-    /**
-     * Gets the ROIData id.
-     *
-     * @return the {@link ROIData} ID.
-     */
-    public Long getId() {
-        return data.getId();
+        super(data);
     }
 
 

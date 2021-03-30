@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
+import fr.igred.omero.ObjectContainer;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
@@ -51,29 +52,15 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing a ProjectData
  * <p> Implements function using the Project contained
  */
-public class ProjectContainer {
-
-    /** ProjectData contained */
-    private final ProjectData project;
-
+public class ProjectContainer extends ObjectContainer<ProjectData> {
 
     /**
      * Constructor of the ProjectContainer class.
      *
-     * @param p ProjectData to be contained.
+     * @param project ProjectData to be contained.
      */
-    public ProjectContainer(ProjectData p) {
-        project = p;
-    }
-
-
-    /**
-     * Gets the ProjectData id
-     *
-     * @return ProjectData id.
-     */
-    public Long getId() {
-        return project.getId();
+    public ProjectContainer(ProjectData project) {
+        super(project);
     }
 
 
@@ -83,7 +70,7 @@ public class ProjectContainer {
      * @return ProjectData name.
      */
     public String getName() {
-        return project.getName();
+        return data.getName();
     }
 
 
@@ -93,7 +80,7 @@ public class ProjectContainer {
      * @return ProjectData description.
      */
     public String getDescription() {
-        return project.getDescription();
+        return data.getDescription();
     }
 
 
@@ -101,7 +88,7 @@ public class ProjectContainer {
      * @return the ProjectData contained.
      */
     public ProjectData getProject() {
-        return project;
+        return data;
     }
 
 
@@ -113,7 +100,7 @@ public class ProjectContainer {
     public List<DatasetContainer> getDatasets() {
         List<DatasetContainer> datasetsContainer = new ArrayList<>();
 
-        Collection<DatasetData> datasets = project.getDatasets();
+        Collection<DatasetData> datasets = data.getDatasets();
 
         for (DatasetData dataset : datasets)
             datasetsContainer.add(new DatasetContainer(dataset));
@@ -191,7 +178,7 @@ public class ProjectContainer {
     private DatasetContainer addDataset(Client client, DatasetData datasetData)
     throws ServiceException, AccessException, ExecutionException {
         DatasetContainer newDataset;
-        datasetData.setProjects(Collections.singleton(project));
+        datasetData.setProjects(Collections.singleton(data));
         DatasetData dataset = (DatasetData) PojoMapper.asDataObject(client.save(datasetData.asIObject()));
         newDataset = new DatasetContainer(dataset);
         return newDataset;
@@ -248,7 +235,7 @@ public class ProjectContainer {
     throws ServiceException, AccessException, ExecutionException {
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
-        link.setParent(new ProjectI(project.getId(), false));
+        link.setParent(new ProjectI(data.getId(), false));
 
         client.save(link);
     }
@@ -268,7 +255,7 @@ public class ProjectContainer {
     throws ServiceException, AccessException, ExecutionException {
         ProjectAnnotationLink link = new ProjectAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
-        link.setParent(new ProjectI(project.getId(), false));
+        link.setParent(new ProjectI(data.getId(), false));
 
         client.save(link);
     }
@@ -332,7 +319,7 @@ public class ProjectContainer {
 
         List<AnnotationData> annotations = null;
         try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), project, types, userIds);
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get tags for project ID: " + getId());
         }

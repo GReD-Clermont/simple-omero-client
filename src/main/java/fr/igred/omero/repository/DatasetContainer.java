@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.ImageContainer;
+import fr.igred.omero.ObjectContainer;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
@@ -44,7 +45,6 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
-import omero.gateway.model.TableData;
 import omero.gateway.model.TagAnnotationData;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -77,10 +77,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing a DatasetData.
  * <p> Implements function using the DatasetData contained
  */
-public class DatasetContainer {
-
-    /** DatasetData contained */
-    private final DatasetData dataset;
+public class DatasetContainer extends ObjectContainer<DatasetData> {
 
 
     /**
@@ -90,9 +87,9 @@ public class DatasetContainer {
      * @param description Description of the dataset.
      */
     public DatasetContainer(String name, String description) {
-        this.dataset = new DatasetData();
-        this.dataset.setName(name);
-        this.dataset.setDescription(description);
+        super(new DatasetData());
+        this.data.setName(name);
+        this.data.setDescription(description);
     }
 
 
@@ -102,17 +99,7 @@ public class DatasetContainer {
      * @param dataset Dataset to be contained.
      */
     public DatasetContainer(DatasetData dataset) {
-        this.dataset = dataset;
-    }
-
-
-    /**
-     * Gets the DatasetData id
-     *
-     * @return DatasetData id.
-     */
-    public Long getId() {
-        return dataset.getId();
+        super(dataset);
     }
 
 
@@ -122,7 +109,7 @@ public class DatasetContainer {
      * @return DatasetData name.
      */
     public String getName() {
-        return dataset.getName();
+        return data.getName();
     }
 
 
@@ -132,7 +119,7 @@ public class DatasetContainer {
      * @return DatasetData description.
      */
     public String getDescription() {
-        return dataset.getDescription();
+        return data.getDescription();
     }
 
 
@@ -140,7 +127,7 @@ public class DatasetContainer {
      * @return the DatasetData contained.
      */
     public DatasetData getDataset() {
-        return dataset;
+        return data;
     }
 
 
@@ -194,7 +181,7 @@ public class DatasetContainer {
     throws ServiceException, AccessException, ExecutionException {
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
-        link.setParent(new DatasetI(dataset.getId(), false));
+        link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);
     }
@@ -214,7 +201,7 @@ public class DatasetContainer {
     throws ServiceException, AccessException, ExecutionException {
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
-        link.setParent(new DatasetI(dataset.getId(), false));
+        link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);
     }
@@ -276,7 +263,7 @@ public class DatasetContainer {
 
         List<AnnotationData> annotations = null;
         try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), dataset, types, null);
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get tags for dataset ID: " + getId());
         }
@@ -328,7 +315,7 @@ public class DatasetContainer {
         try {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(),
-                                                 Collections.singletonList(dataset.getId()));
+                                                 Collections.singletonList(data.getId()));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images from dataset ID: " + getId());
         }
@@ -399,7 +386,7 @@ public class DatasetContainer {
                                               "(select link2.child " +
                                               "from DatasetImageLink link2 " +
                                               "where link2.parent = " +
-                                              dataset.getId() + ")");
+                                              data.getId() + ")");
 
         for (IObject o : os) {
             selected.add(client.getImage(o.getId().getValue()));
@@ -432,7 +419,7 @@ public class DatasetContainer {
                                               "(select link2.child " +
                                               "from DatasetImageLink link2 " +
                                               "where link2.parent = " +
-                                              dataset.getId() + ")");
+                                              data.getId() + ")");
 
         for (IObject o : os) {
             selected.add(client.getImage(o.getId().getValue()));
@@ -461,7 +448,7 @@ public class DatasetContainer {
         try {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(),
-                                                 Collections.singletonList(dataset.getId()));
+                                                 Collections.singletonList(data.getId()));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from dataset ID: " + getId());
         }
@@ -503,7 +490,7 @@ public class DatasetContainer {
         try {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(),
-                                                 Collections.singletonList(dataset.getId()));
+                                                 Collections.singletonList(data.getId()));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images with k/v pair from dataset ID: " + getId());
         }
@@ -557,7 +544,7 @@ public class DatasetContainer {
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.getImage().asImage());
-        link.setParent(new DatasetI(dataset.getId(), false));
+        link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);
     }
@@ -574,7 +561,7 @@ public class DatasetContainer {
      */
     public void importImages(Client client, String... paths) throws Exception {
         ImportConfig config = client.getConfig();
-        config.target.set("Dataset:" + dataset.getId());
+        config.target.set("Dataset:" + data.getId());
         OMEROMetadataStoreClient store;
 
         store = config.createStore();
@@ -670,56 +657,10 @@ public class DatasetContainer {
 
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
         link.setChild(fa);
-        link.setParent(dataset.asDataset());
+        link.setParent(data.asDataset());
         newLink = (DatasetAnnotationLink) client.save(link);
 
         return newLink.getChild().getId().getValue();
-    }
-
-
-    /**
-     * Adds a table to the dataset in OMERO
-     *
-     * @param client The user.
-     * @param table  Table to add to the dataset.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTable(Client client, TableContainer table)
-    throws ServiceException, AccessException, ExecutionException {
-        TableData tableData = table.createTable();
-        try {
-            tableData = client.getTablesFacility().addTable(client.getCtx(), dataset, table.getName(), tableData);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add table to dataset ID: " + getId());
-        }
-        table.setFileId(tableData.getOriginalFileId());
-    }
-
-
-    /**
-     * Gets a certain table linked to the dataset in OMERO
-     *
-     * @param client The user.
-     * @param fileId FileId of the table researched.
-     *
-     * @return TableContainer containing the table information.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public TableContainer getTable(Client client, Long fileId)
-    throws ServiceException, AccessException, ExecutionException {
-        TableData table = null;
-        try {
-            table = client.getTablesFacility().getTable(client.getCtx(), fileId);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get table from dataset ID: " + getId());
-        }
-        return new TableContainer(Objects.requireNonNull(table));
     }
 
 
@@ -740,7 +681,7 @@ public class DatasetContainer {
 
         Collection<FileAnnotationData> tables = new ArrayList<>();
         try {
-            tables = client.getTablesFacility().getAvailableTables(client.getCtx(), dataset);
+            tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get tables from dataset ID: " + getId());
         }

@@ -31,12 +31,10 @@ import java.util.concurrent.ExecutionException;
  * Class containing a PixelData
  * <p> Implements function using the PixelData contained
  */
-public class PixelContainer {
+public class PixelContainer extends ObjectContainer<PixelsData> {
 
     /** Size of tiles when retrieving pixels */
-    public static final int        MAX_DIST = 5000;
-    /** PixelData contained */
-    final               PixelsData pixels;
+    public static final int MAX_DIST = 5000;
 
 
     /**
@@ -45,7 +43,17 @@ public class PixelContainer {
      * @param pixels PixelData to be contained.
      */
     public PixelContainer(PixelsData pixels) {
-        this.pixels = pixels;
+        super(pixels);
+    }
+
+
+    /**
+     * Gets the pixel type.
+     *
+     * @return the pixel type.
+     */
+    public String getPixelType() {
+        return data.getPixelType();
     }
 
 
@@ -55,7 +63,7 @@ public class PixelContainer {
      * @return Size of a pixel on the X axis.
      */
     public Length getPixelSizeX() {
-        return pixels.asPixels().getPhysicalSizeX();
+        return data.asPixels().getPhysicalSizeX();
     }
 
 
@@ -65,7 +73,7 @@ public class PixelContainer {
      * @return Size of a pixel on the Y axis.
      */
     public Length getPixelSizeY() {
-        return pixels.asPixels().getPhysicalSizeY();
+        return data.asPixels().getPhysicalSizeY();
     }
 
 
@@ -75,12 +83,7 @@ public class PixelContainer {
      * @return Size of a pixel on the Z axis.
      */
     public Length getPixelSizeZ() {
-        return pixels.asPixels().getPhysicalSizeZ();
-    }
-
-
-    public String getPixelType() {
-        return pixels.getPixelType();
+        return data.asPixels().getPhysicalSizeZ();
     }
 
 
@@ -90,7 +93,7 @@ public class PixelContainer {
      * @return Size of the image on the X axis.
      */
     public int getSizeX() {
-        return pixels.getSizeX();
+        return data.getSizeX();
     }
 
 
@@ -100,7 +103,7 @@ public class PixelContainer {
      * @return Size of the image on the Y axis.
      */
     public int getSizeY() {
-        return pixels.getSizeY();
+        return data.getSizeY();
     }
 
 
@@ -110,7 +113,7 @@ public class PixelContainer {
      * @return Size of the image on the Z axis.
      */
     public int getSizeZ() {
-        return pixels.getSizeZ();
+        return data.getSizeZ();
     }
 
 
@@ -120,7 +123,7 @@ public class PixelContainer {
      * @return Size of the image on the C axis.
      */
     public int getSizeC() {
-        return pixels.getSizeC();
+        return data.getSizeC();
     }
 
 
@@ -130,7 +133,7 @@ public class PixelContainer {
      * @return Size of the image on the T axis.
      */
     public int getSizeT() {
-        return pixels.getSizeT();
+        return data.getSizeT();
     }
 
 
@@ -210,7 +213,7 @@ public class PixelContainer {
             for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int sizeY = Math.min(MAX_DIST, height - relY);
                 try {
-                    p = client.getRdf().getTile(client.getCtx(), pixels, start.z, start.t, start.c, x, y, sizeX, sizeY);
+                    p = client.getRdf().getTile(client.getCtx(), data, start.z, start.t, start.c, x, y, sizeX, sizeY);
                 } catch (DataSourceException dse) {
                     throw new AccessException("Cannot read tile", dse);
                 }
@@ -320,7 +323,7 @@ public class PixelContainer {
             for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int sizeY = Math.min(MAX_DIST, height - relY);
                 try {
-                    p = client.getRdf().getTile(client.getCtx(), pixels, start.z, start.t, start.c, x, y, sizeX, sizeY);
+                    p = client.getRdf().getTile(client.getCtx(), data, start.z, start.t, start.c, x, y, sizeX, sizeY);
                 } catch (DataSourceException dse) {
                     throw new AccessException("Cannot read raw tile", dse);
                 }
@@ -383,11 +386,11 @@ public class PixelContainer {
      */
     Bounds getBounds(int[] xBounds, int[] yBounds, int[] cBounds, int[] zBounds, int[] tBounds) {
         int[][] limits = new int[5][2];
-        limits[0] = checkBounds(xBounds, pixels.getSizeX());
-        limits[1] = checkBounds(yBounds, pixels.getSizeY());
-        limits[2] = checkBounds(cBounds, pixels.getSizeC());
-        limits[3] = checkBounds(zBounds, pixels.getSizeZ());
-        limits[4] = checkBounds(tBounds, pixels.getSizeT());
+        limits[0] = checkBounds(xBounds, data.getSizeX());
+        limits[1] = checkBounds(yBounds, data.getSizeY());
+        limits[2] = checkBounds(cBounds, data.getSizeC());
+        limits[3] = checkBounds(zBounds, data.getSizeZ());
+        limits[4] = checkBounds(tBounds, data.getSizeT());
         Coordinates start = new Coordinates(limits[0][0],
                                             limits[1][0],
                                             limits[2][0],

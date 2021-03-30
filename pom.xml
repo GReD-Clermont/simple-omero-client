@@ -4,7 +4,7 @@
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
     <packaging>jar</packaging>
-    <version>5.6.3</version>
+    <version>5.6.4</version>
     <name>Simple OMERO Client</name>
     <description>A small library to connect to OMERO.</description>
     <inceptionYear>2020</inceptionYear>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>ome</groupId>
             <artifactId>formats-api</artifactId>
-            <version>6.6.0</version>
+            <version>6.6.1</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -101,13 +101,13 @@
         <dependency>
             <groupId>ome</groupId>
             <artifactId>bio-formats_plugins</artifactId>
-            <version>6.6.0</version>
+            <version>6.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.51n</version>
+            <version>1.53i</version>
             <optional>true</optional>
         </dependency>
     </dependencies>

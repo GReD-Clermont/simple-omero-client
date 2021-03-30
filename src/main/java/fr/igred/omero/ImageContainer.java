@@ -67,10 +67,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing an ImageData.
  * <p> Implements function using the ImageData contained
  */
-public class ImageContainer {
-
-    /** ImageData contained */
-    final ImageData image;
+public class ImageContainer extends ObjectContainer<ImageData> {
 
 
     /**
@@ -79,17 +76,7 @@ public class ImageContainer {
      * @param image The image contained in the ImageContainer.
      */
     public ImageContainer(ImageData image) {
-        this.image = image;
-    }
-
-
-    /**
-     * Gets the ImageData id
-     *
-     * @return id.
-     */
-    public Long getId() {
-        return image.getId();
+        super(image);
     }
 
 
@@ -99,7 +86,7 @@ public class ImageContainer {
      * @return name.
      */
     public String getName() {
-        return image.getName();
+        return data.getName();
     }
 
 
@@ -109,17 +96,7 @@ public class ImageContainer {
      * @return description.
      */
     public String getDescription() {
-        return image.getDescription();
-    }
-
-
-    /**
-     * Gets the ImageData creation date
-     *
-     * @return creation date.
-     */
-    public Timestamp getCreated() {
-        return image.getCreated();
+        return data.getDescription();
     }
 
 
@@ -129,7 +106,7 @@ public class ImageContainer {
      * @return acquisition date.
      */
     public Timestamp getAcquisitionDate() {
-        return image.getAcquisitionDate();
+        return data.getAcquisitionDate();
     }
 
 
@@ -137,7 +114,7 @@ public class ImageContainer {
      * @return ImageData contained.
      */
     public ImageData getImage() {
-        return image;
+        return data;
     }
 
 
@@ -191,7 +168,7 @@ public class ImageContainer {
     throws ServiceException, AccessException, ExecutionException {
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(tagData.asAnnotation());
-        link.setParent(image.asImage());
+        link.setParent(data.asImage());
 
         client.save(link);
     }
@@ -211,7 +188,7 @@ public class ImageContainer {
     throws ServiceException, AccessException, ExecutionException {
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(new TagAnnotationI(id, false));
-        link.setParent(image.asImage());
+        link.setParent(data.asImage());
 
         client.save(link);
     }
@@ -276,7 +253,7 @@ public class ImageContainer {
 
         List<AnnotationData> annotations = null;
         try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get tags for image ID: " + getId());
         }
@@ -317,7 +294,7 @@ public class ImageContainer {
 
         List<AnnotationData> annotations = null;
         try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), image, types, userIds);
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get k/v pairs for image ID: " + getId());
         }
@@ -379,7 +356,7 @@ public class ImageContainer {
         try {
             client.getDm().attachAnnotation(client.getCtx(),
                                             data.getMapAnnotation(),
-                                            new ImageData(new ImageI(image.getId(), false)));
+                                            new ImageData(new ImageI(this.data.getId(), false)));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot add k/v pairs to image ID: " + getId());
         }
@@ -405,7 +382,7 @@ public class ImageContainer {
         MapAnnotationData data = new MapAnnotationData();
         data.setContent(result);
         try {
-            client.getDm().attachAnnotation(client.getCtx(), data, new ImageData(new ImageI(image.getId(), false)));
+            client.getDm().attachAnnotation(client.getCtx(), data, new ImageData(new ImageI(this.data.getId(), false)));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot add k/v pair to image ID: " + getId());
         }
@@ -428,7 +405,7 @@ public class ImageContainer {
         try {
             ROIData roiData = client.getRoiFacility()
                                     .saveROIs(client.getCtx(),
-                                              image.getId(),
+                                              data.getId(),
                                               Collections.singletonList(roi.getROI()))
                                     .iterator().next();
             roi.setData(roiData);
@@ -454,7 +431,7 @@ public class ImageContainer {
         List<ROIContainer> roiContainers = new ArrayList<>();
         List<ROIResult>    roiResults    = new ArrayList<>();
         try {
-            roiResults = client.getRoiFacility().loadROIs(client.getCtx(), image.getId());
+            roiResults = client.getRoiFacility().loadROIs(client.getCtx(), data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get ROIs from image ID: " + getId());
         }
@@ -489,14 +466,14 @@ public class ImageContainer {
 
         Collection<FolderData> folders = new ArrayList<>();
         try {
-            folders = roiFacility.getROIFolders(client.getCtx(), this.image.getId());
+            folders = roiFacility.getROIFolders(client.getCtx(), this.data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get folders for image ID: " + getId());
         }
 
         for (FolderData folder : folders) {
             FolderContainer roiFolder = new FolderContainer(folder);
-            roiFolder.setImage(this.image.getId());
+            roiFolder.setImage(this.data.getId());
 
             roiFolders.add(roiFolder);
         }
@@ -523,7 +500,7 @@ public class ImageContainer {
                                               folderId);
 
         FolderContainer folderContainer = new FolderContainer((Folder) os.get(0));
-        folderContainer.setImage(this.image.getId());
+        folderContainer.setImage(this.data.getId());
 
         return folderContainer;
     }
@@ -535,7 +512,7 @@ public class ImageContainer {
      * @return Contains the PixelsData associated with the image.
      */
     public PixelContainer getPixels() {
-        return new PixelContainer(image.getDefaultPixels());
+        return new PixelContainer(data.getDefaultPixels());
     }
 
 
@@ -595,7 +572,7 @@ public class ImageContainer {
         int pixelType = FormatTools.pixelTypeFromString(pixels.getPixelType());
         int bpp       = FormatTools.getBytesPerPixel(pixelType);
 
-        ImagePlus imp = IJ.createHyperStack(image.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
+        ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
 
         Calibration cal = imp.getCalibration();
 
@@ -671,7 +648,7 @@ public class ImageContainer {
     throws ServiceException, AccessException, ExecutionException {
         List<ChannelData> channels = new ArrayList<>();
         try {
-            channels = client.getMetadata().getChannelData(client.getCtx(), this.image.getId());
+            channels = client.getMetadata().getChannelData(client.getCtx(), this.data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get the channel name for image ID: " + getId());
         }
@@ -754,7 +731,7 @@ public class ImageContainer {
 
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setChild(fa);
-        link.setParent(image.asImage());
+        link.setParent(data.asImage());
         newLink = (ImageAnnotationLink) client.save(link);
 
         return newLink.getChild().getId().getValue();
