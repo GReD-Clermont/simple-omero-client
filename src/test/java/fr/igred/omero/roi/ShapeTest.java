@@ -19,7 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.BasicTest;
-import omero.gateway.model.ShapeData;
+import omero.gateway.model.*;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 
 public class ShapeTest extends BasicTest {
@@ -37,15 +36,11 @@ public class ShapeTest extends BasicTest {
     @Test
     public void testPoint() {
         final String text  = "Point";
-        ShapeWrapper point = new ShapeWrapper(ShapeWrapper.POINT);
+        PointWrapper point = new PointWrapper();
 
-        double[] pointCoordinates = {0, 0};
-        double[] lineCoordinates  = {2, 2, 4, 4};
+        double[] pointCoordinates = {25, 25};
 
-        point.setPointCoordinates(pointCoordinates[0], pointCoordinates[1]);
-        point.setLineCoordinates(2, 2, 4, 4);
-        point.setCoordinates(null);
-        point.setCoordinates(lineCoordinates);
+        point.setCoordinates(pointCoordinates);
         point.setText(text);
 
         double[] checkCoordinates = point.getCoordinates();
@@ -62,13 +57,11 @@ public class ShapeTest extends BasicTest {
     @Test
     public void testText() {
         final String value = "Point";
-        ShapeWrapper text  = new ShapeWrapper(ShapeWrapper.TEXT);
+        TextWrapper  text  = new TextWrapper();
 
-        double[] textCoordinates      = {1, 1};
-        double[] rectangleCoordinates = {2, 2, 5, 5};
+        double[] textCoordinates = {1, 1};
+        text.setCoordinates(textCoordinates);
 
-        text.setPointCoordinates(textCoordinates[0], textCoordinates[1]);
-        text.setCoordinates(rectangleCoordinates);
         text.setText(value);
         text.setFontSize(25);
         double fontSize = text.getFontSize();
@@ -87,14 +80,10 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testRectangle() {
-        ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
+        RectangleWrapper rectangle = new RectangleWrapper();
 
-        double[] pointCoordinates     = {0, 0};
         double[] rectangleCoordinates = {2, 2, 5, 5};
-
         rectangle.setCoordinates(rectangleCoordinates);
-        rectangle.setCoordinates(pointCoordinates);
-        rectangle.setPointCoordinates(0, 0);
 
         double[] checkCoordinates = rectangle.getCoordinates();
 
@@ -102,20 +91,14 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
 
-        int[][] maskValues = new int[10][10];
-        rectangle.setMask(maskValues);
-
-        int[][] checkValues = rectangle.getMask();
-
-        assertNull(checkValues);
         assertEquals(0, differences, 0.001);
     }
 
 
     @Test
     public void testRectangleCZT() {
-        final String text      = "Rectangle";
-        ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
+        final String     text      = "Rectangle";
+        RectangleWrapper rectangle = new RectangleWrapper();
 
         double[] rectangleCoordinates = {2, 2, 5, 5};
         int      c                    = 1;
@@ -123,7 +106,6 @@ public class ShapeTest extends BasicTest {
         int      t                    = 3;
 
         rectangle.setCoordinates(rectangleCoordinates);
-        rectangle.setEllipseCoordinates(9, 11, 5, 10);
         rectangle.setText(text);
         rectangle.setC(c);
         rectangle.setZ(z);
@@ -147,14 +129,10 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testMask() {
-        ShapeWrapper mask = new ShapeWrapper(ShapeWrapper.MASK);
+        MaskWrapper mask = new MaskWrapper();
 
         double[] maskCoordinates = {3, 3, 10, 10};
         mask.setCoordinates(maskCoordinates);
-
-        double[] pointCoordinates = {0, 0};
-        mask.setEllipseCoordinates(6, 6, 20, 20);
-        mask.setCoordinates(pointCoordinates);
 
         double[] checkCoordinates = mask.getCoordinates();
 
@@ -169,8 +147,8 @@ public class ShapeTest extends BasicTest {
     @Test
     public void testValuesMask() {
         final String text = "Mask";
-        ShapeWrapper mask = new ShapeWrapper(ShapeWrapper.MASK);
-        mask.setRectangleCoordinates(3, 3, 10, 10);
+        MaskWrapper  mask = new MaskWrapper();
+        mask.setCoordinates(3, 3, 10, 10);
         mask.setText(text);
 
         int[][] maskValues = new int[10][10];
@@ -181,7 +159,7 @@ public class ShapeTest extends BasicTest {
         }
         mask.setMask(maskValues);
 
-        int[][] checkValues = mask.getMask();
+        int[][] checkValues = mask.getMaskAsBinaryArray();
 
         int differences = 0;
         for (int i = 0; i < 10; i++) {
@@ -197,22 +175,18 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testEllipse() {
-        final String text    = "Ellipse";
-        ShapeWrapper ellipse = new ShapeWrapper(ShapeWrapper.ELLIPSE);
+        final String   text    = "Ellipse";
+        EllipseWrapper ellipse = new EllipseWrapper();
 
         Color stroke = Color.BLUE;
         ellipse.setStroke(stroke);
 
         double[] ellipseCoordinates = {9, 11, 5, 10};
-        ellipse.setEllipseCoordinates(ellipseCoordinates[0],
-                                      ellipseCoordinates[1],
-                                      ellipseCoordinates[2],
-                                      ellipseCoordinates[3]);
-        ellipse.setRectangleCoordinates(3, 3, 4, 9);
+        ellipse.setCoordinates(ellipseCoordinates[0],
+                               ellipseCoordinates[1],
+                               ellipseCoordinates[2],
+                               ellipseCoordinates[3]);
         ellipse.setText(text);
-
-        double[] pointCoordinates = {0, 0};
-        ellipse.setCoordinates(pointCoordinates);
 
         double[] checkCoordinates = ellipse.getCoordinates();
 
@@ -229,17 +203,14 @@ public class ShapeTest extends BasicTest {
     @Test
     public void testLine() {
         final String text = "Line";
-        ShapeWrapper line = new ShapeWrapper(ShapeWrapper.LINE);
+        LineWrapper  line = new LineWrapper();
 
         double[] lineCoordinates = {3, 3, 10, 10};
-        line.setLineCoordinates(lineCoordinates[0],
-                                lineCoordinates[1],
-                                lineCoordinates[2],
-                                lineCoordinates[3]);
+        line.setCoordinates(lineCoordinates[0],
+                            lineCoordinates[1],
+                            lineCoordinates[2],
+                            lineCoordinates[3]);
         line.setText(text);
-
-        double[] pointCoordinates = {0, 0};
-        line.setCoordinates(pointCoordinates);
 
         double[] checkCoordinates = line.getCoordinates();
 
@@ -254,23 +225,13 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testPointsLine() {
-        ShapeWrapper         line   = new ShapeWrapper(ShapeWrapper.LINE);
-        List<Point2D.Double> points = new ArrayList<>();
-
-        Point2D.Double p1 = new Point2D.Double(0, 0);
-        Point2D.Double p2 = new Point2D.Double(3, 0);
-        Point2D.Double p3 = new Point2D.Double(3, 4);
-        points.add(p1);
-        points.add(p2);
-        points.add(p3);
+        LineWrapper line = new LineWrapper();
 
         double[] lineCoordinates = {3, 3, 10, 10};
-        line.setLineCoordinates(lineCoordinates[0],
-                                lineCoordinates[1],
-                                lineCoordinates[2],
-                                lineCoordinates[3]);
-        line.setPoints(points);
-        List<Point2D.Double> points2 = line.getPoints();
+        line.setCoordinates(lineCoordinates[0],
+                            lineCoordinates[1],
+                            lineCoordinates[2],
+                            lineCoordinates[3]);
 
         double[] checkCoordinates = line.getCoordinates();
 
@@ -278,7 +239,6 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
 
-        assertNull(points2);
         assertEquals(0, differences, 0.001);
     }
 
@@ -286,7 +246,7 @@ public class ShapeTest extends BasicTest {
     @Test
     public void testPolyline() {
         final String         text     = "Polyline";
-        ShapeWrapper         polyline = new ShapeWrapper(ShapeWrapper.POLYLINE);
+        PolylineWrapper      polyline = new PolylineWrapper();
         List<Point2D.Double> points   = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -306,34 +266,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testCoordinatesPolyline() {
-        ShapeWrapper         polyline = new ShapeWrapper(ShapeWrapper.POLYLINE);
-        List<Point2D.Double> points   = new ArrayList<>();
-
-        polyline.setLineCoordinates(3, 3, 10, 10);
-
-        Point2D.Double p1 = new Point2D.Double(0, 0);
-        Point2D.Double p2 = new Point2D.Double(3, 0);
-        Point2D.Double p3 = new Point2D.Double(3, 4);
-        points.add(p1);
-        points.add(p2);
-        points.add(p3);
-
-        polyline.setPoints(points);
-
-        List<Point2D.Double> points2 = polyline.getPoints();
-
-        double[] polylineCoordinates = polyline.getCoordinates();
-
-        assertNull(polylineCoordinates);
-        assertEquals(points, points2);
-    }
-
-
-    @Test
     public void testPolygon() {
         final String         text    = "Polygon";
-        ShapeWrapper         polygon = new ShapeWrapper(ShapeWrapper.POLYGON);
+        PolygonWrapper       polygon = new PolygonWrapper();
         List<Point2D.Double> points  = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -354,11 +289,131 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testEmptyShapeData() {
-        final String         text             = "Empty";
-        ShapeWrapper         empty            = new ShapeWrapper((ShapeData) null);
-        List<Point2D.Double> points           = new ArrayList<>();
-        double[]             pointCoordinates = {1, 1};
+    public void testPointConstructor() {
+        PointWrapper point1 = new PointWrapper(0, 0);
+        PointWrapper point2 = new PointWrapper(new PointData(25, 25));
+
+        double[] pointCoordinates = {25, 25};
+        point1.setCoordinates(pointCoordinates);
+
+        double[] coordinates1 = point1.getCoordinates();
+        double[] coordinates2 = point2.getCoordinates();
+
+        double differences = 0;
+        for (int i = 0; i < 2; i++)
+            differences += Math.abs(coordinates1[i] - coordinates2[i]);
+
+        assertEquals(0, differences, 0.001);
+    }
+
+
+    @Test
+    public void testTextConstructor() {
+        TextWrapper text1 = new TextWrapper("Text1", 0, 0);
+        TextWrapper text2 = new TextWrapper(new TextData("Text1", 25, 25));
+
+        double[] textCoordinates = {25, 25};
+        text1.setCoordinates(textCoordinates);
+
+        double[] coordinates1 = text1.getCoordinates();
+        double[] coordinates2 = text2.getCoordinates();
+
+        double differences = 0;
+        for (int i = 0; i < 2; i++)
+            differences += Math.abs(coordinates1[i] - coordinates2[i]);
+
+        assertEquals(0, differences, 0.001);
+        assertEquals(text1.getText(), text2.getText());
+    }
+
+
+    @Test
+    public void testLineConstructor() {
+        LineWrapper line1 = new LineWrapper(0, 0, 0, 0);
+        LineWrapper line2 = new LineWrapper(new LineData(25, 25, 50, 50));
+
+        double[] lineCoordinates = {25, 25, 50, 50};
+        line1.setCoordinates(lineCoordinates);
+
+        double[] coordinates1 = line1.getCoordinates();
+        double[] coordinates2 = line2.getCoordinates();
+
+        double differences = 0;
+        for (int i = 0; i < 4; i++)
+            differences += Math.abs(coordinates1[i] - coordinates2[i]);
+
+        assertEquals(0, differences, 0.001);
+    }
+
+
+    @Test
+    public void testRectangleConstructor() {
+        RectangleWrapper r1 = new RectangleWrapper(0, 0, 0, 0);
+        RectangleWrapper r2 = new RectangleWrapper(new RectangleData(25, 25, 50, 50));
+
+        double[] rectangleCoordinates = {25, 25, 50, 50};
+        r1.setCoordinates(rectangleCoordinates);
+
+        double[] coordinates1 = r1.getCoordinates();
+        double[] coordinates2 = r2.getCoordinates();
+
+        double differences = 0;
+        for (int i = 0; i < 4; i++)
+            differences += Math.abs(coordinates1[i] - coordinates2[i]);
+
+        assertEquals(0, differences, 0.001);
+    }
+
+
+    @Test
+    public void testMaskConstructor() {
+        byte[] maskValues = new byte[25];
+        for (int i = 0; i < 25; i++) {
+            maskValues[i] = (byte) (i >= 12 ? 1 : 0);
+        }
+
+        MaskWrapper m1 = new MaskWrapper(10, 10, 5, 5, maskValues);
+        MaskWrapper m2 = new MaskWrapper(new MaskData(0, 0, 5, 5, maskValues));
+        m1.setCoordinates(0, 0, 5, 5);
+
+        double[] coordinates1 = m1.getCoordinates();
+        double[] coordinates2 = m2.getCoordinates();
+
+        byte[] checkValues1 = m1.getMask();
+        byte[] checkValues2 = m2.getMask();
+
+        int differences = 0;
+        for (int i = 0; i < 4; i++)
+            differences += Math.abs(coordinates1[i] - coordinates2[i]);
+        for (int i = 0; i < 25; i++)
+            differences += Math.abs(checkValues2[i] - checkValues1[i]);
+
+        assertEquals(0, differences, 0.001);
+    }
+
+
+    @Test
+    public void testEllipseConstructor() {
+        EllipseWrapper e1 = new EllipseWrapper(0, 0, 0, 0);
+        EllipseWrapper e2 = new EllipseWrapper(new EllipseData(25, 25, 50, 50));
+
+        double[] ellipseCoordinates = {25, 25, 50, 50};
+        e1.setCoordinates(ellipseCoordinates);
+
+        double[] coordinates1 = e1.getCoordinates();
+        double[] coordinates2 = e2.getCoordinates();
+
+        double differences = 0;
+        for (int i = 0; i < 4; i++)
+            differences += Math.abs(coordinates1[i] - coordinates2[i]);
+
+        assertEquals(0, differences, 0.001);
+    }
+
+
+    @Test
+    public void testPolylineConstructor() {
+        List<Point2D.Double> points   = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -367,14 +422,28 @@ public class ShapeTest extends BasicTest {
         points.add(p2);
         points.add(p3);
 
-        empty.setPointCoordinates(0, 0);
-        empty.setCoordinates(pointCoordinates);
-        empty.setPoints(points);
-        empty.setText(text);
+        PolylineWrapper      polyline = new PolylineWrapper(points);
+        List<Point2D.Double> points2 = polyline.getPoints();
 
-        assertNull(empty.getText());
-        assertNull(empty.getPoints());
-        assertNull(empty.getCoordinates());
+        assertEquals(points, points2);
+    }
+
+
+    @Test
+    public void testPolygonConstructor() {
+        List<Point2D.Double> points  = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        PolygonWrapper       polygon = new PolygonWrapper(points);
+        List<Point2D.Double> points2 = polygon.getPoints();
+
+        assertEquals(points, points2);
     }
 
 }

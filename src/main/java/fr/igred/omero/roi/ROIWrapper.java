@@ -54,10 +54,10 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIWrapper(List<ShapeWrapper> shapes) {
+    public ROIWrapper(List<ShapeWrapper<? extends ShapeData>> shapes) {
         super(new ROIData());
 
-        for (ShapeWrapper shape : shapes)
+        for (ShapeWrapper<? extends ShapeData> shape : shapes)
             addShape(shape);
     }
 
@@ -82,8 +82,8 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param shapes List of ShapeWrapper.
      */
-    public void addShapes(List<ShapeWrapper> shapes) {
-        for (ShapeWrapper shape : shapes)
+    public void addShapes(List<ShapeWrapper<? extends ShapeData>> shapes) {
+        for (ShapeWrapper<? extends ShapeData> shape : shapes)
             addShape(shape);
     }
 
@@ -93,20 +93,20 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param shape ShapeWrapper to add.
      */
-    public void addShape(ShapeWrapper shape) {
+    public void addShape(ShapeWrapper<? extends ShapeData> shape) {
         data.addShapeData(shape.getShape());
     }
 
 
     /**
-     * Returns the list of shape contained in the ROIData
+     * Returns the list of shapes contained in the ROIData
      *
      * @return list of shape contained in the ROIData.
      */
-    public List<ShapeWrapper> getShapes() {
-        List<ShapeWrapper> shapes = new ArrayList<>();
+    public List<ShapeWrapper<ShapeData>> getShapes() {
+        List<ShapeWrapper<ShapeData>> shapes = new ArrayList<>();
         for (ShapeData shape : data.getShapes()) {
-            shapes.add(new ShapeWrapper(shape));
+            shapes.add(new ShapeWrapper<>(shape));
         }
         return shapes;
     }

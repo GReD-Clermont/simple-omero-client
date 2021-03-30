@@ -38,8 +38,8 @@ public class ROITest extends UserTest {
         roiWrapper.setImage(image);
 
         for (int i = 0; i < 4; i++) {
-            ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
-            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
@@ -68,11 +68,11 @@ public class ROITest extends UserTest {
     public void testROI2() throws Exception {
         ImageWrapper image = client.getImage(1L);
 
-        List<ShapeWrapper> shapes = new ArrayList<>(4);
+        List<ShapeWrapper<?>> shapes = new ArrayList<>(4);
 
         for (int i = 0; i < 4; i++) {
-            ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
-            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
@@ -103,10 +103,10 @@ public class ROITest extends UserTest {
     public void testRoiAddShapeAndDeleteIt() throws Exception {
         ImageWrapper image = client.getImage(1L);
 
-        List<ShapeWrapper> shapes = new ArrayList<>(4);
+        List<ShapeWrapper<?>> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
-            ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
-            rectangle.setRectangleCoordinates(i * 2, i * 2, 10, 10);
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
@@ -125,8 +125,8 @@ public class ROITest extends UserTest {
         int size      = roi.getShapes().size();
         int ROINumber = rois.size();
 
-        ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
-        rectangle.setRectangleCoordinates(2, 2, 8, 8);
+        RectangleWrapper rectangle = new RectangleWrapper();
+        rectangle.setCoordinates(2, 2, 8, 8);
         rectangle.setZ(2);
         rectangle.setT(2);
         rectangle.setC(2);
