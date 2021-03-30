@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.ObjectWrapper.SortById;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -28,8 +29,6 @@ import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.sort.SortImageWrapper;
-import fr.igred.omero.sort.SortTagAnnotationWrapper;
 import ome.formats.importer.ImportConfig;
 import omero.LockTimeout;
 import omero.ServerError;
@@ -531,7 +530,7 @@ public class Client {
             imageWrappers.add(new ImageWrapper(image));
         }
 
-        imageWrappers.sort(new SortImageWrapper());
+        imageWrappers.sort(new SortById<>());
 
         return imageWrappers;
     }
@@ -803,7 +802,7 @@ public class Client {
             tags.add(new TagAnnotationWrapper(tag));
         }
 
-        tags.sort(new SortTagAnnotationWrapper());
+        tags.sort(new SortById<>());
         return tags;
     }
 
@@ -821,7 +820,7 @@ public class Client {
     public List<TagAnnotationWrapper> getTags(String name) throws OMEROServerError, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(new SortTagAnnotationWrapper());
+        tags.sort(new SortById<>());
         return tags;
     }
 

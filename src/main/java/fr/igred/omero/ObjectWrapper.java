@@ -10,6 +10,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.TableData;
 
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -21,6 +22,11 @@ public abstract class ObjectWrapper<T extends DataObject> {
     protected T data;
 
 
+    /**
+     * Constructor of the class ObjectWrapper.
+     *
+     * @param object The object contained in the ObjectWrapper.
+     */
     protected ObjectWrapper(T object) {
         this.data = object;
     }
@@ -121,5 +127,26 @@ public abstract class ObjectWrapper<T extends DataObject> {
         return new TableWrapper(Objects.requireNonNull(table));
     }
 
+
+    /**
+     * Class used to sort TagAnnotationWrappers
+     */
+    public static class SortById<U extends ObjectWrapper<?>> implements Comparator<U> {
+
+        /**
+         * Compare 2 ObjectWrappers. Compare the id of the ObjectWrappers.
+         *
+         * @param object1 First object to compare.
+         * @param object2 Second object to compare.
+         *
+         * @return <ul><li>-1 if the id of object1 is lower than the id object2.</li>
+         * <li>0  if the ids are the same.</li>
+         * <li>1 if the id of object1 is greater than the id of object2.</li></ul>
+         */
+        public int compare(U object1, U object2) {
+            return Long.compare(object1.getId(), object2.getId());
+        }
+
+    }
 
 }

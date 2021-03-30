@@ -28,7 +28,6 @@ import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
-import fr.igred.omero.sort.SortTagAnnotationWrapper;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -268,7 +267,7 @@ public class ImageWrapper extends ObjectWrapper<ImageData> {
             }
         }
 
-        tags.sort(new SortTagAnnotationWrapper());
+        tags.sort(new SortById<>());
         return tags;
     }
 

@@ -28,10 +28,7 @@ import java.util.List;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
  * <p> Implements function using the MapAnnotationData contained
  */
-public class MapAnnotationWrapper {
-
-    /** MapAnnotationData contained */
-    private MapAnnotationData data;
+public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
 
 
     /**
@@ -40,7 +37,7 @@ public class MapAnnotationWrapper {
      * @param data MapAnnotationData to be contained.
      */
     public MapAnnotationWrapper(MapAnnotationData data) {
-        this.data = data;
+        super(data);
     }
 
 
@@ -50,7 +47,7 @@ public class MapAnnotationWrapper {
      * @param result List of NamedValue(Key-Value pair).
      */
     public MapAnnotationWrapper(List<NamedValue> result) {
-        data = new MapAnnotationData();
+        super(new MapAnnotationData());
         data.setContent(result);
     }
 
@@ -59,7 +56,7 @@ public class MapAnnotationWrapper {
      * Constructor of the MapAnnotationWrapper class.
      */
     public MapAnnotationWrapper() {
-        data = new MapAnnotationData();
+        super(new MapAnnotationData());
     }
 
 
@@ -75,16 +72,6 @@ public class MapAnnotationWrapper {
 
 
     /**
-     * Gets the MapAnnotationData contained.
-     *
-     * @return the {@link MapAnnotationData} contained.
-     */
-    public MapAnnotationData getMapAnnotation() {
-        return data;
-    }
-
-
-    /**
      * Sets the content of the MapAnnotationData.
      *
      * @param result List of NamedValue(Key-Value pair).
@@ -92,6 +79,16 @@ public class MapAnnotationWrapper {
     public void setContent(List<NamedValue> result) {
         data = new MapAnnotationData();
         data.setContent(result);
+    }
+
+
+    /**
+     * Gets the MapAnnotationData contained.
+     *
+     * @return the {@link MapAnnotationData} contained.
+     */
+    public MapAnnotationData getMapAnnotation() {
+        return data;
     }
 
 }

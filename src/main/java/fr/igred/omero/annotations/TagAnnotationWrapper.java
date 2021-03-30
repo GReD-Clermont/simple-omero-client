@@ -31,11 +31,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData
  * <p> Implements function using the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper {
-
-    /** TagAnnotationWrapper contained */
-    private final TagAnnotationData tag;
-
+public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
 
     /**
      * Constructor of the TagAnnotationWrapper class.
@@ -43,8 +39,8 @@ public class TagAnnotationWrapper {
      * @param tag Tag to be contained.
      */
     public TagAnnotationWrapper(TagAnnotationData tag) {
-        this.tag = tag;
-        this.tag.setNameSpace(tag.getContentAsString());
+        super(tag);
+        this.data.setNameSpace(tag.getContentAsString());
     }
 
 
@@ -52,7 +48,7 @@ public class TagAnnotationWrapper {
      * Constructor of the TagAnnotationWrapper class. Creates the tag and save it in OMERO.
      *
      * @param client      The user.
-     * @param name        Tag name.
+     * @param name        Annotation name.
      * @param description Tag description.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -61,9 +57,8 @@ public class TagAnnotationWrapper {
      */
     public TagAnnotationWrapper(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
-        this.tag = new TagAnnotationData(name, description);
-        TagAnnotationData newTag = (TagAnnotationData) PojoMapper.asDataObject(client.save(tag.asIObject()));
-        this.tag.setId(newTag.getId());
+        super((TagAnnotationData) PojoMapper
+                .asDataObject(client.save(new TagAnnotationData(name, description).asIObject())));
     }
 
 
@@ -73,27 +68,7 @@ public class TagAnnotationWrapper {
      * @return TagData name.
      */
     public String getName() {
-        return tag.getNameSpace();
-    }
-
-
-    /**
-     * Gets the description of the TagData.
-     *
-     * @return TagData description.
-     */
-    public String getDescription() {
-        return tag.getDescription();
-    }
-
-
-    /**
-     * Gets the TagData id.
-     *
-     * @return TagData id.
-     */
-    public Long getId() {
-        return tag.getId();
+        return data.getNameSpace();
     }
 
 
@@ -103,7 +78,7 @@ public class TagAnnotationWrapper {
      * @return the {@link TagAnnotationData} contained.
      */
     public TagAnnotationData getTag() {
-        return tag;
+        return data;
     }
 
 }

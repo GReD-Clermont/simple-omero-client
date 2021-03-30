@@ -25,8 +25,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.annotations.TableWrapper;
-import fr.igred.omero.sort.SortImageWrapper;
-import fr.igred.omero.sort.SortTagAnnotationWrapper;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
@@ -275,7 +273,7 @@ public class DatasetWrapper extends ObjectWrapper<DatasetData> {
             }
         }
 
-        tags.sort(new SortTagAnnotationWrapper());
+        tags.sort(new SortById<>());
         return tags;
     }
 
@@ -293,7 +291,7 @@ public class DatasetWrapper extends ObjectWrapper<DatasetData> {
         for (ImageData image : images)
             imageWrappers.add(new ImageWrapper(image));
 
-        imageWrappers.sort(new SortImageWrapper());
+        imageWrappers.sort(new SortById<>());
 
         return imageWrappers;
     }

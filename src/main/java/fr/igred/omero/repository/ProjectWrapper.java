@@ -23,8 +23,6 @@ import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.sort.SortImageWrapper;
-import fr.igred.omero.sort.SortTagAnnotationWrapper;
 import fr.igred.omero.exception.OMEROServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -327,7 +325,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             }
         }
 
-        tags.sort(new SortTagAnnotationWrapper());
+        tags.sort(new SortById<>());
         return tags;
     }
 
@@ -368,7 +366,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             images.addAll(dataset.getImages(client));
         }
 
-        images.sort(new SortImageWrapper());
+        images.sort(new SortById<>());
 
         return purge(images);
     }
@@ -395,7 +393,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             imageWrappers.addAll(dataset.getImages(client, name));
         }
 
-        imageWrappers.sort(new SortImageWrapper());
+        imageWrappers.sort(new SortById<>());
 
         return purge(imageWrappers);
     }
@@ -420,7 +418,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             images.addAll(dataset.getImagesLike(client, motif));
         }
 
-        images.sort(new SortImageWrapper());
+        images.sort(new SortById<>());
 
         return purge(images);
     }
@@ -446,7 +444,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             images.addAll(dataset.getImagesTagged(client, tag));
         }
 
-        images.sort(new SortImageWrapper());
+        images.sort(new SortById<>());
 
         return purge(images);
     }
@@ -472,7 +470,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             images.addAll(dataset.getImagesTagged(client, tagId));
         }
 
-        images.sort(new SortImageWrapper());
+        images.sort(new SortById<>());
 
         return purge(images);
     }
@@ -498,7 +496,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             images.addAll(dataset.getImagesKey(client, key));
         }
 
-        images.sort(new SortImageWrapper());
+        images.sort(new SortById<>());
 
         return purge(images);
     }
@@ -525,7 +523,7 @@ public class ProjectWrapper extends ObjectWrapper<ProjectData> {
             images.addAll(dataset.getImagesPairKeyValue(client, key, value));
         }
 
-        images.sort(new SortImageWrapper());
+        images.sort(new SortById<>());
 
         return purge(images);
     }
