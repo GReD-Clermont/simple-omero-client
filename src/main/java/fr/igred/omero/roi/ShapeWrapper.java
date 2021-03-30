@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  * Class containing a ShapeData
  * <p> Implements functions using the ShapeData contained
  */
-public class ShapeContainer {
+public class ShapeWrapper {
 
     /** Set if shape is PointData. */
     public static final String POINT = "Point";
@@ -69,7 +69,7 @@ public class ShapeContainer {
     /** Set if shape is ShapeData. */
     public static final String OTHER = "Other";
 
-    /** Shape contained in the ShapeContainer. */
+    /** Shape contained in the ShapeWrapper. */
     private final ShapeData shape;
 
     /** Logger **/
@@ -77,22 +77,22 @@ public class ShapeContainer {
 
 
     /**
-     * Constructor of the ShapeContainer class using a ShapeData.
+     * Constructor of the ShapeWrapper class using a ShapeData.
      *
      * @param shape the shape
      */
-    public ShapeContainer(ShapeData shape) {
+    public ShapeWrapper(ShapeData shape) {
         this.shape = shape;
     }
 
 
     /**
-     * Constructor of the ShapeContainer class creating a new ShapeData.
+     * Constructor of the ShapeWrapper class creating a new ShapeData.
      * <p> Default shape is a RectangleData.
      *
      * @param shapeType the shape type
      */
-    public ShapeContainer(String shapeType) {
+    public ShapeWrapper(String shapeType) {
         switch (shapeType) {
             case POINT:
                 this.shape = new PointData();
@@ -538,7 +538,7 @@ public class ShapeContainer {
         int     nCoordinates = 4;
         boolean exception    = true;
         if (coordinates == null) {
-            logger.warning("ShapeContainer cannot set null coordinates.");
+            logger.warning("ShapeWrapper cannot set null coordinates.");
             return;
         }
         switch (shapeType) {

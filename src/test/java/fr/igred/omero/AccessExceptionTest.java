@@ -16,10 +16,10 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.annotations.TagAnnotationContainer;
-import fr.igred.omero.repository.ImageContainer;
+import fr.igred.omero.repository.ImageWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,9 +86,9 @@ public class AccessExceptionTest extends BasicTest {
         client.connect("omero", 4064, "root", "omero", 3L);
         assertEquals(0L, client.getId().longValue());
 
-        ImageContainer image = client.getImage(3L);
+        ImageWrapper image = client.getImage(3L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(client, "image tag", "tag attached to an image");
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         try {
             image.addTag(client, tag);

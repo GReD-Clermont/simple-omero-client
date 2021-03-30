@@ -19,12 +19,12 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectContainer;
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.annotations.TagAnnotationContainer;
-import fr.igred.omero.sort.SortImageContainer;
-import fr.igred.omero.sort.SortTagAnnotationContainer;
+import fr.igred.omero.sort.SortImageWrapper;
+import fr.igred.omero.sort.SortTagAnnotationWrapper;
 import fr.igred.omero.exception.OMEROServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -51,14 +51,14 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing a ProjectData
  * <p> Implements function using the Project contained
  */
-public class ProjectContainer extends ObjectContainer<ProjectData> {
+public class ProjectWrapper extends ObjectWrapper<ProjectData> {
 
     /**
-     * Constructor of the ProjectContainer class.
+     * Constructor of the ProjectWrapper class.
      *
      * @param project ProjectData to be contained.
      */
-    public ProjectContainer(ProjectData project) {
+    public ProjectWrapper(ProjectData project) {
         super(project);
     }
 
@@ -94,17 +94,14 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
     /**
      * Gets all the datasets in the project available from OMERO.
      *
-     * @return Collection of DatasetContainer.
+     * @return Collection of DatasetWrapper.
      */
-    public List<DatasetContainer> getDatasets() {
-        List<DatasetContainer> datasetsContainer = new ArrayList<>();
+    public List<DatasetWrapper> getDatasets() {
+        List<DatasetWrapper> wrappers = new ArrayList<>();
+        for (DatasetData dataset : data.getDatasets())
+            wrappers.add(new DatasetWrapper(dataset));
 
-        Collection<DatasetData> datasets = data.getDatasets();
-
-        for (DatasetData dataset : datasets)
-            datasetsContainer.add(new DatasetContainer(dataset));
-
-        return datasetsContainer;
+        return wrappers;
     }
 
 
@@ -115,8 +112,8 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      *
      * @return List of dataset with the given name.
      */
-    public List<DatasetContainer> getDatasets(String name) {
-        List<DatasetContainer> datasets = getDatasets();
+    public List<DatasetWrapper> getDatasets(String name) {
+        List<DatasetWrapper> datasets = getDatasets();
         datasets.removeIf(dataset -> !dataset.getName().equals(name));
         return datasets;
     }
@@ -135,7 +132,7 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetContainer addDataset(Client client, String name, String description)
+    public DatasetWrapper addDataset(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         DatasetData datasetData = new DatasetData();
         datasetData.setName(name);
@@ -156,7 +153,7 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetContainer addDataset(Client client, DatasetContainer dataset)
+    public DatasetWrapper addDataset(Client client, DatasetWrapper dataset)
     throws ServiceException, AccessException, ExecutionException {
         return addDataset(client, dataset.getDataset());
     }
@@ -174,12 +171,12 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private DatasetContainer addDataset(Client client, DatasetData datasetData)
+    private DatasetWrapper addDataset(Client client, DatasetData datasetData)
     throws ServiceException, AccessException, ExecutionException {
-        DatasetContainer newDataset;
+        DatasetWrapper newDataset;
         datasetData.setProjects(Collections.singleton(data));
         DatasetData dataset = (DatasetData) PojoMapper.asDataObject(client.save(datasetData.asIObject()));
-        newDataset = new DatasetContainer(dataset);
+        newDataset = new DatasetWrapper(dataset);
         return newDataset;
     }
 
@@ -214,7 +211,7 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTag(Client client, TagAnnotationContainer tag)
+    public void addTag(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ExecutionException {
         addTag(client, tag.getTag());
     }
@@ -264,15 +261,15 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * Add multiple tag to the project in OMERO.
      *
      * @param client The user.
-     * @param tags   Array of TagAnnotationContainer to add.
+     * @param tags   Array of TagAnnotationWrapper to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTags(Client client, TagAnnotationContainer... tags)
+    public void addTags(Client client, TagAnnotationWrapper... tags)
     throws ServiceException, AccessException, ExecutionException {
-        for (TagAnnotationContainer tag : tags) {
+        for (TagAnnotationWrapper tag : tags) {
             addTag(client, tag.getTag());
         }
     }
@@ -301,16 +298,16 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      *
      * @param client The user.
      *
-     * @return Collection of TagAnnotationContainer each containing a tag linked to the dataset.
+     * @return Collection of TagAnnotationWrapper each containing a tag linked to the dataset.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TagAnnotationContainer> getTags(Client client)
+    public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<TagAnnotationContainer> tags    = new ArrayList<>();
-        List<Long>                   userIds = new ArrayList<>();
+        List<TagAnnotationWrapper> tags    = new ArrayList<>();
+        List<Long>                 userIds = new ArrayList<>();
         userIds.add(client.getId());
 
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
@@ -326,11 +323,11 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
         if (annotations != null) {
             for (AnnotationData annotation : annotations) {
                 TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
-                tags.add(new TagAnnotationContainer(tagAnnotation));
+                tags.add(new TagAnnotationWrapper(tagAnnotation));
             }
         }
 
-        tags.sort(new SortTagAnnotationContainer());
+        tags.sort(new SortTagAnnotationWrapper());
         return tags;
     }
 
@@ -338,12 +335,12 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
     /**
      * Gets all images in the dataset available from OMERO.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      */
-    private List<ImageContainer> purge(List<ImageContainer> images) {
-        List<ImageContainer> purged = new ArrayList<>();
+    private List<ImageWrapper> purge(List<ImageWrapper> images) {
+        List<ImageWrapper> purged = new ArrayList<>();
 
-        for (ImageContainer image : images) {
+        for (ImageWrapper image : images) {
             if (purged.isEmpty() || !purged.get(purged.size() - 1).getId().equals(image.getId())) {
                 purged.add(image);
             }
@@ -358,22 +355,22 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      *
      * @param client The user.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImages(Client client) throws ServiceException, AccessException {
-        List<ImageContainer>         imagesContainer = new ArrayList<>();
-        Collection<DatasetContainer> datasets        = getDatasets();
+    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException {
+        List<ImageWrapper>         images   = new ArrayList<>();
+        Collection<DatasetWrapper> datasets = getDatasets();
 
-        for (DatasetContainer dataset : datasets) {
-            imagesContainer.addAll(dataset.getImages(client));
+        for (DatasetWrapper dataset : datasets) {
+            images.addAll(dataset.getImages(client));
         }
 
-        imagesContainer.sort(new SortImageContainer());
+        images.sort(new SortImageWrapper());
 
-        return purge(imagesContainer);
+        return purge(images);
     }
 
 
@@ -383,24 +380,24 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @param client The user.
      * @param name   Name searched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImages(Client client, String name)
+    public List<ImageWrapper> getImages(Client client, String name)
     throws ServiceException, AccessException {
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageWrapper> imageWrappers = new ArrayList<>();
 
-        Collection<DatasetContainer> datasets = getDatasets();
+        Collection<DatasetWrapper> datasets = getDatasets();
 
-        for (DatasetContainer dataset : datasets) {
-            imagesContainer.addAll(dataset.getImages(client, name));
+        for (DatasetWrapper dataset : datasets) {
+            imageWrappers.addAll(dataset.getImages(client, name));
         }
 
-        imagesContainer.sort(new SortImageContainer());
+        imageWrappers.sort(new SortImageWrapper());
 
-        return purge(imagesContainer);
+        return purge(imageWrappers);
     }
 
 
@@ -410,24 +407,22 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @param client The user.
      * @param motif  Motif searched in an image name.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImagesLike(Client client, String motif)
+    public List<ImageWrapper> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException {
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageWrapper> images = new ArrayList<>();
 
-        Collection<DatasetContainer> datasets = getDatasets();
-
-        for (DatasetContainer dataset : datasets) {
-            imagesContainer.addAll(dataset.getImagesLike(client, motif));
+        for (DatasetWrapper dataset : getDatasets()) {
+            images.addAll(dataset.getImagesLike(client, motif));
         }
 
-        imagesContainer.sort(new SortImageContainer());
+        images.sort(new SortImageWrapper());
 
-        return purge(imagesContainer);
+        return purge(images);
     }
 
 
@@ -435,27 +430,25 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
      * @param client The user.
-     * @param tag    TagAnnotationContainer containing the tag researched.
+     * @param tag    TagAnnotationWrapper containing the tag researched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      * @throws OMEROServerError Server error.
      */
-    public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
+    public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageWrapper> images = new ArrayList<>();
 
-        Collection<DatasetContainer> datasets = getDatasets();
-
-        for (DatasetContainer dataset : datasets) {
-            imagesContainer.addAll(dataset.getImagesTagged(client, tag));
+        for (DatasetWrapper dataset : getDatasets()) {
+            images.addAll(dataset.getImagesTagged(client, tag));
         }
 
-        imagesContainer.sort(new SortImageContainer());
+        images.sort(new SortImageWrapper());
 
-        return purge(imagesContainer);
+        return purge(images);
     }
 
 
@@ -465,25 +458,23 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @param client The user.
      * @param tagId  Id of the tag researched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      * @throws OMEROServerError Server error.
      */
-    public List<ImageContainer> getImagesTagged(Client client, Long tagId)
+    public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageWrapper> images = new ArrayList<>();
 
-        Collection<DatasetContainer> datasets = getDatasets();
-
-        for (DatasetContainer dataset : datasets) {
-            imagesContainer.addAll(dataset.getImagesTagged(client, tagId));
+        for (DatasetWrapper dataset : getDatasets()) {
+            images.addAll(dataset.getImagesTagged(client, tagId));
         }
 
-        imagesContainer.sort(new SortImageContainer());
+        images.sort(new SortImageWrapper());
 
-        return purge(imagesContainer);
+        return purge(images);
     }
 
 
@@ -493,25 +484,23 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @param client The user.
      * @param key    Name of the key researched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageContainer> getImagesKey(Client client, String key)
+    public List<ImageWrapper> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageWrapper> images = new ArrayList<>();
 
-        Collection<DatasetContainer> datasets = getDatasets();
-
-        for (DatasetContainer dataset : datasets) {
-            imagesContainer.addAll(dataset.getImagesKey(client, key));
+        for (DatasetWrapper dataset : getDatasets()) {
+            images.addAll(dataset.getImagesKey(client, key));
         }
 
-        imagesContainer.sort(new SortImageContainer());
+        images.sort(new SortImageWrapper());
 
-        return purge(imagesContainer);
+        return purge(images);
     }
 
 
@@ -522,25 +511,23 @@ public class ProjectContainer extends ObjectContainer<ProjectData> {
      * @param key    Name of the key researched.
      * @param value  Value associated with the key.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageContainer> getImagesPairKeyValue(Client client, String key, String value)
+    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+        List<ImageWrapper> images = new ArrayList<>();
 
-        Collection<DatasetContainer> datasets = getDatasets();
-
-        for (DatasetContainer dataset : datasets) {
-            imagesContainer.addAll(dataset.getImagesPairKeyValue(client, key, value));
+        for (DatasetWrapper dataset : getDatasets()) {
+            images.addAll(dataset.getImagesPairKeyValue(client, key, value));
         }
 
-        imagesContainer.sort(new SortImageContainer());
+        images.sort(new SortImageWrapper());
 
-        return purge(imagesContainer);
+        return purge(images);
     }
 
 }

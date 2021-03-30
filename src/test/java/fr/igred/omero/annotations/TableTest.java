@@ -17,8 +17,8 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.DatasetContainer;
-import fr.igred.omero.repository.ImageContainer;
+import fr.igred.omero.repository.DatasetWrapper;
+import fr.igred.omero.repository.ImageWrapper;
 import omero.gateway.model.ImageData;
 import org.junit.Test;
 
@@ -32,11 +32,11 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTable() throws Exception {
-        DatasetContainer dataset = client.getDataset(1L);
+        DatasetWrapper dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(client);
+        List<ImageWrapper> images = dataset.getImages(client);
 
-        TableContainer table = new TableContainer(2, "TableTest");
+        TableWrapper table = new TableWrapper(2, "TableTest");
 
         assertEquals(2, table.getColumnCount());
 
@@ -49,7 +49,7 @@ public class TableTest extends UserTest {
 
         assertEquals(images.size(), table.getRowCount());
 
-        for (ImageContainer image : images) {
+        for (ImageWrapper image : images) {
             assertNotEquals(true, table.isComplete());
             table.addRow(image.getImage(), image.getName());
         }
@@ -59,7 +59,7 @@ public class TableTest extends UserTest {
 
         dataset.addTable(client, table);
 
-        List<TableContainer> tables = dataset.getTables(client);
+        List<TableWrapper> tables = dataset.getTables(client);
 
         assertEquals(1, tables.size());
 
@@ -73,12 +73,12 @@ public class TableTest extends UserTest {
 
     @Test
     public void testErrorTableFull() throws Exception {
-        boolean          exception = false;
-        DatasetContainer dataset   = client.getDataset(1L);
+        boolean        exception = false;
+        DatasetWrapper dataset   = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(client);
+        List<ImageWrapper> images = dataset.getImages(client);
 
-        TableContainer table = new TableContainer(2, "TableTest");
+        TableWrapper table = new TableWrapper(2, "TableTest");
         table.setName("TableTestNewName");
 
         assertEquals("TableTestNewName", table.getName());
@@ -89,7 +89,7 @@ public class TableTest extends UserTest {
         table.setRowCount(images.size() - 1);
 
         try {
-            for (ImageContainer image : images) {
+            for (ImageWrapper image : images) {
                 table.addRow(image.getImage(), image.getName());
             }
         } catch (IndexOutOfBoundsException e) {
@@ -101,7 +101,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testErrorTableColumn() {
-        TableContainer table = new TableContainer(2, "TableTest");
+        TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
 
@@ -118,16 +118,16 @@ public class TableTest extends UserTest {
     public void testErrorTableUninitialized() throws Exception {
         boolean exception = false;
 
-        DatasetContainer dataset = client.getDataset(1L);
+        DatasetWrapper dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(client);
+        List<ImageWrapper> images = dataset.getImages(client);
 
-        TableContainer table = new TableContainer(2, "TableTest");
+        TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
 
         try {
-            for (ImageContainer image : images) {
+            for (ImageWrapper image : images) {
                 table.addRow(image.getImage(), image.getName());
             }
         } catch (IndexOutOfBoundsException e) {
@@ -141,18 +141,18 @@ public class TableTest extends UserTest {
     public void testErrorTableNotEnoughArgs() throws Exception {
         boolean exception = false;
 
-        DatasetContainer dataset = client.getDataset(1L);
+        DatasetWrapper dataset = client.getDataset(1L);
 
-        List<ImageContainer> images = dataset.getImages(client);
+        List<ImageWrapper> images = dataset.getImages(client);
 
-        TableContainer table = new TableContainer(2, "TableTest");
+        TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
 
         table.setRowCount(images.size());
 
         try {
-            for (ImageContainer image : images) {
+            for (ImageWrapper image : images) {
                 table.addRow(image.getImage());
             }
         } catch (IllegalArgumentException e) {

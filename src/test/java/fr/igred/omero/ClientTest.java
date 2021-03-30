@@ -16,9 +16,9 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.repository.DatasetContainer;
-import fr.igred.omero.repository.ImageContainer;
-import fr.igred.omero.repository.ProjectContainer;
+import fr.igred.omero.repository.DatasetWrapper;
+import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.ProjectWrapper;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testProjectBasic() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
         assertEquals(2L, project.getId().longValue());
         assertEquals("TestProject", project.getName());
         assertEquals("description", project.getDescription());
@@ -49,17 +49,17 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetAllProjects() throws Exception {
-        Collection<ProjectContainer> projects = client.getProjects();
+        Collection<ProjectWrapper> projects = client.getProjects();
         assertEquals(2, projects.size());
     }
 
 
     @Test
     public void testGetProjectByName() throws Exception {
-        Collection<ProjectContainer> projects = client.getProjects("TestProject");
+        Collection<ProjectWrapper> projects = client.getProjects("TestProject");
 
         int differences = 0;
-        for (ProjectContainer project : projects) {
+        for (ProjectWrapper project : projects) {
             if (!project.getName().equals("TestProject"))
                 differences++;
         }
@@ -89,17 +89,17 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetAllDatasets() throws Exception {
-        Collection<DatasetContainer> datasets = client.getDatasets();
+        Collection<DatasetWrapper> datasets = client.getDatasets();
         assertEquals(3, datasets.size());
     }
 
 
     @Test
     public void testGetDatasetByName() throws Exception {
-        Collection<DatasetContainer> datasets = client.getDatasets("TestDataset");
+        Collection<DatasetWrapper> datasets = client.getDatasets("TestDataset");
 
         int differences = 0;
-        for (DatasetContainer dataset : datasets) {
+        for (DatasetWrapper dataset : datasets) {
             if (!dataset.getName().equals("TestDataset"))
                 differences++;
         }
@@ -110,49 +110,49 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetImages() throws Exception {
-        List<ImageContainer> images = client.getImages();
+        List<ImageWrapper> images = client.getImages();
         assertEquals(4, images.size());
     }
 
 
     @Test
     public void testGetImage() throws Exception {
-        ImageContainer image = client.getImage(1L);
+        ImageWrapper image = client.getImage(1L);
         assertEquals("image1.fake", image.getName());
     }
 
 
     @Test
     public void testGetImagesName() throws Exception {
-        List<ImageContainer> images = client.getImages("image1.fake");
+        List<ImageWrapper> images = client.getImages("image1.fake");
         assertEquals(3, images.size());
     }
 
 
     @Test
     public void testGetImagesLike() throws Exception {
-        List<ImageContainer> images = client.getImagesLike("image1");
+        List<ImageWrapper> images = client.getImagesLike("image1");
         assertEquals(3, images.size());
     }
 
 
     @Test
     public void testGetImagesTagged() throws Exception {
-        List<ImageContainer> images = client.getImagesTagged(1L);
+        List<ImageWrapper> images = client.getImagesTagged(1L);
         assertEquals(3, images.size());
     }
 
 
     @Test
     public void testGetImagesKey() throws Exception {
-        List<ImageContainer> images = client.getImagesKey("testKey1");
+        List<ImageWrapper> images = client.getImagesKey("testKey1");
         assertEquals(3, images.size());
     }
 
 
     @Test
     public void testGetImagesKeyValue() throws Exception {
-        List<ImageContainer> images = client.getImagesPairKeyValue("testKey1", "testValue1");
+        List<ImageWrapper> images = client.getImagesPairKeyValue("testKey1", "testValue1");
         assertEquals(2, images.size());
     }
 
@@ -162,11 +162,11 @@ public class ClientTest extends UserTest {
         String key = "testKey2";
 
         /* Load the image with the key */
-        List<ImageContainer> images = client.getImagesKey(key);
+        List<ImageWrapper> images = client.getImagesKey(key);
 
-        List<ImageContainer> imagesCond = new ArrayList<>();
+        List<ImageWrapper> imagesCond = new ArrayList<>();
 
-        for (ImageContainer image : images) {
+        for (ImageWrapper image : images) {
             /* Get the value for the key */
             String value = image.getValue(client, key);
 

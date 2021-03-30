@@ -18,18 +18,18 @@
 package fr.igred.omero.sort;
 
 
-import fr.igred.omero.repository.ImageContainer;
+import fr.igred.omero.repository.ImageWrapper;
 
 import java.util.Comparator;
 
 
 /**
- * Class used to sort ImageContainers
+ * Class used to sort ImageWrappers
  */
-public class SortImageContainer implements Comparator<ImageContainer> {
+public class SortImageWrapper implements Comparator<ImageWrapper> {
 
     /**
-     * Compare 2 imageContainer. Compare the id of the imageContainer.
+     * Compare 2 imageWrapper. Compare the id of the imageWrapper.
      *
      * @param img1 First image to compare.
      * @param img2 Second image to compare.
@@ -37,7 +37,7 @@ public class SortImageContainer implements Comparator<ImageContainer> {
      * @return -1 if the id of img1 is lower than the id img2. 0  if the ids are the same. 1  if the id of img1 is.
      * greater than the id of img2.
      */
-    public int compare(ImageContainer img1, ImageContainer img2) {
+    public int compare(ImageWrapper img1, ImageWrapper img2) {
         return Long.compare(img1.getId(), img2.getId());
     }
 

@@ -19,7 +19,6 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.roi.ShapeContainer;
 import omero.gateway.model.ShapeData;
 import org.junit.Test;
 
@@ -36,9 +35,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testPointShapeContainer() {
-        final String   text  = "Point";
-        ShapeContainer point = new ShapeContainer(ShapeContainer.POINT);
+    public void testPoint() {
+        final String text  = "Point";
+        ShapeWrapper point = new ShapeWrapper(ShapeWrapper.POINT);
 
         double[] pointCoordinates = {0, 0};
         double[] lineCoordinates  = {2, 2, 4, 4};
@@ -61,9 +60,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testTextShapeContainer() {
-        final String   value = "Point";
-        ShapeContainer text  = new ShapeContainer(ShapeContainer.TEXT);
+    public void testText() {
+        final String value = "Point";
+        ShapeWrapper text  = new ShapeWrapper(ShapeWrapper.TEXT);
 
         double[] textCoordinates      = {1, 1};
         double[] rectangleCoordinates = {2, 2, 5, 5};
@@ -87,8 +86,8 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testRectangleShapeContainer() {
-        ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+    public void testRectangle() {
+        ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
 
         double[] pointCoordinates     = {0, 0};
         double[] rectangleCoordinates = {2, 2, 5, 5};
@@ -114,9 +113,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testRectangleShapeContainerCZT() {
-        final String   text      = "Rectangle";
-        ShapeContainer rectangle = new ShapeContainer(ShapeContainer.RECTANGLE);
+    public void testRectangleCZT() {
+        final String text      = "Rectangle";
+        ShapeWrapper rectangle = new ShapeWrapper(ShapeWrapper.RECTANGLE);
 
         double[] rectangleCoordinates = {2, 2, 5, 5};
         int      c                    = 1;
@@ -147,8 +146,8 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testMaskShapeContainer() {
-        ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
+    public void testMask() {
+        ShapeWrapper mask = new ShapeWrapper(ShapeWrapper.MASK);
 
         double[] maskCoordinates = {3, 3, 10, 10};
         mask.setCoordinates(maskCoordinates);
@@ -168,9 +167,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testValuesMaskShapeContainer() {
-        final String   text = "Mask";
-        ShapeContainer mask = new ShapeContainer(ShapeContainer.MASK);
+    public void testValuesMask() {
+        final String text = "Mask";
+        ShapeWrapper mask = new ShapeWrapper(ShapeWrapper.MASK);
         mask.setRectangleCoordinates(3, 3, 10, 10);
         mask.setText(text);
 
@@ -197,9 +196,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testEllipseShapeContainer() {
-        final String   text    = "Ellipse";
-        ShapeContainer ellipse = new ShapeContainer(ShapeContainer.ELLIPSE);
+    public void testEllipse() {
+        final String text    = "Ellipse";
+        ShapeWrapper ellipse = new ShapeWrapper(ShapeWrapper.ELLIPSE);
 
         Color stroke = Color.BLUE;
         ellipse.setStroke(stroke);
@@ -228,9 +227,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testLineShapeContainer() {
-        final String   text = "Line";
-        ShapeContainer line = new ShapeContainer(ShapeContainer.LINE);
+    public void testLine() {
+        final String text = "Line";
+        ShapeWrapper line = new ShapeWrapper(ShapeWrapper.LINE);
 
         double[] lineCoordinates = {3, 3, 10, 10};
         line.setLineCoordinates(lineCoordinates[0],
@@ -254,8 +253,8 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testPointsLineShapeContainer() {
-        ShapeContainer       line   = new ShapeContainer(ShapeContainer.LINE);
+    public void testPointsLine() {
+        ShapeWrapper         line   = new ShapeWrapper(ShapeWrapper.LINE);
         List<Point2D.Double> points = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -285,9 +284,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testPolylineShapeContainer() {
+    public void testPolyline() {
         final String         text     = "Polyline";
-        ShapeContainer       polyline = new ShapeContainer(ShapeContainer.POLYLINE);
+        ShapeWrapper         polyline = new ShapeWrapper(ShapeWrapper.POLYLINE);
         List<Point2D.Double> points   = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -307,8 +306,8 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testCoordinatesPolylineShapeContainer() {
-        ShapeContainer       polyline = new ShapeContainer(ShapeContainer.POLYLINE);
+    public void testCoordinatesPolyline() {
+        ShapeWrapper         polyline = new ShapeWrapper(ShapeWrapper.POLYLINE);
         List<Point2D.Double> points   = new ArrayList<>();
 
         polyline.setLineCoordinates(3, 3, 10, 10);
@@ -332,9 +331,9 @@ public class ShapeTest extends BasicTest {
 
 
     @Test
-    public void testPolygonShapeContainer() {
+    public void testPolygon() {
         final String         text    = "Polygon";
-        ShapeContainer       polygon = new ShapeContainer(ShapeContainer.POLYGON);
+        ShapeWrapper         polygon = new ShapeWrapper(ShapeWrapper.POLYGON);
         List<Point2D.Double> points  = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -357,7 +356,7 @@ public class ShapeTest extends BasicTest {
     @Test
     public void testEmptyShapeData() {
         final String         text             = "Empty";
-        ShapeContainer       empty            = new ShapeContainer((ShapeData) null);
+        ShapeWrapper         empty            = new ShapeWrapper((ShapeData) null);
         List<Point2D.Double> points           = new ArrayList<>();
         double[]             pointCoordinates = {1, 1};
 

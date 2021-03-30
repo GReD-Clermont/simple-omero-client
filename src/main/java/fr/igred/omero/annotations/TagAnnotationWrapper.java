@@ -31,25 +31,25 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData
  * <p> Implements function using the TagAnnotationData contained.
  */
-public class TagAnnotationContainer {
+public class TagAnnotationWrapper {
 
-    /** TagAnnotationContainer contained */
+    /** TagAnnotationWrapper contained */
     private final TagAnnotationData tag;
 
 
     /**
-     * Constructor of the TagAnnotationContainer class.
+     * Constructor of the TagAnnotationWrapper class.
      *
      * @param tag Tag to be contained.
      */
-    public TagAnnotationContainer(TagAnnotationData tag) {
+    public TagAnnotationWrapper(TagAnnotationData tag) {
         this.tag = tag;
         this.tag.setNameSpace(tag.getContentAsString());
     }
 
 
     /**
-     * Constructor of the TagAnnotationContainer class. Creates the tag and save it in OMERO.
+     * Constructor of the TagAnnotationWrapper class. Creates the tag and save it in OMERO.
      *
      * @param client      The user.
      * @param name        Tag name.
@@ -59,7 +59,7 @@ public class TagAnnotationContainer {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagAnnotationContainer(Client client, String name, String description)
+    public TagAnnotationWrapper(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         this.tag = new TagAnnotationData(name, description);
         TagAnnotationData newTag = (TagAnnotationData) PojoMapper.asDataObject(client.save(tag.asIObject()));

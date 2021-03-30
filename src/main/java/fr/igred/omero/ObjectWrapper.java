@@ -1,9 +1,9 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.annotations.TableContainer;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DataObject;
@@ -16,12 +16,12 @@ import java.util.concurrent.ExecutionException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
-public abstract class ObjectContainer<T extends DataObject> {
+public abstract class ObjectWrapper<T extends DataObject> {
 
     protected T data;
 
 
-    protected ObjectContainer(T object) {
+    protected ObjectWrapper(T object) {
         this.data = object;
     }
 
@@ -80,13 +80,13 @@ public abstract class ObjectContainer<T extends DataObject> {
      * Adds a table to the object in OMERO
      *
      * @param client The user.
-     * @param table  Table to add to the dataobject.
+     * @param table  Table to add to the object.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTable(Client client, TableContainer table)
+    public void addTable(Client client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException {
         TableData tableData = table.createTable();
         try {
@@ -104,13 +104,13 @@ public abstract class ObjectContainer<T extends DataObject> {
      * @param client The user.
      * @param fileId FileId of the table researched.
      *
-     * @return TableContainer containing the table information.
+     * @return TableWrapper containing the table information.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableContainer getTable(Client client, Long fileId)
+    public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData table = null;
         try {
@@ -118,7 +118,7 @@ public abstract class ObjectContainer<T extends DataObject> {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get table from " + data.getClass().getSimpleName() + " ID: " + getId());
         }
-        return new TableContainer(Objects.requireNonNull(table));
+        return new TableWrapper(Objects.requireNonNull(table));
     }
 
 

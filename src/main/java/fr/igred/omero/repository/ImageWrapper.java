@@ -19,16 +19,16 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectContainer;
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
-import fr.igred.omero.roi.ROIContainer;
-import fr.igred.omero.repository.PixelContainer.Coordinates;
-import fr.igred.omero.repository.PixelContainer.Bounds;
-import fr.igred.omero.annotations.MapAnnotationContainer;
-import fr.igred.omero.annotations.TagAnnotationContainer;
-import fr.igred.omero.sort.SortTagAnnotationContainer;
+import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.repository.PixelsWrapper.Coordinates;
+import fr.igred.omero.repository.PixelsWrapper.Bounds;
+import fr.igred.omero.sort.SortTagAnnotationWrapper;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -69,15 +69,15 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing an ImageData.
  * <p> Implements function using the ImageData contained
  */
-public class ImageContainer extends ObjectContainer<ImageData> {
+public class ImageWrapper extends ObjectWrapper<ImageData> {
 
 
     /**
-     * Constructor of the class ImageContainer
+     * Constructor of the class ImageWrapper
      *
-     * @param image The image contained in the ImageContainer.
+     * @param image The image contained in the ImageWrapper.
      */
-    public ImageContainer(ImageData image) {
+    public ImageWrapper(ImageData image) {
         super(image);
     }
 
@@ -144,13 +144,13 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      * Adds a tag to the image in OMERO. The tag to be added is already created.
      *
      * @param client The user.
-     * @param tag    TagAnnotationContainer containing the tag to be added.
+     * @param tag    TagAnnotationWrapper containing the tag to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTag(Client client, TagAnnotationContainer tag)
+    public void addTag(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ExecutionException {
         addTag(client, tag.getTag());
     }
@@ -200,15 +200,15 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      * Adds multiple tag to the image in OMERO.
      *
      * @param client The user.
-     * @param tags   Table of TagAnnotationContainer to add.
+     * @param tags   Table of TagAnnotationWrapper to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTags(Client client, TagAnnotationContainer... tags)
+    public void addTags(Client client, TagAnnotationWrapper... tags)
     throws ServiceException, AccessException, ExecutionException {
-        for (TagAnnotationContainer tag : tags) {
+        for (TagAnnotationWrapper tag : tags) {
             addTag(client, tag.getTag());
         }
     }
@@ -237,15 +237,15 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      *
      * @param client The user.
      *
-     * @return List of TagAnnotationContainer each containing a tag linked to the image.
+     * @return List of TagAnnotationWrapper each containing a tag linked to the image.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TagAnnotationContainer> getTags(Client client)
+    public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<TagAnnotationContainer> tags = new ArrayList<>();
+        List<TagAnnotationWrapper> tags = new ArrayList<>();
 
         List<Long> userIds = new ArrayList<>();
         userIds.add(client.getId());
@@ -264,11 +264,11 @@ public class ImageContainer extends ObjectContainer<ImageData> {
             for (AnnotationData annotation : annotations) {
                 TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
 
-                tags.add(new TagAnnotationContainer(tagAnnotation));
+                tags.add(new TagAnnotationWrapper(tagAnnotation));
             }
         }
 
-        tags.sort(new SortTagAnnotationContainer());
+        tags.sort(new SortTagAnnotationWrapper());
         return tags;
     }
 
@@ -344,16 +344,16 @@ public class ImageContainer extends ObjectContainer<ImageData> {
 
 
     /**
-     * Adds a List of Key-Value pair to the image The list is contained in the MapAnnotationContainer
+     * Adds a List of Key-Value pair to the image The list is contained in the MapAnnotationWrapper
      *
      * @param client The user.
-     * @param data   MapAnnotationContainer containing a list of NamedValue.
+     * @param data   MapAnnotationWrapper containing a list of NamedValue.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addMapAnnotation(Client client, MapAnnotationContainer data)
+    public void addMapAnnotation(Client client, MapAnnotationWrapper data)
     throws ServiceException, AccessException, ExecutionException {
         try {
             client.getDm().attachAnnotation(client.getCtx(),
@@ -402,7 +402,7 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void saveROI(Client client, ROIContainer roi)
+    public void saveROI(Client client, ROIWrapper roi)
     throws ServiceException, AccessException, ExecutionException {
         try {
             ROIData roiData = client.getRoiFacility()
@@ -428,10 +428,10 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIContainer> getROIs(Client client)
+    public List<ROIWrapper> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIContainer> roiContainers = new ArrayList<>();
-        List<ROIResult>    roiResults    = new ArrayList<>();
+        List<ROIWrapper> roiWrappers = new ArrayList<>();
+        List<ROIResult>  roiResults  = new ArrayList<>();
         try {
             roiResults = client.getRoiFacility().loadROIs(client.getCtx(), data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
@@ -442,11 +442,11 @@ public class ImageContainer extends ObjectContainer<ImageData> {
         Collection<ROIData> rois = r.getROIs();
 
         for (ROIData roi : rois) {
-            ROIContainer temp = new ROIContainer(roi);
-            roiContainers.add(temp);
+            ROIWrapper temp = new ROIWrapper(roi);
+            roiWrappers.add(temp);
         }
 
-        return roiContainers;
+        return roiWrappers;
     }
 
 
@@ -455,16 +455,16 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      *
      * @param client The user.
      *
-     * @return List of FolderContainer containing the folder.
+     * @return List of FolderWrapper containing the folder.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FolderContainer> getFolders(Client client)
+    public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<FolderContainer> roiFolders  = new ArrayList<>();
-        ROIFacility           roiFacility = client.getRoiFacility();
+        List<FolderWrapper> roiFolders  = new ArrayList<>();
+        ROIFacility         roiFacility = client.getRoiFacility();
 
         Collection<FolderData> folders = new ArrayList<>();
         try {
@@ -474,7 +474,7 @@ public class ImageContainer extends ObjectContainer<ImageData> {
         }
 
         for (FolderData folder : folders) {
-            FolderContainer roiFolder = new FolderContainer(folder);
+            FolderWrapper roiFolder = new FolderWrapper(folder);
             roiFolder.setImage(this.data.getId());
 
             roiFolders.add(roiFolder);
@@ -495,26 +495,26 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public FolderContainer getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
+    public FolderWrapper getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
         List<IObject> os = client.findByQuery("select f " +
                                               "from Folder as f " +
                                               "where f.id = " +
                                               folderId);
 
-        FolderContainer folderContainer = new FolderContainer((Folder) os.get(0));
-        folderContainer.setImage(this.data.getId());
+        FolderWrapper folderWrapper = new FolderWrapper((Folder) os.get(0));
+        folderWrapper.setImage(this.data.getId());
 
-        return folderContainer;
+        return folderWrapper;
     }
 
 
     /**
-     * Gets the PixelContainer of the image
+     * Gets the PixelsWrapper of the image
      *
      * @return Contains the PixelsData associated with the image.
      */
-    public PixelContainer getPixels() {
-        return new PixelContainer(data.getDefaultPixels());
+    public PixelsWrapper getPixels() {
+        return new PixelsWrapper(data.getDefaultPixels());
     }
 
 
@@ -551,7 +551,7 @@ public class ImageContainer extends ObjectContainer<ImageData> {
      */
     public ImagePlus toImagePlus(Client client, int[] xBound, int[] yBound, int[] cBound, int[] zBound, int[] tBound)
     throws AccessException, ExecutionException {
-        PixelContainer pixels = this.getPixels();
+        PixelsWrapper pixels = this.getPixels();
 
         Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
 

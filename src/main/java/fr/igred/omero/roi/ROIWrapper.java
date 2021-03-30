@@ -19,8 +19,8 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.repository.ImageContainer;
-import fr.igred.omero.ObjectContainer;
+import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
@@ -39,35 +39,35 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  * Class containing a ROIData
  * <p> Implements function using the ROIData contained
  */
-public class ROIContainer extends ObjectContainer<ROIData> {
+public class ROIWrapper extends ObjectWrapper<ROIData> {
 
     /**
-     * Constructor of the ROIContainer class.
+     * Constructor of the ROIWrapper class.
      */
-    public ROIContainer() {
+    public ROIWrapper() {
         super(new ROIData());
     }
 
 
     /**
-     * Constructor of the ROIContainer class.
+     * Constructor of the ROIWrapper class.
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIContainer(List<ShapeContainer> shapes) {
+    public ROIWrapper(List<ShapeWrapper> shapes) {
         super(new ROIData());
 
-        for (ShapeContainer shape : shapes)
+        for (ShapeWrapper shape : shapes)
             addShape(shape);
     }
 
 
     /**
-     * Constructor of the ROIContainer class.
+     * Constructor of the ROIWrapper class.
      *
      * @param data ROIData to be contained.
      */
-    public ROIContainer(ROIData data) {
+    public ROIWrapper(ROIData data) {
         super(data);
     }
 
@@ -78,22 +78,22 @@ public class ROIContainer extends ObjectContainer<ROIData> {
 
 
     /**
-     * Adds ShapeData objects from a list of ShapeContainer to the ROIData
+     * Adds ShapeData objects from a list of ShapeWrapper to the ROIData
      *
-     * @param shapes List of ShapeContainer.
+     * @param shapes List of ShapeWrapper.
      */
-    public void addShapes(List<ShapeContainer> shapes) {
-        for (ShapeContainer shape : shapes)
+    public void addShapes(List<ShapeWrapper> shapes) {
+        for (ShapeWrapper shape : shapes)
             addShape(shape);
     }
 
 
     /**
-     * Adds a ShapeData from a ShapeContainer to the ROIData
+     * Adds a ShapeData from a ShapeWrapper to the ROIData
      *
-     * @param shape ShapeContainer to add.
+     * @param shape ShapeWrapper to add.
      */
-    public void addShape(ShapeContainer shape) {
+    public void addShape(ShapeWrapper shape) {
         data.addShapeData(shape.getShape());
     }
 
@@ -103,10 +103,10 @@ public class ROIContainer extends ObjectContainer<ROIData> {
      *
      * @return list of shape contained in the ROIData.
      */
-    public List<ShapeContainer> getShapes() {
-        List<ShapeContainer> shapes = new ArrayList<>();
+    public List<ShapeWrapper> getShapes() {
+        List<ShapeWrapper> shapes = new ArrayList<>();
         for (ShapeData shape : data.getShapes()) {
-            shapes.add(new ShapeContainer(shape));
+            shapes.add(new ShapeWrapper(shape));
         }
         return shapes;
     }
@@ -117,7 +117,7 @@ public class ROIContainer extends ObjectContainer<ROIData> {
      *
      * @param image Image linked to the ROIData.
      */
-    public void setImage(ImageContainer image) {
+    public void setImage(ImageWrapper image) {
         data.setImage(image.getImage().asImage());
     }
 

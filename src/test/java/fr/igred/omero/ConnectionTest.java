@@ -18,8 +18,8 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.TagAnnotationContainer;
-import fr.igred.omero.repository.ImageContainer;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.repository.ImageWrapper;
 import org.junit.Test;
 
 import java.util.List;
@@ -69,15 +69,15 @@ public class ConnectionTest extends BasicTest {
         Client test = root.sudoGetUser("testUser");
         assertEquals(2L, test.getId().longValue());
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(test, "Tag", "This is a tag");
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
-        List<ImageContainer> images = test.getImages();
+        List<ImageWrapper> images = test.getImages();
 
-        for (ImageContainer image : images) {
+        for (ImageWrapper image : images) {
             image.addTag(test, tag);
         }
 
-        List<ImageContainer> tagged = test.getImagesTagged(tag);
+        List<ImageWrapper> tagged = test.getImagesTagged(tag);
 
         int differences = 0;
         for (int i = 0; i < images.size(); i++) {

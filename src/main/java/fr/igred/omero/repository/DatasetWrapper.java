@@ -19,14 +19,14 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectContainer;
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
-import fr.igred.omero.annotations.TableContainer;
-import fr.igred.omero.annotations.TagAnnotationContainer;
-import fr.igred.omero.sort.SortImageContainer;
-import fr.igred.omero.sort.SortTagAnnotationContainer;
+import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.sort.SortImageWrapper;
+import fr.igred.omero.sort.SortTagAnnotationWrapper;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
@@ -76,16 +76,16 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing a DatasetData.
  * <p> Implements function using the DatasetData contained
  */
-public class DatasetContainer extends ObjectContainer<DatasetData> {
+public class DatasetWrapper extends ObjectWrapper<DatasetData> {
 
 
     /**
-     * Constructor of the DatasetContainer class
+     * Constructor of the DatasetWrapper class
      *
      * @param name        Name of the dataset.
      * @param description Description of the dataset.
      */
-    public DatasetContainer(String name, String description) {
+    public DatasetWrapper(String name, String description) {
         super(new DatasetData());
         this.data.setName(name);
         this.data.setDescription(description);
@@ -93,11 +93,11 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
 
 
     /**
-     * Constructor of the DatasetContainer class
+     * Constructor of the DatasetWrapper class
      *
      * @param dataset Dataset to be contained.
      */
-    public DatasetContainer(DatasetData dataset) {
+    public DatasetWrapper(DatasetData dataset) {
         super(dataset);
     }
 
@@ -160,7 +160,7 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTag(Client client, TagAnnotationContainer tag)
+    public void addTag(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ExecutionException {
         addTag(client, tag.getTag());
     }
@@ -210,15 +210,15 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * Adds multiple tag to the dataset in OMERO.
      *
      * @param client The user.
-     * @param tags   Array of TagAnnotationContainer to add.
+     * @param tags   Array of TagAnnotationWrapper to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTags(Client client, TagAnnotationContainer... tags)
+    public void addTags(Client client, TagAnnotationWrapper... tags)
     throws ServiceException, AccessException, ExecutionException {
-        for (TagAnnotationContainer tag : tags) {
+        for (TagAnnotationWrapper tag : tags) {
             addTag(client, tag.getTag());
         }
     }
@@ -247,15 +247,15 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      *
      * @param client The user.
      *
-     * @return Collection of TagAnnotationContainer each containing a tag linked to the dataset.
+     * @return Collection of TagAnnotationWrapper each containing a tag linked to the dataset.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TagAnnotationContainer> getTags(Client client)
+    public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<TagAnnotationContainer> tags = new ArrayList<>();
+        List<TagAnnotationWrapper> tags = new ArrayList<>();
 
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
@@ -271,31 +271,31 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
             for (AnnotationData annotation : annotations) {
                 TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
 
-                tags.add(new TagAnnotationContainer(tagAnnotation));
+                tags.add(new TagAnnotationWrapper(tagAnnotation));
             }
         }
 
-        tags.sort(new SortTagAnnotationContainer());
+        tags.sort(new SortTagAnnotationWrapper());
         return tags;
     }
 
 
     /**
-     * Transforms a collection of ImageData in a list of ImageContainer sorted by the ImageData id.
+     * Transforms a collection of ImageData in a list of ImageWrapper sorted by the ImageData id.
      *
      * @param images ImageData Collection.
      *
-     * @return ImageContainer list sorted.
+     * @return ImageWrapper list sorted.
      */
-    private List<ImageContainer> toImagesContainer(Collection<ImageData> images) {
-        List<ImageContainer> imagesContainer = new ArrayList<>();
+    private List<ImageWrapper> toImageWrappers(Collection<ImageData> images) {
+        List<ImageWrapper> imageWrappers = new ArrayList<>();
 
         for (ImageData image : images)
-            imagesContainer.add(new ImageContainer(image));
+            imageWrappers.add(new ImageWrapper(image));
 
-        imagesContainer.sort(new SortImageContainer());
+        imageWrappers.sort(new SortImageWrapper());
 
-        return imagesContainer;
+        return imageWrappers;
     }
 
 
@@ -304,12 +304,12 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      *
      * @param client The user.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImages(Client client) throws ServiceException, AccessException {
+    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException {
         Collection<ImageData> images = new ArrayList<>();
         try {
             images = client.getBrowseFacility()
@@ -319,7 +319,7 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
             handleServiceOrAccess(e, "Cannot get images from dataset ID: " + getId());
         }
 
-        return toImagesContainer(images);
+        return toImageWrappers(images);
     }
 
 
@@ -329,14 +329,14 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @param client The user.
      * @param name   Name searched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImages(Client client, String name)
+    public List<ImageWrapper> getImages(Client client, String name)
     throws ServiceException, AccessException {
-        List<ImageContainer> images = getImages(client);
+        List<ImageWrapper> images = getImages(client);
         images.removeIf(image -> !image.getName().equals(name));
         return images;
     }
@@ -348,15 +348,15 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @param client The user.
      * @param motif  Motif searched in an image name.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageContainer> getImagesLike(Client client, String motif)
+    public List<ImageWrapper> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException {
-        List<ImageContainer> images = getImages(client);
-        final String         regexp = ".*" + motif + ".*";
+        List<ImageWrapper> images = getImages(client);
+        final String       regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
         return images;
     }
@@ -366,17 +366,17 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param client The user.
-     * @param tag    TagAnnotationContainer containing the tag researched.
+     * @param tag    TagAnnotationWrapper containing the tag researched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      * @throws OMEROServerError Server error.
      */
-    public List<ImageContainer> getImagesTagged(Client client, TagAnnotationContainer tag)
+    public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageContainer> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>();
         List<IObject> os = client.findByQuery("select link.parent " +
                                               "from ImageAnnotationLink link " +
                                               "where link.child = " +
@@ -401,15 +401,15 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @param client The user.
      * @param tagId  Id of the tag researched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      * @throws OMEROServerError Server error.
      */
-    public List<ImageContainer> getImagesTagged(Client client, Long tagId)
+    public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageContainer> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>();
         List<IObject> os = client.findByQuery("select link.parent " +
                                               "from ImageAnnotationLink link " +
                                               "where link.child = " +
@@ -434,13 +434,13 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @param client The user.
      * @param key    Name of the key researched.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageContainer> getImagesKey(Client client, String key)
+    public List<ImageWrapper> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> selected = new ArrayList<>();
         Collection<ImageData> images   = new ArrayList<>();
@@ -453,9 +453,9 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
         }
 
         for (ImageData image : images) {
-            ImageContainer imageContainer = new ImageContainer(image);
+            ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(client);
+            Collection<NamedValue> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
 
             for (NamedValue pairKeyValue : pairsKeyValue) {
                 if (pairKeyValue.name.equals(key)) {
@@ -465,7 +465,7 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
             }
         }
 
-        return toImagesContainer(selected);
+        return toImageWrappers(selected);
     }
 
 
@@ -476,13 +476,13 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @param key    Name of the key researched.
      * @param value  Value associated with the key.
      *
-     * @return ImageContainer list.
+     * @return ImageWrapper list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageContainer> getImagesPairKeyValue(Client client, String key, String value)
+    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> selected = new ArrayList<>();
         Collection<ImageData> images   = new ArrayList<>();
@@ -495,9 +495,9 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
         }
 
         for (ImageData image : images) {
-            ImageContainer imageContainer = new ImageContainer(image);
+            ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Collection<NamedValue> pairsKeyValue = imageContainer.getKeyValuePairs(client);
+            Collection<NamedValue> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
 
             for (NamedValue pairKeyValue : pairsKeyValue) {
                 if (pairKeyValue.name.equals(key) && pairKeyValue.value.equals(value)) {
@@ -507,7 +507,7 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
             }
         }
 
-        return toImagesContainer(selected);
+        return toImageWrappers(selected);
     }
 
 
@@ -521,9 +521,9 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(Client client, List<ImageContainer> images)
+    public void addImages(Client client, List<ImageWrapper> images)
     throws ServiceException, AccessException, ExecutionException {
-        for (ImageContainer image : images) {
+        for (ImageWrapper image : images) {
             addImage(client, image);
         }
     }
@@ -539,7 +539,7 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImage(Client client, ImageContainer image)
+    public void addImage(Client client, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.getImage().asImage());
@@ -668,15 +668,15 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
      *
      * @param client The user.
      *
-     * @return List of TableContainer containing the tables information.
+     * @return List of TableWrapper containing the tables information.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TableContainer> getTables(Client client)
+    public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<TableContainer> tablesContainer = new ArrayList<>();
+        List<TableWrapper> tablesWrapper = new ArrayList<>();
 
         Collection<FileAnnotationData> tables = new ArrayList<>();
         try {
@@ -686,12 +686,12 @@ public class DatasetContainer extends ObjectContainer<DatasetData> {
         }
 
         for (FileAnnotationData table : tables) {
-            TableContainer tableContainer = getTable(client, table.getFileID());
-            tableContainer.setId(table.getId());
-            tablesContainer.add(tableContainer);
+            TableWrapper tableWrapper = getTable(client, table.getFileID());
+            tableWrapper.setId(table.getId());
+            tablesWrapper.add(tableWrapper);
         }
 
-        return tablesContainer;
+        return tablesWrapper;
     }
 
 }
