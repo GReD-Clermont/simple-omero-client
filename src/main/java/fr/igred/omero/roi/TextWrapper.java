@@ -4,7 +4,7 @@ package fr.igred.omero.roi;
 import omero.gateway.model.TextData;
 
 
-public class TextWrapper extends ShapeWrapper<TextData> {
+public class TextWrapper extends GenericShapeWrapper<TextData> {
 
 
     /**

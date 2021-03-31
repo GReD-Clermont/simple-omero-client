@@ -19,8 +19,8 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
@@ -29,7 +29,6 @@ import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.Roi;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -39,7 +38,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  * Class containing a ROIData
  * <p> Implements function using the ROIData contained
  */
-public class ROIWrapper extends ObjectWrapper<ROIData> {
+public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
     /**
      * Constructor of the ROIWrapper class.
@@ -54,10 +53,10 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIWrapper(List<ShapeWrapper<? extends ShapeData>> shapes) {
+    public ROIWrapper(List<GenericShapeWrapper<?>> shapes) {
         super(new ROIData());
 
-        for (ShapeWrapper<? extends ShapeData> shape : shapes)
+        for (GenericShapeWrapper<?> shape : shapes)
             addShape(shape);
     }
 
@@ -78,22 +77,22 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
 
 
     /**
-     * Adds ShapeData objects from a list of ShapeWrapper to the ROIData
+     * Adds ShapeData objects from a list of GenericShapeWrapper to the ROIData
      *
-     * @param shapes List of ShapeWrapper.
+     * @param shapes List of GenericShapeWrapper.
      */
-    public void addShapes(List<ShapeWrapper<? extends ShapeData>> shapes) {
-        for (ShapeWrapper<? extends ShapeData> shape : shapes)
+    public void addShapes(List<? extends GenericShapeWrapper<?>> shapes) {
+        for (GenericShapeWrapper<?> shape : shapes)
             addShape(shape);
     }
 
 
     /**
-     * Adds a ShapeData from a ShapeWrapper to the ROIData
+     * Adds a ShapeData from a GenericShapeWrapper to the ROIData
      *
-     * @param shape ShapeWrapper to add.
+     * @param shape GenericShapeWrapper to add.
      */
-    public void addShape(ShapeWrapper<? extends ShapeData> shape) {
+    public void addShape(GenericShapeWrapper<?> shape) {
         data.addShapeData(shape.getShape());
     }
 
@@ -103,10 +102,10 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @return list of shape contained in the ROIData.
      */
-    public List<ShapeWrapper<ShapeData>> getShapes() {
-        List<ShapeWrapper<ShapeData>> shapes = new ArrayList<>();
+    public ShapeList getShapes() {
+        ShapeList shapes = new ShapeList();
         for (ShapeData shape : data.getShapes()) {
-            shapes.add(new ShapeWrapper<>(shape));
+            shapes.add(shape);
         }
         return shapes;
     }

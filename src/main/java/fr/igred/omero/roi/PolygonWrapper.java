@@ -7,7 +7,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 
-public class PolygonWrapper extends ShapeWrapper<PolygonData> {
+public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
 
 
     /**

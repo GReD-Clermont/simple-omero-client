@@ -7,7 +7,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 
-public class PolylineWrapper extends ShapeWrapper<PolylineData> {
+public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
 
 
     /**

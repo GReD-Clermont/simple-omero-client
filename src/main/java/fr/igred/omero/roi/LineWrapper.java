@@ -4,7 +4,7 @@ package fr.igred.omero.roi;
 import omero.gateway.model.LineData;
 
 
-public class LineWrapper extends ShapeWrapper<LineData> {
+public class LineWrapper extends GenericShapeWrapper<LineData> {
 
 
     /**

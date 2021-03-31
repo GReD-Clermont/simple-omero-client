@@ -1,21 +1,21 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.GenericObjectWrapper;
 import omero.gateway.model.AnnotationData;
 
 import java.sql.Timestamp;
 
 
-public abstract class AnnotationWrapper<T extends AnnotationData> extends ObjectWrapper<T> {
+public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends GenericObjectWrapper<T> {
 
 
     /**
-     * Constructor of the AnnotationWrapper class.
+     * Constructor of the GenericAnnotationWrapper class.
      *
      * @param annotation Annotation to be contained.
      */
-    protected AnnotationWrapper(T annotation) {
+    protected GenericAnnotationWrapper(T annotation) {
         super(annotation);
     }
 

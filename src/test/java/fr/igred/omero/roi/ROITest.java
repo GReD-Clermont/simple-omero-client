@@ -20,6 +20,7 @@ import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.ImageWrapper;
 import org.junit.Test;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +69,7 @@ public class ROITest extends UserTest {
     public void testROI2() throws Exception {
         ImageWrapper image = client.getImage(1L);
 
-        List<ShapeWrapper<?>> shapes = new ArrayList<>(4);
+        List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
 
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
@@ -103,7 +104,7 @@ public class ROITest extends UserTest {
     public void testRoiAddShapeAndDeleteIt() throws Exception {
         ImageWrapper image = client.getImage(1L);
 
-        List<ShapeWrapper<?>> shapes = new ArrayList<>(4);
+        List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
@@ -147,6 +148,88 @@ public class ROITest extends UserTest {
 
         assertEquals(size, roi.getShapes().size());
         assertEquals(ROINumber, rois.size());
+    }
+
+
+    @Test
+    public void testROIAllShapes() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+
+        PointWrapper point = new PointWrapper(1, 1);
+        point.setCZT(0, 0, 0);
+
+        TextWrapper text = new TextWrapper("Text", 2, 2);
+        text.setCZT(0, 0, 1);
+
+        RectangleWrapper rectangle = new RectangleWrapper(3, 3, 10, 10);
+        rectangle.setCZT(0, 0, 2);
+
+        MaskWrapper mask = new MaskWrapper();
+        mask.setCoordinates(4, 4, 11, 11);
+        mask.setCZT(1, 0, 0);
+
+        EllipseWrapper ellipse = new EllipseWrapper(5, 5, 4, 4);
+        ellipse.setCZT(1, 0, 1);
+
+        LineWrapper line = new LineWrapper(0, 0, 10, 10);
+        line.setCZT(1, 0, 2);
+
+        List<Point2D.Double> points2D = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points2D.add(p1);
+        points2D.add(p2);
+        points2D.add(p3);
+
+        PolylineWrapper polyline = new PolylineWrapper(points2D);
+        polyline.setCZT(1, 1, 0);
+
+        PolygonWrapper polygon = new PolygonWrapper(points2D);
+        polygon.setCZT(1, 1, 1);
+
+        ROIWrapper roiWrapper = new ROIWrapper();
+        roiWrapper.setImage(image);
+        roiWrapper.addShape(point);
+        roiWrapper.addShape(text);
+        roiWrapper.addShape(rectangle);
+        roiWrapper.addShape(mask);
+        roiWrapper.addShape(ellipse);
+        roiWrapper.addShape(line);
+        roiWrapper.addShape(polyline);
+        roiWrapper.addShape(polygon);
+        image.saveROI(client, roiWrapper);
+
+        List<ROIWrapper>   rois   = image.getROIs(client);
+        ShapeList          shapes = rois.get(0).getShapes();
+        List<PointWrapper> points = shapes.getElementsOf(PointWrapper.class);
+        List<TextWrapper>      texts      = shapes.getElementsOf(TextWrapper.class);
+        List<RectangleWrapper> rectangles = shapes.getElementsOf(RectangleWrapper.class);
+        List<MaskWrapper>      masks      = shapes.getElementsOf(MaskWrapper.class);
+        List<EllipseWrapper>   ellipses   = shapes.getElementsOf(EllipseWrapper.class);
+        List<LineWrapper>      lines      = shapes.getElementsOf(LineWrapper.class);
+        List<PolylineWrapper>  polylines  = shapes.getElementsOf(PolylineWrapper.class);
+        List<PolygonWrapper>   polygons   = shapes.getElementsOf(PolygonWrapper.class);
+
+        assertEquals(1, rois.size());
+        assertEquals(8, shapes.size());
+        assertEquals(1, points.size());
+        assertEquals(1, texts.size());
+        assertEquals(1, rectangles.size());
+        assertEquals(1, masks.size());
+        assertEquals(1, ellipses.size());
+        assertEquals(1, lines.size());
+        assertEquals(1, polylines.size());
+        assertEquals(1, polygons.size());
+
+        for (ROIWrapper roi : rois) {
+            client.deleteROI(roi);
+        }
+
+        rois = image.getROIs(client);
+
+        assertEquals(0, rois.size());
     }
 
 }

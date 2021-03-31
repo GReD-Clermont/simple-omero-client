@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -68,7 +68,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing an ImageData.
  * <p> Implements function using the ImageData contained
  */
-public class ImageWrapper extends ObjectWrapper<ImageData> {
+public class ImageWrapper extends GenericObjectWrapper<ImageData> {
 
 
     /**

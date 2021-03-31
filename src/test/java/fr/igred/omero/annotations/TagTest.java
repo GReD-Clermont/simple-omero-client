@@ -13,10 +13,10 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.UserTest;
 import org.junit.Test;
 
 import java.util.List;

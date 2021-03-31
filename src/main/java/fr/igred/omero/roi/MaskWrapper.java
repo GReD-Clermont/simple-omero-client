@@ -4,7 +4,7 @@ package fr.igred.omero.roi;
 import omero.gateway.model.MaskData;
 
 
-public class MaskWrapper extends ShapeWrapper<MaskData> {
+public class MaskWrapper extends GenericShapeWrapper<MaskData> {
 
 
     /**

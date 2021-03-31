@@ -17,17 +17,17 @@ import java.util.concurrent.ExecutionException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
-public abstract class ObjectWrapper<T extends DataObject> {
+public abstract class GenericObjectWrapper<T extends DataObject> {
 
     protected T data;
 
 
     /**
-     * Constructor of the class ObjectWrapper.
+     * Constructor of the class GenericObjectWrapper.
      *
-     * @param object The object contained in the ObjectWrapper.
+     * @param object The object contained in the GenericObjectWrapper.
      */
-    protected ObjectWrapper(T object) {
+    protected GenericObjectWrapper(T object) {
         this.data = object;
     }
 
@@ -131,7 +131,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
     /**
      * Class used to sort TagAnnotationWrappers
      */
-    public static class SortById<U extends ObjectWrapper<?>> implements Comparator<U> {
+    public static class SortById<U extends GenericObjectWrapper<?>> implements Comparator<U> {
 
         /**
          * Compare 2 ObjectWrappers. Compare the id of the ObjectWrappers.

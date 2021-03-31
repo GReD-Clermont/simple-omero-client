@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
@@ -40,13 +40,14 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
  * Class containing a FolderData.
  * <p> Implements function using the FolderData contained.
  */
-public class FolderWrapper extends ObjectWrapper<FolderData> {
+public class FolderWrapper extends GenericObjectWrapper<FolderData> {
 
     /** Id of the associated image */
     Long imageId;
@@ -89,10 +90,8 @@ public class FolderWrapper extends ObjectWrapper<FolderData> {
                                       .getUpdateService(client.getCtx())
                                       .saveAndReturnObject(data.asIObject());
             data.setFolder(f);
-        } catch (DSOutOfServiceException os) {
-            throw new ServiceException(os, os.getConnectionStatus());
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
+        } catch (DSOutOfServiceException | ServerError se) {
+            handleServiceOrServer(se, "Could not create Folder with name: " + name);
         }
     }
 

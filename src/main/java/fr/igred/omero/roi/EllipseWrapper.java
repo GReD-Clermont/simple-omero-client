@@ -4,7 +4,7 @@ package fr.igred.omero.roi;
 import omero.gateway.model.EllipseData;
 
 
-public class EllipseWrapper extends ShapeWrapper<EllipseData> {
+public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
 
 
     /**

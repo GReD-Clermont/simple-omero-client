@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData
  * <p> Implements function using the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
+public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotationData> {
 
     /**
      * Constructor of the TagAnnotationWrapper class.

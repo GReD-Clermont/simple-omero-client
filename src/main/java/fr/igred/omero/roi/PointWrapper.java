@@ -4,7 +4,7 @@ package fr.igred.omero.roi;
 import omero.gateway.model.PointData;
 
 
-public class PointWrapper extends ShapeWrapper<PointData> {
+public class PointWrapper extends GenericShapeWrapper<PointData> {
 
 
     /**

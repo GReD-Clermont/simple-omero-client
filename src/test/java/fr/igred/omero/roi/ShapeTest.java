@@ -413,7 +413,7 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testPolylineConstructor() {
-        List<Point2D.Double> points   = new ArrayList<>();
+        List<Point2D.Double> points = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -423,7 +423,7 @@ public class ShapeTest extends BasicTest {
         points.add(p3);
 
         PolylineWrapper      polyline = new PolylineWrapper(points);
-        List<Point2D.Double> points2 = polyline.getPoints();
+        List<Point2D.Double> points2  = polyline.getPoints();
 
         assertEquals(points, points2);
     }
@@ -431,7 +431,7 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testPolygonConstructor() {
-        List<Point2D.Double> points  = new ArrayList<>();
+        List<Point2D.Double> points = new ArrayList<>();
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);

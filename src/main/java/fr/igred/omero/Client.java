@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.ObjectWrapper.SortById;
+import fr.igred.omero.GenericObjectWrapper.SortById;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;

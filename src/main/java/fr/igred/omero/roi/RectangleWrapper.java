@@ -4,7 +4,7 @@ package fr.igred.omero.roi;
 import omero.gateway.model.RectangleData;
 
 
-public class RectangleWrapper extends ShapeWrapper<RectangleData> {
+public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
 
 
     /**

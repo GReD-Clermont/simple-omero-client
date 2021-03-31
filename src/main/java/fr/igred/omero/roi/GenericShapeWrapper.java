@@ -16,7 +16,7 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.GenericObjectWrapper;
 import ome.model.units.BigResult;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.PointData;
@@ -36,18 +36,17 @@ import java.util.logging.Logger;
 
 
 /**
- * Class containing a ShapeData
- * <p> Implements functions using the ShapeData contained
+ * Generic class containing a ShapeData (or a subclass) object
  */
-public class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T> {
+public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericObjectWrapper<T> {
 
 
     /**
-     * Constructor of the ShapeWrapper class using a ShapeData.
+     * Constructor of the GenericShapeWrapper class using a ShapeData.
      *
      * @param shape the shape
      */
-    public ShapeWrapper(T shape) {
+    protected GenericShapeWrapper(T shape) {
         super(shape);
     }
 
@@ -119,6 +118,20 @@ public class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T> {
      */
     public void setT(int t) {
         this.data.setT(t);
+    }
+
+
+    /**
+     * Sets the channel, z-section and time-point at once.
+     *
+     * @param c the channel. Pass -1 to remove z value, i. e. shape applies to all channels of the image.
+     * @param z the z-section. Pass -1 to remove z value, i. e. shape applies to all z-sections of the image.
+     * @param t the time-point. Pass -1 to remove t value, i. e. shape applies to all time-points of the image.
+     */
+    public void setCZT(int c, int z, int t) {
+        setC(c);
+        setZ(z);
+        setT(t);
     }
 
 
