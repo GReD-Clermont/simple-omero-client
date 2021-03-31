@@ -181,7 +181,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Adds multiple tag to the dataset in OMERO, if possible.
+     * Adds multiple tag to the object in OMERO, if possible.
      *
      * @param client The user.
      * @param tags   Array of TagAnnotationWrapper to add.
@@ -221,7 +221,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @param client The user.
      *
-     * @return Collection of TagAnnotationWrapper each containing a tag linked to the dataset.
+     * @return Collection of TagAnnotationWrapper each containing a tag linked to the object.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -255,7 +255,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Adds a single Key-Value pair to the image.
+     * Adds a single Key-Value pair to the object.
      *
      * @param client The user.
      * @param key    Name of the key.
@@ -272,11 +272,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
         MapAnnotationData mapData = new MapAnnotationData();
         mapData.setContent(result);
-        try {
-            client.getDm().attachAnnotation(client.getCtx(), mapData, data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add k/v pair to image ID: " + getId());
-        }
+        addMapAnnotation(client, new MapAnnotationWrapper(mapData));
     }
 
 
@@ -420,7 +416,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Gets all table linked to the dataset in OMERO.
+     * Gets all table linked to the object in OMERO.
      *
      * @param client The user.
      *

@@ -16,7 +16,13 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import omero.ServerError;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import org.junit.Test;
 
 import java.util.NoSuchElementException;
@@ -142,6 +148,34 @@ public class ExceptionTest extends BasicTest {
         }
         client.disconnect();
         assertTrue(exception);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testExceptionHandler1() throws Exception {
+        Throwable t = new DSAccessException("Test", null);
+        ExceptionHandler.handleException(t, "Great");
+    }
+
+
+    @Test(expected = OMEROServerError.class)
+    public void testExceptionHandler2() throws Exception {
+        Throwable t = new ServerError(null);
+        ExceptionHandler.handleException(t, "Great");
+    }
+
+
+    @Test(expected = OMEROServerError.class)
+    public void testExceptionHandler3() throws Exception {
+        Throwable t = new ServerError(null);
+        ExceptionHandler.handleServiceOrServer(t, "Great");
+    }
+
+
+    @Test(expected = ServiceException.class)
+    public void testExceptionHandler4() throws Exception {
+        Throwable t = new DSOutOfServiceException(null);
+        ExceptionHandler.handleException(t, "Great");
     }
 
 }
