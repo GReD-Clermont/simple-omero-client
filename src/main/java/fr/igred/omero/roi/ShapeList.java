@@ -41,7 +41,7 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
         } else if (shape instanceof PolygonData) {
             return super.add(new PolygonWrapper((PolygonData) shape));
         } else {
-            return super.add(new ConcreteShapeWrapper(shape));
+            return super.add(new ShapeWrapper(shape));
         }
     }
 
