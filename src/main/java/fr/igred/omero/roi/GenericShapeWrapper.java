@@ -18,15 +18,7 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.GenericObjectWrapper;
 import ome.model.units.BigResult;
-import omero.gateway.model.ShapeData;
-import omero.gateway.model.PointData;
-import omero.gateway.model.RectangleData;
-import omero.gateway.model.EllipseData;
-import omero.gateway.model.PolygonData;
-import omero.gateway.model.PolylineData;
-import omero.gateway.model.MaskData;
-import omero.gateway.model.TextData;
-import omero.gateway.model.LineData;
+import omero.gateway.model.*;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
@@ -36,7 +28,9 @@ import java.util.logging.Logger;
 
 
 /**
- * Generic class containing a ShapeData (or a subclass) object
+ * Generic class containing a ShapeData (or a subclass) object.
+ *
+ * @param <T> Subclass of {@link ShapeData}
  */
 public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericObjectWrapper<T> {
 
