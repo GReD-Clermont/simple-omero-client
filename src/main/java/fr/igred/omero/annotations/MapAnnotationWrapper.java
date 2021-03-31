@@ -15,7 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.metadata.annotation;
+package fr.igred.omero.annotations;
 
 
 import omero.gateway.model.MapAnnotationData;
@@ -28,38 +28,35 @@ import java.util.List;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
  * <p> Implements function using the MapAnnotationData contained
  */
-public class MapAnnotationContainer {
-
-    /** MapAnnotationData contained */
-    private MapAnnotationData data;
+public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotationData> {
 
 
     /**
-     * Constructor of the MapAnnotationContainer class.
+     * Constructor of the MapAnnotationWrapper class.
      *
      * @param data MapAnnotationData to be contained.
      */
-    public MapAnnotationContainer(MapAnnotationData data) {
-        this.data = data;
+    public MapAnnotationWrapper(MapAnnotationData data) {
+        super(data);
     }
 
 
     /**
-     * Constructor of the MapAnnotationContainer class. Sets the content of the MapAnnotationData
+     * Constructor of the MapAnnotationWrapper class. Sets the content of the MapAnnotationData
      *
      * @param result List of NamedValue(Key-Value pair).
      */
-    public MapAnnotationContainer(List<NamedValue> result) {
-        data = new MapAnnotationData();
+    public MapAnnotationWrapper(List<NamedValue> result) {
+        super(new MapAnnotationData());
         data.setContent(result);
     }
 
 
     /**
-     * Constructor of the MapAnnotationContainer class.
+     * Constructor of the MapAnnotationWrapper class.
      */
-    public MapAnnotationContainer() {
-        data = new MapAnnotationData();
+    public MapAnnotationWrapper() {
+        super(new MapAnnotationData());
     }
 
 
@@ -75,16 +72,6 @@ public class MapAnnotationContainer {
 
 
     /**
-     * Gets the MapAnnotationData contained.
-     *
-     * @return the {@link MapAnnotationData} contained.
-     */
-    public MapAnnotationData getMapAnnotation() {
-        return data;
-    }
-
-
-    /**
      * Sets the content of the MapAnnotationData.
      *
      * @param result List of NamedValue(Key-Value pair).
@@ -92,6 +79,16 @@ public class MapAnnotationContainer {
     public void setContent(List<NamedValue> result) {
         data = new MapAnnotationData();
         data.setContent(result);
+    }
+
+
+    /**
+     * Gets the MapAnnotationData contained.
+     *
+     * @return the {@link MapAnnotationData} contained.
+     */
+    public MapAnnotationData getMapAnnotation() {
+        return data;
     }
 
 }

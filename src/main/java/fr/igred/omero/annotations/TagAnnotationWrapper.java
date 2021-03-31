@@ -15,7 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.metadata.annotation;
+package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.Client;
@@ -31,39 +31,34 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData
  * <p> Implements function using the TagAnnotationData contained.
  */
-public class TagAnnotationContainer {
-
-    /** TagAnnotationContainer contained */
-    private final TagAnnotationData tag;
-
+public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotationData> {
 
     /**
-     * Constructor of the TagAnnotationContainer class.
+     * Constructor of the TagAnnotationWrapper class.
      *
      * @param tag Tag to be contained.
      */
-    public TagAnnotationContainer(TagAnnotationData tag) {
-        this.tag = tag;
-        this.tag.setNameSpace(tag.getContentAsString());
+    public TagAnnotationWrapper(TagAnnotationData tag) {
+        super(tag);
+        this.data.setNameSpace(tag.getContentAsString());
     }
 
 
     /**
-     * Constructor of the TagAnnotationContainer class. Creates the tag and save it in OMERO.
+     * Constructor of the TagAnnotationWrapper class. Creates the tag and save it in OMERO.
      *
      * @param client      The user.
-     * @param name        Tag name.
+     * @param name        Annotation name.
      * @param description Tag description.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagAnnotationContainer(Client client, String name, String description)
+    public TagAnnotationWrapper(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
-        this.tag = new TagAnnotationData(name, description);
-        TagAnnotationData newTag = (TagAnnotationData) PojoMapper.asDataObject(client.save(tag.asIObject()));
-        this.tag.setId(newTag.getId());
+        super((TagAnnotationData) PojoMapper
+                .asDataObject(client.save(new TagAnnotationData(name, description).asIObject())));
     }
 
 
@@ -73,27 +68,7 @@ public class TagAnnotationContainer {
      * @return TagData name.
      */
     public String getName() {
-        return tag.getNameSpace();
-    }
-
-
-    /**
-     * Gets the description of the TagData.
-     *
-     * @return TagData description.
-     */
-    public String getDescription() {
-        return tag.getDescription();
-    }
-
-
-    /**
-     * Gets the TagData id.
-     *
-     * @return TagData id.
-     */
-    public Long getId() {
-        return tag.getId();
+        return data.getNameSpace();
     }
 
 
@@ -103,7 +78,7 @@ public class TagAnnotationContainer {
      * @return the {@link TagAnnotationData} contained.
      */
     public TagAnnotationData getTag() {
-        return tag;
+        return data;
     }
 
 }

@@ -16,16 +16,20 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.repository.ImageWrapper;
+import omero.model.NamedValue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -34,6 +38,7 @@ public class AccessExceptionTest extends BasicTest {
 
     private final PrintStream error = System.err;
     protected     Client      client;
+    protected     Client      sudo;
 
 
     void hideErrors() {
@@ -55,9 +60,10 @@ public class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect("omero", 4064, "testUser2", "password2", 3L);
-            assertEquals("Wrong user", 3L, client.getId().longValue());
+            client.connect("omero", 4064, "testUser", "password", 3L);
+            assertEquals("Wrong user", 2L, client.getId().longValue());
             assertEquals("Wrong group", 3L, client.getGroupId().longValue());
+            sudo = client.sudoGetUser("testUser2");
         } catch (Exception e) {
             failed = true;
             logger.severe(ANSI_RED + "Connection failed." + ANSI_RESET);
@@ -85,9 +91,9 @@ public class AccessExceptionTest extends BasicTest {
         client.connect("omero", 4064, "root", "omero", 3L);
         assertEquals(0L, client.getId().longValue());
 
-        ImageContainer image = client.getImage(3L);
+        ImageWrapper image = client.getImage(3L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(client, "image tag", "tag attached to an image");
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         try {
             image.addTag(client, tag);
@@ -102,157 +108,113 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetProjects() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
         sudo.getProjects();
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetSingleProject() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
         sudo.getProject(2L);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetProjectByName() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
         sudo.getProjects("TestProject");
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailDeleteProject() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
         sudo.deleteProject(2L);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetDatasets() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
         sudo.getDatasets();
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetSingleDataset() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
         sudo.getDataset(1L);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetDatasetByName() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
         sudo.getDatasets("TestDataset");
     }
 
 
     @Test(expected = AccessException.class)
-    public void testGetImages() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
+    public void testSudoFailGetImages() throws Exception {
         sudo.getImages();
     }
 
 
     @Test(expected = AccessException.class)
-    public void testGetImage() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
+    public void testSudoFailGetImage() throws Exception {
         sudo.getImage(1L);
     }
 
 
     @Test(expected = AccessException.class)
-    public void testGetImagesName() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
+    public void testSudoFailGetImagesName() throws Exception {
         sudo.getImages("image1.fake");
     }
 
 
     @Test(expected = AccessException.class)
-    public void testGetImagesLike() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
+    public void testSudoFailGetImagesLike() throws Exception {
         sudo.getImagesLike("image1");
     }
 
 
     @Test(expected = ServiceException.class)
-    public void testGetAllTags() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
+    public void testSudoFailGetAllTags() throws Exception {
         sudo.getTags();
     }
 
 
     @Test(expected = ServiceException.class)
-    public void testGetTag() throws Exception {
-        Client sudo = new Client();
-        try {
-            sudo = client.sudoGetUser("testUser");
-        } catch (AccessException | ExecutionException | ServiceException e) {
-            fail();
-        }
+    public void testSudoFailGetTag() throws Exception {
         sudo.getTag(1L);
     }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetImageTag() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+        image.getTags(sudo);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFailGetKVPairs() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+        image.getKeyValuePairs(sudo);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFailAddKVPair() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+
+        List<NamedValue> result1 = new ArrayList<>();
+        result1.add(new NamedValue("Test result1", "Value Test"));
+        result1.add(new NamedValue("Test2 result1", "Value Test2"));
+
+        MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
+        image.addMapAnnotation(sudo, mapAnnotation1);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFail() throws Exception {
+        sudo.sudoGetUser("root");
+    }
+
 
 }

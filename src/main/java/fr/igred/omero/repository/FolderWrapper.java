@@ -15,12 +15,14 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.metadata.ROIContainer;
+import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
@@ -38,42 +40,41 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
  * Class containing a FolderData.
  * <p> Implements function using the FolderData contained.
  */
-public class FolderContainer {
+public class FolderWrapper extends GenericObjectWrapper<FolderData> {
 
-    /** Folder contained */
-    final FolderData folder;
     /** Id of the associated image */
     Long imageId;
 
 
     /**
-     * Constructor of the FolderContainer class.
+     * Constructor of the FolderWrapper class.
      *
      * @param folder FolderData to contain.
      */
-    public FolderContainer(FolderData folder) {
-        this.folder = folder;
+    public FolderWrapper(FolderData folder) {
+        super(folder);
     }
 
 
     /**
-     * Constructor of the FolderContainer class.
+     * Constructor of the FolderWrapper class.
      *
      * @param folder Folder to contain.
      */
-    public FolderContainer(Folder folder) {
-        this.folder = new FolderData(folder);
+    public FolderWrapper(Folder folder) {
+        super(new FolderData(folder));
     }
 
 
     /**
-     * Constructor of the FolderContainer class. Save the folder in OMERO
+     * Constructor of the FolderWrapper class. Save the folder in OMERO
      *
      * @param client The user.
      * @param name   Name of the folder.
@@ -81,39 +82,27 @@ public class FolderContainer {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public FolderContainer(Client client, String name) throws ServiceException, OMEROServerError {
-        folder = new FolderData();
-        folder.setName(name);
+    public FolderWrapper(Client client, String name) throws ServiceException, OMEROServerError {
+        super(new FolderData());
+        data.setName(name);
         try {
             Folder f = (Folder) client.getGateway()
                                       .getUpdateService(client.getCtx())
-                                      .saveAndReturnObject(folder.asIObject());
-            folder.setFolder(f);
-        } catch (DSOutOfServiceException os) {
-            throw new ServiceException(os, os.getConnectionStatus());
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
+                                      .saveAndReturnObject(data.asIObject());
+            data.setFolder(f);
+        } catch (DSOutOfServiceException | ServerError se) {
+            handleServiceOrServer(se, "Could not create Folder with name: " + name);
         }
     }
 
 
     /**
-     * Gets the folder contained in the FolderContainer
+     * Gets the folder contained in the FolderWrapper
      *
      * @return the FolderData.
      */
     public FolderData getFolder() {
-        return folder;
-    }
-
-
-    /**
-     * Gets the folder id
-     *
-     * @return Id.
-     */
-    public Long getId() {
-        return folder.getId();
+        return data;
     }
 
 
@@ -123,7 +112,7 @@ public class FolderContainer {
      * @return name.
      */
     public String getName() {
-        return folder.getName();
+        return data.getName();
     }
 
 
@@ -142,7 +131,7 @@ public class FolderContainer {
      *
      * @param image Image to associate.
      */
-    public void setImage(ImageContainer image) {
+    public void setImage(ImageWrapper image) {
         imageId = image.getId();
     }
 
@@ -157,14 +146,14 @@ public class FolderContainer {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    public void addROI(Client client, ROIContainer roi)
+    public void addROI(Client client, ROIWrapper roi)
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFac = client.getRoiFacility();
         try {
             roiFac.addRoisToFolders(client.getCtx(),
                                     imageId,
                                     Collections.singletonList(roi.getROI()),
-                                    Collections.singletonList(folder));
+                                    Collections.singletonList(data));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot add ROI to folder ID: " + getId());
         }
@@ -176,20 +165,20 @@ public class FolderContainer {
      *
      * @param client The user.
      *
-     * @return List of ROIContainer containing the ROI.
+     * @return List of ROIWrapper containing the ROI.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIContainer> getROIs(Client client)
+    public List<ROIWrapper> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIContainer>    roiContainers = new ArrayList<>();
-        Collection<ROIResult> roiResults    = new ArrayList<>();
-        ROIFacility           roiFac        = client.getRoiFacility();
+        List<ROIWrapper>      roiWrappers = new ArrayList<>();
+        Collection<ROIResult> roiResults  = new ArrayList<>();
+        ROIFacility           roiFac      = client.getRoiFacility();
 
         try {
-            roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, folder.getId());
+            roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get ROIs from folder ID: " + getId());
         }
@@ -199,12 +188,12 @@ public class FolderContainer {
             Collection<ROIData> rois = r.getROIs();
 
             for (ROIData roi : rois) {
-                ROIContainer temp = new ROIContainer(roi);
-                roiContainers.add(temp);
+                ROIWrapper temp = new ROIWrapper(roi);
+                roiWrappers.add(temp);
             }
         }
 
-        return roiContainers;
+        return roiWrappers;
     }
 
 
@@ -219,12 +208,12 @@ public class FolderContainer {
      */
     public void unlinkAllROI(Client client) throws ServiceException, AccessException, ExecutionException {
         try {
-            List<ROIContainer> rois = getROIs(client);
-            for (ROIContainer roi : rois) {
+            List<ROIWrapper> rois = getROIs(client);
+            for (ROIWrapper roi : rois) {
                 client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
                                                               this.imageId,
                                                               Collections.singletonList(roi.getROI()),
-                                                              Collections.singletonList(folder));
+                                                              Collections.singletonList(data));
             }
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot unlink ROIs from folder ID: " + getId());
@@ -242,13 +231,13 @@ public class FolderContainer {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkROI(Client client, ROIContainer roi)
+    public void unlinkROI(Client client, ROIWrapper roi)
     throws ServiceException, AccessException, ExecutionException {
         try {
             client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
                                                           this.imageId,
                                                           Collections.singletonList(roi.getROI()),
-                                                          Collections.singletonList(folder));
+                                                          Collections.singletonList(data));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot unlink ROI from folder ID: " + getId());
         }

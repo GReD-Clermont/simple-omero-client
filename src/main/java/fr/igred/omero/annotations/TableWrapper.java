@@ -15,7 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.metadata;
+package fr.igred.omero.annotations;
 
 
 import omero.gateway.model.TableData;
@@ -28,7 +28,7 @@ import omero.gateway.model.TableDataColumn;
  * be altered.
  * <p> To get the TableData corresponding to the elements contained use createTable.
  */
-public class TableContainer {
+public class TableWrapper {
 
     /** Number of column in the table */
     final int               columnCount;
@@ -52,13 +52,13 @@ public class TableContainer {
 
 
     /**
-     * Constructor of the class TableContainer
+     * Constructor of the class TableWrapper
      *
      * @param columnCount Number of column in the table.
      * @param name        Name of the table.
      */
-    public TableContainer(int columnCount,
-                          String name) {
+    public TableWrapper(int columnCount,
+                        String name) {
         this.columnCount = columnCount;
         columns = new TableDataColumn[columnCount];
 
@@ -71,11 +71,11 @@ public class TableContainer {
 
 
     /**
-     * Constructor of the class TableContainer. Uses an already existing table to create.
+     * Constructor of the class TableWrapper. Uses an already existing table to create.
      *
      * @param table The table.
      */
-    public TableContainer(TableData table) {
+    public TableWrapper(TableData table) {
         this.columns = table.getColumns();
         columnCount = columns.length;
 

@@ -15,11 +15,12 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.metadata;
+package fr.igred.omero.roi;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ImageContainer;
+import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
@@ -28,7 +29,6 @@ import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.Roi;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -38,50 +38,36 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  * Class containing a ROIData
  * <p> Implements function using the ROIData contained
  */
-public class ROIContainer {
-
-    /** ROI contained in the ROIContainer */
-    ROIData data;
-
+public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
     /**
-     * Constructor of the ROIContainer class.
+     * Constructor of the ROIWrapper class.
      */
-    public ROIContainer() {
-        data = new ROIData();
+    public ROIWrapper() {
+        super(new ROIData());
     }
 
 
     /**
-     * Constructor of the ROIContainer class.
+     * Constructor of the ROIWrapper class.
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIContainer(List<ShapeContainer> shapes) {
-        data = new ROIData();
+    public ROIWrapper(List<GenericShapeWrapper<?>> shapes) {
+        super(new ROIData());
 
-        for (ShapeContainer shape : shapes)
+        for (GenericShapeWrapper<?> shape : shapes)
             addShape(shape);
     }
 
 
     /**
-     * Constructor of the ROIContainer class.
+     * Constructor of the ROIWrapper class.
      *
      * @param data ROIData to be contained.
      */
-    public ROIContainer(ROIData data) {
-        this.data = data;
-    }
-
-
-    /**
-     * Gets the ROIData id.
-     *
-     * @return the {@link ROIData} ID.
-     */
-    public Long getId() {
-        return data.getId();
+    public ROIWrapper(ROIData data) {
+        super(data);
     }
 
 
@@ -91,35 +77,35 @@ public class ROIContainer {
 
 
     /**
-     * Adds ShapeData objects from a list of ShapeContainer to the ROIData
+     * Adds ShapeData objects from a list of GenericShapeWrapper to the ROIData
      *
-     * @param shapes List of ShapeContainer.
+     * @param shapes List of GenericShapeWrapper.
      */
-    public void addShapes(List<ShapeContainer> shapes) {
-        for (ShapeContainer shape : shapes)
+    public void addShapes(List<? extends GenericShapeWrapper<?>> shapes) {
+        for (GenericShapeWrapper<?> shape : shapes)
             addShape(shape);
     }
 
 
     /**
-     * Adds a ShapeData from a ShapeContainer to the ROIData
+     * Adds a ShapeData from a GenericShapeWrapper to the ROIData
      *
-     * @param shape ShapeContainer to add.
+     * @param shape GenericShapeWrapper to add.
      */
-    public void addShape(ShapeContainer shape) {
+    public void addShape(GenericShapeWrapper<?> shape) {
         data.addShapeData(shape.getShape());
     }
 
 
     /**
-     * Returns the list of shape contained in the ROIData
+     * Returns the list of shapes contained in the ROIData
      *
      * @return list of shape contained in the ROIData.
      */
-    public List<ShapeContainer> getShapes() {
-        List<ShapeContainer> shapes = new ArrayList<>();
+    public ShapeList getShapes() {
+        ShapeList shapes = new ShapeList();
         for (ShapeData shape : data.getShapes()) {
-            shapes.add(new ShapeContainer(shape));
+            shapes.add(shape);
         }
         return shapes;
     }
@@ -130,7 +116,7 @@ public class ROIContainer {
      *
      * @param image Image linked to the ROIData.
      */
-    public void setImage(ImageContainer image) {
+    public void setImage(ImageWrapper image) {
         data.setImage(image.getImage().asImage());
     }
 

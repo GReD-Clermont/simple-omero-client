@@ -13,10 +13,10 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
+import fr.igred.omero.UserTest;
 import org.junit.Test;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetTagInfo() throws Exception {
-        TagAnnotationContainer tag = client.getTag(1L);
+        TagAnnotationWrapper tag = client.getTag(1L);
         assertEquals(1L, tag.getId().longValue());
         assertEquals("tag1", tag.getName());
         assertEquals("description", tag.getDescription());
@@ -39,14 +39,14 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetTags() throws Exception {
-        List<TagAnnotationContainer> tags = client.getTags();
+        List<TagAnnotationWrapper> tags = client.getTags();
         assertEquals(3, tags.size());
     }
 
 
     @Test
     public void testGetTagsSorted() throws Exception {
-        List<TagAnnotationContainer> tags = client.getTags();
+        List<TagAnnotationWrapper> tags = client.getTags();
         for (int i = 1; i < tags.size(); i++) {
             assertTrue(tags.get(i - 1).getId() <= tags.get(i).getId());
         }

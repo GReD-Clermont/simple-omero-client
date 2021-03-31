@@ -15,30 +15,21 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.sort;
+package fr.igred.omero.roi;
 
 
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
-
-import java.util.Comparator;
+import omero.gateway.model.ShapeData;
 
 
-/**
- * Class used to sort TagAnnotationContainers
- */
-public class SortTagAnnotationContainer implements Comparator<TagAnnotationContainer> {
+public class ShapeWrapper extends GenericShapeWrapper<ShapeData> {
 
     /**
-     * Compare 2 tagAnnotationContainer. Compare the id of the tagAnnotationContainer.
+     * Constructor of the ShapeWrapper class using a ShapeData.
      *
-     * @param tag1 First tag to compare.
-     * @param tag2 Second tag to compare.
-     *
-     * @return -1 if the id of tag1 is lower than the id tag2. 0  if the ids are the same. 1  if the id of tag1 is.
-     * greater than the id of tag2.
+     * @param shape the shape
      */
-    public int compare(TagAnnotationContainer tag1, TagAnnotationContainer tag2) {
-        return Long.compare(tag1.getId(), tag2.getId());
+    public ShapeWrapper(ShapeData shape) {
+        super(shape);
     }
 
 }

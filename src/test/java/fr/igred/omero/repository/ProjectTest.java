@@ -13,12 +13,11 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.repository;
 
 
-import fr.igred.omero.metadata.annotation.TagAnnotationContainer;
-import fr.igred.omero.repository.DatasetContainer;
-import fr.igred.omero.repository.ProjectContainer;
+import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,9 +30,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetDatasetFromProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<DatasetContainer> datasets = project.getDatasets();
+        List<DatasetWrapper> datasets = project.getDatasets();
 
         assertEquals(2, datasets.size());
     }
@@ -41,9 +40,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetDatasetFromProject2() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<DatasetContainer> datasets = project.getDatasets("TestDataset");
+        List<DatasetWrapper> datasets = project.getDatasets("TestDataset");
 
         assertEquals(1, datasets.size());
     }
@@ -51,13 +50,13 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testAddTagToProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag);
 
-        List<TagAnnotationContainer> tags = project.getTags(client);
+        List<TagAnnotationWrapper> tags = project.getTags(client);
 
         assertEquals(1, tags.size());
 
@@ -71,11 +70,11 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testAddTagToProject2() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
         project.addTag(client, "test", "test");
 
-        List<TagAnnotationContainer> tags = client.getTags("test");
+        List<TagAnnotationWrapper> tags = client.getTags("test");
         assertEquals(1, tags.size());
 
         client.deleteTag(tags.get(0).getId());
@@ -87,13 +86,13 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testAddTagIdToProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        TagAnnotationContainer tag = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag.getId());
 
-        List<TagAnnotationContainer> tags = project.getTags(client);
+        List<TagAnnotationWrapper> tags = project.getTags(client);
         assertEquals(1, tags.size());
 
         client.deleteTag(tag);
@@ -105,16 +104,16 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testAddTagsToProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
-        List<TagAnnotationContainer> tags = project.getTags(client);
+        List<TagAnnotationWrapper> tags = project.getTags(client);
 
         assertEquals(4, tags.size());
 
@@ -131,16 +130,16 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testAddTagsToProject2() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        TagAnnotationContainer tag1 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag2 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag3 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
-        TagAnnotationContainer tag4 = new TagAnnotationContainer(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTags(client, tag1, tag2, tag3, tag4);
 
-        List<TagAnnotationContainer> tags = project.getTags(client);
+        List<TagAnnotationWrapper> tags = project.getTags(client);
 
         assertEquals(4, tags.size());
 
@@ -157,9 +156,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetImagesInProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImages(client);
+        List<ImageWrapper> images = project.getImages(client);
 
         assertEquals(3, images.size());
     }
@@ -167,9 +166,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetImagesByNameInProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImages(client, "image1.fake");
+        List<ImageWrapper> images = project.getImages(client, "image1.fake");
 
         assertEquals(2, images.size());
     }
@@ -177,9 +176,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetImagesLikeInProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesLike(client, ".fake");
+        List<ImageWrapper> images = project.getImagesLike(client, ".fake");
 
         assertEquals(3, images.size());
     }
@@ -187,9 +186,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetImagesTaggedInProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesTagged(client, 1L);
+        List<ImageWrapper> images = project.getImagesTagged(client, 1L);
 
         assertEquals(2, images.size());
     }
@@ -197,10 +196,10 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetImagesTaggedInProject2() throws Exception {
-        TagAnnotationContainer tag     = client.getTag(2L);
-        ProjectContainer       project = client.getProject(2L);
+        TagAnnotationWrapper tag     = client.getTag(2L);
+        ProjectWrapper       project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesTagged(client, tag);
+        List<ImageWrapper> images = project.getImagesTagged(client, tag);
 
         assertEquals(1, images.size());
     }
@@ -208,9 +207,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetImagesKeyInProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesKey(client, "testKey1");
+        List<ImageWrapper> images = project.getImagesKey(client, "testKey1");
 
         assertEquals(3, images.size());
     }
@@ -218,9 +217,9 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testGetImagesPairKeyValueInProject() throws Exception {
-        ProjectContainer project = client.getProject(2L);
+        ProjectWrapper project = client.getProject(2L);
 
-        List<ImageContainer> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
+        List<ImageWrapper> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
 
         assertEquals(2, images.size());
     }
