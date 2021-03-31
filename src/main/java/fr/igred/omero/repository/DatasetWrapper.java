@@ -24,7 +24,6 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
-import fr.igred.omero.annotations.TableWrapper;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
@@ -35,35 +34,16 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
 import ome.formats.importer.cli.LoggingImportMonitor;
 import omero.ServerError;
-import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DatasetData;
-import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
-import omero.gateway.model.TagAnnotationData;
-import omero.model.ChecksumAlgorithm;
-import omero.model.ChecksumAlgorithmI;
-import omero.model.DatasetAnnotationLink;
-import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
-import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.NamedValue;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
-import omero.model.TagAnnotationI;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
-import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -125,156 +105,6 @@ public class DatasetWrapper extends GenericObjectWrapper<DatasetData> {
      */
     public DatasetData getDataset() {
         return data;
-    }
-
-
-    /**
-     * Adds a tag to the dataset in OMERO. Create the tag.
-     *
-     * @param client      The user.
-     * @param name        Tag Name.
-     * @param description Tag description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTag(Client client, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        TagAnnotationData tagData = new TagAnnotationData(name);
-        tagData.setTagDescription(description);
-
-        addTag(client, tagData);
-    }
-
-
-    /**
-     * Adds a tag to the dataset in OMERO.
-     *
-     * @param client The user.
-     * @param tag    Tag to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTag(Client client, TagAnnotationWrapper tag)
-    throws ServiceException, AccessException, ExecutionException {
-        addTag(client, tag.getTag());
-    }
-
-
-    /**
-     * Private function. Adds a tag to the dataset in OMERO.
-     *
-     * @param client  The user.
-     * @param tagData Tag to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    private void addTag(Client client, TagAnnotationData tagData)
-    throws ServiceException, AccessException, ExecutionException {
-        DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent(new DatasetI(data.getId(), false));
-
-        client.save(link);
-    }
-
-
-    /**
-     * Adds multiple tag to the dataset in OMERO.
-     *
-     * @param client The user.
-     * @param id     Id in OMERO of tag to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTag(Client client, Long id)
-    throws ServiceException, AccessException, ExecutionException {
-        DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-        link.setChild(new TagAnnotationI(id, false));
-        link.setParent(new DatasetI(data.getId(), false));
-
-        client.save(link);
-    }
-
-
-    /**
-     * Adds multiple tag to the dataset in OMERO.
-     *
-     * @param client The user.
-     * @param tags   Array of TagAnnotationWrapper to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTags(Client client, TagAnnotationWrapper... tags)
-    throws ServiceException, AccessException, ExecutionException {
-        for (TagAnnotationWrapper tag : tags) {
-            addTag(client, tag.getTag());
-        }
-    }
-
-
-    /**
-     * Adds multiple tag to the dataset in OMERO. The tags id is used
-     *
-     * @param client The user.
-     * @param ids    Array of tag id in OMERO to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTags(Client client, Long... ids)
-    throws ServiceException, AccessException, ExecutionException {
-        for (Long id : ids) {
-            addTag(client, id);
-        }
-    }
-
-
-    /**
-     * Gets all tag linked to a dataset in OMERO
-     *
-     * @param client The user.
-     *
-     * @return Collection of TagAnnotationWrapper each containing a tag linked to the dataset.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<TagAnnotationWrapper> getTags(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        List<TagAnnotationWrapper> tags = new ArrayList<>();
-
-        List<Class<? extends AnnotationData>> types = new ArrayList<>();
-        types.add(TagAnnotationData.class);
-
-        List<AnnotationData> annotations = null;
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tags for dataset ID: " + getId());
-        }
-
-        if (annotations != null) {
-            for (AnnotationData annotation : annotations) {
-                TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
-
-                tags.add(new TagAnnotationWrapper(tagAnnotation));
-            }
-        }
-
-        tags.sort(new SortById<>());
-        return tags;
     }
 
 
@@ -578,118 +408,6 @@ public class DatasetWrapper extends GenericObjectWrapper<DatasetData> {
         library.importCandidates(config, candidates);
 
         store.logout();
-    }
-
-
-    /**
-     * Links a file to the Dataset
-     *
-     * @param client The user.
-     * @param file   File to add.
-     *
-     * @return ID of the file created in OMERO.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data on server.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
-     * @throws IOException        If an I/O error occurs.
-     */
-    public long addFile(Client client, File file) throws
-                                                  ServiceException,
-                                                  AccessException,
-                                                  ExecutionException,
-                                                  OMEROServerError,
-                                                  IOException {
-        final int INC = 262144;
-
-        DatasetAnnotationLink newLink;
-        RawFileStorePrx       rawFileStore;
-
-        String name         = file.getName();
-        String absolutePath = file.getAbsolutePath();
-        String path         = absolutePath.substring(0, absolutePath.length() - name.length());
-
-        OriginalFile originalFile = new OriginalFileI();
-        originalFile.setName(omero.rtypes.rstring(name));
-        originalFile.setPath(omero.rtypes.rstring(path));
-        originalFile.setSize(omero.rtypes.rlong(file.length()));
-
-        final ChecksumAlgorithm checksumAlgorithm = new ChecksumAlgorithmI();
-        checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
-        originalFile.setHasher(checksumAlgorithm);
-        originalFile.setMimetype(omero.rtypes.rstring(FilenameUtils.getExtension(file.getName())));
-        originalFile = (OriginalFile) client.save(originalFile);
-
-        try {
-            rawFileStore = client.getGateway().getRawFileService(client.getCtx());
-        } catch (DSOutOfServiceException oos) {
-            throw new ServiceException(oos, oos.getConnectionStatus());
-        }
-
-        long       pos = 0;
-        int        rLen;
-        byte[]     buf = new byte[INC];
-        ByteBuffer bBuf;
-        try (FileInputStream stream = new FileInputStream(file)) {
-            rawFileStore.setFileId(originalFile.getId().getValue());
-            while ((rLen = stream.read(buf)) > 0) {
-                rawFileStore.write(buf, pos, rLen);
-                pos += rLen;
-                bBuf = ByteBuffer.wrap(buf);
-                bBuf.limit(rLen);
-            }
-            originalFile = rawFileStore.save();
-            rawFileStore.close();
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
-        }
-
-        FileAnnotation fa = new FileAnnotationI();
-        fa.setFile(originalFile);
-        fa.setDescription(omero.rtypes.rstring(""));
-        fa.setNs(omero.rtypes.rstring(file.getName()));
-
-        fa = (FileAnnotation) client.save(fa);
-
-        DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-        link.setChild(fa);
-        link.setParent(data.asDataset());
-        newLink = (DatasetAnnotationLink) client.save(link);
-
-        return newLink.getChild().getId().getValue();
-    }
-
-
-    /**
-     * Gets all table linked to the dataset in OMERO.
-     *
-     * @param client The user.
-     *
-     * @return List of TableWrapper containing the tables information.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<TableWrapper> getTables(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        List<TableWrapper> tablesWrapper = new ArrayList<>();
-
-        Collection<FileAnnotationData> tables = new ArrayList<>();
-        try {
-            tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tables from dataset ID: " + getId());
-        }
-
-        for (FileAnnotationData table : tables) {
-            TableWrapper tableWrapper = getTable(client, table.getFileID());
-            tableWrapper.setId(table.getId());
-            tablesWrapper.add(tableWrapper);
-        }
-
-        return tablesWrapper;
     }
 
 }

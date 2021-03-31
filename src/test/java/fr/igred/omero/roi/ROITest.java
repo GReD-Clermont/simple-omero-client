@@ -201,9 +201,9 @@ public class ROITest extends UserTest {
         roiWrapper.addShape(polygon);
         image.saveROI(client, roiWrapper);
 
-        List<ROIWrapper>   rois   = image.getROIs(client);
-        ShapeList          shapes = rois.get(0).getShapes();
-        List<PointWrapper> points = shapes.getElementsOf(PointWrapper.class);
+        List<ROIWrapper>       rois       = image.getROIs(client);
+        ShapeList              shapes     = rois.get(0).getShapes();
+        List<PointWrapper>     points     = shapes.getElementsOf(PointWrapper.class);
         List<TextWrapper>      texts      = shapes.getElementsOf(TextWrapper.class);
         List<RectangleWrapper> rectangles = shapes.getElementsOf(RectangleWrapper.class);
         List<MaskWrapper>      masks      = shapes.getElementsOf(MaskWrapper.class);

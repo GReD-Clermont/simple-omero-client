@@ -24,25 +24,15 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
-import omero.gateway.model.TagAnnotationData;
 import omero.gateway.util.PojoMapper;
-import omero.model.ProjectAnnotationLink;
-import omero.model.ProjectAnnotationLinkI;
-import omero.model.ProjectI;
-import omero.model.TagAnnotationI;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -176,157 +166,6 @@ public class ProjectWrapper extends GenericObjectWrapper<ProjectData> {
         DatasetData dataset = (DatasetData) PojoMapper.asDataObject(client.save(datasetData.asIObject()));
         newDataset = new DatasetWrapper(dataset);
         return newDataset;
-    }
-
-
-    /**
-     * Add a tag to the project in OMERO. Create the tag.
-     *
-     * @param client      The user.
-     * @param name        Tag Name.
-     * @param description Tag description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTag(Client client, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        TagAnnotationData tagData = new TagAnnotationData(name);
-        tagData.setTagDescription(description);
-
-        addTag(client, tagData);
-    }
-
-
-    /**
-     * Add a tag to the project in OMERO.
-     *
-     * @param client The user.
-     * @param tag    Tag to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTag(Client client, TagAnnotationWrapper tag)
-    throws ServiceException, AccessException, ExecutionException {
-        addTag(client, tag.getTag());
-    }
-
-
-    /**
-     * Private function. Add a tag to the project in OMERO.
-     *
-     * @param client  The user.
-     * @param tagData Tag to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    private void addTag(Client client, TagAnnotationData tagData)
-    throws ServiceException, AccessException, ExecutionException {
-        ProjectAnnotationLink link = new ProjectAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent(new ProjectI(data.getId(), false));
-
-        client.save(link);
-    }
-
-
-    /**
-     * Add multiple tag to the project in OMERO.
-     *
-     * @param client The user.
-     * @param id     Id in OMERO of the tag to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTag(Client client, Long id)
-    throws ServiceException, AccessException, ExecutionException {
-        ProjectAnnotationLink link = new ProjectAnnotationLinkI();
-        link.setChild(new TagAnnotationI(id, false));
-        link.setParent(new ProjectI(data.getId(), false));
-
-        client.save(link);
-    }
-
-
-    /**
-     * Add multiple tag to the project in OMERO.
-     *
-     * @param client The user.
-     * @param tags   Array of TagAnnotationWrapper to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTags(Client client, TagAnnotationWrapper... tags)
-    throws ServiceException, AccessException, ExecutionException {
-        for (TagAnnotationWrapper tag : tags) {
-            addTag(client, tag.getTag());
-        }
-    }
-
-
-    /**
-     * Add multiple tag to the project in OMERO. The tags id is used
-     *
-     * @param client The user.
-     * @param ids    Array of tag id to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addTags(Client client, Long... ids)
-    throws ServiceException, AccessException, ExecutionException {
-        for (Long id : ids) {
-            addTag(client, id);
-        }
-    }
-
-
-    /**
-     * Gets all tag linked to a project in OMERO
-     *
-     * @param client The user.
-     *
-     * @return Collection of TagAnnotationWrapper each containing a tag linked to the dataset.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<TagAnnotationWrapper> getTags(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        List<TagAnnotationWrapper> tags    = new ArrayList<>();
-        List<Long>                 userIds = new ArrayList<>();
-        userIds.add(client.getId());
-
-        List<Class<? extends AnnotationData>> types = new ArrayList<>();
-        types.add(TagAnnotationData.class);
-
-        List<AnnotationData> annotations = null;
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tags for project ID: " + getId());
-        }
-
-        if (annotations != null) {
-            for (AnnotationData annotation : annotations) {
-                TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
-                tags.add(new TagAnnotationWrapper(tagAnnotation));
-            }
-        }
-
-        tags.sort(new SortById<>());
-        return tags;
     }
 
 
