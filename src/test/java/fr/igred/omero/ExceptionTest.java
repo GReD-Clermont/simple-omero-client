@@ -178,4 +178,28 @@ public class ExceptionTest extends BasicTest {
         ExceptionHandler.handleException(t, "Great");
     }
 
+
+    @Test
+    public void testExceptionHandler5() throws Exception {
+        Throwable t = new Exception();
+        ExceptionHandler.handleException(t, "Great");
+        assertTrue(true);
+    }
+
+
+    @Test
+    public void testExceptionHandler6() throws Exception {
+        Throwable t = new ServerError(null);
+        ExceptionHandler.handleServiceOrAccess(t, "Great");
+        assertTrue(true);
+    }
+
+
+    @Test
+    public void testExceptionHandler7() throws Exception {
+        Throwable t = new DSAccessException("Test", null);
+        ExceptionHandler.handleServiceOrServer(t, "Great");
+        assertTrue(true);
+    }
+
 }
