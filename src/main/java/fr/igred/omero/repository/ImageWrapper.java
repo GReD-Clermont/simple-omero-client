@@ -314,6 +314,8 @@ public class ImageWrapper extends GenericObjectWrapper<ImageData> {
         double min = imp.getProcessor().getMin();
         double max = 0;
 
+        int progressTotal = imp.getStackSize();
+        IJ.showProgress(0, progressTotal);
         for (int t = 0; t < sizeT; t++) {
             int posT = t + startT;
             for (int z = 0; z < sizeZ; z++) {
@@ -334,6 +336,7 @@ public class ImageWrapper extends GenericObjectWrapper<ImageData> {
                     min = Math.min(ip.getMin(), min);
 
                     stack.setProcessor(ip, n);
+                    IJ.showProgress(n, progressTotal);
                 }
             }
         }
