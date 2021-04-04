@@ -19,7 +19,6 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -39,7 +38,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a ProjectData
  * <p> Implements function using the Project contained
  */
-public class ProjectWrapper extends GenericObjectWrapper<ProjectData> {
+public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> {
 
     /**
      * Constructor of the ProjectWrapper class.

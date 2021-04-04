@@ -15,10 +15,11 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.repository;
 
 
-import fr.igred.omero.exception.GenericObjectWrapper;
+import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -30,7 +31,6 @@ import omero.gateway.model.*;
 import omero.model.*;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -52,6 +52,16 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     protected GenericRepositoryObjectWrapper(T object) {
         super(object);
+    }
+
+
+    /**
+     * Gets the wrapped object type.
+     *
+     * @return Name of the class for the wrapped object.
+     */
+    private String getTypeAndId() {
+        return String.format("%s ID: %d", data.getClass().getSimpleName(), getId());
     }
 
 
