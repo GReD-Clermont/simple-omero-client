@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.GenericObjectWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -41,68 +42,16 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class GenericObjectWrapper<T extends DataObject> {
-
-    protected T data;
+public abstract class GenericRepositoryObjectWrapper<T extends DataObject> extends GenericObjectWrapper <T> {
 
 
     /**
-     * Constructor of the class GenericObjectWrapper.
+     * Constructor of the class GenericRepositoryObjectWrapper.
      *
-     * @param object The object contained in the GenericObjectWrapper.
+     * @param object The object contained in the GenericRepositoryObjectWrapper.
      */
-    protected GenericObjectWrapper(T object) {
-        this.data = object;
-    }
-
-
-    /**
-     * Gets the wrapped object type.
-     *
-     * @return Name of the class for the wrapped object.
-     */
-    private String getTypeAndId() {
-        return String.format("%s ID: %d", data.getClass().getSimpleName(), getId());
-    }
-
-
-    /**
-     * Gets the object id
-     *
-     * @return id.
-     */
-    public Long getId() {
-        return data.getId();
-    }
-
-
-    /**
-     * Gets the object creation date
-     *
-     * @return creation date.
-     */
-    public Timestamp getCreated() {
-        return data.getCreated();
-    }
-
-
-    /**
-     * Gets the owner ID
-     *
-     * @return owner id.
-     */
-    public Long getOwnerId() {
-        return data.getOwner().getId();
-    }
-
-
-    /**
-     * Gets the group ID
-     *
-     * @return group id.
-     */
-    public Long getGroupId() {
-        return data.getGroupId();
+    protected GenericRepositoryObjectWrapper(T object) {
+        super(object);
     }
 
 
@@ -465,28 +414,6 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
                                          "",
                                          file.getName(),
                                          data).get().getId();
-    }
-
-
-    /**
-     * Class used to sort TagAnnotationWrappers
-     */
-    public static class SortById<U extends GenericObjectWrapper<?>> implements Comparator<U> {
-
-        /**
-         * Compare 2 ObjectWrappers. Compare the id of the ObjectWrappers.
-         *
-         * @param object1 First object to compare.
-         * @param object2 Second object to compare.
-         *
-         * @return <ul><li>-1 if the id of object1 is lower than the id object2.</li>
-         * <li>0  if the ids are the same.</li>
-         * <li>1 if the id of object1 is greater than the id of object2.</li></ul>
-         */
-        public int compare(U object1, U object2) {
-            return Long.compare(object1.getId(), object2.getId());
-        }
-
     }
 
 }
