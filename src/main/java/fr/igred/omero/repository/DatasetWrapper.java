@@ -19,7 +19,6 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -54,7 +53,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  * Class containing a DatasetData.
  * <p> Implements function using the DatasetData contained
  */
-public class DatasetWrapper extends GenericObjectWrapper<DatasetData> {
+public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> {
 
 
     /**
