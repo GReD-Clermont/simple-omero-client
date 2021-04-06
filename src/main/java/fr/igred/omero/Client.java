@@ -1166,7 +1166,7 @@ public class Client {
                                                    OMEROServerError,
                                                    InterruptedException {
         folder.unlinkAllROI(this);
-        delete(folder.getFolder().asIObject());
+        delete(folder.asFolderData().asIObject());
     }
 
 }

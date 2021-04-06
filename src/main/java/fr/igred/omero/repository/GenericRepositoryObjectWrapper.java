@@ -56,16 +56,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Gets the wrapped object type.
-     *
-     * @return Name of the class for the wrapped object.
-     */
-    private String getTypeAndId() {
-        return String.format("%s ID: %d", data.getClass().getSimpleName(), getId());
-    }
-
-
-    /**
      * Adds a newly created tag to the object in OMERO, if possible.
      *
      * @param client      The user.
@@ -97,7 +87,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addTag(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ExecutionException {
-        addTag(client, tag.getTag());
+        addTag(client, tag.asTagAnnotationData());
     }
 
 
@@ -116,7 +106,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             client.getDm().attachAnnotation(client.getCtx(), tagData, data);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add tag " + tagData.getTagValue() + " to " + getTypeAndId());
+            handleServiceOrAccess(e, "Cannot add tag " + tagData.getTagValue() + " to " + toString());
         }
     }
 
@@ -152,7 +142,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     public void addTags(Client client, TagAnnotationWrapper... tags)
     throws ServiceException, AccessException, ExecutionException {
         for (TagAnnotationWrapper tag : tags) {
-            addTag(client, tag.getTag());
+            addTag(client, tag.asTagAnnotationData());
         }
     }
 
@@ -197,7 +187,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tags for " + getTypeAndId());
+            handleServiceOrAccess(e, "Cannot get tags for " + toString());
         }
 
         if (annotations != null) {
@@ -260,7 +250,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get k/v pairs for " + getTypeAndId());
+            handleServiceOrAccess(e, "Cannot get k/v pairs for " + toString());
         }
 
         if (annotations != null) {
@@ -320,10 +310,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     throws ServiceException, AccessException, ExecutionException {
         try {
             client.getDm().attachAnnotation(client.getCtx(),
-                                            mapAnnotation.getMapAnnotation(),
+                                            mapAnnotation.asMapAnnotationData(),
                                             this.data);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add k/v pairs to " + getTypeAndId());
+            handleServiceOrAccess(e, "Cannot add k/v pairs to " + toString());
         }
     }
 
@@ -344,7 +334,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             tableData = client.getTablesFacility().addTable(client.getCtx(), data, table.getName(), tableData);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add table to " + getTypeAndId());
+            handleServiceOrAccess(e, "Cannot add table to " + toString());
         }
         table.setFileId(tableData.getOriginalFileId());
     }
@@ -368,7 +358,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             table = client.getTablesFacility().getTable(client.getCtx(), fileId);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get table from " + getTypeAndId());
+            handleServiceOrAccess(e, "Cannot get table from " + toString());
         }
         return new TableWrapper(Objects.requireNonNull(table));
     }
@@ -393,7 +383,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tables from " + getTypeAndId());
+            handleServiceOrAccess(e, "Cannot get tables from " + toString());
         }
 
         for (FileAnnotationData table : tables) {

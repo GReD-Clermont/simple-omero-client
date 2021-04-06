@@ -73,7 +73,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * @return the ProjectData contained.
      */
-    public ProjectData getProject() {
+    public ProjectData asProjectData() {
         return data;
     }
 
@@ -142,7 +142,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public DatasetWrapper addDataset(Client client, DatasetWrapper dataset)
     throws ServiceException, AccessException, ExecutionException {
-        return addDataset(client, dataset.getDataset());
+        return addDataset(client, dataset.asDatasetData());
     }
 
 

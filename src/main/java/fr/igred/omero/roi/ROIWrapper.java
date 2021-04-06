@@ -93,7 +93,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @param shape GenericShapeWrapper to add.
      */
     public void addShape(GenericShapeWrapper<?> shape) {
-        data.addShapeData(shape.getShape());
+        data.addShapeData(shape.asShapeData());
     }
 
 
@@ -117,7 +117,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @param image Image linked to the ROIData.
      */
     public void setImage(ImageWrapper image) {
-        data.setImage(image.getImage().asImage());
+        data.setImage(image.asImageData().asImage());
     }
 
 

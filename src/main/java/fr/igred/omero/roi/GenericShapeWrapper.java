@@ -50,7 +50,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      *
      * @return the shape.
      */
-    public T getShape() {
+    public T asShapeData() {
         return data;
     }
 

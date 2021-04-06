@@ -77,12 +77,34 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Sets the name of the image.
+     *
+     * @param name The name of the image. Mustn't be <code>null</code>.
+     *
+     * @throws IllegalArgumentException If the name is <code>null</code>.
+     */
+    public void setName(String name) {
+        data.setName(name);
+    }
+
+
+    /**
      * Gets the ImageData description
      *
      * @return description.
      */
     public String getDescription() {
         return data.getDescription();
+    }
+
+
+    /**
+     * Sets the description of the image.
+     *
+     * @param description The description of the image.
+     */
+    public void setDescription(String description) {
+        data.setDescription(description);
     }
 
 
@@ -99,7 +121,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * @return ImageData contained.
      */
-    public ImageData getImage() {
+    public ImageData asImageData() {
         return data;
     }
 

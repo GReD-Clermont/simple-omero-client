@@ -85,6 +85,17 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
+     * Overridden to return the name of the class and the object id.
+     *
+     * @see Object#toString()
+     */
+    @Override
+    public String toString() {
+        return data.toString();
+    }
+
+
+    /**
      * Class used to sort TagAnnotationWrappers
      */
     public static class SortById<U extends GenericObjectWrapper<?>> implements Comparator<U> {

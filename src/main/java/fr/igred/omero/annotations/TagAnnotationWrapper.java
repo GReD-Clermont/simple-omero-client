@@ -77,7 +77,7 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      *
      * @return the {@link TagAnnotationData} contained.
      */
-    public TagAnnotationData getTag() {
+    public TagAnnotationData asTagAnnotationData() {
         return data;
     }
 

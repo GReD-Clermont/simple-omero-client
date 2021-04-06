@@ -87,7 +87,7 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
      *
      * @return the {@link MapAnnotationData} contained.
      */
-    public MapAnnotationData getMapAnnotation() {
+    public MapAnnotationData asMapAnnotationData() {
         return data;
     }
 

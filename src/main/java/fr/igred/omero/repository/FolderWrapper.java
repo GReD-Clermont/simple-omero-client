@@ -100,7 +100,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @return the FolderData.
      */
-    public FolderData getFolder() {
+    public FolderData asFolderData() {
         return data;
     }
 

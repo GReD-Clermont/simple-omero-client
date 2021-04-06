@@ -102,7 +102,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * @return the DatasetData contained.
      */
-    public DatasetData getDataset() {
+    public DatasetData asDatasetData() {
         return data;
     }
 
@@ -369,7 +369,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     public void addImage(Client client, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild(image.getImage().asImage());
+        link.setChild(image.asImageData().asImage());
         link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);

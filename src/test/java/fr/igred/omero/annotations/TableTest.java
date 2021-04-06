@@ -51,10 +51,10 @@ public class TableTest extends UserTest {
 
         for (ImageWrapper image : images) {
             assertNotEquals(true, table.isComplete());
-            table.addRow(image.getImage(), image.getName());
+            table.addRow(image.asImageData(), image.getName());
         }
 
-        assertEquals(images.get(0).getImage(), table.getData(0, 0));
+        assertEquals(images.get(0).asImageData(), table.getData(0, 0));
         assertEquals(images.get(1).getName(), table.getData(0, 1));
 
         dataset.addTable(client, table);
@@ -90,7 +90,7 @@ public class TableTest extends UserTest {
 
         try {
             for (ImageWrapper image : images) {
-                table.addRow(image.getImage(), image.getName());
+                table.addRow(image.asImageData(), image.getName());
             }
         } catch (IndexOutOfBoundsException e) {
             exception = true;
@@ -128,7 +128,7 @@ public class TableTest extends UserTest {
 
         try {
             for (ImageWrapper image : images) {
-                table.addRow(image.getImage(), image.getName());
+                table.addRow(image.asImageData(), image.getName());
             }
         } catch (IndexOutOfBoundsException e) {
             exception = true;
@@ -153,7 +153,7 @@ public class TableTest extends UserTest {
 
         try {
             for (ImageWrapper image : images) {
-                table.addRow(image.getImage());
+                table.addRow(image.asImageData());
             }
         } catch (IllegalArgumentException e) {
             exception = true;
