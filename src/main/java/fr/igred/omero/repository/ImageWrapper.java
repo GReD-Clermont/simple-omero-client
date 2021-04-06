@@ -147,7 +147,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                                     .iterator().next();
             roi.setData(roiData);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot link ROI to image ID: " + getId());
+            handleServiceOrAccess(e, "Cannot link ROI to " + toString());
         }
     }
 
@@ -170,7 +170,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         try {
             roiResults = client.getRoiFacility().loadROIs(client.getCtx(), data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get ROIs from image ID: " + getId());
+            handleServiceOrAccess(e, "Cannot get ROIs from " + toString());
         }
         ROIResult r = roiResults.iterator().next();
 
@@ -205,7 +205,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         try {
             folders = roiFacility.getROIFolders(client.getCtx(), this.data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get folders for image ID: " + getId());
+            handleServiceOrAccess(e, "Cannot get folders for " + toString());
         }
 
         for (FolderData folder : folders) {
@@ -390,7 +390,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         try {
             channels = client.getMetadata().getChannelData(client.getCtx(), this.data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get the channel name for image ID: " + getId());
+            handleServiceOrAccess(e, "Cannot get the channel name for " + toString());
         }
 
         return channels.get(index).getChannelLabeling();

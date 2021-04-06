@@ -154,7 +154,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                     Collections.singletonList(roi.getROI()),
                                     Collections.singletonList(data));
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add ROI to folder ID: " + getId());
+            handleServiceOrAccess(e, "Cannot add ROI to " + toString());
         }
     }
 
@@ -179,7 +179,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
         try {
             roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get ROIs from folder ID: " + getId());
+            handleServiceOrAccess(e, "Cannot get ROIs from " + toString());
         }
 
         if (!roiResults.isEmpty()) {
@@ -215,7 +215,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                                               Collections.singletonList(data));
             }
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot unlink ROIs from folder ID: " + getId());
+            handleServiceOrAccess(e, "Cannot unlink ROIs from " + toString());
         }
     }
 
@@ -238,7 +238,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                                           Collections.singletonList(roi.getROI()),
                                                           Collections.singletonList(data));
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot unlink ROI from folder ID: " + getId());
+            handleServiceOrAccess(e, "Cannot unlink ROI from " + toString());
         }
     }
 
