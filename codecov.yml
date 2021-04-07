@@ -2,4 +2,5 @@ coverage:
   range: "70...95"
   status:
     patch:
-      only_pulls: true
+      default:
+        only_pulls: true

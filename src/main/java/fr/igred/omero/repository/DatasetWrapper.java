@@ -143,7 +143,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(data.getId()));
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images from dataset ID: " + getId());
+            handleServiceOrAccess(e, "Cannot get images from " + toString());
         }
 
         return toImageWrappers(images);
@@ -276,7 +276,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(data.getId()));
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from dataset ID: " + getId());
+            handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from " + toString());
         }
 
         for (ImageData image : images) {
@@ -318,7 +318,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(data.getId()));
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images with k/v pair from dataset ID: " + getId());
+            handleServiceOrAccess(e, "Cannot get images with k/v pair from " + toString());
         }
 
         for (ImageData image : images) {
