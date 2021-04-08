@@ -80,6 +80,7 @@ public class Client {
     /** Security context of the user, contains the permissions of the user in this group. */
     private SecurityContext  ctx;
     private BrowseFacility   browse;
+    private RawDataFacility  rdf;
     private ImportConfig     config;
 
 
@@ -179,7 +180,9 @@ public class Client {
      * @throws ExecutionException If the ExecutionException can't be retrieved or instantiated.
      */
     public RawDataFacility getRdf() throws ExecutionException {
-        return gateway.getFacility(RawDataFacility.class);
+        if (rdf == null)
+            rdf = gateway.getFacility(RawDataFacility.class);
+        return rdf;
     }
 
 
