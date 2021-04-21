@@ -374,17 +374,14 @@ public class Client {
     throws ServiceException, AccessException, NoSuchElementException {
         Collection<ProjectData> projects = new ArrayList<>();
         try {
-            projects = browse.getProjects(ctx);
+            projects = browse.getProjects(ctx, Collections.singletonList(id));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get project with ID: " + id);
         }
-
-        for (ProjectData project : projects) {
-            if (project.getId() == id) {
-                return new ProjectWrapper(project);
-            }
+        if(projects.isEmpty()) {
+            throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
         }
-        throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
+        return new ProjectWrapper(projects.iterator().next());
     }
 
 

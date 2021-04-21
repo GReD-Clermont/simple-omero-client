@@ -584,8 +584,27 @@ public class ImageTest extends UserTest {
     public void testGetChannel() throws Exception {
         ChannelWrapper channel = client.getImage(1L).getChannels(client).get(0);
         assertEquals(0, channel.getIndex());
-        channel.setName("Tutu");
-        assertEquals("Tutu", channel.getName());
+        channel.setName("Foo channel");
+        assertEquals("Foo channel", channel.getName());
+    }
+
+
+    @Test
+    public void testSetDescription() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+        image.setDescription("Foo");
+        assertEquals("Foo", image.getDescription());
+    }
+
+
+    @Test
+    public void testSetName() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+        String       name  = image.getName();
+        image.setName("Foo image");
+        assertEquals("Foo image", image.getName());
+        image.setName(name);
+        assertEquals(name, image.getName());
     }
 
 }
