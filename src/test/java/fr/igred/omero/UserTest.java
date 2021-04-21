@@ -20,6 +20,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 
+import java.util.logging.Level;
+
 import static org.junit.Assert.assertEquals;
 
 
@@ -39,7 +41,7 @@ public abstract class UserTest extends BasicTest {
             assertEquals("Wrong group", 3L, client.getGroupId().longValue());
         } catch (Exception e) {
             failed = true;
-            logger.severe(ANSI_RED + "Connection failed." + ANSI_RESET);
+            logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
         }
         org.junit.Assume.assumeFalse(failed);
     }
@@ -50,7 +52,7 @@ public abstract class UserTest extends BasicTest {
         try {
             client.disconnect();
         } catch (Exception e) {
-            logger.warning(ANSI_YELLOW + "Disconnection failed." + ANSI_RESET);
+            logger.log(Level.WARNING, ANSI_YELLOW + "Disconnection failed." + ANSI_RESET, e);
         }
     }
 

@@ -21,6 +21,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.metadata.ChannelWrapper;
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
@@ -576,6 +577,15 @@ public class ImageTest extends UserTest {
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
         assertEquals("2020-04-01_20-04-01", fmt.format(acquired));
+    }
+
+
+    @Test
+    public void testGetChannel() throws Exception {
+        ChannelWrapper channel = client.getImage(1L).getChannels(client).get(0);
+        assertEquals(0, channel.getIndex());
+        channel.setName("Tutu");
+        assertEquals("Tutu", channel.getName());
     }
 
 }

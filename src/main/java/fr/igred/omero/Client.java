@@ -454,17 +454,14 @@ public class Client {
     throws ServiceException, AccessException, NoSuchElementException {
         Collection<DatasetData> datasets = new ArrayList<>();
         try {
-            datasets = browse.getDatasets(ctx);
+            datasets = browse.getDatasets(ctx, Collections.singletonList(id));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get dataset with ID: " + id);
         }
-
-        for (DatasetData dataset : datasets) {
-            if (dataset.getId() == id) {
-                return new DatasetWrapper(dataset);
-            }
+        if(datasets.isEmpty()) {
+            throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
         }
-        throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
+        return new DatasetWrapper(datasets.iterator().next());
     }
 
 

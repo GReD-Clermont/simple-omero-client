@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import static org.junit.Assert.*;
 
@@ -66,7 +67,7 @@ public class AccessExceptionTest extends BasicTest {
             sudo = client.sudoGetUser("testUser2");
         } catch (Exception e) {
             failed = true;
-            logger.severe(ANSI_RED + "Connection failed." + ANSI_RESET);
+            logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
         }
         org.junit.Assume.assumeFalse(failed);
         hideErrors();
@@ -79,7 +80,7 @@ public class AccessExceptionTest extends BasicTest {
         try {
             client.disconnect();
         } catch (Exception e) {
-            logger.warning(ANSI_YELLOW + "Disconnection failed." + ANSI_RESET);
+            logger.log(Level.WARNING, ANSI_YELLOW + "Disconnection failed." + ANSI_RESET, e);
         }
     }
 

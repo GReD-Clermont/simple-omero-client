@@ -22,16 +22,21 @@ import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.metadata.ChannelWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
+import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.measure.Calibration;
 import ij.process.ImageProcessor;
+import ij.process.LUT;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
+import omero.ServerError;
+import omero.api.RenderingEnginePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
@@ -42,9 +47,13 @@ import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 import omero.model.*;
 
+import java.awt.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
@@ -261,10 +270,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return ImagePlus generated from the current image.
      *
+     * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client) throws AccessException, ExecutionException {
+    public ImagePlus toImagePlus(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         return this.toImagePlus(client, null, null, null, null, null);
     }
 
@@ -281,11 +292,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return an ImagePlus from the ij library.
      *
+     * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public ImagePlus toImagePlus(Client client, int[] xBound, int[] yBound, int[] cBound, int[] zBound, int[] tBound)
-    throws AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
 
         Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
@@ -368,7 +380,41 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
         imp.getProcessor().setMinAndMax(min, max);
 
+        LUT[] luts = imp.getLuts();
+        for (int i = 0; i < sizeC; ++i) {
+            luts[i] = LUT.createLutFromColor(getChannelColor(client, i));
+        }
+        ((CompositeImage) imp).setLuts(luts);
+
         return imp;
+    }
+
+
+    /**
+     * Gets the image channels
+     *
+     * @param client The user.
+     *
+     * @return the channels.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ChannelWrapper> getChannels(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        List<ChannelData>    channels = new ArrayList<>();
+        List<ChannelWrapper> result   = new ArrayList<>();
+        try {
+            channels = client.getMetadata().getChannelData(client.getCtx(), getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get the channel name for " + toString());
+        }
+
+        for (ChannelData channel : channels) {
+            result.add(channel.getIndex(), new ChannelWrapper(channel));
+        }
+        return result;
     }
 
 
@@ -386,14 +432,60 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public String getChannelName(Client client, int index)
     throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData> channels = new ArrayList<>();
-        try {
-            channels = client.getMetadata().getChannelData(client.getCtx(), this.data.getId());
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get the channel name for " + toString());
-        }
+        return getChannels(client).get(index).getChannelLabeling();
+    }
 
-        return channels.get(index).getChannelLabeling();
+
+    /**
+     * Gets the original color of the channel
+     *
+     * @param client The user.
+     * @param index  Channel number.
+     *
+     * @return Original color of the channel.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public Color getChannelImportedColor(Client client, int index)
+    throws ServiceException, AccessException, ExecutionException {
+        return getChannels(client).get(index).getColor();
+    }
+
+
+    /**
+     * Gets the current color of the channel
+     *
+     * @param client The user.
+     * @param index  Channel number.
+     *
+     * @return Color of the channel.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public Color getChannelColor(Client client, int index)
+    throws ServiceException, AccessException, ExecutionException {
+        long  pixelsId = data.getDefaultPixels().getId();
+        Color color    = getChannelImportedColor(client, index);
+        try {
+            RenderingEnginePrx re = client.getGateway().getRenderingService(client.getCtx(), pixelsId);
+            re.lookupPixels(pixelsId);
+            if (!(re.lookupRenderingDef(pixelsId))) {
+                re.resetDefaultSettings(true);
+                re.lookupRenderingDef(pixelsId);
+            }
+            re.load();
+            int[] rgba = re.getRGBA(index);
+            color = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+            re.close();
+        } catch (DSOutOfServiceException | ServerError e) {
+            Logger.getLogger(getClass().getName())
+                  .log(Level.WARNING, "Error while retrieving current color", e);
+        }
+        return color;
     }
 
 }
