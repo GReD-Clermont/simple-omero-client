@@ -26,7 +26,6 @@ import fr.igred.omero.metadata.ChannelWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
-import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -381,10 +380,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         imp.getProcessor().setMinAndMax(min, max);
 
         LUT[] luts = imp.getLuts();
-        for (int i = 0; i < sizeC; ++i) {
-            luts[i] = LUT.createLutFromColor(getChannelColor(client, i));
+        for (int c = 0; c < sizeC; ++c) {
+            luts[c] = LUT.createLutFromColor(getChannelColor(client, startC + c));
+            imp.setC(c+1);
+            imp.setLut(luts[c]);
         }
-        ((CompositeImage) imp).setLuts(luts);
 
         return imp;
     }
