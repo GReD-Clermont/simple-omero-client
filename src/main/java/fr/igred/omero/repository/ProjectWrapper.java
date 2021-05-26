@@ -23,6 +23,8 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.util.PojoMapper;
@@ -32,6 +34,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -163,6 +167,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         DatasetWrapper newDataset;
         datasetData.setProjects(Collections.singleton(data));
         DatasetData dataset = (DatasetData) PojoMapper.asDataObject(client.save(datasetData.asIObject()));
+        refresh(client);
         newDataset = new DatasetWrapper(dataset);
         return newDataset;
     }
@@ -364,6 +369,25 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         images.sort(new SortById<>());
 
         return purge(images);
+    }
+
+
+    /**
+     * Refreshes the wrapped project.
+     *
+     * @param client The user.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     */
+    private void refresh(Client client) throws ServiceException, AccessException {
+        try {
+            data = client.getBrowseFacility()
+                         .getProjects(client.getCtx(), Collections.singletonList(this.getId()))
+                         .iterator().next();
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot refresh " + toString());
+        }
     }
 
 }

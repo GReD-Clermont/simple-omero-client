@@ -69,7 +69,7 @@ import static fr.igred.omero.exception.ExceptionHandler.*;
 /**
  * Basic class, contain the gateway, the security context, and multiple facility.
  * <p>
- * Allows the connexion of user to connect to OMERO and browse through all the data accessible to the user.
+ * Allows the connection of user to connect to OMERO and browse through all the data accessible to the user.
  */
 public class Client {
 
@@ -378,7 +378,7 @@ public class Client {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get project with ID: " + id);
         }
-        if(projects.isEmpty()) {
+        if (projects.isEmpty()) {
             throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
         }
         return new ProjectWrapper(projects.iterator().next());
@@ -455,7 +455,7 @@ public class Client {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get dataset with ID: " + id);
         }
-        if(datasets.isEmpty()) {
+        if (datasets.isEmpty()) {
             throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
         }
         return new DatasetWrapper(datasets.iterator().next());
@@ -469,20 +469,17 @@ public class Client {
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
+     * @throws OMEROServerError Server error.
      */
-    public Collection<DatasetWrapper> getDatasets() throws ServiceException, AccessException {
-        Collection<DatasetWrapper> datasetWrappers = new ArrayList<>();
-        Collection<DatasetData>    datasets        = new ArrayList<>();
-        try {
-            datasets = browse.getDatasets(ctx);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get datasets");
-        }
+    public List<DatasetWrapper> getDatasets()
+    throws ServiceException, AccessException, OMEROServerError {
+        List<IObject> os = findByQuery("select d from Dataset d");
 
-        for (DatasetData dataset : datasets) {
-            datasetWrappers.add(new DatasetWrapper(dataset));
+        List<DatasetWrapper> datasets = new ArrayList<>();
+        for (IObject o : os) {
+            datasets.add(getDataset(o.getId().getValue()));
         }
-        return datasetWrappers;
+        return datasets;
     }
 
 

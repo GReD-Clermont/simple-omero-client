@@ -373,6 +373,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);
+        refresh(client);
     }
 
 
@@ -407,6 +408,26 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         library.importCandidates(config, candidates);
 
         store.logout();
+        refresh(client);
+    }
+
+
+    /**
+     * Refreshes the wrapped project.
+     *
+     * @param client The user.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     */
+    private void refresh(Client client) throws ServiceException, AccessException {
+        try {
+            data = client.getBrowseFacility()
+                         .getDatasets(client.getCtx(), Collections.singletonList(this.getId()))
+                         .iterator().next();
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot refresh " + toString());
+        }
     }
 
 }

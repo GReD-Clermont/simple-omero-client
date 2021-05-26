@@ -131,7 +131,8 @@ public class AccessExceptionTest extends BasicTest {
     }
 
 
-    @Test(expected = AccessException.class)
+    // This test returns a ServiceException for a "security violation".
+    @Test(expected = ServiceException.class)
     public void testSudoFailGetDatasets() throws Exception {
         sudo.getDatasets();
     }
