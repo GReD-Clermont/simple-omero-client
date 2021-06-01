@@ -387,11 +387,23 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws OMEROServerError Server error.
      */
     public void importImages(Client client, String... paths) throws Exception {
-        ImportConfig config = client.getConfig();
-        config.target.set("Dataset:" + data.getId());
-        OMEROMetadataStoreClient store;
+        ImportConfig clientConfig = client.getConfig();
 
-        store = config.createStore();
+        // Copy client config to ensure thread safety
+        ImportConfig config = new ImportConfig();
+        config.email.set(clientConfig.email.get());
+        config.sendFiles.set(clientConfig.sendFiles.get());
+        config.sendReport.set(clientConfig.sendReport.get());
+        config.contOnError.set(clientConfig.contOnError.get());
+        config.debug.set(clientConfig.debug.get());
+        config.hostname.set(clientConfig.hostname.get());
+        config.port.set(clientConfig.port.get());
+        config.username.set(clientConfig.username.get());
+        config.password.set(clientConfig.password.get());
+
+        config.target.set("Dataset:" + data.getId());
+
+        OMEROMetadataStoreClient store = config.createStore();
         try {
             store.logVersionInfo(config.getIniVersionNumber());
         } catch (ServerError se) {
