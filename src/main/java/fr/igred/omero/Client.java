@@ -42,7 +42,6 @@ import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.MetadataFacility;
 import omero.gateway.facility.ROIFacility;
-import omero.gateway.facility.RawDataFacility;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
@@ -80,7 +79,6 @@ public class Client {
     /** Security context of the user, contains the permissions of the user in this group. */
     private SecurityContext  ctx;
     private BrowseFacility   browse;
-    private RawDataFacility  rdf;
     private ImportConfig     config;
 
 
@@ -169,20 +167,6 @@ public class Client {
      */
     public AdminFacility getAdminFacility() throws ExecutionException {
         return gateway.getFacility(AdminFacility.class);
-    }
-
-
-    /**
-     * Gets the RawDataFacility linked to the gateway to access the raw image data.
-     *
-     * @return the {@link ExecutionException} linked to the gateway.
-     *
-     * @throws ExecutionException If the ExecutionException can't be retrieved or instantiated.
-     */
-    public RawDataFacility getRdf() throws ExecutionException {
-        if (rdf == null)
-            rdf = gateway.getFacility(RawDataFacility.class);
-        return rdf;
     }
 
 

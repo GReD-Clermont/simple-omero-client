@@ -298,6 +298,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     public ImagePlus toImagePlus(Client client, int[] xBound, int[] yBound, int[] cBound, int[] zBound, int[] tBound)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
+        boolean createdRawDataFacility = pixels.createRawDataFacility(client);
 
         Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
 
@@ -385,7 +386,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             imp.setC(c+1);
             imp.setLut(luts[c]);
         }
-
+        if(createdRawDataFacility) {
+            pixels.destroyRawDataFacility();
+        }
         return imp;
     }
 

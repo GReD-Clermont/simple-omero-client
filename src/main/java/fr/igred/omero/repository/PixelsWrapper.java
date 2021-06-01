@@ -22,6 +22,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import omero.gateway.exception.DataSourceException;
+import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.Length;
@@ -37,6 +38,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
     /** Size of tiles when retrieving pixels */
     public static final int MAX_DIST = 5000;
+
+    /** Raw Data Facility to retrieve pixels */
+    private RawDataFacility rawDataFacility;
 
 
     /**
@@ -140,6 +144,35 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /**
+     * Creates a {@link omero.gateway.facility.RawDataFacility} to retrieve the pixel values.
+     *
+     * @param client The user.
+     *
+     * @return <ul><li>True if a new RawDataFacility was created</li>
+     * <li>False otherwise</li></ul>
+     *
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    boolean createRawDataFacility(Client client) throws ExecutionException {
+        boolean created = false;
+        if (rawDataFacility == null) {
+            rawDataFacility = client.getGateway().getFacility(RawDataFacility.class);
+            created = true;
+        }
+        return created;
+    }
+
+
+    /**
+     * Destroy the {@link omero.gateway.facility.RawDataFacility}.
+     */
+    void destroyRawDataFacility() {
+        rawDataFacility.close();
+        rawDataFacility = null;
+    }
+
+
+    /**
      * Returns an array containing the value for each voxels
      *
      * @param client The user.
@@ -176,7 +209,8 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
                                          int[] zBound,
                                          int[] tBound)
     throws AccessException, ExecutionException {
-        Bounds lim = getBounds(xBound, yBound, cBound, zBound, tBound);
+        boolean createdRawDataFacility = createRawDataFacility(client);
+        Bounds  lim                    = getBounds(xBound, yBound, cBound, zBound, tBound);
 
         double[][][][][] tab = new double[lim.size.t][lim.size.z][lim.size.c][][];
 
@@ -189,6 +223,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
             }
         }
 
+        if (createdRawDataFacility) {
+            destroyRawDataFacility();
+        }
         return tab;
     }
 
@@ -208,20 +245,24 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     double[][] getTile(Client client, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
+        boolean    createdRawDataFacility = createRawDataFacility(client);
         Plane2D    p;
-        double[][] tile = new double[height][width];
+        double[][] tile                   = new double[height][width];
         for (int relX = 0, x = start.x; relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int sizeY = Math.min(MAX_DIST, height - relY);
                 try {
-                    p = client.getRdf().getTile(client.getCtx(), data, start.z, start.t, start.c, x, y, sizeX, sizeY);
+                    p = rawDataFacility.getTile(client.getCtx(), data, start.z, start.t, start.c, x, y, sizeX, sizeY);
                 } catch (DataSourceException dse) {
                     throw new AccessException("Cannot read tile", dse);
                 }
                 Coordinates pos = new Coordinates(relX, relY, start.c, start.z, start.t);
                 copy(tile, p, pos, sizeX, sizeY);
             }
+        }
+        if (createdRawDataFacility) {
+            destroyRawDataFacility();
         }
         return tile;
     }
@@ -285,7 +326,8 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
                                      int[] tBound,
                                      int bpp)
     throws ExecutionException, AccessException {
-        Bounds lim = getBounds(xBound, yBound, cBound, zBound, tBound);
+        boolean createdRawDataFacility = createRawDataFacility(client);
+        Bounds  lim                    = getBounds(xBound, yBound, cBound, zBound, tBound);
 
         byte[][][][] bytes = new byte[lim.size.t][lim.size.z][lim.size.c][];
 
@@ -297,7 +339,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
                 }
             }
         }
-
+        if (createdRawDataFacility) {
+            destroyRawDataFacility();
+        }
         return bytes;
     }
 
@@ -318,20 +362,24 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     byte[] getRawTile(Client client, Coordinates start, int width, int height, int bpp)
     throws AccessException, ExecutionException {
+        boolean createdRawDataFacility = createRawDataFacility(client);
         Plane2D p;
-        byte[]  tile = new byte[height * width * bpp];
+        byte[]  tile                   = new byte[height * width * bpp];
         for (int relX = 0, x = start.x; relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int sizeY = Math.min(MAX_DIST, height - relY);
                 try {
-                    p = client.getRdf().getTile(client.getCtx(), data, start.z, start.t, start.c, x, y, sizeX, sizeY);
+                    p = rawDataFacility.getTile(client.getCtx(), data, start.z, start.t, start.c, x, y, sizeX, sizeY);
                 } catch (DataSourceException dse) {
                     throw new AccessException("Cannot read raw tile", dse);
                 }
                 Coordinates pos = new Coordinates(relX, relY, start.c, start.z, start.t);
                 copy(tile, p, pos, sizeX, sizeY, width, bpp);
             }
+        }
+        if (createdRawDataFacility) {
+            destroyRawDataFacility();
         }
         return tile;
     }
