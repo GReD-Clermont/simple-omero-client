@@ -20,6 +20,8 @@ package fr.igred.omero.roi;
 
 import omero.gateway.model.EllipseData;
 
+import java.awt.geom.Ellipse2D;
+
 
 public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
 
@@ -52,6 +54,39 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      */
     public EllipseWrapper(double x, double y, double radiusX, double radiusY) {
         this(new EllipseData(x, y, radiusX, radiusY));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        return new Ellipse2D.Double(getX()-getRadiusX(), getY()-getRadiusY(), 2*getRadiusX(), 2*getRadiusY());
     }
 
 

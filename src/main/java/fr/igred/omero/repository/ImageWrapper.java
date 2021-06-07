@@ -22,10 +22,9 @@ import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
-import fr.igred.omero.metadata.ChannelWrapper;
-import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
+import fr.igred.omero.repository.PixelsWrapper.Coordinates;
+import fr.igred.omero.roi.ROIWrapper;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -39,16 +38,16 @@ import omero.api.RenderingEnginePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
-import omero.gateway.model.ChannelData;
-import omero.gateway.model.FolderData;
-import omero.gateway.model.ImageData;
-import omero.gateway.model.ROIData;
-import omero.gateway.model.ROIResult;
-import omero.model.*;
+import omero.gateway.model.*;
+import omero.model.Folder;
+import omero.model.IObject;
+import omero.model.Length;
 
-import java.awt.*;
+import java.awt.Color;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -298,6 +297,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     public ImagePlus toImagePlus(Client client, int[] xBound, int[] yBound, int[] cBound, int[] zBound, int[] tBound)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
+
         boolean createdRawDataFacility = pixels.createRawDataFacility(client);
 
         Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
@@ -383,13 +383,39 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         LUT[] luts = imp.getLuts();
         for (int c = 0; c < sizeC; ++c) {
             luts[c] = LUT.createLutFromColor(getChannelColor(client, startC + c));
-            imp.setC(c+1);
+            imp.setC(c + 1);
             imp.setLut(luts[c]);
         }
-        if(createdRawDataFacility) {
+        if (createdRawDataFacility) {
             pixels.destroyRawDataFacility();
         }
         return imp;
+    }
+
+
+    /**
+     * Gets the imagePlus from the image generated from the ROI.
+     *
+     * @param client The user.
+     * @param roi    The ROI.
+     *
+     * @return an ImagePlus from the ij library.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public ImagePlus toImagePlus(Client client, ROIWrapper roi)
+    throws ServiceException, AccessException, ExecutionException {
+        Bounds bounds = roi.getBounds();
+
+        int[] x = {bounds.getStart().getX(), bounds.getEnd().getX()};
+        int[] y = {bounds.getStart().getY(), bounds.getEnd().getY()};
+        int[] c = {bounds.getStart().getC(), bounds.getEnd().getC()};
+        int[] z = {bounds.getStart().getZ(), bounds.getEnd().getZ()};
+        int[] t = {bounds.getStart().getT(), bounds.getEnd().getT()};
+
+        return toImagePlus(client, x, y, c, z, t);
     }
 
 

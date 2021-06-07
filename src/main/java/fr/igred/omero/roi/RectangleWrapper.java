@@ -20,6 +20,8 @@ package fr.igred.omero.roi;
 
 import omero.gateway.model.RectangleData;
 
+import java.awt.geom.Rectangle2D;
+
 
 public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
 
@@ -52,6 +54,39 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
      */
     public RectangleWrapper(double x, double y, double width, double height) {
         this(new RectangleData(x, y, width, height));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
     }
 
 

@@ -21,7 +21,9 @@ package fr.igred.omero.repository;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.metadata.ChannelWrapper;
+import fr.igred.omero.roi.EllipseWrapper;
+import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.RectangleWrapper;
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
@@ -591,9 +593,14 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testSetDescription() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image       = client.getImage(1L);
+        String       description = image.getDescription();
         image.setDescription("Foo");
-        assertEquals("Foo", image.getDescription());
+        image.saveAndUpdate(client);
+        assertEquals("Foo", client.getImage(1L).getDescription());
+        image.setDescription(description);
+        image.saveAndUpdate(client);
+        assertEquals(description, client.getImage(1L).getDescription());
     }
 
 
@@ -602,9 +609,49 @@ public class ImageTest extends UserTest {
         ImageWrapper image = client.getImage(1L);
         String       name  = image.getName();
         image.setName("Foo image");
-        assertEquals("Foo image", image.getName());
+        image.saveAndUpdate(client);
+        assertEquals("Foo image", client.getImage(1L).getName());
         image.setName(name);
+        image.saveAndUpdate(client);
         assertEquals(name, image.getName());
+    }
+
+
+    @Test
+    public void testGetCropFromROI() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+
+        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        rectangle.setCZT(0, 1, 2);
+
+        EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
+        ellipse.setCZT(1, 0, 1);
+
+        ROIWrapper roiWrapper = new ROIWrapper();
+        roiWrapper.setImage(image);
+        roiWrapper.addShape(rectangle);
+        roiWrapper.addShape(ellipse);
+
+        ImagePlus imp1 = image.toImagePlus(client, roiWrapper);
+
+        int[] xBound = {30, 69};
+        int[] yBound = {10, 89};
+        int[] cBound = {0, 1};
+        int[] zBound = {0, 1};
+        int[] tBound = {1, 2};
+
+        ImagePlus imp2 = image.toImagePlus(client, xBound, yBound, cBound, zBound, tBound);
+
+        ImageCalculator calculator = new ImageCalculator();
+        ImagePlus       difference = calculator.run("difference create stack", imp1, imp2);
+        ImageStatistics stats      = difference.getStatistics();
+
+        assertEquals(0, (int) stats.max);
+        assertEquals(imp1.getWidth(), imp2.getWidth());
+        assertEquals(imp1.getHeight(), imp2.getHeight());
+        assertEquals(imp1.getNChannels(), imp2.getNChannels());
+        assertEquals(imp1.getNSlices(), imp2.getNSlices());
+        assertEquals(imp1.getNFrames(), imp2.getNFrames());
     }
 
 }

@@ -20,9 +20,11 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.PixelsWrapper.Bounds;
+import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import omero.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
@@ -168,6 +170,36 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Cannot save ROI");
         }
+    }
+
+
+    /**
+     * Returns the 5D bounds containing the ROI.
+     *
+     * @return The 5D bounds.
+     */
+    public Bounds getBounds() {
+        int[] x = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] y = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] c = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] z = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] t = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        for (GenericShapeWrapper<?> shape : getShapes()) {
+            RectangleWrapper box = shape.getBoundingBox();
+            x[0] = Math.min(x[0], (int) box.getX());
+            y[0] = Math.min(y[0], (int) box.getY());
+            c[0] = Math.min(c[0], box.getC());
+            z[0] = Math.min(z[0], box.getZ());
+            t[0] = Math.min(t[0], box.getT());
+            x[1] = Math.max(x[1], (int) (box.getX() + box.getWidth() - 1));
+            y[1] = Math.max(y[1], (int) (box.getY() + box.getHeight() - 1));
+            c[1] = Math.max(c[1], box.getC());
+            z[1] = Math.max(z[1], box.getZ());
+            t[1] = Math.max(t[1], box.getT());
+        }
+        Coordinates start = new Coordinates(x[0], y[0], c[0], z[0], t[0]);
+        Coordinates end   = new Coordinates(x[1], y[1], c[1], z[1], t[1]);
+        return new Bounds(start, end);
     }
 
 }

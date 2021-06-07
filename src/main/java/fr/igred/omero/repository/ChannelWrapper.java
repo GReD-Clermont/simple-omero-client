@@ -1,4 +1,4 @@
-package fr.igred.omero.metadata;
+package fr.igred.omero.repository;
 
 
 import fr.igred.omero.GenericObjectWrapper;

@@ -23,7 +23,7 @@ import omero.gateway.model.*;
 import org.junit.Test;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -444,6 +444,221 @@ public class ShapeTest extends BasicTest {
         List<Point2D.Double> points2 = polygon.getPoints();
 
         assertEquals(points, points2);
+    }
+
+
+    @Test
+    public void testAWTRectangle() {
+        RectangleWrapper shape     = new RectangleWrapper(25, 26, 27, 28);
+        Rectangle2D      awtShape  = new Rectangle2D.Double(25, 26, 27, 28);
+        java.awt.Shape   awtShape2 = shape.toAWTShape();
+        assertEquals(awtShape, awtShape2);
+    }
+
+
+    @Test
+    public void testAWTMask() {
+        byte[] maskValues = new byte[25];
+        for (int i = 0; i < 25; i++) {
+            maskValues[i] = (byte) (i >= 12 ? 1 : 0);
+        }
+
+        MaskWrapper    shape     = new MaskWrapper(25, 26, 27, 28, maskValues);
+        Rectangle2D    awtShape  = new Rectangle2D.Double(25, 26, 27, 28);
+        java.awt.Shape awtShape2 = shape.toAWTShape();
+        assertEquals(awtShape, awtShape2);
+    }
+
+
+    @Test
+    public void testAWTEllipse() {
+        EllipseWrapper shape     = new EllipseWrapper(28, 27, 26, 25);
+        Ellipse2D      awtShape  = new Ellipse2D.Double(2, 2, 52, 50);
+        java.awt.Shape awtShape2 = shape.toAWTShape();
+        assertEquals(awtShape, awtShape2);
+    }
+
+
+    @Test
+    public void testAWTLine() {
+        LineWrapper shape     = new LineWrapper(0, 1, 2, 3);
+        Line2D      awtShape  = new Line2D.Double(0, 1, 2, 3);
+        Line2D      awtShape2 = (Line2D) shape.toAWTShape();
+        assertEquals(awtShape.getP1(), awtShape2.getP1());
+        assertEquals(awtShape.getP2(), awtShape2.getP2());
+    }
+
+
+    @Test
+    public void testAWTPolygon() {
+        List<Point2D.Double> points = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        PolygonWrapper shape = new PolygonWrapper(points);
+
+        Path2D awtShape = new Path2D.Double();
+        awtShape.moveTo(p1.x, p1.y);
+        awtShape.lineTo(p2.x, p2.y);
+        awtShape.lineTo(p3.x, p3.y);
+        awtShape.closePath();
+
+        java.awt.Shape awtShape2 = shape.toAWTShape();
+
+        PathIterator pi  = awtShape.getPathIterator(null);
+        PathIterator pi2 = awtShape2.getPathIterator(null);
+
+        while (!pi.isDone() && !pi2.isDone()) {
+            double[] pos1 = new double[2];
+            double[] pos2 = new double[2];
+            assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
+            assertEquals(pos1[0], pos2[0], 0.01);
+            assertEquals(pos1[1], pos2[1], 0.01);
+            pi.next();
+            pi2.next();
+        }
+    }
+
+
+    @Test
+    public void testAWTPolyline() {
+        List<Point2D.Double> points = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points.add(p1);
+        points.add(p2);
+        points.add(p3);
+
+        PolylineWrapper shape = new PolylineWrapper(points);
+
+        Path2D awtShape = new Path2D.Double();
+        awtShape.moveTo(p1.x, p1.y);
+        awtShape.lineTo(p2.x, p2.y);
+        awtShape.lineTo(p3.x, p3.y);
+        awtShape.closePath();
+
+        java.awt.Shape awtShape2 = shape.toAWTShape();
+
+        PathIterator pi  = awtShape.getPathIterator(null);
+        PathIterator pi2 = awtShape2.getPathIterator(null);
+
+        while (!pi.isDone() && !pi2.isDone()) {
+            double[] pos1 = new double[2];
+            double[] pos2 = new double[2];
+            assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
+            assertEquals(pos1[0], pos2[0], 0.01);
+            assertEquals(pos1[1], pos2[1], 0.01);
+            pi.next();
+            pi2.next();
+        }
+    }
+
+
+    @Test
+    public void testAWTPoint() {
+        PointWrapper shape = new PointWrapper(1, 2);
+
+        Path2D awtShape = new Path2D.Double();
+        awtShape.moveTo(1, 2);
+
+        java.awt.Shape awtShape2 = shape.toAWTShape();
+
+        PathIterator pi  = awtShape.getPathIterator(null);
+        PathIterator pi2 = awtShape2.getPathIterator(null);
+
+        while (!pi.isDone() && !pi2.isDone()) {
+            double[] pos1 = new double[2];
+            double[] pos2 = new double[2];
+            assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
+            assertEquals(pos1[0], pos2[0], 0.01);
+            assertEquals(pos1[1], pos2[1], 0.01);
+            pi.next();
+            pi2.next();
+        }
+    }
+
+
+    @Test
+    public void testAWTText() {
+        TextWrapper shape = new TextWrapper("Text", 1, 2);
+
+        Path2D awtShape = new Path2D.Double();
+        awtShape.moveTo(1, 2);
+
+        java.awt.Shape awtShape2 = shape.toAWTShape();
+
+        PathIterator pi  = awtShape.getPathIterator(null);
+        PathIterator pi2 = awtShape2.getPathIterator(null);
+
+        while (!pi.isDone() && !pi2.isDone()) {
+            double[] pos1 = new double[2];
+            double[] pos2 = new double[2];
+            assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
+            assertEquals(pos1[0], pos2[0], 0.01);
+            assertEquals(pos1[1], pos2[1], 0.01);
+            pi.next();
+            pi2.next();
+        }
+    }
+
+
+    @Test
+    public void testAffineTransform() {
+        RectangleWrapper shape = new RectangleWrapper(1, 2, 3, 4);
+        shape.setTransform(1, 2, 3, 4, 5, 6);
+
+        AffineTransform transform = new AffineTransform(1, 2, 3, 4, 5, 6);
+        assertEquals(transform, shape.toAWTTransform());
+    }
+
+
+    @Test
+    public void testNoAffineTransform() {
+        RectangleWrapper shape = new RectangleWrapper(1, 2, 3, 4);
+
+        java.awt.Shape awtShape = new Rectangle2D.Double(1, 2, 3, 4);
+        assertEquals(awtShape, shape.createTransformedAWTShape());
+    }
+
+
+    @Test
+    public void testBoundingBox() {
+        RectangleWrapper shape = new RectangleWrapper(1, 2, 3, 4);
+        RectangleWrapper box = new RectangleWrapper(-6, 1, 4, 3);
+
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(Math.PI/2);
+        double[] a = new double[6];
+        transform.getMatrix(a);
+        shape.setTransform(a[0], a[1], a[2], a[3], a[4], a[5]);
+
+        double[] coordinates1 = box.getCoordinates();
+        double[] coordinates2 = shape.getBoundingBox().getCoordinates();
+
+        for (int i = 0; i < 4; i++) {
+            assertEquals(coordinates1[i], coordinates2[i], 0.01);
+        }
+    }
+
+
+    @Test
+    public void testBoundingBox2() {
+        EllipseWrapper shape = new EllipseWrapper(50, 50, 20, 40);
+        RectangleWrapper box = new RectangleWrapper(30, 10, 40, 80);
+
+        double[] coordinates1 = box.getCoordinates();
+        double[] coordinates2 = shape.getBoundingBox().getCoordinates();
+
+        for (int i = 0; i < 4; i++) {
+            assertEquals(coordinates1[i], coordinates2[i], 0.01);
+        }
     }
 
 }

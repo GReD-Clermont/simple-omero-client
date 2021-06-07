@@ -18,10 +18,18 @@
 package fr.igred.omero;
 
 
-import omero.gateway.model.*;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.ExperimenterWrapper;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.DataObject;
 
 import java.sql.Timestamp;
 import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -69,8 +77,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return owner id.
      */
-    public Long getOwnerId() {
-        return data.getOwner().getId();
+    public ExperimenterWrapper getOwner() {
+        return new ExperimenterWrapper(data.getOwner());
     }
 
 
@@ -92,6 +100,24 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     @Override
     public String toString() {
         return String.format("%s (id=%d)", getClass().getSimpleName(), getId());
+    }
+
+
+    /**
+     * Saves and updates object.
+     *
+     * @param client The user.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
+        try {
+            data = (T) client.getDm().saveAndReturnObject(client.getCtx(), data);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot save and update object.");
+        }
     }
 
 

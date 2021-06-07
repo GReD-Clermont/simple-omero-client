@@ -37,7 +37,7 @@ public class ClientTest extends UserTest {
         assertEquals(2L, project.getId().longValue());
         assertEquals("TestProject", project.getName());
         assertEquals("description", project.getDescription());
-        assertEquals(2L, project.getOwnerId().longValue());
+        assertEquals(2L, project.getOwner().getId().longValue());
         assertEquals(3L, project.getGroupId().longValue());
     }
 

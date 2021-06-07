@@ -20,6 +20,8 @@ package fr.igred.omero.roi;
 
 import omero.gateway.model.MaskData;
 
+import java.awt.geom.Rectangle2D;
+
 
 public class MaskWrapper extends GenericShapeWrapper<MaskData> {
 
@@ -53,6 +55,39 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
      */
     public MaskWrapper(double x, double y, double width, double height, byte[] mask) {
         this(new MaskData(x, y, width, height, mask));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
     }
 
 

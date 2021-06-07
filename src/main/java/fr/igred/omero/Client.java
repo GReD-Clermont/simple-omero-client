@@ -24,11 +24,13 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.roi.ROIWrapper;
 import ome.formats.importer.ImportConfig;
 import omero.LockTimeout;
 import omero.ServerError;
@@ -37,27 +39,10 @@ import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.facility.AdminFacility;
-import omero.gateway.facility.BrowseFacility;
-import omero.gateway.facility.DataManagerFacility;
-import omero.gateway.facility.MetadataFacility;
-import omero.gateway.facility.ROIFacility;
-import omero.gateway.facility.TablesFacility;
-import omero.gateway.model.DatasetData;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.ProjectData;
-import omero.gateway.model.TagAnnotationData;
-import omero.gateway.model.ImageData;
+import omero.gateway.facility.*;
+import omero.gateway.model.*;
 import omero.log.SimpleLogger;
-import omero.model.DatasetI;
-import omero.model.FileAnnotationI;
-import omero.model.IObject;
-import omero.model.ImageI;
-import omero.model.NamedValue;
-import omero.model.ProjectI;
-import omero.model.RoiI;
-import omero.model.TagAnnotation;
-import omero.model.TagAnnotationI;
+import omero.model.*;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -73,13 +58,15 @@ import static fr.igred.omero.exception.ExceptionHandler.*;
 public class Client {
 
     /** User */
-    private ExperimenterData user;
+    private ExperimenterWrapper user;
+
     /** Gateway linking the code to OMERO, only linked to one group. */
-    private Gateway          gateway;
+    private Gateway gateway;
+
     /** Security context of the user, contains the permissions of the user in this group. */
-    private SecurityContext  ctx;
-    private BrowseFacility   browse;
-    private ImportConfig     config;
+    private SecurityContext ctx;
+    private BrowseFacility  browse;
+    private ImportConfig    config;
 
 
     /**
@@ -87,6 +74,16 @@ public class Client {
      */
     public Client() {
         gateway = new Gateway(new SimpleLogger());
+    }
+
+
+    /**
+     * Returns the current user.
+     *
+     * @return The current user.
+     */
+    public ExperimenterWrapper getUser() {
+        return user;
     }
 
 
@@ -111,7 +108,7 @@ public class Client {
 
 
     /**
-     * Gets the DataManagerFacility to handle/write data on OMERO.
+     * Gets the DataManagerFacility to handle/write data on OMERO. A
      *
      * @return the {@link DataManagerFacility} linked to the gateway.
      *
@@ -325,12 +322,13 @@ public class Client {
      */
     public void connect(LoginCredentials cred) throws ServiceException, ExecutionException {
         try {
-            this.user = gateway.connect(cred);
+            this.user = new ExperimenterWrapper(gateway.connect(cred));
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
 
         this.ctx = new SecurityContext(user.getGroupId());
+        this.ctx.setExperimenter(this.user.asExperimenterData());
         this.browse = gateway.getFacility(BrowseFacility.class);
     }
 
@@ -736,15 +734,15 @@ public class Client {
     public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
         Client c = new Client();
 
-        ExperimenterData sudoUser = user;
+        ExperimenterWrapper sudoUser = user;
         try {
-            sudoUser = getAdminFacility().lookupExperimenter(ctx, username);
+            sudoUser = new ExperimenterWrapper(getAdminFacility().lookupExperimenter(ctx, username));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot switch to user: " + username);
         }
 
         SecurityContext sudoCtx = new SecurityContext(sudoUser.getGroupId());
-        sudoCtx.setExperimenter(sudoUser);
+        sudoCtx.setExperimenter(sudoUser.asExperimenterData());
         sudoCtx.sudo();
 
         c.gateway = this.gateway;
@@ -1145,6 +1143,60 @@ public class Client {
                                                    InterruptedException {
         folder.unlinkAllROI(this);
         delete(folder.asFolderData().asIObject());
+    }
+
+
+    /**
+     * Returns the user which matches the username.
+     *
+     * @param username The name of the user.
+     *
+     * @return The user matching the username, or null if it does not exist.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public ExperimenterWrapper getUser(String username)
+    throws ExecutionException, ServiceException, AccessException {
+        ExperimenterData experimenter = null;
+        try {
+            experimenter = getAdminFacility().lookupExperimenter(ctx, username);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot retrieve user: " + username);
+        }
+        if (experimenter != null) {
+            return new ExperimenterWrapper(experimenter);
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Returns the group which matches the name.
+     *
+     * @param groupName The name of the group.
+     *
+     * @return The group with the appropriate name, or null if it does not exist.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public GroupWrapper getGroup(String groupName)
+    throws ExecutionException, ServiceException, AccessException {
+        GroupData group = null;
+        try {
+            group = getAdminFacility().lookupGroup(ctx, groupName);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot retrieve group: " + groupName);
+        }
+        if (group != null) {
+            return new GroupWrapper(group);
+        } else {
+            return null;
+        }
     }
 
 }

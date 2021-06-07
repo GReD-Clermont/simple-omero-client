@@ -20,6 +20,8 @@ package fr.igred.omero.roi;
 
 import omero.gateway.model.PointData;
 
+import java.awt.geom.Path2D;
+
 
 public class PointWrapper extends GenericShapeWrapper<PointData> {
 
@@ -50,6 +52,41 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
      */
     public PointWrapper(double x, double y) {
         this(new PointData(x, y));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        Path2D point = new Path2D.Double();
+        point.moveTo(getX(), getY());
+        return point;
     }
 
 

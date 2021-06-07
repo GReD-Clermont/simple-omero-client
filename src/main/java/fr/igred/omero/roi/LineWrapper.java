@@ -20,6 +20,8 @@ package fr.igred.omero.roi;
 
 import omero.gateway.model.LineData;
 
+import java.awt.geom.Line2D;
+
 
 public class LineWrapper extends GenericShapeWrapper<LineData> {
 
@@ -52,6 +54,39 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
      */
     public LineWrapper(double x1, double y1, double x2, double y2) {
         this(new LineData(x1, y1, x2, y2));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        return new Line2D.Double(getX1(), getY1(), getX2(), getY2());
     }
 
 

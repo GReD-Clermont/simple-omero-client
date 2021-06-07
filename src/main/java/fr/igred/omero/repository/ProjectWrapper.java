@@ -380,7 +380,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      */
-    private void refresh(Client client) throws ServiceException, AccessException {
+    public void refresh(Client client) throws ServiceException, AccessException {
         try {
             data = client.getBrowseFacility()
                          .getProjects(client.getCtx(), Collections.singletonList(this.getId()))
