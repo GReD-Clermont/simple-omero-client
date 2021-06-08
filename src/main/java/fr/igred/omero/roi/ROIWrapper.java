@@ -215,12 +215,18 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         for (GenericShapeWrapper<?> shape : getShapes()) {
             ij.gui.Roi roi = new ShapeRoi(shape.createTransformedAWTShape());
             roi.setStrokeColor(shape.getStroke());
-            if(!shape.getText().equals("")) {
+            if (!shape.getText().equals("")) {
                 roi.setName(shape.getText());
             } else {
                 roi.setName(getId().toString() + "-" + shape.getId().toString());
             }
-            roi.setPosition(shape.getC() + 1, shape.getZ() + 1, shape.getT() + 1);
+            int c = shape.getC();
+            int z = shape.getZ();
+            int t = shape.getT();
+            c = c >= 0 ? c + 1 : c;
+            z = z >= 0 ? z + 1 : z;
+            t = t >= 0 ? t + 1 : t;
+            roi.setPosition(c, z, t);
             roi.setProperty("ROI", String.valueOf(getId()));
             rois.add(roi);
         }
