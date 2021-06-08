@@ -734,14 +734,9 @@ public class Client {
     public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
         Client c = new Client();
 
-        ExperimenterWrapper sudoUser = user;
-        try {
-            sudoUser = new ExperimenterWrapper(getAdminFacility().lookupExperimenter(ctx, username));
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot switch to user: " + username);
-        }
+        ExperimenterWrapper sudoUser = getUser(username);
 
-        SecurityContext sudoCtx = new SecurityContext(sudoUser.getGroupId());
+        SecurityContext sudoCtx = new SecurityContext(sudoUser.getDefaultGroup().getId());
         sudoCtx.setExperimenter(sudoUser.asExperimenterData());
         sudoCtx.sudo();
 

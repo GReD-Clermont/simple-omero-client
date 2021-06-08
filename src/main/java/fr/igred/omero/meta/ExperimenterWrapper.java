@@ -134,20 +134,6 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
 
 
     /**
-     * Sets the groups the experimenter is a member of.
-     *
-     * @param groups The list of groups.
-     */
-    public void setGroups(List<GroupWrapper> groups) {
-        List<GroupData> list = new ArrayList<>();
-        for (GroupWrapper group : groups) {
-            list.add(group.asGroupData());
-        }
-        data.setGroups(list);
-    }
-
-
-    /**
      * Returns the default Group for this Experimenter
      *
      * @return See above.

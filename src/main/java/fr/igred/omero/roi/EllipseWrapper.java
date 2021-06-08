@@ -86,7 +86,7 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      */
     @Override
     public java.awt.Shape toAWTShape() {
-        return new Ellipse2D.Double(getX()-getRadiusX(), getY()-getRadiusY(), 2*getRadiusX(), 2*getRadiusY());
+        return new Ellipse2D.Double(getX() - getRadiusX(), getY() - getRadiusY(), 2 * getRadiusX(), 2 * getRadiusY());
     }
 
 

@@ -6,9 +6,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 public class GroupWrapper extends GenericObjectWrapper<GroupData> {
@@ -100,20 +98,6 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
             experimenters.add(new ExperimenterWrapper(experimenter));
         }
         return experimenters;
-    }
-
-
-    /**
-     * Sets the experimenters contained in this group.
-     *
-     * @param experimenters The experimenters list.
-     */
-    public void setExperimenters(List<ExperimenterWrapper> experimenters) {
-        Set<ExperimenterData> set = new HashSet<>();
-        for (ExperimenterWrapper experimenter : experimenters) {
-            set.add(experimenter.asExperimenterData());
-        }
-        data.setExperimenters(set);
     }
 
 
