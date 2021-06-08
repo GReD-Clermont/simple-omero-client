@@ -375,8 +375,8 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public Collection<ProjectWrapper> getProjects() throws ServiceException, AccessException {
-        Collection<ProjectWrapper> projectWrappers = new ArrayList<>();
+    public List<ProjectWrapper> getProjects() throws ServiceException, AccessException {
+        List<ProjectWrapper> projectWrappers = new ArrayList<>();
         Collection<ProjectData>    projects        = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx);
@@ -401,8 +401,8 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public Collection<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException {
-        Collection<ProjectWrapper> projectWrappers = new ArrayList<>();
+    public List<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException {
+        List<ProjectWrapper> projectWrappers = new ArrayList<>();
         Collection<ProjectData>    projects        = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx, name);
@@ -475,8 +475,8 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public Collection<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException {
-        Collection<DatasetWrapper> datasetWrappers = new ArrayList<>();
+    public List<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException {
+        List<DatasetWrapper> datasetWrappers = new ArrayList<>();
         Collection<DatasetData>    datasets        = new ArrayList<>();
         try {
             datasets = browse.getDatasets(ctx, name);

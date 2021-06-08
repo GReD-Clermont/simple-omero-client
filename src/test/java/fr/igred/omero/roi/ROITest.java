@@ -18,6 +18,7 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.ImageWrapper;
+import ij.gui.Roi;
 import org.junit.Test;
 
 import java.awt.geom.Point2D;
@@ -230,6 +231,58 @@ public class ROITest extends UserTest {
         rois = image.getROIs(client);
 
         assertEquals(0, rois.size());
+    }
+
+
+    @Test
+    public void testROItoImageJ() {
+        PointWrapper point = new PointWrapper(1, 1);
+        point.setCZT(0, 0, 0);
+
+        TextWrapper text = new TextWrapper("Text", 2, 2);
+        text.setCZT(0, 0, 1);
+
+        RectangleWrapper rectangle = new RectangleWrapper(3, 3, 10, 10);
+        rectangle.setCZT(0, 0, 2);
+
+        MaskWrapper mask = new MaskWrapper();
+        mask.setCoordinates(4, 4, 11, 11);
+        mask.setCZT(1, 0, 0);
+
+        EllipseWrapper ellipse = new EllipseWrapper(5, 5, 4, 4);
+        ellipse.setCZT(1, 0, 1);
+
+        LineWrapper line = new LineWrapper(0, 0, 10, 10);
+        line.setCZT(1, 0, 2);
+
+        List<Point2D.Double> points2D = new ArrayList<>();
+
+        Point2D.Double p1 = new Point2D.Double(0, 0);
+        Point2D.Double p2 = new Point2D.Double(3, 0);
+        Point2D.Double p3 = new Point2D.Double(3, 4);
+        points2D.add(p1);
+        points2D.add(p2);
+        points2D.add(p3);
+
+        PolylineWrapper polyline = new PolylineWrapper(points2D);
+        polyline.setCZT(1, 1, 0);
+
+        PolygonWrapper polygon = new PolygonWrapper(points2D);
+        polygon.setCZT(1, 1, 1);
+
+        ROIWrapper roiWrapper = new ROIWrapper();
+        roiWrapper.addShape(point);
+        roiWrapper.addShape(text);
+        roiWrapper.addShape(rectangle);
+        roiWrapper.addShape(mask);
+        roiWrapper.addShape(ellipse);
+        roiWrapper.addShape(line);
+        roiWrapper.addShape(polyline);
+        roiWrapper.addShape(polygon);
+
+        List<Roi> ijRois = roiWrapper.toImageJ();
+
+        assertEquals(8, ijRois.size());
     }
 
 }

@@ -25,12 +25,14 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
+import ij.gui.ShapeRoi;
 import omero.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.Roi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -200,6 +202,29 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         Coordinates start = new Coordinates(x[0], y[0], c[0], z[0], t[0]);
         Coordinates end   = new Coordinates(x[1], y[1], c[1], z[1], t[1]);
         return new Bounds(start, end);
+    }
+
+
+    /**
+     * Convert ROI to ImageJ list of ROIs.
+     *
+     * @return A list of ROIs.
+     */
+    public List<ij.gui.Roi> toImageJ() {
+        List<ij.gui.Roi> rois = new ArrayList<>();
+        for (GenericShapeWrapper<?> shape : getShapes()) {
+            ij.gui.Roi roi = new ShapeRoi(shape.createTransformedAWTShape());
+            roi.setStrokeColor(shape.getStroke());
+            if(!shape.getText().equals("")) {
+                roi.setName(shape.getText());
+            } else {
+                roi.setName(getId().toString() + "-" + shape.getId().toString());
+            }
+            roi.setPosition(shape.getC() + 1, shape.getZ() + 1, shape.getT() + 1);
+            roi.setProperty("ROI", String.valueOf(getId()));
+            rois.add(roi);
+        }
+        return rois;
     }
 
 }
