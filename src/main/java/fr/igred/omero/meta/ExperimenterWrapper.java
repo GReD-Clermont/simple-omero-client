@@ -125,11 +125,13 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      * @return See above.
      */
     public List<GroupWrapper> getGroups() {
-        List<GroupWrapper> groups = new ArrayList<>();
-        for (GroupData group : data.getGroups()) {
-            groups.add(new GroupWrapper(group));
+        List<GroupData> groups = data.getGroups();
+
+        List<GroupWrapper> groupWrappers = new ArrayList<>(groups.size());
+        for (GroupData group : groups) {
+            groupWrappers.add(new GroupWrapper(group));
         }
-        return groups;
+        return groupWrappers;
     }
 
 

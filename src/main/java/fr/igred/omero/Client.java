@@ -376,17 +376,18 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<ProjectWrapper> getProjects() throws ServiceException, AccessException {
-        List<ProjectWrapper> projectWrappers = new ArrayList<>();
-        Collection<ProjectData>    projects        = new ArrayList<>();
+        Collection<ProjectData> projects = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects");
         }
 
+        List<ProjectWrapper> projectWrappers = new ArrayList<>(projects.size());
         for (ProjectData project : projects) {
             projectWrappers.add(new ProjectWrapper(project));
         }
+        projectWrappers.sort(new SortById<>());
         return projectWrappers;
     }
 
@@ -402,18 +403,18 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException {
-        List<ProjectWrapper> projectWrappers = new ArrayList<>();
-        Collection<ProjectData>    projects        = new ArrayList<>();
+        Collection<ProjectData> projects = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects with name: " + name);
         }
 
+        List<ProjectWrapper> projectWrappers = new ArrayList<>(projects.size());
         for (ProjectData project : projects) {
             projectWrappers.add(new ProjectWrapper(project));
         }
-
+        projectWrappers.sort(new SortById<>());
         return projectWrappers;
     }
 
@@ -457,10 +458,11 @@ public class Client {
     throws ServiceException, AccessException, OMEROServerError {
         List<IObject> os = findByQuery("select d from Dataset d");
 
-        List<DatasetWrapper> datasets = new ArrayList<>();
+        List<DatasetWrapper> datasets = new ArrayList<>(os.size());
         for (IObject o : os) {
             datasets.add(getDataset(o.getId().getValue()));
         }
+        datasets.sort(new SortById<>());
         return datasets;
     }
 
@@ -476,18 +478,18 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException {
-        List<DatasetWrapper> datasetWrappers = new ArrayList<>();
-        Collection<DatasetData>    datasets        = new ArrayList<>();
+        Collection<DatasetData> datasets = new ArrayList<>();
         try {
             datasets = browse.getDatasets(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get datasets with name: " + name);
         }
 
+        List<DatasetWrapper> datasetWrappers = new ArrayList<>(datasets.size());
         for (DatasetData dataset : datasets) {
             datasetWrappers.add(new DatasetWrapper(dataset));
         }
-
+        datasetWrappers.sort(new SortById<>());
         return datasetWrappers;
     }
 
@@ -500,7 +502,7 @@ public class Client {
      * @return ImageWrapper list sorted.
      */
     private List<ImageWrapper> toImageWrappers(Collection<ImageData> images) {
-        List<ImageWrapper> imageWrappers = new ArrayList<>();
+        List<ImageWrapper> imageWrappers = new ArrayList<>(images.size());
 
         for (ImageData image : images) {
             imageWrappers.add(new ImageWrapper(image));
@@ -569,14 +571,14 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageWrapper> getImages(String name) throws ServiceException, AccessException {
-        List<ImageWrapper>    selected = new ArrayList<>();
-        Collection<ImageData> images   = new ArrayList<>();
+        Collection<ImageData> images = new ArrayList<>();
         try {
             images = browse.getImages(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images with name: " + name);
         }
 
+        List<ImageWrapper> selected = new ArrayList<>();
         for (ImageData image : images) {
             if (image.getName().equals(name)) {
                 selected.add(new ImageWrapper(image));
@@ -618,12 +620,12 @@ public class Client {
      */
     public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageWrapper> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
                                        "where link.child = " +
                                        tag.getId());
 
+        List<ImageWrapper> selected = new ArrayList<>(os.size());
         for (IObject o : os) {
             selected.add(getImage(o.getId().getValue()));
         }
@@ -645,12 +647,12 @@ public class Client {
      */
     public List<ImageWrapper> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageWrapper> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
                                        "where link.child = " +
                                        tagId);
 
+        List<ImageWrapper> selected = new ArrayList<>(os.size());
         for (IObject o : os) {
             selected.add(getImage(o.getId().getValue()));
         }
@@ -758,16 +760,14 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<TagAnnotationWrapper> getTags() throws OMEROServerError, ServiceException {
-        List<TagAnnotationWrapper> tags = new ArrayList<>();
-
         List<IObject> os = new ArrayList<>();
-
         try {
             os = gateway.getQueryService(ctx).findAll(TagAnnotation.class.getSimpleName(), null);
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Cannot get tags");
         }
 
+        List<TagAnnotationWrapper> tags = new ArrayList<>(os.size());
         for (IObject o : os) {
             TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
             tags.add(new TagAnnotationWrapper(tag));

@@ -175,7 +175,7 @@ public class ROITest extends UserTest {
         LineWrapper line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 2);
 
-        List<Point2D.Double> points2D = new ArrayList<>();
+        List<Point2D.Double> points2D = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -255,7 +255,7 @@ public class ROITest extends UserTest {
         LineWrapper line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 2);
 
-        List<Point2D.Double> points2D = new ArrayList<>();
+        List<Point2D.Double> points2D = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);

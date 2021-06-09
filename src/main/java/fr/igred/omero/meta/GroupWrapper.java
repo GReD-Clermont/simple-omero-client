@@ -7,6 +7,7 @@ import omero.gateway.model.GroupData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class GroupWrapper extends GenericObjectWrapper<GroupData> {
@@ -79,11 +80,13 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getLeaders() {
-        List<ExperimenterWrapper> experimenters = new ArrayList<>();
-        for (ExperimenterData experimenter : data.getLeaders()) {
-            experimenters.add(new ExperimenterWrapper(experimenter));
+        Set<ExperimenterData> leaders = data.getLeaders();
+
+        List<ExperimenterWrapper> wrappers = new ArrayList<>(leaders.size());
+        for (ExperimenterData leader : leaders) {
+            wrappers.add(new ExperimenterWrapper(leader));
         }
-        return experimenters;
+        return wrappers;
     }
 
 
@@ -93,11 +96,13 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getExperimenters() {
-        List<ExperimenterWrapper> experimenters = new ArrayList<>();
-        for (ExperimenterData experimenter : data.getExperimenters()) {
-            experimenters.add(new ExperimenterWrapper(experimenter));
+        Set<ExperimenterData> experimenters = data.getExperimenters();
+
+        List<ExperimenterWrapper> wrappers = new ArrayList<>(experimenters.size());
+        for (ExperimenterData experimenter : experimenters) {
+            wrappers.add(new ExperimenterWrapper(experimenter));
         }
-        return experimenters;
+        return wrappers;
     }
 
 
@@ -107,11 +112,13 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getMembersOnly() {
-        List<ExperimenterWrapper> experimenters = new ArrayList<>();
-        for (ExperimenterData experimenter : data.getMembersOnly()) {
-            experimenters.add(new ExperimenterWrapper(experimenter));
+        Set<ExperimenterData> members = data.getMembersOnly();
+
+        List<ExperimenterWrapper> wrappers = new ArrayList<>(members.size());
+        for (ExperimenterData member : members) {
+            wrappers.add(new ExperimenterWrapper(member));
         }
-        return experimenters;
+        return wrappers;
     }
 
 }

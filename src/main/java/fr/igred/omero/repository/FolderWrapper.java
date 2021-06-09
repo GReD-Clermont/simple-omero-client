@@ -20,9 +20,9 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.exception.OMEROServerError;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -172,20 +172,20 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public List<ROIWrapper> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIWrapper>      roiWrappers = new ArrayList<>();
-        Collection<ROIResult> roiResults  = new ArrayList<>();
-        ROIFacility           roiFac      = client.getRoiFacility();
+        ROIFacility roiFac = client.getRoiFacility();
 
+        Collection<ROIResult> roiResults = new ArrayList<>();
         try {
             roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get ROIs from " + toString());
         }
 
+        List<ROIWrapper> roiWrappers = new ArrayList<>(roiResults.size());
         if (!roiResults.isEmpty()) {
-            ROIResult           r    = roiResults.iterator().next();
-            Collection<ROIData> rois = r.getROIs();
+            ROIResult r = roiResults.iterator().next();
 
+            Collection<ROIData> rois = r.getROIs();
             for (ROIData roi : rois) {
                 ROIWrapper temp = new ROIWrapper(roi);
                 roiWrappers.add(temp);

@@ -20,8 +20,8 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import fr.igred.omero.roi.ROIWrapper;
@@ -38,7 +38,11 @@ import omero.api.RenderingEnginePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
-import omero.gateway.model.*;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ROIResult;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
@@ -205,8 +209,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<FolderWrapper> roiFolders  = new ArrayList<>();
-        ROIFacility         roiFacility = client.getRoiFacility();
+        ROIFacility roiFacility = client.getRoiFacility();
 
         Collection<FolderData> folders = new ArrayList<>();
         try {
@@ -215,10 +218,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             handleServiceOrAccess(e, "Cannot get folders for " + toString());
         }
 
+        List<FolderWrapper> roiFolders = new ArrayList<>(folders.size());
         for (FolderData folder : folders) {
             FolderWrapper roiFolder = new FolderWrapper(folder);
             roiFolder.setImage(this.data.getId());
-
             roiFolders.add(roiFolder);
         }
 
