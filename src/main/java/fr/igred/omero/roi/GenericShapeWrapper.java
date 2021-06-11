@@ -17,6 +17,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.GenericObjectWrapper;
+import ij.gui.Roi;
 import ome.model.units.BigResult;
 import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
@@ -277,6 +278,16 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         boundingBox.setStroke(getStroke());
         boundingBox.setFontSize(getFontSize());
         return boundingBox;
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    public Roi toImageJ() {
+        return new ij.gui.ShapeRoi(createTransformedAWTShape());
     }
 
 }

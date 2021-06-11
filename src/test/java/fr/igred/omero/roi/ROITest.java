@@ -18,9 +18,10 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.ImageWrapper;
-import ij.gui.Roi;
+import ij.gui.*;
 import org.junit.Test;
 
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -283,6 +284,70 @@ public class ROITest extends UserTest {
         List<Roi> ijRois = roiWrapper.toImageJ();
 
         assertEquals(8, ijRois.size());
+    }
+
+
+    @Test
+    public void testROIsFromImageJ() {
+        List<Roi> rois = new ArrayList<>(11);
+
+        float[] x1 = {0f, 3f, 3f};
+        float[] y1 = {0f, 0f, 4f};
+        float[] x2 = {0f, 0f, 4f};
+        float[] y2 = {0f, 3f, 3f};
+
+        Roi rectangle = new Roi(1.0, 2.0, 3.0, 4.0);
+        rectangle.setName("rectangle");
+        rectangle.setPosition(1, 2, 3);
+        rectangle.setProperty("ROI", "24");
+        rois.add(rectangle);
+
+        TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
+        textRoi.setName("text");
+        textRoi.setProperty("ROI", "invalid");
+        rois.add(textRoi);
+
+        OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
+        ovalRoi.setName("oval");
+        ovalRoi.setPosition(1, 0, 3);
+        ovalRoi.setProperty("ROI", "24");
+        rois.add(ovalRoi);
+
+        Arrow arrow = new Arrow(2.0, 3.0, 3.0, 4.0);
+        arrow.setDoubleHeaded(true);
+        arrow.setName("arrow");
+        rois.add(arrow);
+
+        Line line = new Line(4.0, 3.0, 2.0, 1.0);
+        rois.add(line);
+
+        PointRoi pointRoi = new PointRoi(x1, y1);
+        pointRoi.setProperty("TEST", "24");
+        rois.add(pointRoi);
+
+        PolygonRoi polylineRoi = new PolygonRoi(x2, y2, PolygonRoi.POLYLINE);
+        polylineRoi.setPosition(1, 1, 2);
+        polylineRoi.setProperty("ROI", "23");
+        rois.add(polylineRoi);
+
+        PolygonRoi polygonRoi = new PolygonRoi(x2, y2, PolygonRoi.POLYGON);
+        polygonRoi.setPosition(1, 1, 1);
+        polygonRoi.setProperty("ROI", "23");
+        rois.add(polygonRoi);
+
+        EllipseRoi ellipseRoi = new EllipseRoi(0.0, 0.0, 5.0, 5.0, 0.5);
+        ellipseRoi.setPosition(1, 1, 1);
+        rois.add(ellipseRoi);
+
+        ShapeRoi shapeRoi = new ShapeRoi(new Ellipse2D.Double(0.0, 5.0, 5.0, 10.0));
+        shapeRoi.setPosition(1, 3, 1);
+        rois.add(shapeRoi);
+
+        rois.add(ellipseRoi);
+
+        List<ROIWrapper> omeroROIs = ROIWrapper.fromImageJ(rois, "ROI");
+
+        assertEquals(9, omeroROIs.size());
     }
 
 }

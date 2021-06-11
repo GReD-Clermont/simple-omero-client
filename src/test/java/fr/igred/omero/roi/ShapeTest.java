@@ -19,6 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.BasicTest;
+import ij.gui.*;
 import omero.gateway.model.*;
 import org.junit.Test;
 

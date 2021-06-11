@@ -18,6 +18,8 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.OvalRoi;
+import ij.gui.Roi;
 import omero.gateway.model.EllipseData;
 
 import java.awt.geom.Ellipse2D;
@@ -213,6 +215,26 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
             setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for EllipseData.");
+        }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public Roi toImageJ() {
+        java.awt.Shape awtShape = toAWTShape();
+        if (awtShape instanceof Ellipse2D) {
+            double x = ((Ellipse2D) awtShape).getX();
+            double y = ((Ellipse2D) awtShape).getY();
+            double w = ((Ellipse2D) awtShape).getWidth();
+            double h = ((Ellipse2D) awtShape).getHeight();
+            return new OvalRoi(x, y, w, h);
+        } else {
+            return super.toImageJ();
         }
     }
 

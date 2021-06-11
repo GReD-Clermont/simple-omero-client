@@ -18,6 +18,9 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.Arrow;
+import ij.gui.Line;
+import ij.gui.Roi;
 import omero.gateway.model.LineData;
 
 import java.awt.geom.Line2D;
@@ -214,6 +217,39 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
         } else {
             throw new IllegalArgumentException("4 coordinates required for LineData.");
         }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public Roi toImageJ() {
+        final String ARROW = "Arrow";
+
+        java.awt.Shape awtShape = toAWTShape();
+
+        String start = asShapeData().getShapeSettings().getMarkerStart();
+        String end   = asShapeData().getShapeSettings().getMarkerEnd();
+
+        double x1 = ((Line2D) awtShape).getX1();
+        double x2 = ((Line2D) awtShape).getX2();
+        double y1 = ((Line2D) awtShape).getY1();
+        double y2 = ((Line2D) awtShape).getY2();
+        Roi    roi;
+        if (start.equals(ARROW) && end.equals(ARROW)) {
+            roi = new Arrow(x1, y1, x2, y2);
+            ((Arrow) roi).setDoubleHeaded(true);
+        } else if (!start.equals(ARROW) && end.equals(ARROW)) {
+            roi = new Arrow(x1, y1, x2, y2);
+        } else if (start.equals(ARROW)) {
+            roi = new Arrow(x2, y2, x1, y1);
+        } else {
+            roi = new Line(x1, y1, x2, y2);
+        }
+        return roi;
     }
 
 }

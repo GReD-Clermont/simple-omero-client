@@ -18,6 +18,7 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.PointRoi;
 import omero.gateway.model.PointData;
 
 import java.awt.geom.Path2D;
@@ -168,6 +169,21 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
         } else {
             throw new IllegalArgumentException("2 coordinates required for PointData.");
         }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public ij.gui.Roi toImageJ() {
+        java.awt.Shape awtShape = toAWTShape();
+
+        double x = awtShape.getBounds2D().getX();
+        double y = awtShape.getBounds2D().getY();
+        return new PointRoi(x, y);
     }
 
 }

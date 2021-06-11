@@ -18,6 +18,7 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.Roi;
 import omero.gateway.model.RectangleData;
 
 import java.awt.geom.Rectangle2D;
@@ -213,6 +214,26 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
             setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for RectangleData.");
+        }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public Roi toImageJ() {
+        java.awt.Shape awtShape = toAWTShape();
+        if (awtShape instanceof Rectangle2D) {
+            double x = ((Rectangle2D) awtShape).getX();
+            double y = ((Rectangle2D) awtShape).getY();
+            double w = ((Rectangle2D) awtShape).getWidth();
+            double h = ((Rectangle2D) awtShape).getHeight();
+            return new ij.gui.Roi(x, y, w, h);
+        } else {
+            return super.toImageJ();
         }
     }
 
