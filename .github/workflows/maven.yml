@@ -46,9 +46,9 @@ jobs:
       - name: Set version to SNAPSHOT if 'push' happened on 'master'
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: mvn versions:set -DnewVersion=`mvn help:evaluate -N -Dexpression=project.version|grep -v '\['`-SNAPSHOT
-      - name: Append branch name if 'push' did not happen on 'master' or a tag
+      - name: Append 'dev' if 'push' did not happen on 'master' or a tag
         if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/')}}
-        run: mvn versions:set -DnewVersion=`mvn help:evaluate -N -Dexpression=project.version|grep -v '\['`-${GITHUB_REF##*/}
+        run: mvn versions:set -DnewVersion=`mvn help:evaluate -N -Dexpression=project.version|grep -v '\['`-dev
       - name: Test with Maven and omero-test-infra through Docker
         run: $GITHUB_WORKSPACE/.omero/lib-docker
         env:
