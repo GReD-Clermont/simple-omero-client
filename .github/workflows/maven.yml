@@ -45,10 +45,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Append 'SNAPSHOT' to version if 'push' happened on 'master'
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        run: echo "PROJECT_VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\['-SNAPSHOT)" >> $GITHUB_ENV
+        run: echo "PROJECT_VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\['-SNAPSHOT)" 1>> $GITHUB_ENV
       - name: Append branch name to version if 'push' did not happen on 'master' or a tag
         if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/')}}
-        run: echo "PROJECT_VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\['-${GITHUB_REF##*/})" >> $GITHUB_ENV
+        run: echo "PROJECT_VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\['-${GITHUB_REF##*/})" 1>> $GITHUB_ENV
       - name: Set version
         if: ${{ !startsWith(github.ref, 'refs/tags/')}}
         run: mvn versions:set -DnewVersion=$PROJECT_VERSION
