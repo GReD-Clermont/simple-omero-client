@@ -299,7 +299,13 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      * @return An ImageJ ROI.
      */
     public Roi toImageJ() {
-        return new ij.gui.ShapeRoi(createTransformedAWTShape());
+        ij.gui.ShapeRoi roi = new ij.gui.ShapeRoi(createTransformedAWTShape());
+        roi.setStrokeColor(getStroke());
+        int c = getC() >= 0 ? getC() + 1 : getC();
+        int z = getZ() >= 0 ? getZ() + 1 : getZ();
+        int t = getT() >= 0 ? getT() + 1 : getT();
+        roi.setPosition(c, z, t);
+        return roi;
     }
 
 }

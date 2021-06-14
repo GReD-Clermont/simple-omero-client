@@ -183,7 +183,16 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
 
         double x = awtShape.getBounds2D().getX();
         double y = awtShape.getBounds2D().getY();
-        return new PointRoi(x, y);
+
+        PointRoi roi = new PointRoi(x, y);
+
+        roi.setStrokeColor(getStroke());
+        int c = getC() >= 0 ? getC() + 1 : getC();
+        int z = getZ() >= 0 ? getZ() + 1 : getZ();
+        int t = getT() >= 0 ? getT() + 1 : getT();
+        roi.setPosition(c, z, t);
+
+        return roi;
     }
 
 }

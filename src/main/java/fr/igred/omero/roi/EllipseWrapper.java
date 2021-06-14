@@ -228,12 +228,14 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
     @Override
     public Roi toImageJ() {
         java.awt.Shape awtShape = createTransformedAWTShape();
+
+        Roi roi;
         if (awtShape instanceof Ellipse2D) {
             double x = ((Ellipse2D) awtShape).getX();
             double y = ((Ellipse2D) awtShape).getY();
             double w = ((Ellipse2D) awtShape).getWidth();
             double h = ((Ellipse2D) awtShape).getHeight();
-            return new OvalRoi(x, y, w, h);
+            roi = new OvalRoi(x, y, w, h);
         } else {
             java.awt.geom.Rectangle2D shape1;
             java.awt.geom.Rectangle2D shape2;
@@ -267,8 +269,14 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
             double x2 = shape2.getX();
             double y2 = shape2.getY();
 
-            return new EllipseRoi(x1, y1, x2, y2, ratio);
+            roi = new EllipseRoi(x1, y1, x2, y2, ratio);
         }
+        roi.setStrokeColor(getStroke());
+        int c = getC() >= 0 ? getC() + 1 : getC();
+        int z = getZ() >= 0 ? getZ() + 1 : getZ();
+        int t = getT() >= 0 ? getT() + 1 : getT();
+        roi.setPosition(c, z, t);
+        return roi;
     }
 
 }

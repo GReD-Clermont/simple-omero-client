@@ -185,7 +185,16 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
         String text = getText();
         double x    = awtShape.getBounds2D().getX();
         double y    = awtShape.getBounds2D().getY();
-        return new TextRoi(x, y, text);
+
+        TextRoi roi = new TextRoi(x, y, text);
+        roi.setStrokeColor(getStroke());
+
+        int c = getC() >= 0 ? getC() + 1 : getC();
+        int z = getZ() >= 0 ? getZ() + 1 : getZ();
+        int t = getT() >= 0 ? getT() + 1 : getT();
+        roi.setPosition(c, z, t);
+
+        return roi;
     }
 
 }

@@ -21,6 +21,7 @@ package fr.igred.omero.roi;
 import ij.gui.Roi;
 import omero.gateway.model.MaskData;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
@@ -276,13 +277,11 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
      */
     @Override
     public Roi toImageJ() {
-        java.awt.Shape awtShape = createTransformedAWTShape();
-        if (awtShape instanceof Rectangle2D) {
-            double x = ((Rectangle2D) awtShape).getX();
-            double y = ((Rectangle2D) awtShape).getY();
-            double w = ((Rectangle2D) awtShape).getWidth();
-            double h = ((Rectangle2D) awtShape).getHeight();
-            return new ij.gui.Roi(x, y, w, h);
+        AffineTransform transform = toAWTTransform();
+
+        Roi roi;
+        if (transform == null) {
+            roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
             PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
             PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
@@ -297,8 +296,14 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
             double x2 = shape2.getX();
             double y2 = shape2.getY();
 
-            return new ij.gui.RotatedRectRoi(x1, y1, x2, y2, getWidth());
+            roi = new ij.gui.RotatedRectRoi(x1, y1, x2, y2, getWidth());
         }
+        roi.setStrokeColor(getStroke());
+        int c = getC() >= 0 ? getC() + 1 : getC();
+        int z = getZ() >= 0 ? getZ() + 1 : getZ();
+        int t = getT() >= 0 ? getT() + 1 : getT();
+        roi.setPosition(c, z, t);
+        return roi;
     }
 
 }

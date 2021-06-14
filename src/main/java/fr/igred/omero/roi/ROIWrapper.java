@@ -258,19 +258,11 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         List<ij.gui.Roi> rois = new ArrayList<>();
         for (GenericShapeWrapper<?> shape : getShapes()) {
             ij.gui.Roi roi = shape.toImageJ();
-            roi.setStrokeColor(shape.getStroke());
             if (!shape.getText().equals("")) {
                 roi.setName(shape.getText());
             } else {
                 roi.setName(getId() + "-" + shape.getId());
             }
-            int c = shape.getC();
-            int z = shape.getZ();
-            int t = shape.getT();
-            c = c >= 0 ? c + 1 : c;
-            z = z >= 0 ? z + 1 : z;
-            t = t >= 0 ? t + 1 : t;
-            roi.setPosition(c, z, t);
             roi.setProperty("ROI", String.valueOf(getId()));
             rois.add(roi);
         }
@@ -351,11 +343,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             int[] y = ijRoi.getPolygon().ypoints;
 
             List<Point2D.Double> points = new LinkedList<>();
-            IntStream.range(0, x.length)
-                     .forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
-            if (type.equals("Polyline") ||
-                type.equals("Freeline") ||
-                type.equals("Angle")) {
+            IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
+            if (type.equals("Polyline") || type.equals("Freeline") || type.equals("Angle")) {
                 shape = new PolylineWrapper(points);
             } else {
                 shape = new PolygonWrapper(points);
@@ -365,6 +354,9 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             addShape(shape);
         } else if (ijRoi instanceof ShapeRoi) {
             ij.gui.Roi[] rois = ((ShapeRoi) ijRoi).getRois();
+            IntStream.range(0, rois.length).forEach(i -> rois[i].setPosition(ijRoi.getCPosition(),
+                                                                             ijRoi.getZPosition(),
+                                                                             ijRoi.getTPosition()));
             IntStream.range(0, rois.length).forEach(i -> addShape(rois[i]));
         } else if (ijRoi.getType() == ij.gui.Roi.RECTANGLE) {
             double x = ijRoi.getBounds().getX();
