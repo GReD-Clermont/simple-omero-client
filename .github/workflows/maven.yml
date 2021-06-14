@@ -43,9 +43,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set version to SNAPSHOT if 'push' happened on 'master'
+      - name: Append 'SNAPSHOT' to version if 'push' happened on 'master'
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        run: mvn versions:set -DnewVersion=`mvn help:evaluate -N -Dexpression=project.version|grep -v '\['`-SNAPSHOT
+        run: |
+          mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
+          VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
+          mvn versions:set -DnewVersion=$VERSION-SNAPSHOT
+      - name: Append branch name to version if 'push' did not happen on 'master' or a tag
+        if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/')}}
+        run: |
+          mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
+          VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
+          mvn versions:set -DnewVersion=$VERSION-${GITHUB_REF##*/}
       - name: Test with Maven and omero-test-infra through Docker
         run: $GITHUB_WORKSPACE/.omero/lib-docker
         env:
@@ -64,8 +73,14 @@ jobs:
         if: ${{ success() }}
         run: bash <(curl -s https://codecov.io/bash)
       - name: Build package with Maven
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/master' ||  startsWith(github.ref, 'refs/tags/')) }}
         run: mvn -DskipTests -B package --file pom.xml
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: |
+            target/*.jar
+            !target/*-with-dependencies.jar
       - name: Publish to GitHub Packages Apache Maven
         if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/master' ||  startsWith(github.ref, 'refs/tags/')) }}
         run: mvn deploy -DskipTests -s $GITHUB_WORKSPACE/settings.xml
