@@ -82,7 +82,7 @@ public class ExperimenterTest extends RootTest {
     public void testGetGroups() throws Exception {
         ExperimenterWrapper user   = client.getUser("testUser");
         List<GroupWrapper>  groups = user.getGroups();
-        assertEquals(2, groups.size());
+        assertEquals(3, groups.size());
         assertEquals("testGroup", user.getDefaultGroup().getName());
     }
 
