@@ -180,7 +180,7 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      */
     @Override
     public ij.gui.Roi toImageJ() {
-        java.awt.Shape awtShape = toAWTShape();
+        java.awt.Shape awtShape = createTransformedAWTShape();
 
         String text = getText();
         double x    = awtShape.getBounds2D().getX();

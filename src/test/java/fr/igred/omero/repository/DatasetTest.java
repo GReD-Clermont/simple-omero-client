@@ -119,7 +119,7 @@ public class DatasetTest extends UserTest {
 
         assertEquals("TestDataset", dataset.getName());
         assertEquals("description", dataset.getDescription());
-        assertEquals(1L, dataset.getId().longValue());
+        assertEquals(1L, dataset.getId());
     }
 
 

@@ -208,7 +208,7 @@ public class ImageTest extends UserTest {
         ImageWrapper image = client.getImage(1L);
         assertEquals("image1.fake", image.getName());
         assertNull(image.getDescription());
-        assertEquals(1L, image.getId().longValue());
+        assertEquals(1L, image.getId());
     }
 
 

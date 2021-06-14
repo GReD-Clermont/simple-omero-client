@@ -179,7 +179,7 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
      */
     @Override
     public ij.gui.Roi toImageJ() {
-        java.awt.Shape awtShape = toAWTShape();
+        java.awt.Shape awtShape = createTransformedAWTShape();
 
         double x = awtShape.getBounds2D().getX();
         double y = awtShape.getBounds2D().getY();

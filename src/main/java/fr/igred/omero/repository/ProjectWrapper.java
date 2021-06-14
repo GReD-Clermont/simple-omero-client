@@ -187,7 +187,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         List<ImageWrapper> purged = new ArrayList<>();
 
         for (ImageWrapper image : images) {
-            if (purged.isEmpty() || !purged.get(purged.size() - 1).getId().equals(image.getId())) {
+            if (purged.isEmpty() || purged.get(purged.size() - 1).getId() != image.getId()) {
                 purged.add(image);
             }
         }

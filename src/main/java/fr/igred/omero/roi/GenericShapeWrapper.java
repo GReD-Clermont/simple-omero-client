@@ -228,6 +228,18 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
+     * Sets the transform from a {@link java.awt.geom.AffineTransform}.
+     *
+     * @param transform A Java AffineTransform.
+     */
+    public void setTransform(java.awt.geom.AffineTransform transform) {
+        double[] a = new double[6];
+        transform.getMatrix(a);
+        setTransform(a[0], a[1], a[2], a[3], a[4], a[5]);
+    }
+
+
+    /**
      * Converts {@link omero.model.AffineTransform} to {@link java.awt.geom.AffineTransform}.
      *
      * @return The converted affine transform.

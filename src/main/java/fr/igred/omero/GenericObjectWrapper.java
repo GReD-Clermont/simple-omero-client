@@ -57,7 +57,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return id.
      */
-    public Long getId() {
+    public long getId() {
         return data.getId();
     }
 
@@ -112,6 +112,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @SuppressWarnings("unchecked")
     public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
         try {
             data = (T) client.getDm().saveAndReturnObject(client.getCtx(), data);

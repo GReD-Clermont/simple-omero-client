@@ -23,6 +23,7 @@ import ij.gui.Line;
 import ij.gui.Roi;
 import omero.gateway.model.LineData;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 
@@ -229,16 +230,26 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
     public Roi toImageJ() {
         final String ARROW = "Arrow";
 
-        java.awt.Shape awtShape = toAWTShape();
+        PointWrapper p1 = new PointWrapper(getX1(), getY1());
+        PointWrapper p2 = new PointWrapper(getX2(), getY2());
+        AffineTransform transform = toAWTTransform();
+        if(transform != null) {
+            p1.setTransform(toAWTTransform());
+            p2.setTransform(toAWTTransform());
+        }
+
+        java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+        java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
         String start = asShapeData().getShapeSettings().getMarkerStart();
         String end   = asShapeData().getShapeSettings().getMarkerEnd();
 
-        double x1 = ((Line2D) awtShape).getX1();
-        double x2 = ((Line2D) awtShape).getX2();
-        double y1 = ((Line2D) awtShape).getY1();
-        double y2 = ((Line2D) awtShape).getY2();
-        Roi    roi;
+        double x1 = shape1.getX();
+        double x2 = shape2.getX();
+        double y1 = shape1.getY();
+        double y2 = shape2.getY();
+
+        Roi roi;
         if (start.equals(ARROW) && end.equals(ARROW)) {
             roi = new Arrow(x1, y1, x2, y2);
             ((Arrow) roi).setDoubleHeaded(true);

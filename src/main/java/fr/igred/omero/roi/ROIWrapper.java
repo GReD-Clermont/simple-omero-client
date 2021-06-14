@@ -262,7 +262,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             if (!shape.getText().equals("")) {
                 roi.setName(shape.getText());
             } else {
-                roi.setName(getId().toString() + "-" + shape.getId().toString());
+                roi.setName(getId() + "-" + shape.getId());
             }
             int c = shape.getC();
             int z = shape.getZ();

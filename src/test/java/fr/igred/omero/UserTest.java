@@ -37,8 +37,8 @@ public abstract class UserTest extends BasicTest {
         client = new Client();
         try {
             client.connect("omero", 4064, "testUser", "password", 3L);
-            assertEquals("Wrong user", 2L, client.getId().longValue());
-            assertEquals("Wrong group", 3L, client.getGroupId().longValue());
+            assertEquals("Wrong user", 2L, client.getId());
+            assertEquals("Wrong group", 3L, client.getCurrentGroupId());
         } catch (Exception e) {
             failed = true;
             logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);

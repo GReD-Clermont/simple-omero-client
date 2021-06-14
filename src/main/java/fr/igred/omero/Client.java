@@ -202,15 +202,20 @@ public class Client {
     /**
      * Gets the user id.
      *
-     * @return id.
+     * @return The user ID.
      */
-    public Long getId() {
+    public long getId() {
         return user.getId();
     }
 
 
-    public Long getGroupId() {
-        return user.getGroupId();
+    /**
+     * Gets the current group ID.
+     *
+     * @return The group ID.
+     */
+    public long getCurrentGroupId() {
+        return ctx.getGroupID();
     }
 
 
@@ -752,6 +757,17 @@ public class Client {
 
 
     /**
+     * Change the current group used by the current user;
+     *
+     * @param groupId The group ID.
+     */
+    public void switchGroup(long groupId) {
+        ctx = new SecurityContext(groupId);
+        ctx.setExperimenter(getUser().asExperimenterData());
+    }
+
+
+    /**
      * Gets the list of TagAnnotationWrapper available to the user
      *
      * @return list of TagAnnotationWrapper.
@@ -924,10 +940,7 @@ public class Client {
                                                       IllegalArgumentException,
                                                       OMEROServerError,
                                                       InterruptedException {
-        if (project.getId() != null)
-            deleteProject(project.getId());
-        else
-            throw new IllegalArgumentException("Project id is null");
+        deleteProject(project.getId());
     }
 
 
@@ -968,10 +981,7 @@ public class Client {
                                                       IllegalArgumentException,
                                                       OMEROServerError,
                                                       InterruptedException {
-        if (dataset.getId() != null)
-            deleteDataset(dataset.getId());
-        else
-            throw new IllegalArgumentException("Dataset id is null");
+        deleteDataset(dataset.getId());
     }
 
 
@@ -1012,10 +1022,7 @@ public class Client {
                                                     IllegalArgumentException,
                                                     OMEROServerError,
                                                     InterruptedException {
-        if (tag.getId() != null)
-            deleteTag(tag.getId());
-        else
-            throw new IllegalArgumentException("Tag id is null");
+        deleteTag(tag.getId());
     }
 
 
@@ -1056,10 +1063,7 @@ public class Client {
                                           IllegalArgumentException,
                                           OMEROServerError,
                                           InterruptedException {
-        if (roi.getId() != null)
-            deleteROI(roi.getId());
-        else
-            throw new IllegalArgumentException("ROI id is null");
+        deleteROI(roi.getId());
     }
 
 

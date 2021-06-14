@@ -225,7 +225,7 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
      */
     @Override
     public Roi toImageJ() {
-        java.awt.Shape awtShape = toAWTShape();
+        java.awt.Shape awtShape = createTransformedAWTShape();
         if (awtShape instanceof Rectangle2D) {
             double x = ((Rectangle2D) awtShape).getX();
             double y = ((Rectangle2D) awtShape).getY();
@@ -233,7 +233,20 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
             double h = ((Rectangle2D) awtShape).getHeight();
             return new ij.gui.Roi(x, y, w, h);
         } else {
-            return super.toImageJ();
+            PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            p1.setTransform(toAWTTransform());
+            p2.setTransform(toAWTTransform());
+
+            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+
+            double x1 = shape1.getX();
+            double y1 = shape1.getY();
+            double x2 = shape2.getX();
+            double y2 = shape2.getY();
+
+            return new ij.gui.RotatedRectRoi(x1, y1, x2, y2, getWidth());
         }
     }
 

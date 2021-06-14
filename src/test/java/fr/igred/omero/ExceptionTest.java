@@ -88,8 +88,8 @@ public class ExceptionTest extends BasicTest {
     public void testConnectionErrorGroupNotExist() throws Exception {
         Client clientNoSuchGroup = new Client();
         clientNoSuchGroup.connect("omero", 4064, "testUser", "password", 200L);
-        assertEquals(2L, clientNoSuchGroup.getId().longValue());
-        assertEquals(3L, clientNoSuchGroup.getGroupId().longValue());
+        assertEquals(2L, clientNoSuchGroup.getId());
+        assertEquals(3L, clientNoSuchGroup.getCurrentGroupId());
     }
 
 
@@ -97,8 +97,8 @@ public class ExceptionTest extends BasicTest {
     public void testConnectionErrorNotInGroup() throws Exception {
         Client clientWrongGroup = new Client();
         clientWrongGroup.connect("omero", 4064, "testUser", "password", 0L);
-        assertEquals(2L, clientWrongGroup.getId().longValue());
-        assertEquals(3L, clientWrongGroup.getGroupId().longValue());
+        assertEquals(2L, clientWrongGroup.getId());
+        assertEquals(3L, clientWrongGroup.getCurrentGroupId());
     }
 
 
@@ -122,7 +122,7 @@ public class ExceptionTest extends BasicTest {
         boolean exception = false;
         Client  client    = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
+        assertEquals(2L, client.getId());
 
         try {
             client.getImage(200L);
@@ -139,7 +139,7 @@ public class ExceptionTest extends BasicTest {
         boolean exception = false;
         Client  client    = new Client();
         client.connect("omero", 4064, "testUser", "password", 3L);
-        assertEquals(2L, client.getId().longValue());
+        assertEquals(2L, client.getId());
 
         try {
             client.getImage(-5L);

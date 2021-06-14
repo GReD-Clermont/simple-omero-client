@@ -21,6 +21,7 @@ import fr.igred.omero.repository.ImageWrapper;
 import ij.gui.*;
 import org.junit.Test;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -237,6 +238,9 @@ public class ROITest extends UserTest {
 
     @Test
     public void testROItoImageJ() {
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(Math.PI/4);
+
         PointWrapper point = new PointWrapper(1, 1);
         point.setCZT(0, 0, 0);
 
@@ -246,6 +250,10 @@ public class ROITest extends UserTest {
         RectangleWrapper rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
+        RectangleWrapper rectangle2 = new RectangleWrapper(3, 3, 10, 10);
+        rectangle.setCZT(0, 0, 2);
+        rectangle.setTransform(transform);
+
         MaskWrapper mask = new MaskWrapper();
         mask.setCoordinates(4, 4, 11, 11);
         mask.setCZT(1, 0, 0);
@@ -253,8 +261,16 @@ public class ROITest extends UserTest {
         EllipseWrapper ellipse = new EllipseWrapper(5, 5, 4, 4);
         ellipse.setCZT(1, 0, 1);
 
+        EllipseWrapper ellipse2 = new EllipseWrapper(5, 5, 4, 4);
+        ellipse.setCZT(1, 0, 1);
+        ellipse.setTransform(transform);
+
         LineWrapper line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 2);
+
+        LineWrapper line2 = new LineWrapper(0, 0, 10, 10);
+        line.setCZT(1, 0, 2);
+        line.setTransform(transform);
 
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
@@ -275,15 +291,18 @@ public class ROITest extends UserTest {
         roiWrapper.addShape(point);
         roiWrapper.addShape(text);
         roiWrapper.addShape(rectangle);
+        roiWrapper.addShape(rectangle2);
         roiWrapper.addShape(mask);
         roiWrapper.addShape(ellipse);
+        roiWrapper.addShape(ellipse2);
         roiWrapper.addShape(line);
+        roiWrapper.addShape(line2);
         roiWrapper.addShape(polyline);
         roiWrapper.addShape(polygon);
 
         List<Roi> ijRois = roiWrapper.toImageJ();
 
-        assertEquals(8, ijRois.size());
+        assertEquals(11, ijRois.size());
     }
 
 

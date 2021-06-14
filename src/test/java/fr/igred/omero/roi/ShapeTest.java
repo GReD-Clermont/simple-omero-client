@@ -19,7 +19,6 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.BasicTest;
-import ij.gui.*;
 import omero.gateway.model.*;
 import org.junit.Test;
 
@@ -632,10 +631,10 @@ public class ShapeTest extends BasicTest {
     @Test
     public void testBoundingBox() {
         RectangleWrapper shape = new RectangleWrapper(1, 2, 3, 4);
-        RectangleWrapper box = new RectangleWrapper(-6, 1, 4, 3);
+        RectangleWrapper box   = new RectangleWrapper(-6, 1, 4, 3);
 
         AffineTransform transform = new AffineTransform();
-        transform.rotate(Math.PI/2);
+        transform.rotate(Math.PI / 2);
         double[] a = new double[6];
         transform.getMatrix(a);
         shape.setTransform(a[0], a[1], a[2], a[3], a[4], a[5]);
@@ -651,8 +650,8 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testBoundingBox2() {
-        EllipseWrapper shape = new EllipseWrapper(50, 50, 20, 40);
-        RectangleWrapper box = new RectangleWrapper(30, 10, 40, 80);
+        EllipseWrapper   shape = new EllipseWrapper(50, 50, 20, 40);
+        RectangleWrapper box   = new RectangleWrapper(30, 10, 40, 80);
 
         double[] coordinates1 = box.getCoordinates();
         double[] coordinates2 = shape.getBoundingBox().getCoordinates();

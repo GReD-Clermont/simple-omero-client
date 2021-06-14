@@ -18,6 +18,7 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.EllipseRoi;
 import ij.gui.OvalRoi;
 import ij.gui.Roi;
 import omero.gateway.model.EllipseData;
@@ -226,7 +227,7 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      */
     @Override
     public Roi toImageJ() {
-        java.awt.Shape awtShape = toAWTShape();
+        java.awt.Shape awtShape = createTransformedAWTShape();
         if (awtShape instanceof Ellipse2D) {
             double x = ((Ellipse2D) awtShape).getX();
             double y = ((Ellipse2D) awtShape).getY();
@@ -234,7 +235,39 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
             double h = ((Ellipse2D) awtShape).getHeight();
             return new OvalRoi(x, y, w, h);
         } else {
-            return super.toImageJ();
+            java.awt.geom.Rectangle2D shape1;
+            java.awt.geom.Rectangle2D shape2;
+
+            double x  = getX();
+            double y  = getY();
+            double rx = getRadiusX();
+            double ry = getRadiusY();
+            double ratio;
+
+            if (ry <= rx) {
+                PointWrapper p1 = new PointWrapper(x - rx, y);
+                PointWrapper p2 = new PointWrapper(x + rx, y);
+                p1.setTransform(toAWTTransform());
+                p2.setTransform(toAWTTransform());
+                shape1 = p1.createTransformedAWTShape().getBounds2D();
+                shape2 = p2.createTransformedAWTShape().getBounds2D();
+                ratio = ry / rx;
+            } else {
+                PointWrapper p1 = new PointWrapper(x, y - rx);
+                PointWrapper p2 = new PointWrapper(x, y + ry);
+                p1.setTransform(toAWTTransform());
+                p2.setTransform(toAWTTransform());
+                shape1 = p1.createTransformedAWTShape().getBounds2D();
+                shape2 = p2.createTransformedAWTShape().getBounds2D();
+                ratio = rx / ry;
+            }
+
+            double x1 = shape1.getX();
+            double y1 = shape1.getY();
+            double x2 = shape2.getX();
+            double y2 = shape2.getY();
+
+            return new EllipseRoi(x1, y1, x2, y2, ratio);
         }
     }
 

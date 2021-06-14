@@ -37,8 +37,8 @@ public abstract class RootTest extends BasicTest {
         client = new Client();
         try {
             client.connect("omero", 4064, "root", "omero", 3L);
-            assertEquals("Wrong user", 0L, client.getId().longValue());
-            assertEquals("Wrong group", 3L, client.getGroupId().longValue());
+            assertEquals("Wrong user", 0L, client.getId());
+            assertEquals("Wrong group", 3L, client.getCurrentGroupId());
         } catch (Exception e) {
             failed = true;
             logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
