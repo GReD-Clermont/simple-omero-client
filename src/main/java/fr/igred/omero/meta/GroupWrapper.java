@@ -2,10 +2,12 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.meta.ExperimenterWrapper.SortByLastName;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -86,6 +88,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
         for (ExperimenterData leader : leaders) {
             wrappers.add(new ExperimenterWrapper(leader));
         }
+        wrappers.sort(new SortByLastName<>());
         return wrappers;
     }
 
@@ -102,6 +105,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
         for (ExperimenterData experimenter : experimenters) {
             wrappers.add(new ExperimenterWrapper(experimenter));
         }
+        wrappers.sort(new SortByLastName<>());
         return wrappers;
     }
 
@@ -118,7 +122,30 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
         for (ExperimenterData member : members) {
             wrappers.add(new ExperimenterWrapper(member));
         }
+        wrappers.sort(new SortByLastName<>());
         return wrappers;
+    }
+
+
+    /**
+     * Class used to sort GroupWrappers.
+     */
+    public static class SortByName<U extends GroupWrapper> implements Comparator<U> {
+
+        /**
+         * Compare 2 GroupWrappers. Compare the names of the GroupWrappers.
+         *
+         * @param object1 First object to compare.
+         * @param object2 Second object to compare.
+         *
+         * @return <ul><li>-1 if the name of object1 is lower than the id object2.</li>
+         * <li>0  if the names are the same.</li>
+         * <li>1 if the name of object1 is greater than the id of object2.</li></ul>
+         */
+        public int compare(U object1, U object2) {
+            return object1.getName().compareTo(object2.getName());
+        }
+
     }
 
 }

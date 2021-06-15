@@ -2,10 +2,12 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.meta.GroupWrapper.SortByName;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -131,6 +133,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
         for (GroupData group : groups) {
             groupWrappers.add(new GroupWrapper(group));
         }
+        groupWrappers.sort(new SortByName<>());
         return groupWrappers;
     }
 
@@ -195,6 +198,28 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      */
     public boolean isLDAP() {
         return data.isLDAP();
+    }
+
+
+    /**
+     * Class used to sort ExperimenterWrappers.
+     */
+    public static class SortByLastName<U extends ExperimenterWrapper> implements Comparator<U> {
+
+        /**
+         * Compare 2 ExperimenterWrappers. Compare the last names of the ExperimenterWrappers.
+         *
+         * @param object1 First object to compare.
+         * @param object2 Second object to compare.
+         *
+         * @return <ul><li>-1 if the last name of object1 is lower than the id object2.</li>
+         * <li>0  if the last names are the same.</li>
+         * <li>1 if the last name of object1 is greater than the id of object2.</li></ul>
+         */
+        public int compare(U object1, U object2) {
+            return object1.getLastName().compareTo(object2.getLastName());
+        }
+
     }
 
 }

@@ -74,12 +74,10 @@ jobs:
       - name: Upload to codecov after successful tests
         if: ${{ success() }}
         run: bash <(curl -s https://codecov.io/bash)
-      - name: Build package with Maven
-        run: mvn -DskipTests -B package --file pom.xml
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
+          name: jars
           path: |
             target/*.jar
             !target/*-with-dependencies.jar

@@ -152,7 +152,10 @@ public class ROI2ImageJTest extends BasicTest {
         roiWrapper.addShape(polyline);
         roiWrapper.addShape(polygon);
 
-        List<Roi> ijRois = roiWrapper.toImageJ();
+        List<ROIWrapper> rois = new ArrayList<>();
+        rois.add(roiWrapper);
+
+        List<Roi> ijRois = ROIWrapper.toImageJ(rois);
 
         assertEquals(12, ijRois.size());
     }
