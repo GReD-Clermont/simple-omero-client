@@ -139,8 +139,8 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      * @param y y-coordinate of the TextData shape.
      */
     public void setCoordinates(double x, double y) {
-        setX(x);
-        setY(y);
+        data.setX(x);
+        data.setY(y);
     }
 
 
@@ -166,7 +166,8 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("TextData cannot set null coordinates.");
         } else if (coordinates.length == 2) {
-            setCoordinates(coordinates[0], coordinates[1]);
+            data.setX(coordinates[0]);
+            data.setY(coordinates[1]);
         } else {
             throw new IllegalArgumentException("2 coordinates required for TextData.");
         }

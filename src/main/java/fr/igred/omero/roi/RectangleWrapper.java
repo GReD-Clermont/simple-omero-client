@@ -181,10 +181,10 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
      * @param height The height of the rectangle.
      */
     public void setCoordinates(double x, double y, double width, double height) {
-        setX(x);
-        setY(y);
-        setWidth(width);
-        setHeight(height);
+        data.setX(x);
+        data.setY(y);
+        data.setWidth(width);
+        data.setHeight(height);
     }
 
 
@@ -212,7 +212,10 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("RectangleData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            data.setX(coordinates[0]);
+            data.setY(coordinates[1]);
+            data.setWidth(coordinates[2]);
+            data.setHeight(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for RectangleData.");
         }

@@ -182,10 +182,10 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      * @param radiusY The radius along the Y-axis.
      */
     public void setCoordinates(double x, double y, double radiusX, double radiusY) {
-        setX(x);
-        setY(y);
-        setRadiusX(radiusX);
-        setRadiusY(radiusY);
+        data.setX(x);
+        data.setY(y);
+        data.setRadiusX(radiusX);
+        data.setRadiusY(radiusY);
     }
 
 
@@ -213,7 +213,10 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("EllipseData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            data.setX(coordinates[0]);
+            data.setY(coordinates[1]);
+            data.setRadiusX(coordinates[2]);
+            data.setRadiusY(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for EllipseData.");
         }

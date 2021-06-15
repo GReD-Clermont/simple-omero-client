@@ -138,8 +138,8 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
      * @param y y-coordinate of the PointData shape.
      */
     public void setCoordinates(double x, double y) {
-        setX(x);
-        setY(y);
+        data.setX(x);
+        data.setY(y);
     }
 
 
@@ -165,7 +165,8 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("PointData cannot set null coordinates.");
         } else if (coordinates.length == 2) {
-            setCoordinates(coordinates[0], coordinates[1]);
+            data.setX(coordinates[0]);
+            data.setY(coordinates[1]);
         } else {
             throw new IllegalArgumentException("2 coordinates required for PointData.");
         }

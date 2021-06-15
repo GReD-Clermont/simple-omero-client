@@ -183,10 +183,10 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
      * @param y2 y-coordinate of the end point of an untransformed line.
      */
     public void setCoordinates(double x1, double y1, double x2, double y2) {
-        setX1(x1);
-        setY1(y1);
-        setX2(x2);
-        setY2(y2);
+        data.setX1(x1);
+        data.setY1(y1);
+        data.setX2(x2);
+        data.setY2(y2);
     }
 
 
@@ -214,7 +214,10 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("LineData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            data.setX1(coordinates[0]);
+            data.setY1(coordinates[1]);
+            data.setX2(coordinates[2]);
+            data.setY2(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for LineData.");
         }
