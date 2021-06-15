@@ -302,9 +302,9 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
             roi = new ij.gui.RotatedRectRoi(x1, y1, x2, y2, getWidth());
         }
         roi.setStrokeColor(getStroke());
-        int c = getC() >= 0 ? getC() + 1 : getC();
-        int z = getZ() >= 0 ? getZ() + 1 : getZ();
-        int t = getT() >= 0 ? getT() + 1 : getT();
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
         roi.setPosition(c, z, t);
         return roi;
     }

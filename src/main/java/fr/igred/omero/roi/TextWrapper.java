@@ -189,10 +189,9 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
 
         TextRoi roi = new TextRoi(x, y, text);
         roi.setStrokeColor(getStroke());
-
-        int c = getC() >= 0 ? getC() + 1 : getC();
-        int z = getZ() >= 0 ? getZ() + 1 : getZ();
-        int t = getT() >= 0 ? getT() + 1 : getT();
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
         roi.setPosition(c, z, t);
 
         return roi;

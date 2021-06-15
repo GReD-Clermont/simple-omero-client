@@ -123,7 +123,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Class used to sort TagAnnotationWrappers
+     * Class used to sort wrappers.
      */
     public static class SortById<U extends GenericObjectWrapper<?>> implements Comparator<U> {
 

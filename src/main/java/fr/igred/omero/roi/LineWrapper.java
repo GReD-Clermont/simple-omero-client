@@ -29,6 +29,8 @@ import java.awt.geom.Line2D;
 
 public class LineWrapper extends GenericShapeWrapper<LineData> {
 
+    public static final String ARROW = "Arrow";
+
 
     /**
      * Constructor of the LineWrapper class using a LineData.
@@ -231,8 +233,6 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
      */
     @Override
     public Roi toImageJ() {
-        final String ARROW = "Arrow";
-
         PointWrapper    p1        = new PointWrapper(getX1(), getY1());
         PointWrapper    p2        = new PointWrapper(getX2(), getY2());
         AffineTransform transform = toAWTTransform();
@@ -264,9 +264,9 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
             roi = new Line(x1, y1, x2, y2);
         }
         roi.setStrokeColor(getStroke());
-        int c = getC() >= 0 ? getC() + 1 : getC();
-        int z = getZ() >= 0 ? getZ() + 1 : getZ();
-        int t = getT() >= 0 ? getT() + 1 : getT();
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
         roi.setPosition(c, z, t);
         return roi;
     }
