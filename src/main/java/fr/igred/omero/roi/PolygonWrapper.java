@@ -20,6 +20,8 @@ package fr.igred.omero.roi;
 
 import omero.gateway.model.PolygonData;
 
+import java.awt.Shape;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -52,6 +54,49 @@ public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
      */
     public PolygonWrapper(List<Point2D.Double> points) {
         this(new PolygonData(points));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        Path2D polygon = new Path2D.Double();
+
+        List<Point2D.Double> points = getPoints();
+        if (!points.isEmpty()) {
+            polygon.moveTo(points.get(0).x, points.get(0).y);
+            for (int i = 1; i < points.size(); i++) {
+                polygon.lineTo(points.get(i).x, points.get(i).y);
+            }
+            polygon.closePath();
+        }
+        return polygon;
     }
 
 

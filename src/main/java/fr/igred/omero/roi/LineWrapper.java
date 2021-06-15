@@ -18,10 +18,18 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.Arrow;
+import ij.gui.Line;
+import ij.gui.Roi;
 import omero.gateway.model.LineData;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 
 
 public class LineWrapper extends GenericShapeWrapper<LineData> {
+
+    public static final String ARROW = "Arrow";
 
 
     /**
@@ -52,6 +60,39 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
      */
     public LineWrapper(double x1, double y1, double x2, double y2) {
         this(new LineData(x1, y1, x2, y2));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        return new Line2D.Double(getX1(), getY1(), getX2(), getY2());
     }
 
 
@@ -175,10 +216,59 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("LineData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            data.setX1(coordinates[0]);
+            data.setY1(coordinates[1]);
+            data.setX2(coordinates[2]);
+            data.setY2(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for LineData.");
         }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public Roi toImageJ() {
+        PointWrapper    p1        = new PointWrapper(getX1(), getY1());
+        PointWrapper    p2        = new PointWrapper(getX2(), getY2());
+        AffineTransform transform = toAWTTransform();
+        if (transform != null) {
+            p1.setTransform(toAWTTransform());
+            p2.setTransform(toAWTTransform());
+        }
+
+        java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+        java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+
+        String start = asShapeData().getShapeSettings().getMarkerStart();
+        String end   = asShapeData().getShapeSettings().getMarkerEnd();
+
+        double x1 = shape1.getX();
+        double x2 = shape2.getX();
+        double y1 = shape1.getY();
+        double y2 = shape2.getY();
+
+        Roi roi;
+        if (start.equals(ARROW) && end.equals(ARROW)) {
+            roi = new Arrow(x1, y1, x2, y2);
+            ((Arrow) roi).setDoubleHeaded(true);
+        } else if (!start.equals(ARROW) && end.equals(ARROW)) {
+            roi = new Arrow(x1, y1, x2, y2);
+        } else if (start.equals(ARROW)) {
+            roi = new Arrow(x2, y2, x1, y1);
+        } else {
+            roi = new Line(x1, y1, x2, y2);
+        }
+        roi.setStrokeColor(getStroke());
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
+        roi.setPosition(c, z, t);
+        return roi;
     }
 
 }

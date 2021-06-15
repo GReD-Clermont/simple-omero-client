@@ -34,10 +34,10 @@ public class ClientTest extends UserTest {
     @Test
     public void testProjectBasic() throws Exception {
         ProjectWrapper project = client.getProject(2L);
-        assertEquals(2L, project.getId().longValue());
+        assertEquals(2L, project.getId());
         assertEquals("TestProject", project.getName());
         assertEquals("description", project.getDescription());
-        assertEquals(2L, project.getOwnerId().longValue());
+        assertEquals(2L, project.getOwner().getId());
         assertEquals(3L, project.getGroupId().longValue());
     }
 
@@ -179,6 +179,14 @@ public class ClientTest extends UserTest {
         }
 
         assertEquals(1, imagesCond.size());
+    }
+
+
+    @Test
+    public void testSwitchGroup() {
+        client.switchGroup(4L);
+        long groupId = client.getCurrentGroupId();
+        assertEquals(4L, groupId);
     }
 
 }

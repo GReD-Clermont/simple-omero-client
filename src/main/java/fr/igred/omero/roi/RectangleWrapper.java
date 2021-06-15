@@ -18,7 +18,11 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.Roi;
 import omero.gateway.model.RectangleData;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 
 public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
@@ -52,6 +56,39 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
      */
     public RectangleWrapper(double x, double y, double width, double height) {
         this(new RectangleData(x, y, width, height));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
     }
 
 
@@ -175,10 +212,50 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("RectangleData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            data.setX(coordinates[0]);
+            data.setY(coordinates[1]);
+            data.setWidth(coordinates[2]);
+            data.setHeight(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for RectangleData.");
         }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public Roi toImageJ() {
+        AffineTransform transform = toAWTTransform();
+
+        Roi roi;
+        if (transform == null) {
+            roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
+        } else {
+            PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            p1.setTransform(transform);
+            p2.setTransform(transform);
+
+            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+
+            double x1 = shape1.getX();
+            double y1 = shape1.getY();
+            double x2 = shape2.getX();
+            double y2 = shape2.getY();
+
+            roi = new ij.gui.RotatedRectRoi(x1, y1, x2, y2, getWidth());
+        }
+        roi.setStrokeColor(getStroke());
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
+        roi.setPosition(c, z, t);
+        return roi;
     }
 
 }

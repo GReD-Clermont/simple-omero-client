@@ -24,11 +24,13 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.roi.ROIWrapper;
 import ome.formats.importer.ImportConfig;
 import omero.LockTimeout;
 import omero.ServerError;
@@ -37,27 +39,10 @@ import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.facility.AdminFacility;
-import omero.gateway.facility.BrowseFacility;
-import omero.gateway.facility.DataManagerFacility;
-import omero.gateway.facility.MetadataFacility;
-import omero.gateway.facility.ROIFacility;
-import omero.gateway.facility.TablesFacility;
-import omero.gateway.model.DatasetData;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.ProjectData;
-import omero.gateway.model.TagAnnotationData;
-import omero.gateway.model.ImageData;
+import omero.gateway.facility.*;
+import omero.gateway.model.*;
 import omero.log.SimpleLogger;
-import omero.model.DatasetI;
-import omero.model.FileAnnotationI;
-import omero.model.IObject;
-import omero.model.ImageI;
-import omero.model.NamedValue;
-import omero.model.ProjectI;
-import omero.model.RoiI;
-import omero.model.TagAnnotation;
-import omero.model.TagAnnotationI;
+import omero.model.*;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -73,13 +58,15 @@ import static fr.igred.omero.exception.ExceptionHandler.*;
 public class Client {
 
     /** User */
-    private ExperimenterData user;
+    private ExperimenterWrapper user;
+
     /** Gateway linking the code to OMERO, only linked to one group. */
-    private Gateway          gateway;
+    private Gateway gateway;
+
     /** Security context of the user, contains the permissions of the user in this group. */
-    private SecurityContext  ctx;
-    private BrowseFacility   browse;
-    private ImportConfig     config;
+    private SecurityContext ctx;
+    private BrowseFacility  browse;
+    private ImportConfig    config;
 
 
     /**
@@ -87,6 +74,16 @@ public class Client {
      */
     public Client() {
         gateway = new Gateway(new SimpleLogger());
+    }
+
+
+    /**
+     * Returns the current user.
+     *
+     * @return The current user.
+     */
+    public ExperimenterWrapper getUser() {
+        return user;
     }
 
 
@@ -111,7 +108,7 @@ public class Client {
 
 
     /**
-     * Gets the DataManagerFacility to handle/write data on OMERO.
+     * Gets the DataManagerFacility to handle/write data on OMERO. A
      *
      * @return the {@link DataManagerFacility} linked to the gateway.
      *
@@ -205,15 +202,20 @@ public class Client {
     /**
      * Gets the user id.
      *
-     * @return id.
+     * @return The user ID.
      */
-    public Long getId() {
+    public long getId() {
         return user.getId();
     }
 
 
-    public Long getGroupId() {
-        return user.getGroupId();
+    /**
+     * Gets the current group ID.
+     *
+     * @return The group ID.
+     */
+    public long getCurrentGroupId() {
+        return ctx.getGroupID();
     }
 
 
@@ -325,12 +327,13 @@ public class Client {
      */
     public void connect(LoginCredentials cred) throws ServiceException, ExecutionException {
         try {
-            this.user = gateway.connect(cred);
+            this.user = new ExperimenterWrapper(gateway.connect(cred));
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
 
         this.ctx = new SecurityContext(user.getGroupId());
+        this.ctx.setExperimenter(this.user.asExperimenterData());
         this.browse = gateway.getFacility(BrowseFacility.class);
     }
 
@@ -377,18 +380,19 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public Collection<ProjectWrapper> getProjects() throws ServiceException, AccessException {
-        Collection<ProjectWrapper> projectWrappers = new ArrayList<>();
-        Collection<ProjectData>    projects        = new ArrayList<>();
+    public List<ProjectWrapper> getProjects() throws ServiceException, AccessException {
+        Collection<ProjectData> projects = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects");
         }
 
+        List<ProjectWrapper> projectWrappers = new ArrayList<>(projects.size());
         for (ProjectData project : projects) {
             projectWrappers.add(new ProjectWrapper(project));
         }
+        projectWrappers.sort(new SortById<>());
         return projectWrappers;
     }
 
@@ -403,19 +407,19 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public Collection<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException {
-        Collection<ProjectWrapper> projectWrappers = new ArrayList<>();
-        Collection<ProjectData>    projects        = new ArrayList<>();
+    public List<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException {
+        Collection<ProjectData> projects = new ArrayList<>();
         try {
             projects = browse.getProjects(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects with name: " + name);
         }
 
+        List<ProjectWrapper> projectWrappers = new ArrayList<>(projects.size());
         for (ProjectData project : projects) {
             projectWrappers.add(new ProjectWrapper(project));
         }
-
+        projectWrappers.sort(new SortById<>());
         return projectWrappers;
     }
 
@@ -459,10 +463,11 @@ public class Client {
     throws ServiceException, AccessException, OMEROServerError {
         List<IObject> os = findByQuery("select d from Dataset d");
 
-        List<DatasetWrapper> datasets = new ArrayList<>();
+        List<DatasetWrapper> datasets = new ArrayList<>(os.size());
         for (IObject o : os) {
             datasets.add(getDataset(o.getId().getValue()));
         }
+        datasets.sort(new SortById<>());
         return datasets;
     }
 
@@ -477,19 +482,19 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public Collection<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException {
-        Collection<DatasetWrapper> datasetWrappers = new ArrayList<>();
-        Collection<DatasetData>    datasets        = new ArrayList<>();
+    public List<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException {
+        Collection<DatasetData> datasets = new ArrayList<>();
         try {
             datasets = browse.getDatasets(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get datasets with name: " + name);
         }
 
+        List<DatasetWrapper> datasetWrappers = new ArrayList<>(datasets.size());
         for (DatasetData dataset : datasets) {
             datasetWrappers.add(new DatasetWrapper(dataset));
         }
-
+        datasetWrappers.sort(new SortById<>());
         return datasetWrappers;
     }
 
@@ -502,7 +507,7 @@ public class Client {
      * @return ImageWrapper list sorted.
      */
     private List<ImageWrapper> toImageWrappers(Collection<ImageData> images) {
-        List<ImageWrapper> imageWrappers = new ArrayList<>();
+        List<ImageWrapper> imageWrappers = new ArrayList<>(images.size());
 
         for (ImageData image : images) {
             imageWrappers.add(new ImageWrapper(image));
@@ -571,14 +576,14 @@ public class Client {
      * @throws AccessException  Cannot access data.
      */
     public List<ImageWrapper> getImages(String name) throws ServiceException, AccessException {
-        List<ImageWrapper>    selected = new ArrayList<>();
-        Collection<ImageData> images   = new ArrayList<>();
+        Collection<ImageData> images = new ArrayList<>();
         try {
             images = browse.getImages(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images with name: " + name);
         }
 
+        List<ImageWrapper> selected = new ArrayList<>();
         for (ImageData image : images) {
             if (image.getName().equals(name)) {
                 selected.add(new ImageWrapper(image));
@@ -620,12 +625,12 @@ public class Client {
      */
     public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageWrapper> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
                                        "where link.child = " +
                                        tag.getId());
 
+        List<ImageWrapper> selected = new ArrayList<>(os.size());
         for (IObject o : os) {
             selected.add(getImage(o.getId().getValue()));
         }
@@ -647,12 +652,12 @@ public class Client {
      */
     public List<ImageWrapper> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, OMEROServerError {
-        List<ImageWrapper> selected = new ArrayList<>();
         List<IObject> os = findByQuery("select link.parent " +
                                        "from ImageAnnotationLink link " +
                                        "where link.child = " +
                                        tagId);
 
+        List<ImageWrapper> selected = new ArrayList<>(os.size());
         for (IObject o : os) {
             selected.add(getImage(o.getId().getValue()));
         }
@@ -736,15 +741,10 @@ public class Client {
     public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
         Client c = new Client();
 
-        ExperimenterData sudoUser = user;
-        try {
-            sudoUser = getAdminFacility().lookupExperimenter(ctx, username);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot switch to user: " + username);
-        }
+        ExperimenterWrapper sudoUser = getUser(username);
 
-        SecurityContext sudoCtx = new SecurityContext(sudoUser.getGroupId());
-        sudoCtx.setExperimenter(sudoUser);
+        SecurityContext sudoCtx = new SecurityContext(sudoUser.getDefaultGroup().getId());
+        sudoCtx.setExperimenter(sudoUser.asExperimenterData());
         sudoCtx.sudo();
 
         c.gateway = this.gateway;
@@ -757,6 +757,17 @@ public class Client {
 
 
     /**
+     * Change the current group used by the current user;
+     *
+     * @param groupId The group ID.
+     */
+    public void switchGroup(long groupId) {
+        ctx = new SecurityContext(groupId);
+        ctx.setExperimenter(getUser().asExperimenterData());
+    }
+
+
+    /**
      * Gets the list of TagAnnotationWrapper available to the user
      *
      * @return list of TagAnnotationWrapper.
@@ -765,16 +776,14 @@ public class Client {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<TagAnnotationWrapper> getTags() throws OMEROServerError, ServiceException {
-        List<TagAnnotationWrapper> tags = new ArrayList<>();
-
         List<IObject> os = new ArrayList<>();
-
         try {
             os = gateway.getQueryService(ctx).findAll(TagAnnotation.class.getSimpleName(), null);
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Cannot get tags");
         }
 
+        List<TagAnnotationWrapper> tags = new ArrayList<>(os.size());
         for (IObject o : os) {
             TagAnnotationData tag = new TagAnnotationData((TagAnnotation) o);
             tags.add(new TagAnnotationWrapper(tag));
@@ -931,10 +940,7 @@ public class Client {
                                                       IllegalArgumentException,
                                                       OMEROServerError,
                                                       InterruptedException {
-        if (project.getId() != null)
-            deleteProject(project.getId());
-        else
-            throw new IllegalArgumentException("Project id is null");
+        deleteProject(project.getId());
     }
 
 
@@ -975,10 +981,7 @@ public class Client {
                                                       IllegalArgumentException,
                                                       OMEROServerError,
                                                       InterruptedException {
-        if (dataset.getId() != null)
-            deleteDataset(dataset.getId());
-        else
-            throw new IllegalArgumentException("Dataset id is null");
+        deleteDataset(dataset.getId());
     }
 
 
@@ -1019,10 +1022,7 @@ public class Client {
                                                     IllegalArgumentException,
                                                     OMEROServerError,
                                                     InterruptedException {
-        if (tag.getId() != null)
-            deleteTag(tag.getId());
-        else
-            throw new IllegalArgumentException("Tag id is null");
+        deleteTag(tag.getId());
     }
 
 
@@ -1063,10 +1063,7 @@ public class Client {
                                           IllegalArgumentException,
                                           OMEROServerError,
                                           InterruptedException {
-        if (roi.getId() != null)
-            deleteROI(roi.getId());
-        else
-            throw new IllegalArgumentException("ROI id is null");
+        deleteROI(roi.getId());
     }
 
 
@@ -1145,6 +1142,60 @@ public class Client {
                                                    InterruptedException {
         folder.unlinkAllROI(this);
         delete(folder.asFolderData().asIObject());
+    }
+
+
+    /**
+     * Returns the user which matches the username.
+     *
+     * @param username The name of the user.
+     *
+     * @return The user matching the username, or null if it does not exist.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public ExperimenterWrapper getUser(String username)
+    throws ExecutionException, ServiceException, AccessException {
+        ExperimenterData experimenter = null;
+        try {
+            experimenter = getAdminFacility().lookupExperimenter(ctx, username);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot retrieve user: " + username);
+        }
+        if (experimenter != null) {
+            return new ExperimenterWrapper(experimenter);
+        } else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Returns the group which matches the name.
+     *
+     * @param groupName The name of the group.
+     *
+     * @return The group with the appropriate name, or null if it does not exist.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public GroupWrapper getGroup(String groupName)
+    throws ExecutionException, ServiceException, AccessException {
+        GroupData group = null;
+        try {
+            group = getAdminFacility().lookupGroup(ctx, groupName);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot retrieve group: " + groupName);
+        }
+        if (group != null) {
+            return new GroupWrapper(group);
+        } else {
+            return null;
+        }
     }
 
 }

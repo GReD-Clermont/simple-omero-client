@@ -31,7 +31,7 @@ public class TagTest extends UserTest {
     @Test
     public void testGetTagInfo() throws Exception {
         TagAnnotationWrapper tag = client.getTag(1L);
-        assertEquals(1L, tag.getId().longValue());
+        assertEquals(1L, tag.getId());
         assertEquals("tag1", tag.getName());
         assertEquals("description", tag.getDescription());
     }

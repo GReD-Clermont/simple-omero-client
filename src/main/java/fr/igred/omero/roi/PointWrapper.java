@@ -18,7 +18,10 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.PointRoi;
 import omero.gateway.model.PointData;
+
+import java.awt.geom.Path2D;
 
 
 public class PointWrapper extends GenericShapeWrapper<PointData> {
@@ -50,6 +53,41 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
      */
     public PointWrapper(double x, double y) {
         this(new PointData(x, y));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        Path2D point = new Path2D.Double();
+        point.moveTo(getX(), getY());
+        return point;
     }
 
 
@@ -127,10 +165,35 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("PointData cannot set null coordinates.");
         } else if (coordinates.length == 2) {
-            setCoordinates(coordinates[0], coordinates[1]);
+            data.setX(coordinates[0]);
+            data.setY(coordinates[1]);
         } else {
             throw new IllegalArgumentException("2 coordinates required for PointData.");
         }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public ij.gui.Roi toImageJ() {
+        java.awt.Shape awtShape = createTransformedAWTShape();
+
+        double x = awtShape.getBounds2D().getX();
+        double y = awtShape.getBounds2D().getY();
+
+        PointRoi roi = new PointRoi(x, y);
+
+        roi.setStrokeColor(getStroke());
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
+        roi.setPosition(c, z, t);
+
+        return roi;
     }
 
 }

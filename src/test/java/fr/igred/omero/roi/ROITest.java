@@ -18,8 +18,11 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.ImageWrapper;
+import ij.gui.*;
 import org.junit.Test;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -174,7 +177,7 @@ public class ROITest extends UserTest {
         LineWrapper line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 2);
 
-        List<Point2D.Double> points2D = new ArrayList<>();
+        List<Point2D.Double> points2D = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);

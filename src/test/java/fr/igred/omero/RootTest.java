@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 
 
 @Ignore
-public abstract class UserTest extends BasicTest {
+public abstract class RootTest extends BasicTest {
 
     protected Client client;
 
@@ -36,8 +36,8 @@ public abstract class UserTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password", 3L);
-            assertEquals("Wrong user", 2L, client.getId());
+            client.connect("omero", 4064, "root", "omero", 3L);
+            assertEquals("Wrong user", 0L, client.getId());
             assertEquals("Wrong group", 3L, client.getCurrentGroupId());
         } catch (Exception e) {
             failed = true;

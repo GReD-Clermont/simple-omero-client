@@ -18,7 +18,12 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.EllipseRoi;
+import ij.gui.OvalRoi;
+import ij.gui.Roi;
 import omero.gateway.model.EllipseData;
+
+import java.awt.geom.Ellipse2D;
 
 
 public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
@@ -52,6 +57,39 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      */
     public EllipseWrapper(double x, double y, double radiusX, double radiusY) {
         this(new EllipseData(x, y, radiusX, radiusY));
+    }
+
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        return data.getText();
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        data.setText(text);
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        return new Ellipse2D.Double(getX() - getRadiusX(), getY() - getRadiusY(), 2 * getRadiusX(), 2 * getRadiusY());
     }
 
 
@@ -175,10 +213,73 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
         if (coordinates == null) {
             throw new IllegalArgumentException("EllipseData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            setCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            data.setX(coordinates[0]);
+            data.setY(coordinates[1]);
+            data.setRadiusX(coordinates[2]);
+            data.setRadiusY(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for EllipseData.");
         }
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    @Override
+    public Roi toImageJ() {
+        java.awt.Shape awtShape = createTransformedAWTShape();
+
+        Roi roi;
+        if (awtShape instanceof Ellipse2D) {
+            double x = ((Ellipse2D) awtShape).getX();
+            double y = ((Ellipse2D) awtShape).getY();
+            double w = ((Ellipse2D) awtShape).getWidth();
+            double h = ((Ellipse2D) awtShape).getHeight();
+            roi = new OvalRoi(x, y, w, h);
+        } else {
+            java.awt.geom.Rectangle2D shape1;
+            java.awt.geom.Rectangle2D shape2;
+
+            double x  = getX();
+            double y  = getY();
+            double rx = getRadiusX();
+            double ry = getRadiusY();
+            double ratio;
+
+            if (ry <= rx) {
+                PointWrapper p1 = new PointWrapper(x - rx, y);
+                PointWrapper p2 = new PointWrapper(x + rx, y);
+                p1.setTransform(toAWTTransform());
+                p2.setTransform(toAWTTransform());
+                shape1 = p1.createTransformedAWTShape().getBounds2D();
+                shape2 = p2.createTransformedAWTShape().getBounds2D();
+                ratio = ry / rx;
+            } else {
+                PointWrapper p1 = new PointWrapper(x, y - rx);
+                PointWrapper p2 = new PointWrapper(x, y + ry);
+                p1.setTransform(toAWTTransform());
+                p2.setTransform(toAWTTransform());
+                shape1 = p1.createTransformedAWTShape().getBounds2D();
+                shape2 = p2.createTransformedAWTShape().getBounds2D();
+                ratio = rx / ry;
+            }
+
+            double x1 = shape1.getX();
+            double y1 = shape1.getY();
+            double x2 = shape2.getX();
+            double y2 = shape2.getY();
+
+            roi = new EllipseRoi(x1, y1, x2, y2, ratio);
+        }
+        roi.setStrokeColor(getStroke());
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
+        roi.setPosition(c, z, t);
+        return roi;
     }
 
 }

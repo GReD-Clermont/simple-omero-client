@@ -32,4 +32,40 @@ public class ShapeWrapper extends GenericShapeWrapper<ShapeData> {
         super(shape);
     }
 
+
+    /**
+     * Gets the text on the ShapeData.
+     *
+     * @return the text
+     */
+    @Override
+    public String getText() {
+        // RETURN EMPTY STRING FOR UNKNOWN SHAPE
+        return "";
+    }
+
+
+    /**
+     * Sets the text on the ShapeData.
+     *
+     * @param text the text
+     */
+    @Override
+    public void setText(String text) {
+        // DO NOTHING ON UNKNOWN SHAPE
+    }
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    @Override
+    public java.awt.Shape toAWTShape() {
+        // RETURN NULL FOR UNKNOWN SHAPE
+        return null;
+    }
+
+
 }

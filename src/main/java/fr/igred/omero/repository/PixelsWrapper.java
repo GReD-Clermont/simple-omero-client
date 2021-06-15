@@ -245,9 +245,10 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     double[][] getTile(Client client, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
-        boolean    createdRawDataFacility = createRawDataFacility(client);
-        Plane2D    p;
-        double[][] tile                   = new double[height][width];
+        boolean createdRawDataFacility = createRawDataFacility(client);
+        Plane2D p;
+
+        double[][] tile = new double[height][width];
         for (int relX = 0, x = start.x; relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
@@ -327,7 +328,8 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
                                      int bpp)
     throws ExecutionException, AccessException {
         boolean createdRawDataFacility = createRawDataFacility(client);
-        Bounds  lim                    = getBounds(xBound, yBound, cBound, zBound, tBound);
+
+        Bounds lim = getBounds(xBound, yBound, cBound, zBound, tBound);
 
         byte[][][][] bytes = new byte[lim.size.t][lim.size.z][lim.size.c][];
 
@@ -364,7 +366,8 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     throws AccessException, ExecutionException {
         boolean createdRawDataFacility = createRawDataFacility(client);
         Plane2D p;
-        byte[]  tile                   = new byte[height * width * bpp];
+
+        byte[] tile = new byte[height * width * bpp];
         for (int relX = 0, x = start.x; relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.y; relY < height; relY += MAX_DIST, y += MAX_DIST) {
@@ -456,7 +459,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /** Class containing 5D pixel coordinates */
-    static class Coordinates {
+    public static class Coordinates {
 
         /** X coordinate */
         private final int x;
@@ -479,7 +482,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
          * @param z Z coordinate.
          * @param t T coordinate.
          */
-        Coordinates(int x, int y, int c, int z, int t) {
+        public Coordinates(int x, int y, int c, int z, int t) {
             this.x = x;
             this.y = y;
             this.c = c;
@@ -541,7 +544,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /** Class containing 5D bounds coordinates */
-    static class Bounds {
+    public static class Bounds {
 
         /** Start coordinates */
         private final Coordinates start;
@@ -555,7 +558,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
          * @param start Start coordinates.
          * @param end   End coordinates.
          */
-        Bounds(Coordinates start, Coordinates end) {
+        public Bounds(Coordinates start, Coordinates end) {
             this.start = start;
             this.size = new Coordinates(end.x - start.x + 1,
                                         end.y - start.y + 1,
@@ -572,6 +575,20 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
          */
         public Coordinates getStart() {
             return start;
+        }
+
+
+        /**
+         * Gets size of bounds for each coordinate.
+         *
+         * @return Bounds size.
+         */
+        public Coordinates getEnd() {
+            return new Coordinates(start.x + size.x - 1,
+                                   start.y + size.y - 1,
+                                   start.c + size.c - 1,
+                                   start.z + size.z - 1,
+                                   start.t + size.t - 1);
         }
 
 

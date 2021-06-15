@@ -17,9 +17,16 @@ omero login root@localhost -w omero
 
 # add the root user to a second group
 omero group add testGroup
+omero group add testGroup1
+omero group add testGroup2
+omero group add testGroup3
 omero group adduser --name testGroup --user-name root
 omero user add testUser firstname lastname testGroup -P password
 omero user add testUser2 firstname2 lastname2 testGroup -P password2
+omero user add testUser3 firstname3 lastname3 testGroup3 -P password3
+omero user add testUser4 firstname4 lastname4 testGroup3 -P password4
+omero group adduser --name testGroup1 testUser
+omero group adduser --name testGroup3 testUser4 --as-owner
 omero quit
 
 omero login testUser@localhost -w password -g testGroup

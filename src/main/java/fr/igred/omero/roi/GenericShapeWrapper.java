@@ -17,12 +17,16 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.GenericObjectWrapper;
+import ij.gui.Roi;
 import ome.model.units.BigResult;
-import omero.gateway.model.*;
+import omero.gateway.model.ShapeData;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -182,27 +186,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      *
      * @return the text
      */
-    public String getText() {
-        String text = null;
-        if (PointData.class.equals(data.getClass())) {
-            text = ((PointData) this.data).getText();
-        } else if (LineData.class.equals(data.getClass())) {
-            text = ((LineData) this.data).getText();
-        } else if (PolylineData.class.equals(data.getClass())) {
-            text = ((PolylineData) this.data).getText();
-        } else if (RectangleData.class.equals(data.getClass())) {
-            text = ((RectangleData) this.data).getText();
-        } else if (PolygonData.class.equals(data.getClass())) {
-            text = ((PolygonData) this.data).getText();
-        } else if (EllipseData.class.equals(data.getClass())) {
-            text = ((EllipseData) this.data).getText();
-        } else if (MaskData.class.equals(data.getClass())) {
-            text = ((MaskData) this.data).getText();
-        } else if (TextData.class.equals(data.getClass())) {
-            text = ((TextData) this.data).getText();
-        }
-        return text;
-    }
+    public abstract String getText();
 
 
     /**
@@ -210,24 +194,118 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      *
      * @param text the text
      */
-    public void setText(String text) {
-        if (PointData.class.equals(data.getClass())) {
-            ((PointData) this.data).setText(text);
-        } else if (LineData.class.equals(data.getClass())) {
-            ((LineData) this.data).setText(text);
-        } else if (PolylineData.class.equals(data.getClass())) {
-            ((PolylineData) this.data).setText(text);
-        } else if (RectangleData.class.equals(data.getClass())) {
-            ((RectangleData) this.data).setText(text);
-        } else if (PolygonData.class.equals(data.getClass())) {
-            ((PolygonData) this.data).setText(text);
-        } else if (EllipseData.class.equals(data.getClass())) {
-            ((EllipseData) this.data).setText(text);
-        } else if (MaskData.class.equals(data.getClass())) {
-            ((MaskData) this.data).setText(text);
-        } else if (TextData.class.equals(data.getClass())) {
-            ((TextData) this.data).setText(text);
+    public abstract void setText(String text);
+
+
+    /**
+     * Converts the shape to an {@link java.awt.Shape}.
+     *
+     * @return The converted AWT Shape.
+     */
+    public abstract java.awt.Shape toAWTShape();
+
+
+    /**
+     * Sets the transform to the matrix specified by the 6 double precision values.
+     *
+     * @param a00 the X coordinate scaling element of the 3x3 matrix
+     * @param a10 the Y coordinate shearing element of the 3x3 matrix
+     * @param a01 the X coordinate shearing element of the 3x3 matrix
+     * @param a11 the Y coordinate scaling element of the 3x3 matrix
+     * @param a02 the X coordinate translation element of the 3x3 matrix
+     * @param a12 the Y coordinate translation element of the 3x3 matrix
+     */
+    public void setTransform(double a00, double a10, double a01, double a11, double a02, double a12) {
+        AffineTransform transform = new AffineTransformI();
+        transform.setA00(omero.rtypes.rdouble(a00));
+        transform.setA10(omero.rtypes.rdouble(a10));
+        transform.setA01(omero.rtypes.rdouble(a01));
+        transform.setA11(omero.rtypes.rdouble(a11));
+        transform.setA02(omero.rtypes.rdouble(a02));
+        transform.setA12(omero.rtypes.rdouble(a12));
+        data.setTransform(transform);
+    }
+
+
+    /**
+     * Sets the transform from a {@link java.awt.geom.AffineTransform}.
+     *
+     * @param transform A Java AffineTransform.
+     */
+    public void setTransform(java.awt.geom.AffineTransform transform) {
+        double[] a = new double[6];
+        transform.getMatrix(a);
+        setTransform(a[0], a[1], a[2], a[3], a[4], a[5]);
+    }
+
+
+    /**
+     * Converts {@link omero.model.AffineTransform} to {@link java.awt.geom.AffineTransform}.
+     *
+     * @return The converted affine transform.
+     */
+    public java.awt.geom.AffineTransform toAWTTransform() {
+        if (data.getTransform() == null) return null;
+        else {
+            double a00 = data.getTransform().getA00().getValue();
+            double a10 = data.getTransform().getA10().getValue();
+            double a01 = data.getTransform().getA01().getValue();
+            double a11 = data.getTransform().getA11().getValue();
+            double a02 = data.getTransform().getA02().getValue();
+            double a12 = data.getTransform().getA12().getValue();
+            return new java.awt.geom.AffineTransform(a00, a10, a01, a11, a02, a12);
         }
+    }
+
+
+    /**
+     * Returns a new {@link java.awt.Shape} defined by the geometry of the specified Shape after it has been transformed
+     * by the transform.
+     *
+     * @return A new transformed {@link java.awt.Shape}.
+     */
+    public java.awt.Shape createTransformedAWTShape() {
+        if (toAWTTransform() == null) return toAWTShape();
+        else return toAWTTransform().createTransformedShape(toAWTShape());
+    }
+
+
+    /**
+     * Returns a new {@link RectangleWrapper} corresponding to the bounding box of the shape, once the related {@link
+     * AffineTransform} has been applied.
+     *
+     * @return The bounding box.
+     */
+    public RectangleWrapper getBoundingBox() {
+        Rectangle2D rectangle = createTransformedAWTShape().getBounds2D();
+
+        double x      = rectangle.getX();
+        double y      = rectangle.getY();
+        double width  = rectangle.getWidth();
+        double height = rectangle.getHeight();
+
+        RectangleWrapper boundingBox = new RectangleWrapper(x, y, width, height);
+        boundingBox.setCZT(getC(), getZ(), getT());
+        boundingBox.setText(getText() + " (Bounding Box)");
+        boundingBox.setStroke(getStroke());
+        boundingBox.setFontSize(getFontSize());
+        return boundingBox;
+    }
+
+
+    /**
+     * Converts shape to ImageJ ROI.
+     *
+     * @return An ImageJ ROI.
+     */
+    public Roi toImageJ() {
+        ij.gui.ShapeRoi roi = new ij.gui.ShapeRoi(createTransformedAWTShape());
+        roi.setStrokeColor(getStroke());
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
+        roi.setPosition(c, z, t);
+        return roi;
     }
 
 }

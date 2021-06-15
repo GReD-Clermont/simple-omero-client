@@ -28,10 +28,15 @@ import fr.igred.omero.exception.ServiceException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.*;
-import omero.model.*;
+import omero.model.NamedValue;
+import omero.model.TagAnnotationI;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
@@ -178,8 +183,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<TagAnnotationWrapper> tags = new ArrayList<>();
-
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
         types.add(TagAnnotationData.class);
 
@@ -190,6 +193,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             handleServiceOrAccess(e, "Cannot get tags for " + toString());
         }
 
+        List<TagAnnotationWrapper> tags = new ArrayList<>();
         if (annotations != null) {
             for (AnnotationData annotation : annotations) {
                 TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
@@ -377,8 +381,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<TableWrapper> tablesWrapper = new ArrayList<>();
-
         Collection<FileAnnotationData> tables = new ArrayList<>();
         try {
             tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
@@ -386,6 +388,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             handleServiceOrAccess(e, "Cannot get tables from " + toString());
         }
 
+        List<TableWrapper> tablesWrapper = new ArrayList<>(tables.size());
         for (FileAnnotationData table : tables) {
             TableWrapper tableWrapper = getTable(client, table.getFileID());
             tableWrapper.setId(table.getId());

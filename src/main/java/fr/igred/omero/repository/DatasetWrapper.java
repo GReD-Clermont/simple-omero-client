@@ -21,8 +21,8 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
@@ -43,7 +43,10 @@ import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.NamedValue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
@@ -115,11 +118,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @return ImageWrapper list sorted.
      */
     private List<ImageWrapper> toImageWrappers(Collection<ImageData> images) {
-        List<ImageWrapper> imageWrappers = new ArrayList<>();
+        List<ImageWrapper> imageWrappers = new ArrayList<>(images.size());
 
-        for (ImageData image : images)
+        for (ImageData image : images) {
             imageWrappers.add(new ImageWrapper(image));
-
+        }
         imageWrappers.sort(new SortById<>());
 
         return imageWrappers;
@@ -429,10 +432,10 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @param client The user.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    private void refresh(Client client) throws ServiceException, AccessException {
+    public void refresh(Client client) throws ServiceException, AccessException {
         try {
             data = client.getBrowseFacility()
                          .getDatasets(client.getCtx(), Collections.singletonList(this.getId()))
