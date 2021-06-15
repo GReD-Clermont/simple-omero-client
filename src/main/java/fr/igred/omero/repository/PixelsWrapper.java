@@ -146,7 +146,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Creates a {@link omero.gateway.facility.RawDataFacility} to retrieve the pixel values.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return <ul><li>True if a new RawDataFacility was created</li>
      * <li>False otherwise</li></ul>
@@ -175,7 +175,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the value for each voxels
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return Array containing the value for each voxels of the image.
      *
@@ -190,7 +190,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the value for each voxels corresponding to the bounds
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param xBound Array containing the X bound from which the pixels should be retrieved.
      * @param yBound Array containing the Y bound from which the pixels should be retrieved.
      * @param cBound Array containing the C bound from which the pixels should be retrieved.
@@ -233,7 +233,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Gets the tile at the specified position, with the defined width and height.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param start  Start position of the tile.
      * @param width  Width of the tile.
      * @param height Height of the tile.
@@ -290,7 +290,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the raw values for each voxels for each planes
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param bpp    Bytes per pixels of the image.
      *
      * @return a table of bytes containing the pixel values
@@ -306,7 +306,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the raw values for each voxels for each planes corresponding to the bounds
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param xBound Array containing the X bound from which the pixels should be retrieved.
      * @param yBound Array containing the Y bound from which the pixels should be retrieved.
      * @param cBound Array containing the C bound from which the pixels should be retrieved.
@@ -351,7 +351,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Gets the tile at the specified position, with the defined width and height.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param start  Start position of the tile.
      * @param width  Width of the tile.
      * @param height Height of the tile.

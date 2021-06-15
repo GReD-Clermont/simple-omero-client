@@ -132,7 +132,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Gets all images in the dataset available from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return ImageWrapper list.
      *
@@ -156,7 +156,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Gets all images in the dataset with a certain from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param name   Name searched.
      *
      * @return ImageWrapper list.
@@ -175,7 +175,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Gets all images in the dataset with a certain motif in their name from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param motif  Motif searched in an image name.
      *
      * @return ImageWrapper list.
@@ -195,7 +195,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param tag    TagAnnotationWrapper containing the tag researched.
      *
      * @return ImageWrapper list.
@@ -228,7 +228,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param tagId  Id of the tag researched.
      *
      * @return ImageWrapper list.
@@ -261,7 +261,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Gets all images in the dataset with a certain key
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param key    Name of the key researched.
      *
      * @return ImageWrapper list.
@@ -302,7 +302,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Gets all images in the dataset with a certain key value pair from OMERO
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param key    Name of the key researched.
      * @param value  Value associated with the key.
      *
@@ -344,7 +344,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Adds a list of image to the dataset in OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param images Image to add to the dataset.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -362,7 +362,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Adds a single image to the dataset in OMERO
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param image  Image to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -383,7 +383,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Imports all images candidates in the paths to the dataset in OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param paths  Paths to the image on your computer.
      *
      * @throws Exception        OMEROMetadataStoreClient creation failed.
@@ -430,7 +430,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Refreshes the wrapped project.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.

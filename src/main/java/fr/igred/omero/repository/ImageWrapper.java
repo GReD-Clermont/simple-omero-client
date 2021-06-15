@@ -35,6 +35,7 @@ import loci.common.DataTools;
 import loci.formats.FormatTools;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
+import omero.api.ThumbnailStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
@@ -47,7 +48,11 @@ import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
 
+import javax.imageio.ImageIO;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,6 +63,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
@@ -141,7 +147,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * Links a ROI to the image in OMERO
      * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param roi    ROI to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -166,7 +172,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets all ROIs linked to the image in OMERO
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return List of ROIs linked to the image.
      *
@@ -199,7 +205,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the list of Folder linked to the image Associate the folder to the image
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return List of FolderWrapper containing the folder.
      *
@@ -232,7 +238,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the folder with the specified id on OMERO.
      *
-     * @param client   The user.
+     * @param client   The client handling the connection.
      * @param folderId Id of the folder.
      *
      * @return The folder if it exist.
@@ -267,7 +273,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * Generates the ImagePlus from the ij library corresponding to the image from OMERO WARNING : you need to include
      * the ij library to use this function
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return ImagePlus generated from the current image.
      *
@@ -284,7 +290,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the imagePlus generated from the image from OMERO corresponding to the bound
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param xBound Array containing the X bound from which the pixels should be retrieved.
      * @param yBound Array containing the Y bound from which the pixels should be retrieved.
      * @param cBound Array containing the C bound from which the pixels should be retrieved.
@@ -399,7 +405,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the imagePlus from the image generated from the ROI.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param roi    The ROI.
      *
      * @return an ImagePlus from the ij library.
@@ -425,7 +431,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the image channels
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return the channels.
      *
@@ -453,7 +459,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the name of the channel
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param index  Channel number.
      *
      * @return name of the channel.
@@ -471,7 +477,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the original color of the channel
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param index  Channel number.
      *
      * @return Original color of the channel.
@@ -489,7 +495,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the current color of the channel
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param index  Channel number.
      *
      * @return Color of the channel.
@@ -518,6 +524,41 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                   .log(Level.WARNING, "Error while retrieving current color", e);
         }
         return color;
+    }
+
+
+    /**
+     * Retrieves the image thumbnail.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return The thumbnail as a {@link BufferedImage}.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     * @throws IOException      Cannot read thumbnail from store.
+     */
+    public BufferedImage getThumbnail(Client client) throws ServiceException, OMEROServerError, IOException {
+        BufferedImage thumbnail = null;
+
+        byte[] array = null;
+        try {
+            ThumbnailStorePrx store = client.getGateway().getThumbnailService(client.getCtx());
+            store.setPixelsId(getPixels().getId());
+            //retrieve a 96x96 thumbnail.
+            array = store.getThumbnail(omero.rtypes.rint(96),
+                                       omero.rtypes.rint(96));
+            store.close();
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Error retrieving thumbnail.");
+        }
+        if (array != null) {
+            try (ByteArrayInputStream stream = new ByteArrayInputStream(array)) {
+                //Create a buffered image to display
+                thumbnail = ImageIO.read(stream);
+            }
+        }
+        return thumbnail;
     }
 
 }

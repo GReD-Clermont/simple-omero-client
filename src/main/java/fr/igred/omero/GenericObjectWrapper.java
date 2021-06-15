@@ -106,7 +106,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     /**
      * Saves and updates object.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

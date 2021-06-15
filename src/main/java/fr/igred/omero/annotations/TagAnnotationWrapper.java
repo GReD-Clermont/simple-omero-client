@@ -47,7 +47,7 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
     /**
      * Constructor of the TagAnnotationWrapper class. Creates the tag and save it in OMERO.
      *
-     * @param client      The user.
+     * @param client      The client handling the connection.
      * @param name        Annotation name.
      * @param description Tag description.
      *

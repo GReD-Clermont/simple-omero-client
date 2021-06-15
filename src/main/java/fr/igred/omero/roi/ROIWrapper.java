@@ -90,7 +90,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROIWrapper> fromImageJ(List<ij.gui.Roi> ijRois, String property) {
-        if(property == null || property.equals("")) property = "ROI";
+        if (property == null || property.equals("")) property = "ROI";
 
         Map<Long, ROIWrapper> rois4D = new TreeMap<>();
 
@@ -119,7 +119,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Converts an OMERO list of ROIs to a list of ImageJ ROIs
      *
-     * @param rois   A list of OMERO ROIs.
+     * @param rois A list of OMERO ROIs.
      *
      * @return The converted list of ImageJ ROIs.
      */
@@ -232,7 +232,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Saves the ROI.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.

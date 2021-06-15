@@ -75,7 +75,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Constructor of the FolderWrapper class. Save the folder in OMERO
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param name   Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
@@ -138,7 +138,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Add an ROI to the folder and associate it to the image id set(an image need to be associated)
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param roi    ROI to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -162,7 +162,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Gets the ROI contained in the folder associated with the image id set (an image need to be associated)
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return List of ROIWrapper containing the ROI.
      *
@@ -199,7 +199,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Unlink all ROI, associated to the image set, in the folder. ROIs are now linked to the image directly
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -223,7 +223,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Unlink an ROI, associated to the image set, in the folder. the ROI is now linked to the image directly
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param roi    ROI to unlink.
      *
      * @throws ServiceException   Cannot connect to OMERO.

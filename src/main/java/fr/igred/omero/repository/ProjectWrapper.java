@@ -118,7 +118,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Add a dataset to the project in OMERO. Create the dataset.
      *
-     * @param client      The user.
+     * @param client      The client handling the connection.
      * @param name        Dataset name.
      * @param description Dataset description.
      *
@@ -140,7 +140,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Add a dataset to the project in OMERO.
      *
-     * @param client  The user.
+     * @param client  The client handling the connection.
      * @param dataset Dataset to be added.
      *
      * @return The object saved in OMERO.
@@ -158,7 +158,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Private function. Add a dataset to the project.
      *
-     * @param client      The user.
+     * @param client      The client handling the connection.
      * @param datasetData Dataset to be added.
      *
      * @return The object saved in OMERO.
@@ -199,7 +199,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Gets all images in the project available from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return ImageWrapper list.
      *
@@ -222,7 +222,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Gets all images in the project with a certain from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param name   Name searched.
      *
      * @return ImageWrapper list.
@@ -247,7 +247,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Gets all images in the project with a certain motif in their name from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param motif  Motif searched in an image name.
      *
      * @return ImageWrapper list.
@@ -270,7 +270,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param tag    TagAnnotationWrapper containing the tag researched.
      *
      * @return ImageWrapper list.
@@ -294,7 +294,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param tagId  Id of the tag researched.
      *
      * @return ImageWrapper list.
@@ -318,7 +318,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Gets all images in the project with a certain key
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param key    Name of the key researched.
      *
      * @return ImageWrapper list.
@@ -342,7 +342,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Gets all images in the project with a certain key value pair from OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param key    Name of the key researched.
      * @param value  Value associated with the key.
      *
@@ -367,7 +367,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Refreshes the wrapped project.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.

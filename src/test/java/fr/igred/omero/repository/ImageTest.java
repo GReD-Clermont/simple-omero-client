@@ -33,6 +33,7 @@ import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
 import org.junit.Test;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -653,5 +654,16 @@ public class ImageTest extends UserTest {
         assertEquals(imp1.getNSlices(), imp2.getNSlices());
         assertEquals(imp1.getNFrames(), imp2.getNFrames());
     }
+
+
+    @Test
+    public void testGetThumbnail() throws Exception {
+        ImageWrapper image = client.getImage(1L);
+        BufferedImage thumbnail = image.getThumbnail(client);
+        assertNotNull(thumbnail);
+        assertEquals(96, thumbnail.getWidth());
+        assertEquals(96, thumbnail.getHeight());
+    }
+
 
 }

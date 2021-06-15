@@ -63,7 +63,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Adds a newly created tag to the object in OMERO, if possible.
      *
-     * @param client      The user.
+     * @param client      The client handling the connection.
      * @param name        Tag Name.
      * @param description Tag description.
      *
@@ -83,7 +83,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Adds a tag to the object in OMERO, if possible.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param tag    Tag to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -99,7 +99,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Private function. Adds a tag to the object in OMERO, if possible.
      *
-     * @param client  The user.
+     * @param client  The client handling the connection.
      * @param tagData Tag to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -119,7 +119,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Adds multiple tags to the object in OMERO, if possible.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param id     Id in OMERO of tag to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -137,7 +137,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Adds multiple tag to the object in OMERO, if possible.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param tags   Array of TagAnnotationWrapper to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -155,7 +155,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Adds multiple tags by ID to the object in OMERO, if possible.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param ids    Array of tag id in OMERO to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -173,7 +173,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Gets all tag linked to an object in OMERO, if possible.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return Collection of TagAnnotationWrapper each containing a tag linked to the object.
      *
@@ -210,7 +210,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Adds a single Key-Value pair to the object.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param key    Name of the key.
      * @param value  Value associated to the key.
      *
@@ -232,7 +232,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Gets the List of NamedValue (Key-Value pair) associated to an object.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return Collection of NamedValue.
      *
@@ -275,7 +275,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Gets the value from a Key-Value pair associated to the object
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param key    Key researched.
      *
      * @return Value associated to the key.
@@ -303,7 +303,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * Adds a List of Key-Value pair to the object
      * <p>The list is contained in the MapAnnotationWrapper
      *
-     * @param client        The user.
+     * @param client        The client handling the connection.
      * @param mapAnnotation MapAnnotationWrapper containing a list of NamedValue.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -325,7 +325,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Adds a table to the object in OMERO
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param table  Table to add to the object.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -347,7 +347,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Gets a certain table linked to the object in OMERO
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param fileId FileId of the table researched.
      *
      * @return TableWrapper containing the table information.
@@ -371,7 +371,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Gets all table linked to the object in OMERO.
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      *
      * @return List of TableWrapper containing the tables information.
      *
@@ -402,7 +402,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Links a file to the object
      *
-     * @param client The user.
+     * @param client The client handling the connection.
      * @param file   File to add.
      *
      * @return ID of the file created in OMERO.

@@ -51,9 +51,9 @@ import static fr.igred.omero.exception.ExceptionHandler.*;
 
 
 /**
- * Basic class, contain the gateway, the security context, and multiple facility.
+ * Basic class, contains the gateway, the security context, and multiple facilities.
  * <p>
- * Allows the connection of user to connect to OMERO and browse through all the data accessible to the user.
+ * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
 public class Client {
 
