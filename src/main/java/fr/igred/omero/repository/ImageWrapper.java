@@ -64,6 +64,7 @@ import java.util.logging.Logger;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
+import static omero.rtypes.rint;
 
 
 /**
@@ -528,9 +529,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Retrieves the image thumbnail.
+     * Retrieves the image thumbnail of the specified size.
+     * <p>If the image is not square, the size will be the longest side.
      *
      * @param client The client handling the connection.
+     * @param size   The thumbnail size.
      *
      * @return The thumbnail as a {@link BufferedImage}.
      *
@@ -538,16 +541,24 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws OMEROServerError Server error.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    public BufferedImage getThumbnail(Client client) throws ServiceException, OMEROServerError, IOException {
+    public BufferedImage getThumbnail(Client client, int size) throws ServiceException, OMEROServerError, IOException {
+        PixelsWrapper pixels = getPixels();
+
+        int   sizeX  = pixels.getSizeX();
+        int   sizeY  = pixels.getSizeY();
+        float ratioX = (float) sizeX / size;
+        float ratioY = (float) sizeY / size;
+        float ratio  = Math.max(ratioX, ratioY);
+        int   width  = (int) (sizeX / ratio);
+        int   height = (int) (sizeY / ratio);
+
         BufferedImage thumbnail = null;
 
         byte[] array = null;
         try {
             ThumbnailStorePrx store = client.getGateway().getThumbnailService(client.getCtx());
-            store.setPixelsId(getPixels().getId());
-            //retrieve a 96x96 thumbnail.
-            array = store.getThumbnail(omero.rtypes.rint(96),
-                                       omero.rtypes.rint(96));
+            store.setPixelsId(pixels.getId());
+            array = store.getThumbnail(rint(width), rint(height));
             store.close();
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Error retrieving thumbnail.");

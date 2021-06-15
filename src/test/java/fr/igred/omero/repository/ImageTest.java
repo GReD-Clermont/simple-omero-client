@@ -659,7 +659,7 @@ public class ImageTest extends UserTest {
     @Test
     public void testGetThumbnail() throws Exception {
         ImageWrapper image = client.getImage(1L);
-        BufferedImage thumbnail = image.getThumbnail(client);
+        BufferedImage thumbnail = image.getThumbnail(client, 96);
         assertNotNull(thumbnail);
         assertEquals(96, thumbnail.getWidth());
         assertEquals(96, thumbnail.getHeight());
