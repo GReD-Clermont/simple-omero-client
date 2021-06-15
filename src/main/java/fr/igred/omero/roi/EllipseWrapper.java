@@ -182,10 +182,10 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      * @param radiusY The radius along the Y-axis.
      */
     public void setCoordinates(double x, double y, double radiusX, double radiusY) {
-        data.setX(x);
-        data.setY(y);
-        data.setRadiusX(radiusX);
-        data.setRadiusY(radiusY);
+        setX(x);
+        setY(y);
+        setRadiusX(radiusX);
+        setRadiusY(radiusY);
     }
 
 

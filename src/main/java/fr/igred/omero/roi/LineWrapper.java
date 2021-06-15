@@ -183,10 +183,10 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
      * @param y2 y-coordinate of the end point of an untransformed line.
      */
     public void setCoordinates(double x1, double y1, double x2, double y2) {
-        data.setX1(x1);
-        data.setY1(y1);
-        data.setX2(x2);
-        data.setY2(y2);
+        setX1(x1);
+        setY1(y1);
+        setX2(x2);
+        setY2(y2);
     }
 
 

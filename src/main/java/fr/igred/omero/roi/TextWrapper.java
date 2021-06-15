@@ -139,8 +139,8 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      * @param y y-coordinate of the TextData shape.
      */
     public void setCoordinates(double x, double y) {
-        data.setX(x);
-        data.setY(y);
+        setX(x);
+        setY(y);
     }
 
 

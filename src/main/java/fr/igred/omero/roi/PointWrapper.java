@@ -138,8 +138,8 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
      * @param y y-coordinate of the PointData shape.
      */
     public void setCoordinates(double x, double y) {
-        data.setX(x);
-        data.setY(y);
+        setX(x);
+        setY(y);
     }
 
 

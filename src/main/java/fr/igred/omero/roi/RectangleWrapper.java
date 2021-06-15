@@ -181,10 +181,10 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
      * @param height The height of the rectangle.
      */
     public void setCoordinates(double x, double y, double width, double height) {
-        data.setX(x);
-        data.setY(y);
-        data.setWidth(width);
-        data.setHeight(height);
+        setX(x);
+        setY(y);
+        setWidth(width);
+        setHeight(height);
     }
 
 
