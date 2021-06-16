@@ -1,6 +1,7 @@
 target/
 .omero/
 .idea/
+.settings/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
