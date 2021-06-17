@@ -202,7 +202,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      *
      * @return the {@link ROIData} contained.
      */
-    public ROIData getROI() {
+    public ROIData asROIData() {
         return data;
     }
 

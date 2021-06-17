@@ -161,7 +161,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             ROIData roiData = client.getRoiFacility()
                                     .saveROIs(client.getCtx(),
                                               data.getId(),
-                                              Collections.singletonList(roi.getROI()))
+                                              Collections.singletonList(roi.asROIData()))
                                     .iterator().next();
             roi.setData(roiData);
         } catch (DSOutOfServiceException | DSAccessException e) {

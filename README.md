@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/GReD-Clermont/simple-omero-client.svg?branch=master)](https://travis-ci.com/GReD-Clermont/simple-omero-client) [![codecov](https://codecov.io/gh/GReD-Clermont/simple-omero-client/branch/master/graph/badge.svg)](https://codecov.io/gh/GReD-Clermont/simple-omero-client)
+[![Java CI with Maven](https://github.com/GReD-Clermont/simple-omero-client/actions/workflows/maven.yml/badge.svg)](https://github.com/GReD-Clermont/simple-omero-client/actions/workflows/maven.yml) [![codecov](https://codecov.io/gh/GReD-Clermont/simple-omero-client/branch/main/graph/badge.svg)](https://codecov.io/gh/GReD-Clermont/simple-omero-client)
 
 # simple-omero-client
 

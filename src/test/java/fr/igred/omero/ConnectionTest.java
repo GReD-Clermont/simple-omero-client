@@ -31,6 +31,14 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
+    public void testDisconnect() {
+        Client testRoot = new Client();
+        testRoot.disconnect();
+        assertTrue(true);
+    }
+
+
+    @Test
     public void testRootConnection() throws Exception {
         Client testRoot = new Client();
         testRoot.connect("omero", 4064, "root", "omero", 3L);

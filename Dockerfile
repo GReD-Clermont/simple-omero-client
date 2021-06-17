@@ -4,4 +4,4 @@ MAINTAINER pierre.pouchin@uca.fr
 COPY . /src
 WORKDIR /src
 
-CMD mvn install
+CMD mvn package

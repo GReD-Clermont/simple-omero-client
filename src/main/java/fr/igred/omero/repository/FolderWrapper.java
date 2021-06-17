@@ -151,7 +151,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
         try {
             roiFac.addRoisToFolders(client.getCtx(),
                                     imageId,
-                                    Collections.singletonList(roi.getROI()),
+                                    Collections.singletonList(roi.asROIData()),
                                     Collections.singletonList(data));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot add ROI to " + toString());
@@ -211,7 +211,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
             for (ROIWrapper roi : rois) {
                 client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
                                                               this.imageId,
-                                                              Collections.singletonList(roi.getROI()),
+                                                              Collections.singletonList(roi.asROIData()),
                                                               Collections.singletonList(data));
             }
         } catch (DSOutOfServiceException | DSAccessException e) {
@@ -235,7 +235,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
         try {
             client.getRoiFacility().removeRoisFromFolders(client.getCtx(),
                                                           this.imageId,
-                                                          Collections.singletonList(roi.getROI()),
+                                                          Collections.singletonList(roi.asROIData()),
                                                           Collections.singletonList(data));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot unlink ROI from " + toString());

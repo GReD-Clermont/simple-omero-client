@@ -3,17 +3,23 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <packaging>jar</packaging>
     <version>5.8.0</version>
+    <packaging>jar</packaging>
+
     <name>Simple OMERO Client</name>
     <description>A small library to connect to OMERO.</description>
     <url>https://github.com/GReD-Clermont/simple-omero-client</url>
     <inceptionYear>2020</inceptionYear>
 
+    <organization>
+        <name>GReD</name>
+        <url>https://www.gred-clermont.fr</url>
+    </organization>
+
     <licenses>
         <license>
             <name>GNU General Public License v2+</name>
-            <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+            <url>https://www.gnu.org/licenses/gpl-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -111,12 +117,8 @@
 
     <repositories>
         <repository>
-            <id>ome.maven</id>
-            <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
-        </repository>
-        <repository>
             <id>imagej.public</id>
-            <url>http://maven.imagej.net/content/groups/public</url>
+            <url>https://maven.imagej.net/content/groups/public</url>
         </repository>
     </repositories>
 
@@ -130,7 +132,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>2.6</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -143,6 +145,26 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <gpgArguments>
+                        <arg>--pinentry-mode</arg>
+                        <arg>loopback</arg>
+                    </gpgArguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -224,4 +246,20 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <developers>
+        <developer>
+            <id>ppouchin</id>
+            <name>Pierre Pouchin</name>
+            <email>pierre.pouchin@uca.fr</email>
+            <url>https://www.gred-clermont.fr/directory/member/pierre-pouchin/</url>
+            <organization>GReD (INSERM U1103 / CNRS UMR 6293 / UCA)</organization>
+            <organizationUrl>https://www.gred-clermont.fr</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Paris</timezone>
+        </developer>
+    </developers>
 </project>

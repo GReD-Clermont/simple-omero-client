@@ -326,12 +326,13 @@ public class Client {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void connect(LoginCredentials cred) throws ServiceException, ExecutionException {
+        disconnect();
+
         try {
             this.user = new ExperimenterWrapper(gateway.connect(cred));
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
-
         this.ctx = new SecurityContext(user.getGroupId());
         this.ctx.setExperimenter(this.user.asExperimenterData());
         this.browse = gateway.getFacility(BrowseFacility.class);
@@ -342,7 +343,9 @@ public class Client {
      * Disconnects the user
      */
     public void disconnect() {
-        gateway.disconnect();
+        if(gateway.isConnected()) {
+            gateway.disconnect();
+        }
     }
 
 
