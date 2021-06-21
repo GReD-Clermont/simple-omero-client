@@ -41,12 +41,12 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
-import omero.model.NamedValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
@@ -285,13 +285,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Collection<NamedValue> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-
-            for (NamedValue pairKeyValue : pairsKeyValue) {
-                if (pairKeyValue.name.equals(key)) {
-                    selected.add(image);
-                    break;
-                }
+            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
+            if (pairsKeyValue.get(key) != null) {
+                selected.add(image);
             }
         }
 
@@ -327,13 +323,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Collection<NamedValue> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-
-            for (NamedValue pairKeyValue : pairsKeyValue) {
-                if (pairKeyValue.name.equals(key) && pairKeyValue.value.equals(value)) {
-                    selected.add(image);
-                    break;
-                }
+            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
+            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
+                selected.add(image);
             }
         }
 

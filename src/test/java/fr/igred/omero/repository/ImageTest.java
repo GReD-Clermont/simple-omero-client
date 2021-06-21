@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -123,7 +124,7 @@ public class ImageTest extends UserTest {
         image.addMapAnnotation(client, mapAnnotation1);
         image.addMapAnnotation(client, mapAnnotation2);
 
-        List<NamedValue> result = image.getKeyValuePairs(client);
+        Map<String, String> result = image.getKeyValuePairs(client);
 
         assertEquals(4, result.size());
         assertEquals("Value Test", image.getValue(client, "Test result1"));
@@ -159,7 +160,7 @@ public class ImageTest extends UserTest {
 
         image.addMapAnnotation(client, mapAnnotation);
 
-        List<NamedValue> results = image.getKeyValuePairs(client);
+        Map<String, String> results = image.getKeyValuePairs(client);
 
         assertEquals(2, results.size());
         assertEquals("Value Test", image.getValue(client, "Test result1"));
@@ -191,7 +192,7 @@ public class ImageTest extends UserTest {
         image.addPairKeyValue(client, "Test result1", "Value Test");
         image.addPairKeyValue(client, "Test result2", "Value Test2");
 
-        List<NamedValue> results = image.getKeyValuePairs(client);
+        Map<String, String> results = image.getKeyValuePairs(client);
 
         assertEquals(2, results.size());
         try {

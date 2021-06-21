@@ -343,7 +343,7 @@ public class Client {
      * Disconnects the user
      */
     public void disconnect() {
-        if(gateway.isConnected()) {
+        if (gateway.isConnected()) {
             gateway.disconnect();
         }
     }
@@ -585,15 +585,8 @@ public class Client {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images with name: " + name);
         }
-
-        List<ImageWrapper> selected = new ArrayList<>();
-        for (ImageData image : images) {
-            if (image.getName().equals(name)) {
-                selected.add(new ImageWrapper(image));
-            }
-        }
-
-        return selected;
+        images.removeIf(image -> !image.getName().equals(name));
+        return toImageWrappers(images);
     }
 
 
@@ -686,12 +679,9 @@ public class Client {
         List<ImageWrapper> images   = getImages();
 
         for (ImageWrapper image : images) {
-            Collection<NamedValue> pairsKeyValue = image.getKeyValuePairs(this);
-            for (NamedValue pairKeyValue : pairsKeyValue) {
-                if (pairKeyValue.name.equals(key)) {
+            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
+            if(pairsKeyValue.get(key) != null) {
                     selected.add(image);
-                    break;
-                }
             }
         }
 
@@ -716,12 +706,9 @@ public class Client {
         List<ImageWrapper> selected = new ArrayList<>();
         List<ImageWrapper> images   = getImages();
         for (ImageWrapper image : images) {
-            Collection<NamedValue> pairsKeyValue = image.getKeyValuePairs(this);
-            for (NamedValue pairKeyValue : pairsKeyValue) {
-                if (pairKeyValue.name.equals(key) && pairKeyValue.value.equals(value)) {
-                    selected.add(image);
-                    break;
-                }
+            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
+            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
+                selected.add(image);
             }
         }
 
