@@ -31,8 +31,6 @@ omero quit
 
 omero login testUser@localhost -w password -g testGroup
 
-omero obj new Project name=ToDelete
-
 # create a simple project/dataset/image hierarchy
 DATASET1=$(omero obj new Dataset name=TestDataset description=description)
 DATASET2=$(omero obj new Dataset name=TestDatasetImport)
@@ -74,6 +72,8 @@ IMAGE4=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:3)
 TAG1=$(omero obj new TagAnnotation textValue=tag1 description=description)
 TAG2=$(omero obj new TagAnnotation textValue=tag2)
 TAG3=$(omero obj new TagAnnotation textValue=tag3)
+omero obj new ProjectAnnotationLink parent=$PROJECT2 child=$TAG1
+omero obj new DatasetAnnotationLink parent=$DATASET3 child=$TAG1
 omero obj new ImageAnnotationLink parent=$IMAGE1 child=$TAG1
 omero obj new ImageAnnotationLink parent=$IMAGE1 child=$TAG2
 omero obj new ImageAnnotationLink parent=$IMAGE2 child=$TAG1

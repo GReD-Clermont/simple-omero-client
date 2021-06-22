@@ -33,8 +33,8 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testProjectBasic() throws Exception {
-        ProjectWrapper project = client.getProject(2L);
-        assertEquals(2L, project.getId());
+        ProjectWrapper project = client.getProject(1L);
+        assertEquals(1L, project.getId());
         assertEquals("TestProject", project.getName());
         assertEquals("description", project.getDescription());
         assertEquals(2L, project.getOwner().getId());
@@ -44,7 +44,7 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetSingleProject() throws Exception {
-        String name = client.getProject(2L).getName();
+        String name = client.getProject(1L).getName();
         assertEquals("TestProject", name);
     }
 
@@ -72,10 +72,15 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testDeleteProject() throws Exception {
-        client.deleteProject(client.getProject(1L));
+    public void testCreateAndDeleteProject() throws Exception {
+        ProjectWrapper project = new ProjectWrapper(client, "Foo project", "");
+
+        long newId = project.getId();
+        assertEquals("Foo project", client.getProject(newId).getName());
+
+        client.deleteProject(client.getProject(newId));
         try {
-            client.getProject(1L);
+            client.getProject(newId);
             fail();
         } catch (Exception e) {
             assertTrue(true);

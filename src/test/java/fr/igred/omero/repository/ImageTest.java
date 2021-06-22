@@ -595,11 +595,13 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testSetDescription() throws Exception {
-        ImageWrapper image       = client.getImage(1L);
-        String       description = image.getDescription();
-        image.setDescription("Foo");
+        ImageWrapper image = client.getImage(1L);
+
+        String description  = image.getDescription();
+        String description2 = "Foo";
+        image.setDescription(description2);
         image.saveAndUpdate(client);
-        assertEquals("Foo", client.getImage(1L).getDescription());
+        assertEquals(description2, client.getImage(1L).getDescription());
         image.setDescription(description);
         image.saveAndUpdate(client);
         assertEquals(description, client.getImage(1L).getDescription());
@@ -609,10 +611,12 @@ public class ImageTest extends UserTest {
     @Test
     public void testSetName() throws Exception {
         ImageWrapper image = client.getImage(1L);
-        String       name  = image.getName();
-        image.setName("Foo image");
+
+        String name  = image.getName();
+        String name2 = "Foo image";
+        image.setName(name2);
         image.saveAndUpdate(client);
-        assertEquals("Foo image", client.getImage(1L).getName());
+        assertEquals(name2, client.getImage(1L).getName());
         image.setName(name);
         image.saveAndUpdate(client);
         assertEquals(name, image.getName());
@@ -659,7 +663,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetThumbnail() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper  image     = client.getImage(1L);
         BufferedImage thumbnail = image.getThumbnail(client, 96);
         assertNotNull(thumbnail);
         assertEquals(96, thumbnail.getWidth());

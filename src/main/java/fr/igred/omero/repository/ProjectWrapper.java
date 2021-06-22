@@ -56,6 +56,26 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
+     * Constructor of the ProjectWrapper class. Creates a new project and save it to OMERO.
+     *
+     * @param client      The client handling the connection.
+     * @param name        Project name.
+     * @param description Project description.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public ProjectWrapper(Client client, String name, String description)
+    throws ServiceException, AccessException, ExecutionException {
+        super(new ProjectData());
+        data.setName(name);
+        data.setDescription(description);
+        saveAndUpdate(client);
+    }
+
+
+    /**
      * Gets the ProjectData name
      *
      * @return ProjectData name.
@@ -66,12 +86,34 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Gets the ProjectData description
+     * Sets the name of the project.
      *
-     * @return ProjectData description.
+     * @param name The name of the project. Mustn't be <code>null</code>.
+     *
+     * @throws IllegalArgumentException If the name is <code>null</code>.
+     */
+    public void setName(String name) {
+        data.setName(name);
+    }
+
+
+    /**
+     * Gets the project description
+     *
+     * @return The project description.
      */
     public String getDescription() {
         return data.getDescription();
+    }
+
+
+    /**
+     * Sets the description of the project.
+     *
+     * @param description The description of the project.
+     */
+    public void setDescription(String description) {
+        data.setDescription(description);
     }
 
 

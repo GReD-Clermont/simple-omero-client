@@ -141,6 +141,10 @@ public class FolderTest extends UserTest {
         ImageWrapper image = client.getImage(3L);
 
         FolderWrapper folder = new FolderWrapper(client, "Test1");
+        folder.setDescription("Test 1");
+        folder.saveAndUpdate(client);
+        assertEquals("Test1", folder.getName());
+        assertEquals("Test 1", folder.getDescription());
         folder.setImage(image);
 
         for (int i = 0; i < 8; i++) {
@@ -158,7 +162,10 @@ public class FolderTest extends UserTest {
             folder.addROI(client, roi);
         }
 
-        folder = new FolderWrapper(client, "Test2");
+        folder = new FolderWrapper(client, "Test");
+        folder.setName("Test2");
+        folder.saveAndUpdate(client);
+        assertEquals("Test2", folder.getName());
         folder.setImage(image);
 
         for (int i = 0; i < 8; i++) {

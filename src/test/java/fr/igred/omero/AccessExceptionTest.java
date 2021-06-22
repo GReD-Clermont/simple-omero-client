@@ -115,7 +115,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetSingleProject() throws Exception {
-        sudo.getProject(2L);
+        sudo.getProject(1L);
     }
 
 
@@ -127,7 +127,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailDeleteProject() throws Exception {
-        sudo.deleteProject(2L);
+        sudo.deleteProject(1L);
     }
 
 

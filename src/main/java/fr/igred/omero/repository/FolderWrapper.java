@@ -116,6 +116,38 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
+     * Sets the name of the folder.
+     *
+     * @param name The name of the folder. Mustn't be <code>null</code>.
+     *
+     * @throws IllegalArgumentException If the name is <code>null</code>.
+     */
+    public void setName(String name) {
+        data.setName(name);
+    }
+
+
+    /**
+     * Gets the folder description
+     *
+     * @return The folder description.
+     */
+    public String getDescription() {
+        return data.getDescription();
+    }
+
+
+    /**
+     * Sets the description of the folder.
+     *
+     * @param description The folder description.
+     */
+    public void setDescription(String description) {
+        data.setDescription(description);
+    }
+
+
+    /**
      * Sets the image associated to the folder
      *
      * @param id Id of the image to associate.

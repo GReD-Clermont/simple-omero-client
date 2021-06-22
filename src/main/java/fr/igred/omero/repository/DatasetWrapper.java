@@ -93,12 +93,34 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
+     * Sets the name of the dataset.
+     *
+     * @param name The name of the dataset. Mustn't be <code>null</code>.
+     *
+     * @throws IllegalArgumentException If the name is <code>null</code>.
+     */
+    public void setName(String name) {
+        data.setName(name);
+    }
+
+
+    /**
      * Gets the DatasetData description
      *
      * @return DatasetData description.
      */
     public String getDescription() {
         return data.getDescription();
+    }
+
+
+    /**
+     * Sets the description of the dataset.
+     *
+     * @param description The description of the dataset.
+     */
+    public void setDescription(String description) {
+        data.setDescription(description);
     }
 
 
