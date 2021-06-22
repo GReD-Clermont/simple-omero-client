@@ -93,7 +93,7 @@ public class ConnectionTest extends BasicTest {
                 differences++;
         }
 
-        root.deleteTag(tag);
+        root.delete(tag);
         try {
             root.disconnect();
         } catch (Exception ignored) {

@@ -83,14 +83,14 @@ public class FolderTest extends UserTest {
         assertEquals(8, image.getROIs(client).size());
 
         for (ROIWrapper roi : rois) {
-            client.deleteROI(roi);
+            client.delete(roi);
         }
 
         rois = folder.getROIs(client);
         assertEquals(0, rois.size());
         assertEquals(0, image.getROIs(client).size());
 
-        client.deleteFolder(folder);
+        client.delete(folder);
 
         try {
             image.getFolder(client, folder.getId());
@@ -124,14 +124,14 @@ public class FolderTest extends UserTest {
         assertEquals(8, rois.size());
 
         folder.unlinkROI(client, rois.get(0));
-        client.deleteROI(rois.get(0));
+        client.delete(rois.get(0));
         rois = folder.getROIs(client);
         assertEquals(7, rois.size());
 
-        client.deleteFolder(folder);
+        client.delete(folder);
 
         for (ROIWrapper roi : rois) {
-            client.deleteROI(roi);
+            client.delete(roi);
         }
     }
 
@@ -188,7 +188,7 @@ public class FolderTest extends UserTest {
         assertEquals(16, image.getROIs(client).size());
 
         for (FolderWrapper RoiFolder : folders) {
-            client.deleteFolder(RoiFolder);
+            client.delete(RoiFolder);
         }
 
         folders = image.getFolders(client);
@@ -197,7 +197,7 @@ public class FolderTest extends UserTest {
 
         List<ROIWrapper> rois = image.getROIs(client);
         for (ROIWrapper roi : rois) {
-            client.deleteROI(roi);
+            client.delete(roi);
         }
 
         assertEquals(0, image.getROIs(client).size());

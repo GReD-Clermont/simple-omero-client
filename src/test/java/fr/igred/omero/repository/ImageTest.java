@@ -78,7 +78,7 @@ public class ImageTest extends UserTest {
         assertEquals(2, images.size());
 
         for (ImageWrapper image : images) {
-            client.deleteImage(image);
+            client.delete(image);
         }
 
         images = dataset.getImages(client);
@@ -129,7 +129,7 @@ public class ImageTest extends UserTest {
         assertEquals(4, result.size());
         assertEquals("Value Test", image.getValue(client, "Test result1"));
 
-        client.deleteImage(image);
+        client.delete(image);
     }
 
 
@@ -165,7 +165,7 @@ public class ImageTest extends UserTest {
         assertEquals(2, results.size());
         assertEquals("Value Test", image.getValue(client, "Test result1"));
 
-        client.deleteImage(image);
+        client.delete(image);
     }
 
 
@@ -200,7 +200,7 @@ public class ImageTest extends UserTest {
         } catch (Exception e) {
             exception = true;
         }
-        client.deleteImage(image);
+        client.delete(image);
         assertTrue(exception);
     }
 
@@ -432,7 +432,7 @@ public class ImageTest extends UserTest {
 
         assertEquals(1, tags.size());
 
-        client.deleteTag(tag);
+        client.delete(tag);
 
         tags = image.getTags(client);
 
@@ -449,7 +449,7 @@ public class ImageTest extends UserTest {
         List<TagAnnotationWrapper> tags = client.getTags("image tag");
         assertEquals(1, tags.size());
 
-        client.deleteTag(tags.get(0).getId());
+        client.delete(tags.get(0));
 
         tags = client.getTags("image tag");
 
@@ -469,7 +469,7 @@ public class ImageTest extends UserTest {
 
         assertEquals(1, tags.size());
 
-        client.deleteTag(tag);
+        client.delete(tag);
 
         tags = image.getTags(client);
 
@@ -492,10 +492,10 @@ public class ImageTest extends UserTest {
 
         assertEquals(4, tags.size());
 
-        client.deleteTag(tag1);
-        client.deleteTag(tag2);
-        client.deleteTag(tag3);
-        client.deleteTag(tag4);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(tag3);
+        client.delete(tag4);
 
         tags = image.getTags(client);
 
@@ -518,10 +518,10 @@ public class ImageTest extends UserTest {
 
         assertEquals(4, tags.size());
 
-        client.deleteTag(tag1);
-        client.deleteTag(tag2);
-        client.deleteTag(tag3);
-        client.deleteTag(tag4);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(tag3);
+        client.delete(tag4);
 
         tags = image.getTags(client);
 

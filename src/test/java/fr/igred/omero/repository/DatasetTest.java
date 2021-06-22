@@ -49,7 +49,7 @@ public class DatasetTest extends UserTest {
 
         assertEquals(dataset.getName(), name);
 
-        client.deleteDataset(dataset);
+        client.delete(dataset);
 
         try {
             client.getDataset(id);
@@ -76,7 +76,7 @@ public class DatasetTest extends UserTest {
 
         assertEquals(dataset.getDescription(), description);
 
-        client.deleteDataset(dataset);
+        client.delete(dataset);
 
         try {
             client.getDataset(id);
@@ -105,7 +105,7 @@ public class DatasetTest extends UserTest {
 
         assertEquals(images.size(), newDataset.getImages(client).size());
 
-        client.deleteDataset(newDataset);
+        client.delete(newDataset);
 
         List<ImageWrapper> newImages = dataset.getImages(client);
 
@@ -135,7 +135,7 @@ public class DatasetTest extends UserTest {
 
         assertEquals(1, tags.size());
 
-        client.deleteTag(tag);
+        client.delete(tag);
 
         tags = dataset.getTags(client);
 
@@ -152,7 +152,7 @@ public class DatasetTest extends UserTest {
         List<TagAnnotationWrapper> tags = client.getTags("Dataset tag");
         assertEquals(1, tags.size());
 
-        client.deleteTag(tags.get(0).getId());
+        client.delete(tags.get(0));
 
         tags = client.getTags("Dataset tag");
 
@@ -172,7 +172,7 @@ public class DatasetTest extends UserTest {
 
         assertEquals(1, tags.size());
 
-        client.deleteTag(tag);
+        client.delete(tag);
 
         tags = dataset.getTags(client);
 
@@ -195,10 +195,10 @@ public class DatasetTest extends UserTest {
 
         assertEquals(4, tags.size());
 
-        client.deleteTag(tag1);
-        client.deleteTag(tag2);
-        client.deleteTag(tag3);
-        client.deleteTag(tag4);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(tag3);
+        client.delete(tag4);
 
         tags = dataset.getTags(client);
 
@@ -221,10 +221,10 @@ public class DatasetTest extends UserTest {
 
         assertEquals(4, tags.size());
 
-        client.deleteTag(tag1);
-        client.deleteTag(tag2);
-        client.deleteTag(tag3);
-        client.deleteTag(tag4);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(tag3);
+        client.delete(tag4);
 
         tags = dataset.getTags(client);
 

@@ -60,7 +60,7 @@ public class ProjectTest extends UserTest {
 
         assertEquals(1, tags.size());
 
-        client.deleteTag(tag);
+        client.delete(tag);
 
         tags = project.getTags(client);
 
@@ -77,7 +77,7 @@ public class ProjectTest extends UserTest {
         List<TagAnnotationWrapper> tags = client.getTags("test");
         assertEquals(1, tags.size());
 
-        client.deleteTag(tags.get(0).getId());
+        client.delete(tags.get(0));
 
         tags = client.getTags("test");
         assertEquals(0, tags.size());
@@ -95,7 +95,7 @@ public class ProjectTest extends UserTest {
         List<TagAnnotationWrapper> tags = project.getTags(client);
         assertEquals(1, tags.size());
 
-        client.deleteTag(tag);
+        client.delete(tag);
 
         tags = project.getTags(client);
         assertEquals(0, tags.size());
@@ -117,10 +117,10 @@ public class ProjectTest extends UserTest {
 
         assertEquals(4, tags.size());
 
-        client.deleteTag(tag1);
-        client.deleteTag(tag2);
-        client.deleteTag(tag3);
-        client.deleteTag(tag4);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(tag3);
+        client.delete(tag4);
 
         tags = project.getTags(client);
 
@@ -143,10 +143,10 @@ public class ProjectTest extends UserTest {
 
         assertEquals(4, tags.size());
 
-        client.deleteTag(tag1);
-        client.deleteTag(tag2);
-        client.deleteTag(tag3);
-        client.deleteTag(tag4);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(tag3);
+        client.delete(tag4);
 
         tags = project.getTags(client);
 

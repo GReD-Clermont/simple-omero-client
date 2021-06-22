@@ -18,11 +18,8 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.ImageWrapper;
-import ij.gui.*;
 import org.junit.Test;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +56,7 @@ public class ROITest extends UserTest {
         assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROIWrapper roi : rois) {
-            client.deleteROI(roi);
+            client.delete(roi);
         }
 
         rois = image.getROIs(client);
@@ -94,7 +91,7 @@ public class ROITest extends UserTest {
         assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROIWrapper roi : rois) {
-            client.deleteROI(roi);
+            client.delete(roi);
         }
 
         rois = image.getROIs(client);
@@ -227,7 +224,7 @@ public class ROITest extends UserTest {
         assertEquals(1, polygons.size());
 
         for (ROIWrapper roi : rois) {
-            client.deleteROI(roi);
+            client.delete(roi);
         }
 
         rois = image.getROIs(client);

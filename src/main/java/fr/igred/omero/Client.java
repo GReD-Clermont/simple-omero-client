@@ -30,7 +30,6 @@ import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.roi.ROIWrapper;
 import ome.formats.importer.ImportConfig;
 import omero.LockTimeout;
 import omero.ServerError;
@@ -42,7 +41,9 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.*;
 import omero.gateway.model.*;
 import omero.log.SimpleLogger;
-import omero.model.*;
+import omero.model.FileAnnotationI;
+import omero.model.IObject;
+import omero.model.TagAnnotation;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -680,8 +681,8 @@ public class Client {
 
         for (ImageWrapper image : images) {
             Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
-            if(pairsKeyValue.get(key) != null) {
-                    selected.add(image);
+            if (pairsKeyValue.get(key) != null) {
+                selected.add(image);
             }
         }
 
@@ -871,32 +872,9 @@ public class Client {
 
 
     /**
-     * Deletes an image from OMERO
+     * Deletes an object from OMERO.
      *
-     * @param image ImageWrapper containing the image to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws OMEROServerError         If the thread was interrupted.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteImage(ImageWrapper image) throws
-                                                ServiceException,
-                                                AccessException,
-                                                ExecutionException,
-                                                IllegalArgumentException,
-                                                OMEROServerError,
-                                                InterruptedException {
-        deleteImage(image.getId());
-    }
-
-
-    /**
-     * Deletes an image from OMERO
-     *
-     * @param id Id of the image to delete.
+     * @param object The OMERO object.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -904,174 +882,12 @@ public class Client {
      * @throws OMEROServerError     If the thread was interrupted.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void deleteImage(Long id)
+    public void delete(GenericObjectWrapper<?> object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        ImageI image = new ImageI(id, false);
-        delete(image);
-    }
-
-
-    /**
-     * Deletes a project from OMERO
-     *
-     * @param project ProjectWrapper containing the project to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws OMEROServerError         If the thread was interrupted.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteProject(ProjectWrapper project) throws
-                                                      ServiceException,
-                                                      AccessException,
-                                                      ExecutionException,
-                                                      IllegalArgumentException,
-                                                      OMEROServerError,
-                                                      InterruptedException {
-        deleteProject(project.getId());
-    }
-
-
-    /**
-     * Deletes a project from OMERO
-     *
-     * @param id Id of the project to delete.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void deleteProject(Long id)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        ProjectI project = new ProjectI(id, false);
-        delete(project);
-    }
-
-
-    /**
-     * Deletes a dataset from OMERO
-     *
-     * @param dataset DatasetWrapper containing the dataset to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws OMEROServerError         If the thread was interrupted.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteDataset(DatasetWrapper dataset) throws
-                                                      DSOutOfServiceException,
-                                                      DSAccessException,
-                                                      ExecutionException,
-                                                      IllegalArgumentException,
-                                                      OMEROServerError,
-                                                      InterruptedException {
-        deleteDataset(dataset.getId());
-    }
-
-
-    /**
-     * Deletes a dataset from OMERO
-     *
-     * @param id Id of the dataset to delete.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void deleteDataset(Long id)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        DatasetI dataset = new DatasetI(id, false);
-        delete(dataset);
-    }
-
-
-    /**
-     * Deletes a tag from OMERO
-     *
-     * @param tag TagAnnotationWrapper containing the tag to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws OMEROServerError         If the thread was interrupted.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteTag(TagAnnotationWrapper tag) throws
-                                                    ServiceException,
-                                                    AccessException,
-                                                    ExecutionException,
-                                                    IllegalArgumentException,
-                                                    OMEROServerError,
-                                                    InterruptedException {
-        deleteTag(tag.getId());
-    }
-
-
-    /**
-     * Deletes a tag from OMERO
-     *
-     * @param id Id of the tag to delete.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void deleteTag(Long id)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        TagAnnotationI tag = new TagAnnotationI(id, false);
-        delete(tag);
-    }
-
-
-    /**
-     * Deletes a ROI from OMERO
-     *
-     * @param roi ROIWrapper containing the ROI to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws OMEROServerError         If the thread was interrupted.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteROI(ROIWrapper roi) throws
-                                          ServiceException,
-                                          AccessException,
-                                          ExecutionException,
-                                          IllegalArgumentException,
-                                          OMEROServerError,
-                                          InterruptedException {
-        deleteROI(roi.getId());
-    }
-
-
-    /**
-     * Deletes a ROI from OMERO
-     *
-     * @param id Id of the ROI to delete.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void deleteROI(Long id)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        RoiI roi = new RoiI(id, false);
-        delete(roi);
+        if (object instanceof FolderWrapper) {
+            ((FolderWrapper) object).unlinkAllROI(this);
+        }
+        delete(object.data.asIObject());
     }
 
 
@@ -1087,9 +903,9 @@ public class Client {
      * @throws OMEROServerError         If the thread was interrupted.
      * @throws InterruptedException     If block(long) does not return.
      */
-    public void deleteTable(TableWrapper table)
+    public void delete(TableWrapper table)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        deleteTag(table.getId());
+        deleteFile(table.getId());
     }
 
 
@@ -1106,32 +922,8 @@ public class Client {
      */
     public void deleteFile(Long id)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        FileAnnotationI table = new FileAnnotationI(id, false);
-        delete(table);
-    }
-
-
-    /**
-     * Deletes a Folder from OMERO
-     *
-     * @param folder FolderWrapper containing the folder to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws OMEROServerError         If the thread was interrupted.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteFolder(FolderWrapper folder) throws
-                                                   ServiceException,
-                                                   AccessException,
-                                                   ExecutionException,
-                                                   IllegalArgumentException,
-                                                   OMEROServerError,
-                                                   InterruptedException {
-        folder.unlinkAllROI(this);
-        delete(folder.asFolderData().asIObject());
+        FileAnnotationI file = new FileAnnotationI(id, false);
+        delete(file);
     }
 
 

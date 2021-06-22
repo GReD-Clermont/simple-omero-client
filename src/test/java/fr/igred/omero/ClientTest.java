@@ -78,7 +78,7 @@ public class ClientTest extends UserTest {
         long newId = project.getId();
         assertEquals("Foo project", client.getProject(newId).getName());
 
-        client.deleteProject(client.getProject(newId));
+        client.delete(client.getProject(newId));
         try {
             client.getProject(newId);
             fail();

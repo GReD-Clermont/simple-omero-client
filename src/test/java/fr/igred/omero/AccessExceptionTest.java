@@ -21,7 +21,10 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.ProjectWrapper;
+import omero.gateway.model.ProjectData;
 import omero.model.NamedValue;
+import omero.model.ProjectI;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,7 +105,7 @@ public class AccessExceptionTest extends BasicTest {
             exception = true;
         }
 
-        client.deleteTag(tag);
+        client.delete(tag);
         assertTrue(exception);
     }
 
@@ -127,7 +130,10 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailDeleteProject() throws Exception {
-        sudo.deleteProject(1L);
+        ProjectI projectI = new ProjectI(1L, false);
+        ProjectData projectData = new ProjectData(projectI);
+        ProjectWrapper project = new ProjectWrapper(projectData);
+        sudo.delete(project);
     }
 
 

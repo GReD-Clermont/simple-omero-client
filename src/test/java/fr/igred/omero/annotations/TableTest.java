@@ -63,7 +63,7 @@ public class TableTest extends UserTest {
 
         assertEquals(1, tables.size());
 
-        client.deleteTable(tables.get(0));
+        client.delete(tables.get(0));
 
         tables = dataset.getTables(client);
 
