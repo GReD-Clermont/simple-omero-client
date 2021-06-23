@@ -41,7 +41,7 @@ public class ConnectionTest extends BasicTest {
     @Test
     public void testRootConnection() throws Exception {
         Client testRoot = new Client();
-        testRoot.connect("omero", 4064, "root", "omero", 3L);
+        testRoot.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
         long id      = testRoot.getId();
         long groupId = testRoot.getCurrentGroupId();
         try {
@@ -56,7 +56,7 @@ public class ConnectionTest extends BasicTest {
     @Test
     public void testUserConnection() throws Exception {
         Client testUser = new Client();
-        testUser.connect("omero", 4064, "testUser", "password");
+        testUser.connect("omero", 4064, "testUser", "password".toCharArray());
         long id      = testUser.getId();
         long groupId = testUser.getCurrentGroupId();
         try {
@@ -71,7 +71,7 @@ public class ConnectionTest extends BasicTest {
     @Test
     public void testSudoTag() throws Exception {
         Client root = new Client();
-        root.connect("omero", 4064, "root", "omero", 3L);
+        root.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
         assertEquals(0L, root.getId());
 
         Client test = root.sudoGetUser("testUser");

@@ -36,7 +36,7 @@ public abstract class RootTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect("omero", 4064, "root", "omero", 3L);
+            client.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
             assertEquals("Wrong user", 0L, client.getId());
             assertEquals("Wrong group", 3L, client.getCurrentGroupId());
         } catch (Exception e) {

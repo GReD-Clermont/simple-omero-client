@@ -19,7 +19,7 @@ The main entry point is the Client class, which can be used to retrieve, save or
 
 ```java
 Client client=new Client();
-client.connect("host", 4064, "username", "password", groupId);
+client.connect("host", 4064, "username", "password".toCharArray(), groupId);
 ```
 
 ### Repository objects (projects, datasets, images)

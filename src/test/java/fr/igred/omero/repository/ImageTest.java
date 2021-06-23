@@ -95,8 +95,9 @@ public class ImageTest extends UserTest {
 
         DatasetWrapper dataset = client.getDataset(2L);
 
-        dataset.importImages(client,
-                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        List<ImageWrapper> newImages = dataset.importImages(client,
+                                                            "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        assertEquals(1, newImages.size());
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");

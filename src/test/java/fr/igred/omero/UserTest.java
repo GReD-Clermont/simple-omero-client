@@ -36,7 +36,7 @@ public abstract class UserTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password", 3L);
+            client.connect("omero", 4064, "testUser", "password".toCharArray(), 3L);
             assertEquals("Wrong user", 2L, client.getId());
             assertEquals("Wrong group", 3L, client.getCurrentGroupId());
         } catch (Exception e) {

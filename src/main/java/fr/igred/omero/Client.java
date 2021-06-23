@@ -239,7 +239,7 @@ public class Client {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void connect(String hostname, int port, String username, String password, Long groupID)
+    public void connect(String hostname, int port, String username, char[] password, Long groupID)
     throws ServiceException, ExecutionException {
         LoginCredentials cred = createCred(hostname, port, username, password);
 
@@ -264,7 +264,7 @@ public class Client {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void connect(String hostname, int port, String username, String password)
+    public void connect(String hostname, int port, String username, char[] password)
     throws ServiceException, ExecutionException {
         LoginCredentials cred = createCred(hostname, port, username, password);
 
@@ -282,13 +282,13 @@ public class Client {
      * @param username Username of the user.
      * @param password Password of the user.
      */
-    private LoginCredentials createCred(String hostname, int port, String username, String password) {
+    private LoginCredentials createCred(String hostname, int port, String username, char[] password) {
         LoginCredentials cred = new LoginCredentials();
 
         cred.getServer().setHost(hostname);
         cred.getServer().setPort(port);
         cred.getUser().setUsername(username);
-        cred.getUser().setPassword(password);
+        cred.getUser().setPassword(String.valueOf(password));
 
         return cred;
     }
@@ -302,7 +302,7 @@ public class Client {
      * @param username Username of the user.
      * @param password Password of the user.
      */
-    private void createConfig(String hostname, int port, String username, String password) {
+    private void createConfig(String hostname, int port, String username, char[] password) {
         config = new ome.formats.importer.ImportConfig();
 
         config.email.set("");
@@ -314,7 +314,7 @@ public class Client {
         config.hostname.set(hostname);
         config.port.set(port);
         config.username.set(username);
-        config.password.set(password);
+        config.password.set(String.valueOf(password));
     }
 
 

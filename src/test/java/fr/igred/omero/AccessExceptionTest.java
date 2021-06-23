@@ -64,7 +64,7 @@ public class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password", 3L);
+            client.connect("omero", 4064, "testUser", "password".toCharArray(), 3L);
             assertEquals("Wrong user", 2L, client.getId());
             assertEquals("Wrong group", 3L, client.getCurrentGroupId());
             sudo = client.sudoGetUser("testUser2");
@@ -92,7 +92,7 @@ public class AccessExceptionTest extends BasicTest {
     public void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
         client.disconnect();
-        client.connect("omero", 4064, "root", "omero", 3L);
+        client.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
         assertEquals(0L, client.getId());
 
         ImageWrapper image = client.getImage(3L);

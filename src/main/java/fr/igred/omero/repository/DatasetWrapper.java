@@ -400,10 +400,14 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param paths  Paths to the image on your computer.
      *
+     * @return The list of newly imported images.
+     *
      * @throws Exception        OMEROMetadataStoreClient creation failed.
      * @throws OMEROServerError Server error.
      */
-    public void importImages(Client client, String... paths) throws Exception {
+    public List<ImageWrapper> importImages(Client client, String... paths) throws Exception {
+        List<ImageWrapper> oldImages = getImages(client);
+
         ImportConfig clientConfig = client.getConfig();
 
         // Copy client config to ensure thread safety
@@ -438,6 +442,10 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
         store.logout();
         refresh(client);
+
+        List<ImageWrapper> newImages = getImages(client);
+        newImages.removeAll(oldImages);
+        return newImages;
     }
 
 
