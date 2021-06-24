@@ -33,13 +33,16 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
 import ome.formats.importer.cli.LoggingImportMonitor;
-import ome.formats.importer.targets.ImportTarget;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
-import omero.model.*;
+import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
+import omero.model.IObject;
+import omero.model.Pixels;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -494,17 +497,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             if (containers != null) {
                 for (int i = 0; i < containers.size(); i++) {
                     ImportContainer container = containers.get(i);
-                    ImportTarget    target    = config.getTarget();
-                    IObject         object    = target.load(store, container);
-                    if (!(object instanceof Annotation)) {
-                        Class<? extends IObject> targetClass = object.getClass();
-                        while (targetClass.getSuperclass() != IObject.class) {
-                            targetClass = targetClass.getSuperclass().asSubclass(IObject.class);
-                        }
-                        container.setTarget(object);
-                    } else {
-                        container.getCustomAnnotationList().add((Annotation) object);
-                    }
+                    container.setTarget(data.asDataset());
                     List<Pixels> imported = library.importImage(container, uploadThreadPool, i);
                     pixels.addAll(imported);
                 }
