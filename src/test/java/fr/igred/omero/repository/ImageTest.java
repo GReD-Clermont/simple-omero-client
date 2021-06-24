@@ -53,19 +53,20 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testImportImage() throws Exception {
-        File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        String path1 = "./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String path2 = "./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";
+
+        File f = new File(path1);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        File f2 = new File("./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
+        File f2 = new File(path2);
         if (!f2.createNewFile())
             System.err.println("\"" + f2.getCanonicalPath() + "\" could not be created.");
 
         DatasetWrapper dataset = client.getDataset(2L);
 
-        dataset.importImages(client,
-                             "./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake",
-                             "./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake");
+        boolean imported = dataset.importImages(client, path1, path2);
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
@@ -83,21 +84,23 @@ public class ImageTest extends UserTest {
 
         images = dataset.getImages(client);
 
-        assert (images.isEmpty());
+        assertTrue(images.isEmpty());
+        assertTrue(imported);
     }
 
 
     @Test
     public void testPairKeyValue() throws Exception {
-        File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+
+        File f = new File(path);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetWrapper dataset = client.getDataset(2L);
 
-        List<ImageWrapper> newImages = dataset.importImages(client,
-                                                            "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
-        assertEquals(1, newImages.size());
+        List<Long> newIDs = dataset.importImage(client, f.getAbsolutePath());
+        assertEquals(1, newIDs.size());
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
@@ -136,14 +139,15 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testPairKeyValue2() throws Exception {
-        File f = new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+
+        File f = new File(path);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetWrapper dataset = client.getDataset(2L);
 
-        dataset.importImages(client,
-                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client, f.getAbsolutePath());
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
@@ -173,15 +177,16 @@ public class ImageTest extends UserTest {
     @Test
     public void testPairKeyValue3() throws Exception {
         boolean exception = false;
-        File f =
-                new File("./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+
+        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+
+        File f = new File(path);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
         DatasetWrapper dataset = client.getDataset(2L);
 
-        dataset.importImages(client,
-                             "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake");
+        dataset.importImages(client, f.getAbsolutePath());
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
@@ -379,8 +384,9 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testToImagePlus() throws Exception {
-        String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
-        File   fakeFile = new File(fake);
+        String fake = "8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+
+        File fakeFile = new File(fake);
 
         if (!fakeFile.createNewFile())
             System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");

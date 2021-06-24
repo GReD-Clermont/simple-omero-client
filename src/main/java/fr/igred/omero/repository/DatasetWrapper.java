@@ -28,19 +28,18 @@ import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
 import ome.formats.importer.cli.LoggingImportMonitor;
+import ome.formats.importer.targets.ImportTarget;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
-import omero.model.DatasetI;
-import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
-import omero.model.IObject;
+import omero.model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,6 +47,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
@@ -400,13 +401,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param paths  Paths to the image on your computer.
      *
-     * @return The list of newly imported images.
-     *
      * @throws Exception        OMEROMetadataStoreClient creation failed.
      * @throws OMEROServerError Server error.
      */
-    public List<ImageWrapper> importImages(Client client, String... paths) throws Exception {
-        List<ImageWrapper> oldImages = getImages(client);
+    public boolean importImages(Client client, String... paths) throws Exception {
+        boolean imported;
 
         ImportConfig clientConfig = client.getConfig();
 
@@ -425,27 +424,101 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         config.target.set("Dataset:" + data.getId());
 
         OMEROMetadataStoreClient store = config.createStore();
-        try {
+        try (OMEROWrapper reader = new OMEROWrapper(config)) {
             store.logVersionInfo(config.getIniVersionNumber());
+            reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
+
+            ImportLibrary library = new ImportLibrary(store, reader);
+            library.addObserver(new LoggingImportMonitor());
+
+            ErrorHandler handler = new ErrorHandler(config);
+
+            ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
+            imported = library.importCandidates(config, candidates);
         } catch (ServerError se) {
             throw new OMEROServerError(se);
+        } finally {
+            store.logout();
         }
-        OMEROWrapper  reader  = new OMEROWrapper(config);
-        ImportLibrary library = new ImportLibrary(store, reader);
 
-        ErrorHandler handler = new ErrorHandler(config);
-        library.addObserver(new LoggingImportMonitor());
+        refresh(client);
+        return imported;
+    }
 
-        ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
-        reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
-        library.importCandidates(config, candidates);
 
-        store.logout();
+    /**
+     * Imports one image candidate in the paths to the dataset in OMERO.
+     *
+     * @param client The client handling the connection.
+     * @param path   Path to the image on your computer.
+     *
+     * @return The list of IDs of the newly imported images.
+     *
+     * @throws Exception        OMEROMetadataStoreClient creation failed.
+     * @throws OMEROServerError Server (or upload) error.
+     */
+    public List<Long> importImage(Client client, String path) throws Exception {
+        ImportConfig clientConfig = client.getConfig();
+
+        // Copy client config to ensure thread safety
+        ImportConfig config = new ImportConfig();
+        config.email.set(clientConfig.email.get());
+        config.sendFiles.set(clientConfig.sendFiles.get());
+        config.sendReport.set(clientConfig.sendReport.get());
+        config.contOnError.set(clientConfig.contOnError.get());
+        config.debug.set(clientConfig.debug.get());
+        config.hostname.set(clientConfig.hostname.get());
+        config.port.set(clientConfig.port.get());
+        config.username.set(clientConfig.username.get());
+        config.password.set(clientConfig.password.get());
+
+        config.target.set("Dataset:" + data.getId());
+
+        List<Pixels> pixels = new ArrayList<>(1);
+
+        OMEROMetadataStoreClient store = config.createStore();
+        try (OMEROWrapper reader = new OMEROWrapper(config)) {
+            store.logVersionInfo(config.getIniVersionNumber());
+            reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
+
+            ImportLibrary library = new ImportLibrary(store, reader);
+            library.addObserver(new LoggingImportMonitor());
+
+            ErrorHandler handler = new ErrorHandler(config);
+
+            ImportCandidates candidates = new ImportCandidates(reader, new String[]{path}, handler);
+
+            ExecutorService uploadThreadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
+
+            List<ImportContainer> containers = candidates.getContainers();
+            if (containers != null) {
+                for (int i = 0; i < containers.size(); i++) {
+                    ImportContainer container = containers.get(i);
+                    ImportTarget    target    = config.getTarget();
+                    IObject         object    = target.load(store, container);
+                    if (!(object instanceof Annotation)) {
+                        Class<? extends IObject> targetClass = object.getClass();
+                        while (targetClass.getSuperclass() != IObject.class) {
+                            targetClass = targetClass.getSuperclass().asSubclass(IObject.class);
+                        }
+                        container.setTarget(object);
+                    } else {
+                        container.getCustomAnnotationList().add((Annotation) object);
+                    }
+                    List<Pixels> imported = library.importImage(container, uploadThreadPool, i);
+                    pixels.addAll(imported);
+                }
+            }
+        } catch (Throwable t) {
+            throw new OMEROServerError(t);
+        } finally {
+            store.logout();
+        }
         refresh(client);
 
-        List<ImageWrapper> newImages = getImages(client);
-        newImages.removeAll(oldImages);
-        return newImages;
+        List<Long> ids = new ArrayList<>(pixels.size());
+        pixels.forEach(pix -> ids.add(pix.getId().getValue()));
+        return ids;
     }
 
 
