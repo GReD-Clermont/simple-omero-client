@@ -191,12 +191,22 @@ public class Client {
 
 
     /**
-     * Gets the importation config for the user.
+     * Gets a copy of the importation config for the user.
      *
      * @return config.
      */
     public ImportConfig getConfig() {
-        return config;
+        ImportConfig copy = new ImportConfig();
+        copy.email.set(this.config.email.get());
+        copy.sendFiles.set(this.config.sendFiles.get());
+        copy.sendReport.set(this.config.sendReport.get());
+        copy.contOnError.set(this.config.contOnError.get());
+        copy.debug.set(this.config.debug.get());
+        copy.hostname.set(this.config.hostname.get());
+        copy.port.set(this.config.port.get());
+        copy.username.set(this.config.username.get());
+        copy.password.set(this.config.password.get());
+        return copy;
     }
 
 

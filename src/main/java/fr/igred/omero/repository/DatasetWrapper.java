@@ -410,21 +410,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws OMEROServerError Server error.
      */
     public boolean importImages(Client client, String... paths) throws Exception {
-        boolean imported;
+        boolean success;
 
-        ImportConfig clientConfig = client.getConfig();
-
-        // Copy client config to ensure thread safety
-        ImportConfig config = new ImportConfig();
-        config.email.set(clientConfig.email.get());
-        config.sendFiles.set(clientConfig.sendFiles.get());
-        config.sendReport.set(clientConfig.sendReport.get());
-        config.contOnError.set(clientConfig.contOnError.get());
-        config.debug.set(clientConfig.debug.get());
-        config.hostname.set(clientConfig.hostname.get());
-        config.port.set(clientConfig.port.get());
-        config.username.set(clientConfig.username.get());
-        config.password.set(clientConfig.password.get());
+        ImportConfig config = client.getConfig();
 
         config.target.set("Dataset:" + data.getId());
 
@@ -439,7 +427,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             ErrorHandler handler = new ErrorHandler(config);
 
             ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
-            imported = library.importCandidates(config, candidates);
+            success = library.importCandidates(config, candidates);
         } catch (ServerError se) {
             throw new OMEROServerError(se);
         } finally {
@@ -447,7 +435,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         }
 
         refresh(client);
-        return imported;
+        return success;
     }
 
 
@@ -463,19 +451,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws OMEROServerError Server (or upload) error.
      */
     public List<Long> importImage(Client client, String path) throws Exception {
-        ImportConfig clientConfig = client.getConfig();
-
-        // Copy client config to ensure thread safety
-        ImportConfig config = new ImportConfig();
-        config.email.set(clientConfig.email.get());
-        config.sendFiles.set(clientConfig.sendFiles.get());
-        config.sendReport.set(clientConfig.sendReport.get());
-        config.contOnError.set(clientConfig.contOnError.get());
-        config.debug.set(clientConfig.debug.get());
-        config.hostname.set(clientConfig.hostname.get());
-        config.port.set(clientConfig.port.get());
-        config.username.set(clientConfig.username.get());
-        config.password.set(clientConfig.password.get());
+        ImportConfig config = client.getConfig();
 
         config.target.set("Dataset:" + data.getId());
 
