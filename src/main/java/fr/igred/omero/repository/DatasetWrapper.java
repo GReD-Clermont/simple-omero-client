@@ -404,6 +404,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param paths  Paths to the image on your computer.
      *
+     * @return If the import did not exit because of an error.
+     *
      * @throws Exception        OMEROMetadataStoreClient creation failed.
      * @throws OMEROServerError Server error.
      */
