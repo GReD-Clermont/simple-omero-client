@@ -26,7 +26,6 @@ import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import omero.gateway.model.TagAnnotationData;
-import omero.gateway.util.PojoMapper;
 import omero.model.IObject;
 
 import java.util.ArrayList;
@@ -64,8 +63,18 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      */
     public TagAnnotationWrapper(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
-        super((TagAnnotationData) PojoMapper
-                .asDataObject(client.save(new TagAnnotationData(name, description).asIObject())));
+        super(new TagAnnotationData(name, description));
+        this.saveAndUpdate(client);
+    }
+
+
+    /**
+     * Gets the name of the TagData.
+     *
+     * @return TagData name.
+     */
+    public String getName() {
+        return data.getTagValue();
     }
 
 
@@ -78,16 +87,6 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      */
     public void setName(String name) {
         data.setTagValue(name);
-    }
-
-
-    /**
-     * Gets the name of the TagData.
-     *
-     * @return TagData name.
-     */
-    public String getName() {
-        return data.getTagValue();
     }
 
 

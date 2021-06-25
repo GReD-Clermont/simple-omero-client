@@ -57,8 +57,7 @@ public class TableWrapper {
      * @param columnCount Number of column in the table.
      * @param name        Name of the table.
      */
-    public TableWrapper(int columnCount,
-                        String name) {
+    public TableWrapper(int columnCount, String name) {
         this.columnCount = columnCount;
         columns = new TableDataColumn[columnCount];
 

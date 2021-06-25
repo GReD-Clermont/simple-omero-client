@@ -27,7 +27,6 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
-import omero.gateway.util.PojoMapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -211,11 +210,10 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     private DatasetWrapper addDataset(Client client, DatasetData datasetData)
     throws ServiceException, AccessException, ExecutionException {
-        DatasetWrapper newDataset;
         datasetData.setProjects(Collections.singleton(data));
-        DatasetData dataset = (DatasetData) PojoMapper.asDataObject(client.save(datasetData.asIObject()));
+        DatasetWrapper newDataset = new DatasetWrapper(datasetData);
+        newDataset.saveAndUpdate(client);
         refresh(client);
-        newDataset = new DatasetWrapper(dataset);
         return newDataset;
     }
 
