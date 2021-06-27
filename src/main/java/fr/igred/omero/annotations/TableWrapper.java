@@ -125,10 +125,6 @@ public class TableWrapper {
 
         List<ROIWrapper> rois = new ArrayList<>();
 
-        String[] headings = results.getHeadings();
-
-        int nColumns = headings.length;
-
         int offset = 0;
         if (imageId != null) {
             image = client.getImage(imageId);
@@ -139,11 +135,14 @@ public class TableWrapper {
         if (roiColumn != null) {
             offset++;
         }
+
+        String[] headings      = results.getHeadings();
+        String[] shortHeadings = results.getHeadingsAsVariableNames();
+
+        int nColumns = headings.length;
         this.columnCount = nColumns + offset;
         columns = new TableDataColumn[columnCount];
         data = new Object[columnCount][];
-
-        String[] shortHeadings = results.getHeadingsAsVariableNames();
 
         if (offset > 0) {
             setColumn(0, "Image", ImageData.class);
@@ -151,7 +150,7 @@ public class TableWrapper {
             Arrays.fill(data[0], image.asImageData());
         }
         if (offset > 1) {
-            setColumn(1, "ROIData", ROIData.class);
+            setColumn(1, "ROI", ROIData.class);
             data[1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
@@ -226,6 +225,7 @@ public class TableWrapper {
                                   .map(v -> roiName2roi.get(v.toString()))
                                   .toArray(ROIData[]::new);
             }
+            results.deleteColumn("ROI");
         } else if (hasROIsInLabel) {
             String[] roiNames = Arrays.stream(labels)
                                       .map(s -> roiName2roi.keySet().stream().filter(s::contains)
@@ -253,10 +253,7 @@ public class TableWrapper {
      */
     public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
     throws ServiceException, AccessException, ExecutionException {
-        String[] headings = results.getHeadings();
-
-        int nColumns = headings.length;
-        int offset   = 0;
+        int offset = 0;
 
         ImageWrapper image = new ImageWrapper(null);
 
@@ -272,6 +269,9 @@ public class TableWrapper {
             offset++;
         }
 
+        String[] headings = results.getHeadings();
+
+        int nColumns = headings.length;
         if (nColumns + offset != columnCount) {
             throw new IllegalArgumentException("Number of columns mismatch");
         }
@@ -290,7 +290,7 @@ public class TableWrapper {
             if (roiColumn != null) newRow[1] = roiColumn[i];
             for (int j = 0; j < nColumns; j++) {
                 if (isNumeric[j]) newRow[offset + j] = results.getValueAsDouble(j, i);
-                else newRow[offset + j] = results.getStringValue(j, i);
+                else newRow[offset + j] = results.getStringValue(headings[j], i);
             }
             addRow(newRow);
         }

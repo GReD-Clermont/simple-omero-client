@@ -167,9 +167,10 @@ public class TableTest extends UserTest {
         assertTrue(exception);
     }
 
+
     @Ignore("ROI retrieval bugged")
     @Test
-    public void testCreateTableFromIJResults1() throws Exception {
+    public void testCreateTableWithROIsFromIJResults1() throws Exception {
         long imageId = 1L;
 
         ImageWrapper image = client.getImage(imageId);
@@ -213,7 +214,7 @@ public class TableTest extends UserTest {
 
         assertEquals(0, tables.size());
 
-        for(ROIWrapper r : rois) {
+        for (ROIWrapper r : rois) {
             client.delete(r);
         }
         assertEquals(0, image.getROIs(client).size());
@@ -222,7 +223,7 @@ public class TableTest extends UserTest {
 
     @Ignore("ROI retrieval bugged")
     @Test
-    public void testCreateTableFromIJResults2() throws Exception {
+    public void testCreateTableWithROIsFromIJResults2() throws Exception {
         long imageId = 1L;
 
         ImageWrapper image = client.getImage(imageId);
@@ -259,13 +260,13 @@ public class TableTest extends UserTest {
 
         assertEquals(1, tables.size());
 
-        client.delete(tables.get(0));
+        client.deleteFile(table.getFileId());
 
         tables = image.getTables(client);
 
         assertEquals(0, tables.size());
 
-        for(ROIWrapper r : rois) {
+        for (ROIWrapper r : rois) {
             client.delete(r);
         }
         assertEquals(0, image.getROIs(client).size());
@@ -273,12 +274,12 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableFromIJResults3() throws Exception {
+    public void testCreateTableFromIJResults() throws Exception {
         long imageId = 1L;
 
         ImageWrapper image = client.getImage(imageId);
 
-        List<Roi>        ijRois = new ArrayList<>();
+        List<Roi> ijRois = new ArrayList<>();
 
         ResultsTable results = new ResultsTable();
         results.addRow();
@@ -292,6 +293,43 @@ public class TableTest extends UserTest {
         List<TableWrapper> tables = image.getTables(client);
 
         assertEquals(1, tables.size());
+
+        client.delete(tables.get(0));
+
+        tables = image.getTables(client);
+
+        assertEquals(0, tables.size());
+    }
+
+
+    @Test
+    public void testAddRowsFromIJResults() throws Exception {
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        List<Roi> ijRois = new ArrayList<>();
+
+        ResultsTable results1 = new ResultsTable();
+        results1.addRow();
+        results1.addLabel(image.getName());
+        results1.addValue("Volume", 25.0);
+        results1.addValue("Volume Unit", "µm");
+
+        ResultsTable results2 = new ResultsTable();
+        results2.addRow();
+        results2.addLabel(image.getName());
+        results2.addValue("Volume", 50);
+        results2.addValue("Volume Unit", "m");
+
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, "ROI");
+        table.addRows(client, results2, imageId, ijRois, "ROI");
+        image.addTable(client, table);
+
+        List<TableWrapper> tables = image.getTables(client);
+
+        assertEquals(1, tables.size());
+        assertEquals(2, tables.get(0).getRowCount());
 
         client.delete(tables.get(0));
 
