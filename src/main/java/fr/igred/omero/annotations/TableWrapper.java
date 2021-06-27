@@ -120,9 +120,10 @@ public class TableWrapper {
      */
     public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
     throws ServiceException, AccessException, ExecutionException {
+        ResultsTable rt = (ResultsTable) results.clone();
         this.fileId = null;
-        this.name = results.getTitle();
-        this.rowCount = results.size();
+        this.name = rt.getTitle();
+        this.rowCount = rt.size();
 
         ImageWrapper image = new ImageWrapper(null);
 
@@ -134,13 +135,13 @@ public class TableWrapper {
             rois = image.getROIs(client);
             offset++;
         }
-        ROIData[] roiColumn = createROIColumn(results, rois, ijRois, roiIdProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiIdProperty);
         if (roiColumn != null) {
             offset++;
         }
 
-        String[] headings      = results.getHeadings();
-        String[] shortHeadings = results.getHeadingsAsVariableNames();
+        String[] headings      = rt.getHeadings();
+        String[] shortHeadings = rt.getHeadingsAsVariableNames();
 
         int nColumns = headings.length;
         this.columnCount = nColumns + offset;
@@ -157,14 +158,14 @@ public class TableWrapper {
             data[1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
-            Variable[] col = results.getColumnAsVariables(headings[i]);
+            Variable[] col = rt.getColumnAsVariables(headings[i]);
 
-            if (isNumeric(col)) {
+            if (isColumnNumeric(col)) {
                 setColumn(offset + i, shortHeadings[i], Double.class);
                 data[offset + i] = Arrays.stream(col).map(Variable::getValue).toArray(Double[]::new);
             } else {
                 setColumn(offset + i, shortHeadings[i], String.class);
-                data[offset + i] = Arrays.stream(col).map(Variable::toString).toArray(String[]::new);
+                data[offset + i] = Arrays.stream(col).map(Variable::getString).toArray(String[]::new);
             }
         }
         this.row = rowCount;
@@ -178,7 +179,7 @@ public class TableWrapper {
      *
      * @return Whether the column holds numeric values or not.
      */
-    private boolean isNumeric(Variable[] resultsColumn) {
+    private static boolean isColumnNumeric(Variable[] resultsColumn) {
         return Arrays.stream(resultsColumn)
                      .map(v -> !Double.isNaN(v.getValue())
                                || v.toString().equals(String.valueOf(Double.NaN)))
@@ -196,10 +197,10 @@ public class TableWrapper {
      *
      * @return An ROIData column.
      */
-    private ROIData[] createROIColumn(ResultsTable results,
-                                      List<ROIWrapper> rois,
-                                      List<Roi> ijRois,
-                                      String roiIdProperty) {
+    private static ROIData[] createROIColumn(ResultsTable results,
+                                             List<ROIWrapper> rois,
+                                             List<Roi> ijRois,
+                                             String roiIdProperty) {
         ROIData[] roiColumn = null;
 
         Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
@@ -219,13 +220,13 @@ public class TableWrapper {
 
         if (results.columnExists("ROI")) {
             Variable[] roiCol = results.getColumnAsVariables("ROI");
-            if (isNumeric(roiCol)) {
+            if (isColumnNumeric(roiCol)) {
                 roiColumn = Arrays.stream(roiCol)
                                   .map(v -> id2roi.get((long) v.getValue()))
                                   .toArray(ROIData[]::new);
             } else {
                 roiColumn = Arrays.stream(roiCol)
-                                  .map(v -> roiName2roi.get(v.toString()))
+                                  .map(v -> roiName2roi.get(v.getString()))
                                   .toArray(ROIData[]::new);
             }
             results.deleteColumn("ROI");
@@ -256,7 +257,8 @@ public class TableWrapper {
      */
     public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
     throws ServiceException, AccessException, ExecutionException {
-        int offset = 0;
+        ResultsTable rt     = (ResultsTable) results.clone();
+        int          offset = 0;
 
         ImageWrapper image = new ImageWrapper(null);
 
@@ -267,12 +269,12 @@ public class TableWrapper {
             rois = image.getROIs(client);
             offset++;
         }
-        ROIData[] roiColumn = createROIColumn(results, rois, ijRois, roiIdProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiIdProperty);
         if (roiColumn != null) {
             offset++;
         }
 
-        String[] headings = results.getHeadings();
+        String[] headings = rt.getHeadings();
 
         int nColumns = headings.length;
         if (nColumns + offset != columnCount) {
@@ -281,19 +283,18 @@ public class TableWrapper {
 
         Object[] newRow = new Object[offset + nColumns];
 
-        final int n = results.size();
+        final int n = rt.size();
         setRowCount(rowCount + n);
 
-        final boolean[] isNumeric = new boolean[nColumns];
-        for (int j = 0; j < nColumns; j++) {
-            isNumeric[j] = isNumeric(results.getColumnAsVariables(headings[j]));
-        }
         for (int i = 0; i < n; i++) {
             if (offset > 0) newRow[0] = image.asImageData();
             if (roiColumn != null) newRow[1] = roiColumn[i];
             for (int j = 0; j < nColumns; j++) {
-                if (isNumeric[j]) newRow[offset + j] = results.getValueAsDouble(j, i);
-                else newRow[offset + j] = results.getStringValue(headings[j], i);
+                if (columns[offset + j].getType().equals(String.class)) {
+                    newRow[offset + j] = rt.getStringValue(headings[j], i);
+                } else {
+                    newRow[offset + j] = rt.getValue(headings[j], i);
+                }
             }
             addRow(newRow);
         }
@@ -487,7 +488,7 @@ public class TableWrapper {
 
 
     public TableData createTable() {
-        truncateRow();
+        if (!isComplete()) truncateRow();
 
         return new TableData(columns, data);
     }
