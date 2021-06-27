@@ -19,9 +19,15 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.RectangleWrapper;
+import ij.gui.Roi;
+import ij.measure.ResultsTable;
 import omero.gateway.model.ImageData;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -159,6 +165,139 @@ public class TableTest extends UserTest {
             exception = true;
         }
         assertTrue(exception);
+    }
+
+    @Ignore("ROI retrieval bugged")
+    @Test
+    public void testCreateTableFromIJResults1() throws Exception {
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        ROIWrapper roi = new ROIWrapper();
+
+        roi.setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roi.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+
+        ResultsTable results = new ResultsTable();
+        results.addRow();
+        results.addLabel(image.getName());
+        results.addValue("ROI", rois.get(0).getId());
+        results.addValue("Volume", 25.0);
+        results.addValue("Volume Unit", "µm");
+
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
+        image.addTable(client, table);
+
+        List<TableWrapper> tables = image.getTables(client);
+
+        assertEquals(1, tables.size());
+
+        client.delete(tables.get(0));
+
+        tables = image.getTables(client);
+
+        assertEquals(0, tables.size());
+
+        for(ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Ignore("ROI retrieval bugged")
+    @Test
+    public void testCreateTableFromIJResults2() throws Exception {
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        ROIWrapper roi = new ROIWrapper();
+
+        roi.setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roi.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+
+        ResultsTable results = new ResultsTable();
+        results.addRow();
+        results.addLabel(image.getName() + ":" + ijRois.get(0).getName() + ":4");
+        results.addValue("Volume", 25.0);
+        results.addValue("Volume Unit", "µm");
+
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
+        image.addTable(client, table);
+
+        List<TableWrapper> tables = image.getTables(client);
+
+        assertEquals(1, tables.size());
+
+        client.delete(tables.get(0));
+
+        tables = image.getTables(client);
+
+        assertEquals(0, tables.size());
+
+        for(ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
+    public void testCreateTableFromIJResults3() throws Exception {
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        List<Roi>        ijRois = new ArrayList<>();
+
+        ResultsTable results = new ResultsTable();
+        results.addRow();
+        results.addLabel(image.getName());
+        results.addValue("Volume", 25.0);
+        results.addValue("Volume Unit", "µm");
+
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
+        image.addTable(client, table);
+
+        List<TableWrapper> tables = image.getTables(client);
+
+        assertEquals(1, tables.size());
+
+        client.delete(tables.get(0));
+
+        tables = image.getTables(client);
+
+        assertEquals(0, tables.size());
     }
 
 }

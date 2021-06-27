@@ -18,8 +18,26 @@
 package fr.igred.omero.annotations;
 
 
+import fr.igred.omero.Client;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.roi.ROIWrapper;
+import ij.gui.Roi;
+import ij.macro.Variable;
+import ij.measure.ResultsTable;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -31,7 +49,8 @@ import omero.gateway.model.TableDataColumn;
 public class TableWrapper {
 
     /** Number of column in the table */
-    final int               columnCount;
+    final int columnCount;
+
     /** Information of each column (Name, Type) */
     final TableDataColumn[] columns;
 
@@ -81,6 +100,200 @@ public class TableWrapper {
         data = table.getData();
         rowCount = (int) table.getNumberOfRows();
         row = rowCount;
+    }
+
+
+    /**
+     * Constructor of the class TableWrapper. Uses an ImageJ {@link ResultsTable} to create.
+     *
+     * @param client        The client handling the connection.
+     * @param results       An ImageJ results table.
+     * @param imageId       An image ID.
+     * @param ijRois        A list of ImageJ Rois.
+     * @param roiIdProperty The Roi property storing the ROI IDs.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
+    throws ServiceException, AccessException, ExecutionException {
+        this.name = results.getTitle();
+        this.rowCount = results.size();
+
+        ImageWrapper image = new ImageWrapper(null);
+
+        List<ROIWrapper> rois = new ArrayList<>();
+
+        String[] headings = results.getHeadings();
+
+        int nColumns = headings.length;
+
+        int offset = 0;
+        if (imageId != null) {
+            image = client.getImage(imageId);
+            rois = image.getROIs(client);
+            offset++;
+        }
+        ROIData[] roiColumn = createROIColumn(results, rois, ijRois, roiIdProperty);
+        if (roiColumn != null) {
+            offset++;
+        }
+        this.columnCount = nColumns + offset;
+        columns = new TableDataColumn[columnCount];
+        data = new Object[columnCount][];
+
+        String[] shortHeadings = results.getHeadingsAsVariableNames();
+
+        if (offset > 0) {
+            setColumn(0, "Image", ImageData.class);
+            data[0] = new ImageData[rowCount];
+            Arrays.fill(data[0], image.asImageData());
+        }
+        if (offset > 1) {
+            setColumn(1, "ROIData", ROIData.class);
+            data[1] = roiColumn;
+        }
+        for (int i = 0; i < nColumns; i++) {
+            Variable[] col = results.getColumnAsVariables(headings[i]);
+
+            if (isNumeric(col)) {
+                setColumn(offset + i, shortHeadings[i], Double.class);
+                data[offset + i] = Arrays.stream(col).map(Variable::getValue).toArray(Double[]::new);
+            } else {
+                setColumn(offset + i, shortHeadings[i], String.class);
+                data[offset + i] = Arrays.stream(col).map(Variable::toString).toArray(String[]::new);
+            }
+        }
+        this.row = rowCount;
+    }
+
+
+    /**
+     * Checks if a column from a {@link ResultsTable} is numeric or not.
+     *
+     * @param resultsColumn An ImageJ results table column.
+     *
+     * @return Whether the column holds numeric values or not.
+     */
+    private boolean isNumeric(Variable[] resultsColumn) {
+        return Arrays.stream(resultsColumn)
+                     .map(v -> !Double.isNaN(v.getValue())
+                               || v.toString().equals(String.valueOf(Double.NaN)))
+                     .reduce(Boolean::logicalOr).orElse(false);
+    }
+
+
+    /**
+     * Creates a ROIData column
+     *
+     * @param results       An ImageJ results table.
+     * @param rois          A list of OMERO ROIs.
+     * @param ijRois        A list of ImageJ Rois.
+     * @param roiIdProperty The Roi property storing the ROI IDs.
+     *
+     * @return An ROIData column.
+     */
+    private ROIData[] createROIColumn(ResultsTable results,
+                                      List<ROIWrapper> rois,
+                                      List<Roi> ijRois,
+                                      String roiIdProperty) {
+        ROIData[] roiColumn = null;
+
+        Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
+
+        Map<String, ROIData> roiName2roi = new HashMap<>(ijRois.size());
+        for (Roi ijRoi : ijRois) {
+            String value = ijRoi.getProperty(roiIdProperty);
+            if (value != null) {
+                roiName2roi.put(ijRoi.getName(), id2roi.get(Long.parseLong(value)));
+            }
+        }
+
+        String[] labels = results.getColumnAsStrings("Label");
+        boolean hasROIsInLabel = Arrays.stream(labels)
+                                       .map(s -> roiName2roi.keySet().stream().anyMatch(s::contains))
+                                       .reduce(Boolean::logicalAnd).orElse(false);
+
+        if (results.columnExists("ROI")) {
+            Variable[] roiCol = results.getColumnAsVariables("ROI");
+            if (isNumeric(roiCol)) {
+                roiColumn = Arrays.stream(roiCol)
+                                  .map(v -> id2roi.get((long) v.getValue()))
+                                  .toArray(ROIData[]::new);
+            } else {
+                roiColumn = Arrays.stream(roiCol)
+                                  .map(v -> roiName2roi.get(v.toString()))
+                                  .toArray(ROIData[]::new);
+            }
+        } else if (hasROIsInLabel) {
+            String[] roiNames = Arrays.stream(labels)
+                                      .map(s -> roiName2roi.keySet().stream().filter(s::contains)
+                                                           .collect(Collectors.toList()).get(0))
+                                      .toArray(String[]::new);
+            roiColumn = Arrays.stream(roiNames).map(roiName2roi::get).toArray(ROIData[]::new);
+        }
+
+        return roiColumn;
+    }
+
+
+    /**
+     * Adds rows from an ImageJ {@link ResultsTable}.
+     *
+     * @param client        The client handling the connection.
+     * @param results       An ImageJ results table.
+     * @param imageId       An image ID.
+     * @param ijRois        A list of ImageJ Rois.
+     * @param roiIdProperty The Roi property storing the ROI IDs.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
+    throws ServiceException, AccessException, ExecutionException {
+        String[] headings = results.getHeadings();
+
+        int nColumns = headings.length;
+        int offset   = 0;
+
+        ImageWrapper image = new ImageWrapper(null);
+
+        List<ROIWrapper> rois = new ArrayList<>();
+
+        if (imageId != null) {
+            image = client.getImage(imageId);
+            rois = image.getROIs(client);
+            offset++;
+        }
+        ROIData[] roiColumn = createROIColumn(results, rois, ijRois, roiIdProperty);
+        if (roiColumn != null) {
+            offset++;
+        }
+
+        if (nColumns + offset != columnCount) {
+            throw new IllegalArgumentException("Number of columns mismatch");
+        }
+
+        Object[] newRow = new Object[offset + nColumns];
+
+        final int n = results.size();
+        setRowCount(rowCount + n);
+
+        final boolean[] isNumeric = new boolean[nColumns];
+        for (int j = 0; j < nColumns; j++) {
+            isNumeric[j] = isNumeric(results.getColumnAsVariables(headings[j]));
+        }
+        for (int i = 0; i < n; i++) {
+            if (offset > 0) newRow[0] = image.asImageData();
+            if (roiColumn != null) newRow[1] = roiColumn[i];
+            for (int j = 0; j < nColumns; j++) {
+                if (isNumeric[j]) newRow[offset + j] = results.getValueAsDouble(j, i);
+                else newRow[offset + j] = results.getStringValue(j, i);
+            }
+            addRow(newRow);
+        }
     }
 
 
