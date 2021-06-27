@@ -24,7 +24,6 @@ import fr.igred.omero.roi.RectangleWrapper;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import omero.gateway.model.ImageData;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -168,7 +167,6 @@ public class TableTest extends UserTest {
     }
 
 
-    @Ignore("ROI retrieval bugged")
     @Test
     public void testCreateTableWithROIsFromIJResults1() throws Exception {
         long imageId = 1L;
@@ -204,15 +202,9 @@ public class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
         image.addTable(client, table);
 
-        List<TableWrapper> tables = image.getTables(client);
+        assertNotNull(table.getFileId());
 
-        assertEquals(1, tables.size());
-
-        client.delete(tables.get(0));
-
-        tables = image.getTables(client);
-
-        assertEquals(0, tables.size());
+        client.deleteFile(table.getFileId());
 
         for (ROIWrapper r : rois) {
             client.delete(r);
@@ -221,7 +213,6 @@ public class TableTest extends UserTest {
     }
 
 
-    @Ignore("ROI retrieval bugged")
     @Test
     public void testCreateTableWithROIsFromIJResults2() throws Exception {
         long imageId = 1L;
@@ -256,15 +247,9 @@ public class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
         image.addTable(client, table);
 
-        List<TableWrapper> tables = image.getTables(client);
-
-        assertEquals(1, tables.size());
+        assertNotNull(table.getFileId());
 
         client.deleteFile(table.getFileId());
-
-        tables = image.getTables(client);
-
-        assertEquals(0, tables.size());
 
         for (ROIWrapper r : rois) {
             client.delete(r);
@@ -336,6 +321,37 @@ public class TableTest extends UserTest {
         tables = image.getTables(client);
 
         assertEquals(0, tables.size());
+    }
+
+
+    @Test
+    public void testAddRowsFromIJResultsError() throws Exception {
+        boolean error = false;
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        List<Roi> ijRois = new ArrayList<>();
+
+        ResultsTable results1 = new ResultsTable();
+        results1.addRow();
+        results1.addLabel(image.getName());
+        results1.addValue("Volume", 25.0);
+        results1.addValue("Volume Unit", "µm");
+
+        ResultsTable results2 = new ResultsTable();
+        results2.addRow();
+        results2.addLabel(image.getName());
+        results2.addValue("Volume", 50);
+
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, "ROI");
+        try {
+            table.addRows(client, results2, imageId, ijRois, "ROI");
+        } catch(IllegalArgumentException e) {
+            error = true;
+        }
+
+        assertTrue(error);
     }
 
 }

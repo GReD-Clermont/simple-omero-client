@@ -55,12 +55,14 @@ public class TableWrapper {
     final TableDataColumn[] columns;
 
     /** Number of row in the table */
-    int        rowCount;
+    int rowCount;
+
     /** Content of the table */
     Object[][] data;
 
     /** Current position in the table */
-    int    row;
+    int row;
+
     /** Name of the table */
     String name;
 
@@ -118,6 +120,7 @@ public class TableWrapper {
      */
     public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
     throws ServiceException, AccessException, ExecutionException {
+        this.fileId = null;
         this.name = results.getTitle();
         this.rowCount = results.size();
 
