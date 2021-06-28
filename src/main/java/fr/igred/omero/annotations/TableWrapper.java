@@ -136,7 +136,7 @@ public class TableWrapper {
             offset++;
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiIdProperty);
-        if (roiColumn != null) {
+        if (roiColumn.length > 0) {
             offset++;
         }
 
@@ -201,7 +201,8 @@ public class TableWrapper {
                                              List<ROIWrapper> rois,
                                              List<Roi> ijRois,
                                              String roiIdProperty) {
-        ROIData[] roiColumn = null;
+        ROIData[] empty = new ROIData[0];
+        ROIData[] roiColumn = empty;
 
         Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
 
@@ -231,6 +232,8 @@ public class TableWrapper {
                                   .map(v -> roiName2roi.get(v.getString()))
                                   .toArray(ROIData[]::new);
             }
+            // If roiColumn contains null, we return an empty array
+            if(Arrays.asList(roiColumn).contains(null)) return empty;
             results.deleteColumn("ROI");
         } else if (hasROIsInLabel) {
             String[] roiNames = Arrays.stream(labels)
@@ -272,7 +275,7 @@ public class TableWrapper {
             offset++;
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiIdProperty);
-        if (roiColumn != null) {
+        if (roiColumn.length > 0) {
             offset++;
         }
 
@@ -290,7 +293,7 @@ public class TableWrapper {
 
         for (int i = 0; i < n; i++) {
             if (offset > 0) newRow[0] = image.asImageData();
-            if (roiColumn != null) newRow[1] = roiColumn[i];
+            if (roiColumn.length > 0) newRow[1] = roiColumn[i];
             for (int j = 0; j < nColumns; j++) {
                 if (columns[offset + j].getType().equals(String.class)) {
                     newRow[offset + j] = rt.getStringValue(headings[j], i);
