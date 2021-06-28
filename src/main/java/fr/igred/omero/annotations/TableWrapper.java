@@ -214,12 +214,8 @@ public class TableWrapper {
             }
         }
 
-        String[] labels = Arrays.stream(results.getColumnAsVariables("Label"))
-                                .map(Variable::getString).toArray(String[]::new);
 
-        boolean hasROIsInLabel = Arrays.stream(labels)
-                                       .map(s -> roiName2roi.keySet().stream().anyMatch(s::contains))
-                                       .reduce(Boolean::logicalAnd).orElse(false);
+        String[] headings = results.getHeadings();
 
         if (results.columnExists("ROI")) {
             Variable[] roiCol = results.getColumnAsVariables("ROI");
@@ -235,12 +231,14 @@ public class TableWrapper {
             // If roiColumn contains null, we return an empty array
             if(Arrays.asList(roiColumn).contains(null)) return empty;
             results.deleteColumn("ROI");
-        } else if (hasROIsInLabel) {
-            String[] roiNames = Arrays.stream(labels)
+        } else if (Arrays.asList(headings).contains("Label")) {
+            String[] roiNames = Arrays.stream(results.getColumnAsVariables("Label"))
+                                      .map(Variable::getString)
                                       .map(s -> roiName2roi.keySet().stream().filter(s::contains)
-                                                           .collect(Collectors.toList()).get(0))
+                                                           .findFirst().orElse(null))
                                       .toArray(String[]::new);
             roiColumn = Arrays.stream(roiNames).map(roiName2roi::get).toArray(ROIData[]::new);
+            if(Arrays.asList(roiColumn).contains(null)) return empty;
         }
 
         return roiColumn;
