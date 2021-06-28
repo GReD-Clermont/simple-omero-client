@@ -194,11 +194,11 @@ public class TableTest extends UserTest {
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
 
         ResultsTable results = new ResultsTable();
-        results.addRow();
-        results.addLabel(image.getName());
-        results.addValue("ROI", rois.get(0).getId());
-        results.addValue("Volume", 25.0);
-        results.addValue("Volume Unit", "µm^3");
+        results.incrementCounter();
+        results.setLabel(image.getName(), 0);
+        results.setValue("ROI", 0, rois.get(0).getId());
+        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume Unit", 0, "µm^3");
 
         TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
 
@@ -249,11 +249,11 @@ public class TableTest extends UserTest {
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
 
         ResultsTable results = new ResultsTable();
-        results.addRow();
+        results.incrementCounter();
         String label = image.getName() + ":" + ijRois.get(0).getName() + ":4";
-        results.addLabel(label);
-        results.addValue("Volume", 25.0);
-        results.addValue("Volume Unit", "µm^3");
+        results.setLabel(label, 0);
+        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume Unit", 0, "µm^3");
 
         TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
 
@@ -287,10 +287,10 @@ public class TableTest extends UserTest {
         List<Roi> ijRois = new ArrayList<>();
 
         ResultsTable results = new ResultsTable();
-        results.addRow();
-        results.addLabel(image.getName());
-        results.addValue("Volume", 25.0);
-        results.addValue("Volume Unit", "µm^3");
+        results.incrementCounter();
+        results.setLabel(image.getName(), 0);
+        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume Unit", 0, "µm^3");
 
         TableWrapper table = new TableWrapper(client, results, imageId, ijRois, "ROI");
         image.addTable(client, table);
@@ -323,16 +323,16 @@ public class TableTest extends UserTest {
         List<Roi> ijRois = new ArrayList<>();
 
         ResultsTable results1 = new ResultsTable();
-        results1.addRow();
-        results1.addLabel(image.getName());
-        results1.addValue("Volume", 25.0);
-        results1.addValue("Volume Unit", "µm^3");
+        results1.incrementCounter();
+        results1.setLabel(image.getName(), 0);
+        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
-        results2.addRow();
-        results2.addLabel(image.getName());
-        results2.addValue("Volume", 50.0);
-        results2.addValue("Volume Unit", "m^3");
+        results2.incrementCounter();
+        results2.setLabel(image.getName(), 0);
+        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume Unit", 0, "m^3");
 
         TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, "ROI");
         table.addRows(client, results2, imageId, ijRois, "ROI");
@@ -388,18 +388,18 @@ public class TableTest extends UserTest {
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
 
         ResultsTable results1 = new ResultsTable();
-        results1.addRow();
-        results1.addLabel(image.getName());
-        results1.addValue("ROI", ijRois.get(0).getName());
-        results1.addValue("Volume", 25.0);
-        results1.addValue("Volume Unit", "µm^3");
+        results1.incrementCounter();
+        results1.setLabel(image.getName(), 0);
+        results1.setValue("ROI", 0, ijRois.get(0).getName());
+        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
-        results2.addRow();
-        results2.addLabel(image.getName());
-        results2.addValue("ROI", ijRois.get(0).getName());
-        results2.addValue("Volume", 50);
-        results2.addValue("Volume Unit", "m^3");
+        results2.incrementCounter();
+        results2.setLabel(image.getName(), 0);
+        results2.setValue("ROI", 0, ijRois.get(0).getName());
+        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume Unit", 0, "m^3");
 
         TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, "ROI");
         table.addRows(client, results2, imageId, ijRois, "ROI");
@@ -440,15 +440,15 @@ public class TableTest extends UserTest {
         List<Roi> ijRois = new ArrayList<>();
 
         ResultsTable results1 = new ResultsTable();
-        results1.addRow();
-        results1.addLabel(image.getName());
-        results1.addValue("Volume", 25.0);
-        results1.addValue("Volume Unit", "µm^3");
+        results1.incrementCounter();
+        results1.setLabel(image.getName(), 0);
+        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
-        results2.addRow();
-        results2.addLabel(image.getName());
-        results2.addValue("Volume", 50);
+        results2.incrementCounter();
+        results2.setLabel(image.getName(), 0);
+        results2.setValue("Volume", 0, 50);
 
         TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, "ROI");
         try {
@@ -470,16 +470,16 @@ public class TableTest extends UserTest {
         List<Roi> ijRois = new ArrayList<>();
 
         ResultsTable results1 = new ResultsTable();
-        results1.addRow();
-        results1.addLabel(image.getName());
-        results1.addValue("Volume", 25.0);
-        results1.addValue("Unit", "µm^3");
+        results1.incrementCounter();
+        results1.setLabel(image.getName(), 0);
+        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
-        results2.addRow();
-        results2.addLabel(image.getName());
-        results2.addValue("Volume Unit", "m^3");
-        results2.addValue("Volume", 50);
+        results2.incrementCounter();
+        results2.setLabel(image.getName(), 0);
+        results2.setValue("Volume Unit", 0, "m^3");
+        results2.setValue("Volume", 0, 50);
 
         TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, "ROI");
         table.addRows(client, results2, imageId, ijRois, "ROI");

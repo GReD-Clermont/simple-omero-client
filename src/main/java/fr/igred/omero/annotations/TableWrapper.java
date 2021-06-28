@@ -213,7 +213,9 @@ public class TableWrapper {
             }
         }
 
-        String[] labels = results.getColumnAsStrings("Label");
+        String[] labels = Arrays.stream(results.getColumnAsVariables("Label"))
+                                .map(Variable::getString).toArray(String[]::new);
+
         boolean hasROIsInLabel = Arrays.stream(labels)
                                        .map(s -> roiName2roi.keySet().stream().anyMatch(s::contains))
                                        .reduce(Boolean::logicalAnd).orElse(false);
