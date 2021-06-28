@@ -1,6 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>pom-scijava</artifactId>
+        <groupId>org.scijava</groupId>
+        <version>30.0.0</version>
+    </parent>
+
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
     <version>5.8.0</version>
@@ -24,23 +30,89 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>ppouchin</id>
+            <name>Pierre Pouchin</name>
+            <email>pierre.pouchin@uca.fr</email>
+            <url>https://www.gred-clermont.fr/directory/member/pierre-pouchin/</url>
+            <organization>GReD (INSERM U1103 / CNRS UMR 6293 / UCA)</organization>
+            <organizationUrl>https://www.gred-clermont.fr</organizationUrl>
+            <roles>
+                <role>lead</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Paris</timezone>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Pierre Pouchin</name>
+            <email>pierre.pouchin@uca.fr</email>
+        </contributor>
+        <contributor>
+            <name>Rémi Valarcher</name>
+        </contributor>
+    </contributors>
+
+    <mailingLists>
+        <mailingList>
+            <name>Image.sc Forum</name>
+            <archive>https://forum.image.sc/tag/omero</archive>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:git:git://github.com/GReD-Clermont/simple-omero-client</connection>
+        <developerConnection>scm:git:git@github.com:GReD-Clermont/simple-omero-client</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/GReD-Clermont/simple-omero-client</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/GReD-Clermont/simple-omero-client/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/GReD-Clermont/simple-omero-client/actions</url>
+    </ciManagement>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub GReD-Clermont Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/GReD-Clermont/simple-omero-client</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <license.licenseName>gpl_v2</license.licenseName>
+        <license.copyrightOwners>GReD</license.copyrightOwners>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openmicroscopy</groupId>
             <artifactId>omero-gateway</artifactId>
-            <version>5.6.5</version>
+            <version>5.6.6</version>
         </dependency>
         <dependency>
             <groupId>org.openmicroscopy</groupId>
             <artifactId>omero-model</artifactId>
             <version>5.6.3</version>
             <exclusions>
+                <exclusion>
+                    <groupId>net.jcip</groupId>
+                    <artifactId>jcip-annotations</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>*</artifactId>
@@ -103,13 +175,11 @@
         <dependency>
             <groupId>ome</groupId>
             <artifactId>bio-formats_plugins</artifactId>
-            <version>6.6.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.53c</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -117,8 +187,8 @@
 
     <repositories>
         <repository>
-            <id>imagej.public</id>
-            <url>https://maven.imagej.net/content/groups/public</url>
+            <id>ome.maven</id>
+            <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
         </repository>
     </repositories>
 
@@ -213,6 +283,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.2.0</version>
+                <configuration>
+                    <source>8</source>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <additionalJOption>--no-module-directories</additionalJOption>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -234,32 +309,4 @@
             </plugin>
         </plugins>
     </reporting>
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub GReD-Clermont Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/GReD-Clermont/simple-omero-client</url>
-        </repository>
-    </distributionManagement>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
-
-    <developers>
-        <developer>
-            <id>ppouchin</id>
-            <name>Pierre Pouchin</name>
-            <email>pierre.pouchin@uca.fr</email>
-            <url>https://www.gred-clermont.fr/directory/member/pierre-pouchin/</url>
-            <organization>GReD (INSERM U1103 / CNRS UMR 6293 / UCA)</organization>
-            <organizationUrl>https://www.gred-clermont.fr</organizationUrl>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>Europe/Paris</timezone>
-        </developer>
-    </developers>
 </project>
