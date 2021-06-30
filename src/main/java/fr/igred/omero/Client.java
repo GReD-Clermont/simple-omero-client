@@ -34,6 +34,7 @@ import ome.formats.importer.ImportConfig;
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.gateway.Gateway;
+import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -230,8 +231,37 @@ public class Client {
     }
 
 
+    /**
+     * Get the ID of the current session
+     *
+     * @return See above
+     *
+     * @throws DSOutOfServiceException If the connection is broken, or not logged in
+     */
+    public String getSessionId() throws DSOutOfServiceException {
+        return gateway.getSessionId(user.asExperimenterData());
+    }
+
+
     public Gateway getGateway() {
         return gateway;
+    }
+
+
+    /**
+     * Connects to OMERO using a session ID.
+     *
+     * @param hostname  Name of the host.
+     * @param port      Port used by OMERO.
+     * @param sessionId The session ID.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void connect(String hostname, int port, String sessionId)
+    throws ServiceException, ExecutionException {
+        LoginCredentials l = new JoinSessionCredentials(sessionId, hostname, port);
+        connect(l);
     }
 
 
@@ -632,17 +662,7 @@ public class Client {
      */
     public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError {
-        List<IObject> os = findByQuery("select link.parent " +
-                                       "from ImageAnnotationLink link " +
-                                       "where link.child = " +
-                                       tag.getId());
-
-        List<ImageWrapper> selected = new ArrayList<>(os.size());
-        for (IObject o : os) {
-            selected.add(getImage(o.getId().getValue()));
-        }
-
-        return selected;
+        return tag.getImages(this);
     }
 
 
@@ -659,17 +679,7 @@ public class Client {
      */
     public List<ImageWrapper> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, OMEROServerError {
-        List<IObject> os = findByQuery("select link.parent " +
-                                       "from ImageAnnotationLink link " +
-                                       "where link.child = " +
-                                       tagId);
-
-        List<ImageWrapper> selected = new ArrayList<>(os.size());
-        for (IObject o : os) {
-            selected.add(getImage(o.getId().getValue()));
-        }
-
-        return selected;
+        return getTag(tagId).getImages(this);
     }
 
 

@@ -201,7 +201,7 @@ public class TableWrapper {
                                              List<ROIWrapper> rois,
                                              List<Roi> ijRois,
                                              String roiIdProperty) {
-        ROIData[] empty = new ROIData[0];
+        ROIData[] empty     = new ROIData[0];
         ROIData[] roiColumn = empty;
 
         Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
@@ -229,7 +229,7 @@ public class TableWrapper {
                                   .toArray(ROIData[]::new);
             }
             // If roiColumn contains null, we return an empty array
-            if(Arrays.asList(roiColumn).contains(null)) return empty;
+            if (Arrays.asList(roiColumn).contains(null)) return empty;
             results.deleteColumn("ROI");
         } else if (Arrays.asList(headings).contains("Label")) {
             String[] roiNames = Arrays.stream(results.getColumnAsVariables("Label"))
@@ -238,7 +238,7 @@ public class TableWrapper {
                                                            .findFirst().orElse(null))
                                       .toArray(String[]::new);
             roiColumn = Arrays.stream(roiNames).map(roiName2roi::get).toArray(ROIData[]::new);
-            if(Arrays.asList(roiColumn).contains(null)) return empty;
+            if (Arrays.asList(roiColumn).contains(null)) return empty;
         }
 
         return roiColumn;
@@ -400,6 +400,8 @@ public class TableWrapper {
 
 
     /**
+     * @param column Column number.
+     *
      * @return The name of the column.
      */
     public String getColumnName(int column) {
@@ -408,6 +410,8 @@ public class TableWrapper {
 
 
     /**
+     * @param column Column number.
+     *
      * @return The type of the column.
      */
     public Class<?> getColumnType(int column) {

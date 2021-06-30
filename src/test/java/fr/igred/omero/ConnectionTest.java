@@ -39,6 +39,19 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
+    public void testSessionConnect() throws Exception {
+        Client client1 = new Client();
+        client1.connect("omero", 4064, "testUser", "password".toCharArray());
+        String sessionId = client1.getSessionId();
+        Client client2   = new Client();
+        client2.connect("omero", 4064, sessionId);
+        assertEquals(client1.getUser().getId(), client2.getUser().getId());
+        client1.disconnect();
+        client2.disconnect();
+    }
+
+
+    @Test
     public void testRootConnection() throws Exception {
         Client testRoot = new Client();
         testRoot.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
