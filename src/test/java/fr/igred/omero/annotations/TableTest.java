@@ -48,8 +48,9 @@ public class TableTest extends UserTest {
 
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-        assertEquals("Image", table.getColumns()[0].getName());
-        assertEquals("Name", table.getColumns()[1].getName());
+        assertEquals("Image", table.getColumnName(0));
+        assertEquals("Name", table.getColumnName(1));
+        assertEquals(ImageData.class, table.getColumnType(0));
 
         table.setRowCount(images.size());
 

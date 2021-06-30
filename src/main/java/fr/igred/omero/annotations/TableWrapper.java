@@ -400,6 +400,22 @@ public class TableWrapper {
 
 
     /**
+     * @return The name of the column.
+     */
+    public String getColumnName(int column) {
+        return columns[column].getName();
+    }
+
+
+    /**
+     * @return The type of the column.
+     */
+    public Class<?> getColumnType(int column) {
+        return columns[column].getType();
+    }
+
+
+    /**
      * @return number of row in the table.
      */
     public int getRowCount() {
