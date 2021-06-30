@@ -39,6 +39,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
+import omero.gateway.facility.TransferFacility;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
@@ -52,6 +53,7 @@ import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -62,8 +64,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
+import static fr.igred.omero.exception.ExceptionHandler.*;
 import static omero.rtypes.rint;
 
 
@@ -570,6 +571,30 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             }
         }
         return thumbnail;
+    }
+
+
+    /**
+     * Downloads the original files from the server.
+     *
+     * @param client The client handling the connection.
+     * @param path   Path to the file.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     */
+    public List<File> download(Client client, String path)
+    throws OMEROServerError, ServiceException, AccessException {
+        try {
+            TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
+            return transfer.downloadImage(client.getCtx(), path, getId());
+        } catch (DSAccessException | DSOutOfServiceException | ExecutionException e) {
+            handleException(e, "Could not download image " + getId() + ": " + e.getMessage());
+        }
+        return new ArrayList<>();
     }
 
 }

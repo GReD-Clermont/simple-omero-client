@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -675,6 +676,17 @@ public class ImageTest extends UserTest {
         assertNotNull(thumbnail);
         assertEquals(96, thumbnail.getWidth());
         assertEquals(96, thumbnail.getHeight());
+    }
+
+
+    @Test
+    public void testDownload() throws Exception {
+        ImageWrapper  image     = client.getImage(1L);
+        List<File> files = image.download(client, ".");
+        assertEquals(2, files.size());
+        assertTrue(files.get(0).exists());
+        Files.deleteIfExists(files.get(0).toPath());
+        Files.deleteIfExists(files.get(1).toPath());
     }
 
 
