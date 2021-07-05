@@ -18,8 +18,8 @@ The main entry point is the Client class, which can be used to retrieve, save or
 <p>To use it, a connection has to be established first:
 
 ```java
-Client client=new Client();
-client.connect("host", 4064, "username", "password".toCharArray(), groupId);
+Client client = new Client();
+client.connect("host", 4064, "username", password, groupId);
 ```
 
 ### Repository objects (projects, datasets, images)
@@ -27,15 +27,15 @@ client.connect("host", 4064, "username", "password".toCharArray(), groupId);
 It can then be used to retrieve all the repository objects the user has access to, like projects or datasets:
 
 ```java
-List<ProjectWrapper> projects=client.getProjects();
-List<DatasetWrapper> datasets=client.getDatasets();
+List<ProjectWrapper> projects = client.getProjects();
+List<DatasetWrapper> datasets = client.getDatasets();
 ```
 
 These objects can then be used to retrieve their children:
 
 ```java
 for(DatasetWrapper dataset:datasets){
-    List<ImageWrapper> images=dataset.getImages(client);
+    List<ImageWrapper> images = dataset.getImages(client);
     //...
 }
 ```
@@ -44,7 +44,7 @@ for(DatasetWrapper dataset:datasets){
 
 For each type of objects (project, dataset or image), annotations can be retrieved/added, such as:
 
-* ####Tags:
+* #### Tags:
 
 ```java
 TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "name", "description");
@@ -52,7 +52,7 @@ dataset.addTag(client, tag);
 List<TagAnnotationWrapper> tags = dataset.getTags(client);
 ```
 
-* ####Key/Value pairs:
+* #### Key/Value pairs:
 
 ```java
 dataset.addPairKeyValue(client, "key", "value");
