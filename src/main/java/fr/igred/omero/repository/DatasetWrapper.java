@@ -480,6 +480,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                     pixels.addAll(imported);
                 }
             }
+            uploadThreadPool.shutdown();
         } catch (Throwable t) {
             throw new OMEROServerError(t);
         } finally {
