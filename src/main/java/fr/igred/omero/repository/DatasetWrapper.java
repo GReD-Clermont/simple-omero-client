@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
@@ -489,8 +490,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         refresh(client);
 
         List<Long> ids = new ArrayList<>(pixels.size());
-        pixels.forEach(pix -> ids.add(pix.getId().getValue()));
-        return ids;
+        pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
+        return ids.stream().distinct().collect(Collectors.toList());
     }
 
 

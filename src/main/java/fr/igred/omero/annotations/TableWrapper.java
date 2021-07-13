@@ -214,7 +214,6 @@ public class TableWrapper {
             }
         }
 
-
         String[] headings = results.getHeadings();
 
         if (results.columnExists("ROI")) {
