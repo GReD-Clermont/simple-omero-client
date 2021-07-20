@@ -551,7 +551,7 @@ public class ImageTest extends UserTest {
     public void testAddFileImage() throws Exception {
         ImageWrapper image = client.getImage(1L);
 
-        File file = new File("./test.txt");
+        File file = new File("/tmp/test.txt");
         if (!file.createNewFile())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
@@ -563,22 +563,29 @@ public class ImageTest extends UserTest {
         }
 
         long id = image.addFile(client, file);
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
         List<FileAnnotationWrapper> files = image.getFileAnnotations(client);
         for (FileAnnotationWrapper f : files) {
-            if (f.getFileID() == id) {
+            if (f.getId() == id) {
                 assertEquals(file.getName(), f.getFileName());
                 File uploadedFile = f.getFile(client, "./uploaded.txt");
 
-                byte[] f1 = Files.readAllBytes(file.toPath());
-                byte[] f2 = Files.readAllBytes(uploadedFile.toPath());
-                assertArrayEquals(f1, f2);
+                List<String> expectedLines = Files.readAllLines(file.toPath());
+                List<String> lines = Files.readAllLines(uploadedFile.toPath());
+                assertEquals(expectedLines.size(), lines.size());
+                for(int i=0; i<expectedLines.size(); i++) {
+                    assertEquals(expectedLines.get(i), lines.get(i));
+                }
+
+                if (!uploadedFile.delete())
+                    System.err.println("\"" + uploadedFile.getCanonicalPath() + "\" could not be deleted.");
             }
         }
 
         client.deleteFile(id);
+
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
         assertNotEquals(0L, id);
     }

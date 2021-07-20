@@ -4,7 +4,6 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
-import ome.model.core.OriginalFile;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -82,11 +81,10 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
         RawFileStorePrx store = null;
         try (FileOutputStream stream = new FileOutputStream(file)) {
             store = client.getGateway().getRawFileService(client.getCtx());
+            store.setFileId(this.getFileID());
 
-            OriginalFile of = (OriginalFile) data.getContent();
-
-            long size = of.getSize();
-            for (int offset = 0; (offset + inc) < size; offset += inc) {
+            long size = getFileSize();
+            for (int offset = 0; offset + inc < size; offset += inc) {
                 stream.write(store.read(offset, inc));
             }
         } catch (DSOutOfServiceException | ServerError e) {

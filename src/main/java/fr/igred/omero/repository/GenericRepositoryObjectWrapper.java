@@ -437,10 +437,11 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     public List<FileAnnotationWrapper> getFileAnnotations(Client client)
     throws ExecutionException, ServiceException, AccessException {
         List<Class<? extends AnnotationData>> types = new ArrayList<>();
-        types.add(TagAnnotationData.class);
+        types.add(FileAnnotationData.class);
 
         List<FileAnnotationWrapper> fileAnnotations = new ArrayList<>();
-        List<AnnotationData>        annotations     = new ArrayList<>();
+
+        List<AnnotationData> annotations = new ArrayList<>();
 
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
