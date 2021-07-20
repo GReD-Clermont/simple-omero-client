@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.EllipseWrapper;
@@ -31,6 +32,7 @@ import ij.process.ImageStatistics;
 import loci.plugins.BF;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
@@ -561,13 +563,22 @@ public class ImageTest extends UserTest {
             out.print(generatedString);
         }
 
-        Long id = image.addFile(client, file);
+        long id = image.addFile(client, file);
         if (!file.delete())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
 
+        List<FileAnnotationWrapper> files = image.getFileAnnotations(client);
+        for (FileAnnotationWrapper f : files) {
+            if (f.getFileID() == id) {
+                assertEquals(file.getName(), f.getFileName());
+                File uploadedFile = f.getFile(client, "./uploaded.txt");
+                assertTrue(FileUtils.contentEquals(file, uploadedFile));
+            }
+        }
+
         client.deleteFile(id);
 
-        assertNotEquals(0L, id.longValue());
+        assertNotEquals(0L, id);
     }
 
 
@@ -681,8 +692,8 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testDownload() throws Exception {
-        ImageWrapper  image     = client.getImage(1L);
-        List<File> files = image.download(client, ".");
+        ImageWrapper image = client.getImage(1L);
+        List<File>   files = image.download(client, ".");
         assertEquals(2, files.size());
         assertTrue(files.get(0).exists());
         Files.deleteIfExists(files.get(0).toPath());

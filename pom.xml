@@ -9,7 +9,7 @@
 
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <version>5.8.1</version>
+    <version>5.8.2</version>
     <packaging>jar</packaging>
 
     <name>Simple OMERO Client</name>
@@ -181,6 +181,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

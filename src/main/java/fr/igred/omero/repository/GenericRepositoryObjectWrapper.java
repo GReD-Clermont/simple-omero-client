@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -419,6 +420,42 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                                          "",
                                          file.getName(),
                                          data).get().getId();
+    }
+
+
+    /**
+     * Returns the file annotations
+     *
+     * @param client The client handling the connection.
+     *
+     * @return The list of tile annotations.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FileAnnotationWrapper> getFileAnnotations(Client client)
+    throws ExecutionException, ServiceException, AccessException {
+        List<Class<? extends AnnotationData>> types = new ArrayList<>();
+        types.add(TagAnnotationData.class);
+
+        List<FileAnnotationWrapper> fileAnnotations = new ArrayList<>();
+        List<AnnotationData>        annotations     = new ArrayList<>();
+
+        try {
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot retrieve file annotations from " + toString());
+        }
+
+        for (AnnotationData annotation : annotations) {
+            if (annotation instanceof FileAnnotationData) {
+                FileAnnotationWrapper file = new FileAnnotationWrapper((FileAnnotationData) annotation);
+                fileAnnotations.add(file);
+            }
+        }
+
+        return fileAnnotations;
     }
 
 }
