@@ -32,7 +32,6 @@ import ij.process.ImageStatistics;
 import loci.plugins.BF;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
@@ -572,7 +571,10 @@ public class ImageTest extends UserTest {
             if (f.getFileID() == id) {
                 assertEquals(file.getName(), f.getFileName());
                 File uploadedFile = f.getFile(client, "./uploaded.txt");
-                assertTrue(FileUtils.contentEquals(file, uploadedFile));
+
+                byte[] f1 = Files.readAllBytes(file.toPath());
+                byte[] f2 = Files.readAllBytes(uploadedFile.toPath());
+                assertArrayEquals(f1, f2);
             }
         }
 
