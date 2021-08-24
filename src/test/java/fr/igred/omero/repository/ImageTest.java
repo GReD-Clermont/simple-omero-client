@@ -558,7 +558,7 @@ public class ImageTest extends UserTest {
         byte[] array = new byte[2 * 262144 + 20];
         new Random().nextBytes(array);
         String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream("./test.txt"))) {
+        try (PrintStream out = new PrintStream(new FileOutputStream(file))) {
             out.print(generatedString);
         }
 
@@ -573,6 +573,7 @@ public class ImageTest extends UserTest {
                 assertEquals("text/plain", f.getServerFileMimetype());
                 assertEquals("Plain Text Document", f.getFileKind());
                 assertEquals("/tmp/", f.getContentAsString());
+                assertEquals("/tmp/", f.getFilePath());
                 assertFalse(f.isMovieFile());
 
                 File uploadedFile = f.getFile(client, "./uploaded.txt");
