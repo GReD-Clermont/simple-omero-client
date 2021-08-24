@@ -44,6 +44,7 @@ import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Pixels;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -407,17 +408,21 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @return If the import did not exit because of an error.
      *
-     * @throws Exception        OMEROMetadataStoreClient creation failed.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      * @throws OMEROServerError Server error.
+     * @throws IOException      Cannot read file.
      */
-    public boolean importImages(Client client, String... paths) throws Exception {
+    public boolean importImages(Client client, String... paths)
+    throws ServiceException, OMEROServerError, AccessException, IOException {
         boolean success;
 
-        ImportConfig config = client.getConfig();
-
+        ImportConfig config = new ImportConfig();
         config.target.set("Dataset:" + data.getId());
+        config.username.set(client.getUser().getUserName());
+        config.email.set(client.getUser().getEmail());
 
-        OMEROMetadataStoreClient store = config.createStore();
+        OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
@@ -448,17 +453,20 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @return The list of IDs of the newly imported images.
      *
-     * @throws Exception        OMEROMetadataStoreClient creation failed.
-     * @throws OMEROServerError Server (or upload) error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws OMEROServerError Server error.
      */
-    public List<Long> importImage(Client client, String path) throws Exception {
-        ImportConfig config = client.getConfig();
-
+    public List<Long> importImage(Client client, String path)
+    throws ServiceException, AccessException, OMEROServerError {
+        ImportConfig config = new ImportConfig();
         config.target.set("Dataset:" + data.getId());
+        config.username.set(client.getUser().getUserName());
+        config.email.set(client.getUser().getEmail());
 
         List<Pixels> pixels = new ArrayList<>(1);
 
-        OMEROMetadataStoreClient store = config.createStore();
+        OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
@@ -482,8 +490,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                 }
             }
             uploadThreadPool.shutdown();
-        } catch (Throwable t) {
-            throw new OMEROServerError(t);
+        } catch (Throwable e) {
+            throw new OMEROServerError(e);
         } finally {
             store.logout();
         }

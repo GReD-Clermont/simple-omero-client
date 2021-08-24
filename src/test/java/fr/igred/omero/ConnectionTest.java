@@ -19,9 +19,11 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -115,6 +117,35 @@ public class ConnectionTest extends BasicTest {
         assertNotEquals(0, images.size());
         assertEquals(images.size(), tagged.size());
         assertEquals(0, differences);
+    }
+
+
+    @Test
+    public void sudoImport() throws Exception {
+        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
+
+        Client client = new Client();
+        client.connect("omero", 4064, "root", "omero".toCharArray());
+
+        File f = new File(path);
+        if (!f.createNewFile())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
+
+        Client c = client.sudoGetUser("testUser");
+        c.switchGroup(4L);
+
+        DatasetWrapper dataset = new DatasetWrapper("sudoTest", "");
+        dataset.saveAndUpdate(c);
+
+        List<Long> ids = dataset.importImage(c, f.getAbsolutePath());
+
+        if (!f.delete())
+            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+
+        assertEquals(1, ids.size());
+
+        client.delete(c.getImage(ids.get(0)));
+        client.delete(dataset);
     }
 
 }

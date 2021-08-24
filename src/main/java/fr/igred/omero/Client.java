@@ -30,7 +30,7 @@ import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
-import ome.formats.importer.ImportConfig;
+import ome.formats.OMEROMetadataStoreClient;
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.gateway.Gateway;
@@ -68,7 +68,6 @@ public class Client {
     /** Security context of the user, contains the permissions of the user in this group. */
     private SecurityContext ctx;
     private BrowseFacility  browse;
-    private ImportConfig    config;
 
 
     /**
@@ -192,22 +191,20 @@ public class Client {
 
 
     /**
-     * Gets a copy of the importation config for the user.
+     * Creates or recycles the import store.
      *
      * @return config.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
      */
-    public ImportConfig getConfig() {
-        ImportConfig copy = new ImportConfig();
-        copy.email.set(this.config.email.get());
-        copy.sendFiles.set(this.config.sendFiles.get());
-        copy.sendReport.set(this.config.sendReport.get());
-        copy.contOnError.set(this.config.contOnError.get());
-        copy.debug.set(this.config.debug.get());
-        copy.hostname.set(this.config.hostname.get());
-        copy.port.set(this.config.port.get());
-        copy.username.set(this.config.username.get());
-        copy.password.set(this.config.password.get());
-        return copy;
+    public OMEROMetadataStoreClient getImportStore() throws ServiceException {
+        OMEROMetadataStoreClient store;
+        try {
+            store = gateway.getImportStore(ctx);
+        } catch (DSOutOfServiceException e) {
+            throw new ServiceException("Could not retrieve import store", e, e.getConnectionStatus());
+        }
+        return store;
     }
 
 
@@ -236,10 +233,16 @@ public class Client {
      *
      * @return See above
      *
-     * @throws DSOutOfServiceException If the connection is broken, or not logged in
+     * @throws ServiceException If the connection is broken, or not logged in
      */
-    public String getSessionId() throws DSOutOfServiceException {
-        return gateway.getSessionId(user.asExperimenterData());
+    public String getSessionId() throws ServiceException {
+        String sessionId;
+        try {
+            sessionId = gateway.getSessionId(user.asExperimenterData());
+        } catch (DSOutOfServiceException e) {
+            throw new ServiceException("Could not retrieve session ID", e, e.getConnectionStatus());
+        }
+        return sessionId;
     }
 
 
@@ -285,8 +288,6 @@ public class Client {
 
         cred.setGroupID(groupID);
 
-        createConfig(hostname, port, username, password);
-
         connect(cred);
     }
 
@@ -307,8 +308,6 @@ public class Client {
     public void connect(String hostname, int port, String username, char[] password)
     throws ServiceException, ExecutionException {
         LoginCredentials cred = createCred(hostname, port, username, password);
-
-        createConfig(hostname, port, username, password);
 
         connect(cred);
     }
@@ -331,30 +330,6 @@ public class Client {
         cred.getUser().setPassword(String.valueOf(password));
 
         return cred;
-    }
-
-
-    /**
-     * Creates the importation config linked to the user.
-     *
-     * @param hostname Name of the host.
-     * @param port     Port used by OMERO.
-     * @param username Username of the user.
-     * @param password Password of the user.
-     */
-    private void createConfig(String hostname, int port, String username, char[] password) {
-        config = new ome.formats.importer.ImportConfig();
-
-        config.email.set("");
-        config.sendFiles.set(true);
-        config.sendReport.set(false);
-        config.contOnError.set(false);
-        config.debug.set(false);
-
-        config.hostname.set(hostname);
-        config.port.set(port);
-        config.username.set(username);
-        config.password.set(String.valueOf(password));
     }
 
 
@@ -773,8 +748,10 @@ public class Client {
      * @param groupId The group ID.
      */
     public void switchGroup(long groupId) {
+        boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
         ctx.setExperimenter(getUser().asExperimenterData());
+        if(sudo) ctx.sudo();
     }
 
 
