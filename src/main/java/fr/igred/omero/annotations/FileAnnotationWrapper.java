@@ -84,9 +84,11 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
             store.setFileId(this.getFileID());
 
             long size = getFileSize();
-            for (int offset = 0; offset + inc < size; offset += inc) {
+            long offset;
+            for (offset = 0; offset + inc < size; offset += inc) {
                 stream.write(store.read(offset, inc));
             }
+            stream.write(store.read(offset, (int) (size - offset)));
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Could not create RawFileService");
         }

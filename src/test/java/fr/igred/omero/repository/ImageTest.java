@@ -568,6 +568,13 @@ public class ImageTest extends UserTest {
         for (FileAnnotationWrapper f : files) {
             if (f.getId() == id) {
                 assertEquals(file.getName(), f.getFileName());
+                assertEquals("txt", f.getFileFormat());
+                assertEquals("text/plain", f.getOriginalMimetype());
+                assertEquals("text/plain", f.getServerFileMimetype());
+                assertEquals("Plain Text Document", f.getFileKind());
+                assertEquals("/tmp/", f.getContentAsString());
+                assertFalse(f.isMovieFile());
+
                 File uploadedFile = f.getFile(client, "./uploaded.txt");
 
                 List<String> expectedLines = Files.readAllLines(file.toPath());
