@@ -124,28 +124,36 @@ public class ConnectionTest extends BasicTest {
     public void sudoImport() throws Exception {
         String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
 
-        Client client = new Client();
-        client.connect("omero", 4064, "root", "omero".toCharArray());
+        Client root = new Client();
+        root.connect("omero", 4064, "root", "omero".toCharArray());
+        assertEquals(0L, root.getId());
+
+        Client test = root.sudoGetUser("testUser");
+        assertEquals(2L, test.getId());
+        test.switchGroup(4L);
 
         File f = new File(path);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        Client c = client.sudoGetUser("testUser");
-        c.switchGroup(4L);
-
         DatasetWrapper dataset = new DatasetWrapper("sudoTest", "");
-        dataset.saveAndUpdate(c);
+        dataset.saveAndUpdate(test);
 
-        List<Long> ids = dataset.importImage(c, f.getAbsolutePath());
+        dataset.importImages(test, f.getAbsolutePath());
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
 
-        assertEquals(1, ids.size());
+        List<ImageWrapper> images = dataset.getImages(test);
+        assertEquals(1, images.size());
 
-        client.delete(c.getImage(ids.get(0)));
-        client.delete(dataset);
+        test.delete(images.get(0));
+        test.delete(dataset);
+
+        try {
+            root.disconnect();
+        } catch (Exception ignored) {
+        }
     }
 
 }

@@ -209,15 +209,14 @@ public class ClientTest extends UserTest {
         DatasetWrapper dataset = new DatasetWrapper("test", "");
         dataset.saveAndUpdate(client);
 
-        dataset.importImages(client, f.getAbsolutePath());
+        List<Long> ids = dataset.importImage(client, f.getAbsolutePath());
 
         if (!f.delete())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
 
-        List<ImageWrapper> images = dataset.getImages(client);
-        assertEquals(1, images.size());
+        assertEquals(1, ids.size());
 
-        client.delete(images.get(0));
+        client.delete(client.getImage(ids.get(0)));
         client.delete(dataset);
     }
 
