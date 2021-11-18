@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -46,6 +47,7 @@ public class SudoTest extends RootTest {
         assertNotEquals(0, images.size());
         assertEquals(images.size(), tagged.size());
         assertEquals(0, differences);
+        TimeUnit.SECONDS.sleep(2);
     }
 
 
@@ -81,6 +83,7 @@ public class SudoTest extends RootTest {
             client.disconnect();
         } catch (Exception ignored) {
         }
+        TimeUnit.SECONDS.sleep(2);
     }
 
 }
