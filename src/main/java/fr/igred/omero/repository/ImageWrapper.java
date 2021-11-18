@@ -25,6 +25,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import fr.igred.omero.roi.ROIWrapper;
+import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -396,6 +397,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             luts[c] = LUT.createLutFromColor(getChannelColor(client, startC + c));
             imp.setC(c + 1);
             imp.setLut(luts[c]);
+        }
+        if(imp.isComposite()) {
+            ((CompositeImage) imp).setLuts(luts);
         }
         if (createdRawDataFacility) {
             pixels.destroyRawDataFacility();
