@@ -133,7 +133,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         for (ROIWrapper roi : rois) {
             List<ij.gui.Roi> shapes = roi.toImageJ();
             for (ij.gui.Roi r : shapes) {
-                r.setProperty("INDEX", String.valueOf(index));
+                r.setProperty(IJ_PROPERTY, String.valueOf(index));
                 if (rois.size() < 255) {
                     r.setGroup(index);
                 }
@@ -294,7 +294,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             } else {
                 roi.setName(getId() + "-" + shape.getId());
             }
-            roi.setProperty(IJ_PROPERTY, String.valueOf(getId()));
+            roi.setProperty(IJ_PROPERTY + "_ID", String.valueOf(getId()));
             rois.add(roi);
         }
         return rois;
