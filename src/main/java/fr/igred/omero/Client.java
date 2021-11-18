@@ -361,6 +361,13 @@ public class Client {
     public void disconnect() {
         if (gateway.isConnected()) {
             gateway.disconnect();
+            if (ctx != null) {
+                ctx.setExperimenter(null);
+                ctx.setServerInformation(null);
+            }
+            ctx = null;
+            user = null;
+            browse = null;
         }
     }
 
@@ -751,7 +758,7 @@ public class Client {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
         ctx.setExperimenter(getUser().asExperimenterData());
-        if(sudo) ctx.sudo();
+        if (sudo) ctx.sudo();
     }
 
 
@@ -975,6 +982,16 @@ public class Client {
         } else {
             return null;
         }
+    }
+
+
+    /**
+     * Check if the client is still connected to the server
+     *
+     * @return See above.
+     */
+    public boolean isConnected() {
+        return gateway.isConnected() && ctx != null;
     }
 
 }

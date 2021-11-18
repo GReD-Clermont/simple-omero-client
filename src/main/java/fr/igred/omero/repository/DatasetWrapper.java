@@ -504,7 +504,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Refreshes the wrapped project.
+     * Refreshes the wrapped dataset.
      *
      * @param client The client handling the connection.
      *

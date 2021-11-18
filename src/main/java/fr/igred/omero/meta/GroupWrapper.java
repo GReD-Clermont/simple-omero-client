@@ -31,6 +31,25 @@ import java.util.Set;
 
 public class GroupWrapper extends GenericObjectWrapper<GroupData> {
 
+    /** Indicates that the group is <code>Private</code> i.e. RW----. */
+    public static final int PERMISSIONS_PRIVATE = GroupData.PERMISSIONS_PRIVATE;
+
+    /** Indicates that the group is <code>Group</code> i.e. RWR---. */
+    public static final int PERMISSIONS_GROUP_READ = GroupData.PERMISSIONS_GROUP_READ;
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRA--. */
+    public static final int PERMISSIONS_GROUP_READ_LINK = GroupData.PERMISSIONS_GROUP_READ_LINK;
+
+    /** Indicates that the group is <code>Group</code> i.e. RWRW--. */
+    public static final int PERMISSIONS_GROUP_READ_WRITE = GroupData.PERMISSIONS_GROUP_READ_WRITE;
+
+    /** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
+    public static final int PERMISSIONS_PUBLIC_READ = GroupData.PERMISSIONS_PUBLIC_READ;
+
+    /** Indicates that the group is <code>Public</code> i.e. RWRWRW. */
+    public static final int PERMISSIONS_PUBLIC_READ_WRITE = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+
+
     /**
      * Constructor of the class GroupWrapper.
      *
@@ -141,6 +160,16 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
         }
         wrappers.sort(new SortByLastName<>());
         return wrappers;
+    }
+
+
+    /**
+     * Returns the permissions level.
+     *
+     * @return See above.
+     */
+    public int getPermissionsLevel() {
+        return data.getPermissions().getPermissionsLevel();
     }
 
 

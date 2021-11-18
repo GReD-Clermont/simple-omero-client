@@ -71,6 +71,7 @@ public class ConnectionTest extends BasicTest {
     @Test
     public void testUserConnection() throws Exception {
         Client testUser = new Client();
+        assertFalse(testUser.isConnected());
         testUser.connect("omero", 4064, "testUser", "password".toCharArray());
         long id      = testUser.getId();
         long groupId = testUser.getCurrentGroupId();
@@ -80,80 +81,6 @@ public class ConnectionTest extends BasicTest {
         }
         assertEquals(2L, id);
         assertEquals(3L, groupId);
-    }
-
-
-    @Test
-    public void testSudoTag() throws Exception {
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
-        assertEquals(0L, root.getId());
-
-        Client test = root.sudoGetUser("testUser");
-        assertEquals(2L, test.getId());
-
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
-
-        List<ImageWrapper> images = test.getImages();
-
-        for (ImageWrapper image : images) {
-            image.addTag(test, tag);
-        }
-
-        List<ImageWrapper> tagged = test.getImagesTagged(tag);
-
-        int differences = 0;
-        for (int i = 0; i < images.size(); i++) {
-            if (images.get(i).getId() != tagged.get(i).getId())
-                differences++;
-        }
-
-        root.delete(tag);
-        try {
-            root.disconnect();
-        } catch (Exception ignored) {
-        }
-
-        assertNotEquals(0, images.size());
-        assertEquals(images.size(), tagged.size());
-        assertEquals(0, differences);
-    }
-
-
-    @Test
-    public void sudoImport() throws Exception {
-        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
-
-        Client root = new Client();
-        root.connect("omero", 4064, "root", "omero".toCharArray());
-        assertEquals(0L, root.getId());
-
-        Client test = root.sudoGetUser("testUser");
-        assertEquals(2L, test.getId());
-        test.switchGroup(4L);
-
-        File f = new File(path);
-        if (!f.createNewFile())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
-
-        DatasetWrapper dataset = new DatasetWrapper("sudoTest", "");
-        dataset.saveAndUpdate(test);
-
-        dataset.importImages(test, f.getAbsolutePath());
-
-        if (!f.delete())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
-
-        List<ImageWrapper> images = dataset.getImages(test);
-        assertEquals(1, images.size());
-
-        test.delete(images.get(0));
-        test.delete(dataset);
-
-        try {
-            root.disconnect();
-        } catch (Exception ignored) {
-        }
     }
 
 }

@@ -123,6 +123,75 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
+     * Returns <code>true</code> if the object can be annotated
+     * <code>false</code> otherwise, depending on permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canAnnotate() {
+        return data.canAnnotate();
+    }
+
+
+    /**
+     * Returns <code>true</code> if the object can be edited by the user currently logged in <code>false</code>
+     * otherwise, depending on permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canEdit() {
+        return data.canEdit();
+    }
+
+
+    /**
+     * Returns <code>true</code> if the object can be linked e.g. image add to dataset, by the user currently logged
+     * in,
+     * <code>false</code> otherwise, depending on
+     * permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canLink() {
+        return data.canLink();
+    }
+
+
+    /**
+     * Returns <code>true</code> if the object can be deleted by the user currently logged in,
+     * <code>false</code> otherwise, depending on permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canDelete() {
+        return data.canDelete();
+    }
+
+
+    /**
+     * Returns <code>true</code> if the object can be moved by the user currently logged in,
+     * <code>false</code> otherwise, depending on permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canChgrp() {
+        data.getPermissions().getPermissionsLevel();
+        return data.canChgrp();
+    }
+
+
+    /**
+     * Returns <code>true</code> if the object can be given by the user currently logged in,
+     * <code>false</code> otherwise, depending on permissions level.
+     *
+     * @return See above.
+     */
+    public boolean canChown() {
+        return data.canChown();
+    }
+
+
+    /**
      * Class used to sort wrappers.
      */
     public static class SortById<U extends GenericObjectWrapper<?>> implements Comparator<U> {
