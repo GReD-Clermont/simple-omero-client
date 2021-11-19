@@ -18,13 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ImageWrapper;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
