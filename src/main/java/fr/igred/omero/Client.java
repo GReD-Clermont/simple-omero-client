@@ -360,14 +360,14 @@ public class Client {
      */
     public void disconnect() {
         if (gateway.isConnected()) {
-            gateway.disconnect();
             if (ctx != null) {
+                gateway.closeConnector(ctx);
                 ctx.setExperimenter(null);
-                ctx.setServerInformation(null);
             }
             ctx = null;
             user = null;
             browse = null;
+            gateway.disconnect();
         }
     }
 
@@ -736,14 +736,13 @@ public class Client {
 
         ExperimenterWrapper sudoUser = getUser(username);
 
-        SecurityContext sudoCtx = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        sudoCtx.setExperimenter(sudoUser.asExperimenterData());
-        sudoCtx.sudo();
-
         c.gateway = this.gateway;
-        c.ctx = sudoCtx;
-        c.user = sudoUser;
         c.browse = this.browse;
+        c.user = sudoUser;
+
+        c.ctx = new SecurityContext(sudoUser.getDefaultGroup().getId());
+        c.ctx.setExperimenter(sudoUser.asExperimenterData());
+        c.ctx.sudo();
 
         return c;
     }
