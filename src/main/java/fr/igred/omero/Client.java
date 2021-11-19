@@ -357,7 +357,6 @@ public class Client {
     public void disconnect() {
         if (gateway.isConnected()) {
             if (ctx != null) {
-                gateway.closeConnector(ctx);
                 ctx.setExperimenter(null);
             }
             ctx = null;
