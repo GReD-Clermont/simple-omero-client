@@ -107,12 +107,13 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      *
      * @return ProjectWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ProjectWrapper> getProjects(Client client)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os = getLinks(client, "ProjectAnnotationLink");
 
         List<ProjectWrapper> selected = new ArrayList<>(os.size());
@@ -131,12 +132,13 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      *
      * @return DatasetWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets(Client client)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os = getLinks(client, "DatasetAnnotationLink");
 
         List<DatasetWrapper> selected = new ArrayList<>(os.size());
@@ -155,12 +157,13 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      *
      * @return ImageWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(Client client)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os = getLinks(client, "ImageAnnotationLink");
 
         List<ImageWrapper> selected = new ArrayList<>(os.size());
