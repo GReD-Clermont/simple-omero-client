@@ -197,11 +197,128 @@ public class TableTest extends UserTest {
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
         results.setLabel(image.getName(), 0);
-        results.setValue("ROI", 0, rois.get(0).getId());
+        results.setValue("Image", 0, image.getName());
+        results.setValue(ROIWrapper.ROI_IJ_PROPERTY, 0, 1);
         results.setValue("Volume", 0, 25.0);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois);
+
+        Object[][] data = table.getData();
+        assertEquals(1, table.getRowCount());
+        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getName(), data[2][0]);
+        assertEquals(image.getName(), data[3][0]);
+        assertEquals(25.0d, (Double) data[4][0], 0.05);
+        assertEquals("µm^3", data[5][0]);
+
+        image.addTable(client, table);
+
+        assertNotNull(table.getFileId());
+
+        client.delete(table);
+
+        for (ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
+    public void testCreateTableWithROIsFromIJResults2() throws Exception {
+        long   imageId  = 1L;
+        String property = "Cell";
+
+        ImageWrapper image = client.getImage(imageId);
+
+        ROIWrapper roi = new ROIWrapper();
+
+        roi.setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roi.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = rois.get(0).toImageJ(property);
+
+        ResultsTable results = new ResultsTable();
+        results.incrementCounter();
+        results.setLabel(image.getName(), 0);
+        results.setValue("Image", 0, image.getName());
+        results.setValue("Image_Name", 0, image.getName());
+        results.setValue(property, 0, rois.get(0).getId());
+        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume Unit", 0, "µm^3");
+
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, property);
+
+        Object[][] data = table.getData();
+        assertEquals(1, table.getRowCount());
+        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getName(), data[2][0]);
+        assertEquals(image.getName(), data[3][0]);
+        assertEquals(image.getName(), data[4][0]);
+        assertEquals(25.0d, (Double) data[5][0], 0.05);
+        assertEquals("µm^3", data[6][0]);
+
+        image.addTable(client, table);
+
+        assertNotNull(table.getFileId());
+
+        client.delete(table);
+
+        for (ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
+    public void testCreateTableWithROIsFromIJResults3() throws Exception {
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        ROIWrapper roi = new ROIWrapper();
+
+        roi.setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roi.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+
+        ResultsTable results = new ResultsTable();
+        results.incrementCounter();
+        results.setLabel(image.getName(), 0);
+        results.setValue(ROIWrapper.roiIdIjProperty(null), 0, rois.get(0).getId());
+        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume Unit", 0, "µm^3");
+
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois);
 
         Object[][] data = table.getData();
         assertEquals(1, table.getRowCount());
@@ -225,7 +342,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults2() throws Exception {
+    public void testCreateTableWithROIsFromIJResults4() throws Exception {
         long imageId = 1L;
 
         ImageWrapper image = client.getImage(imageId);
@@ -252,7 +369,7 @@ public class TableTest extends UserTest {
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
         String label = image.getName() + ":" + ijRois.get(0).getName() + ":4";
-        results.setLabel(label, 0);
+        results.setValue("Image", 0, label);
         results.setValue("Volume", 0, 25.0);
         results.setValue("Volume Unit", 0, "µm^3");
 
@@ -455,7 +572,7 @@ public class TableTest extends UserTest {
 
         List<ROIWrapper> rois   = image.getROIs(client);
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
-        Roi local = new Roi(5, 5, 10, 10);
+        Roi              local  = new Roi(5, 5, 10, 10);
         local.setName("local");
         ijRois.add(local);
 
@@ -523,7 +640,7 @@ public class TableTest extends UserTest {
 
         List<ROIWrapper> rois   = image.getROIs(client);
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
-        Roi local = new Roi(5, 5, 10, 10);
+        Roi              local  = new Roi(5, 5, 10, 10);
         local.setName("local");
         ijRois.add(local);
 

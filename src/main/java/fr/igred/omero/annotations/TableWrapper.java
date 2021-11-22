@@ -143,15 +143,17 @@ public class TableWrapper {
         this.name = rt.getTitle();
         this.rowCount = rt.size();
 
+        int offset = 0;
+
         ImageWrapper image = new ImageWrapper(null);
 
         List<ROIWrapper> rois = new ArrayList<>();
 
-        int offset = 0;
         if (imageId != null) {
             image = client.getImage(imageId);
             rois = image.getROIs(client);
             offset++;
+            renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
         if (roiColumn.length > 0) {
@@ -172,7 +174,7 @@ public class TableWrapper {
             Arrays.fill(data[0], image.asImageData());
         }
         if (offset > 1) {
-            setColumn(1, "ROI", ROIData.class);
+            setColumn(1, roiProperty, ROIData.class);
             data[1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
@@ -205,9 +207,44 @@ public class TableWrapper {
     }
 
 
+    /**
+     * Rename "Image" column if it already exists to:
+     * <ul>
+     *     <li>"Label" if the column does not exist</li>
+     *     <li>{@code "Image_column_" + columnNumber} otherwise</li>
+     * </ul>
+     *
+     * @param results The results table to process.
+     */
+    private static void renameImageColumn(ResultsTable results) {
+        final String labelColName = "Label";
+        final String imageColName = "Image";
+        if (results.columnExists(imageColName)) {
+            if (!results.columnExists(labelColName)) results.renameColumn(imageColName, labelColName);
+            else if (!results.columnExists("Image_Name")) results.renameColumn(imageColName, imageColName + "_Name");
+            else results.renameColumn(imageColName, imageColName + "_column_" + results.getColumnIndex(imageColName));
+        }
+    }
+
+
+    /**
+     * Creates a ROIData column from a Variable column containing either:
+     * <ul>
+     *     <li>The ROI local IDs (indices, assumed by default)</li>
+     *     <li>The ROI OMERO IDs (if indices do not map)</li>
+     *     <li>The ShapeData names (if the column contains Strings)</li>
+     * </ul>
+     *
+     * @param roiCol      Variable column containing ROI info
+     * @param index2roi   ROI indices map
+     * @param id2roi      ROI IDs map
+     * @param roiName2roi ROI names map
+     *
+     * @return A ROIData column.
+     */
     private static ROIData[] columnToROIColumn(Variable[] roiCol,
-                                               Map<Long, ROIData> id2roi,
                                                Map<Integer, ROIData> index2roi,
+                                               Map<Long, ROIData> id2roi,
                                                Map<String, ROIData> roiName2roi) {
         ROIData[] roiColumn = new ROIData[0];
         if (isColumnNumeric(roiCol)) {
@@ -226,9 +263,9 @@ public class TableWrapper {
             boolean isIndices = index2roi.size() >= id2roi.size();
             if (isIndices) {
                 roiColumn = indices.stream().map(index2roi::get).toArray(ROIData[]::new);
-                if(Arrays.asList(roiColumn).contains(null)) isIndices = false;
+                if (Arrays.asList(roiColumn).contains(null)) isIndices = false;
             }
-            if(!isIndices) {
+            if (!isIndices) {
                 roiColumn = ids.stream().map(id2roi::get).toArray(ROIData[]::new);
             }
         } else {
@@ -241,7 +278,11 @@ public class TableWrapper {
 
 
     /**
-     * Creates a ROIData column
+     * Creates a ROIData column.
+     * <p>A column named either {@code roiProperty} or {@link ROIWrapper#roiIdIjProperty(String roiProperty)} is
+     * expected. It will look for the ROI OMERO ID in the latter, or for the local ID, the OMERO ID or the shape names
+     * in the former.
+     * <p>If neither column is present, it will check the "Label" column for the ROI names inside.
      *
      * @param results     An ImageJ results table.
      * @param rois        A list of OMERO ROIs.
@@ -274,14 +315,26 @@ public class TableWrapper {
 
         String[] headings = results.getHeadings();
 
-        if (results.columnExists("ROI")) {
-            Variable[] roiCol = results.getColumnAsVariables("ROI");
-            roiColumn = columnToROIColumn(roiCol, id2roi, index2roi, roiName2roi);
+        final String labelColName = "Label";
+
+        if (results.columnExists(roiProperty)) {
+            Variable[] roiCol = results.getColumnAsVariables(roiProperty);
+            roiColumn = columnToROIColumn(roiCol, index2roi, id2roi, roiName2roi);
             // If roiColumn contains null, we return an empty array
             if (Arrays.asList(roiColumn).contains(null)) return empty;
-            results.deleteColumn("ROI");
-        } else if (Arrays.asList(headings).contains("Label")) {
-            String[] roiNames = Arrays.stream(results.getColumnAsVariables("Label"))
+            results.deleteColumn(roiProperty);
+        } else if (results.columnExists(roiIdProperty)) {
+            Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
+            List<Long> ids = Arrays.stream(roiCol)
+                                   .map(Variable::getValue)
+                                   .map(Double::longValue)
+                                   .collect(Collectors.toList());
+            roiColumn = ids.stream().map(id2roi::get).toArray(ROIData[]::new);
+            // If roiColumn contains null, we return an empty array
+            if (Arrays.asList(roiColumn).contains(null)) return empty;
+            results.deleteColumn(roiIdProperty);
+        } else if (Arrays.asList(headings).contains(labelColName)) {
+            String[] roiNames = Arrays.stream(results.getColumnAsVariables(labelColName))
                                       .map(Variable::getString)
                                       .map(s -> roiName2roi.keySet().stream().filter(s::contains)
                                                            .findFirst().orElse(null))
@@ -338,6 +391,7 @@ public class TableWrapper {
             image = client.getImage(imageId);
             rois = image.getROIs(client);
             offset++;
+            renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
         if (roiColumn.length > 0) {
