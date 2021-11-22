@@ -201,7 +201,7 @@ public class TableTest extends UserTest {
         results.setValue("Volume", 0, 25.0);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
 
         Object[][] data = table.getData();
         assertEquals(1, table.getRowCount());
@@ -256,7 +256,7 @@ public class TableTest extends UserTest {
         results.setValue("Volume", 0, 25.0);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
 
         Object[][] data = table.getData();
         assertEquals(1, table.getRowCount());
@@ -293,7 +293,7 @@ public class TableTest extends UserTest {
         results.setValue("Volume", 0, 25.0);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
         image.addTable(client, table);
 
         List<TableWrapper> tables = image.getTables(client);
@@ -335,8 +335,8 @@ public class TableTest extends UserTest {
         results2.setValue("Volume", 0, 50);
         results2.setValue("Volume Unit", 0, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
-        table.addRows(client, results2, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
+        table.addRows(client, results2, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
 
         image.addTable(client, table);
 
@@ -402,8 +402,8 @@ public class TableTest extends UserTest {
         results2.setValue("Volume", 0, 50);
         results2.setValue("Volume Unit", 0, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
-        table.addRows(client, results2, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
+        table.addRows(client, results2, imageId, ijRois);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
@@ -471,7 +471,7 @@ public class TableTest extends UserTest {
         results.setValue("Volume", 1, 50);
         results.setValue("Volume Unit", 1, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
@@ -539,7 +539,7 @@ public class TableTest extends UserTest {
         results.setValue("Volume", 1, 50);
         results.setValue("Volume Unit", 1, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
@@ -585,9 +585,9 @@ public class TableTest extends UserTest {
         results2.setLabel(image.getName(), 0);
         results2.setValue("Volume", 0, 50);
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
         try {
-            table.addRows(client, results2, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+            table.addRows(client, results2, imageId, ijRois);
         } catch (IllegalArgumentException e) {
             error = true;
         }
@@ -616,8 +616,8 @@ public class TableTest extends UserTest {
         results2.setValue("Volume Unit", 0, "m^3");
         results2.setValue("Volume", 0, 50);
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
-        table.addRows(client, results2, imageId, ijRois, ROIWrapper.ROI_ID_IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
+        table.addRows(client, results2, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
 
         image.addTable(client, table);
 

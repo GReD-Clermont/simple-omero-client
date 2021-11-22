@@ -189,7 +189,7 @@ public class ROI2ImageJTest extends BasicTest {
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijEllipse);
 
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         EllipseWrapper newEllipse = roi.getShapes().getElementsOf(EllipseWrapper.class).get(0);
 
@@ -213,7 +213,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRectangle);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
 
