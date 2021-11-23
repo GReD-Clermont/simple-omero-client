@@ -27,13 +27,14 @@ import org.junit.Test;
 
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class ExceptionTest extends BasicTest {
 
     @Test
-    public void testConnectionErrorUsername() throws Exception {
+    public void testConnectionErrorUsername() {
         boolean exception = false;
         Client  client    = new Client();
         try {
@@ -46,7 +47,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testConnectionErrorPassword() throws Exception {
+    public void testConnectionErrorPassword() {
         boolean exception = false;
         Client  root      = new Client();
         try {

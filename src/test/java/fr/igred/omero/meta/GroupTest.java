@@ -53,6 +53,7 @@ public class GroupTest extends RootTest {
     @Test
     public void testSetDescription() throws Exception {
         GroupWrapper group = client.getGroup("testGroup1");
+        assertEquals(GroupWrapper.PERMISSIONS_GROUP_READ, group.getPermissionsLevel());
         group.setDescription("Test");
         group.saveAndUpdate(client);
         assertEquals("Test", client.getGroup("testGroup1").getDescription());

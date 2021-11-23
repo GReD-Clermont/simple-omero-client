@@ -28,13 +28,12 @@ import static org.junit.Assert.assertEquals;
 @Ignore
 public abstract class RootTest extends BasicTest {
 
-    protected Client client;
+    final protected Client client = new Client();
 
 
     @Before
     public void setUp() {
         boolean failed = false;
-        client = new Client();
         try {
             client.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
             assertEquals("Wrong user", 0L, client.getId());

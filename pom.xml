@@ -9,7 +9,7 @@
 
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <version>5.8.2</version>
+    <version>5.8.3</version>
     <packaging>jar</packaging>
 
     <name>Simple OMERO Client</name>
@@ -98,7 +98,7 @@
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
                 <artifactId>omero-gateway</artifactId>
-                <version>5.6.6</version>
+                <version>5.6.7</version>
             </dependency>
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
@@ -161,7 +161,7 @@
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
                 <artifactId>ome-common</artifactId>
-                <version>6.0.6</version>
+                <version>6.0.7</version>
                 <exclusions>
                     <exclusion>
                         <groupId>xml-apis</groupId>
@@ -172,7 +172,7 @@
             <dependency>
                 <groupId>ome</groupId>
                 <artifactId>formats-api</artifactId>
-                <version>6.6.1</version>
+                <version>6.7.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

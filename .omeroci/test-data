@@ -17,15 +17,16 @@ omero login root@localhost -w omero
 
 # add the root user to a second group
 omero group add testGroup
-omero group add testGroup1
+omero group add testGroup1 --perms='rwr---'
 omero group add testGroup2
-omero group add testGroup3
+omero group add testGroup3 --type=read-annotate
 omero group adduser --name testGroup --user-name root
 omero user add testUser firstname lastname testGroup -P password
 omero user add testUser2 firstname2 lastname2 testGroup -P password2
-omero user add testUser3 firstname3 lastname3 testGroup3 -P password3
+omero user add testUser3 firstname3 lastname3 testGroup2 -P password3
 omero user add testUser4 firstname4 lastname4 testGroup3 -P password4
 omero group adduser --name testGroup1 testUser
+omero group adduser --name testGroup3 testUser3
 omero group adduser --name testGroup3 testUser4 --as-owner
 omero quit
 
@@ -39,30 +40,34 @@ DATASET3=$(omero obj new Dataset name=TestDataset)
 PROJECT1=$(omero obj new Project name=TestProject description=description)
 PROJECT2=$(omero obj new Project name=TestProject)
 
-omero obj new ProjectDatasetLink parent=$PROJECT1 child=$DATASET1
-omero obj new ProjectDatasetLink parent=$PROJECT1 child=$DATASET2
-omero obj new ProjectDatasetLink parent=$PROJECT2 child=$DATASET3
+omero obj new ProjectDatasetLink parent="$PROJECT1" child="$DATASET1"
+omero obj new ProjectDatasetLink parent="$PROJECT1" child="$DATASET2"
+omero obj new ProjectDatasetLink parent="$PROJECT2" child="$DATASET3"
 
 
 touch "$WORKDIR/image1.fake"
-echo "pixelType=uint8" >> $WORKDIR/image1.fake.ini
-echo "sizeX=512" >> $WORKDIR/image1.fake.ini
-echo "sizeY=512" >> $WORKDIR/image1.fake.ini
-echo "sizeZ=3" >> $WORKDIR/image1.fake.ini
-echo "sizeC=5" >> $WORKDIR/image1.fake.ini
-echo "sizeT=7" >> $WORKDIR/image1.fake.ini
-echo "physicalSizeX=0.5µm" >> $WORKDIR/image1.fake.ini
-echo "physicalSizeY=0.5µm" >> $WORKDIR/image1.fake.ini
-echo "physicalSizeZ=1µm" >> $WORKDIR/image1.fake.ini
-echo "acquisitionDate=2020-04-01_20-04-01" >> $WORKDIR/image1.fake.ini
+{
+    echo "pixelType=uint8"
+    echo "sizeX=512"
+    echo "sizeY=512"
+    echo "sizeZ=3"
+    echo "sizeC=5"
+    echo "sizeT=7"
+    echo "physicalSizeX=0.5µm"
+    echo "physicalSizeY=0.5µm"
+    echo "physicalSizeZ=1µm"
+    echo "acquisitionDate=2020-04-01_20-04-01"
+} >> "$WORKDIR/image1.fake.ini"
 
 touch "$WORKDIR/image2.fake"
-echo "pixelType=uint8" >> $WORKDIR/image2.fake.ini
-echo "sizeX=512" >> $WORKDIR/image2.fake.ini
-echo "sizeY=512" >> $WORKDIR/image2.fake.ini
-echo "sizeZ=2" >> $WORKDIR/image2.fake.ini
-echo "sizeC=5" >> $WORKDIR/image2.fake.ini
-echo "sizeT=7" >> $WORKDIR/image2.fake.ini
+{
+    echo "pixelType=uint8"
+    echo "sizeX=512"
+    echo "sizeY=512"
+    echo "sizeZ=2"
+    echo "sizeC=5"
+echo "sizeT=7"
+} >> "$WORKDIR"/image2.fake.ini
 
 IMAGE1=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:1)
 IMAGE2=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:1)
@@ -71,21 +76,21 @@ IMAGE4=$(omero import --output=ids  "$WORKDIR/image1.fake" -T Dataset:id:3)
 
 TAG1=$(omero obj new TagAnnotation textValue=tag1 description=description)
 TAG2=$(omero obj new TagAnnotation textValue=tag2)
-TAG3=$(omero obj new TagAnnotation textValue=tag3)
-omero obj new ProjectAnnotationLink parent=$PROJECT2 child=$TAG1
-omero obj new DatasetAnnotationLink parent=$DATASET3 child=$TAG1
-omero obj new ImageAnnotationLink parent=$IMAGE1 child=$TAG1
-omero obj new ImageAnnotationLink parent=$IMAGE1 child=$TAG2
-omero obj new ImageAnnotationLink parent=$IMAGE2 child=$TAG1
-omero obj new ImageAnnotationLink parent=$IMAGE4 child=$TAG1
+omero obj new TagAnnotation textValue=tag3
+omero obj new ProjectAnnotationLink parent="$PROJECT2" child="$TAG1"
+omero obj new DatasetAnnotationLink parent="$DATASET3" child="$TAG1"
+omero obj new ImageAnnotationLink parent="$IMAGE1" child="$TAG1"
+omero obj new ImageAnnotationLink parent="$IMAGE1" child="$TAG2"
+omero obj new ImageAnnotationLink parent="$IMAGE2" child="$TAG1"
+omero obj new ImageAnnotationLink parent="$IMAGE4" child="$TAG1"
 
 MAP1=$(omero obj new MapAnnotation)
-omero obj map-set $MAP1 mapValue testKey1 testValue1
-omero obj map-set $MAP1 mapValue testKey2 20
-omero obj new ImageAnnotationLink parent=$IMAGE1 child=$MAP1
-omero obj new ImageAnnotationLink parent=$IMAGE3 child=$MAP1
+omero obj map-set "$MAP1" mapValue testKey1 testValue1
+omero obj map-set "$MAP1" mapValue testKey2 20
+omero obj new ImageAnnotationLink parent="$IMAGE1" child="$MAP1"
+omero obj new ImageAnnotationLink parent="$IMAGE3" child="$MAP1"
 
 MAP2=$(omero obj new MapAnnotation)
-omero obj map-set $MAP2 mapValue testKey1 testValue2
-omero obj map-set $MAP2 mapValue testKey2 30
-omero obj new ImageAnnotationLink parent=$IMAGE2 child=$MAP2
+omero obj map-set "$MAP2" mapValue testKey1 testValue2
+omero obj map-set "$MAP2" mapValue testKey2 30
+omero obj new ImageAnnotationLink parent="$IMAGE2" child="$MAP2"

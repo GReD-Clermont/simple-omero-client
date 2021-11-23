@@ -50,6 +50,9 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  */
 public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
+    /**
+     * Default IJ property to store ROI local IDs / indices.
+     */
     public static final String IJ_PROPERTY = "ROI";
 
 
@@ -85,15 +88,41 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
+     * Returns ID property corresponding to input local ID property (appends "_ID" to said property).
+     *
+     * @param property The property where 4D ROI local ID is stored.
+     *                 <p>Defaults to {@value IJ_PROPERTY} if null or  empty.
+     *
+     * @return See above.
+     */
+    public static String ijIDProperty(String property) {
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
+        return property + "_ID";
+    }
+
+
+    /**
+     * Converts an ImageJ list of ROIs to a list of OMERO ROIs
+     *
+     * @param ijRois A list of ImageJ ROIs.
+     *
+     * @return The converted list of OMERO ROIs.
+     */
+    public static List<ROIWrapper> fromImageJ(List<ij.gui.Roi> ijRois) {
+        return fromImageJ(ijRois, IJ_PROPERTY);
+    }
+
+
+    /**
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs
      *
      * @param ijRois   A list of ImageJ ROIs.
-     * @param property The property where 4D ROI ID is stored, defaults to {@value IJ_PROPERTY}.
+     * @param property The property where 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY}.
      *
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROIWrapper> fromImageJ(List<ij.gui.Roi> ijRois, String property) {
-        if (property == null || property.equals("")) property = IJ_PROPERTY;
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
 
         Map<Long, ROIWrapper> rois4D = new TreeMap<>();
 
@@ -127,13 +156,28 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return The converted list of ImageJ ROIs.
      */
     public static List<ij.gui.Roi> toImageJ(List<ROIWrapper> rois) {
+        return toImageJ(rois, IJ_PROPERTY);
+    }
+
+
+    /**
+     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
+     *
+     * @param rois     A list of OMERO ROIs.
+     * @param property The property where 4D ROI local ID will be stored.
+     *
+     * @return The converted list of ImageJ ROIs.
+     */
+    public static List<ij.gui.Roi> toImageJ(List<ROIWrapper> rois, String property) {
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
+
         List<ij.gui.Roi> ijRois = new ArrayList<>();
 
-        int index = 0;
+        int index = 1;
         for (ROIWrapper roi : rois) {
-            List<ij.gui.Roi> shapes = roi.toImageJ();
+            List<ij.gui.Roi> shapes = roi.toImageJ(property);
             for (ij.gui.Roi r : shapes) {
-                r.setProperty("INDEX", String.valueOf(index));
+                r.setProperty(property, String.valueOf(index));
                 if (rois.size() < 255) {
                     r.setGroup(index);
                 }
@@ -286,6 +330,20 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return A list of ROIs.
      */
     public List<ij.gui.Roi> toImageJ() {
+        return this.toImageJ(IJ_PROPERTY);
+    }
+
+
+    /**
+     * Convert ROI to ImageJ list of ROIs.
+     *
+     * @param property The property where 4D ROI local ID will be stored.
+     *
+     * @return A list of ROIs.
+     */
+    public List<ij.gui.Roi> toImageJ(String property) {
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
+
         List<ij.gui.Roi> rois = new ArrayList<>();
         for (GenericShapeWrapper<?> shape : getShapes()) {
             ij.gui.Roi roi = shape.toImageJ();
@@ -294,7 +352,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             } else {
                 roi.setName(getId() + "-" + shape.getId());
             }
-            roi.setProperty(IJ_PROPERTY, String.valueOf(getId()));
+            roi.setProperty(ijIDProperty(property), String.valueOf(getId()));
             rois.add(roi);
         }
         return rois;

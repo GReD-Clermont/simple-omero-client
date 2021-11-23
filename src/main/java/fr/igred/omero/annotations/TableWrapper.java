@@ -108,34 +108,54 @@ public class TableWrapper {
     /**
      * Constructor of the class TableWrapper. Uses an ImageJ {@link ResultsTable} to create.
      *
-     * @param client        The client handling the connection.
-     * @param results       An ImageJ results table.
-     * @param imageId       An image ID.
-     * @param ijRois        A list of ImageJ Rois.
-     * @param roiIdProperty The Roi property storing the ROI IDs.
+     * @param client  The client handling the connection.
+     * @param results An ImageJ results table.
+     * @param imageId An image ID.
+     * @param ijRois  A list of ImageJ Rois.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
+    throws ServiceException, AccessException, ExecutionException {
+        this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+    }
+
+
+    /**
+     * Constructor of the class TableWrapper. Uses an ImageJ {@link ResultsTable} to create.
+     *
+     * @param client      The client handling the connection.
+     * @param results     An ImageJ results table.
+     * @param imageId     An image ID.
+     * @param ijRois      A list of ImageJ Rois.
+     * @param roiProperty The Roi property storing the local ROI IDs.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         ResultsTable rt = (ResultsTable) results.clone();
         this.fileId = null;
         this.name = rt.getTitle();
         this.rowCount = rt.size();
 
+        int offset = 0;
+
         ImageWrapper image = new ImageWrapper(null);
 
         List<ROIWrapper> rois = new ArrayList<>();
 
-        int offset = 0;
         if (imageId != null) {
             image = client.getImage(imageId);
             rois = image.getROIs(client);
             offset++;
+            renameImageColumn(rt);
         }
-        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiIdProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
         if (roiColumn.length > 0) {
             offset++;
         }
@@ -154,7 +174,7 @@ public class TableWrapper {
             Arrays.fill(data[0], image.asImageData());
         }
         if (offset > 1) {
-            setColumn(1, "ROI", ROIData.class);
+            setColumn(1, roiProperty, ROIData.class);
             data[1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
@@ -188,50 +208,134 @@ public class TableWrapper {
 
 
     /**
-     * Creates a ROIData column
+     * Rename "Image" column if it already exists to:
+     * <ul>
+     *     <li>"Label" if the column does not exist</li>
+     *     <li>{@code "Image_column_" + columnNumber} otherwise</li>
+     * </ul>
      *
-     * @param results       An ImageJ results table.
-     * @param rois          A list of OMERO ROIs.
-     * @param ijRois        A list of ImageJ Rois.
-     * @param roiIdProperty The Roi property storing the ROI IDs.
+     * @param results The results table to process.
+     */
+    private static void renameImageColumn(ResultsTable results) {
+        final String labelColName = "Label";
+        final String imageColName = "Image";
+        if (results.columnExists(imageColName)) {
+            List<String> headings = Arrays.asList(results.getHeadings());
+            if (!headings.contains(labelColName)) results.renameColumn(imageColName, labelColName);
+            else if (!results.columnExists("Image_Name")) results.renameColumn(imageColName, imageColName + "_Name");
+            else results.renameColumn(imageColName, imageColName + "_column_" + results.getColumnIndex(imageColName));
+        }
+    }
+
+
+    /**
+     * Creates a ROIData column from a Variable column containing either:
+     * <ul>
+     *     <li>The ROI local IDs (indices, assumed by default)</li>
+     *     <li>The ROI OMERO IDs (if indices do not map)</li>
+     *     <li>The ShapeData names (if the column contains Strings)</li>
+     * </ul>
+     *
+     * @param roiCol      Variable column containing ROI info
+     * @param index2roi   ROI indices map
+     * @param id2roi      ROI IDs map
+     * @param roiName2roi ROI names map
+     *
+     * @return A ROIData column.
+     */
+    private static ROIData[] columnToROIColumn(Variable[] roiCol,
+                                               Map<Integer, ROIData> index2roi,
+                                               Map<Long, ROIData> id2roi,
+                                               Map<String, ROIData> roiName2roi) {
+        ROIData[] roiColumn = new ROIData[0];
+        if (isColumnNumeric(roiCol)) {
+            List<Long> ids = Arrays.stream(roiCol)
+                                   .map(Variable::getValue)
+                                   .map(Double::longValue)
+                                   .collect(Collectors.toList());
+
+            List<Integer> indices = Arrays.stream(roiCol)
+                                          .map(Variable::getValue)
+                                          .map(Double::intValue)
+                                          .collect(Collectors.toList());
+
+            index2roi.keySet().retainAll(indices);
+            id2roi.keySet().retainAll(ids);
+            boolean isIndices = index2roi.size() >= id2roi.size();
+            if (isIndices) {
+                roiColumn = indices.stream().map(index2roi::get).toArray(ROIData[]::new);
+                if (Arrays.asList(roiColumn).contains(null)) isIndices = false;
+            }
+            if (!isIndices) {
+                roiColumn = ids.stream().map(id2roi::get).toArray(ROIData[]::new);
+            }
+        } else {
+            roiColumn = Arrays.stream(roiCol)
+                              .map(v -> roiName2roi.get(v.getString()))
+                              .toArray(ROIData[]::new);
+        }
+        return roiColumn;
+    }
+
+
+    /**
+     * Creates a ROIData column.
+     * <p>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
+     * expected. It will look for the ROI OMERO ID in the latter, or for the local ID, the OMERO ID or the shape names
+     * in the former.
+     * <p>If neither column is present, it will check the "Label" column for the ROI names inside.
+     *
+     * @param results     An ImageJ results table.
+     * @param rois        A list of OMERO ROIs.
+     * @param ijRois      A list of ImageJ Rois.
+     * @param roiProperty The Roi property storing the local ROI IDs.
      *
      * @return An ROIData column.
      */
     private static ROIData[] createROIColumn(ResultsTable results,
                                              List<ROIWrapper> rois,
                                              List<Roi> ijRois,
-                                             String roiIdProperty) {
+                                             String roiProperty) {
+        String roiIdProperty = ROIWrapper.ijIDProperty(roiProperty);
+
         ROIData[] empty     = new ROIData[0];
         ROIData[] roiColumn = empty;
 
         Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
 
-        Map<String, ROIData> roiName2roi = new HashMap<>(ijRois.size());
+        Map<Integer, ROIData> index2roi   = new HashMap<>(ijRois.size());
+        Map<String, ROIData>  roiName2roi = new HashMap<>(ijRois.size());
         for (Roi ijRoi : ijRois) {
-            String value = ijRoi.getProperty(roiIdProperty);
-            if (value != null) {
-                roiName2roi.put(ijRoi.getName(), id2roi.get(Long.parseLong(value)));
+            String index = ijRoi.getProperty(roiProperty);
+            String id    = ijRoi.getProperty(roiIdProperty);
+            if (id != null) {
+                roiName2roi.put(ijRoi.getName(), id2roi.get(Long.parseLong(id)));
+                if (index != null) index2roi.putIfAbsent(Integer.parseInt(index), id2roi.get(Long.parseLong(id)));
             }
         }
 
         String[] headings = results.getHeadings();
 
-        if (results.columnExists("ROI")) {
-            Variable[] roiCol = results.getColumnAsVariables("ROI");
-            if (isColumnNumeric(roiCol)) {
-                roiColumn = Arrays.stream(roiCol)
-                                  .map(v -> id2roi.get((long) v.getValue()))
-                                  .toArray(ROIData[]::new);
-            } else {
-                roiColumn = Arrays.stream(roiCol)
-                                  .map(v -> roiName2roi.get(v.getString()))
-                                  .toArray(ROIData[]::new);
-            }
+        final String labelColName = "Label";
+
+        if (results.columnExists(roiProperty)) {
+            Variable[] roiCol = results.getColumnAsVariables(roiProperty);
+            roiColumn = columnToROIColumn(roiCol, index2roi, id2roi, roiName2roi);
             // If roiColumn contains null, we return an empty array
             if (Arrays.asList(roiColumn).contains(null)) return empty;
-            results.deleteColumn("ROI");
-        } else if (Arrays.asList(headings).contains("Label")) {
-            String[] roiNames = Arrays.stream(results.getColumnAsVariables("Label"))
+            results.deleteColumn(roiProperty);
+        } else if (results.columnExists(roiIdProperty)) {
+            Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
+            List<Long> ids = Arrays.stream(roiCol)
+                                   .map(Variable::getValue)
+                                   .map(Double::longValue)
+                                   .collect(Collectors.toList());
+            roiColumn = ids.stream().map(id2roi::get).toArray(ROIData[]::new);
+            // If roiColumn contains null, we return an empty array
+            if (Arrays.asList(roiColumn).contains(null)) return empty;
+            results.deleteColumn(roiIdProperty);
+        } else if (Arrays.asList(headings).contains(labelColName)) {
+            String[] roiNames = Arrays.stream(results.getColumnAsVariables(labelColName))
                                       .map(Variable::getString)
                                       .map(s -> roiName2roi.keySet().stream().filter(s::contains)
                                                            .findFirst().orElse(null))
@@ -247,31 +351,50 @@ public class TableWrapper {
     /**
      * Adds rows from an ImageJ {@link ResultsTable}.
      *
-     * @param client        The client handling the connection.
-     * @param results       An ImageJ results table.
-     * @param imageId       An image ID.
-     * @param ijRois        A list of ImageJ Rois.
-     * @param roiIdProperty The Roi property storing the ROI IDs.
+     * @param client  The client handling the connection.
+     * @param results An ImageJ results table.
+     * @param imageId An image ID.
+     * @param ijRois  A list of ImageJ Rois.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiIdProperty)
+    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        ResultsTable rt     = (ResultsTable) results.clone();
-        int          offset = 0;
+        this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+    }
+
+
+    /**
+     * Adds rows from an ImageJ {@link ResultsTable}.
+     *
+     * @param client      The client handling the connection.
+     * @param results     An ImageJ results table.
+     * @param imageId     An image ID.
+     * @param ijRois      A list of ImageJ Rois.
+     * @param roiProperty The Roi property storing the local ROI IDs.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
+    throws ServiceException, AccessException, ExecutionException {
+        ResultsTable rt = (ResultsTable) results.clone();
 
         ImageWrapper image = new ImageWrapper(null);
 
         List<ROIWrapper> rois = new ArrayList<>();
 
+        int offset = 0;
         if (imageId != null) {
             image = client.getImage(imageId);
             rois = image.getROIs(client);
             offset++;
+            renameImageColumn(rt);
         }
-        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiIdProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
         if (roiColumn.length > 0) {
             offset++;
         }

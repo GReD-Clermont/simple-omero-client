@@ -49,6 +49,13 @@ public class DatasetTest extends UserTest {
 
         assertEquals(dataset.getName(), name);
 
+        assertTrue(dataset.canLink());
+        assertTrue(dataset.canAnnotate());
+        assertTrue(dataset.canEdit());
+        assertTrue(dataset.canDelete());
+        assertTrue(dataset.canChgrp());
+        assertFalse(dataset.canChown());
+
         client.delete(dataset);
 
         try {
@@ -358,7 +365,7 @@ public class DatasetTest extends UserTest {
     public void testSetDescription() throws Exception {
         DatasetWrapper dataset = client.getDataset(1L);
 
-        String description  = dataset.getDescription();
+        String description = dataset.getDescription();
 
         String description2 = "NewName";
         dataset.setDescription(description2);

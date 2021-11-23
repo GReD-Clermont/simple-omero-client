@@ -67,7 +67,6 @@ public class Client {
 
     /** Security context of the user, contains the permissions of the user in this group. */
     private SecurityContext ctx;
-    private BrowseFacility  browse;
 
 
     /**
@@ -102,9 +101,11 @@ public class Client {
      * Gets the BrowseFacility used to access the data from OMERO.
      *
      * @return the {@link BrowseFacility} linked to the gateway.
+     *
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public BrowseFacility getBrowseFacility() {
-        return browse;
+    public BrowseFacility getBrowseFacility() throws ExecutionException {
+        return gateway.getFacility(BrowseFacility.class);
     }
 
 
@@ -258,11 +259,10 @@ public class Client {
      * @param port      Port used by OMERO.
      * @param sessionId The session ID.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
      */
     public void connect(String hostname, int port, String sessionId)
-    throws ServiceException, ExecutionException {
+    throws ServiceException {
         LoginCredentials l = new JoinSessionCredentials(sessionId, hostname, port);
         connect(l);
     }
@@ -279,11 +279,10 @@ public class Client {
      * @param password Password of the user.
      * @param groupID  Id of the group to connect.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
      */
     public void connect(String hostname, int port, String username, char[] password, Long groupID)
-    throws ServiceException, ExecutionException {
+    throws ServiceException {
         LoginCredentials cred = createCred(hostname, port, username, password);
 
         cred.setGroupID(groupID);
@@ -302,11 +301,10 @@ public class Client {
      * @param username Username of the user.
      * @param password Password of the user.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
      */
     public void connect(String hostname, int port, String username, char[] password)
-    throws ServiceException, ExecutionException {
+    throws ServiceException {
         LoginCredentials cred = createCred(hostname, port, username, password);
 
         connect(cred);
@@ -338,10 +336,9 @@ public class Client {
      *
      * @param cred User credential.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
      */
-    public void connect(LoginCredentials cred) throws ServiceException, ExecutionException {
+    public void connect(LoginCredentials cred) throws ServiceException {
         disconnect();
 
         try {
@@ -351,7 +348,6 @@ public class Client {
         }
         this.ctx = new SecurityContext(user.getGroupId());
         this.ctx.setExperimenter(this.user.asExperimenterData());
-        this.browse = gateway.getFacility(BrowseFacility.class);
     }
 
 
@@ -360,6 +356,11 @@ public class Client {
      */
     public void disconnect() {
         if (gateway.isConnected()) {
+            if (ctx != null) {
+                ctx.setExperimenter(null);
+            }
+            ctx = null;
+            user = null;
             gateway.disconnect();
         }
     }
@@ -375,12 +376,13 @@ public class Client {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException No element with such id.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     public ProjectWrapper getProject(Long id)
-    throws ServiceException, AccessException, NoSuchElementException {
+    throws ServiceException, AccessException, NoSuchElementException, ExecutionException {
         Collection<ProjectData> projects = new ArrayList<>();
         try {
-            projects = browse.getProjects(ctx, Collections.singletonList(id));
+            projects = getBrowseFacility().getProjects(ctx, Collections.singletonList(id));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get project with ID: " + id);
         }
@@ -396,13 +398,14 @@ public class Client {
      *
      * @return Collection of ProjectWrapper.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects() throws ServiceException, AccessException {
+    public List<ProjectWrapper> getProjects() throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectData> projects = new ArrayList<>();
         try {
-            projects = browse.getProjects(ctx);
+            projects = getBrowseFacility().getProjects(ctx);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects");
         }
@@ -423,13 +426,14 @@ public class Client {
      *
      * @return Collection of ProjectWrapper.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException {
+    public List<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectData> projects = new ArrayList<>();
         try {
-            projects = browse.getProjects(ctx, name);
+            projects = getBrowseFacility().getProjects(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects with name: " + name);
         }
@@ -453,12 +457,13 @@ public class Client {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException No element with such id.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     public DatasetWrapper getDataset(Long id)
-    throws ServiceException, AccessException, NoSuchElementException {
+    throws ServiceException, AccessException, NoSuchElementException, ExecutionException {
         Collection<DatasetData> datasets = new ArrayList<>();
         try {
-            datasets = browse.getDatasets(ctx, Collections.singletonList(id));
+            datasets = getBrowseFacility().getDatasets(ctx, Collections.singletonList(id));
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get dataset with ID: " + id);
         }
@@ -474,12 +479,13 @@ public class Client {
      *
      * @return Collection of DatasetWrapper.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets()
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os = findByQuery("select d from Dataset d");
 
         List<DatasetWrapper> datasets = new ArrayList<>(os.size());
@@ -498,13 +504,14 @@ public class Client {
      *
      * @return Collection of DatasetWrapper.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException {
+    public List<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetData> datasets = new ArrayList<>();
         try {
-            datasets = browse.getDatasets(ctx, name);
+            datasets = getBrowseFacility().getDatasets(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get datasets with name: " + name);
         }
@@ -548,12 +555,13 @@ public class Client {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException No element with such id.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     public ImageWrapper getImage(Long id)
-    throws ServiceException, AccessException, NoSuchElementException {
+    throws ServiceException, AccessException, NoSuchElementException, ExecutionException {
         ImageData image = null;
         try {
-            image = browse.getImage(ctx, id);
+            image = getBrowseFacility().getImage(ctx, id);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get image with ID: " + id);
         }
@@ -569,13 +577,14 @@ public class Client {
      *
      * @return ImageWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages() throws ServiceException, AccessException {
+    public List<ImageWrapper> getImages() throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = new ArrayList<>();
         try {
-            images = browse.getUserImages(ctx);
+            images = getBrowseFacility().getUserImages(ctx);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images");
         }
@@ -591,13 +600,14 @@ public class Client {
      *
      * @return ImageWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(String name) throws ServiceException, AccessException {
+    public List<ImageWrapper> getImages(String name) throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = new ArrayList<>();
         try {
-            images = browse.getImages(ctx, name);
+            images = getBrowseFacility().getImages(ctx, name);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images with name: " + name);
         }
@@ -613,10 +623,11 @@ public class Client {
      *
      * @return ImageWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesLike(String motif) throws ServiceException, AccessException {
+    public List<ImageWrapper> getImagesLike(String motif) throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images = getImages();
         final String       regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
@@ -631,12 +642,13 @@ public class Client {
      *
      * @return ImageWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         return tag.getImages(this);
     }
 
@@ -648,12 +660,13 @@ public class Client {
      *
      * @return ImageWrapper list.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesTagged(Long tagId)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         return getTag(tagId).getImages(this);
     }
 
@@ -729,14 +742,12 @@ public class Client {
 
         ExperimenterWrapper sudoUser = getUser(username);
 
-        SecurityContext sudoCtx = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        sudoCtx.setExperimenter(sudoUser.asExperimenterData());
-        sudoCtx.sudo();
-
         c.gateway = this.gateway;
-        c.ctx = sudoCtx;
         c.user = sudoUser;
-        c.browse = this.browse;
+
+        c.ctx = new SecurityContext(sudoUser.getDefaultGroup().getId());
+        c.ctx.setExperimenter(sudoUser.asExperimenterData());
+        c.ctx.sudo();
 
         return c;
     }
@@ -751,7 +762,7 @@ public class Client {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
         ctx.setExperimenter(getUser().asExperimenterData());
-        if(sudo) ctx.sudo();
+        if (sudo) ctx.sudo();
     }
 
 
@@ -975,6 +986,16 @@ public class Client {
         } else {
             return null;
         }
+    }
+
+
+    /**
+     * Check if the client is still connected to the server
+     *
+     * @return See above.
+     */
+    public boolean isConnected() {
+        return gateway.isConnected() && ctx != null;
     }
 
 }
