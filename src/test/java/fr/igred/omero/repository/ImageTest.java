@@ -579,9 +579,9 @@ public class ImageTest extends UserTest {
                 File uploadedFile = f.getFile(client, "./uploaded.txt");
 
                 List<String> expectedLines = Files.readAllLines(file.toPath());
-                List<String> lines = Files.readAllLines(uploadedFile.toPath());
+                List<String> lines         = Files.readAllLines(uploadedFile.toPath());
                 assertEquals(expectedLines.size(), lines.size());
-                for(int i=0; i<expectedLines.size(); i++) {
+                for (int i = 0; i < expectedLines.size(); i++) {
                     assertEquals(expectedLines.get(i), lines.get(i));
                 }
 
@@ -664,7 +664,7 @@ public class ImageTest extends UserTest {
         ImageWrapper image = client.getImage(1L);
 
         RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
-        rectangle.setCZT(0, 1, 2);
+        rectangle.setCZT(1, 1, 2);
 
         EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
@@ -678,7 +678,7 @@ public class ImageTest extends UserTest {
 
         int[] xBound = {30, 69};
         int[] yBound = {10, 89};
-        int[] cBound = {0, 1};
+        int[] cBound = {1, 1};
         int[] zBound = {0, 1};
         int[] tBound = {1, 2};
 

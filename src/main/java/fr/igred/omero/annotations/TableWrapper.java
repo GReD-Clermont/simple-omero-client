@@ -220,7 +220,8 @@ public class TableWrapper {
         final String labelColName = "Label";
         final String imageColName = "Image";
         if (results.columnExists(imageColName)) {
-            if (!results.columnExists(labelColName)) results.renameColumn(imageColName, labelColName);
+            List<String> headings = Arrays.asList(results.getHeadings());
+            if (!headings.contains(labelColName)) results.renameColumn(imageColName, labelColName);
             else if (!results.columnExists("Image_Name")) results.renameColumn(imageColName, imageColName + "_Name");
             else results.renameColumn(imageColName, imageColName + "_column_" + results.getColumnIndex(imageColName));
         }

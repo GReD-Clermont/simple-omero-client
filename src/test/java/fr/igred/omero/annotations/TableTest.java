@@ -639,7 +639,7 @@ public class TableTest extends UserTest {
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+        List<Roi>        ijRois = rois.get(0).toImageJ((String) null);
         Roi              local  = new Roi(5, 5, 10, 10);
         local.setName("local");
         ijRois.add(local);
