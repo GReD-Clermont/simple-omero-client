@@ -130,7 +130,8 @@ public class TableWrapper {
      * @param results     An ImageJ results table.
      * @param imageId     An image ID.
      * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI IDs.
+     * @param roiProperty The Roi property storing the local ROI IDs. Defaults to {@link ROIWrapper#IJ_PROPERTY} if null
+     *                    or empty.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -138,6 +139,8 @@ public class TableWrapper {
      */
     public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
+        roiProperty = ROIWrapper.checkProperty(roiProperty);
+
         ResultsTable rt = (ResultsTable) results.clone();
         this.fileId = null;
         this.name = rt.getTitle();
@@ -373,7 +376,8 @@ public class TableWrapper {
      * @param results     An ImageJ results table.
      * @param imageId     An image ID.
      * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI IDs.
+     * @param roiProperty The Roi property storing the local ROI IDs. Defaults to {@link ROIWrapper#IJ_PROPERTY} if null
+     *                    or empty.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -381,6 +385,8 @@ public class TableWrapper {
      */
     public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
+        roiProperty = ROIWrapper.checkProperty(roiProperty);
+
         ResultsTable rt = (ResultsTable) results.clone();
 
         ImageWrapper image = new ImageWrapper(null);
