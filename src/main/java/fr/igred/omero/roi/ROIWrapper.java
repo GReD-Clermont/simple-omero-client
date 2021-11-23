@@ -50,7 +50,10 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  */
 public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
-    public static final String ROI_IJ_PROPERTY = "ROI";
+    /**
+     * Default IJ property to store ROI local IDs / indices.
+     */
+    public static final String IJ_PROPERTY = "ROI";
 
 
     /**
@@ -88,12 +91,12 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Returns ID property corresponding to input local ID property (appends "_ID" to said property).
      *
      * @param property The property where 4D ROI local ID is stored.
-     *                 <p>Defaults to {@value ROI_IJ_PROPERTY} if null or  empty.
+     *                 <p>Defaults to {@value IJ_PROPERTY} if null or  empty.
      *
      * @return See above.
      */
-    public static String roiIdIjProperty(String property) {
-        if (property == null || property.equals("")) property = ROI_IJ_PROPERTY;
+    public static String ijIDProperty(String property) {
+        if (property == null || property.equals("")) property = IJ_PROPERTY;
         return property + "_ID";
     }
 
@@ -114,12 +117,12 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs
      *
      * @param ijRois   A list of ImageJ ROIs.
-     * @param property The property where 4D ROI local ID is stored, defaults to {@value ROI_IJ_PROPERTY}.
+     * @param property The property where 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY}.
      *
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROIWrapper> fromImageJ(List<ij.gui.Roi> ijRois, String property) {
-        if (property == null || property.equals("")) property = ROI_IJ_PROPERTY;
+        if (property == null || property.equals("")) property = IJ_PROPERTY;
 
         Map<Long, ROIWrapper> rois4D = new TreeMap<>();
 
@@ -153,7 +156,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return The converted list of ImageJ ROIs.
      */
     public static List<ij.gui.Roi> toImageJ(List<ROIWrapper> rois) {
-        return toImageJ(rois, ROI_IJ_PROPERTY);
+        return toImageJ(rois, IJ_PROPERTY);
     }
 
 
@@ -325,7 +328,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return A list of ROIs.
      */
     public List<ij.gui.Roi> toImageJ() {
-        return toImageJ(ROI_IJ_PROPERTY);
+        return toImageJ(IJ_PROPERTY);
     }
 
 
@@ -345,7 +348,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             } else {
                 roi.setName(getId() + "-" + shape.getId());
             }
-            roi.setProperty(roiIdIjProperty(property), String.valueOf(getId()));
+            roi.setProperty(ijIDProperty(property), String.valueOf(getId()));
             rois.add(roi);
         }
         return rois;

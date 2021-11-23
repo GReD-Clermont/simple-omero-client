@@ -119,7 +119,7 @@ public class TableWrapper {
      */
     public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
+        this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
 
 
@@ -279,7 +279,7 @@ public class TableWrapper {
 
     /**
      * Creates a ROIData column.
-     * <p>A column named either {@code roiProperty} or {@link ROIWrapper#roiIdIjProperty(String roiProperty)} is
+     * <p>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
      * expected. It will look for the ROI OMERO ID in the latter, or for the local ID, the OMERO ID or the shape names
      * in the former.
      * <p>If neither column is present, it will check the "Label" column for the ROI names inside.
@@ -295,7 +295,7 @@ public class TableWrapper {
                                              List<ROIWrapper> rois,
                                              List<Roi> ijRois,
                                              String roiProperty) {
-        String roiIdProperty = ROIWrapper.roiIdIjProperty(roiProperty);
+        String roiIdProperty = ROIWrapper.ijIDProperty(roiProperty);
 
         ROIData[] empty     = new ROIData[0];
         ROIData[] roiColumn = empty;
@@ -361,7 +361,7 @@ public class TableWrapper {
      */
     public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this.addRows(client, results, imageId, ijRois, ROIWrapper.ROI_IJ_PROPERTY);
+        this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
 
 
