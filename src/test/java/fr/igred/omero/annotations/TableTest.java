@@ -192,7 +192,7 @@ public class TableTest extends UserTest {
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
 
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
@@ -309,7 +309,7 @@ public class TableTest extends UserTest {
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+        List<Roi>        ijRois = rois.get(0).toImageJ("");
 
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
@@ -364,7 +364,7 @@ public class TableTest extends UserTest {
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+        List<Roi>        ijRois = rois.get(0).toImageJ();
 
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
@@ -503,19 +503,19 @@ public class TableTest extends UserTest {
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, "");
 
         ResultsTable results1 = new ResultsTable();
         results1.incrementCounter();
         results1.setLabel(image.getName(), 0);
-        results1.setValue("ROI", 0, ijRois.get(0).getName());
+        results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
         results1.setValue("Volume", 0, 25.0);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         results2.setLabel(image.getName(), 0);
-        results2.setValue("ROI", 0, ijRois.get(0).getName());
+        results2.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
         results2.setValue("Volume", 0, 50);
         results2.setValue("Volume Unit", 0, "m^3");
 
@@ -579,12 +579,12 @@ public class TableTest extends UserTest {
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
         results.setLabel(image.getName(), 0);
-        results.setValue("ROI", 0, local.getName());
+        results.setValue(ROIWrapper.IJ_PROPERTY, 0, local.getName());
         results.setValue("Volume", 0, 25.0);
         results.setValue("Volume Unit", 0, "µm^3");
         results.incrementCounter();
         results.setLabel(image.getName(), 1);
-        results.setValue("ROI", 1, ijRois.get(0).getName());
+        results.setValue(ROIWrapper.IJ_PROPERTY, 1, ijRois.get(0).getName());
         results.setValue("Volume", 1, 50);
         results.setValue("Volume Unit", 1, "m^3");
 

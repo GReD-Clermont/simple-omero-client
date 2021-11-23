@@ -92,7 +92,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         rois.add(ellipseRoi);
 
-        List<ROIWrapper> omeroROIs = ROIWrapper.fromImageJ(rois, "ROI");
+        List<ROIWrapper> omeroROIs = ROIWrapper.fromImageJ(rois);
 
         assertEquals(9, omeroROIs.size());
     }
@@ -213,7 +213,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRectangle);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, null).get(0);
 
         RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
 
@@ -241,7 +241,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijArrow);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "").get(0);
 
         LineWrapper newArrow = roi.getShapes().getElementsOf(LineWrapper.class).get(0);
 
@@ -270,7 +270,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijLine);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, ROIWrapper.IJ_PROPERTY).get(0);
 
         LineWrapper newLine = roi.getShapes().getElementsOf(LineWrapper.class).get(0);
 
@@ -295,7 +295,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRectangle);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
 
@@ -321,7 +321,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPoint);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         PointWrapper newPoint = roi.getShapes().getElementsOf(PointWrapper.class).get(0);
 
@@ -347,7 +347,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPoint);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         TextWrapper newText = roi.getShapes().getElementsOf(TextWrapper.class).get(0);
 
@@ -379,7 +379,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPolygon);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         PolygonWrapper newPolygon = roi.getShapes().getElementsOf(PolygonWrapper.class).get(0);
 
@@ -409,7 +409,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPolyline);
-        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "ROI").get(0);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         PolylineWrapper newPolyline = roi.getShapes().getElementsOf(PolylineWrapper.class).get(0);
 

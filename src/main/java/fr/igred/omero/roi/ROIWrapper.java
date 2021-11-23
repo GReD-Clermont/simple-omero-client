@@ -96,7 +96,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return See above.
      */
     public static String ijIDProperty(String property) {
-        if (property == null || property.equals("")) property = IJ_PROPERTY;
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
         return property + "_ID";
     }
 
@@ -109,7 +109,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROIWrapper> fromImageJ(List<ij.gui.Roi> ijRois) {
-        return fromImageJ(ijRois, null);
+        return fromImageJ(ijRois, IJ_PROPERTY);
     }
 
 
@@ -122,7 +122,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROIWrapper> fromImageJ(List<ij.gui.Roi> ijRois, String property) {
-        if (property == null || property.equals("")) property = IJ_PROPERTY;
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
 
         Map<Long, ROIWrapper> rois4D = new TreeMap<>();
 
@@ -169,6 +169,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return The converted list of ImageJ ROIs.
      */
     public static List<ij.gui.Roi> toImageJ(List<ROIWrapper> rois, String property) {
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
+
         List<ij.gui.Roi> ijRois = new ArrayList<>();
 
         int index = 1;
@@ -328,7 +330,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return A list of ROIs.
      */
     public List<ij.gui.Roi> toImageJ() {
-        return toImageJ(IJ_PROPERTY);
+        return this.toImageJ(IJ_PROPERTY);
     }
 
 
@@ -340,6 +342,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return A list of ROIs.
      */
     public List<ij.gui.Roi> toImageJ(String property) {
+        if (property == null || property.isEmpty()) property = IJ_PROPERTY;
+
         List<ij.gui.Roi> rois = new ArrayList<>();
         for (GenericShapeWrapper<?> shape : getShapes()) {
             ij.gui.Roi roi = shape.toImageJ();
