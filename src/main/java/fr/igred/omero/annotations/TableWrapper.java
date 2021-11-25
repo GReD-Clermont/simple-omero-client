@@ -48,6 +48,12 @@ import java.util.stream.Collectors;
  */
 public class TableWrapper {
 
+    /** Label column name */
+    private static final String LABEL = "Label";
+
+    /** Image column name */
+    private static final String IMAGE = "Image";
+
     /** Number of column in the table */
     final int columnCount;
 
@@ -172,7 +178,7 @@ public class TableWrapper {
         data = new Object[columnCount][];
 
         if (offset > 0) {
-            setColumn(0, "Image", ImageData.class);
+            setColumn(0, IMAGE, ImageData.class);
             data[0] = new ImageData[rowCount];
             Arrays.fill(data[0], image.asImageData());
         }
@@ -183,7 +189,7 @@ public class TableWrapper {
         for (int i = 0; i < nColumns; i++) {
             Variable[] col = rt.getColumnAsVariables(headings[i]);
 
-            if (isColumnNumeric(col)) {
+            if (isColumnNumeric(col) && !headings[i].equals(LABEL)) {
                 setColumn(offset + i, shortHeadings[i], Double.class);
                 data[offset + i] = Arrays.stream(col).map(Variable::getValue).toArray(Double[]::new);
             } else {
@@ -211,22 +217,20 @@ public class TableWrapper {
 
 
     /**
-     * Rename "Image" column if it already exists to:
+     * Rename {@value IMAGE} column if it already exists to:
      * <ul>
-     *     <li>"Label" if the column does not exist</li>
+     *     <li>"{@value LABEL} if the column does not exist</li>
      *     <li>{@code "Image_column_" + columnNumber} otherwise</li>
      * </ul>
      *
      * @param results The results table to process.
      */
     private static void renameImageColumn(ResultsTable results) {
-        final String labelColName = "Label";
-        final String imageColName = "Image";
-        if (results.columnExists(imageColName)) {
+        if (results.columnExists(IMAGE)) {
             List<String> headings = Arrays.asList(results.getHeadings());
-            if (!headings.contains(labelColName)) results.renameColumn(imageColName, labelColName);
-            else if (!results.columnExists("Image_Name")) results.renameColumn(imageColName, imageColName + "_Name");
-            else results.renameColumn(imageColName, imageColName + "_column_" + results.getColumnIndex(imageColName));
+            if (!headings.contains(LABEL)) results.renameColumn(IMAGE, LABEL);
+            else if (!results.columnExists(IMAGE + "_Name")) results.renameColumn(IMAGE, IMAGE + "_Name");
+            else results.renameColumn(IMAGE, IMAGE + "_column_" + results.getColumnIndex(IMAGE));
         }
     }
 
@@ -286,7 +290,7 @@ public class TableWrapper {
      * <p>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
      * expected. It will look for the ROI OMERO ID in the latter, or for the local ID, the OMERO ID or the shape names
      * in the former.
-     * <p>If neither column is present, it will check the "Label" column for the ROI names inside.
+     * <p>If neither column is present, it will check the {@value LABEL} column for the ROI names inside.
      *
      * @param results     An ImageJ results table.
      * @param rois        A list of OMERO ROIs.
@@ -319,8 +323,6 @@ public class TableWrapper {
 
         String[] headings = results.getHeadings();
 
-        final String labelColName = "Label";
-
         if (results.columnExists(roiProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiProperty);
             roiColumn = columnToROIColumn(roiCol, index2roi, id2roi, roiName2roi);
@@ -337,8 +339,8 @@ public class TableWrapper {
             // If roiColumn contains null, we return an empty array
             if (Arrays.asList(roiColumn).contains(null)) return empty;
             results.deleteColumn(roiIdProperty);
-        } else if (Arrays.asList(headings).contains(labelColName)) {
-            String[] roiNames = Arrays.stream(results.getColumnAsVariables(labelColName))
+        } else if (Arrays.asList(headings).contains(LABEL)) {
+            String[] roiNames = Arrays.stream(results.getColumnAsVariables(LABEL))
                                       .map(Variable::getString)
                                       .map(s -> roiName2roi.keySet().stream().filter(s::contains)
                                                            .findFirst().orElse(null))
