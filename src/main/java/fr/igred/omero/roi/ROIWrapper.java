@@ -457,6 +457,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             addShape(shape);
         } else if (ijRoi instanceof ShapeRoi) {
             ij.gui.Roi[] rois = ((ShapeRoi) ijRoi).getRois();
+            IntStream.range(0, rois.length).forEach(i -> rois[i].setName(ijRoi.getName()));
             IntStream.range(0, rois.length).forEach(i -> rois[i].setPosition(ijRoi.getCPosition(),
                                                                              ijRoi.getZPosition(),
                                                                              ijRoi.getTPosition()));
