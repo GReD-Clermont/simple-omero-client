@@ -683,6 +683,152 @@ public class TableTest extends UserTest {
 
 
     @Test
+    public void testCreateTableWithROINamesFromIJResults1() throws Exception {
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        ROIWrapper roi1 = new ROIWrapper();
+        ROIWrapper roi2 = new ROIWrapper();
+
+        roi1.setImage(image);
+        roi2.setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setText(String.valueOf(10 + i % 2));
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            if (i % 2 == 1) roi1.addShape(rectangle);
+            else roi2.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi1);
+        image.saveROI(client, roi2);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+
+        ResultsTable results1 = new ResultsTable();
+        results1.incrementCounter();
+        String label1 = image.getName() + ":" + rois.get(0).getShapes().get(0).getText() + ":4";
+        results1.setLabel(label1, 0);
+        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume Unit", 0, "µm^3");
+
+        ResultsTable results2 = new ResultsTable();
+        results2.incrementCounter();
+        String label2 = image.getName() + ":" + rois.get(1).getShapes().get(0).getText() + ":10";
+        results2.setLabel(label2, 0);
+        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume Unit", 0, "m^3");
+
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
+        table.addRows(client, results2, imageId, ijRois);
+
+        Object[][] data = table.getData();
+        assertEquals(2, table.getRowCount());
+        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(label1, data[2][0]);
+        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals("µm^3", data[4][0]);
+        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
+        assertEquals(rois.get(1).getId(), ((ROIData) data[1][1]).getId());
+        assertEquals(label2, data[2][1]);
+        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals("m^3", data[4][1]);
+
+        image.addTable(client, table);
+
+        assertNotNull(table.getFileId());
+
+        client.delete(table);
+
+        for (ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
+    public void testCreateTableWithROINamesFromIJResults2() throws Exception {
+        long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        ROIWrapper roi1 = new ROIWrapper();
+        ROIWrapper roi2 = new ROIWrapper();
+
+        roi1.setImage(image);
+        roi2.setImage(image);
+
+        for (int i = 10; i < 14; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setText(String.valueOf(10 + i % 2));
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            if (i % 2 == 1) roi1.addShape(rectangle);
+            else roi2.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi1);
+        image.saveROI(client, roi2);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+
+        ResultsTable results1 = new ResultsTable();
+        results1.incrementCounter();
+        String label1 = rois.get(0).getShapes().get(0).getText();
+        results1.setLabel(label1, 0);
+        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume Unit", 0, "µm^3");
+
+        ResultsTable results2 = new ResultsTable();
+        results2.incrementCounter();
+        String label2 = rois.get(1).getShapes().get(0).getText();
+        results2.setLabel(label2, 0);
+        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume Unit", 0, "m^3");
+
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
+        table.addRows(client, results2, imageId, ijRois);
+
+        Object[][] data = table.getData();
+        assertEquals(2, table.getRowCount());
+        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(label1, data[2][0]);
+        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals("µm^3", data[4][0]);
+        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
+        assertEquals(rois.get(1).getId(), ((ROIData) data[1][1]).getId());
+        assertEquals(label2, data[2][1]);
+        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals("m^3", data[4][1]);
+
+        image.addTable(client, table);
+
+        assertNotNull(table.getFileId());
+
+        client.delete(table);
+
+        for (ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
     public void testAddRowsFromIJResultsError() throws Exception {
         boolean error   = false;
         long    imageId = 1L;
