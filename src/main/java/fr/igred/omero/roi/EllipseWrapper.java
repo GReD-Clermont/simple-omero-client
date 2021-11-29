@@ -258,7 +258,7 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
                 shape2 = p2.createTransformedAWTShape().getBounds2D();
                 ratio = ry / rx;
             } else {
-                PointWrapper p1 = new PointWrapper(x, y - rx);
+                PointWrapper p1 = new PointWrapper(x, y - ry);
                 PointWrapper p2 = new PointWrapper(x, y + ry);
                 p1.setTransform(toAWTTransform());
                 p2.setTransform(toAWTTransform());
