@@ -305,8 +305,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> selected = new ArrayList<>();
-        Collection<ImageData> images   = new ArrayList<>();
+        Collection<ImageData> images = new ArrayList<>();
         try {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(),
@@ -315,16 +314,17 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from " + this);
         }
 
+        List<ImageWrapper> selected = new ArrayList<>();
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
             Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
             if (pairsKeyValue.get(key) != null) {
-                selected.add(image);
+                selected.add(imageWrapper);
             }
         }
 
-        return toImageWrappers(selected);
+        return selected;
     }
 
 
@@ -343,7 +343,6 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> selected = new ArrayList<>();
         Collection<ImageData> images   = new ArrayList<>();
         try {
             images = client.getBrowseFacility()
@@ -353,16 +352,17 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             handleServiceOrAccess(e, "Cannot get images with k/v pair from " + this);
         }
 
+        List<ImageWrapper> selected = new ArrayList<>();
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
             Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
             if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
-                selected.add(image);
+                selected.add(imageWrapper);
             }
         }
 
-        return toImageWrappers(selected);
+        return selected;
     }
 
 
