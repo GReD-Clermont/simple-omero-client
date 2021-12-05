@@ -113,7 +113,7 @@ public class ROI2ImageJTest extends BasicTest {
         rectangle.setCZT(0, 0, 2);
 
         RectangleWrapper rectangle2 = new RectangleWrapper(3, 3, 10, 10);
-        rectangle.setCZT(0, 0, 2);
+        rectangle2.setCZT(0, 0, 2);
         rectangle.setTransform(transform);
 
         MaskWrapper mask = new MaskWrapper();
@@ -124,21 +124,21 @@ public class ROI2ImageJTest extends BasicTest {
         ellipse.setCZT(1, 0, 1);
 
         EllipseWrapper ellipse2 = new EllipseWrapper(5, 5, 4, 4);
-        ellipse.setCZT(1, 0, 1);
-        ellipse.setTransform(transform);
+        ellipse2.setCZT(1, 0, 2);
+        ellipse2.setTransform(transform);
 
         LineWrapper line = new LineWrapper(0, 0, 10, 10);
-        line.setCZT(1, 0, 2);
+        line.setCZT(1, 0, 3);
         line.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
 
         LineWrapper line2 = new LineWrapper(0, 0, 10, 10);
-        line.setCZT(1, 0, 2);
-        line.setTransform(transform);
+        line2.setCZT(1, 0, 4);
+        line2.setTransform(transform);
 
         LineWrapper line3 = new LineWrapper(2, 2, 3, 4);
-        line.setCZT(1, 0, 2);
-        line.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
-        line.asShapeData().getShapeSettings().setMarkerEnd(LineWrapper.ARROW);
+        line3.setCZT(1, 0, 5);
+        line3.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        line3.asShapeData().getShapeSettings().setMarkerEnd(LineWrapper.ARROW);
 
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
@@ -174,7 +174,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> ijRois = ROIWrapper.toImageJ(rois);
 
-        assertEquals(12, ijRois.size());
+        assertEquals(11, ijRois.size());
     }
 
 
