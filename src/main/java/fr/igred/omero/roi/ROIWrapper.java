@@ -34,6 +34,8 @@ import omero.model.Roi;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
+import static java.util.stream.Collectors.groupingBy;
 
 
 /**
@@ -219,8 +222,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @param shapes List of GenericShapeWrapper.
      */
     public void addShapes(List<? extends GenericShapeWrapper<?>> shapes) {
-        for (GenericShapeWrapper<?> shape : shapes)
-            addShape(shape);
+        shapes.forEach(this::addShape);
     }
 
 
@@ -241,9 +243,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      */
     public ShapeList getShapes() {
         ShapeList shapes = new ShapeList();
-        for (ShapeData shape : data.getShapes()) {
-            shapes.add(shape);
-        }
+        data.getShapes().stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
         return shapes;
     }
 
@@ -357,10 +357,29 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      */
     public List<ij.gui.Roi> toImageJ(String property) {
         property = checkProperty(property);
+        ShapeList shapes = getShapes();
 
-        List<ij.gui.Roi> rois = new ArrayList<>();
-        for (GenericShapeWrapper<?> shape : getShapes()) {
+        Map<String, List<GenericShapeWrapper<?>>> sameSlice = shapes.stream()
+                                                                    .collect(groupingBy(GenericShapeWrapper::getCZT,
+                                                                                        LinkedHashMap::new,
+                                                                                        Collectors.toList()));
+        sameSlice.values().removeIf(List::isEmpty);
+        List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
+        for (List<GenericShapeWrapper<?>> slice : sameSlice.values()) {
+            GenericShapeWrapper<?> shape = slice.iterator().next();
+
             ij.gui.Roi roi = shape.toImageJ();
+            if (slice.size() > 1) {
+                ij.gui.Roi xor = slice.stream()
+                                      .map(GenericShapeWrapper::toImageJ)
+                                      .map(ShapeRoi::new)
+                                      .reduce(ShapeRoi::xor)
+                                      .map(ij.gui.Roi.class::cast)
+                                      .orElse(roi);
+                xor.setStrokeColor(roi.getStrokeColor());
+                xor.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
+                roi = xor;
+            }
             if (!shape.getText().equals("")) {
                 roi.setName(shape.getText());
             } else {
@@ -381,9 +400,9 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     private void addShape(ij.gui.Roi ijRoi) {
         final String ARROW = "Arrow";
 
-        int c = Math.max(0, ijRoi.getCPosition() - 1);
-        int z = Math.max(0, ijRoi.getZPosition() - 1);
-        int t = Math.max(0, ijRoi.getTPosition() - 1);
+        int c = Math.max(-1, ijRoi.getCPosition() - 1);
+        int z = Math.max(-1, ijRoi.getZPosition() - 1);
+        int t = Math.max(-1, ijRoi.getTPosition() - 1);
 
         GenericShapeWrapper<?> shape;
         if (ijRoi instanceof TextRoi) {
