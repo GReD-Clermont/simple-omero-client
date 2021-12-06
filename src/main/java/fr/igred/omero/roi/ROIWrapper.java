@@ -376,7 +376,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
                                       .reduce(ShapeRoi::xor)
                                       .map(ij.gui.Roi.class::cast)
                                       .orElse(roi);
-                xor.setStroke(roi.getStroke());
+                xor.setStrokeColor(roi.getStrokeColor());
                 xor.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
                 roi = xor;
             }
@@ -400,9 +400,9 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     private void addShape(ij.gui.Roi ijRoi) {
         final String ARROW = "Arrow";
 
-        int c = Math.max(0, ijRoi.getCPosition() - 1);
-        int z = Math.max(0, ijRoi.getZPosition() - 1);
-        int t = Math.max(0, ijRoi.getTPosition() - 1);
+        int c = Math.max(-1, ijRoi.getCPosition() - 1);
+        int z = Math.max(-1, ijRoi.getZPosition() - 1);
+        int t = Math.max(-1, ijRoi.getTPosition() - 1);
 
         GenericShapeWrapper<?> shape;
         if (ijRoi instanceof TextRoi) {
