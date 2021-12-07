@@ -19,11 +19,13 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
 
@@ -31,31 +33,20 @@ import static org.junit.Assert.*;
 public class FolderTest extends UserTest {
 
 
-    @Test
-    public void testFolder1() throws Exception {
-        boolean exception = false;
+    @Test(expected = NoSuchElementException.class)
+    public void testGetDeletedFolder() throws Exception {
+        ImageWrapper image = client.getImage(3L);
 
-        FolderWrapper folder = new FolderWrapper(client, "Test1");
-        try {
-            RectangleWrapper rectangle = new RectangleWrapper(0, 0, 10, 10);
-            rectangle.setZ(0);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            ROIWrapper roi = new ROIWrapper();
-            roi.addShape(rectangle);
-            roi.saveROI(client);
-
-            folder.addROI(client, roi);
-        } catch (Exception e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        FolderWrapper folder = new FolderWrapper(client, "Test");
+        folder.setImage(image);
+        folder = image.getFolder(client, folder.getId());
+        client.delete(folder);
+        image.getFolder(client, folder.getId());
     }
 
 
     @Test
-    public void testFolder2() throws Exception {
+    public void testFolder1() throws Exception {
         ImageWrapper image = client.getImage(3L);
 
         FolderWrapper folder = new FolderWrapper(client, "Test");
@@ -91,18 +82,11 @@ public class FolderTest extends UserTest {
         assertEquals(0, image.getROIs(client).size());
 
         client.delete(folder);
-
-        try {
-            image.getFolder(client, folder.getId());
-            fail();
-        } catch (Exception e) {
-            assertTrue(true);
-        }
     }
 
 
     @Test
-    public void testFolder3() throws Exception {
+    public void testFolder2() throws Exception {
         FolderWrapper folder = new FolderWrapper(client, "Test");
         folder.setImage(3L);
 
@@ -137,7 +121,7 @@ public class FolderTest extends UserTest {
 
 
     @Test
-    public void testFolder4() throws Exception {
+    public void testFolder3() throws Exception {
         ImageWrapper image = client.getImage(3L);
 
         FolderWrapper folder = new FolderWrapper(client, "Test1");
@@ -201,6 +185,26 @@ public class FolderTest extends UserTest {
         }
 
         assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
+    public void testAddAndRemoveTagFromFolder() throws Exception {
+        FolderWrapper folder = new FolderWrapper(client, "Test1");
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
+
+        folder.addTag(client, tag);
+
+        List<TagAnnotationWrapper> tags = folder.getTags(client);
+        assertEquals(1, tags.size());
+        folder.unlink(client, tags.get(0));
+
+        List<TagAnnotationWrapper> removed = folder.getTags(client);
+        assertEquals(0, removed.size());
+
+        client.delete(tag);
+        client.delete(folder);
     }
 
 }

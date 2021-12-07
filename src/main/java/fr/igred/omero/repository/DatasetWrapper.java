@@ -64,6 +64,8 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  */
 public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> {
 
+    public static final String ANNOTATION_LINK = "DatasetAnnotationLink";
+
 
     /**
      * Constructor of the DatasetWrapper class
@@ -93,6 +95,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @return DatasetData name.
      */
+    @Override
     public String getName() {
         return data.getName();
     }
@@ -115,6 +118,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @return DatasetData description.
      */
+    @Override
     public String getDescription() {
         return data.getDescription();
     }
@@ -135,6 +139,17 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public DatasetData asDatasetData() {
         return data;
+    }
+
+
+    /**
+     * Returns the type of annotation link for this object
+     *
+     * @return See above.
+     */
+    @Override
+    protected String annotationLinkType() {
+        return ANNOTATION_LINK;
     }
 
 
@@ -343,7 +358,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images   = new ArrayList<>();
+        Collection<ImageData> images = new ArrayList<>();
         try {
             images = client.getBrowseFacility()
                            .getImagesForDatasets(client.getCtx(),
@@ -402,6 +417,24 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
         client.save(link);
         refresh(client);
+    }
+
+
+    /**
+     * Removes an image from the dataset in OMERO.
+     *
+     * @param client The client handling the connection.
+     * @param image  Image to remove.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public void removeImage(Client client, ImageWrapper image)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        removeLink(client, "DatasetImageLink", image.getId());
     }
 
 

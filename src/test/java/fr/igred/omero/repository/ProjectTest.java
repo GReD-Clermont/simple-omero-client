@@ -21,8 +21,10 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class ProjectTest extends UserTest {
@@ -45,6 +47,37 @@ public class ProjectTest extends UserTest {
         List<DatasetWrapper> datasets = project.getDatasets("TestDataset");
 
         assertEquals(1, datasets.size());
+    }
+
+
+    @Test
+    public void testAddAndRemoveDataset() throws Exception {
+        boolean exception = false;
+
+        ProjectWrapper project = client.getProject(1L);
+        int initialSize = project.getDatasets().size();
+
+        String         description = "Dataset which will be deleted";
+        DatasetWrapper dataset     = new DatasetWrapper("To delete", description);
+
+        Long id = project.addDataset(client, dataset).getId();
+
+        DatasetWrapper checkDataset = client.getDataset(id);
+        assertEquals(description, checkDataset.getDescription());
+        assertEquals(initialSize + 1, project.getDatasets().size());
+
+        project.removeDataset(client, checkDataset);
+        List<DatasetWrapper> datasets = project.getDatasets();
+        datasets.removeIf(d -> d.getId() != checkDataset.getId());
+        assertEquals(0, datasets.size());
+
+        client.delete(checkDataset);
+        try {
+            client.getDataset(id);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
+        assertTrue(exception);
     }
 
 
@@ -155,6 +188,21 @@ public class ProjectTest extends UserTest {
 
 
     @Test
+    public void testAddAndRemoveTagFromProject() throws Exception {
+        ProjectWrapper project = client.getProject(1L);
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        project.addTag(client, tag);
+        List<TagAnnotationWrapper> tags = project.getTags(client);
+        project.unlink(client, tag);
+        List<TagAnnotationWrapper> removedTags = project.getTags(client);
+        client.delete(tag);
+        assertEquals(1, tags.size());
+        assertEquals(0, removedTags.size());
+    }
+
+
+    @Test
     public void testGetImagesInProject() throws Exception {
         ProjectWrapper project = client.getProject(1L);
 
@@ -245,7 +293,7 @@ public class ProjectTest extends UserTest {
     public void testSetDescription() throws Exception {
         ProjectWrapper project = client.getProject(1L);
 
-        String description  = project.getDescription();
+        String description = project.getDescription();
 
         String description2 = "NewName";
         project.setDescription(description2);
