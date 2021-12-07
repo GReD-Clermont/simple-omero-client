@@ -44,6 +44,9 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  */
 public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> {
 
+    public static final String ANNOTATION_LINK = "ProjectAnnotationLink";
+
+
     /**
      * Constructor of the ProjectWrapper class.
      *
@@ -79,6 +82,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      *
      * @return ProjectData name.
      */
+    @Override
     public String getName() {
         return data.getName();
     }
@@ -101,6 +105,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      *
      * @return The project description.
      */
+    @Override
     public String getDescription() {
         return data.getDescription();
     }
@@ -121,6 +126,17 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public ProjectData asProjectData() {
         return data;
+    }
+
+
+    /**
+     * Returns the type of annotation link for this object
+     *
+     * @return See above.
+     */
+    @Override
+    protected String annotationLinkType() {
+        return ANNOTATION_LINK;
     }
 
 
@@ -157,7 +173,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Add a dataset to the project in OMERO. Create the dataset.
+     * Adds a dataset to the project in OMERO. Create the dataset.
      *
      * @param client      The client handling the connection.
      * @param name        Dataset name.
@@ -179,7 +195,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Add a dataset to the project in OMERO.
+     * Adds a dataset to the project in OMERO.
      *
      * @param client  The client handling the connection.
      * @param dataset Dataset to be added.
@@ -233,6 +249,25 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         }
 
         return purged;
+    }
+
+
+    /**
+     * Removes a dataset from the project in OMERO.
+     *
+     * @param client  The client handling the connection.
+     * @param dataset Dataset to remove.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public void removeDataset(Client client, DatasetWrapper dataset)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        removeLink(client, "ProjectDatasetLink", dataset.getId());
+        refresh(client);
     }
 
 

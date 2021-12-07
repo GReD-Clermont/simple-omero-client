@@ -30,7 +30,11 @@ import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
+import omero.gateway.model.TagAnnotationData;
 import omero.model.Folder;
+import omero.model.FolderAnnotationLink;
+import omero.model.FolderAnnotationLinkI;
+import omero.model.FolderI;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,8 +52,10 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  */
 public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
+    public static final String ANNOTATION_LINK = "FolderAnnotationLink";
+
     /** Id of the associated image */
-    Long imageId;
+    private long imageId = -1L;
 
 
     /**
@@ -96,6 +102,37 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
+     * Returns the type of annotation link for this object
+     *
+     * @return See above.
+     */
+    @Override
+    protected String annotationLinkType() {
+        return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Private function. Adds a tag to the object in OMERO, if possible.
+     *
+     * @param client  The client handling the connection.
+     * @param tagData Tag to be added.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    protected void addTag(Client client, TagAnnotationData tagData)
+    throws ServiceException, AccessException, ExecutionException {
+        FolderAnnotationLink link = new FolderAnnotationLinkI();
+        link.setChild(tagData.asAnnotation());
+        link.setParent(new FolderI(data.getId(), false));
+        client.save(link);
+    }
+
+
+    /**
      * Gets the folder contained in the FolderWrapper
      *
      * @return the FolderData.
@@ -110,6 +147,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @return name.
      */
+    @Override
     public String getName() {
         return data.getName();
     }
@@ -132,6 +170,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @return The folder description.
      */
+    @Override
     public String getDescription() {
         return data.getDescription();
     }
@@ -152,7 +191,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @param id Id of the image to associate.
      */
-    public void setImage(Long id) {
+    public void setImage(long id) {
         imageId = id;
     }
 
@@ -206,7 +245,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFac = client.getRoiFacility();
 
-        Collection<ROIResult> roiResults = new ArrayList<>();
+        Collection<ROIResult> roiResults = new ArrayList<>(0);
         try {
             roiResults = roiFac.loadROIsForFolder(client.getCtx(), imageId, data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {

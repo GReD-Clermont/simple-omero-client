@@ -112,6 +112,11 @@ public class DatasetTest extends UserTest {
 
         assertEquals(images.size(), newDataset.getImages(client).size());
 
+        for (ImageWrapper image : images) {
+            newDataset.removeImage(client, image);
+        }
+        assertTrue(newDataset.getImages(client).isEmpty());
+
         client.delete(newDataset);
 
         dataset.refresh(client);
@@ -237,6 +242,24 @@ public class DatasetTest extends UserTest {
         tags = dataset.getTags(client);
 
         assertEquals(0, tags.size());
+    }
+
+
+    @Test
+    public void testAddAndRemoveTagFromDataset() throws Exception {
+        DatasetWrapper dataset = client.getDataset(1L);
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+
+        dataset.addTag(client, tag);
+
+        List<TagAnnotationWrapper> tags = dataset.getTags(client);
+        dataset.unlink(client, tag);
+        List<TagAnnotationWrapper> removed = dataset.getTags(client);
+        client.delete(tag);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, removed.size());
     }
 
 

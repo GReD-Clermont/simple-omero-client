@@ -61,11 +61,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static fr.igred.omero.exception.ExceptionHandler.*;
+import static fr.igred.omero.exception.ExceptionHandler.handleException;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 import static omero.rtypes.rint;
 
 
@@ -74,6 +77,8 @@ import static omero.rtypes.rint;
  * <p> Implements function using the ImageData contained
  */
 public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
+
+    public static final String ANNOTATION_LINK = "ImageAnnotationLink";
 
 
     /**
@@ -91,6 +96,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return name.
      */
+    @Override
     public String getName() {
         return data.getName();
     }
@@ -113,6 +119,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return description.
      */
+    @Override
     public String getDescription() {
         return data.getDescription();
     }
@@ -143,6 +150,17 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public ImageData asImageData() {
         return data;
+    }
+
+
+    /**
+     * Returns the type of annotation link for this object
+     *
+     * @return See above.
+     */
+    @Override
+    protected String annotationLinkType() {
+        return ANNOTATION_LINK;
     }
 
 
@@ -246,8 +264,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return The folder if it exist.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws OMEROServerError       Server error.
+     * @throws NoSuchElementException Folder does not exist.
      */
     public FolderWrapper getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
         List<IObject> os = client.findByQuery("select f " +
@@ -255,7 +274,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                                               "where f.id = " +
                                               folderId);
 
-        FolderWrapper folderWrapper = new FolderWrapper((Folder) os.get(0));
+        FolderWrapper folderWrapper = new FolderWrapper((Folder) os.iterator().next());
         folderWrapper.setImage(this.data.getId());
 
         return folderWrapper;

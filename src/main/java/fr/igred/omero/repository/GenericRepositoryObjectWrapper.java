@@ -21,14 +21,17 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
+import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.*;
+import omero.model.IObject;
 import omero.model.NamedValue;
 import omero.model.TagAnnotationI;
 
@@ -46,7 +49,6 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  */
 public abstract class GenericRepositoryObjectWrapper<T extends DataObject> extends GenericObjectWrapper<T> {
 
-
     /**
      * Constructor of the class GenericRepositoryObjectWrapper.
      *
@@ -55,6 +57,30 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     protected GenericRepositoryObjectWrapper(T object) {
         super(object);
     }
+
+
+    /**
+     * Returns the type of annotation link for this object
+     *
+     * @return See above.
+     */
+    protected abstract String annotationLinkType();
+
+
+    /**
+     * Gets the object name.
+     *
+     * @return See above.
+     */
+    public abstract String getName();
+
+
+    /**
+     * Gets the object description
+     *
+     * @return See above.
+     */
+    public abstract String getDescription();
 
 
     /**
@@ -458,5 +484,47 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
         return fileAnnotations;
     }
+
+
+    /**
+     * Unlinks the given annotation from the current object.
+     *
+     * @param client     The client handling the connection.
+     * @param annotation An annotation.
+     * @param <A>        The type of the annotation.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, A annotation)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        removeLink(client, annotationLinkType(), annotation.getId());
+    }
+
+
+    /**
+     * Removes the link of the given type with the given child ID.
+     *
+     * @param client   The client handling the connection.
+     * @param linkType The link type.
+     * @param childId  Link child ID.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    protected void removeLink(Client client, String linkType, long childId)
+    throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
+        List<IObject> os = client.findByQuery("select link from " + linkType +
+                                              " link where link.parent = " + getId() +
+                                              " and link.child = " + childId);
+        delete(client, os.iterator().next());
+    }
+
 
 }
