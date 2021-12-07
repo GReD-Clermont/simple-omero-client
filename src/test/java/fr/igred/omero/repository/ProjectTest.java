@@ -21,10 +21,8 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 
 public class ProjectTest extends UserTest {
@@ -52,32 +50,17 @@ public class ProjectTest extends UserTest {
 
     @Test
     public void testAddAndRemoveDataset() throws Exception {
-        boolean exception = false;
-
-        ProjectWrapper project = client.getProject(1L);
+        ProjectWrapper project = new ProjectWrapper(client, "To delete", "");
+        DatasetWrapper dataset = client.getDataset(2L);
         int initialSize = project.getDatasets().size();
 
-        String         description = "Dataset which will be deleted";
-        DatasetWrapper dataset     = new DatasetWrapper("To delete", description);
-
-        Long id = project.addDataset(client, dataset).getId();
-
-        DatasetWrapper checkDataset = client.getDataset(id);
-        assertEquals(description, checkDataset.getDescription());
+        project.addDataset(client, dataset);
         assertEquals(initialSize + 1, project.getDatasets().size());
 
-        project.removeDataset(client, checkDataset);
+        project.removeDataset(client, dataset);
         List<DatasetWrapper> datasets = project.getDatasets();
-        datasets.removeIf(d -> d.getId() != checkDataset.getId());
+        datasets.removeIf(d -> d.getId() != dataset.getId());
         assertEquals(0, datasets.size());
-
-        client.delete(checkDataset);
-        try {
-            client.getDataset(id);
-        } catch (NoSuchElementException e) {
-            exception = true;
-        }
-        assertTrue(exception);
     }
 
 
