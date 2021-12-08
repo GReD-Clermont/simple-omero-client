@@ -61,6 +61,7 @@ public class ProjectTest extends UserTest {
         List<DatasetWrapper> datasets = project.getDatasets();
         datasets.removeIf(d -> d.getId() != dataset.getId());
         assertEquals(0, datasets.size());
+        client.delete(project);
     }
 
 
