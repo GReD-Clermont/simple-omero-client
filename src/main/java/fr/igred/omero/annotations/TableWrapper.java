@@ -26,11 +26,17 @@ import fr.igred.omero.roi.ROIWrapper;
 import ij.gui.Roi;
 import ij.macro.Variable;
 import ij.measure.ResultsTable;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -156,7 +162,7 @@ public class TableWrapper {
 
         ImageWrapper image = new ImageWrapper(null);
 
-        List<ROIWrapper> rois = new ArrayList<>();
+        List<ROIWrapper> rois = new ArrayList<>(0);
 
         if (imageId != null) {
             image = client.getImage(imageId);
@@ -644,6 +650,50 @@ public class TableWrapper {
         if (!isComplete()) truncateRow();
 
         return new TableData(columns, data);
+    }
+
+
+    /**
+     * Saves the current table as a character-delimited text file.
+     *
+     * @param path      The path to the file where the table will be saved.
+     * @param delimiter The character used to specify the boundary between columns.
+     *
+     * @throws FileNotFoundException        The requested file cannot be written.
+     * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
+     */
+    public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder(10 * columnCount * rowCount);
+        File          f  = new File(path);
+
+        String sol = "\"";
+        String sep = String.format("\"%c\"", delimiter);
+        String eol = String.format("\"%n");
+        try (PrintWriter stream = new PrintWriter(f, StandardCharsets.UTF_8.name())) {
+            sb.append(sol);
+            for (int j = 0; j < columnCount; j++) {
+                sb.append(columns[j].getName());
+                if (j != columnCount - 1) {
+                    sb.append(sep);
+                }
+            }
+            sb.append(eol);
+            for (int i = 0; i < rowCount; i++) {
+                sb.append(sol);
+                for (int j = 0; j < columnCount; j++) {
+                    Object value = data[j][i];
+                    if (DataObject.class.isAssignableFrom(columns[j].getType())) {
+                        value = ((DataObject) value).getId();
+                    }
+                    sb.append(value);
+                    if (j != columnCount - 1) {
+                        sb.append(sep);
+                    }
+                }
+                sb.append(eol);
+            }
+            stream.write(sb.toString());
+        }
     }
 
 }
