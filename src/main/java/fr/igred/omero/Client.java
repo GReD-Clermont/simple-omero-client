@@ -959,7 +959,7 @@ public class Client {
         if (experimenter != null) {
             return new ExperimenterWrapper(experimenter);
         } else {
-            throw new NoSuchElementException(String.format("User '%s' does not exist.", username));
+            throw new NoSuchElementException(String.format("User not found: %s", username));
         }
     }
 
