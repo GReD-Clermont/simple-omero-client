@@ -27,7 +27,10 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import org.junit.Test;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -904,6 +907,72 @@ public class TableTest extends UserTest {
         tables = image.getTables(client);
 
         assertEquals(0, tables.size());
+    }
+
+
+    @Test
+    public void testSaveTableAs() throws Exception {
+        final long imageId = 1L;
+
+        ImageWrapper image = client.getImage(imageId);
+
+        ROIWrapper roi = new ROIWrapper();
+
+        roi.setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(i % 2);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roi.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, "");
+
+        ResultsTable results1 = new ResultsTable();
+        results1.incrementCounter();
+        results1.setLabel(image.getName(), 0);
+        results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume Unit", 0, "µm^3");
+
+        ResultsTable results2 = new ResultsTable();
+        results2.incrementCounter();
+        results2.setLabel(image.getName(), 0);
+        results2.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume Unit", 0, "m^3");
+
+        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
+        table.addRows(client, results2, imageId, ijRois);
+
+        String filename = "file.csv";
+        table.saveAs(filename, ',');
+
+        String line1 = "\"Image\",\"ROI\",\"Label\",\"Volume\",\"Volume_Unit\"";
+        String line2 = String.format("\"1\",\"%d\",\"image1.fake\",\"25.0\",\"µm^3\"", roi.getId());
+        String line3 = String.format("\"1\",\"%d\",\"image1.fake\",\"50.0\",\"m^3\"", roi.getId());
+
+        List<String> expected = Arrays.asList(line1, line2, line3);
+
+        File         file   = new File(filename);
+        List<String> actual = Files.readAllLines(file.toPath());
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i), actual.get(i));
+        }
+        Files.deleteIfExists(file.toPath());
+
+        for (ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
     }
 
 }
