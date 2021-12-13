@@ -22,16 +22,22 @@ import fr.igred.omero.RootTest;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
 
 
 public class ExperimenterTest extends RootTest {
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void testGetWrongUser() throws Exception {
-        ExperimenterWrapper user = client.getUser("nonexistent");
-        assertNull(user);
+        client.getUser("nonexistent");
+    }
+
+
+    @Test(expected = NoSuchElementException.class)
+    public void testSudoWrongUser() throws Exception {
+        client.sudoGetUser("nonexistent");
     }
 
 
