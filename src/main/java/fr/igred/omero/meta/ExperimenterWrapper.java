@@ -186,8 +186,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
 
 
     /**
-     * Returns {@code true} if the experimenter is active,
-     * {@code false} otherwise.
+     * Returns {@code true} if the experimenter is active, {@code false} otherwise.
      *
      * @return See above.
      */

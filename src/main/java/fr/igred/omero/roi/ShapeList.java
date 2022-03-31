@@ -18,7 +18,15 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.*;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.TextData;
 
 import java.util.ArrayList;
 import java.util.List;

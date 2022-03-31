@@ -96,7 +96,9 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Returns the plates contained in this screen.
+     * Returns the plates contained in this screen, with the specified name.
+     *
+     * @param name The expected plates name.
      *
      * @return See above.
      */

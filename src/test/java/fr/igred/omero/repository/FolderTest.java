@@ -27,7 +27,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 public class FolderTest extends UserTest {

@@ -19,7 +19,15 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.BasicTest;
-import ij.gui.*;
+import ij.gui.Arrow;
+import ij.gui.EllipseRoi;
+import ij.gui.Line;
+import ij.gui.OvalRoi;
+import ij.gui.PointRoi;
+import ij.gui.PolygonRoi;
+import ij.gui.Roi;
+import ij.gui.ShapeRoi;
+import ij.gui.TextRoi;
 import org.junit.Test;
 
 import java.awt.geom.AffineTransform;

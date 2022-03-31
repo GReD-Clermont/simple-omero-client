@@ -19,11 +19,22 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.BasicTest;
-import omero.gateway.model.*;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.TextData;
 import org.junit.Test;
 
 import java.awt.Color;
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 

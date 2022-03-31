@@ -145,8 +145,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns {@code true} if the object can be edited by the user currently logged in {@code false}
-     * otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be edited by the user currently logged in {@code false} otherwise,
+     * depending on permissions level.
      *
      * @return See above.
      */
@@ -156,10 +156,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns {@code true} if the object can be linked e.g. image add to dataset, by the user currently logged
-     * in,
-     * {@code false} otherwise, depending on
-     * permissions level.
+     * Returns {@code true} if the object can be linked e.g. image add to dataset, by the user currently logged in,
+     * {@code false} otherwise, depending on permissions level.
      *
      * @return See above.
      */
@@ -169,8 +167,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns {@code true} if the object can be deleted by the user currently logged in,
-     * {@code false} otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be deleted by the user currently logged in, {@code false} otherwise,
+     * depending on permissions level.
      *
      * @return See above.
      */
@@ -180,8 +178,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns {@code true} if the object can be moved by the user currently logged in,
-     * {@code false} otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be moved by the user currently logged in, {@code false} otherwise,
+     * depending on permissions level.
      *
      * @return See above.
      */
@@ -192,8 +190,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns {@code true} if the object can be given by the user currently logged in,
-     * {@code false} otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be given by the user currently logged in, {@code false} otherwise,
+     * depending on permissions level.
      *
      * @return See above.
      */
