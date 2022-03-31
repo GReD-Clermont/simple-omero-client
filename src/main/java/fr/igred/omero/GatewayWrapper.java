@@ -42,7 +42,6 @@ import omero.model.IObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleException;
@@ -92,6 +91,16 @@ public abstract class GatewayWrapper {
 
 
     /**
+     * Returns the Gateway.
+     *
+     * @return The Gateway.
+     */
+    public Gateway getGateway() {
+        return gateway;
+    }
+
+
+    /**
      * Returns the current user.
      *
      * @return The current user.
@@ -108,118 +117,6 @@ public abstract class GatewayWrapper {
      */
     public SecurityContext getCtx() {
         return ctx;
-    }
-
-
-    /**
-     * Gets the BrowseFacility used to access the data from OMERO.
-     *
-     * @return the {@link BrowseFacility} linked to the gateway.
-     *
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public BrowseFacility getBrowseFacility() throws ExecutionException {
-        return gateway.getFacility(BrowseFacility.class);
-    }
-
-
-    /**
-     * Gets the DataManagerFacility to handle/write data on OMERO. A
-     *
-     * @return the {@link DataManagerFacility} linked to the gateway.
-     *
-     * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
-     */
-    public DataManagerFacility getDm() throws ExecutionException {
-        return gateway.getFacility(DataManagerFacility.class);
-    }
-
-
-    /**
-     * Gets the MetadataFacility used to manipulate annotations from OMERO.
-     *
-     * @return the {@link MetadataFacility} linked to the gateway.
-     *
-     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
-     */
-    public MetadataFacility getMetadata() throws ExecutionException {
-        return gateway.getFacility(MetadataFacility.class);
-    }
-
-
-    /**
-     * Gets the ROIFacility used to manipulate ROI from OMERO.
-     *
-     * @return the {@link ROIFacility} linked to the gateway.
-     *
-     * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
-     */
-    public ROIFacility getRoiFacility() throws ExecutionException {
-        return gateway.getFacility(ROIFacility.class);
-    }
-
-
-    /**
-     * Gets the TablesFacility used to manipulate table from OMERO.
-     *
-     * @return the {@link TablesFacility} linked to the gateway.
-     *
-     * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
-     */
-    public TablesFacility getTablesFacility() throws ExecutionException {
-        return gateway.getFacility(TablesFacility.class);
-    }
-
-
-    /**
-     * Gets the AdminFacility linked to the gateway to use admin specific function.
-     *
-     * @return the {@link AdminFacility} linked to the gateway.
-     *
-     * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
-     */
-    public AdminFacility getAdminFacility() throws ExecutionException {
-        return gateway.getFacility(AdminFacility.class);
-    }
-
-
-    /**
-     * Finds objects on OMERO through a database query.
-     *
-     * @param query The database query.
-     *
-     * @return A list of OMERO objects.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
-     */
-    public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
-        List<IObject> results = new ArrayList<>(0);
-        try {
-            results = getGateway().getQueryService(getCtx()).findAllByQuery(query, null);
-        } catch (DSOutOfServiceException | ServerError e) {
-            handleServiceOrServer(e, "Query failed: " + query);
-        }
-
-        return results;
-    }
-
-
-    /**
-     * Creates or recycles the import store.
-     *
-     * @return config.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    public OMEROMetadataStoreClient getImportStore() throws ServiceException {
-        OMEROMetadataStoreClient store;
-        try {
-            store = gateway.getImportStore(ctx);
-        } catch (DSOutOfServiceException e) {
-            throw new ServiceException("Could not retrieve import store", e, e.getConnectionStatus());
-        }
-        return store;
     }
 
 
@@ -262,12 +159,12 @@ public abstract class GatewayWrapper {
 
 
     /**
-     * Returns the Gateway.
+     * Check if the client is still connected to the server
      *
-     * @return The Gateway.
+     * @return See above.
      */
-    public Gateway getGateway() {
-        return gateway;
+    public boolean isConnected() {
+        return gateway.isConnected() && ctx != null;
     }
 
 
@@ -374,6 +271,118 @@ public abstract class GatewayWrapper {
 
 
     /**
+     * Gets the BrowseFacility used to access the data from OMERO.
+     *
+     * @return the {@link BrowseFacility} linked to the gateway.
+     *
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public BrowseFacility getBrowseFacility() throws ExecutionException {
+        return gateway.getFacility(BrowseFacility.class);
+    }
+
+
+    /**
+     * Gets the DataManagerFacility to handle/write data on OMERO. A
+     *
+     * @return the {@link DataManagerFacility} linked to the gateway.
+     *
+     * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
+     */
+    public DataManagerFacility getDm() throws ExecutionException {
+        return gateway.getFacility(DataManagerFacility.class);
+    }
+
+
+    /**
+     * Gets the MetadataFacility used to manipulate annotations from OMERO.
+     *
+     * @return the {@link MetadataFacility} linked to the gateway.
+     *
+     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
+     */
+    public MetadataFacility getMetadata() throws ExecutionException {
+        return gateway.getFacility(MetadataFacility.class);
+    }
+
+
+    /**
+     * Gets the ROIFacility used to manipulate ROI from OMERO.
+     *
+     * @return the {@link ROIFacility} linked to the gateway.
+     *
+     * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
+     */
+    public ROIFacility getRoiFacility() throws ExecutionException {
+        return gateway.getFacility(ROIFacility.class);
+    }
+
+
+    /**
+     * Gets the TablesFacility used to manipulate table from OMERO.
+     *
+     * @return the {@link TablesFacility} linked to the gateway.
+     *
+     * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
+     */
+    public TablesFacility getTablesFacility() throws ExecutionException {
+        return gateway.getFacility(TablesFacility.class);
+    }
+
+
+    /**
+     * Gets the AdminFacility linked to the gateway to use admin specific function.
+     *
+     * @return the {@link AdminFacility} linked to the gateway.
+     *
+     * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
+     */
+    public AdminFacility getAdminFacility() throws ExecutionException {
+        return gateway.getFacility(AdminFacility.class);
+    }
+
+
+    /**
+     * Creates or recycles the import store.
+     *
+     * @return config.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    public OMEROMetadataStoreClient getImportStore() throws ServiceException {
+        OMEROMetadataStoreClient store;
+        try {
+            store = gateway.getImportStore(ctx);
+        } catch (DSOutOfServiceException e) {
+            throw new ServiceException("Could not retrieve import store", e, e.getConnectionStatus());
+        }
+        return store;
+    }
+
+
+    /**
+     * Finds objects on OMERO through a database query.
+     *
+     * @param query The database query.
+     *
+     * @return A list of OMERO objects.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     */
+    public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
+        List<IObject> results = new ArrayList<>(0);
+        try {
+            results = gateway.getQueryService(ctx).findAllByQuery(query, null);
+        } catch (DSOutOfServiceException | ServerError e) {
+            handleServiceOrServer(e, "Query failed: " + query);
+        }
+
+        return results;
+    }
+
+
+    /**
      * Saves an object on OMERO.
      *
      * @param object The OMERO object.
@@ -387,7 +396,7 @@ public abstract class GatewayWrapper {
     public IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
         IObject result = object;
         try {
-            result = getDm().saveAndReturnObject(getCtx(), object);
+            result = getDm().saveAndReturnObject(ctx, object);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot save object");
         }
@@ -409,7 +418,7 @@ public abstract class GatewayWrapper {
     void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         try {
-            getDm().delete(getCtx(), object).loop(10, 500);
+            getDm().delete(ctx, object).loop(10, 500);
         } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
             handleException(e, "Cannot delete object");
         }
@@ -431,16 +440,6 @@ public abstract class GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         FileAnnotationI file = new FileAnnotationI(id, false);
         delete(file);
-    }
-
-
-    /**
-     * Check if the client is still connected to the server
-     *
-     * @return See above.
-     */
-    public boolean isConnected() {
-        return gateway.isConnected() && ctx != null;
     }
 
 }

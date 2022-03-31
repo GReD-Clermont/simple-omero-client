@@ -83,7 +83,11 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Constructor of the Client class..
+     * Constructor of the Client class.
+     *
+     * @param gateway The gateway
+     * @param ctx     The security context
+     * @param user    The user
      */
     private Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
@@ -400,7 +404,7 @@ public class Client extends GatewayWrapper {
      */
     public List<ImageWrapper> getImagesLike(String motif) throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images = getImages();
-        final String       regexp = ".*" + motif + ".*";
+        String             regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
         return images;
     }
@@ -647,10 +651,9 @@ public class Client extends GatewayWrapper {
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException No element with such id.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError       Server error.
      */
     public WellWrapper getWell(Long id)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException {
         List<WellWrapper> wells = getWells(id);
         if (wells.isEmpty()) {
             throw new NoSuchElementException(String.format("Plate %d doesn't exist in this context", id));
@@ -703,30 +706,6 @@ public class Client extends GatewayWrapper {
                          .map(RLong::getValue)
                          .toArray(Long[]::new);
         return getWells(ids);
-    }
-
-
-    /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
-     *
-     * @param username Username of user.
-     *
-     * @return The client corresponding to the new user.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
-     */
-    public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
-
-        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        context.setExperimenter(sudoUser.asExperimenterData());
-        context.sudo();
-
-        return new Client(this.getGateway(), context, sudoUser);
     }
 
 
@@ -888,6 +867,30 @@ public class Client extends GatewayWrapper {
         } else {
             throw new NoSuchElementException(String.format("Group not found: %s", groupName));
         }
+    }
+
+
+    /**
+     * Gets the client associated with the username in the parameters. The user calling this function needs to have
+     * administrator rights. All action realized with the client returned will be considered as his.
+     *
+     * @param username Username of user.
+     *
+     * @return The client corresponding to the new user.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException The requested user does not exist.
+     */
+    public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
+        ExperimenterWrapper sudoUser = getUser(username);
+
+        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
+        context.setExperimenter(sudoUser.asExperimenterData());
+        context.sudo();
+
+        return new Client(this.getGateway(), context, sudoUser);
     }
 
 }
