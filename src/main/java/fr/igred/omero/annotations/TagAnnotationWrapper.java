@@ -74,9 +74,9 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
     /**
      * Sets the name of the TagData.
      *
-     * @param name The name of the TagData. Mustn't be <code>null</code>.
+     * @param name The name of the TagData. Mustn't be {@code null}.
      *
-     * @throws IllegalArgumentException If the name is <code>null</code>.
+     * @throws IllegalArgumentException If the name is {@code null}.
      */
     public void setName(String name) {
         data.setTagValue(name);

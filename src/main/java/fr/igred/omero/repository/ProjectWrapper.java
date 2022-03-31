@@ -93,12 +93,20 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Sets the name of the project.
      *
-     * @param name The name of the project. Mustn't be <code>null</code>.
+     * @param name The name of the project. Mustn't be {@code null}.
      *
-     * @throws IllegalArgumentException If the name is <code>null</code>.
+     * @throws IllegalArgumentException If the name is {@code null}.
      */
     public void setName(String name) {
         data.setName(name);
+    }
+
+
+    /**
+     * @return the ProjectData contained.
+     */
+    public ProjectData asProjectData() {
+        return data;
     }
 
 
@@ -120,14 +128,6 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public void setDescription(String description) {
         data.setDescription(description);
-    }
-
-
-    /**
-     * @return the ProjectData contained.
-     */
-    public ProjectData asProjectData() {
-        return data;
     }
 
 

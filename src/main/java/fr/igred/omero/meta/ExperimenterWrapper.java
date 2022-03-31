@@ -186,8 +186,8 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
 
 
     /**
-     * Returns <code>true</code> if the experimenter is active,
-     * <code>false</code> otherwise.
+     * Returns {@code true} if the experimenter is active,
+     * {@code false} otherwise.
      *
      * @return See above.
      */
@@ -201,7 +201,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      *
      * @param groupId The id of the group.
      *
-     * @return boolean <code>true</code>/<code>false</code> depending if matching id found
+     * @return boolean {@code true}/{@code false} depending if matching id found
      */
     public boolean isMemberOfGroup(long groupId) {
         return data.isMemberOfGroup(groupId);
@@ -209,7 +209,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
 
 
     /**
-     * Returns <code>true</code> if the user is connected via LDAP.
+     * Returns {@code true} if the user is connected via LDAP.
      *
      * @return See above.
      */

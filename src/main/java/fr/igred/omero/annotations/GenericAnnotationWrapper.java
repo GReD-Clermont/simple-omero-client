@@ -124,6 +124,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
         for (IObject o : os) {
             selected.add(client.getProject(o.getId().getValue()));
         }
+        selected.sort(new SortById<>());
 
         return selected;
     }
@@ -149,6 +150,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
         for (IObject o : os) {
             selected.add(client.getDataset(o.getId().getValue()));
         }
+        selected.sort(new SortById<>());
 
         return selected;
     }
@@ -174,6 +176,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
         for (IObject o : os) {
             selected.add(client.getImage(o.getId().getValue()));
         }
+        selected.sort(new SortById<>());
 
         return selected;
     }

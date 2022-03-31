@@ -55,6 +55,16 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
+     * Returns the contained DataObject as IObject.
+     *
+     * @return See above.
+     */
+    IObject asIObject() {
+        return data.asIObject();
+    }
+
+
+    /**
      * Gets the object id
      *
      * @return id.
@@ -125,8 +135,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns <code>true</code> if the object can be annotated
-     * <code>false</code> otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be annotated {@code false} otherwise, depending on permissions level.
      *
      * @return See above.
      */
@@ -136,7 +145,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns <code>true</code> if the object can be edited by the user currently logged in <code>false</code>
+     * Returns {@code true} if the object can be edited by the user currently logged in {@code false}
      * otherwise, depending on permissions level.
      *
      * @return See above.
@@ -147,9 +156,9 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns <code>true</code> if the object can be linked e.g. image add to dataset, by the user currently logged
+     * Returns {@code true} if the object can be linked e.g. image add to dataset, by the user currently logged
      * in,
-     * <code>false</code> otherwise, depending on
+     * {@code false} otherwise, depending on
      * permissions level.
      *
      * @return See above.
@@ -160,8 +169,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns <code>true</code> if the object can be deleted by the user currently logged in,
-     * <code>false</code> otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be deleted by the user currently logged in,
+     * {@code false} otherwise, depending on permissions level.
      *
      * @return See above.
      */
@@ -171,8 +180,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns <code>true</code> if the object can be moved by the user currently logged in,
-     * <code>false</code> otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be moved by the user currently logged in,
+     * {@code false} otherwise, depending on permissions level.
      *
      * @return See above.
      */
@@ -183,8 +192,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Returns <code>true</code> if the object can be given by the user currently logged in,
-     * <code>false</code> otherwise, depending on permissions level.
+     * Returns {@code true} if the object can be given by the user currently logged in,
+     * {@code false} otherwise, depending on permissions level.
      *
      * @return See above.
      */
