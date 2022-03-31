@@ -55,7 +55,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public class Client {
+public abstract class GatewayWrapper {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
     private final Gateway gateway;
@@ -68,19 +68,23 @@ public class Client {
 
 
     /**
-     * Constructor of the Client class.
+     * Abstract constructor of the GatewayWrapper class.
      *
      * @param gateway The Gateway.
      */
-    protected Client(Gateway gateway) {
+    protected GatewayWrapper(Gateway gateway) {
         this(gateway, null, null);
     }
 
 
     /**
-     * Constructor of the Client class..
+     * Abstract constructor of the GatewayWrapper class.
+     *
+     * @param gateway The Gateway.
+     * @param ctx     The Security Context.
+     * @param user    The connected user.
      */
-    protected Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         this.gateway = gateway;
         this.ctx = ctx;
         this.user = user;
@@ -353,30 +357,6 @@ public class Client {
             user = null;
             gateway.disconnect();
         }
-    }
-
-
-    /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
-     *
-     * @param username Username of user.
-     *
-     * @return The client corresponding to the new user.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
-     */
-    public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
-
-        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        context.setExperimenter(sudoUser.asExperimenterData());
-        context.sudo();
-
-        return new Client(this.getGateway(), context, sudoUser);
     }
 
 
