@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -39,7 +39,7 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      */
     public TagAnnotationWrapper(TagAnnotationData tag) {
         super(tag);
-        setNameSpace(tag.getContentAsString());
+        data.setNameSpace(tag.getContentAsString());
     }
 
 
@@ -57,7 +57,7 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
     public TagAnnotationWrapper(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new TagAnnotationData(name, description));
-        this.saveAndUpdate(client);
+        super.saveAndUpdate(client);
     }
 
 

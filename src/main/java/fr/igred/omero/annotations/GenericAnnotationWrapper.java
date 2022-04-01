@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -49,10 +49,10 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
     /**
      * Constructor of the GenericAnnotationWrapper class.
      *
-     * @param annotation Annotation to be contained.
+     * @param object Annotation to be contained.
      */
-    protected GenericAnnotationWrapper(T annotation) {
-        super(annotation);
+    protected GenericAnnotationWrapper(T object) {
+        super(object);
     }
 
 

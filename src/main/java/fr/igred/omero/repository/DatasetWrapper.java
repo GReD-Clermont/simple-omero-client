@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -472,7 +472,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         config.username.set(client.getUser().getUserName());
         config.email.set(client.getUser().getEmail());
 
-        List<Pixels> pixels = new ArrayList<>(1);
+        Collection<Pixels> pixels = new ArrayList<>(1);
 
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {

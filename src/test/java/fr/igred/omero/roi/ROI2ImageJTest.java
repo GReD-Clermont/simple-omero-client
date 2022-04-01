@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -34,6 +34,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -46,10 +47,10 @@ public class ROI2ImageJTest extends BasicTest {
     public void testROIsFromImageJ() {
         List<Roi> rois = new ArrayList<>(11);
 
-        float[] x1 = {0f, 3f, 3f};
-        float[] y1 = {0f, 0f, 4f};
-        float[] x2 = {0f, 0f, 4f};
-        float[] y2 = {0f, 3f, 3f};
+        float[] x1 = {0.0f, 3.0f, 3.0f};
+        float[] y1 = {0.0f, 0.0f, 4.0f};
+        float[] x2 = {0.0f, 0.0f, 4.0f};
+        float[] y2 = {0.0f, 3.0f, 3.0f};
 
         Roi rectangle = new Roi(1.0, 2.0, 3.0, 4.0);
         rectangle.setName("rectangle");
@@ -80,12 +81,12 @@ public class ROI2ImageJTest extends BasicTest {
         pointRoi.setProperty("TEST", "24");
         rois.add(pointRoi);
 
-        PolygonRoi polylineRoi = new PolygonRoi(x2, y2, PolygonRoi.POLYLINE);
+        PolygonRoi polylineRoi = new PolygonRoi(x2, y2, Roi.POLYLINE);
         polylineRoi.setPosition(1, 1, 2);
         polylineRoi.setProperty("ROI", "23");
         rois.add(polylineRoi);
 
-        PolygonRoi polygonRoi = new PolygonRoi(x2, y2, PolygonRoi.POLYGON);
+        PolygonRoi polygonRoi = new PolygonRoi(x2, y2, Roi.POLYGON);
         polygonRoi.setPosition(1, 1, 1);
         polygonRoi.setProperty("ROI", "23");
         rois.add(polygonRoi);
@@ -177,8 +178,7 @@ public class ROI2ImageJTest extends BasicTest {
         roiWrapper.addShape(polyline);
         roiWrapper.addShape(polygon);
 
-        List<ROIWrapper> rois = new ArrayList<>();
-        rois.add(roiWrapper);
+        List<ROIWrapper> rois = Collections.singletonList(roiWrapper);
 
         List<Roi> ijRois = ROIWrapper.toImageJ(rois);
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -60,11 +60,13 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
@@ -472,12 +474,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get the channel name for " + this);
         }
-
-        List<ChannelWrapper> result = new ArrayList<>(channels.size());
-        for (ChannelData channel : channels) {
-            result.add(channel.getIndex(), new ChannelWrapper(channel));
-        }
-        return result;
+        return channels.stream()
+                       .sorted(Comparator.comparing(ChannelData::getIndex))
+                       .map(ChannelWrapper::new)
+                       .collect(Collectors.toList());
     }
 
 

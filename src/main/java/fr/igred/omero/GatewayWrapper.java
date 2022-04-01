@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -417,8 +417,9 @@ public abstract class GatewayWrapper {
      */
     void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        final int ms = 500;
         try {
-            getDm().delete(ctx, object).loop(10, 500);
+            getDm().delete(ctx, object).loop(10, ms);
         } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
             handleException(e, "Cannot delete object");
         }

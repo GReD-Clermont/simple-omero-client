@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -42,10 +42,10 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Constructor of the GenericShapeWrapper class using a ShapeData.
      *
-     * @param shape the shape
+     * @param object the shape
      */
-    protected GenericShapeWrapper(T shape) {
-        super(shape);
+    protected GenericShapeWrapper(T object) {
+        super(object);
     }
 
 
@@ -72,7 +72,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the channel.
      *
-     * @param c the channel. Pass -1 to remove z value, i. e. shape applies to all channels of the image.
+     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
      */
     public void setC(int c) {
         this.data.setC(c);
@@ -92,7 +92,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the z-section.
      *
-     * @param z the z-section. Pass -1 to remove z value, i. e. shape applies to all z-sections of the image.
+     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      */
     public void setZ(int z) {
         this.data.setZ(z);
@@ -112,7 +112,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the time-point.
      *
-     * @param t the time-point. Pass -1 to remove t value, i. e. shape applies to all time-points of the image.
+     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
     public void setT(int t) {
         this.data.setT(t);
@@ -122,9 +122,9 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the channel, z-section and time-point at once.
      *
-     * @param c the channel. Pass -1 to remove z value, i. e. shape applies to all channels of the image.
-     * @param z the z-section. Pass -1 to remove z value, i. e. shape applies to all z-sections of the image.
-     * @param t the time-point. Pass -1 to remove t value, i. e. shape applies to all time-points of the image.
+     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
+     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
+     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
     public void setCZT(int c, int z, int t) {
         setC(c);
@@ -255,7 +255,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      * @return The converted affine transform.
      */
     public java.awt.geom.AffineTransform toAWTTransform() {
-        if (data.getTransform() == null) return null;
+        if (data.getTransform() == null) return new java.awt.geom.AffineTransform();
         else {
             double a00 = data.getTransform().getA00().getValue();
             double a10 = data.getTransform().getA10().getValue();
@@ -275,7 +275,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      * @return A new transformed {@link java.awt.Shape}.
      */
     public java.awt.Shape createTransformedAWTShape() {
-        if (toAWTTransform() == null) return toAWTShape();
+        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) return toAWTShape();
         else return toAWTTransform().createTransformedShape(toAWTShape());
     }
 
@@ -309,9 +309,10 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      * @return An ImageJ ROI.
      */
     public Roi toImageJ() {
-        ij.gui.ShapeRoi roi = new ij.gui.ShapeRoi(createTransformedAWTShape());
+        Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
         roi.setName(getText());
         roi.setStrokeColor(getStroke());
+        roi.setFillColor(data.getShapeSettings().getFill());
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);
