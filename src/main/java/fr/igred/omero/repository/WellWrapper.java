@@ -3,9 +3,7 @@ package fr.igred.omero.repository;
 
 import omero.gateway.model.WellData;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
@@ -91,10 +89,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @return See above.
      */
     public List<WellSampleWrapper> getWellSamples() {
-        return data.getWellSamples().stream()
-                   .map(WellSampleWrapper::new)
-                   .sorted(Comparator.comparing(w -> w.getImage().asImageData().getSeries()))
-                   .collect(Collectors.toList());
+        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asImageData().getSeries());
     }
 
 

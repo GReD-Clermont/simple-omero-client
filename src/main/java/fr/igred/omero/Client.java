@@ -18,7 +18,6 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.GenericObjectWrapper.SortById;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -55,6 +54,7 @@ import omero.model.TagAnnotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.GenericObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
@@ -91,21 +92,6 @@ public class Client extends GatewayWrapper {
      */
     private Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
-    }
-
-
-    /**
-     * Transforms a collection of ImageData in a list of ImageWrapper sorted by the ImageData id.
-     *
-     * @param images ImageData Collection.
-     *
-     * @return ImageWrapper list sorted.
-     */
-    private static List<ImageWrapper> toImageWrappers(Collection<? extends ImageData> images) {
-        return images.stream()
-                     .map(ImageWrapper::new)
-                     .sorted(new SortById<>())
-                     .collect(Collectors.toList());
     }
 
 
@@ -149,10 +135,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects");
         }
-        return projects.stream()
-                       .map(ProjectWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -172,10 +155,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects");
         }
-        return projects.stream()
-                       .map(ProjectWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -197,10 +177,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects with name: " + name);
         }
-        return projects.stream()
-                       .map(ProjectWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -245,10 +222,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get datasets");
         }
-        return datasets.stream()
-                       .map(DatasetWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
@@ -291,10 +265,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get datasets with name: " + name);
         }
-        return datasets.stream()
-                       .map(DatasetWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
@@ -343,8 +314,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images");
         }
-
-        return toImageWrappers(images);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -364,7 +334,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images");
         }
-        return toImageWrappers(images);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -387,7 +357,7 @@ public class Client extends GatewayWrapper {
             handleServiceOrAccess(e, "Cannot get images with name: " + name);
         }
         images.removeIf(image -> !image.getName().equals(name));
-        return toImageWrappers(images);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -494,7 +464,6 @@ public class Client extends GatewayWrapper {
                 selected.add(image);
             }
         }
-
         return selected;
     }
 
@@ -539,10 +508,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get screens");
         }
-        return screens.stream()
-                      .map(ScreenWrapper::new)
-                      .sorted(new SortById<>())
-                      .collect(Collectors.toList());
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -562,11 +528,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get screens");
         }
-
-        return screens.stream()
-                      .map(ScreenWrapper::new)
-                      .sorted(new SortById<>())
-                      .collect(Collectors.toList());
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -610,10 +572,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get plates");
         }
-        return plates.stream()
-                     .map(PlateWrapper::new)
-                     .sorted(new SortById<>())
-                     .collect(Collectors.toList());
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -633,10 +592,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get plates");
         }
-        return plates.stream()
-                     .map(PlateWrapper::new)
-                     .sorted(new SortById<>())
-                     .collect(Collectors.toList());
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -681,10 +637,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get wells");
         }
-        return wells.stream()
-                    .map(WellWrapper::new)
-                    .sorted(new SortById<>())
-                    .collect(Collectors.toList());
+        return wrap(wells, WellWrapper::new);
     }
 
 
@@ -728,7 +681,7 @@ public class Client extends GatewayWrapper {
                  .map(TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
                  .map(TagAnnotationWrapper::new)
-                 .sorted(new SortById<>())
+                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                  .collect(Collectors.toList());
     }
 
@@ -746,7 +699,7 @@ public class Client extends GatewayWrapper {
     public List<TagAnnotationWrapper> getTags(String name) throws OMEROServerError, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(new SortById<>());
+        tags.sort(Comparator.comparing(GenericObjectWrapper::getId));
         return tags;
     }
 

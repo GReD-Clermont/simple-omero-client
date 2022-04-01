@@ -19,13 +19,13 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -33,8 +33,8 @@ import omero.model.ProjectDatasetLinkI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
@@ -148,15 +148,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @return Collection of DatasetWrapper.
      */
     public List<DatasetWrapper> getDatasets() {
-        Set<DatasetData> datasets = data.getDatasets();
-
-        List<DatasetWrapper> wrappers = new ArrayList<>(datasets.size());
-        for (DatasetData dataset : datasets) {
-            wrappers.add(new DatasetWrapper(dataset));
-        }
-        wrappers.sort(new SortById<>());
-
-        return wrappers;
+        return wrap(data.getDatasets(), DatasetWrapper::new);
     }
 
 
@@ -276,7 +268,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : datasets) {
             images.addAll(dataset.getImages(client));
         }
-        images.sort(new SortById<>());
+        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
         return purge(images);
     }
@@ -298,13 +290,13 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
-        List<ImageWrapper> imageWrappers = new ArrayList<>();
+        List<ImageWrapper> images = new ArrayList<>();
         for (DatasetWrapper dataset : datasets) {
-            imageWrappers.addAll(dataset.getImages(client, name));
+            images.addAll(dataset.getImages(client, name));
         }
-        imageWrappers.sort(new SortById<>());
+        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
-        return purge(imageWrappers);
+        return purge(images);
     }
 
 
@@ -326,7 +318,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : getDatasets()) {
             images.addAll(dataset.getImagesLike(client, motif));
         }
-        images.sort(new SortById<>());
+        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
         return purge(images);
     }
@@ -351,7 +343,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : getDatasets()) {
             images.addAll(dataset.getImagesTagged(client, tag));
         }
-        images.sort(new SortById<>());
+        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
         return purge(images);
     }
@@ -376,7 +368,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : getDatasets()) {
             images.addAll(dataset.getImagesTagged(client, tagId));
         }
-        images.sort(new SortById<>());
+        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
         return purge(images);
     }
@@ -400,7 +392,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : getDatasets()) {
             images.addAll(dataset.getImagesKey(client, key));
         }
-        images.sort(new SortById<>());
+        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
         return purge(images);
     }
@@ -425,7 +417,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : getDatasets()) {
             images.addAll(dataset.getImagesPairKeyValue(client, key, value));
         }
-        images.sort(new SortById<>());
+        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
         return purge(images);
     }

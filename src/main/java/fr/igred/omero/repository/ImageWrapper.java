@@ -203,8 +203,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ROIWrapper> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIWrapper> roiWrappers = new ArrayList<>();
-        List<ROIResult>  roiResults  = new ArrayList<>();
+        List<ROIResult> roiResults = new ArrayList<>(0);
         try {
             roiResults = client.getRoiFacility().loadROIs(client.getCtx(), data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
@@ -214,6 +213,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
         Collection<ROIData> rois = r.getROIs();
 
+        List<ROIWrapper> roiWrappers = new ArrayList<>(rois.size());
         for (ROIData roi : rois) {
             ROIWrapper temp = new ROIWrapper(roi);
             roiWrappers.add(temp);
@@ -238,7 +238,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = client.getRoiFacility();
 
-        Collection<FolderData> folders = new ArrayList<>();
+        Collection<FolderData> folders = new ArrayList<>(0);
         try {
             folders = roiFacility.getROIFolders(client.getCtx(), this.data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
@@ -329,7 +329,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
 
-        boolean createdRawDataFacility = pixels.createRawDataFacility(client);
+        boolean createdRDF = pixels.createRawDataFacility(client);
 
         Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
 
@@ -420,7 +420,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         if (imp.isComposite()) {
             ((CompositeImage) imp).setLuts(luts);
         }
-        if (createdRawDataFacility) {
+        if (createdRDF) {
             pixels.destroyRawDataFacility();
         }
         return imp;
@@ -466,14 +466,14 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ChannelWrapper> getChannels(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData>    channels = new ArrayList<>();
-        List<ChannelWrapper> result   = new ArrayList<>();
+        List<ChannelData> channels = new ArrayList<>(0);
         try {
             channels = client.getMetadata().getChannelData(client.getCtx(), getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get the channel name for " + this);
         }
 
+        List<ChannelWrapper> result = new ArrayList<>(channels.size());
         for (ChannelData channel : channels) {
             result.add(channel.getIndex(), new ChannelWrapper(channel));
         }
@@ -617,7 +617,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         } catch (DSAccessException | DSOutOfServiceException | ExecutionException e) {
             handleException(e, "Could not download image " + getId() + ": " + e.getMessage());
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
 }

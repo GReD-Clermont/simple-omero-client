@@ -28,8 +28,12 @@ import omero.gateway.model.DataObject;
 import omero.model.IObject;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
@@ -51,6 +55,61 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     protected GenericObjectWrapper(T object) {
         this.data = object;
+    }
+
+
+    /**
+     * Converts a DataObject list to a ObjectWrapper list, sorted by {@code sorter}.
+     *
+     * @param objects The DataObject list.
+     * @param mapper  The method used to map objects.
+     * @param sorter  The method used to sort the objects.
+     * @param <U>     The type of input (extends DataObject).
+     * @param <V>     The type of output (extends ObjectWrapper).
+     * @param <W>     The type used to sort the output.
+     *
+     * @return See above.
+     */
+    protected static <U extends DataObject, V extends GenericObjectWrapper<U>, W extends Comparable<W>> List<V>
+    wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
+        return objects.stream()
+                      .map(mapper)
+                      .sorted(Comparator.comparing(sorter))
+                      .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a DataObject list to a ObjectWrapper list, sorted by {@code sorter}.
+     *
+     * @param objects The DataObject list.
+     * @param mapper  The method used to map objects.
+     * @param <U>     The type of input (extends DataObject).
+     * @param <V>     The type of output (extends ObjectWrapper).
+     *
+     * @return See above.
+     */
+    protected static <U extends DataObject, V extends GenericObjectWrapper<U>> List<V>
+    wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
+        return wrap(objects, mapper, GenericObjectWrapper::getId);
+    }
+
+
+    /**
+     * Deletes an object from OMERO.
+     *
+     * @param client The client handling the connection.
+     * @param object The OMERO object.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    protected static void delete(Client client, IObject object)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        client.delete(object);
     }
 
 
@@ -197,46 +256,6 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     public boolean canChown() {
         return data.canChown();
-    }
-
-
-    /**
-     * Deletes an object from OMERO.
-     *
-     * @param client The client handling the connection.
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    protected static void delete(Client client, IObject object)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        client.delete(object);
-    }
-
-
-    /**
-     * Class used to sort wrappers.
-     */
-    public static class SortById<U extends GenericObjectWrapper<?>> implements Comparator<U> {
-
-        /**
-         * Compare 2 ObjectWrappers. Compare the id of the ObjectWrappers.
-         *
-         * @param object1 First object to compare.
-         * @param object2 Second object to compare.
-         *
-         * @return <ul><li>-1 if the id of object1 is lower than the id object2.</li>
-         * <li>0  if the ids are the same.</li>
-         * <li>1 if the id of object1 is greater than the id of object2.</li></ul>
-         */
-        public int compare(U object1, U object2) {
-            return Long.compare(object1.getId(), object2.getId());
-        }
-
     }
 
 }

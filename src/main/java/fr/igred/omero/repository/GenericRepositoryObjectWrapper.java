@@ -43,6 +43,7 @@ import omero.model.TagAnnotationI;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,8 +236,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                 tags.add(new TagAnnotationWrapper(tagAnnotation));
             }
         }
-
-        tags.sort(new SortById<>());
+        tags.sort(Comparator.comparing(GenericObjectWrapper::getId));
         return tags;
     }
 
@@ -254,7 +254,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<NamedValue> result = new ArrayList<>();
+        Collection<NamedValue> result = new ArrayList<>(1);
         result.add(new NamedValue(key, value));
 
         MapAnnotationData mapData = new MapAnnotationData();
@@ -278,10 +278,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     throws ServiceException, AccessException, ExecutionException {
         Map<String, String> keyValuePairs = new HashMap<>();
 
-        List<Long> userIds = new ArrayList<>();
+        List<Long> userIds = new ArrayList<>(1);
         userIds.add(client.getId());
 
-        List<Class<? extends AnnotationData>> types = new ArrayList<>();
+        List<Class<? extends AnnotationData>> types = new ArrayList<>(1);
         types.add(MapAnnotationData.class);
 
         List<AnnotationData> annotations = null;
@@ -421,7 +421,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = new ArrayList<>();
+        Collection<FileAnnotationData> tables = new ArrayList<>(0);
         try {
             tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
         } catch (DSOutOfServiceException | DSAccessException e) {
@@ -473,19 +473,17 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<FileAnnotationWrapper> getFileAnnotations(Client client)
     throws ExecutionException, ServiceException, AccessException {
-        List<Class<? extends AnnotationData>> types = new ArrayList<>();
+        List<Class<? extends AnnotationData>> types = new ArrayList<>(1);
         types.add(FileAnnotationData.class);
 
-        List<FileAnnotationWrapper> fileAnnotations = new ArrayList<>();
-
-        List<AnnotationData> annotations = new ArrayList<>();
-
+        List<AnnotationData> annotations = new ArrayList<>(0);
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot retrieve file annotations from " + this);
         }
 
+        List<FileAnnotationWrapper> fileAnnotations = new ArrayList<>();
         for (AnnotationData annotation : annotations) {
             if (annotation instanceof FileAnnotationData) {
                 FileAnnotationWrapper file = new FileAnnotationWrapper((FileAnnotationData) annotation);

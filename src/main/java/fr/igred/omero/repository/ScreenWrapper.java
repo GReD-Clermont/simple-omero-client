@@ -4,7 +4,6 @@ package fr.igred.omero.repository;
 import omero.gateway.model.ScreenData;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
@@ -91,7 +90,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @return See above.
      */
     public List<PlateWrapper> getPlates() {
-        return data.getPlates().stream().map(PlateWrapper::new).sorted(new SortById<>()).collect(Collectors.toList());
+        return wrap(data.getPlates(), PlateWrapper::new);
     }
 
 

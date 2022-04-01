@@ -106,10 +106,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @return See above.
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions() {
-        return data.getPlateAcquisitions()
-                   .stream()
-                   .map(PlateAcquisitionWrapper::new)
-                   .collect(Collectors.toList());
+        return wrap(data.getPlateAcquisitions(), PlateAcquisitionWrapper::new);
     }
 
 
@@ -125,14 +122,12 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellWrapper> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = new ArrayList<>();
+        Collection<WellData> wells = new ArrayList<>(0);
         try {
-            wells = client.getBrowseFacility()
-                          .getWells(client.getCtx(), data.getId());
+            wells = client.getBrowseFacility().getWells(client.getCtx(), data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get wells from " + this);
         }
-
         return wells.stream()
                     .map(WellWrapper::new)
                     .sorted(Comparator.comparing(WellWrapper::getRow)

@@ -25,12 +25,15 @@ import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.repository.ScreenWrapper;
+import fr.igred.omero.repository.WellWrapper;
+import omero.RLong;
 import omero.gateway.model.AnnotationData;
 import omero.model.IObject;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -118,15 +121,9 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<ProjectWrapper> getProjects(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os = getLinks(client, "ProjectAnnotationLink");
-
-        List<ProjectWrapper> selected = new ArrayList<>(os.size());
-        for (IObject o : os) {
-            selected.add(client.getProject(o.getId().getValue()));
-        }
-        selected.sort(new SortById<>());
-
-        return selected;
+        List<IObject> os  = getLinks(client, ProjectWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.getProjects(ids);
     }
 
 
@@ -144,15 +141,9 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<DatasetWrapper> getDatasets(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os = getLinks(client, "DatasetAnnotationLink");
-
-        List<DatasetWrapper> selected = new ArrayList<>(os.size());
-        for (IObject o : os) {
-            selected.add(client.getDataset(o.getId().getValue()));
-        }
-        selected.sort(new SortById<>());
-
-        return selected;
+        List<IObject> os  = getLinks(client, DatasetWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.getDatasets(ids);
     }
 
 
@@ -170,15 +161,69 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os = getLinks(client, "ImageAnnotationLink");
+        List<IObject> os  = getLinks(client, ImageWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.getImages(ids);
+    }
 
-        List<ImageWrapper> selected = new ArrayList<>(os.size());
-        for (IObject o : os) {
-            selected.add(client.getImage(o.getId().getValue()));
-        }
-        selected.sort(new SortById<>());
 
-        return selected;
+    /**
+     * Gets all screens with this tag from OMERO.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return ScreenWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ScreenWrapper> getScreens(Client client)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        List<IObject> os  = getLinks(client, ScreenWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.getScreens(ids);
+    }
+
+
+    /**
+     * Gets all plates with this tag from OMERO.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return PlateWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getPlates(Client client)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        List<IObject> os  = getLinks(client, PlateWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.getPlates(ids);
+    }
+
+
+    /**
+     * Gets all wells with this tag from OMERO.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return WellWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<WellWrapper> getWells(Client client)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        List<IObject> os  = getLinks(client, WellWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.getWells(ids);
     }
 
 

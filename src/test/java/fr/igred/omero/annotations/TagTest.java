@@ -19,7 +19,10 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.repository.ScreenWrapper;
+import fr.igred.omero.repository.WellWrapper;
 import org.junit.Test;
 
 import java.util.List;
@@ -58,7 +61,7 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetProjects() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(1L);
+        TagAnnotationWrapper tag      = client.getTag(1L);
         List<ProjectWrapper> projects = tag.getProjects(client);
         assertEquals(1, projects.size());
         assertEquals(2L, projects.get(0).getId());
@@ -67,7 +70,7 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetDatasets() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(1L);
+        TagAnnotationWrapper tag      = client.getTag(1L);
         List<DatasetWrapper> datasets = tag.getDatasets(client);
         assertEquals(1, datasets.size());
         assertEquals(3L, datasets.get(0).getId());
@@ -76,12 +79,39 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetImages() throws Exception {
-        TagAnnotationWrapper tag      = client.getTag(1L);
+        TagAnnotationWrapper tag    = client.getTag(1L);
         List<ImageWrapper>   images = tag.getImages(client);
         assertEquals(3, images.size());
         assertEquals(1L, images.get(0).getId());
         assertEquals(2L, images.get(1).getId());
         assertEquals(4L, images.get(2).getId());
+    }
+
+
+    @Test
+    public void testGetScreens() throws Exception {
+        TagAnnotationWrapper tag     = client.getTag(1L);
+        List<ScreenWrapper>  screens = tag.getScreens(client);
+        assertEquals(1, screens.size());
+        assertEquals(1L, screens.get(0).getId());
+    }
+
+
+    @Test
+    public void testGetPlates() throws Exception {
+        TagAnnotationWrapper tag    = client.getTag(1L);
+        List<PlateWrapper>   plates = tag.getPlates(client);
+        assertEquals(1, plates.size());
+        assertEquals(1L, plates.get(0).getId());
+    }
+
+
+    @Test
+    public void testGetWells() throws Exception {
+        TagAnnotationWrapper tag   = client.getTag(1L);
+        List<WellWrapper>    wells = tag.getWells(client);
+        assertEquals(1, wells.size());
+        assertEquals(1L, wells.get(0).getId());
     }
 
 
@@ -105,7 +135,7 @@ public class TagTest extends UserTest {
     public void testSetDescription() throws Exception {
         TagAnnotationWrapper tag = client.getTag(1L);
 
-        String description  = tag.getDescription();
+        String description = tag.getDescription();
 
         String description2 = "NewName";
         tag.setDescription(description2);

@@ -61,27 +61,27 @@ public class TableWrapper {
     private static final String IMAGE = "Image";
 
     /** Number of column in the table */
-    final int columnCount;
+    private final int columnCount;
 
     /** Information of each column (Name, Type) */
-    final TableDataColumn[] columns;
+    private final TableDataColumn[] columns;
 
     /** Number of row in the table */
-    int rowCount;
+    private int rowCount;
 
     /** Content of the table */
-    Object[][] data;
+    private Object[][] data;
 
     /** Current position in the table */
-    int row;
+    private int row;
 
     /** Name of the table */
-    String name;
+    private String name;
 
     /** File id of the table */
-    Long fileId;
+    private Long fileId = -1L;
     /** Id of the table */
-    Long id;
+    private Long id = -1L;
 
 
     /**
@@ -399,7 +399,7 @@ public class TableWrapper {
 
         ImageWrapper image = new ImageWrapper(null);
 
-        List<ROIWrapper> rois = new ArrayList<>();
+        List<ROIWrapper> rois = new ArrayList<>(0);
 
         int offset = 0;
         if (imageId != null) {
@@ -602,7 +602,7 @@ public class TableWrapper {
      *
      * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
      */
-    public void setColumn(int column, String name, Class<?> type) throws IndexOutOfBoundsException {
+    public void setColumn(int column, String name, Class<?> type) {
         if (column < columnCount)
             columns[column] = new TableDataColumn(name, column, type);
         else
@@ -618,7 +618,7 @@ public class TableWrapper {
      * @throws IndexOutOfBoundsException Table is not initialized or already full.
      * @throws IllegalArgumentException  Incorrect argument number.
      */
-    public void addRow(Object... os) throws IndexOutOfBoundsException, IllegalArgumentException {
+    public void addRow(Object... os) {
         if (row < rowCount && os.length == columnCount) {
             for (int i = 0; i < os.length; i++) {
                 Object o = os[i];
