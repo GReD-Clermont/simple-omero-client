@@ -3,7 +3,6 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;

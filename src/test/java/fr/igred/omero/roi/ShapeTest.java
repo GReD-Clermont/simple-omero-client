@@ -60,7 +60,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 2; i++)
             differences += Math.abs(checkCoordinates[i] - pointCoordinates[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(text, point.getText());
     }
 
@@ -83,8 +83,8 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 2; i++)
             differences += Math.abs(checkCoordinates[i] - textCoordinates[i]);
 
-        assertEquals(0, differences, 0.001);
-        assertEquals(25, fontSize, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(25, fontSize, Double.MIN_VALUE);
         assertEquals(value, text.getText());
     }
 
@@ -102,7 +102,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
@@ -133,7 +133,7 @@ public class ShapeTest extends BasicTest {
         int t2 = rectangle.getT();
         differences += Math.abs(c2 - c) + Math.abs(z2 - z) + Math.abs(t2 - t);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(text, rectangle.getText());
     }
 
@@ -151,7 +151,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(checkCoordinates[i] - maskCoordinates[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
@@ -205,7 +205,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(checkCoordinates[i] - ellipseCoordinates[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(stroke, ellipse.getStroke());
         assertEquals(text, ellipse.getText());
     }
@@ -229,7 +229,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(text, line.getText());
     }
 
@@ -250,7 +250,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
@@ -258,7 +258,7 @@ public class ShapeTest extends BasicTest {
     public void testPolyline() {
         final String         text     = "Polyline";
         PolylineWrapper      polyline = new PolylineWrapper();
-        List<Point2D.Double> points   = new ArrayList<>();
+        List<Point2D.Double> points   = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -280,7 +280,7 @@ public class ShapeTest extends BasicTest {
     public void testPolygon() {
         final String         text    = "Polygon";
         PolygonWrapper       polygon = new PolygonWrapper();
-        List<Point2D.Double> points  = new ArrayList<>();
+        List<Point2D.Double> points  = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -314,7 +314,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 2; i++)
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
@@ -333,7 +333,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 2; i++)
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(text1.getText(), text2.getText());
     }
 
@@ -353,7 +353,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
@@ -372,7 +372,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
@@ -399,7 +399,7 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 25; i++)
             differences += Math.abs(checkValues2[i] - checkValues1[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
@@ -418,13 +418,13 @@ public class ShapeTest extends BasicTest {
         for (int i = 0; i < 4; i++)
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
 
-        assertEquals(0, differences, 0.001);
+        assertEquals(0, differences, Double.MIN_VALUE);
     }
 
 
     @Test
     public void testPolylineConstructor() {
-        List<Point2D.Double> points = new ArrayList<>();
+        List<Point2D.Double> points = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -442,7 +442,7 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testPolygonConstructor() {
-        List<Point2D.Double> points = new ArrayList<>();
+        List<Point2D.Double> points = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -502,7 +502,7 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testAWTPolygon() {
-        List<Point2D.Double> points = new ArrayList<>();
+        List<Point2D.Double> points = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -528,8 +528,8 @@ public class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], 0.01);
-            assertEquals(pos1[1], pos2[1], 0.01);
+            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
+            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
             pi.next();
             pi2.next();
         }
@@ -538,7 +538,7 @@ public class ShapeTest extends BasicTest {
 
     @Test
     public void testAWTPolyline() {
-        List<Point2D.Double> points = new ArrayList<>();
+        List<Point2D.Double> points = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
         Point2D.Double p2 = new Point2D.Double(3, 0);
@@ -564,8 +564,8 @@ public class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], 0.01);
-            assertEquals(pos1[1], pos2[1], 0.01);
+            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
+            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
             pi.next();
             pi2.next();
         }
@@ -588,8 +588,8 @@ public class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], 0.01);
-            assertEquals(pos1[1], pos2[1], 0.01);
+            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
+            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
             pi.next();
             pi2.next();
         }
@@ -612,8 +612,8 @@ public class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], 0.01);
-            assertEquals(pos1[1], pos2[1], 0.01);
+            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
+            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
             pi.next();
             pi2.next();
         }
@@ -654,7 +654,7 @@ public class ShapeTest extends BasicTest {
         double[] coordinates2 = shape.getBoundingBox().getCoordinates();
 
         for (int i = 0; i < 4; i++) {
-            assertEquals(coordinates1[i], coordinates2[i], 0.01);
+            assertEquals(coordinates1[i], coordinates2[i], Double.MIN_VALUE);
         }
     }
 
@@ -668,7 +668,7 @@ public class ShapeTest extends BasicTest {
         double[] coordinates2 = shape.getBoundingBox().getCoordinates();
 
         for (int i = 0; i < 4; i++) {
-            assertEquals(coordinates1[i], coordinates2[i], 0.01);
+            assertEquals(coordinates1[i], coordinates2[i], Double.MIN_VALUE);
         }
     }
 

@@ -50,7 +50,7 @@ public class DatasetTest extends UserTest {
 
         DatasetWrapper dataset = client.getDataset(id);
 
-        assertEquals(dataset.getName(), name);
+        assertEquals(name, dataset.getName());
 
         assertTrue(dataset.canLink());
         assertTrue(dataset.canAnnotate());
@@ -84,7 +84,7 @@ public class DatasetTest extends UserTest {
 
         dataset = client.getDataset(id);
 
-        assertEquals(dataset.getDescription(), description);
+        assertEquals(description, dataset.getDescription());
 
         client.delete(dataset);
 
@@ -148,14 +148,11 @@ public class DatasetTest extends UserTest {
         dataset.addTag(client, tag);
 
         List<TagAnnotationWrapper> tags = dataset.getTags(client);
+        client.delete(tag);
+        List<TagAnnotationWrapper> endTags = dataset.getTags(client);
 
         assertEquals(1, tags.size());
-
-        client.delete(tag);
-
-        tags = dataset.getTags(client);
-
-        assertEquals(0, tags.size());
+        assertEquals(0, endTags.size());
     }
 
 
@@ -169,10 +166,9 @@ public class DatasetTest extends UserTest {
         assertEquals(1, tags.size());
 
         client.delete(tags.get(0));
+        List<TagAnnotationWrapper> endTags = client.getTags("Dataset tag");
 
-        tags = client.getTags("Dataset tag");
-
-        assertEquals(0, tags.size());
+        assertEquals(0, endTags.size());
     }
 
 

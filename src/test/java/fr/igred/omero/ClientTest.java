@@ -68,7 +68,7 @@ public class ClientTest extends UserTest {
 
         int differences = 0;
         for (ProjectWrapper project : projects) {
-            if (!project.getName().equals("TestProject"))
+            if (!"TestProject".equals(project.getName()))
                 differences++;
         }
 
@@ -113,7 +113,7 @@ public class ClientTest extends UserTest {
 
         int differences = 0;
         for (DatasetWrapper dataset : datasets) {
-            if (!dataset.getName().equals("TestDataset"))
+            if (!"TestDataset".equals(dataset.getName()))
                 differences++;
         }
         assertEquals(2, datasets.size());

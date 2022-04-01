@@ -128,6 +128,7 @@ public class ROI2ImageJTest extends BasicTest {
         MaskWrapper mask = new MaskWrapper();
         mask.setCoordinates(4, 4, 11, 11);
         mask.setCZT(1, 0, 0);
+        mask.setTransform(transform);
 
         EllipseWrapper ellipse = new EllipseWrapper(5, 5, 4, 4);
         ellipse.setCZT(1, 0, 1);
@@ -188,7 +189,7 @@ public class ROI2ImageJTest extends BasicTest {
 
     @Test
     public void convertEllipse() {
-        EllipseWrapper ellipse = new EllipseWrapper(3, 3, 10, 10);
+        EllipseWrapper ellipse = new EllipseWrapper(3, 4, 10, 8);
         ellipse.setCZT(0, 0, 2);
 
         OvalRoi ijEllipse = (OvalRoi) ellipse.toImageJ();
@@ -201,10 +202,10 @@ public class ROI2ImageJTest extends BasicTest {
 
         EllipseWrapper newEllipse = roi.getShapes().getElementsOf(EllipseWrapper.class).get(0);
 
-        assertEquals(ellipse.getX(), newEllipse.getX(), 0.05);
-        assertEquals(ellipse.getY(), newEllipse.getY(), 0.05);
-        assertEquals(ellipse.getRadiusX(), newEllipse.getRadiusX(), 0.05);
-        assertEquals(ellipse.getRadiusY(), newEllipse.getRadiusY(), 0.05);
+        assertEquals(ellipse.getX(), newEllipse.getX(), Double.MIN_VALUE);
+        assertEquals(ellipse.getY(), newEllipse.getY(), Double.MIN_VALUE);
+        assertEquals(ellipse.getRadiusX(), newEllipse.getRadiusX(), Double.MIN_VALUE);
+        assertEquals(ellipse.getRadiusY(), newEllipse.getRadiusY(), Double.MIN_VALUE);
         assertEquals(ellipse.getC(), newEllipse.getC());
         assertEquals(ellipse.getZ(), newEllipse.getZ());
         assertEquals(ellipse.getT(), newEllipse.getT());
@@ -225,10 +226,10 @@ public class ROI2ImageJTest extends BasicTest {
 
         RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
 
-        assertEquals(rectangle.getX(), newRectangle.getX(), 0.05);
-        assertEquals(rectangle.getY(), newRectangle.getY(), 0.05);
-        assertEquals(rectangle.getWidth(), newRectangle.getWidth(), 0.05);
-        assertEquals(rectangle.getHeight(), newRectangle.getHeight(), 0.05);
+        assertEquals(rectangle.getX(), newRectangle.getX(), Double.MIN_VALUE);
+        assertEquals(rectangle.getY(), newRectangle.getY(), Double.MIN_VALUE);
+        assertEquals(rectangle.getWidth(), newRectangle.getWidth(), Double.MIN_VALUE);
+        assertEquals(rectangle.getHeight(), newRectangle.getHeight(), Double.MIN_VALUE);
         assertEquals(rectangle.getC(), newRectangle.getC());
         assertEquals(rectangle.getZ(), newRectangle.getZ());
         assertEquals(rectangle.getT(), newRectangle.getT());
@@ -242,10 +243,10 @@ public class ROI2ImageJTest extends BasicTest {
         arrow.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
 
         Arrow ijArrow = (Arrow) arrow.toImageJ();
-        assertEquals(arrow.getX1(), ijArrow.x2d, 0.05);
-        assertEquals(arrow.getY1(), ijArrow.y2d, 0.05);
-        assertEquals(arrow.getX2(), ijArrow.x1d, 0.05);
-        assertEquals(arrow.getY2(), ijArrow.y1d, 0.05);
+        assertEquals(arrow.getX1(), ijArrow.x2d, Double.MIN_VALUE);
+        assertEquals(arrow.getY1(), ijArrow.y2d, Double.MIN_VALUE);
+        assertEquals(arrow.getX2(), ijArrow.x1d, Double.MIN_VALUE);
+        assertEquals(arrow.getY2(), ijArrow.y1d, Double.MIN_VALUE);
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijArrow);
@@ -253,10 +254,10 @@ public class ROI2ImageJTest extends BasicTest {
 
         LineWrapper newArrow = roi.getShapes().getElementsOf(LineWrapper.class).get(0);
 
-        assertEquals(arrow.getX1(), newArrow.getX2(), 0.05);
-        assertEquals(arrow.getY1(), newArrow.getY2(), 0.05);
-        assertEquals(arrow.getX2(), newArrow.getX1(), 0.05);
-        assertEquals(arrow.getY2(), newArrow.getY1(), 0.05);
+        assertEquals(arrow.getX1(), newArrow.getX2(), Double.MIN_VALUE);
+        assertEquals(arrow.getY1(), newArrow.getY2(), Double.MIN_VALUE);
+        assertEquals(arrow.getX2(), newArrow.getX1(), Double.MIN_VALUE);
+        assertEquals(arrow.getY2(), newArrow.getY1(), Double.MIN_VALUE);
         assertEquals(arrow.getC(), newArrow.getC());
         assertEquals(arrow.getZ(), newArrow.getZ());
         assertEquals(arrow.getT(), newArrow.getT());
@@ -271,10 +272,10 @@ public class ROI2ImageJTest extends BasicTest {
         line.setCZT(0, 0, 2);
 
         Line ijLine = (Line) line.toImageJ();
-        assertEquals(line.getX1(), ijLine.x1d, 0.05);
-        assertEquals(line.getY1(), ijLine.y1d, 0.05);
-        assertEquals(line.getX2(), ijLine.x2d, 0.05);
-        assertEquals(line.getY2(), ijLine.y2d, 0.05);
+        assertEquals(line.getX1(), ijLine.x1d, Double.MIN_VALUE);
+        assertEquals(line.getY1(), ijLine.y1d, Double.MIN_VALUE);
+        assertEquals(line.getX2(), ijLine.x2d, Double.MIN_VALUE);
+        assertEquals(line.getY2(), ijLine.y2d, Double.MIN_VALUE);
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijLine);
@@ -282,10 +283,10 @@ public class ROI2ImageJTest extends BasicTest {
 
         LineWrapper newLine = roi.getShapes().getElementsOf(LineWrapper.class).get(0);
 
-        assertEquals(line.getX1(), newLine.getX1(), 0.05);
-        assertEquals(line.getY1(), newLine.getY1(), 0.05);
-        assertEquals(line.getX2(), newLine.getX2(), 0.05);
-        assertEquals(line.getY2(), newLine.getY2(), 0.05);
+        assertEquals(line.getX1(), newLine.getX1(), Double.MIN_VALUE);
+        assertEquals(line.getY1(), newLine.getY1(), Double.MIN_VALUE);
+        assertEquals(line.getX2(), newLine.getX2(), Double.MIN_VALUE);
+        assertEquals(line.getY2(), newLine.getY2(), Double.MIN_VALUE);
         assertEquals(line.getC(), newLine.getC());
         assertEquals(line.getZ(), newLine.getZ());
         assertEquals(line.getT(), newLine.getT());
@@ -307,10 +308,10 @@ public class ROI2ImageJTest extends BasicTest {
 
         RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
 
-        assertEquals(mask.getX(), newRectangle.getX(), 0.05);
-        assertEquals(mask.getY(), newRectangle.getY(), 0.05);
-        assertEquals(mask.getWidth(), newRectangle.getWidth(), 0.05);
-        assertEquals(mask.getHeight(), newRectangle.getHeight(), 0.05);
+        assertEquals(mask.getX(), newRectangle.getX(), Double.MIN_VALUE);
+        assertEquals(mask.getY(), newRectangle.getY(), Double.MIN_VALUE);
+        assertEquals(mask.getWidth(), newRectangle.getWidth(), Double.MIN_VALUE);
+        assertEquals(mask.getHeight(), newRectangle.getHeight(), Double.MIN_VALUE);
         assertEquals(mask.getC(), newRectangle.getC());
         assertEquals(mask.getZ(), newRectangle.getZ());
         assertEquals(mask.getT(), newRectangle.getT());
@@ -324,8 +325,8 @@ public class ROI2ImageJTest extends BasicTest {
         point.setCZT(0, 0, 2);
 
         PointRoi ijPoint = (PointRoi) point.toImageJ();
-        assertEquals(point.getX(), ijPoint.getXBase(), 0.05);
-        assertEquals(point.getY(), ijPoint.getYBase(), 0.05);
+        assertEquals(point.getX(), ijPoint.getXBase(), Double.MIN_VALUE);
+        assertEquals(point.getY(), ijPoint.getYBase(), Double.MIN_VALUE);
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPoint);
@@ -333,8 +334,8 @@ public class ROI2ImageJTest extends BasicTest {
 
         PointWrapper newPoint = roi.getShapes().getElementsOf(PointWrapper.class).get(0);
 
-        assertEquals(point.getX(), newPoint.getX(), 0.05);
-        assertEquals(point.getY(), newPoint.getY(), 0.05);
+        assertEquals(point.getX(), newPoint.getX(), Double.MIN_VALUE);
+        assertEquals(point.getY(), newPoint.getY(), Double.MIN_VALUE);
         assertEquals(point.getC(), newPoint.getC());
         assertEquals(point.getZ(), newPoint.getZ());
         assertEquals(point.getT(), newPoint.getT());
@@ -349,8 +350,8 @@ public class ROI2ImageJTest extends BasicTest {
         text.setCZT(0, 0, 2);
 
         TextRoi ijPoint = (TextRoi) text.toImageJ();
-        assertEquals(text.getX(), ijPoint.getXBase(), 0.05);
-        assertEquals(text.getY(), ijPoint.getYBase(), 0.05);
+        assertEquals(text.getX(), ijPoint.getXBase(), Double.MIN_VALUE);
+        assertEquals(text.getY(), ijPoint.getYBase(), Double.MIN_VALUE);
         assertEquals(text.getText(), ijPoint.getText().trim().replace("\r", "")); // Oddly, IJ adds \r
 
         List<Roi> roiList = new ArrayList<>(1);
@@ -359,8 +360,8 @@ public class ROI2ImageJTest extends BasicTest {
 
         TextWrapper newText = roi.getShapes().getElementsOf(TextWrapper.class).get(0);
 
-        assertEquals(text.getX(), newText.getX(), 0.05);
-        assertEquals(text.getY(), newText.getY(), 0.05);
+        assertEquals(text.getX(), newText.getX(), Double.MIN_VALUE);
+        assertEquals(text.getY(), newText.getY(), Double.MIN_VALUE);
         assertEquals(text.getC(), newText.getC());
         assertEquals(text.getZ(), newText.getZ());
         assertEquals(text.getT(), newText.getT());

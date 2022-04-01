@@ -25,10 +25,10 @@ import java.util.logging.Level;
 import static org.junit.Assert.assertEquals;
 
 
-@Ignore
+@Ignore("Abstract class")
 public abstract class RootTest extends BasicTest {
 
-    final protected Client client = new Client();
+    protected final Client client = new Client();
 
 
     @Before

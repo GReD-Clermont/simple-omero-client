@@ -40,9 +40,11 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -117,11 +119,11 @@ public class ImageTest extends UserTest {
 
         ImageWrapper image = images.get(0);
 
-        List<NamedValue> result1 = new ArrayList<>();
+        List<NamedValue> result1 = new ArrayList<>(2);
         result1.add(new NamedValue("Test result1", "Value Test"));
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 
-        List<NamedValue> result2 = new ArrayList<>();
+        Collection<NamedValue> result2 = new ArrayList<>(2);
         result2.add(new NamedValue("Test result2", "Value Test"));
         result2.add(new NamedValue("Test2 result2", "Value Test2"));
 
@@ -164,7 +166,7 @@ public class ImageTest extends UserTest {
 
         ImageWrapper image = images.get(0);
 
-        List<NamedValue> result = new ArrayList<>();
+        List<NamedValue> result = new ArrayList<>(2);
         result.add(new NamedValue("Test result1", "Value Test"));
         result.add(new NamedValue("Test2 result1", "Value Test2"));
 
@@ -382,9 +384,9 @@ public class ImageTest extends UserTest {
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
         ImageStatistics stats      = difference.getStatistics();
 
-        assertEquals(0.5, imp.getCalibration().pixelHeight, 0.001);
-        assertEquals(0.5, imp.getCalibration().pixelWidth, 0.001);
-        assertEquals(1.0, imp.getCalibration().pixelDepth, 0.001);
+        assertEquals(0.5, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
+        assertEquals(0.5, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
+        assertEquals(1.0, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
         assertEquals("MICROMETER", imp.getCalibration().getUnit());
         assertEquals(0, (int) stats.max);
     }
@@ -444,14 +446,11 @@ public class ImageTest extends UserTest {
         image.addTag(client, tag);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
+        client.delete(tag);
+        List<TagAnnotationWrapper> endTags = image.getTags(client);
 
         assertEquals(1, tags.size());
-
-        client.delete(tag);
-
-        tags = image.getTags(client);
-
-        assertEquals(0, tags.size());
+        assertEquals(0, endTags.size());
     }
 
 
@@ -462,13 +461,11 @@ public class ImageTest extends UserTest {
         image.addTag(client, "image tag", "tag attached to an image");
 
         List<TagAnnotationWrapper> tags = client.getTags("image tag");
-        assertEquals(1, tags.size());
-
         client.delete(tags.get(0));
+        List<TagAnnotationWrapper> endTags = client.getTags("image tag");
 
-        tags = client.getTags("image tag");
-
-        assertEquals(0, tags.size());
+        assertEquals(1, tags.size());
+        assertEquals(0, endTags.size());
     }
 
 
@@ -481,14 +478,11 @@ public class ImageTest extends UserTest {
         image.addTag(client, tag.getId());
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
+        client.delete(tag);
+        List<TagAnnotationWrapper> endTags = image.getTags(client);
 
         assertEquals(1, tags.size());
-
-        client.delete(tag);
-
-        tags = image.getTags(client);
-
-        assertEquals(0, tags.size());
+        assertEquals(0, endTags.size());
     }
 
 
@@ -625,22 +619,19 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetCreated() throws Exception {
-        Date created = new Date(client.getImage(1L).getCreated().getTime());
-        Date now     = new Date(System.currentTimeMillis());
+        LocalDate created = client.getImage(1L).getCreated().toLocalDateTime().toLocalDate();
+        LocalDate now     = LocalDate.now();
 
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
-
-        assertEquals(fmt.format(now), fmt.format(created));
+        assertEquals(now, created);
     }
 
 
     @Test
     public void testGetAcquisitionDate() throws Exception {
-        Date acquired = new Date(client.getImage(1L).getAcquisitionDate().getTime());
+        LocalDateTime     acq = client.getImage(1L).getAcquisitionDate().toLocalDateTime();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-
-        assertEquals("2020-04-01_20-04-01", fmt.format(acquired));
+        assertEquals("2020-04-01_20-04-01", dtf.format(acq));
     }
 
 

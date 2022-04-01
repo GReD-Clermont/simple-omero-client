@@ -36,6 +36,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import static org.junit.Assert.assertEquals;
@@ -45,17 +46,18 @@ import static org.junit.Assert.assertTrue;
 
 public class AccessExceptionTest extends BasicTest {
 
+    private final PrintStream empty = new PrintStream(new OutputStream() {
+        public void write(int b) {
+            //DO NOTHING
+        }
+    });
     private final PrintStream error = System.err;
     protected     Client      client;
     protected     Client      sudo;
 
 
     void hideErrors() {
-        System.setErr(new PrintStream(new OutputStream() {
-            public void write(int b) {
-                //DO NOTHING
-            }
-        }));
+        System.setErr(empty);
     }
 
 
@@ -73,9 +75,9 @@ public class AccessExceptionTest extends BasicTest {
             assertEquals("Wrong user", 2L, client.getId());
             assertEquals("Wrong group", 3L, client.getCurrentGroupId());
             sudo = client.sudoGetUser("testUser2");
-        } catch (Exception e) {
-            failed = true;
+        } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
             sudo = null;
+            failed = true;
             logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
         }
         org.junit.Assume.assumeFalse(failed);

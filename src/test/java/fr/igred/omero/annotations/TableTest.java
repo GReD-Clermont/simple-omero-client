@@ -36,6 +36,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -57,7 +58,7 @@ public class TableTest extends UserTest {
         table.setColumn(1, "Name", String.class);
         assertEquals("Image", table.getColumnName(0));
         assertEquals("Name", table.getColumnName(1));
-        assertEquals(ImageData.class, table.getColumnType(0));
+        assertSame(ImageData.class, table.getColumnType(0));
 
         table.setRowCount(images.size());
 
@@ -217,7 +218,7 @@ public class TableTest extends UserTest {
         assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
         assertEquals(image.getName(), data[2][0]);
         assertEquals(image.getName(), data[3][0]);
-        assertEquals(25.0d, (Double) data[4][0], 0.05);
+        assertEquals(25.0d, (Double) data[4][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[5][0]);
 
         image.addTable(client, table);
@@ -277,7 +278,7 @@ public class TableTest extends UserTest {
         assertEquals(image.getName(), data[2][0]);
         assertEquals(image.getName(), data[3][0]);
         assertEquals(image.getName(), data[4][0]);
-        assertEquals(25.0d, (Double) data[5][0], 0.05);
+        assertEquals(25.0d, (Double) data[5][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[6][0]);
 
         image.addTable(client, table);
@@ -332,7 +333,7 @@ public class TableTest extends UserTest {
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
         assertEquals(image.getName(), data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(25.0d, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
 
         image.addTable(client, table);
@@ -387,7 +388,7 @@ public class TableTest extends UserTest {
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
         assertEquals(label, data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(25.0d, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
 
         image.addTable(client, table);
@@ -409,7 +410,7 @@ public class TableTest extends UserTest {
 
         ImageWrapper image = client.getImage(imageId);
 
-        List<Roi> ijRois = new ArrayList<>();
+        List<Roi> ijRois = new ArrayList<>(0);
 
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
@@ -428,7 +429,7 @@ public class TableTest extends UserTest {
         Object[][] data = tables.get(0).getData();
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(25.0d, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
 
         client.delete(tables.get(0));
@@ -472,11 +473,11 @@ public class TableTest extends UserTest {
         Object[][] data = tables.get(0).getData();
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(25.0d, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
         assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
         assertEquals(image.getName(), data[1][1]);
-        assertEquals(50, (Double) data[2][1], 0.05);
+        assertEquals(50, (Double) data[2][1], Double.MIN_VALUE);
         assertEquals("m^3", data[3][1]);
 
         client.delete(tables.get(0));
@@ -534,12 +535,12 @@ public class TableTest extends UserTest {
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
         assertEquals(image.getName(), data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(25.0d, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
         assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
         assertEquals(rois.get(0).getId(), ((ROIData) data[1][1]).getId());
         assertEquals(image.getName(), data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(50, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -602,12 +603,12 @@ public class TableTest extends UserTest {
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
         assertEquals(local.getName(), data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(25.0d, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
         assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
         assertEquals(image.getName(), data[1][1]);
         assertEquals(ijRois.get(0).getName(), data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(50, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -669,11 +670,11 @@ public class TableTest extends UserTest {
         assertEquals(2, table.getRowCount());
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(label1, data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(25.0d, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
         assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
         assertEquals(label2, data[1][1]);
-        assertEquals(50, (Double) data[2][1], 0.05);
+        assertEquals(50, (Double) data[2][1], Double.MIN_VALUE);
         assertEquals("m^3", data[3][1]);
 
         image.addTable(client, table);
@@ -741,12 +742,12 @@ public class TableTest extends UserTest {
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
         assertEquals(label1, data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(25.0d, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
         assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
         assertEquals(rois.get(1).getId(), ((ROIData) data[1][1]).getId());
         assertEquals(label2, data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(50, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -814,12 +815,12 @@ public class TableTest extends UserTest {
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
         assertEquals(label1, data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(25.0d, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
         assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
         assertEquals(rois.get(1).getId(), ((ROIData) data[1][1]).getId());
         assertEquals(label2, data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(50, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -899,11 +900,11 @@ public class TableTest extends UserTest {
         Object[][] data = tables.get(0).getData();
         assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(25.0d, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
         assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
         assertEquals(image.getName(), data[1][1]);
-        assertEquals(Double.NaN, (Double) data[2][1], 0.05);
+        assertEquals(Double.NaN, (Double) data[2][1], Double.MIN_VALUE);
         assertEquals("50", data[3][1]);
 
         client.delete(tables.get(0));
