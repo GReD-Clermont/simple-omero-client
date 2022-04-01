@@ -15,7 +15,6 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    @Ignore("Does not work, somehow")
     public void testAddTagToPlateAcquisition() throws Exception {
         PlateWrapper plate = client.getPlates(1L).get(0);
 

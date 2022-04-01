@@ -132,7 +132,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Private function. Adds a tag to the object in OMERO, if possible.
+     * Protected function. Adds a tag to the object in OMERO, if possible.
      *
      * @param client  The client handling the connection.
      * @param tagData Tag to be added.
