@@ -288,8 +288,8 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
         } else {
             PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
             PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
-            p1.setTransform(toAWTTransform());
-            p2.setTransform(toAWTTransform());
+            p1.setTransform(transform);
+            p2.setTransform(transform);
 
             java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
             java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();

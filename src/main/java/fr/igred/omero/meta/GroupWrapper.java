@@ -56,6 +56,16 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
 
 
     /**
+     * Returns the name of the group.
+     *
+     * @return See above.
+     */
+    public String getName() {
+        return data.getName();
+    }
+
+
+    /**
      * Sets the name of the group.
      *
      * @param name The name of the group. Mustn't be {@code null}.
@@ -82,16 +92,6 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      */
     public String getDescription() {
         return data.getDescription();
-    }
-
-
-    /**
-     * Returns the name of the group.
-     *
-     * @return See above.
-     */
-    public String getName() {
-        return data.getName();
     }
 
 

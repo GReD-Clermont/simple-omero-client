@@ -237,8 +237,8 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
         PointWrapper    p2        = new PointWrapper(getX2(), getY2());
         AffineTransform transform = toAWTTransform();
         if (transform != null) {
-            p1.setTransform(toAWTTransform());
-            p2.setTransform(toAWTTransform());
+            p1.setTransform(transform);
+            p2.setTransform(transform);
         }
 
         java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
@@ -252,16 +252,24 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
         double y1 = shape1.getY();
         double y2 = shape2.getY();
 
+        byte arrowStart = (byte) (start.equals(ARROW) ? 1 : 0);
+        byte arrowEnd   = (byte) (end.equals(ARROW) ? 1 : 0);
+        byte arrow      = (byte) (arrowStart + 2 * arrowEnd);
+
         Roi roi;
-        if (start.equals(ARROW) && end.equals(ARROW)) {
-            roi = new Arrow(x1, y1, x2, y2);
-            ((Arrow) roi).setDoubleHeaded(true);
-        } else if (!start.equals(ARROW) && end.equals(ARROW)) {
-            roi = new Arrow(x1, y1, x2, y2);
-        } else if (start.equals(ARROW)) {
-            roi = new Arrow(x2, y2, x1, y1);
-        } else {
-            roi = new Line(x1, y1, x2, y2);
+        switch (arrow) {
+            case 3:
+                roi = new Arrow(x1, y1, x2, y2);
+                ((Arrow) roi).setDoubleHeaded(true);
+                break;
+            case 2:
+                roi = new Arrow(x1, y1, x2, y2);
+                break;
+            case 1:
+                roi = new Arrow(x2, y2, x1, y1);
+                break;
+            default:
+                roi = new Line(x1, y1, x2, y2);
         }
         roi.setStrokeColor(getStroke());
         int c = Math.max(0, getC() + 1);

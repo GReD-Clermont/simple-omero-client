@@ -189,7 +189,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Sets the image associated to the folder
      *
-     * @param id Id of the image to associate.
+     * @param id ID of the image to associate.
      */
     public void setImage(long id) {
         imageId = id;

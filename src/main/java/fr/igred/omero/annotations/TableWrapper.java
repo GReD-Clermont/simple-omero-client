@@ -39,6 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,11 +55,12 @@ import java.util.stream.Collectors;
  */
 public class TableWrapper {
 
+    /** Empty ROI array */
+    private static final ROIData[] EMPTY_ROI = new ROIData[0];
     /** Label column name */
-    private static final String LABEL = "Label";
-
+    private static final String    LABEL     = "Label";
     /** Image column name */
-    private static final String IMAGE = "Image";
+    private static final String    IMAGE     = "Image";
 
     /** Number of column in the table */
     private final int columnCount;
@@ -78,9 +80,10 @@ public class TableWrapper {
     /** Name of the table */
     private String name;
 
-    /** File id of the table */
+    /** File ID of the table */
     private Long fileId = -1L;
-    /** Id of the table */
+
+    /** ID of the table */
     private Long id = -1L;
 
 
@@ -127,7 +130,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -147,7 +150,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<Roi> ijRois, String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
 
@@ -169,9 +172,7 @@ public class TableWrapper {
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) {
-            offset++;
-        }
+        if (roiColumn.length > 0) offset++;
 
         String[] headings      = rt.getHeadings();
         String[] shortHeadings = rt.getHeadingsAsVariableNames();
@@ -182,22 +183,22 @@ public class TableWrapper {
         data = new Object[columnCount][];
 
         if (offset > 0) {
-            setColumn(0, IMAGE, ImageData.class);
+            createColumn(0, IMAGE, ImageData.class);
             data[0] = new ImageData[rowCount];
             Arrays.fill(data[0], image.asImageData());
         }
         if (offset > 1) {
-            setColumn(1, roiProperty, ROIData.class);
+            createColumn(1, roiProperty, ROIData.class);
             data[1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
             Variable[] col = rt.getColumnAsVariables(headings[i]);
 
             if (isColumnNumeric(col) && !headings[i].equals(LABEL)) {
-                setColumn(offset + i, shortHeadings[i], Double.class);
+                createColumn(offset + i, shortHeadings[i], Double.class);
                 data[offset + i] = Arrays.stream(col).map(Variable::getValue).toArray(Double[]::new);
             } else {
-                setColumn(offset + i, shortHeadings[i], String.class);
+                createColumn(offset + i, shortHeadings[i], String.class);
                 data[offset + i] = Arrays.stream(col).map(Variable::getString).toArray(String[]::new);
             }
         }
@@ -258,7 +259,7 @@ public class TableWrapper {
                                                Map<Integer, ROIData> index2roi,
                                                Map<Long, ROIData> id2roi,
                                                Map<String, ROIData> roiName2roi) {
-        ROIData[] roiColumn = new ROIData[0];
+        ROIData[] roiColumn = EMPTY_ROI;
         if (isColumnNumeric(roiCol)) {
             List<Long> ids = Arrays.stream(roiCol)
                                    .map(Variable::getValue)
@@ -304,13 +305,12 @@ public class TableWrapper {
      * @return An ROIData column.
      */
     private static ROIData[] createROIColumn(ResultsTable results,
-                                             List<ROIWrapper> rois,
-                                             List<Roi> ijRois,
+                                             Collection<? extends ROIWrapper> rois,
+                                             Collection<? extends Roi> ijRois,
                                              String roiProperty) {
         String roiIdProperty = ROIWrapper.ijIDProperty(roiProperty);
 
-        ROIData[] empty     = new ROIData[0];
-        ROIData[] roiColumn = empty;
+        ROIData[] roiColumn = EMPTY_ROI;
 
         Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
 
@@ -331,7 +331,7 @@ public class TableWrapper {
             Variable[] roiCol = results.getColumnAsVariables(roiProperty);
             roiColumn = columnToROIColumn(roiCol, index2roi, id2roi, roiName2roi);
             // If roiColumn contains null, we return an empty array
-            if (Arrays.asList(roiColumn).contains(null)) return empty;
+            if (Arrays.asList(roiColumn).contains(null)) return EMPTY_ROI;
             results.deleteColumn(roiProperty);
         } else if (results.columnExists(roiIdProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
@@ -341,7 +341,7 @@ public class TableWrapper {
                                    .collect(Collectors.toList());
             roiColumn = ids.stream().map(id2roi::get).toArray(ROIData[]::new);
             // If roiColumn contains null, we return an empty array
-            if (Arrays.asList(roiColumn).contains(null)) return empty;
+            if (Arrays.asList(roiColumn).contains(null)) return EMPTY_ROI;
             results.deleteColumn(roiIdProperty);
         } else if (Arrays.asList(headings).contains(LABEL)) {
             String[] roiNames = Arrays.stream(results.getColumnAsVariables(LABEL))
@@ -350,10 +350,36 @@ public class TableWrapper {
                                                            .findFirst().orElse(null))
                                       .toArray(String[]::new);
             roiColumn = Arrays.stream(roiNames).map(roiName2roi::get).toArray(ROIData[]::new);
-            if (Arrays.asList(roiColumn).contains(null)) return empty;
+            if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
         }
 
         return roiColumn;
+    }
+
+
+    /**
+     * Sets the information about a given column.
+     *
+     * @param column     Column number.
+     * @param columnName Name of the column.
+     * @param type       Type of the column.
+     *
+     * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
+     */
+    private void createColumn(int column, String columnName, Class<?> type) {
+        if (column < columnCount)
+            columns[column] = new TableDataColumn(columnName, column, type);
+        else
+            throw new IndexOutOfBoundsException("Column " + column + " doesn't exist");
+    }
+
+
+    /**
+     * Overridden to return the name of the class and the object id.
+     */
+    @Override
+    public String toString() {
+        return String.format("%s (id=%d)", getClass().getSimpleName(), id);
     }
 
 
@@ -369,7 +395,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
+    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -389,7 +415,8 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
+    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
+                        String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
 
@@ -407,9 +434,7 @@ public class TableWrapper {
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) {
-            offset++;
-        }
+        if (roiColumn.length > 0) offset++;
 
         String[] headings = rt.getHeadings();
 
@@ -418,23 +443,23 @@ public class TableWrapper {
             throw new IllegalArgumentException("Number of columns mismatch");
         }
 
-        Object[] newRow = new Object[offset + nColumns];
-
-        final int n = rt.size();
+        int n = rt.size();
         setRowCount(rowCount + n);
 
-        for (int i = 0; i < n; i++) {
-            if (offset > 0) newRow[0] = image.asImageData();
-            if (roiColumn.length > 0) newRow[1] = roiColumn[i];
-            for (int j = 0; j < nColumns; j++) {
-                if (columns[offset + j].getType().equals(String.class)) {
-                    newRow[offset + j] = rt.getStringValue(headings[j], i);
-                } else {
-                    newRow[offset + j] = rt.getValue(headings[j], i);
+        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asImageData());
+        if (offset > 1) System.arraycopy(roiColumn, 0, data[1], row, n);
+        for (int i = 0; i < nColumns; i++) {
+            if (columns[offset + i].getType().equals(String.class)) {
+                for (int j = 0; j < n; j++) {
+                    data[offset + i][row + j] = rt.getStringValue(headings[i], j);
+                }
+            } else {
+                for (int j = 0; j < n; j++) {
+                    data[offset + i][row + j] = rt.getValue(headings[i], j);
                 }
             }
-            addRow(newRow);
         }
+        row += n;
     }
 
 
@@ -567,24 +592,23 @@ public class TableWrapper {
      * @param rowCount New rowCount.
      */
     public void setRowCount(int rowCount) {
-        Object[][] temp = new Object[columnCount][rowCount];
-
-        if (data != null) {
-            row = Math.min(rowCount, row);
-            for (int i = 0; i < row; i++)
+        if (rowCount != this.rowCount) {
+            Object[][] temp = new Object[columnCount][rowCount];
+            if (data != null) {
+                row = Math.min(rowCount, row);
                 for (int j = 0; j < columnCount; j++)
-                    temp[j][i] = data[j][i];
+                    System.arraycopy(data[j], 0, temp[j], 0, row);
+            }
+            this.rowCount = rowCount;
+            data = temp;
         }
-
-        this.rowCount = rowCount;
-        data = temp;
     }
 
 
     /**
      * Checks if the table is complete
      *
-     * @return true  if the table is completed. false if some row are still empty.
+     * @return true if the table is completed, false if some rows are still empty.
      */
     public boolean isComplete() {
         return row == rowCount;
@@ -594,17 +618,14 @@ public class TableWrapper {
     /**
      * Sets the information about a certain column.
      *
-     * @param column Column number.
-     * @param name   Name of the column.
-     * @param type   Type of the column.
+     * @param column     Column number.
+     * @param columnName Name of the column.
+     * @param type       Type of the column.
      *
      * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
      */
-    public void setColumn(int column, String name, Class<?> type) {
-        if (column < columnCount)
-            columns[column] = new TableDataColumn(name, column, type);
-        else
-            throw new IndexOutOfBoundsException("Column " + column + " doesn't exist");
+    public void setColumn(int column, String columnName, Class<?> type) {
+        createColumn(column, columnName, type);
     }
 
 
@@ -620,7 +641,6 @@ public class TableWrapper {
         if (row < rowCount && os.length == columnCount) {
             for (int i = 0; i < os.length; i++) {
                 Object o = os[i];
-
                 data[i][row] = o;
             }
             row++;

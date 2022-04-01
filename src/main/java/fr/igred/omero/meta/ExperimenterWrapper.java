@@ -189,7 +189,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      *
      * @param groupId The id of the group.
      *
-     * @return boolean {@code true}/{@code false} depending if matching id found
+     * @return boolean {@code true}/{@code false} depending on the matching id found
      */
     public boolean isMemberOfGroup(long groupId) {
         return data.isMemberOfGroup(groupId);

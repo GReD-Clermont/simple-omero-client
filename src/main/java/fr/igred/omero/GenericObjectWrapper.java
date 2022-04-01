@@ -168,7 +168,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     @Override
     public String toString() {
-        return String.format("%s (id=%d)", getClass().getSimpleName(), getId());
+        return String.format("%s (id=%d)", getClass().getSimpleName(), data.getId());
     }
 
 
