@@ -66,11 +66,11 @@ public class TableWrapper {
     /** Information of each column (Name, Type) */
     private final TableDataColumn[] columns;
 
-    /** Number of row in the table */
-    private int rowCount;
-
     /** Content of the table */
     private Object[][] data;
+
+    /** Number of row in the table */
+    private int rowCount;
 
     /** Current position in the table */
     private int row;
@@ -92,12 +92,10 @@ public class TableWrapper {
      */
     public TableWrapper(int columnCount, String name) {
         this.columnCount = columnCount;
-        columns = new TableDataColumn[columnCount];
-
-        rowCount = 0;
-
         this.name = name;
-
+        columns = new TableDataColumn[columnCount];
+        data = new Object[columnCount][0];
+        rowCount = 0;
         row = 0;
     }
 
@@ -110,10 +108,10 @@ public class TableWrapper {
     public TableWrapper(TableData table) {
         this.columns = table.getColumns();
         columnCount = columns.length;
-
         data = table.getData();
         rowCount = (int) table.getNumberOfRows();
         row = rowCount;
+        name = null;
     }
 
 

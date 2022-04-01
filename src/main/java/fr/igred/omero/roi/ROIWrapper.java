@@ -291,7 +291,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      *
      * @throws IndexOutOfBoundsException If pos is out of the ShapeData list bounds.
      */
-    public void deleteShape(int pos) throws IndexOutOfBoundsException {
+    public void deleteShape(int pos) {
         data.removeShapeData(data.getShapes().get(pos));
     }
 
@@ -386,7 +386,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
                 xor.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
                 roi = xor;
             }
-            if (!shape.getText().equals("")) {
+            if (!"".equals(shape.getText())) {
                 roi.setName(shape.getText());
             } else {
                 roi.setName(getId() + "-" + shape.getId());
@@ -472,7 +472,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
             List<Point2D.Double> points = new LinkedList<>();
             IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
-            if (type.equals("Polyline") || type.equals("Freeline") || type.equals("Angle")) {
+            if ("Polyline".equals(type) || "Freeline".equals(type) || "Angle".equals(type)) {
                 shape = new PolylineWrapper(points);
             } else {
                 shape = new PolygonWrapper(points);

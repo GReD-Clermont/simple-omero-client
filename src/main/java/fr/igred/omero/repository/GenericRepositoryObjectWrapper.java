@@ -288,7 +288,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get k/v pairs for " + this);
+            handleServiceOrAccess(e, "Cannot get key-value pairs for " + this);
         }
 
         if (annotations != null) {
@@ -320,7 +320,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     public String getValue(Client client, String key)
-    throws ServiceException, AccessException, NoSuchElementException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Map<String, String> keyValuePairs = getKeyValuePairs(client);
         String              value         = keyValuePairs.get(key);
         if (value != null) {
@@ -349,7 +349,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                                             mapAnnotation.asMapAnnotationData(),
                                             this.data);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add k/v pairs to " + this);
+            handleServiceOrAccess(e, "Cannot add key-value pairs to " + this);
         }
     }
 

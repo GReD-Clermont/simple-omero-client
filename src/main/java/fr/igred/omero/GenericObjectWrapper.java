@@ -165,8 +165,6 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
     /**
      * Overridden to return the name of the class and the object id.
-     *
-     * @see Object#toString()
      */
     @Override
     public String toString() {

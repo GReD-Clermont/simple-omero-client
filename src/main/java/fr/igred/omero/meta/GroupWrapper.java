@@ -19,14 +19,9 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.meta.ExperimenterWrapper.SortByLastName;
-import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 
 public class GroupWrapper extends GenericObjectWrapper<GroupData> {
@@ -61,24 +56,6 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
 
 
     /**
-     * @return GroupData contained.
-     */
-    public GroupData asGroupData() {
-        return data;
-    }
-
-
-    /**
-     * Returns the name of the group.
-     *
-     * @return See above.
-     */
-    public String getName() {
-        return data.getName();
-    }
-
-
-    /**
      * Sets the name of the group.
      *
      * @param name The name of the group. Mustn't be {@code null}.
@@ -91,12 +68,30 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
 
 
     /**
+     * @return GroupData contained.
+     */
+    public GroupData asGroupData() {
+        return data;
+    }
+
+
+    /**
      * Returns the description of the group.
      *
      * @return See above.
      */
     public String getDescription() {
         return data.getDescription();
+    }
+
+
+    /**
+     * Returns the name of the group.
+     *
+     * @return See above.
+     */
+    public String getName() {
+        return data.getName();
     }
 
 
@@ -118,14 +113,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getLeaders() {
-        Set<ExperimenterData> leaders = data.getLeaders();
-
-        List<ExperimenterWrapper> wrappers = new ArrayList<>(leaders.size());
-        for (ExperimenterData leader : leaders) {
-            wrappers.add(new ExperimenterWrapper(leader));
-        }
-        wrappers.sort(new SortByLastName<>());
-        return wrappers;
+        return wrap(data.getLeaders(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
     }
 
 
@@ -135,14 +123,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getExperimenters() {
-        Set<ExperimenterData> experimenters = data.getExperimenters();
-
-        List<ExperimenterWrapper> wrappers = new ArrayList<>(experimenters.size());
-        for (ExperimenterData experimenter : experimenters) {
-            wrappers.add(new ExperimenterWrapper(experimenter));
-        }
-        wrappers.sort(new SortByLastName<>());
-        return wrappers;
+        return wrap(data.getExperimenters(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
     }
 
 
@@ -152,14 +133,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getMembersOnly() {
-        Set<ExperimenterData> members = data.getMembersOnly();
-
-        List<ExperimenterWrapper> wrappers = new ArrayList<>(members.size());
-        for (ExperimenterData member : members) {
-            wrappers.add(new ExperimenterWrapper(member));
-        }
-        wrappers.sort(new SortByLastName<>());
-        return wrappers;
+        return wrap(data.getMembersOnly(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
     }
 
 
@@ -170,28 +144,6 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      */
     public int getPermissionsLevel() {
         return data.getPermissions().getPermissionsLevel();
-    }
-
-
-    /**
-     * Class used to sort GroupWrappers.
-     */
-    public static class SortByName<U extends GroupWrapper> implements Comparator<U> {
-
-        /**
-         * Compare 2 GroupWrappers. Compare the names of the GroupWrappers.
-         *
-         * @param object1 First object to compare.
-         * @param object2 Second object to compare.
-         *
-         * @return <ul><li>-1 if the name of object1 is lower than the id object2.</li>
-         * <li>0  if the names are the same.</li>
-         * <li>1 if the name of object1 is greater than the id of object2.</li></ul>
-         */
-        public int compare(U object1, U object2) {
-            return object1.getName().compareTo(object2.getName());
-        }
-
     }
 
 }

@@ -331,7 +331,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                            .getImagesForDatasets(client.getCtx(),
                                                  Collections.singletonList(data.getId()));
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images with k/v pair from " + this);
+            handleServiceOrAccess(e, "Cannot get images with key-value pair from " + this);
         }
 
         List<ImageWrapper> selected = new ArrayList<>();

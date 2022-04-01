@@ -40,7 +40,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     public static final int MAX_DIST = 5000;
 
     /** Raw Data Facility to retrieve pixels */
-    private RawDataFacility rawDataFacility;
+    private RawDataFacility rawDataFacility = null;
 
 
     /**
