@@ -30,13 +30,24 @@ import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.model.*;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.TableData;
+import omero.gateway.model.TagAnnotationData;
 import omero.model.IObject;
 import omero.model.NamedValue;
 import omero.model.TagAnnotationI;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;

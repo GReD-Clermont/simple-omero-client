@@ -17,7 +17,9 @@ package fr.igred.omero;
 
 
 import loci.common.DebugTools;
-import org.junit.*;
+import org.junit.AssumptionViolatedException;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;

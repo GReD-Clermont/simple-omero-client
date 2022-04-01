@@ -133,16 +133,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * Gets the folder contained in the FolderWrapper
-     *
-     * @return the FolderData.
-     */
-    public FolderData asFolderData() {
-        return data;
-    }
-
-
-    /**
      * Gets the name of the folder
      *
      * @return name.
@@ -156,12 +146,22 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Sets the name of the folder.
      *
-     * @param name The name of the folder. Mustn't be <code>null</code>.
+     * @param name The name of the folder. Mustn't be {@code null}.
      *
-     * @throws IllegalArgumentException If the name is <code>null</code>.
+     * @throws IllegalArgumentException If the name is {@code null}.
      */
     public void setName(String name) {
         data.setName(name);
+    }
+
+
+    /**
+     * Gets the folder contained in the FolderWrapper
+     *
+     * @return the FolderData.
+     */
+    public FolderData asFolderData() {
+        return data;
     }
 
 

@@ -105,12 +105,20 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Sets the name of the image.
      *
-     * @param name The name of the image. Mustn't be <code>null</code>.
+     * @param name The name of the image. Mustn't be {@code null}.
      *
-     * @throws IllegalArgumentException If the name is <code>null</code>.
+     * @throws IllegalArgumentException If the name is {@code null}.
      */
     public void setName(String name) {
         data.setName(name);
+    }
+
+
+    /**
+     * @return ImageData contained.
+     */
+    public ImageData asImageData() {
+        return data;
     }
 
 
@@ -142,14 +150,6 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public Timestamp getAcquisitionDate() {
         return data.getAcquisitionDate();
-    }
-
-
-    /**
-     * @return ImageData contained.
-     */
-    public ImageData asImageData() {
-        return data;
     }
 
 

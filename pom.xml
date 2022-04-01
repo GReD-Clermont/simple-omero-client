@@ -9,7 +9,7 @@
 
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <version>5.8.3</version>
+    <version>5.9.0</version>
     <packaging>jar</packaging>
 
     <name>Simple OMERO Client</name>

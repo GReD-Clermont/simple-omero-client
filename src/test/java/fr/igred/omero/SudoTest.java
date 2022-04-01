@@ -9,7 +9,9 @@ import org.junit.Test;
 import java.io.File;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class SudoTest extends BasicTest {
@@ -24,13 +26,14 @@ public class SudoTest extends BasicTest {
         assertEquals(2L, test.getId());
         TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
-        List<ImageWrapper> images = test.getImages();
+        DatasetWrapper     dataset = test.getDataset(1L);
+        List<ImageWrapper> images  = dataset.getImages(test);
 
         for (ImageWrapper image : images) {
             image.addTag(test, tag);
         }
 
-        List<ImageWrapper> tagged = test.getImagesTagged(tag);
+        List<ImageWrapper> tagged = dataset.getImagesTagged(test, tag);
 
         int differences = 0;
         for (int i = 0; i < images.size(); i++) {

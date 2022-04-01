@@ -33,6 +33,7 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
 import ome.formats.importer.cli.LoggingImportMonitor;
+import omero.RLong;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -104,12 +105,20 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Sets the name of the dataset.
      *
-     * @param name The name of the dataset. Mustn't be <code>null</code>.
+     * @param name The name of the dataset. Mustn't be {@code null}.
      *
-     * @throws IllegalArgumentException If the name is <code>null</code>.
+     * @throws IllegalArgumentException If the name is {@code null}.
      */
     public void setName(String name) {
         data.setName(name);
+    }
+
+
+    /**
+     * @return the DatasetData contained.
+     */
+    public DatasetData asDatasetData() {
+        return data;
     }
 
 
@@ -131,14 +140,6 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public void setDescription(String description) {
         data.setDescription(description);
-    }
-
-
-    /**
-     * @return the DatasetData contained.
-     */
-    public DatasetData asDatasetData() {
-        return data;
     }
 
 
@@ -253,22 +254,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<ImageWrapper> selected = new ArrayList<>();
-        List<IObject> os = client.findByQuery("select link.parent " +
-                                              "from ImageAnnotationLink link " +
-                                              "where link.child = " +
-                                              tag.getId() +
-                                              " and link.parent in " +
-                                              "(select link2.child " +
-                                              "from DatasetImageLink link2 " +
-                                              "where link2.parent = " +
-                                              data.getId() + ")");
-
-        for (IObject o : os) {
-            selected.add(client.getImage(o.getId().getValue()));
-        }
-
-        return selected;
+        return getImagesTagged(client, tag.getId());
     }
 
 
@@ -287,22 +273,20 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<ImageWrapper> selected = new ArrayList<>();
-        List<IObject> os = client.findByQuery("select link.parent " +
-                                              "from ImageAnnotationLink link " +
-                                              "where link.child = " +
-                                              tagId +
-                                              " and link.parent in " +
-                                              "(select link2.child " +
-                                              "from DatasetImageLink link2 " +
-                                              "where link2.parent = " +
-                                              data.getId() + ")");
-
-        for (IObject o : os) {
-            selected.add(client.getImage(o.getId().getValue()));
-        }
-
-        return selected;
+        Long[] ids = client.findByQuery("select link.parent " +
+                                        "from ImageAnnotationLink link " +
+                                        "where link.child = " +
+                                        tagId +
+                                        " and link.parent in " +
+                                        "(select link2.child " +
+                                        "from DatasetImageLink link2 " +
+                                        "where link2.parent = " +
+                                        data.getId() + ")")
+                           .stream()
+                           .map(IObject::getId)
+                           .map(RLong::getValue)
+                           .toArray(Long[]::new);
+        return client.getImages(ids);
     }
 
 
@@ -338,6 +322,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                 selected.add(imageWrapper);
             }
         }
+        selected.sort(new SortById<>());
 
         return selected;
     }
@@ -376,6 +361,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                 selected.add(imageWrapper);
             }
         }
+        selected.sort(new SortById<>());
 
         return selected;
     }

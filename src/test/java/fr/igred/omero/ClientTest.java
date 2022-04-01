@@ -18,7 +18,10 @@ package fr.igred.omero;
 
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.repository.ScreenWrapper;
+import fr.igred.omero.repository.WellWrapper;
 import org.junit.Test;
 
 import java.io.File;
@@ -26,7 +29,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class ClientTest extends UserTest {
@@ -119,7 +124,7 @@ public class ClientTest extends UserTest {
     @Test
     public void testGetImages() throws Exception {
         List<ImageWrapper> images = client.getImages();
-        assertEquals(4, images.size());
+        assertEquals(56, images.size());
     }
 
 
@@ -218,6 +223,48 @@ public class ClientTest extends UserTest {
 
         client.delete(client.getImage(ids.get(0)));
         client.delete(dataset);
+    }
+
+
+    @Test
+    public void testGetAllScreens() throws Exception {
+        Collection<ScreenWrapper> screens = client.getScreens();
+        assertEquals(2, screens.size());
+    }
+
+
+    @Test
+    public void testGetSingleScreen() throws Exception {
+        String name = client.getScreen(1L).getName();
+        assertEquals("TestScreen", name);
+    }
+
+
+    @Test
+    public void testGetAllPlates() throws Exception {
+        Collection<PlateWrapper> screens = client.getPlates();
+        assertEquals(3, screens.size());
+    }
+
+
+    @Test
+    public void testGetSinglePlate() throws Exception {
+        String name = client.getPlate(1L).getName();
+        assertEquals("Plate Name 0", name);
+    }
+
+
+    @Test
+    public void testGetAllWells() throws Exception {
+        Collection<WellWrapper> screens = client.getWells();
+        assertEquals(17, screens.size());
+    }
+
+
+    @Test
+    public void testGetSingleWell() throws Exception {
+        String plateName = client.getWell(1L).getPlate().getName();
+        assertEquals("Plate Name 0", plateName);
     }
 
 }
