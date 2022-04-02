@@ -35,9 +35,9 @@ public abstract class UserTest extends BasicTest {
     public void setUp() {
         boolean failed = false;
         try {
-            client.connect("omero", 4064, "testUser", "password".toCharArray(), 3L);
-            assertEquals("Wrong user", 2L, client.getId());
-            assertEquals("Wrong group", 3L, client.getCurrentGroupId());
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
+            assertEquals("Wrong user", USER1.id, client.getId());
+            assertEquals("Wrong group", GROUP1.id, client.getCurrentGroupId());
         } catch (Exception e) {
             failed = true;
             logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
@@ -50,7 +50,7 @@ public abstract class UserTest extends BasicTest {
     public void cleanUp() {
         try {
             client.disconnect();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.log(Level.WARNING, ANSI_YELLOW + "Disconnection failed." + ANSI_RESET, e);
         }
     }

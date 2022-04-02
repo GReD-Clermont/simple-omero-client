@@ -28,17 +28,19 @@ import org.junit.Test;
 import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
 public class ExceptionTest extends BasicTest {
+
 
     @Test
     public void testConnectionErrorUsername() {
         boolean exception = false;
         Client  client    = new Client();
         try {
-            client.connect("omero", 4064, "badUser", "omero".toCharArray(), 3L);
+            client.connect(HOST, PORT, "badUser", "omero".toCharArray(), GROUP1.id);
         } catch (ServiceException e) {
             exception = true;
         }
@@ -51,7 +53,7 @@ public class ExceptionTest extends BasicTest {
         boolean exception = false;
         Client  root      = new Client();
         try {
-            root.connect("omero", 4064, "root", "badPassword".toCharArray(), 3L);
+            root.connect(HOST, PORT, "root", "badPassword".toCharArray(), GROUP1.id);
         } catch (ServiceException e) {
             exception = true;
         }
@@ -64,7 +66,7 @@ public class ExceptionTest extends BasicTest {
         boolean exception = false;
         Client  root      = new Client();
         try {
-            root.connect("127.0.0.1", 4064, "root", "omero".toCharArray(), 3L);
+            root.connect("127.0.0.1", PORT, "root", "omero".toCharArray(), GROUP1.id);
         } catch (Exception e) {
             exception = true;
         }
@@ -74,10 +76,12 @@ public class ExceptionTest extends BasicTest {
 
     @Test
     public void testConnectionErrorPort() {
+        final int badPort = 5000;
+
         boolean exception = false;
         Client  root      = new Client();
         try {
-            root.connect("omero", 5000, "root", "omero".toCharArray(), 3L);
+            root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id);
         } catch (Exception e) {
             exception = true;
         }
@@ -87,29 +91,33 @@ public class ExceptionTest extends BasicTest {
 
     @Test
     public void testConnectionErrorGroupNotExist() throws Exception {
+        final long badGroup = 200L;
+
         Client clientNoSuchGroup = new Client();
-        clientNoSuchGroup.connect("omero", 4064, "testUser", "password".toCharArray(), 200L);
-        assertEquals(2L, clientNoSuchGroup.getId());
-        assertEquals(3L, clientNoSuchGroup.getCurrentGroupId());
+        clientNoSuchGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), badGroup);
+        assertEquals(USER1.id, clientNoSuchGroup.getId());
+        assertEquals(GROUP1.id, clientNoSuchGroup.getCurrentGroupId());
     }
 
 
     @Test
     public void testConnectionErrorNotInGroup() throws Exception {
         Client clientWrongGroup = new Client();
-        clientWrongGroup.connect("omero", 4064, "testUser", "password".toCharArray(), 0L);
-        assertEquals(2L, clientWrongGroup.getId());
-        assertEquals(3L, clientWrongGroup.getCurrentGroupId());
+        clientWrongGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), 0L);
+        assertEquals(USER1.id, clientWrongGroup.getId());
+        assertEquals(GROUP1.id, clientWrongGroup.getCurrentGroupId());
     }
 
 
     @Test
     public void testGetSingleProjectError() throws Exception {
+        final long badProject = 333L;
+
         boolean exception = false;
         Client  client    = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password".toCharArray());
-            client.getProject(333L);
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.getProject(badProject);
         } catch (NoSuchElementException e) {
             exception = true;
         }
@@ -120,13 +128,15 @@ public class ExceptionTest extends BasicTest {
 
     @Test
     public void testGetImageError() throws Exception {
+        final long badImage = 200L;
+
         boolean exception = false;
         Client  client    = new Client();
-        client.connect("omero", 4064, "testUser", "password".toCharArray(), 3L);
-        assertEquals(2L, client.getId());
+        client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
+        assertEquals(USER1.id, client.getId());
 
         try {
-            client.getImage(200L);
+            client.getImage(badImage);
         } catch (NoSuchElementException e) {
             exception = true;
         }
@@ -137,13 +147,66 @@ public class ExceptionTest extends BasicTest {
 
     @Test
     public void testGetImageError2() throws Exception {
+        final long badImage = -5L;
+
         boolean exception = false;
         Client  client    = new Client();
-        client.connect("omero", 4064, "testUser", "password".toCharArray(), 3L);
-        assertEquals(2L, client.getId());
+        client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
+        assertEquals(USER1.id, client.getId());
 
         try {
-            client.getImage(-5L);
+            client.getImage(badImage);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
+        client.disconnect();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testGetSingleScreenError() throws Exception {
+        final long badScreen = 333L;
+
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.getScreen(badScreen);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
+        client.disconnect();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testGetSinglePlateError() throws Exception {
+        final long badPlate = 333L;
+
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.getPlate(badPlate);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
+        client.disconnect();
+        assertTrue(exception);
+    }
+
+
+    @Test
+    public void testGetSingleWellError() throws Exception {
+        final long badWell = 333L;
+
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.getWell(badWell);
         } catch (NoSuchElementException e) {
             exception = true;
         }
@@ -181,26 +244,44 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testExceptionHandler5() throws Exception {
-        Throwable t = new Exception();
-        ExceptionHandler.handleException(t, "Great");
-        assertTrue(true);
+    public void testExceptionHandler5() {
+        boolean exception = false;
+
+        Throwable t = new Exception("Nothing");
+        try {
+            ExceptionHandler.handleException(t, "Great");
+        } catch (Throwable t2) {
+            exception = true;
+        }
+        assertFalse(exception);
     }
 
 
     @Test
-    public void testExceptionHandler6() throws Exception {
+    public void testExceptionHandler6() {
+        boolean exception = false;
+
         Throwable t = new ServerError(null);
-        ExceptionHandler.handleServiceOrAccess(t, "Great");
-        assertTrue(true);
+        try {
+            ExceptionHandler.handleServiceOrAccess(t, "Great");
+        } catch (Throwable t2) {
+            exception = true;
+        }
+        assertFalse(exception);
     }
 
 
     @Test
-    public void testExceptionHandler7() throws Exception {
+    public void testExceptionHandler7() {
+        boolean exception = false;
+
         Throwable t = new DSAccessException("Test", null);
-        ExceptionHandler.handleServiceOrServer(t, "Great");
-        assertTrue(true);
+        try {
+            ExceptionHandler.handleServiceOrServer(t, "Great");
+        } catch (Throwable t2) {
+            exception = true;
+        }
+        assertFalse(exception);
     }
 
 }

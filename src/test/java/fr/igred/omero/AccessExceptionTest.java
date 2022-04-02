@@ -71,9 +71,9 @@ public class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password".toCharArray(), 3L);
-            assertEquals("Wrong user", 2L, client.getId());
-            assertEquals("Wrong group", 3L, client.getCurrentGroupId());
+            client.connect(HOST, PORT, "testUser", "password".toCharArray(), GROUP1.id);
+            assertEquals("Wrong user", USER1.id, client.getId());
+            assertEquals("Wrong group", GROUP1.id, client.getCurrentGroupId());
             sudo = client.sudoGetUser("testUser2");
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
             sudo = null;
@@ -101,10 +101,10 @@ public class AccessExceptionTest extends BasicTest {
     public void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
         client.disconnect();
-        client.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
+        client.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
         assertEquals(0L, client.getId());
 
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
         assertFalse(image.canLink());
         assertFalse(image.canAnnotate());
         assertTrue(image.canEdit());
@@ -148,7 +148,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetSingleProject() throws Exception {
-        sudo.getProject(1L);
+        sudo.getProject(PROJECT1.id);
     }
 
 
@@ -176,7 +176,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetSingleDataset() throws Exception {
-        sudo.getDataset(1L);
+        sudo.getDataset(DATASET1.id);
     }
 
 
@@ -194,7 +194,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetImage() throws Exception {
-        sudo.getImage(1L);
+        sudo.getImage(IMAGE1.id);
     }
 
 
@@ -218,29 +218,29 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = ServiceException.class)
     public void testSudoFailGetTag() throws Exception {
-        sudo.getTag(1L);
+        sudo.getTag(TAG1.id);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetImageTag() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
         image.getTags(sudo);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetKVPairs() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
         image.getKeyValuePairs(sudo);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailAddKVPair() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<NamedValue> result1 = new ArrayList<>();
+        List<NamedValue> result1 = new ArrayList<>(2);
         result1.add(new NamedValue("Test result1", "Value Test"));
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 

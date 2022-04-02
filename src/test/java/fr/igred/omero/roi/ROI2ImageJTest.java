@@ -5,11 +5,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -36,6 +34,8 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 
@@ -45,57 +45,57 @@ public class ROI2ImageJTest extends BasicTest {
 
     @Test
     public void testROIsFromImageJ() {
-        List<Roi> rois = new ArrayList<>(11);
+        final List<Roi> rois = new ArrayList<>(11);
 
-        float[] x1 = {0.0f, 3.0f, 3.0f};
-        float[] y1 = {0.0f, 0.0f, 4.0f};
-        float[] x2 = {0.0f, 0.0f, 4.0f};
-        float[] y2 = {0.0f, 3.0f, 3.0f};
+        final float[] x1 = {0.0f, 3.0f, 3.0f};
+        final float[] y1 = {0.0f, 0.0f, 4.0f};
+        final float[] x2 = {0.0f, 0.0f, 4.0f};
+        final float[] y2 = {0.0f, 3.0f, 3.0f};
 
-        Roi rectangle = new Roi(1.0, 2.0, 3.0, 4.0);
+        final Roi rectangle = new Roi(1.0, 2.0, 3.0, 4.0);
         rectangle.setName("rectangle");
         rectangle.setPosition(1, 2, 3);
         rectangle.setProperty("ROI", "24");
         rois.add(rectangle);
 
-        TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
+        final TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
         textRoi.setName("text");
         textRoi.setProperty("ROI", "invalid");
         rois.add(textRoi);
 
-        OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
+        final OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
         ovalRoi.setName("oval");
         ovalRoi.setPosition(1, 0, 3);
         ovalRoi.setProperty("ROI", "24");
         rois.add(ovalRoi);
 
-        Arrow arrow = new Arrow(2.0, 3.0, 3.0, 4.0);
+        final Arrow arrow = new Arrow(2.0, 3.0, 3.0, 4.0);
         arrow.setDoubleHeaded(true);
         arrow.setName("arrow");
         rois.add(arrow);
 
-        Line line = new Line(4.0, 3.0, 2.0, 1.0);
+        final Line line = new Line(4.0, 3.0, 2.0, 1.0);
         rois.add(line);
 
-        PointRoi pointRoi = new PointRoi(x1, y1);
+        final PointRoi pointRoi = new PointRoi(x1, y1);
         pointRoi.setProperty("TEST", "24");
         rois.add(pointRoi);
 
-        PolygonRoi polylineRoi = new PolygonRoi(x2, y2, Roi.POLYLINE);
+        final PolygonRoi polylineRoi = new PolygonRoi(x2, y2, Roi.POLYLINE);
         polylineRoi.setPosition(1, 1, 2);
         polylineRoi.setProperty("ROI", "23");
         rois.add(polylineRoi);
 
-        PolygonRoi polygonRoi = new PolygonRoi(x2, y2, Roi.POLYGON);
+        final PolygonRoi polygonRoi = new PolygonRoi(x2, y2, Roi.POLYGON);
         polygonRoi.setPosition(1, 1, 1);
         polygonRoi.setProperty("ROI", "23");
         rois.add(polygonRoi);
 
-        EllipseRoi ellipseRoi = new EllipseRoi(0.0, 0.0, 5.0, 5.0, 0.5);
+        final EllipseRoi ellipseRoi = new EllipseRoi(0.0, 0.0, 5.0, 5.0, 0.5);
         ellipseRoi.setPosition(1, 1, 1);
         rois.add(ellipseRoi);
 
-        ShapeRoi shapeRoi = new ShapeRoi(new Ellipse2D.Double(0.0, 5.0, 5.0, 10.0));
+        final ShapeRoi shapeRoi = new ShapeRoi(new Ellipse2D.Double(0.0, 5.0, 5.0, 10.0));
         shapeRoi.setPosition(1, 3, 1);
         rois.add(shapeRoi);
 
@@ -109,6 +109,8 @@ public class ROI2ImageJTest extends BasicTest {
 
     @Test
     public void testROItoImageJ() {
+        final int nRois = 11;
+
         AffineTransform transform = new AffineTransform();
         transform.rotate(Math.PI / 4);
 
@@ -126,7 +128,7 @@ public class ROI2ImageJTest extends BasicTest {
         rectangle.setTransform(transform);
 
         MaskWrapper mask = new MaskWrapper();
-        mask.setCoordinates(4, 4, 11, 11);
+        mask.setCoordinates(4, 4, 9, 9);
         mask.setCZT(1, 0, 0);
         mask.setTransform(transform);
 
@@ -183,7 +185,7 @@ public class ROI2ImageJTest extends BasicTest {
 
         List<Roi> ijRois = ROIWrapper.toImageJ(rois);
 
-        assertEquals(11, ijRois.size());
+        assertEquals(nRois, ijRois.size());
     }
 
 
@@ -268,7 +270,7 @@ public class ROI2ImageJTest extends BasicTest {
 
     @Test
     public void convertLine() {
-        LineWrapper line = new LineWrapper(3, 3, 10, 10);
+        final LineWrapper line = new LineWrapper(3, 3, 10, 10);
         line.setCZT(0, 0, 2);
 
         Line ijLine = (Line) line.toImageJ();
@@ -344,6 +346,9 @@ public class ROI2ImageJTest extends BasicTest {
 
     @Test
     public void convertText() {
+        //noinspection HardcodedLineSeparator
+        final Pattern c = Pattern.compile("\r", Pattern.LITERAL); // Oddly, IJ adds \r
+
         TextWrapper text = new TextWrapper();
         text.setCoordinates(3, 3);
         text.setText("Text");
@@ -352,7 +357,7 @@ public class ROI2ImageJTest extends BasicTest {
         TextRoi ijPoint = (TextRoi) text.toImageJ();
         assertEquals(text.getX(), ijPoint.getXBase(), Double.MIN_VALUE);
         assertEquals(text.getY(), ijPoint.getYBase(), Double.MIN_VALUE);
-        assertEquals(text.getText(), ijPoint.getText().trim().replace("\r", "")); // Oddly, IJ adds \r
+        assertEquals(text.getText(), c.matcher(ijPoint.getText().trim()).replaceAll(Matcher.quoteReplacement("")));
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPoint);
@@ -365,7 +370,7 @@ public class ROI2ImageJTest extends BasicTest {
         assertEquals(text.getC(), newText.getC());
         assertEquals(text.getZ(), newText.getZ());
         assertEquals(text.getT(), newText.getT());
-        assertEquals(text.getText(), newText.getText().trim().replace("\r", ""));
+        assertEquals(text.getText(), c.matcher(newText.getText().trim()).replaceAll(Matcher.quoteReplacement("")));
     }
 
 

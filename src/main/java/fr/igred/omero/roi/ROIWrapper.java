@@ -5,11 +5,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -412,7 +410,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @param ijRoi The ImageJ ROI.
      */
     private void addShape(ij.gui.Roi ijRoi) {
-        final String ARROW = "Arrow";
+        final String arrow = "Arrow";
 
         int c = Math.max(-1, ijRoi.getCPosition() - 1);
         int z = Math.max(-1, ijRoi.getZPosition() - 1);
@@ -445,9 +443,9 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             double y2 = ((Line) ijRoi).y2d;
 
             shape = new LineWrapper(x1, y1, x2, y2);
-            shape.asShapeData().getShapeSettings().setMarkerEnd(ARROW);
+            shape.asShapeData().getShapeSettings().setMarkerEnd(arrow);
             if (((Arrow) ijRoi).getDoubleHeaded()) {
-                shape.asShapeData().getShapeSettings().setMarkerStart(ARROW);
+                shape.asShapeData().getShapeSettings().setMarkerStart(arrow);
             }
             shape.setText(ijRoi.getName());
             shape.setCZT(c, z, t);

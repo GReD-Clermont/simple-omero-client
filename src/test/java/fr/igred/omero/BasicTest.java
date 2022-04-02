@@ -38,6 +38,25 @@ public abstract class BasicTest {
 
     protected static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
+    protected static final String HOST = "omero";
+    protected static final int    PORT = 4064;
+
+    protected static final TestObject ROOT   = new TestObject(0L, "root", null);
+    protected static final TestObject USER1  = new TestObject(2L, "testUser", null);
+    protected static final TestObject GROUP1 = new TestObject(3L, "testGroup", null);
+
+    protected static final TestObject PROJECT1 = new TestObject(1L, "TestProject", "description");
+    protected static final TestObject DATASET1 = new TestObject(1L, "TestDataset", "description");
+    protected static final TestObject DATASET2 = new TestObject(2L, "TestDatasetImport", "");
+    protected static final TestObject IMAGE1   = new TestObject(1L, "image1.fake", "");
+    protected static final TestObject IMAGE2   = new TestObject(3L, "image2.fake", "");
+    protected static final TestObject SCREEN1  = new TestObject(1L, "TestScreen", "description");
+    protected static final TestObject SCREEN2  = new TestObject(2L, "TestScreen2", "");
+    protected static final TestObject PLATE1   = new TestObject(1L, "Plate Name 0", "Plate 0 of 1");
+    protected static final TestObject PLATE2   = new TestObject(2L, "Plate Name 0", "Plate 0 of 2");
+    protected static final TestObject TAG1     = new TestObject(1L, "tag1", "description");
+    protected static final TestObject TAG2     = new TestObject(2L, "tag2", "");
+
     static {
         System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
     }

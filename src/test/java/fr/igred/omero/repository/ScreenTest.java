@@ -30,7 +30,7 @@ public class ScreenTest extends UserTest {
 
     @Test
     public void testGetPlatesFromScreen() throws Exception {
-        ScreenWrapper      screen = client.getScreens(2L).get(0);
+        ScreenWrapper      screen = client.getScreen(SCREEN2.id);
         List<PlateWrapper> plates = screen.getPlates();
         assertEquals(2, plates.size());
     }
@@ -38,7 +38,7 @@ public class ScreenTest extends UserTest {
 
     @Test
     public void testGetPlatesFromScreen2() throws Exception {
-        ScreenWrapper      screen = client.getScreens(2L).get(0);
+        ScreenWrapper      screen = client.getScreen(SCREEN2.id);
         List<PlateWrapper> plates = screen.getPlates("Plate Name 1");
         assertEquals(1, plates.size());
     }
@@ -46,7 +46,7 @@ public class ScreenTest extends UserTest {
 
     @Test
     public void testAddTagToScreen() throws Exception {
-        ScreenWrapper screen = client.getScreens(2L).get(0);
+        ScreenWrapper screen = client.getScreen(SCREEN2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Screen tag", "tag attached to a screen");
         screen.addTag(client, tag);
@@ -61,78 +61,78 @@ public class ScreenTest extends UserTest {
 
     @Test
     public void testSetName() throws Exception {
-        ScreenWrapper screen = client.getScreens(1L).get(0);
+        ScreenWrapper screen = client.getScreen(SCREEN1.id);
 
         String name  = screen.getName();
         String name2 = "New name";
         screen.setName(name2);
         screen.saveAndUpdate(client);
-        assertEquals(name2, client.getScreens(1L).get(0).getName());
+        assertEquals(name2, client.getScreen(SCREEN1.id).getName());
 
         screen.setName(name);
         screen.saveAndUpdate(client);
-        assertEquals(name, client.getScreens(1L).get(0).getName());
+        assertEquals(name, client.getScreen(SCREEN1.id).getName());
     }
 
 
     @Test
     public void testSetDescription() throws Exception {
-        ScreenWrapper screen = client.getScreens(1L).get(0);
+        ScreenWrapper screen = client.getScreen(SCREEN1.id);
 
         String description = screen.getDescription();
 
         String description2 = "New description";
         screen.setDescription(description2);
         screen.saveAndUpdate(client);
-        assertEquals(description2, client.getScreens(1L).get(0).getDescription());
+        assertEquals(description2, client.getScreen(SCREEN1.id).getDescription());
 
         screen.setDescription(description);
         screen.saveAndUpdate(client);
-        assertEquals(description, client.getScreens(1L).get(0).getDescription());
+        assertEquals(description, client.getScreen(SCREEN1.id).getDescription());
     }
 
 
     @Test
     public void testSetProtocolDescription() throws Exception {
-        ScreenWrapper screen = client.getScreens(1L).get(0);
+        ScreenWrapper screen = client.getScreen(SCREEN1.id);
 
         String description = "Protocol Description Test";
         screen.setProtocolDescription(description);
         screen.saveAndUpdate(client);
-        assertEquals(description, client.getScreens(1L).get(0).getProtocolDescription());
+        assertEquals(description, client.getScreen(SCREEN1.id).getProtocolDescription());
     }
 
 
     @Test
     public void testSetProtocolIdentifier() throws Exception {
-        ScreenWrapper screen = client.getScreens(1L).get(0);
+        ScreenWrapper screen = client.getScreen(SCREEN1.id);
 
         String identifier = "Protocol Identifier Test";
         screen.setProtocolIdentifier(identifier);
         screen.saveAndUpdate(client);
-        assertEquals(identifier, client.getScreens(1L).get(0).getProtocolIdentifier());
+        assertEquals(identifier, client.getScreen(SCREEN1.id).getProtocolIdentifier());
     }
 
 
     @Test
     public void testSetReagentSetDescription() throws Exception {
-        ScreenWrapper screen = client.getScreens(1L).get(0);
+        ScreenWrapper screen = client.getScreen(SCREEN1.id);
 
         String description = "Reagent Description Test";
         screen.setReagentSetDescription(description);
         screen.saveAndUpdate(client);
-        assertEquals(description, client.getScreens(1L).get(0).getReagentSetDescription());
+        assertEquals(description, client.getScreen(SCREEN1.id).getReagentSetDescription());
     }
 
 
     @Test
     public void testSetReagentSetIdentifier() throws Exception {
-        ScreenWrapper screen = client.getScreens(1L).get(0);
+        ScreenWrapper screen = client.getScreen(SCREEN1.id);
 
         String identifier = "Reagent Identifier Test";
         screen.setReagentSetIdentifier(identifier);
         screen.saveAndUpdate(client);
-        assertEquals(identifier, client.getScreens(1L).get(0).getReagentSetIdentifier());
+        assertEquals(identifier, client.getScreen(SCREEN1.id).getReagentSetIdentifier());
     }
 
 }

@@ -5,11 +5,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -63,15 +61,15 @@ public class GroupTest extends RootTest {
     public void testGetExperimenters() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
-        List<ExperimenterWrapper> users = group.getExperimenters();
+        List<ExperimenterWrapper> experimenters = group.getExperimenters();
 
         List<String> usernames = new ArrayList<>(2);
-        for (ExperimenterWrapper user : users) {
-            usernames.add(user.getUserName());
+        for (ExperimenterWrapper experimenter : experimenters) {
+            usernames.add(experimenter.getUserName());
         }
         usernames.sort(String.CASE_INSENSITIVE_ORDER);
 
-        assertEquals(2, users.size());
+        assertEquals(2, experimenters.size());
         assertEquals("testUser3", usernames.get(0));
         assertEquals("testUser4", usernames.get(1));
     }
@@ -81,9 +79,9 @@ public class GroupTest extends RootTest {
     public void testGetMembersOnly() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
-        List<ExperimenterWrapper> users = group.getMembersOnly();
-        assertEquals(1, users.size());
-        assertEquals("testUser3", users.get(0).getUserName());
+        List<ExperimenterWrapper> members = group.getMembersOnly();
+        assertEquals(1, members.size());
+        assertEquals("testUser3", members.get(0).getUserName());
     }
 
 
@@ -91,9 +89,9 @@ public class GroupTest extends RootTest {
     public void testGetLeaders() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
-        List<ExperimenterWrapper> users = group.getLeaders();
-        assertEquals(1, users.size());
-        assertEquals("testUser4", users.get(0).getUserName());
+        List<ExperimenterWrapper> leaders = group.getLeaders();
+        assertEquals(1, leaders.size());
+        assertEquals("testUser4", leaders.get(0).getUserName());
     }
 
 }

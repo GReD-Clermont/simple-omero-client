@@ -5,15 +5,14 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 package fr.igred.omero.repository;
 
 
@@ -160,7 +159,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Returns a human readable identifier for the screening status e.g. empty, positive control, etc.
+     * Returns a human-readable identifier for the screening status e.g. empty, positive control, etc.
      *
      * @return See above.
      */
@@ -170,7 +169,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Sets a human readable identifier for the screening status e.g. empty, positive control, etc.
+     * Sets a human-readable identifier for the screening status e.g. empty, positive control, etc.
      *
      * @param type The value to set.
      */

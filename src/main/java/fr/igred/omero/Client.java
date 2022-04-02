@@ -98,7 +98,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets the project with the specified id from OMERO.
      *
-     * @param id Id of the project.
+     * @param id ID of the project.
      *
      * @return ProjectWrapper containing the project.
      *
@@ -184,7 +184,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets the dataset with the specified id from OMERO.
      *
-     * @param id Id of the Dataset.
+     * @param id ID of the dataset.
      *
      * @return ProjectWrapper containing the project.
      *
@@ -272,7 +272,7 @@ public class Client extends GatewayWrapper {
     /**
      * Returns an ImageWrapper that contains the image with the specified id from OMERO.
      *
-     * @param id Id of the image.
+     * @param id ID of the image.
      *
      * @return ImageWrapper containing the image.
      *
@@ -471,7 +471,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets the screen with the specified id from OMERO.
      *
-     * @param id Id of the screen.
+     * @param id ID of the screen.
      *
      * @return ScreenWrapper containing the screen.
      *
@@ -535,7 +535,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets the plate with the specified id from OMERO.
      *
-     * @param id Id of the plate.
+     * @param id ID of the plate.
      *
      * @return PlateWrapper containing the plate.
      *
@@ -599,7 +599,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets the well with the specified id from OMERO.
      *
-     * @param id Id of the well.
+     * @param id ID of the well.
      *
      * @return WellWrapper containing the well.
      *

@@ -5,11 +5,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -40,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -63,51 +62,50 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testImportImage() throws Exception {
-        String path1 = "./8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
-        String path2 = "./8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";
+        String filename1 = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String filename2 = "8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";
 
-        File f = new File(path1);
-        if (!f.createNewFile())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
+        File f1 = new File("." + File.separator + filename1);
+        if (!f1.createNewFile())
+            System.err.println("\"" + f1.getCanonicalPath() + "\" could not be created.");
 
-        File f2 = new File(path2);
+        File f2 = new File("." + File.separator + filename2);
         if (!f2.createNewFile())
             System.err.println("\"" + f2.getCanonicalPath() + "\" could not be created.");
 
-        DatasetWrapper dataset = client.getDataset(2L);
+        DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
-        boolean imported = dataset.importImages(client, path1, path2);
+        boolean imported = dataset.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
 
-        if (!f.delete())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+        if (!f1.delete())
+            System.err.println("\"" + f1.getCanonicalPath() + "\" could not be deleted.");
 
         if (!f2.delete())
             System.err.println("\"" + f2.getCanonicalPath() + "\" could not be deleted.");
 
         List<ImageWrapper> images = dataset.getImages(client);
 
-        assertEquals(2, images.size());
-
         for (ImageWrapper image : images) {
             client.delete(image);
         }
 
-        images = dataset.getImages(client);
+        List<ImageWrapper> endImages = dataset.getImages(client);
 
-        assertTrue(images.isEmpty());
+        assertEquals(2, images.size());
+        assertTrue(endImages.isEmpty());
         assertTrue(imported);
     }
 
 
     @Test
     public void testPairKeyValue() throws Exception {
-        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
-        File f = new File(path);
+        File f = new File("." + File.separator + filename);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        DatasetWrapper dataset = client.getDataset(2L);
+        DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
         List<Long> newIDs = dataset.importImage(client, f.getAbsolutePath());
         assertEquals(1, newIDs.size());
@@ -149,13 +147,13 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testPairKeyValue2() throws Exception {
-        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
-        File f = new File(path);
+        File f = new File("." + File.separator + filename);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        DatasetWrapper dataset = client.getDataset(2L);
+        DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
         dataset.importImages(client, f.getAbsolutePath());
 
@@ -188,13 +186,13 @@ public class ImageTest extends UserTest {
     public void testPairKeyValue3() throws Exception {
         boolean exception = false;
 
-        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
-        File f = new File(path);
+        File f = new File("." + File.separator + filename);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        DatasetWrapper dataset = client.getDataset(2L);
+        DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
         dataset.importImages(client, f.getAbsolutePath());
 
@@ -223,8 +221,8 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetImageInfo() throws Exception {
-        ImageWrapper image = client.getImage(1L);
-        assertEquals("image1.fake", image.getName());
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        assertEquals(IMAGE1.name, image.getName());
         assertNull(image.getDescription());
         assertEquals(1L, image.getId());
     }
@@ -232,7 +230,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetImageTag() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
         assertEquals(2, tags.size());
@@ -241,19 +239,25 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetImageSize() throws Exception {
-        ImageWrapper  image  = client.getImage(1L);
+        final int sizeXY = 512;
+        final int sizeC  = 5;
+        final int sizeZ  = 3;
+        final int sizeT  = 7;
+
+        ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
-        assertEquals(512, pixels.getSizeX());
-        assertEquals(512, pixels.getSizeY());
-        assertEquals(5, pixels.getSizeC());
-        assertEquals(3, pixels.getSizeZ());
-        assertEquals(7, pixels.getSizeT());
+
+        assertEquals(sizeXY, pixels.getSizeX());
+        assertEquals(sizeXY, pixels.getSizeY());
+        assertEquals(sizeC, pixels.getSizeC());
+        assertEquals(sizeZ, pixels.getSizeZ());
+        assertEquals(sizeT, pixels.getSizeT());
     }
 
 
     @Test
     public void testGetRawData() throws Exception {
-        ImageWrapper     image  = client.getImage(1L);
+        ImageWrapper     image  = client.getImage(IMAGE1.id);
         PixelsWrapper    pixels = image.getPixels();
         double[][][][][] value  = pixels.getAllPixels(client);
 
@@ -267,7 +271,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetRawData2() throws Exception {
-        ImageWrapper  image  = client.getImage(1L);
+        ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
         byte[][][][]  value  = pixels.getRawPixels(client, 1);
 
@@ -286,7 +290,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetRawDataBound() throws Exception {
-        ImageWrapper  image  = client.getImage(1L);
+        ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
         int[] xBound = {0, 2};
@@ -307,14 +311,14 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetRawDataBoundError() throws Exception {
-        ImageWrapper  image  = client.getImage(1L);
+        ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
-        int[] xBound = {511, 513};
-        int[] yBound = {0, 2};
-        int[] cBound = {0, 2};
-        int[] zBound = {0, 2};
-        int[] tBound = {0, 2};
+        final int[] xBound = {511, 513};
+        final int[] yBound = {0, 2};
+        final int[] cBound = {0, 2};
+        final int[] zBound = {0, 2};
+        final int[] tBound = {0, 2};
 
         double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
         assertNotEquals(xBound[1] - xBound[0] + 1, value[0][0][0][0].length);
@@ -323,7 +327,9 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetRawDataBoundErrorNegative() throws Exception {
-        ImageWrapper  image  = client.getImage(1L);
+        boolean success = true;
+
+        ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
         int[] xBound = {-1, 1};
@@ -333,28 +339,33 @@ public class ImageTest extends UserTest {
         int[] tBound = {0, 2};
         try {
             double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
+            success = false;
             assertNotEquals(3, value[0][0][0][0].length);
         } catch (Exception e) {
-            assertTrue(true);
+            assertTrue(success);
         }
     }
 
 
     @Test
     public void testToImagePlusBound() throws Exception {
+        final int    lowXY   = 500;
+        final int    highXY  = 507;
+        final double pixSize = 0.5;
+
         int[] xBound = {0, 2};
         int[] yBound = {0, 2};
         int[] cBound = {0, 2};
         int[] zBound = {0, 2};
         int[] tBound = {0, 2};
 
-        Random random = new Random();
-        xBound[0] = random.nextInt(500);
-        yBound[0] = random.nextInt(500);
+        Random random = new SecureRandom();
+        xBound[0] = random.nextInt(lowXY);
+        yBound[0] = random.nextInt(lowXY);
         cBound[0] = random.nextInt(3);
         tBound[0] = random.nextInt(5);
-        xBound[1] = random.nextInt(507 - xBound[0]) + xBound[0] + 5;
-        yBound[1] = random.nextInt(507 - yBound[0]) + yBound[0] + 5;
+        xBound[1] = random.nextInt(highXY - xBound[0]) + xBound[0] + 5;
+        yBound[1] = random.nextInt(highXY - yBound[0]) + yBound[0] + 5;
         cBound[1] = random.nextInt(3 - cBound[0]) + cBound[0] + 2;
         tBound[1] = random.nextInt(5 - tBound[0]) + tBound[0] + 2;
 
@@ -376,7 +387,7 @@ public class ImageTest extends UserTest {
                                         zBound[0] + 1, zBound[1] + 1,
                                         tBound[0] + 1, tBound[1] + 1);
 
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ImagePlus imp = image.toImagePlus(client, xBound, yBound, cBound, zBound, tBound);
 
@@ -384,8 +395,8 @@ public class ImageTest extends UserTest {
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
         ImageStatistics stats      = difference.getStatistics();
 
-        assertEquals(0.5, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
-        assertEquals(0.5, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
+        assertEquals(pixSize, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
+        assertEquals(pixSize, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
         assertEquals(1.0, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
         assertEquals("MICROMETER", imp.getCalibration().getUnit());
         assertEquals(0, (int) stats.max);
@@ -406,7 +417,7 @@ public class ImageTest extends UserTest {
         if (!fakeFile.delete())
             System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
 
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
 
         ImagePlus imp = image.toImagePlus(client);
 
@@ -420,26 +431,29 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetImageChannel() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
         assertEquals("0", image.getChannelName(client, 0));
     }
 
 
     @Test
     public void testGetImageChannelError() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        boolean success = true;
+
+        ImageWrapper image = client.getImage(IMAGE1.id);
         try {
             image.getChannelName(client, 6);
+            success = false;
             fail();
         } catch (Exception e) {
-            assertTrue(true);
+            assertTrue(success);
         }
     }
 
 
     @Test
     public void testAddTagToImage() throws Exception {
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
@@ -456,7 +470,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testAddTagToImage2() throws Exception {
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
 
         image.addTag(client, "image tag", "tag attached to an image");
 
@@ -471,7 +485,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testAddTagIdToImage() throws Exception {
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
@@ -488,59 +502,51 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testAddTagsToImage() throws Exception {
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
+        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
-
         List<TagAnnotationWrapper> tags = image.getTags(client);
-
-        assertEquals(4, tags.size());
-
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
+        List<TagAnnotationWrapper> endTags = image.getTags(client);
 
-        tags = image.getTags(client);
-
-        assertEquals(0, tags.size());
+        assertEquals(4, tags.size());
+        assertEquals(0, endTags.size());
     }
 
 
     @Test
     public void testAddTagsToImage2() throws Exception {
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag", "tag attached to an image");
+        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1, tag2, tag3, tag4);
-
         List<TagAnnotationWrapper> tags = image.getTags(client);
-
-        assertEquals(4, tags.size());
-
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
+        List<TagAnnotationWrapper> endTags = image.getTags(client);
 
-        tags = image.getTags(client);
-
-        assertEquals(0, tags.size());
+        assertEquals(4, tags.size());
+        assertEquals(0, endTags.size());
     }
 
 
     @Test
     public void testAddAndRemoveTagFromImage() throws Exception {
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
 
@@ -567,16 +573,18 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testAddFileImage() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        final String tmpdir = System.getProperty("java.io.tmpdir") + File.separator;
 
-        File file = new File("/tmp/test.txt");
+        ImageWrapper image = client.getImage(IMAGE1.id);
+
+        File file = new File(tmpdir + "test.txt");
         if (!file.createNewFile())
             System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
 
-        byte[] array = new byte[2 * 262144 + 20];
-        new Random().nextBytes(array);
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
         String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file))) {
+        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
             out.print(generatedString);
         }
 
@@ -590,11 +598,11 @@ public class ImageTest extends UserTest {
                 assertEquals("text/plain", f.getOriginalMimetype());
                 assertEquals("text/plain", f.getServerFileMimetype());
                 assertEquals("Plain Text Document", f.getFileKind());
-                assertEquals("/tmp/", f.getContentAsString());
-                assertEquals("/tmp/", f.getFilePath());
+                assertEquals(tmpdir, f.getContentAsString());
+                assertEquals(tmpdir, f.getFilePath());
                 assertFalse(f.isMovieFile());
 
-                File uploadedFile = f.getFile(client, "./uploaded.txt");
+                File uploadedFile = f.getFile(client, "." + File.separator + "uploaded.txt");
 
                 List<String> expectedLines = Files.readAllLines(file.toPath());
                 List<String> lines         = Files.readAllLines(uploadedFile.toPath());
@@ -619,7 +627,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetCreated() throws Exception {
-        LocalDate created = client.getImage(1L).getCreated().toLocalDateTime().toLocalDate();
+        LocalDate created = client.getImage(IMAGE1.id).getCreated().toLocalDateTime().toLocalDate();
         LocalDate now     = LocalDate.now();
 
         assertEquals(now, created);
@@ -628,7 +636,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetAcquisitionDate() throws Exception {
-        LocalDateTime     acq = client.getImage(1L).getAcquisitionDate().toLocalDateTime();
+        LocalDateTime     acq = client.getImage(IMAGE1.id).getAcquisitionDate().toLocalDateTime();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
         assertEquals("2020-04-01_20-04-01", dtf.format(acq));
@@ -637,7 +645,7 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetChannel() throws Exception {
-        ChannelWrapper channel = client.getImage(1L).getChannels(client).get(0);
+        ChannelWrapper channel = client.getImage(IMAGE1.id).getChannels(client).get(0);
         assertEquals(0, channel.getIndex());
         channel.setName("Foo channel");
         assertEquals("Foo channel", channel.getName());
@@ -646,28 +654,28 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testSetDescription() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         String description  = image.getDescription();
         String description2 = "Foo";
         image.setDescription(description2);
         image.saveAndUpdate(client);
-        assertEquals(description2, client.getImage(1L).getDescription());
+        assertEquals(description2, client.getImage(IMAGE1.id).getDescription());
         image.setDescription(description);
         image.saveAndUpdate(client);
-        assertEquals(description, client.getImage(1L).getDescription());
+        assertEquals(description, client.getImage(IMAGE1.id).getDescription());
     }
 
 
     @Test
     public void testSetName() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         String name  = image.getName();
         String name2 = "Foo image";
         image.setName(name2);
         image.saveAndUpdate(client);
-        assertEquals(name2, client.getImage(1L).getName());
+        assertEquals(name2, client.getImage(IMAGE1.id).getName());
         image.setName(name);
         image.saveAndUpdate(client);
         assertEquals(name, image.getName());
@@ -676,13 +684,19 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetCropFromROI() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
-        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
+        final EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
+
+        final int[] xBound = {30, 69};
+        final int[] yBound = {10, 89};
+        final int[] cBound = {1, 1};
+        final int[] zBound = {0, 1};
+        final int[] tBound = {1, 2};
 
         ROIWrapper roiWrapper = new ROIWrapper();
         roiWrapper.setImage(image);
@@ -690,13 +704,6 @@ public class ImageTest extends UserTest {
         roiWrapper.addShape(ellipse);
 
         ImagePlus imp1 = image.toImagePlus(client, roiWrapper);
-
-        int[] xBound = {30, 69};
-        int[] yBound = {10, 89};
-        int[] cBound = {1, 1};
-        int[] zBound = {0, 1};
-        int[] tBound = {1, 2};
-
         ImagePlus imp2 = image.toImagePlus(client, xBound, yBound, cBound, zBound, tBound);
 
         ImageCalculator calculator = new ImageCalculator();
@@ -714,17 +721,19 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testGetThumbnail() throws Exception {
-        ImageWrapper  image     = client.getImage(1L);
-        BufferedImage thumbnail = image.getThumbnail(client, 96);
+        final int size = 96;
+
+        ImageWrapper  image     = client.getImage(IMAGE1.id);
+        BufferedImage thumbnail = image.getThumbnail(client, size);
         assertNotNull(thumbnail);
-        assertEquals(96, thumbnail.getWidth());
-        assertEquals(96, thumbnail.getHeight());
+        assertEquals(size, thumbnail.getWidth());
+        assertEquals(size, thumbnail.getHeight());
     }
 
 
     @Test
     public void testDownload() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
         List<File>   files = image.download(client, ".");
         assertEquals(2, files.size());
         assertTrue(files.get(0).exists());
