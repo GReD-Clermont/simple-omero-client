@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,7 +30,7 @@ public class PlateTest extends UserTest {
 
     @Test
     public void testGetWellsFromPlate() throws Exception {
-        PlateWrapper      plate = client.getPlates(1L).get(0);
+        PlateWrapper      plate = client.getPlate(PLATE1.id);
         List<WellWrapper> wells = plate.getWells(client);
         assertEquals(9, wells.size());
     }
@@ -38,7 +38,7 @@ public class PlateTest extends UserTest {
 
     @Test
     public void testGetWellsFromPlate2() throws Exception {
-        PlateWrapper      plate = client.getPlates(2L).get(0);
+        PlateWrapper      plate = client.getPlate(PLATE2.id);
         List<WellWrapper> wells = plate.getWells(client);
         assertEquals(4, wells.size());
     }
@@ -46,18 +46,19 @@ public class PlateTest extends UserTest {
 
     @Test
     public void testGetPlateAcquisitionsFromPlate() throws Exception {
-        PlateWrapper plate = client.getPlates(1L).get(0);
+        final String name = "PlateAcquisition Name 0";
+
+        PlateWrapper plate = client.getPlate(PLATE1.id);
 
         List<PlateAcquisitionWrapper> acquisitions = plate.getPlateAcquisitions();
         assertEquals(1, acquisitions.size());
-        String name = "PlateAcquisition Name 0";
         assertEquals(name, acquisitions.get(0).getName());
     }
 
 
     @Test
     public void testAddTagToPlate() throws Exception {
-        PlateWrapper plate = client.getPlates(2L).get(0);
+        PlateWrapper plate = client.getPlate(PLATE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
         plate.addTag(client, tag);
@@ -72,93 +73,93 @@ public class PlateTest extends UserTest {
 
     @Test
     public void testSetName() throws Exception {
-        PlateWrapper plate = client.getPlates(1L).get(0);
+        PlateWrapper plate = client.getPlate(PLATE1.id);
 
         String name  = plate.getName();
         String name2 = "New name";
         plate.setName(name2);
         plate.saveAndUpdate(client);
-        assertEquals(name2, client.getPlates(1L).get(0).getName());
+        assertEquals(name2, client.getPlate(PLATE1.id).getName());
 
         plate.setName(name);
         plate.saveAndUpdate(client);
-        assertEquals(name, client.getPlates(1L).get(0).getName());
+        assertEquals(name, client.getPlate(PLATE1.id).getName());
     }
 
 
     @Test
     public void testSetDescription() throws Exception {
-        PlateWrapper plate = client.getPlates(1L).get(0);
+        PlateWrapper plate = client.getPlate(PLATE1.id);
 
         String description = plate.getDescription();
 
         String description2 = "New description";
         plate.setDescription(description2);
         plate.saveAndUpdate(client);
-        assertEquals(description2, client.getPlates(1L).get(0).getDescription());
+        assertEquals(description2, client.getPlate(PLATE1.id).getDescription());
 
         plate.setDescription(description);
         plate.saveAndUpdate(client);
-        assertEquals(description, client.getPlates(1L).get(0).getDescription());
+        assertEquals(description, client.getPlate(PLATE1.id).getDescription());
     }
 
 
     @Test
     public void testSetStatus() throws Exception {
-        PlateWrapper plate = client.getPlates(1L).get(0);
+        PlateWrapper plate = client.getPlate(PLATE1.id);
 
         String status = plate.getStatus();
 
         String status2 = "New status";
         plate.setStatus(status2);
         plate.saveAndUpdate(client);
-        assertEquals(status2, client.getPlates(1L).get(0).getStatus());
+        assertEquals(status2, client.getPlate(PLATE1.id).getStatus());
 
         plate.setStatus(status);
         plate.saveAndUpdate(client);
-        assertEquals(status, client.getPlates(1L).get(0).getStatus());
+        assertEquals(status, client.getPlate(PLATE1.id).getStatus());
     }
 
 
     @Test
     public void testGetDefaultSample() throws Exception {
-        PlateWrapper plate = client.getPlates(1L).get(0);
+        PlateWrapper plate = client.getPlate(PLATE1.id);
 
         int sample = plate.getDefaultSample();
 
         int sample2 = 1;
         plate.setDefaultSample(sample2);
         plate.saveAndUpdate(client);
-        assertEquals(sample2, client.getPlates(1L).get(0).getDefaultSample());
+        assertEquals(sample2, client.getPlate(PLATE1.id).getDefaultSample());
 
         plate.setDefaultSample(sample);
         plate.saveAndUpdate(client);
-        assertEquals(sample, client.getPlates(1L).get(0).getDefaultSample());
+        assertEquals(sample, client.getPlate(PLATE1.id).getDefaultSample());
     }
 
 
     @Test
     public void testSetExternalIdentifier() throws Exception {
-        PlateWrapper plate = client.getPlates(1L).get(0);
+        final String identifier = "External Identifier Test";
 
-        String identifier = "External Identifier Test";
+        PlateWrapper plate = client.getPlate(PLATE1.id);
         plate.setExternalIdentifier(identifier);
         plate.saveAndUpdate(client);
-        assertEquals(identifier, client.getPlates(1L).get(0).getExternalIdentifier());
+        assertEquals(identifier, client.getPlate(PLATE1.id).getExternalIdentifier());
     }
 
 
     @Test
     public void testGetPlateType() throws Exception {
-        PlateWrapper plate = client.getPlates(1L).get(0);
-        String       type  = "9-Well Plate";
+        final String type  = "9-Well Plate";
+        PlateWrapper plate = client.getPlate(PLATE1.id);
         assertEquals(type, plate.getPlateType());
     }
 
 
     @Test
     public void testGetColumnSequenceIndex() throws Exception {
-        PlateWrapper plate  = client.getPlates(1L).get(0);
+        PlateWrapper plate  = client.getPlate(PLATE1.id);
         int          column = 0;
         assertEquals(column, plate.getColumnSequenceIndex());
     }
@@ -166,24 +167,24 @@ public class PlateTest extends UserTest {
 
     @Test
     public void testGetRowSequenceIndex() throws Exception {
-        PlateWrapper plate  = client.getPlates(1L).get(0);
-        int          column = 1;
+        final int    column = 1;
+        PlateWrapper plate  = client.getPlate(PLATE1.id);
         assertEquals(column, plate.getRowSequenceIndex());
     }
 
 
     @Test
     public void testGetWellOriginX() throws Exception {
-        PlateWrapper plate  = client.getPlates(1L).get(0);
-        double       origin = 0.0d;
+        final double origin = 0.0d;
+        PlateWrapper plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginX(null).getValue(), Double.MIN_VALUE);
     }
 
 
     @Test
     public void testGetWellOriginY() throws Exception {
-        PlateWrapper plate  = client.getPlates(1L).get(0);
-        double       origin = 1.0d;
+        final double origin = 1.0d;
+        PlateWrapper plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginY(null).getValue(), Double.MIN_VALUE);
     }
 

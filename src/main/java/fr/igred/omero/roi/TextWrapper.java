@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -42,6 +42,17 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      */
     public TextWrapper() {
         this(new TextData());
+    }
+
+
+    /**
+     * Constructor of the TextWrapper class using an ImageJ TextRoi.
+     *
+     * @param text An ImageJ TextRoi.
+     */
+    public TextWrapper(TextRoi text) {
+        this(text.getText(), text.getBounds().getX(), text.getBounds().getY());
+        copy(text);
     }
 
 

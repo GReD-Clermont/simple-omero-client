@@ -99,7 +99,7 @@ IMAGE4=$(omero import --output=ids  "$WORKDIR/image1.fake" -T "$DATASET3")
 # import screens
 SCREEN1=$(omero obj new Screen name=TestScreen description=description)
 SCREEN2=$(omero obj new Screen name=TestScreen2)
-omero import "$WORKDIR/screen1.fake" -T "$SCREEN1"
+PLATE1=$(omero import "$WORKDIR/screen1.fake" -T "$SCREEN1")
 omero import "$WORKDIR/screen2.fake" -T "$SCREEN2"
 
 # add annotations
@@ -112,6 +112,9 @@ omero obj new ImageAnnotationLink parent="$IMAGE1" child="$TAG1"
 omero obj new ImageAnnotationLink parent="$IMAGE1" child="$TAG2"
 omero obj new ImageAnnotationLink parent="$IMAGE2" child="$TAG1"
 omero obj new ImageAnnotationLink parent="$IMAGE4" child="$TAG1"
+omero obj new ScreenAnnotationLink parent="$SCREEN1" child="$TAG1"
+omero obj new PlateAnnotationLink parent="$PLATE1" child="$TAG1"
+omero obj new WellAnnotationLink parent="Well:1" child="$TAG1"
 
 MAP1=$(omero obj new MapAnnotation)
 omero obj map-set "$MAP1" mapValue testKey1 testValue1

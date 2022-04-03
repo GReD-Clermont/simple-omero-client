@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,11 +18,14 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.Roi;
 import omero.gateway.model.PolylineData;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 
 public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
@@ -43,6 +46,25 @@ public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
      */
     public PolylineWrapper() {
         this(new PolylineData());
+    }
+
+
+    /**
+     * Constructor of the PolylineWrapper class using an ImageJ PolygonRoi.
+     *
+     * @param ijRoi An ImageJ ROI.
+     */
+    public PolylineWrapper(Roi ijRoi) {
+        this();
+        int[] x = ijRoi.getPolygon().xpoints;
+        int[] y = ijRoi.getPolygon().ypoints;
+
+        List<Point2D.Double> points = new LinkedList<>();
+        IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
+
+        data.setPoints(points);
+        data.setText(ijRoi.getName());
+        copy(ijRoi);
     }
 
 

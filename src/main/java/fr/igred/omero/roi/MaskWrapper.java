@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -283,13 +283,13 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
         AffineTransform transform = toAWTTransform();
 
         Roi roi;
-        if (transform == null) {
+        if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
             PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
             PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
-            p1.setTransform(toAWTTransform());
-            p2.setTransform(toAWTTransform());
+            p1.setTransform(transform);
+            p2.setTransform(transform);
 
             java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
             java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();

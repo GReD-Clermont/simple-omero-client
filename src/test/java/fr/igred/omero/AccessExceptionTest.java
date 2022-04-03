@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -36,6 +36,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import static org.junit.Assert.assertEquals;
@@ -45,17 +46,18 @@ import static org.junit.Assert.assertTrue;
 
 public class AccessExceptionTest extends BasicTest {
 
+    private final PrintStream empty = new PrintStream(new OutputStream() {
+        public void write(int b) {
+            //DO NOTHING
+        }
+    });
     private final PrintStream error = System.err;
     protected     Client      client;
     protected     Client      sudo;
 
 
     void hideErrors() {
-        System.setErr(new PrintStream(new OutputStream() {
-            public void write(int b) {
-                //DO NOTHING
-            }
-        }));
+        System.setErr(empty);
     }
 
 
@@ -69,13 +71,13 @@ public class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect("omero", 4064, "testUser", "password".toCharArray(), 3L);
-            assertEquals("Wrong user", 2L, client.getId());
-            assertEquals("Wrong group", 3L, client.getCurrentGroupId());
+            client.connect(HOST, PORT, "testUser", "password".toCharArray(), GROUP1.id);
+            assertEquals("Wrong user", USER1.id, client.getId());
+            assertEquals("Wrong group", GROUP1.id, client.getCurrentGroupId());
             sudo = client.sudoGetUser("testUser2");
-        } catch (Exception e) {
-            failed = true;
+        } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
             sudo = null;
+            failed = true;
             logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
         }
         org.junit.Assume.assumeFalse(failed);
@@ -99,10 +101,10 @@ public class AccessExceptionTest extends BasicTest {
     public void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
         client.disconnect();
-        client.connect("omero", 4064, "root", "omero".toCharArray(), 3L);
+        client.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
         assertEquals(0L, client.getId());
 
-        ImageWrapper image = client.getImage(3L);
+        ImageWrapper image = client.getImage(IMAGE2.id);
         assertFalse(image.canLink());
         assertFalse(image.canAnnotate());
         assertTrue(image.canEdit());
@@ -146,7 +148,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetSingleProject() throws Exception {
-        sudo.getProject(1L);
+        sudo.getProject(PROJECT1.id);
     }
 
 
@@ -174,7 +176,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetSingleDataset() throws Exception {
-        sudo.getDataset(1L);
+        sudo.getDataset(DATASET1.id);
     }
 
 
@@ -192,7 +194,7 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetImage() throws Exception {
-        sudo.getImage(1L);
+        sudo.getImage(IMAGE1.id);
     }
 
 
@@ -216,29 +218,29 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = ServiceException.class)
     public void testSudoFailGetTag() throws Exception {
-        sudo.getTag(1L);
+        sudo.getTag(TAG1.id);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetImageTag() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
         image.getTags(sudo);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailGetKVPairs() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
         image.getKeyValuePairs(sudo);
     }
 
 
     @Test(expected = AccessException.class)
     public void testSudoFailAddKVPair() throws Exception {
-        ImageWrapper image = client.getImage(1L);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<NamedValue> result1 = new ArrayList<>();
+        List<NamedValue> result1 = new ArrayList<>(2);
         result1.add(new NamedValue("Test result1", "Value Test"));
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 

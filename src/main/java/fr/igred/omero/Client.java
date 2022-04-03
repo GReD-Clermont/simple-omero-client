@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,6 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.GenericObjectWrapper.SortById;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -55,6 +54,7 @@ import omero.model.TagAnnotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.GenericObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
@@ -95,24 +96,9 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Transforms a collection of ImageData in a list of ImageWrapper sorted by the ImageData id.
-     *
-     * @param images ImageData Collection.
-     *
-     * @return ImageWrapper list sorted.
-     */
-    private static List<ImageWrapper> toImageWrappers(Collection<? extends ImageData> images) {
-        return images.stream()
-                     .map(ImageWrapper::new)
-                     .sorted(new SortById<>())
-                     .collect(Collectors.toList());
-    }
-
-
-    /**
      * Gets the project with the specified id from OMERO.
      *
-     * @param id Id of the project.
+     * @param id ID of the project.
      *
      * @return ProjectWrapper containing the project.
      *
@@ -149,10 +135,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects");
         }
-        return projects.stream()
-                       .map(ProjectWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -172,10 +155,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects");
         }
-        return projects.stream()
-                       .map(ProjectWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -197,17 +177,14 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get projects with name: " + name);
         }
-        return projects.stream()
-                       .map(ProjectWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
     /**
      * Gets the dataset with the specified id from OMERO.
      *
-     * @param id Id of the Dataset.
+     * @param id ID of the dataset.
      *
      * @return ProjectWrapper containing the project.
      *
@@ -245,10 +222,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get datasets");
         }
-        return datasets.stream()
-                       .map(DatasetWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
@@ -291,17 +265,14 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get datasets with name: " + name);
         }
-        return datasets.stream()
-                       .map(DatasetWrapper::new)
-                       .sorted(new SortById<>())
-                       .collect(Collectors.toList());
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
     /**
      * Returns an ImageWrapper that contains the image with the specified id from OMERO.
      *
-     * @param id Id of the image.
+     * @param id ID of the image.
      *
      * @return ImageWrapper containing the image.
      *
@@ -343,8 +314,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images");
         }
-
-        return toImageWrappers(images);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -364,7 +334,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get images");
         }
-        return toImageWrappers(images);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -387,7 +357,7 @@ public class Client extends GatewayWrapper {
             handleServiceOrAccess(e, "Cannot get images with name: " + name);
         }
         images.removeIf(image -> !image.getName().equals(name));
-        return toImageWrappers(images);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -494,7 +464,6 @@ public class Client extends GatewayWrapper {
                 selected.add(image);
             }
         }
-
         return selected;
     }
 
@@ -502,7 +471,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets the screen with the specified id from OMERO.
      *
-     * @param id Id of the screen.
+     * @param id ID of the screen.
      *
      * @return ScreenWrapper containing the screen.
      *
@@ -539,10 +508,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get screens");
         }
-        return screens.stream()
-                      .map(ScreenWrapper::new)
-                      .sorted(new SortById<>())
-                      .collect(Collectors.toList());
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -562,18 +528,14 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get screens");
         }
-
-        return screens.stream()
-                      .map(ScreenWrapper::new)
-                      .sorted(new SortById<>())
-                      .collect(Collectors.toList());
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
     /**
      * Gets the plate with the specified id from OMERO.
      *
-     * @param id Id of the plate.
+     * @param id ID of the plate.
      *
      * @return PlateWrapper containing the plate.
      *
@@ -610,10 +572,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get plates");
         }
-        return plates.stream()
-                     .map(PlateWrapper::new)
-                     .sorted(new SortById<>())
-                     .collect(Collectors.toList());
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -633,17 +592,14 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get plates");
         }
-        return plates.stream()
-                     .map(PlateWrapper::new)
-                     .sorted(new SortById<>())
-                     .collect(Collectors.toList());
+        return wrap(plates, PlateWrapper::new);
     }
 
 
     /**
      * Gets the well with the specified id from OMERO.
      *
-     * @param id Id of the well.
+     * @param id ID of the well.
      *
      * @return WellWrapper containing the well.
      *
@@ -681,10 +637,7 @@ public class Client extends GatewayWrapper {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get wells");
         }
-        return wells.stream()
-                    .map(WellWrapper::new)
-                    .sorted(new SortById<>())
-                    .collect(Collectors.toList());
+        return wrap(wells, WellWrapper::new);
     }
 
 
@@ -728,7 +681,7 @@ public class Client extends GatewayWrapper {
                  .map(TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
                  .map(TagAnnotationWrapper::new)
-                 .sorted(new SortById<>())
+                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                  .collect(Collectors.toList());
     }
 
@@ -746,7 +699,7 @@ public class Client extends GatewayWrapper {
     public List<TagAnnotationWrapper> getTags(String name) throws OMEROServerError, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(new SortById<>());
+        tags.sort(Comparator.comparing(GenericObjectWrapper::getId));
         return tags;
     }
 

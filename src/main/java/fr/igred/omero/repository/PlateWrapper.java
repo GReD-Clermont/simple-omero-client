@@ -1,3 +1,19 @@
+/*
+ *  Copyright (C) 2020-2022 GReD
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
 package fr.igred.omero.repository;
 
 
@@ -106,10 +122,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @return See above.
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions() {
-        return data.getPlateAcquisitions()
-                   .stream()
-                   .map(PlateAcquisitionWrapper::new)
-                   .collect(Collectors.toList());
+        return wrap(data.getPlateAcquisitions(), PlateAcquisitionWrapper::new);
     }
 
 
@@ -125,14 +138,12 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellWrapper> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = new ArrayList<>();
+        Collection<WellData> wells = new ArrayList<>(0);
         try {
-            wells = client.getBrowseFacility()
-                          .getWells(client.getCtx(), data.getId());
+            wells = client.getBrowseFacility().getWells(client.getCtx(), data.getId());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get wells from " + this);
         }
-
         return wells.stream()
                     .map(WellWrapper::new)
                     .sorted(Comparator.comparing(WellWrapper::getRow)

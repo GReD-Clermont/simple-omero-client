@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 
 
 /**
- * Reports an error occurred while trying to access the OMERO service. Such an error can posted in the following case:
+ * Reports an error occurred while trying to access the OMERO service. Such an error can occur in the following case:
  * <i>broken connection</i>, <i>expired session</i> or <i>not logged in</i>.
  */
 public class ServiceException extends DSOutOfServiceException {

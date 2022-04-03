@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -24,6 +24,7 @@ import ij.gui.Roi;
 import omero.gateway.model.EllipseData;
 
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.RectangularShape;
 
 
 public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
@@ -44,6 +45,21 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      */
     public EllipseWrapper() {
         this(new EllipseData());
+    }
+
+
+    /**
+     * Constructor of the EllipseWrapper class using bounds from an ImageJ ROI.
+     *
+     * @param ijRoi An ImageJ ROI.
+     */
+    public EllipseWrapper(ij.gui.Roi ijRoi) {
+        this(ijRoi.getBounds().getX() + ijRoi.getBounds().getWidth() / 2,
+             ijRoi.getBounds().getY() + ijRoi.getBounds().getHeight() / 2,
+             ijRoi.getBounds().getWidth() / 2,
+             ijRoi.getBounds().getHeight() / 2);
+        data.setText(ijRoi.getName());
+        copy(ijRoi);
     }
 
 
@@ -233,45 +249,39 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
         java.awt.Shape awtShape = createTransformedAWTShape();
 
         Roi roi;
-        if (awtShape instanceof Ellipse2D) {
-            double x = ((Ellipse2D) awtShape).getX();
-            double y = ((Ellipse2D) awtShape).getY();
-            double w = ((Ellipse2D) awtShape).getWidth();
-            double h = ((Ellipse2D) awtShape).getHeight();
+        if (awtShape instanceof RectangularShape) {
+            double x = ((RectangularShape) awtShape).getX();
+            double y = ((RectangularShape) awtShape).getY();
+            double w = ((RectangularShape) awtShape).getWidth();
+            double h = ((RectangularShape) awtShape).getHeight();
             roi = new OvalRoi(x, y, w, h);
         } else {
-            java.awt.geom.Rectangle2D shape1;
-            java.awt.geom.Rectangle2D shape2;
-
             double x  = getX();
             double y  = getY();
             double rx = getRadiusX();
             double ry = getRadiusY();
             double ratio;
 
+            GenericShapeWrapper<?> p1;
+            GenericShapeWrapper<?> p2;
             if (ry <= rx) {
-                PointWrapper p1 = new PointWrapper(x - rx, y);
-                PointWrapper p2 = new PointWrapper(x + rx, y);
-                p1.setTransform(toAWTTransform());
-                p2.setTransform(toAWTTransform());
-                shape1 = p1.createTransformedAWTShape().getBounds2D();
-                shape2 = p2.createTransformedAWTShape().getBounds2D();
+                p1 = new PointWrapper(x - rx, y);
+                p2 = new PointWrapper(x + rx, y);
                 ratio = ry / rx;
             } else {
-                PointWrapper p1 = new PointWrapper(x, y - ry);
-                PointWrapper p2 = new PointWrapper(x, y + ry);
-                p1.setTransform(toAWTTransform());
-                p2.setTransform(toAWTTransform());
-                shape1 = p1.createTransformedAWTShape().getBounds2D();
-                shape2 = p2.createTransformedAWTShape().getBounds2D();
+                p1 = new PointWrapper(x, y - ry);
+                p2 = new PointWrapper(x, y + ry);
                 ratio = rx / ry;
             }
+            p1.setTransform(toAWTTransform());
+            p2.setTransform(toAWTTransform());
+            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
             double x1 = shape1.getX();
             double y1 = shape1.getY();
             double x2 = shape2.getX();
             double y2 = shape2.getY();
-
             roi = new EllipseRoi(x1, y1, x2, y2, ratio);
         }
         roi.setStrokeColor(getStroke());

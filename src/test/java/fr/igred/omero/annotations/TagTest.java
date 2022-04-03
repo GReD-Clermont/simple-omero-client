@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,10 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.repository.ScreenWrapper;
+import fr.igred.omero.repository.WellWrapper;
 import org.junit.Test;
 
 import java.util.List;
@@ -33,10 +36,10 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetTagInfo() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(1L);
-        assertEquals(1L, tag.getId());
-        assertEquals("tag1", tag.getName());
-        assertEquals("description", tag.getDescription());
+        TagAnnotationWrapper tag = client.getTag(TAG1.id);
+        assertEquals(TAG1.id, tag.getId());
+        assertEquals(TAG1.name, tag.getName());
+        assertEquals(TAG1.description, tag.getDescription());
     }
 
 
@@ -58,7 +61,7 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetProjects() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(1L);
+        TagAnnotationWrapper tag      = client.getTag(TAG1.id);
         List<ProjectWrapper> projects = tag.getProjects(client);
         assertEquals(1, projects.size());
         assertEquals(2L, projects.get(0).getId());
@@ -67,7 +70,7 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetDatasets() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(1L);
+        TagAnnotationWrapper tag      = client.getTag(TAG1.id);
         List<DatasetWrapper> datasets = tag.getDatasets(client);
         assertEquals(1, datasets.size());
         assertEquals(3L, datasets.get(0).getId());
@@ -76,7 +79,7 @@ public class TagTest extends UserTest {
 
     @Test
     public void testGetImages() throws Exception {
-        TagAnnotationWrapper tag      = client.getTag(1L);
+        TagAnnotationWrapper tag    = client.getTag(TAG1.id);
         List<ImageWrapper>   images = tag.getImages(client);
         assertEquals(3, images.size());
         assertEquals(1L, images.get(0).getId());
@@ -86,35 +89,62 @@ public class TagTest extends UserTest {
 
 
     @Test
+    public void testGetScreens() throws Exception {
+        TagAnnotationWrapper tag     = client.getTag(TAG1.id);
+        List<ScreenWrapper>  screens = tag.getScreens(client);
+        assertEquals(1, screens.size());
+        assertEquals(1L, screens.get(0).getId());
+    }
+
+
+    @Test
+    public void testGetPlates() throws Exception {
+        TagAnnotationWrapper tag    = client.getTag(TAG1.id);
+        List<PlateWrapper>   plates = tag.getPlates(client);
+        assertEquals(1, plates.size());
+        assertEquals(1L, plates.get(0).getId());
+    }
+
+
+    @Test
+    public void testGetWells() throws Exception {
+        TagAnnotationWrapper tag   = client.getTag(TAG1.id);
+        List<WellWrapper>    wells = tag.getWells(client);
+        assertEquals(1, wells.size());
+        assertEquals(1L, wells.get(0).getId());
+    }
+
+
+    @Test
     public void testSetName() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(1L);
+        TagAnnotationWrapper tag = client.getTag(TAG1.id);
 
         String name  = tag.getName();
         String name2 = "NewName";
         tag.setName(name2);
         tag.saveAndUpdate(client);
-        assertEquals(name2, client.getTag(1L).getName());
+        assertEquals(name2, client.getTag(TAG1.id).getName());
 
         tag.setName(name);
         tag.saveAndUpdate(client);
-        assertEquals(name, client.getTag(1L).getName());
+        assertEquals(name, client.getTag(TAG1.id).getName());
     }
 
 
     @Test
     public void testSetDescription() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(1L);
+        TagAnnotationWrapper tag = client.getTag(TAG1.id);
 
-        String description  = tag.getDescription();
+        String description = tag.getDescription();
 
         String description2 = "NewName";
         tag.setDescription(description2);
         tag.saveAndUpdate(client);
-        assertEquals(description2, client.getTag(1L).getDescription());
+        assertEquals(description2, client.getTag(TAG1.id).getDescription());
 
         tag.setDescription(description);
         tag.saveAndUpdate(client);
-        assertEquals(description, client.getTag(1L).getDescription());
+        assertEquals(description, client.getTag(TAG1.id).getDescription());
     }
 
 }

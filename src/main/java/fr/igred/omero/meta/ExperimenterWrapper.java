@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,12 +19,8 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.meta.GroupWrapper.SortByName;
 import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.GroupData;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -144,14 +140,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      * @return See above.
      */
     public List<GroupWrapper> getGroups() {
-        List<GroupData> groups = data.getGroups();
-
-        List<GroupWrapper> groupWrappers = new ArrayList<>(groups.size());
-        for (GroupData group : groups) {
-            groupWrappers.add(new GroupWrapper(group));
-        }
-        groupWrappers.sort(new SortByName<>());
-        return groupWrappers;
+        return wrap(data.getGroups(), GroupWrapper::new, GroupWrapper::getName);
     }
 
 
@@ -200,7 +189,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      *
      * @param groupId The id of the group.
      *
-     * @return boolean {@code true}/{@code false} depending if matching id found
+     * @return boolean {@code true}/{@code false} depending on the matching id found
      */
     public boolean isMemberOfGroup(long groupId) {
         return data.isMemberOfGroup(groupId);
@@ -214,28 +203,6 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      */
     public boolean isLDAP() {
         return data.isLDAP();
-    }
-
-
-    /**
-     * Class used to sort ExperimenterWrappers.
-     */
-    public static class SortByLastName<U extends ExperimenterWrapper> implements Comparator<U> {
-
-        /**
-         * Compare 2 ExperimenterWrappers. Compare the last names of the ExperimenterWrappers.
-         *
-         * @param object1 First object to compare.
-         * @param object2 Second object to compare.
-         *
-         * @return <ul><li>-1 if the last name of object1 is lower than the id object2.</li>
-         * <li>0  if the last names are the same.</li>
-         * <li>1 if the last name of object1 is greater than the id of object2.</li></ul>
-         */
-        public int compare(U object1, U object2) {
-            return object1.getLastName().compareTo(object2.getLastName());
-        }
-
     }
 
 }

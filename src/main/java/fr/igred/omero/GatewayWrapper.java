@@ -1,15 +1,13 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -417,8 +415,9 @@ public abstract class GatewayWrapper {
      */
     void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        final int ms = 500;
         try {
-            getDm().delete(ctx, object).loop(10, 500);
+            getDm().delete(ctx, object).loop(10, ms);
         } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
             handleException(e, "Cannot delete object");
         }
@@ -428,7 +427,7 @@ public abstract class GatewayWrapper {
     /**
      * Deletes a file from OMERO
      *
-     * @param id Id of the file to delete.
+     * @param id ID of the file to delete.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.

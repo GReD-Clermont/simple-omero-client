@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,8 +23,8 @@ import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
-import omero.gateway.model.ROIData;
 import org.junit.Test;
 
 import java.io.File;
@@ -36,16 +36,19 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 public class TableTest extends UserTest {
 
+    protected static final double volume1 = 25.0d;
+    protected static final double volume2 = 50.0d;
+
 
     @Test
     public void testCreateTable() throws Exception {
-        DatasetWrapper dataset = client.getDataset(1L);
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -57,7 +60,7 @@ public class TableTest extends UserTest {
         table.setColumn(1, "Name", String.class);
         assertEquals("Image", table.getColumnName(0));
         assertEquals("Name", table.getColumnName(1));
-        assertEquals(ImageData.class, table.getColumnType(0));
+        assertSame(ImageData.class, table.getColumnType(0));
 
         table.setRowCount(images.size());
 
@@ -74,21 +77,18 @@ public class TableTest extends UserTest {
         dataset.addTable(client, table);
 
         List<TableWrapper> tables = dataset.getTables(client);
+        client.delete(tables.get(0));
+        List<TableWrapper> noTables = dataset.getTables(client);
 
         assertEquals(1, tables.size());
-
-        client.delete(tables.get(0));
-
-        tables = dataset.getTables(client);
-
-        assertEquals(0, tables.size());
+        assertEquals(0, noTables.size());
     }
 
 
     @Test
     public void testErrorTableFull() throws Exception {
         boolean        exception = false;
-        DatasetWrapper dataset   = client.getDataset(1L);
+        DatasetWrapper dataset   = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -115,16 +115,18 @@ public class TableTest extends UserTest {
 
     @Test
     public void testErrorTableColumn() {
+        boolean exception = false;
+
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
 
         try {
             table.setColumn(2, "Id", Long.class);
-            fail();
         } catch (IndexOutOfBoundsException e) {
-            assertTrue(true);
+            exception = true;
         }
+        assertTrue(exception);
     }
 
 
@@ -132,7 +134,7 @@ public class TableTest extends UserTest {
     public void testErrorTableUninitialized() throws Exception {
         boolean exception = false;
 
-        DatasetWrapper dataset = client.getDataset(1L);
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -155,7 +157,7 @@ public class TableTest extends UserTest {
     public void testErrorTableNotEnoughArgs() throws Exception {
         boolean exception = false;
 
-        DatasetWrapper dataset = client.getDataset(1L);
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -178,9 +180,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithROIsFromIJResults1() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -206,18 +206,18 @@ public class TableTest extends UserTest {
         results.setLabel(image.getName(), 0);
         results.setValue("Image", 0, image.getName());
         results.setValue(ROIWrapper.IJ_PROPERTY, 0, 1);
-        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois);
 
         Object[][] data = table.getData();
         assertEquals(1, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(image.getName(), data[2][0]);
         assertEquals(image.getName(), data[3][0]);
-        assertEquals(25.0d, (Double) data[4][0], 0.05);
+        assertEquals(volume1, (Double) data[4][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[5][0]);
 
         image.addTable(client, table);
@@ -235,10 +235,9 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithROIsFromIJResults2() throws Exception {
-        long   imageId  = 1L;
         String property = "Cell";
 
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -265,19 +264,19 @@ public class TableTest extends UserTest {
         results.setValue("Image", 0, image.getName());
         results.setValue("Image_Name", 0, image.getName());
         results.setValue(property, 0, rois.get(0).getId());
-        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, property);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, property);
 
         Object[][] data = table.getData();
         assertEquals(1, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(image.getName(), data[2][0]);
         assertEquals(image.getName(), data[3][0]);
         assertEquals(image.getName(), data[4][0]);
-        assertEquals(25.0d, (Double) data[5][0], 0.05);
+        assertEquals(volume1, (Double) data[5][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[6][0]);
 
         image.addTable(client, table);
@@ -295,9 +294,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithROIsFromIJResults3() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -322,17 +319,17 @@ public class TableTest extends UserTest {
         results.incrementCounter();
         results.setLabel(image.getName(), 0);
         results.setValue(ROIWrapper.ijIDProperty(null), 0, rois.get(0).getId());
-        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois);
 
         Object[][] data = table.getData();
         assertEquals(1, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(image.getName(), data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
 
         image.addTable(client, table);
@@ -350,9 +347,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithROIsFromIJResults4() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -377,17 +372,17 @@ public class TableTest extends UserTest {
         results.incrementCounter();
         String label = image.getName() + ":" + ijRois.get(0).getName() + ":4";
         results.setValue("Image", 0, label);
-        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
 
         Object[][] data = table.getData();
         assertEquals(1, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(label, data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
 
         image.addTable(client, table);
@@ -405,19 +400,17 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableFromIJResults() throws Exception {
-        long imageId = 1L;
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ImageWrapper image = client.getImage(imageId);
-
-        List<Roi> ijRois = new ArrayList<>();
+        List<Roi> ijRois = new ArrayList<>(0);
 
         ResultsTable results = new ResultsTable();
         results.incrementCounter();
         results.setLabel(image.getName(), 0);
-        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
         image.addTable(client, table);
 
         List<TableWrapper> tables = image.getTables(client);
@@ -426,41 +419,39 @@ public class TableTest extends UserTest {
         assertEquals(1, tables.get(0).getRowCount());
 
         Object[][] data = tables.get(0).getData();
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(volume1, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
 
         client.delete(tables.get(0));
 
-        tables = image.getTables(client);
+        List<TableWrapper> noTables = image.getTables(client);
 
-        assertEquals(0, tables.size());
+        assertEquals(0, noTables.size());
     }
 
 
     @Test
     public void testAddRowsFromIJResults() throws Exception {
-        long imageId = 1L;
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ImageWrapper image = client.getImage(imageId);
-
-        List<Roi> ijRois = new ArrayList<>();
+        List<Roi> ijRois = new ArrayList<>(0);
 
         ResultsTable results1 = new ResultsTable();
         results1.incrementCounter();
         results1.setLabel(image.getName(), 0);
-        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume", 0, volume1);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         results2.setLabel(image.getName(), 0);
-        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume", 0, volume2);
         results2.setValue("Volume Unit", 0, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
-        table.addRows(client, results2, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        table.addRows(client, results2, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
 
         image.addTable(client, table);
 
@@ -470,28 +461,26 @@ public class TableTest extends UserTest {
         assertEquals(2, tables.get(0).getRowCount());
 
         Object[][] data = tables.get(0).getData();
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(volume1, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
-        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][1]).getId());
         assertEquals(image.getName(), data[1][1]);
-        assertEquals(50, (Double) data[2][1], 0.05);
+        assertEquals(volume2, (Double) data[2][1], Double.MIN_VALUE);
         assertEquals("m^3", data[3][1]);
 
         client.delete(tables.get(0));
 
-        tables = image.getTables(client);
+        List<TableWrapper> noTables = image.getTables(client);
 
-        assertEquals(0, tables.size());
+        assertEquals(0, noTables.size());
     }
 
 
     @Test
     public void testAddRowsWithROIsFromIJResults() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -516,30 +505,30 @@ public class TableTest extends UserTest {
         results1.incrementCounter();
         results1.setLabel(image.getName(), 0);
         results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
-        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume", 0, volume1);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         results2.setLabel(image.getName(), 0);
         results2.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
-        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume", 0, volume2);
         results2.setValue("Volume Unit", 0, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
-        table.addRows(client, results2, imageId, ijRois);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+        table.addRows(client, results2, IMAGE1.id, ijRois);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(image.getName(), data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
-        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][1]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][1]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][1]).getId());
         assertEquals(image.getName(), data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -557,9 +546,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithLocalROIFromIJResults1() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -587,27 +574,27 @@ public class TableTest extends UserTest {
         results.incrementCounter();
         results.setLabel(image.getName(), 0);
         results.setValue(ROIWrapper.IJ_PROPERTY, 0, local.getName());
-        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
         results.incrementCounter();
         results.setLabel(image.getName(), 1);
         results.setValue(ROIWrapper.IJ_PROPERTY, 1, ijRois.get(0).getName());
-        results.setValue("Volume", 1, 50);
+        results.setValue("Volume", 1, volume2);
         results.setValue("Volume Unit", 1, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
         assertEquals(local.getName(), data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
-        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][1]).getId());
         assertEquals(image.getName(), data[1][1]);
         assertEquals(ijRois.get(0).getName(), data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -625,9 +612,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithLocalROIFromIJResults2() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -655,25 +640,25 @@ public class TableTest extends UserTest {
         results.incrementCounter();
         String label1 = image.getName() + ":" + local.getName() + ":4";
         results.setLabel(label1, 0);
-        results.setValue("Volume", 0, 25.0);
+        results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
         results.incrementCounter();
         String label2 = image.getName() + ":" + ijRois.get(0).getName() + ":10";
         results.setLabel(label2, 1);
-        results.setValue("Volume", 1, 50);
+        results.setValue("Volume", 1, volume2);
         results.setValue("Volume Unit", 1, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
         assertEquals(label1, data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(volume1, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
-        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][1]).getId());
         assertEquals(label2, data[1][1]);
-        assertEquals(50, (Double) data[2][1], 0.05);
+        assertEquals(volume2, (Double) data[2][1], Double.MIN_VALUE);
         assertEquals("m^3", data[3][1]);
 
         image.addTable(client, table);
@@ -691,9 +676,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithROINamesFromIJResults1() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi1 = new ROIWrapper();
         ROIWrapper roi2 = new ROIWrapper();
@@ -723,30 +706,30 @@ public class TableTest extends UserTest {
         results1.incrementCounter();
         String label1 = image.getName() + ":" + rois.get(0).getShapes().get(0).getText() + ":4";
         results1.setLabel(label1, 0);
-        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume", 0, volume1);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         String label2 = image.getName() + ":" + rois.get(1).getShapes().get(0).getText() + ":10";
         results2.setLabel(label2, 0);
-        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume", 0, volume2);
         results2.setValue("Volume Unit", 0, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
-        table.addRows(client, results2, imageId, ijRois);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+        table.addRows(client, results2, IMAGE1.id, ijRois);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(label1, data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
-        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
-        assertEquals(rois.get(1).getId(), ((ROIData) data[1][1]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][1]).getId());
+        assertEquals(rois.get(1).getId(), ((DataObject) data[1][1]).getId());
         assertEquals(label2, data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -764,9 +747,7 @@ public class TableTest extends UserTest {
 
     @Test
     public void testCreateTableWithROINamesFromIJResults2() throws Exception {
-        long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi1 = new ROIWrapper();
         ROIWrapper roi2 = new ROIWrapper();
@@ -774,7 +755,8 @@ public class TableTest extends UserTest {
         roi1.setImage(image);
         roi2.setImage(image);
 
-        for (int i = 10; i < 14; i++) {
+        final int max = 14;
+        for (int i = 10; i < max; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
             rectangle.setText(String.valueOf(10 + i % 2));
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
@@ -796,30 +778,30 @@ public class TableTest extends UserTest {
         results1.incrementCounter();
         String label1 = rois.get(0).getShapes().get(0).getText();
         results1.setLabel(label1, 0);
-        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume", 0, volume1);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         String label2 = rois.get(1).getShapes().get(0).getText();
         results2.setLabel(label2, 0);
-        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume", 0, volume2);
         results2.setValue("Volume Unit", 0, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
-        table.addRows(client, results2, imageId, ijRois);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+        table.addRows(client, results2, IMAGE1.id, ijRois);
 
         Object[][] data = table.getData();
         assertEquals(2, table.getRowCount());
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((ROIData) data[1][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(label1, data[2][0]);
-        assertEquals(25.0d, (Double) data[3][0], 0.05);
+        assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[4][0]);
-        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
-        assertEquals(rois.get(1).getId(), ((ROIData) data[1][1]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][1]).getId());
+        assertEquals(rois.get(1).getId(), ((DataObject) data[1][1]).getId());
         assertEquals(label2, data[2][1]);
-        assertEquals(50, (Double) data[3][1], 0.05);
+        assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals("m^3", data[4][1]);
 
         image.addTable(client, table);
@@ -837,27 +819,26 @@ public class TableTest extends UserTest {
 
     @Test
     public void testAddRowsFromIJResultsError() throws Exception {
-        boolean error   = false;
-        long    imageId = 1L;
+        boolean error = false;
 
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<Roi> ijRois = new ArrayList<>();
+        List<Roi> ijRois = new ArrayList<>(0);
 
         ResultsTable results1 = new ResultsTable();
         results1.incrementCounter();
         results1.setLabel(image.getName(), 0);
-        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume", 0, volume1);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         results2.setLabel(image.getName(), 0);
-        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume", 0, volume2);
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         try {
-            table.addRows(client, results2, imageId, ijRois);
+            table.addRows(client, results2, IMAGE1.id, ijRois);
         } catch (IllegalArgumentException e) {
             error = true;
         }
@@ -868,26 +849,24 @@ public class TableTest extends UserTest {
 
     @Test
     public void testAddRowsFromIJResultsInverted() throws Exception {
-        long imageId = 1L;
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ImageWrapper image = client.getImage(imageId);
-
-        List<Roi> ijRois = new ArrayList<>();
+        List<Roi> ijRois = new ArrayList<>(0);
 
         ResultsTable results1 = new ResultsTable();
         results1.incrementCounter();
         results1.setLabel(image.getName(), 0);
-        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume", 0, volume1);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         results2.setLabel(image.getName(), 0);
         results2.setValue("Volume Unit", 0, "m^3");
-        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume", 0, volume2);
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
-        table.addRows(client, results2, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        table.addRows(client, results2, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
 
         image.addTable(client, table);
 
@@ -897,28 +876,26 @@ public class TableTest extends UserTest {
         assertEquals(2, tables.get(0).getRowCount());
 
         Object[][] data = tables.get(0).getData();
-        assertEquals(image.getId(), ((ImageData) data[0][0]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
         assertEquals(image.getName(), data[1][0]);
-        assertEquals(25.0d, (Double) data[2][0], 0.05);
+        assertEquals(volume1, (Double) data[2][0], Double.MIN_VALUE);
         assertEquals("µm^3", data[3][0]);
-        assertEquals(image.getId(), ((ImageData) data[0][1]).getId());
+        assertEquals(image.getId(), ((DataObject) data[0][1]).getId());
         assertEquals(image.getName(), data[1][1]);
-        assertEquals(Double.NaN, (Double) data[2][1], 0.05);
+        assertEquals(Double.NaN, (Double) data[2][1], Double.MIN_VALUE);
         assertEquals("50", data[3][1]);
 
         client.delete(tables.get(0));
 
-        tables = image.getTables(client);
+        List<TableWrapper> noTables = image.getTables(client);
 
-        assertEquals(0, tables.size());
+        assertEquals(0, noTables.size());
     }
 
 
     @Test
     public void testSaveTableAs() throws Exception {
-        final long imageId = 1L;
-
-        ImageWrapper image = client.getImage(imageId);
+        ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
 
@@ -943,25 +920,25 @@ public class TableTest extends UserTest {
         results1.incrementCounter();
         results1.setLabel(image.getName(), 0);
         results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
-        results1.setValue("Volume", 0, 25.0);
+        results1.setValue("Volume", 0, volume1);
         results1.setValue("Volume Unit", 0, "µm^3");
 
         ResultsTable results2 = new ResultsTable();
         results2.incrementCounter();
         results2.setLabel(image.getName(), 0);
         results2.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
-        results2.setValue("Volume", 0, 50);
+        results2.setValue("Volume", 0, volume2);
         results2.setValue("Volume Unit", 0, "m^3");
 
-        TableWrapper table = new TableWrapper(client, results1, imageId, ijRois);
-        table.addRows(client, results2, imageId, ijRois);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+        table.addRows(client, results2, IMAGE1.id, ijRois);
 
         String filename = "file.csv";
         table.saveAs(filename, ',');
 
         String line1 = "\"Image\",\"ROI\",\"Label\",\"Volume\",\"Volume_Unit\"";
-        String line2 = String.format("\"1\",\"%d\",\"image1.fake\",\"25.0\",\"µm^3\"", roi.getId());
-        String line3 = String.format("\"1\",\"%d\",\"image1.fake\",\"50.0\",\"m^3\"", roi.getId());
+        String line2 = String.format("\"1\",\"%d\",\"image1.fake\",\"%.1f\",\"µm^3\"", roi.getId(), volume1);
+        String line3 = String.format("\"1\",\"%d\",\"image1.fake\",\"%.1f\",\"m^3\"", roi.getId(), volume2);
 
         List<String> expected = Arrays.asList(line1, line2, line3);
 

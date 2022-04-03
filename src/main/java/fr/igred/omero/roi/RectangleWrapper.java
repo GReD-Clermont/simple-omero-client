@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -43,6 +43,22 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
      */
     public RectangleWrapper() {
         this(new RectangleData());
+    }
+
+
+    /**
+     * Constructor of the RectangleWrapper class using bounds from an ImageJ ROI.
+     *
+     * @param ijRoi An ImageJ ROI.
+     */
+    public RectangleWrapper(ij.gui.Roi ijRoi) {
+        this(ijRoi.getBounds().getX(),
+             ijRoi.getBounds().getY(),
+             ijRoi.getBounds().getWidth(),
+             ijRoi.getBounds().getHeight());
+
+        data.setText(ijRoi.getName());
+        copy(ijRoi);
     }
 
 
@@ -232,7 +248,7 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
         AffineTransform transform = toAWTTransform();
 
         Roi roi;
-        if (transform == null) {
+        if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
             PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -31,7 +31,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 public class ClientTest extends UserTest {
@@ -39,19 +38,19 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testProjectBasic() throws Exception {
-        ProjectWrapper project = client.getProject(1L);
-        assertEquals(1L, project.getId());
-        assertEquals("TestProject", project.getName());
-        assertEquals("description", project.getDescription());
-        assertEquals(2L, project.getOwner().getId());
-        assertEquals(3L, project.getGroupId().longValue());
+        ProjectWrapper project = client.getProject(PROJECT1.id);
+        assertEquals(PROJECT1.id, project.getId());
+        assertEquals(PROJECT1.name, project.getName());
+        assertEquals(PROJECT1.description, project.getDescription());
+        assertEquals(USER1.id, project.getOwner().getId());
+        assertEquals(GROUP1.id, project.getGroupId().longValue());
     }
 
 
     @Test
     public void testGetSingleProject() throws Exception {
-        String name = client.getProject(1L).getName();
-        assertEquals("TestProject", name);
+        String name = client.getProject(PROJECT1.id).getName();
+        assertEquals(PROJECT1.name, name);
     }
 
 
@@ -64,11 +63,11 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetProjectByName() throws Exception {
-        Collection<ProjectWrapper> projects = client.getProjects("TestProject");
+        Collection<ProjectWrapper> projects = client.getProjects(PROJECT1.name);
 
         int differences = 0;
         for (ProjectWrapper project : projects) {
-            if (!project.getName().equals("TestProject"))
+            if (!PROJECT1.name.equals(project.getName()))
                 differences++;
         }
 
@@ -79,24 +78,28 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testCreateAndDeleteProject() throws Exception {
-        ProjectWrapper project = new ProjectWrapper(client, "Foo project", "");
+        boolean exception = false;
+
+        String name = "Foo project";
+
+        ProjectWrapper project = new ProjectWrapper(client, name, "");
 
         long newId = project.getId();
-        assertEquals("Foo project", client.getProject(newId).getName());
+        assertEquals(name, client.getProject(newId).getName());
 
         client.delete(client.getProject(newId));
         try {
             client.getProject(newId);
-            fail();
         } catch (Exception e) {
-            assertTrue(true);
+            exception = true;
         }
+        assertTrue(exception);
     }
 
 
     @Test
     public void testGetSingleDataset() throws Exception {
-        assertEquals("TestDataset", client.getDataset(1L).getName());
+        assertEquals(DATASET1.name, client.getDataset(DATASET1.id).getName());
     }
 
 
@@ -109,11 +112,11 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetDatasetByName() throws Exception {
-        Collection<DatasetWrapper> datasets = client.getDatasets("TestDataset");
+        Collection<DatasetWrapper> datasets = client.getDatasets(DATASET1.name);
 
         int differences = 0;
         for (DatasetWrapper dataset : datasets) {
-            if (!dataset.getName().equals("TestDataset"))
+            if (!DATASET1.name.equals(dataset.getName()))
                 differences++;
         }
         assertEquals(2, datasets.size());
@@ -123,21 +126,23 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetImages() throws Exception {
+        final int nImages = 56;
+
         List<ImageWrapper> images = client.getImages();
-        assertEquals(56, images.size());
+        assertEquals(nImages, images.size());
     }
 
 
     @Test
     public void testGetImage() throws Exception {
-        ImageWrapper image = client.getImage(1L);
-        assertEquals("image1.fake", image.getName());
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        assertEquals(IMAGE1.name, image.getName());
     }
 
 
     @Test
     public void testGetImagesName() throws Exception {
-        List<ImageWrapper> images = client.getImages("image1.fake");
+        List<ImageWrapper> images = client.getImages(IMAGE1.name);
         assertEquals(3, images.size());
     }
 
@@ -151,7 +156,7 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetImagesTagged() throws Exception {
-        List<ImageWrapper> images = client.getImagesTagged(1L);
+        List<ImageWrapper> images = client.getImagesTagged(TAG1.id);
         assertEquals(3, images.size());
     }
 
@@ -177,7 +182,7 @@ public class ClientTest extends UserTest {
         /* Load the image with the key */
         List<ImageWrapper> images = client.getImagesKey(key);
 
-        List<ImageWrapper> imagesCond = new ArrayList<>();
+        Collection<ImageWrapper> imagesCond = new ArrayList<>(1);
 
         for (ImageWrapper image : images) {
             /* Get the value for the key */
@@ -195,21 +200,24 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testSwitchGroup() {
-        client.switchGroup(4L);
-        long groupId = client.getCurrentGroupId();
-        assertEquals(4L, groupId);
+        final long newGroupId = 4L;
+        client.switchGroup(newGroupId);
+        long actualGroupId = client.getCurrentGroupId();
+        assertEquals(newGroupId, actualGroupId);
     }
 
 
     @Test
     public void testSwitchGroupAndImport() throws Exception {
-        String path = "./8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=256.fake";
+        final long newGroupId = 4L;
 
-        File f = new File(path);
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=256.fake";
+
+        File f = new File("." + File.separator + filename);
         if (!f.createNewFile())
             System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
 
-        client.switchGroup(4L);
+        client.switchGroup(newGroupId);
 
         DatasetWrapper dataset = new DatasetWrapper("test", "");
         dataset.saveAndUpdate(client);
@@ -235,8 +243,8 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetSingleScreen() throws Exception {
-        String name = client.getScreen(1L).getName();
-        assertEquals("TestScreen", name);
+        String name = client.getScreen(SCREEN1.id).getName();
+        assertEquals(SCREEN1.name, name);
     }
 
 
@@ -249,22 +257,24 @@ public class ClientTest extends UserTest {
 
     @Test
     public void testGetSinglePlate() throws Exception {
-        String name = client.getPlate(1L).getName();
-        assertEquals("Plate Name 0", name);
+        String name = client.getPlate(PLATE1.id).getName();
+        assertEquals(PLATE1.name, name);
     }
 
 
     @Test
     public void testGetAllWells() throws Exception {
+        final int nWells = 17;
+
         Collection<WellWrapper> screens = client.getWells();
-        assertEquals(17, screens.size());
+        assertEquals(nWells, screens.size());
     }
 
 
     @Test
     public void testGetSingleWell() throws Exception {
         String plateName = client.getWell(1L).getPlate().getName();
-        assertEquals("Plate Name 0", plateName);
+        assertEquals(PLATE1.name, plateName);
     }
 
 }

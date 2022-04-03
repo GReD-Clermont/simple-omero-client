@@ -1,15 +1,13 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -43,12 +41,14 @@ import omero.model.TagAnnotationI;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
@@ -109,7 +109,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
         tagData.setTagDescription(description);
-
         addTag(client, tagData);
     }
 
@@ -131,7 +130,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Private function. Adds a tag to the object in OMERO, if possible.
+     * Protected function. Adds a tag to the object in OMERO, if possible.
      *
      * @param client  The client handling the connection.
      * @param tagData Tag to be added.
@@ -154,7 +153,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * Adds multiple tags to the object in OMERO, if possible.
      *
      * @param client The client handling the connection.
-     * @param id     Id in OMERO of tag to add.
+     * @param id     ID of the tag to add to the object.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -217,27 +216,21 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<Class<? extends AnnotationData>> types = new ArrayList<>();
-        types.add(TagAnnotationData.class);
+        List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = null;
+        List<AnnotationData> annotations = new ArrayList<>(0);
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get tags for " + this);
         }
 
-        List<TagAnnotationWrapper> tags = new ArrayList<>();
-        if (annotations != null) {
-            for (AnnotationData annotation : annotations) {
-                TagAnnotationData tagAnnotation = (TagAnnotationData) annotation;
-
-                tags.add(new TagAnnotationWrapper(tagAnnotation));
-            }
-        }
-
-        tags.sort(new SortById<>());
-        return tags;
+        return annotations.stream()
+                          .filter(TagAnnotationData.class::isInstance)
+                          .map(TagAnnotationData.class::cast)
+                          .map(TagAnnotationWrapper::new)
+                          .sorted(Comparator.comparing(TagAnnotationWrapper::getId))
+                          .collect(Collectors.toList());
     }
 
 
@@ -254,12 +247,8 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<NamedValue> result = new ArrayList<>();
-        result.add(new NamedValue(key, value));
-
-        MapAnnotationData mapData = new MapAnnotationData();
-        mapData.setContent(result);
-        addMapAnnotation(client, new MapAnnotationWrapper(mapData));
+        List<NamedValue> kv = Collections.singletonList(new NamedValue(key, value));
+        addMapAnnotation(client, new MapAnnotationWrapper(kv));
     }
 
 
@@ -276,33 +265,22 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public Map<String, String> getKeyValuePairs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Map<String, String> keyValuePairs = new HashMap<>();
+        List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
 
-        List<Long> userIds = new ArrayList<>();
-        userIds.add(client.getId());
-
-        List<Class<? extends AnnotationData>> types = new ArrayList<>();
-        types.add(MapAnnotationData.class);
-
-        List<AnnotationData> annotations = null;
+        List<AnnotationData> annotations = new ArrayList<>(0);
         try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get k/v pairs for " + this);
+            handleServiceOrAccess(e, "Cannot get key-value pairs for " + this);
         }
 
-        if (annotations != null) {
-            for (AnnotationData annotation : annotations) {
-                MapAnnotationData mapAnnotation = (MapAnnotationData) annotation;
-
-                @SuppressWarnings("unchecked")
-                List<NamedValue> list = (List<NamedValue>) mapAnnotation.getContent();
-
-                list.forEach(kv -> keyValuePairs.put(kv.name, kv.value));
-            }
-        }
-
-        return keyValuePairs;
+        return annotations.stream()
+                          .filter(MapAnnotationData.class::isInstance)
+                          .map(MapAnnotationData.class::cast)
+                          .map(MapAnnotationWrapper::new)
+                          .map(MapAnnotationWrapper::getContent)
+                          .flatMap(List::stream)
+                          .collect(Collectors.toMap(n -> n.name, n -> n.value));
     }
 
 
@@ -320,13 +298,13 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     public String getValue(Client client, String key)
-    throws ServiceException, AccessException, NoSuchElementException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Map<String, String> keyValuePairs = getKeyValuePairs(client);
         String              value         = keyValuePairs.get(key);
         if (value != null) {
             return value;
         } else {
-            throw new NoSuchElementException("Key value pair " + key + " not found");
+            throw new NoSuchElementException("Key \"" + key + "\" not found");
         }
     }
 
@@ -349,7 +327,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                                             mapAnnotation.asMapAnnotationData(),
                                             this.data);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add k/v pairs to " + this);
+            handleServiceOrAccess(e, "Cannot add key-value pairs to " + this);
         }
     }
 
@@ -409,7 +387,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Gets all table linked to the object in OMERO.
+     * Gets all tables linked to the object in OMERO.
      *
      * @param client The client handling the connection.
      *
@@ -421,7 +399,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = new ArrayList<>();
+        Collection<FileAnnotationData> tables = new ArrayList<>(0);
         try {
             tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
         } catch (DSOutOfServiceException | DSAccessException e) {
@@ -473,27 +451,20 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<FileAnnotationWrapper> getFileAnnotations(Client client)
     throws ExecutionException, ServiceException, AccessException {
-        List<Class<? extends AnnotationData>> types = new ArrayList<>();
-        types.add(FileAnnotationData.class);
+        List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
 
-        List<FileAnnotationWrapper> fileAnnotations = new ArrayList<>();
-
-        List<AnnotationData> annotations = new ArrayList<>();
-
+        List<AnnotationData> annotations = new ArrayList<>(0);
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot retrieve file annotations from " + this);
         }
 
-        for (AnnotationData annotation : annotations) {
-            if (annotation instanceof FileAnnotationData) {
-                FileAnnotationWrapper file = new FileAnnotationWrapper((FileAnnotationData) annotation);
-                fileAnnotations.add(file);
-            }
-        }
-
-        return fileAnnotations;
+        return annotations.stream()
+                          .filter(FileAnnotationData.class::isInstance)
+                          .map(FileAnnotationData.class::cast)
+                          .map(FileAnnotationWrapper::new)
+                          .collect(Collectors.toList());
     }
 
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -45,7 +45,7 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      *
      * @return List of elements of
      */
-    public <T extends GenericShapeWrapper<?>> List<T> getElementsOf(Class<T> clazz) {
+    public <T extends GenericShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
     }
 
@@ -58,25 +58,26 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      * @return {@code true} (as specified by {@link ArrayList#add(Object)})
      */
     public boolean add(ShapeData shape) {
+        boolean added = false;
+        //noinspection IfStatementWithTooManyBranches,ChainOfInstanceofChecks
         if (shape instanceof PointData) {
-            return super.add(new PointWrapper((PointData) shape));
+            added = add(new PointWrapper((PointData) shape));
         } else if (shape instanceof TextData) {
-            return super.add(new TextWrapper((TextData) shape));
+            added = add(new TextWrapper((TextData) shape));
         } else if (shape instanceof RectangleData) {
-            return super.add(new RectangleWrapper((RectangleData) shape));
+            added = add(new RectangleWrapper((RectangleData) shape));
         } else if (shape instanceof MaskData) {
-            return super.add(new MaskWrapper((MaskData) shape));
+            added = add(new MaskWrapper((MaskData) shape));
         } else if (shape instanceof EllipseData) {
-            return super.add(new EllipseWrapper((EllipseData) shape));
+            added = add(new EllipseWrapper((EllipseData) shape));
         } else if (shape instanceof LineData) {
-            return super.add(new LineWrapper((LineData) shape));
+            added = add(new LineWrapper((LineData) shape));
         } else if (shape instanceof PolylineData) {
-            return super.add(new PolylineWrapper((PolylineData) shape));
+            added = add(new PolylineWrapper((PolylineData) shape));
         } else if (shape instanceof PolygonData) {
-            return super.add(new PolygonWrapper((PolygonData) shape));
-        } else {
-            return super.add(new ShapeWrapper(shape));
+            added = add(new PolygonWrapper((PolygonData) shape));
         }
+        return added;
     }
 
 }

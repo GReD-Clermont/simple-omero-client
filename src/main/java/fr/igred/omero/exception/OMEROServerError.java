@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -29,8 +29,7 @@ public class OMEROServerError extends ServerError {
      * @param cause   The exception that caused this one to be risen.
      */
     public OMEROServerError(String details, Throwable cause) {
-        super(cause);
-        message = details;
+        super("", "", details, cause);
     }
 
 
@@ -40,8 +39,7 @@ public class OMEROServerError extends ServerError {
      * @param cause The exception that caused this one to be risen.
      */
     public OMEROServerError(Throwable cause) {
-        super(cause);
-        message = "A server error occurred";
+        this("A server error occurred", cause);
     }
 
 }

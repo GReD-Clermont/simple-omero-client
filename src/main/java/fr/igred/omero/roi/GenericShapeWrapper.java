@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2021 GReD
+ *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,7 +17,10 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.GenericObjectWrapper;
+import ij.gui.Line;
 import ij.gui.Roi;
+import ij.gui.ShapeRoi;
+import ij.gui.TextRoi;
 import ome.model.units.BigResult;
 import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
@@ -27,6 +30,10 @@ import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,10 +49,84 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Constructor of the GenericShapeWrapper class using a ShapeData.
      *
-     * @param shape the shape
+     * @param object the shape
      */
-    protected GenericShapeWrapper(T shape) {
-        super(shape);
+    protected GenericShapeWrapper(T object) {
+        super(object);
+    }
+
+
+    /**
+     * Converts an IJ roi to a list of shapes.
+     *
+     * @param ijRoi An ImageJ ROI.
+     *
+     * @return A list of ShapeWrappers.
+     */
+    static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
+        ShapeList list = new ShapeList();
+        int       type = ijRoi.getType();
+        switch (type) {
+            case Roi.FREEROI:
+            case Roi.TRACED_ROI:
+            case Roi.POLYGON:
+                list.add(new PolygonWrapper(ijRoi));
+                break;
+            case Roi.FREELINE:
+            case Roi.ANGLE:
+            case Roi.POLYLINE:
+                list.add(new PolylineWrapper(ijRoi));
+                break;
+            case Roi.LINE:
+                list.add(new LineWrapper((Line) ijRoi));
+                break;
+            case Roi.OVAL:
+                list.add(new EllipseWrapper(ijRoi));
+                break;
+            case Roi.POINT:
+                int[] x = ijRoi.getPolygon().xpoints;
+                int[] y = ijRoi.getPolygon().ypoints;
+
+                Collection<PointWrapper> points = new LinkedList<>();
+                for (int i = 0; i < x.length; i++) {
+                    points.add(new PointWrapper(x[i], y[i]));
+                }
+                points.forEach(p -> p.setText(ijRoi.getName()));
+                points.forEach(p -> p.copy(ijRoi));
+                list.addAll(points);
+                break;
+            case Roi.COMPOSITE:
+                List<ij.gui.Roi> rois = Arrays.asList(((ShapeRoi) ijRoi).getRois());
+                rois.forEach(r -> r.setName(ijRoi.getName()));
+                rois.forEach(r -> r.setPosition(ijRoi.getCPosition(),
+                                                ijRoi.getZPosition(),
+                                                ijRoi.getTPosition()));
+                rois.stream().map(GenericShapeWrapper::fromImageJ).forEach(list::addAll);
+                break;
+            default:
+                if (ijRoi instanceof TextRoi)
+                    list.add(new TextWrapper((TextRoi) ijRoi));
+                else
+                    list.add(new RectangleWrapper(ijRoi));
+                break;
+        }
+        return list;
+    }
+
+
+    /**
+     * Copies details from an ImageJ ROI (position, stroke color, stroke width).
+     *
+     * @param ijRoi An ImageJ Roi.
+     */
+    protected final void copy(ij.gui.Roi ijRoi) {
+        data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
+        data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
+        data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
+        LengthI size = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
+        data.getShapeSettings().setStrokeWidth(size);
+        data.getShapeSettings().setStroke(ijRoi.getStrokeColor());
+        data.getShapeSettings().setFill(ijRoi.getFillColor());
     }
 
 
@@ -72,7 +153,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the channel.
      *
-     * @param c the channel. Pass -1 to remove z value, i. e. shape applies to all channels of the image.
+     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
      */
     public void setC(int c) {
         this.data.setC(c);
@@ -92,7 +173,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the z-section.
      *
-     * @param z the z-section. Pass -1 to remove z value, i. e. shape applies to all z-sections of the image.
+     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      */
     public void setZ(int z) {
         this.data.setZ(z);
@@ -112,7 +193,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the time-point.
      *
-     * @param t the time-point. Pass -1 to remove t value, i. e. shape applies to all time-points of the image.
+     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
     public void setT(int t) {
         this.data.setT(t);
@@ -122,9 +203,9 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets the channel, z-section and time-point at once.
      *
-     * @param c the channel. Pass -1 to remove z value, i. e. shape applies to all channels of the image.
-     * @param z the z-section. Pass -1 to remove z value, i. e. shape applies to all z-sections of the image.
-     * @param t the time-point. Pass -1 to remove t value, i. e. shape applies to all time-points of the image.
+     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
+     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
+     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
     public void setCZT(int c, int z, int t) {
         setC(c);
@@ -255,7 +336,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      * @return The converted affine transform.
      */
     public java.awt.geom.AffineTransform toAWTTransform() {
-        if (data.getTransform() == null) return null;
+        if (data.getTransform() == null) return new java.awt.geom.AffineTransform();
         else {
             double a00 = data.getTransform().getA00().getValue();
             double a10 = data.getTransform().getA10().getValue();
@@ -275,7 +356,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      * @return A new transformed {@link java.awt.Shape}.
      */
     public java.awt.Shape createTransformedAWTShape() {
-        if (toAWTTransform() == null) return toAWTShape();
+        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) return toAWTShape();
         else return toAWTTransform().createTransformedShape(toAWTShape());
     }
 
@@ -309,9 +390,10 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      * @return An ImageJ ROI.
      */
     public Roi toImageJ() {
-        ij.gui.ShapeRoi roi = new ij.gui.ShapeRoi(createTransformedAWTShape());
+        Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
         roi.setName(getText());
         roi.setStrokeColor(getStroke());
+        roi.setFillColor(data.getShapeSettings().getFill());
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);
