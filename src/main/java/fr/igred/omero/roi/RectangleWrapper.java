@@ -47,19 +47,6 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
 
 
     /**
-     * Constructor of the RectangleWrapper class using a new RectangleData.
-     *
-     * @param x      The x-coordinate of the top-left corner.
-     * @param y      The y-coordinate of the top-left corner.
-     * @param width  The width of the rectangle.
-     * @param height The height of the rectangle.
-     */
-    public RectangleWrapper(double x, double y, double width, double height) {
-        this(new RectangleData(x, y, width, height));
-    }
-
-
-    /**
      * Constructor of the RectangleWrapper class using bounds from an ImageJ ROI.
      *
      * @param ijRoi An ImageJ ROI.
@@ -72,6 +59,19 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
 
         data.setText(ijRoi.getName());
         copy(ijRoi);
+    }
+
+
+    /**
+     * Constructor of the RectangleWrapper class using a new RectangleData.
+     *
+     * @param x      The x-coordinate of the top-left corner.
+     * @param y      The y-coordinate of the top-left corner.
+     * @param width  The width of the rectangle.
+     * @param height The height of the rectangle.
+     */
+    public RectangleWrapper(double x, double y, double width, double height) {
+        this(new RectangleData(x, y, width, height));
     }
 
 

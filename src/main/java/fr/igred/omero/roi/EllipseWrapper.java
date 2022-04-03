@@ -49,19 +49,6 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
 
 
     /**
-     * Constructor of the EllipseWrapper class using a new EllipseData.
-     *
-     * @param x       The x-coordinate of the center of the ellipse.
-     * @param y       The y-coordinate of the center of the ellipse.
-     * @param radiusX The radius along the X-axis.
-     * @param radiusY The radius along the Y-axis.
-     */
-    public EllipseWrapper(double x, double y, double radiusX, double radiusY) {
-        this(new EllipseData(x, y, radiusX, radiusY));
-    }
-
-
-    /**
      * Constructor of the EllipseWrapper class using bounds from an ImageJ ROI.
      *
      * @param ijRoi An ImageJ ROI.
@@ -73,6 +60,19 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
              ijRoi.getBounds().getHeight() / 2);
         data.setText(ijRoi.getName());
         copy(ijRoi);
+    }
+
+
+    /**
+     * Constructor of the EllipseWrapper class using a new EllipseData.
+     *
+     * @param x       The x-coordinate of the center of the ellipse.
+     * @param y       The y-coordinate of the center of the ellipse.
+     * @param radiusX The radius along the X-axis.
+     * @param radiusY The radius along the Y-axis.
+     */
+    public EllipseWrapper(double x, double y, double radiusX, double radiusY) {
+        this(new EllipseData(x, y, radiusX, radiusY));
     }
 
 

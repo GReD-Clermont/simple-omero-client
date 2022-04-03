@@ -50,16 +50,6 @@ public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
 
 
     /**
-     * Constructor of the RectangleWrapper class using a new LineData.
-     *
-     * @param points the points in the polyline.
-     */
-    public PolylineWrapper(List<Point2D.Double> points) {
-        this(new PolylineData(points));
-    }
-
-
-    /**
      * Constructor of the PolylineWrapper class using an ImageJ PolygonRoi.
      *
      * @param ijRoi An ImageJ ROI.
@@ -75,6 +65,16 @@ public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
         data.setPoints(points);
         data.setText(ijRoi.getName());
         copy(ijRoi);
+    }
+
+
+    /**
+     * Constructor of the RectangleWrapper class using a new LineData.
+     *
+     * @param points the points in the polyline.
+     */
+    public PolylineWrapper(List<Point2D.Double> points) {
+        this(new PolylineData(points));
     }
 
 

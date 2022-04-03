@@ -51,19 +51,6 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
 
 
     /**
-     * Constructor of the RectangleWrapper class using a new LineData.
-     *
-     * @param x1 x1-coordinate of the shape.
-     * @param y1 y1-coordinate of the shape.
-     * @param x2 x2-coordinate of the shape.
-     * @param y2 y2-coordinate of the shape.
-     */
-    public LineWrapper(double x1, double y1, double x2, double y2) {
-        this(new LineData(x1, y1, x2, y2));
-    }
-
-
-    /**
      * Constructor of the LineWrapper class using an ImageJ Line ROI.
      *
      * @param line An ImageJ Line ROI.
@@ -79,6 +66,19 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
             }
         }
         copy(line);
+    }
+
+
+    /**
+     * Constructor of the RectangleWrapper class using a new LineData.
+     *
+     * @param x1 x1-coordinate of the shape.
+     * @param y1 y1-coordinate of the shape.
+     * @param x2 x2-coordinate of the shape.
+     * @param y2 y2-coordinate of the shape.
+     */
+    public LineWrapper(double x1, double y1, double x2, double y2) {
+        this(new LineData(x1, y1, x2, y2));
     }
 
 
