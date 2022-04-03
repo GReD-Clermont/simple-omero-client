@@ -60,6 +60,22 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
 
 
     /**
+     * Constructor of the RectangleWrapper class using bounds from an ImageJ ROI.
+     *
+     * @param ijRoi An ImageJ ROI.
+     */
+    public RectangleWrapper(ij.gui.Roi ijRoi) {
+        this(ijRoi.getBounds().getX(),
+             ijRoi.getBounds().getY(),
+             ijRoi.getBounds().getWidth(),
+             ijRoi.getBounds().getHeight());
+
+        data.setText(ijRoi.getName());
+        copy(ijRoi);
+    }
+
+
+    /**
      * Gets the text on the ShapeData.
      *
      * @return the text

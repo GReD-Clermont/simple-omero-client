@@ -58,6 +58,17 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
 
 
     /**
+     * Constructor of the TextWrapper class using an ImageJ TextRoi.
+     *
+     * @param text An ImageJ TextRoi.
+     */
+    public TextWrapper(TextRoi text) {
+        this(text.getText(), text.getBounds().getX(), text.getBounds().getY());
+        copy(text);
+    }
+
+
+    /**
      * Gets the text on the ShapeData.
      *
      * @return the text

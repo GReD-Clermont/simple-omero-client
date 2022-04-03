@@ -18,12 +18,15 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.Roi;
 import omero.gateway.model.PolygonData;
 
 import java.awt.Shape;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 
 public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
@@ -54,6 +57,25 @@ public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
      */
     public PolygonWrapper(List<Point2D.Double> points) {
         this(new PolygonData(points));
+    }
+
+
+    /**
+     * Constructor of the PolygonWrapper class using an ImageJ PolygonRoi.
+     *
+     * @param ijRoi An ImageJ ROI.
+     */
+    public PolygonWrapper(Roi ijRoi) {
+        this();
+        int[] x = ijRoi.getPolygon().xpoints;
+        int[] y = ijRoi.getPolygon().ypoints;
+
+        List<Point2D.Double> points = new LinkedList<>();
+        IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
+
+        data.setPoints(points);
+        data.setText(ijRoi.getName());
+        copy(ijRoi);
     }
 
 

@@ -18,11 +18,14 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.Roi;
 import omero.gateway.model.PolylineData;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 
 public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
@@ -53,6 +56,25 @@ public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
      */
     public PolylineWrapper(List<Point2D.Double> points) {
         this(new PolylineData(points));
+    }
+
+
+    /**
+     * Constructor of the PolylineWrapper class using an ImageJ PolygonRoi.
+     *
+     * @param ijRoi An ImageJ ROI.
+     */
+    public PolylineWrapper(Roi ijRoi) {
+        this();
+        int[] x = ijRoi.getPolygon().xpoints;
+        int[] y = ijRoi.getPolygon().ypoints;
+
+        List<Point2D.Double> points = new LinkedList<>();
+        IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
+
+        data.setPoints(points);
+        data.setText(ijRoi.getName());
+        copy(ijRoi);
     }
 
 

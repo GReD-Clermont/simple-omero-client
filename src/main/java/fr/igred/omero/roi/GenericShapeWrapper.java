@@ -17,7 +17,10 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.GenericObjectWrapper;
+import ij.gui.Line;
 import ij.gui.Roi;
+import ij.gui.ShapeRoi;
+import ij.gui.TextRoi;
 import ome.model.units.BigResult;
 import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
@@ -27,6 +30,10 @@ import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,6 +53,80 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      */
     protected GenericShapeWrapper(T object) {
         super(object);
+    }
+
+
+    /**
+     * Converts an IJ roi to a list of shapes.
+     *
+     * @param ijRoi An ImageJ ROI.
+     *
+     * @return A list of ShapeWrappers.
+     */
+    static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
+        ShapeList list = new ShapeList();
+        int       type = ijRoi.getType();
+        switch (type) {
+            case Roi.FREEROI:
+            case Roi.TRACED_ROI:
+            case Roi.POLYGON:
+                list.add(new PolygonWrapper(ijRoi));
+                break;
+            case Roi.FREELINE:
+            case Roi.ANGLE:
+            case Roi.POLYLINE:
+                list.add(new PolylineWrapper(ijRoi));
+                break;
+            case Roi.LINE:
+                list.add(new LineWrapper((Line) ijRoi));
+                break;
+            case Roi.OVAL:
+                list.add(new EllipseWrapper(ijRoi));
+                break;
+            case Roi.POINT:
+                int[] x = ijRoi.getPolygon().xpoints;
+                int[] y = ijRoi.getPolygon().ypoints;
+
+                Collection<PointWrapper> points = new LinkedList<>();
+                for (int i = 0; i < x.length; i++) {
+                    points.add(new PointWrapper(x[i], y[i]));
+                }
+                points.forEach(p -> p.setText(ijRoi.getName()));
+                points.forEach(p -> p.copy(ijRoi));
+                list.addAll(points);
+                break;
+            case Roi.COMPOSITE:
+                List<ij.gui.Roi> rois = Arrays.asList(((ShapeRoi) ijRoi).getRois());
+                rois.forEach(r -> r.setName(ijRoi.getName()));
+                rois.forEach(r -> r.setPosition(ijRoi.getCPosition(),
+                                                ijRoi.getZPosition(),
+                                                ijRoi.getTPosition()));
+                rois.stream().map(GenericShapeWrapper::fromImageJ).forEach(list::addAll);
+                break;
+            default:
+                if (ijRoi instanceof TextRoi)
+                    list.add(new TextWrapper((TextRoi) ijRoi));
+                else
+                    list.add(new RectangleWrapper(ijRoi));
+                break;
+        }
+        return list;
+    }
+
+
+    /**
+     * Copies details from an ImageJ ROI (position, stroke color, stroke width).
+     *
+     * @param ijRoi An ImageJ Roi.
+     */
+    protected final void copy(ij.gui.Roi ijRoi) {
+        data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
+        data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
+        data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
+        LengthI size = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
+        data.getShapeSettings().setStrokeWidth(size);
+        data.getShapeSettings().setStroke(ijRoi.getStrokeColor());
+        data.getShapeSettings().setFill(ijRoi.getFillColor());
     }
 
 

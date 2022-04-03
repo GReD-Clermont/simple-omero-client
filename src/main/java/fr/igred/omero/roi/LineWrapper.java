@@ -64,6 +64,25 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
 
 
     /**
+     * Constructor of the LineWrapper class using an ImageJ Line ROI.
+     *
+     * @param line An ImageJ Line ROI.
+     */
+    public LineWrapper(Line line) {
+        this(line.x1d, line.y1d, line.x2d, line.y2d);
+        data.setText(line.getName());
+
+        if (line instanceof Arrow) {
+            data.getShapeSettings().setMarkerEnd(ARROW);
+            if (((Arrow) line).getDoubleHeaded()) {
+                data.getShapeSettings().setMarkerStart(ARROW);
+            }
+        }
+        copy(line);
+    }
+
+
+    /**
      * Gets the text on the ShapeData.
      *
      * @return the text

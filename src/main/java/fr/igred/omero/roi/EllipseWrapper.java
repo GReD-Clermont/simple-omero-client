@@ -62,6 +62,21 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
 
 
     /**
+     * Constructor of the EllipseWrapper class using bounds from an ImageJ ROI.
+     *
+     * @param ijRoi An ImageJ ROI.
+     */
+    public EllipseWrapper(ij.gui.Roi ijRoi) {
+        this(ijRoi.getBounds().getX() + ijRoi.getBounds().getWidth() / 2,
+             ijRoi.getBounds().getY() + ijRoi.getBounds().getHeight() / 2,
+             ijRoi.getBounds().getWidth() / 2,
+             ijRoi.getBounds().getHeight() / 2);
+        data.setText(ijRoi.getName());
+        copy(ijRoi);
+    }
+
+
+    /**
      * Gets the text on the ShapeData.
      *
      * @return the text
