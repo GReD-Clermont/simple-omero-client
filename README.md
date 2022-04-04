@@ -22,7 +22,7 @@ Client client = new Client();
 client.connect("host", 4064, "username", password, groupId);
 ```
 
-### Repository objects (projects, datasets, images)
+### Repository objects (projects, datasets, images, screens, wells, plates)
 
 It can then be used to retrieve all the repository objects the user has access to, like projects or datasets:
 

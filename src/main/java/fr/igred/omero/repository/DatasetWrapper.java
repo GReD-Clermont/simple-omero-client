@@ -359,7 +359,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(Client client, Iterable<? extends ImageWrapper> images)
+    public void addImages(Client client, List<? extends ImageWrapper> images)
     throws ServiceException, AccessException, ExecutionException {
         for (ImageWrapper image : images) {
             addImage(client, image);
