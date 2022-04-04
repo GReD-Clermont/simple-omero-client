@@ -101,7 +101,7 @@ public class ROITest extends UserTest {
     public void testRoiAddShapeAndDeleteIt() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        Collection<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
+        List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
