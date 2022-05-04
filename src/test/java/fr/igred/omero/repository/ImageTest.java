@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.EllipseWrapper;
 import fr.igred.omero.roi.ROIWrapper;
@@ -739,6 +740,108 @@ public class ImageTest extends UserTest {
         assertTrue(files.get(0).exists());
         Files.deleteIfExists(files.get(0).toPath());
         Files.deleteIfExists(files.get(1).toPath());
+    }
+
+
+    @Test
+    public void testImportAndRenameImages() throws Exception {
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+
+        DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
+        client.getProject(PROJECT1.id).addDataset(client, dataset);
+
+        File imageFile = new File("." + File.separator + filename);
+        if (!imageFile.createNewFile())
+            System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be created.");
+
+        File file = new File("." + File.separator + "test.txt");
+        if (!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
+            out.print(generatedString);
+        }
+
+        List<Long>   ids1   = dataset.importImage(client, imageFile.getAbsolutePath());
+        ImageWrapper image1 = client.getImage(ids1.get(0));
+        image1.setDescription("This is");
+        image1.saveAndUpdate(client);
+
+        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
+        image1.addTag(client, tag1);
+        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+
+        long fileId = image1.addFile(client, file);
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+        assertNotEquals(0L, fileId);
+
+        List<Long>   ids2   = dataset.importImage(client, imageFile.getAbsolutePath());
+        ImageWrapper image2 = client.getImage(ids2.get(0));
+        image2.setDescription("a test.");
+        image2.saveAndUpdate(client);
+
+        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
+        image2.addTag(client, tag2);
+        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
+        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+
+        final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        ROIWrapper roi = new ROIWrapper();
+        roi.setImage(image2);
+        roi.addShape(rectangle);
+        image2.saveROI(client, roi);
+
+        FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
+        folder.setImage(image2);
+        folder.addROI(client, roi);
+
+        TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
+        table.setColumn(0, "Name", String.class);
+        table.setRowCount(1);
+        table.addRow("Annotation");
+        image1.addTable(client, table);
+        image2.addTable(client, table);
+
+        List<Long>   ids3   = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath());
+        ImageWrapper image3 = client.getImage(ids3.get(0));
+
+        assertEquals(2, image3.getTags(client).size());
+        assertEquals(2, image3.getTables(client).size());
+        assertEquals(3, image3.getFileAnnotations(client).size());
+        assertEquals(1, image3.getMapAnnotations(client).size());
+        assertEquals(1, image3.getROIs(client).size());
+        assertEquals(1, image3.getFolders(client).size());
+        assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
+        assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
+        assertEquals("ReplaceTest", image3.getValue(client, "Map"));
+        assertEquals("ReplaceTestTable", image3.getTables(client).get(0).getName());
+        assertEquals("This is\na test.", image3.getDescription());
+
+        client.delete(image3.getMapAnnotations(client).get(0));
+
+        if (!imageFile.delete())
+            System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be deleted.");
+
+        List<ImageWrapper> images = dataset.getImages(client);
+
+        for (ImageWrapper image : images) {
+            client.delete(image);
+        }
+        List<ImageWrapper> endImages = dataset.getImages(client);
+        client.delete(dataset);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(table);
+        client.deleteFile(fileId);
+        client.delete(roi);
+        client.delete(folder);
+
+        assertEquals(1, images.size());
+        assertTrue(endImages.isEmpty());
     }
 
 

@@ -71,7 +71,7 @@ public class ClientTest extends UserTest {
                 differences++;
         }
 
-        assertEquals(2, projects.size());
+        assertEquals(1, projects.size());
         assertEquals(0, differences);
     }
 
@@ -171,6 +171,13 @@ public class ClientTest extends UserTest {
     @Test
     public void testGetImagesKeyValue() throws Exception {
         List<ImageWrapper> images = client.getImagesPairKeyValue("testKey1", "testValue1");
+        assertEquals(2, images.size());
+    }
+
+
+    @Test
+    public void testGetImagesFromNames() throws Exception {
+        List<ImageWrapper> images = client.getImages(PROJECT1.name, DATASET1.name, IMAGE1.name);
         assertEquals(2, images.size());
     }
 

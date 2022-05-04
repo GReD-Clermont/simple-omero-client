@@ -362,6 +362,33 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all images with the name specified inside projects and datasets with the given names.
+     *
+     * @param projectName Expected project name.
+     * @param datasetName Expected dataset name.
+     * @param imageName   Expected image name.
+     *
+     * @return ImageWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
+    throws ServiceException, AccessException, ExecutionException {
+        List<ImageWrapper>   images   = new ArrayList<>();
+        List<ProjectWrapper> projects = getProjects(projectName);
+        for (ProjectWrapper project : projects) {
+            List<DatasetWrapper> datasets = project.getDatasets(datasetName);
+            for (DatasetWrapper dataset : datasets) {
+                images.addAll(dataset.getImages(this, imageName));
+            }
+        }
+        return images;
+    }
+
+
+    /**
      * Gets all images with a certain motif in their name from OMERO.
      *
      * @param motif Motif searched in an image name.

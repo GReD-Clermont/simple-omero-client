@@ -26,6 +26,7 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
@@ -204,11 +205,11 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Gets all tag linked to an object in OMERO, if possible.
+     * Gets all tags linked to an object in OMERO, if possible.
      *
      * @param client The client handling the connection.
      *
-     * @return Collection of TagAnnotationWrapper each containing a tag linked to the object.
+     * @return List of TagAnnotationWrappers each containing a tag linked to the object.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -235,6 +236,37 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
+     * Gets all map annotations linked to an object in OMERO, if possible.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return List of MapAnnotationWrappers.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<MapAnnotationWrapper> getMapAnnotations(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
+
+        List<AnnotationData> annotations = new ArrayList<>(0);
+        try {
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get tags for " + this);
+        }
+
+        return annotations.stream()
+                          .filter(MapAnnotationData.class::isInstance)
+                          .map(MapAnnotationData.class::cast)
+                          .map(MapAnnotationWrapper::new)
+                          .sorted(Comparator.comparing(MapAnnotationWrapper::getId))
+                          .collect(Collectors.toList());
+    }
+
+
+    /**
      * Adds a single Key-Value pair to the object.
      *
      * @param client The client handling the connection.
@@ -247,8 +279,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<NamedValue> kv = Collections.singletonList(new NamedValue(key, value));
-        addMapAnnotation(client, new MapAnnotationWrapper(kv));
+        List<NamedValue>     kv  = Collections.singletonList(new NamedValue(key, value));
+        MapAnnotationWrapper pkv = new MapAnnotationWrapper(kv);
+        pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
+        addMapAnnotation(client, pkv);
     }
 
 
@@ -377,12 +411,20 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData table = null;
+        String    name  = null;
         try {
             table = client.getTablesFacility().getTable(client.getCtx(), fileId);
+            name = client.getTablesFacility()
+                         .getAvailableTables(client.getCtx(), data)
+                         .stream().filter(t -> t.getFileID() == fileId)
+                         .map(FileAnnotationData::getDescription)
+                         .findFirst().orElse(null);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get table from " + this);
         }
-        return new TableWrapper(Objects.requireNonNull(table));
+        TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
+        result.setName(name);
+        return result;
     }
 
 
@@ -435,6 +477,26 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                                          "",
                                          file.getName(),
                                          data).get().getId();
+    }
+
+
+    /**
+     * Links a file annotation to the object
+     *
+     * @param client     The client handling the connection.
+     * @param annotation FileAnnotationWrapper to link.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void addFileAnnotation(Client client, FileAnnotationWrapper annotation)
+    throws AccessException, ServiceException, ExecutionException {
+        try {
+            client.getDm().attachAnnotation(client.getCtx(), annotation.asFileAnnotationData(), this.data);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot link file annotation to " + this);
+        }
     }
 
 
@@ -506,6 +568,56 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                                               " link where link.parent = " + getId() +
                                               " and link.child = " + childId);
         delete(client, os.iterator().next());
+    }
+
+
+    /**
+     * Retrieves annotations linked to the object.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return A list of annotations, as AnnotationData.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    private List<AnnotationData> getAnnotations(Client client)
+    throws AccessException, ServiceException, ExecutionException {
+        List<AnnotationData> annotations = new ArrayList<>(0);
+        try {
+            annotations = client.getMetadata().getAnnotations(client.getCtx(), data);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get annotations from " + this);
+        }
+        return annotations;
+    }
+
+
+    /**
+     * Copies annotations from some other object to this one
+     *
+     * @param client The client handling the connection.
+     * @param object Other repository object to copy annotations from.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void copyAnnotations(Client client, GenericRepositoryObjectWrapper<?> object)
+    throws AccessException, ServiceException, ExecutionException {
+        List<AnnotationData> newAnnotations = object.getAnnotations(client);
+        List<AnnotationData> oldAnnotations = this.getAnnotations(client);
+        for (AnnotationData annotation : oldAnnotations) {
+            newAnnotations.removeIf(a -> a.getId() == annotation.getId());
+        }
+        try {
+            for (AnnotationData annotation : newAnnotations) {
+                client.getDm().attachAnnotation(client.getCtx(), annotation, this.data);
+            }
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot link annotations to " + this);
+        }
     }
 
 
