@@ -26,6 +26,7 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
@@ -278,8 +279,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<NamedValue> kv = Collections.singletonList(new NamedValue(key, value));
-        addMapAnnotation(client, new MapAnnotationWrapper(kv));
+        List<NamedValue>     kv  = Collections.singletonList(new NamedValue(key, value));
+        MapAnnotationWrapper pkv = new MapAnnotationWrapper(kv);
+        pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
+        addMapAnnotation(client, pkv);
     }
 
 
@@ -408,12 +411,20 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData table = null;
+        String    name  = null;
         try {
             table = client.getTablesFacility().getTable(client.getCtx(), fileId);
+            name = client.getTablesFacility()
+                         .getAvailableTables(client.getCtx(), data)
+                         .stream().filter(t -> t.getFileID() == fileId)
+                         .map(FileAnnotationData::getDescription)
+                         .findFirst().orElse(null);
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get table from " + this);
         }
-        return new TableWrapper(Objects.requireNonNull(table));
+        TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
+        result.setName(name);
+        return result;
     }
 
 
@@ -595,9 +606,13 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void copyAnnotations(Client client, GenericRepositoryObjectWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> annotations = object.getAnnotations(client);
+        List<AnnotationData> newAnnotations = object.getAnnotations(client);
+        List<AnnotationData> oldAnnotations = this.getAnnotations(client);
+        for (AnnotationData annotation : oldAnnotations) {
+            newAnnotations.removeIf(a -> a.getId() == annotation.getId());
+        }
         try {
-            for (AnnotationData annotation : annotations) {
+            for (AnnotationData annotation : newAnnotations) {
                 client.getDm().attachAnnotation(client.getCtx(), annotation, this.data);
             }
         } catch (DSOutOfServiceException | DSAccessException e) {
