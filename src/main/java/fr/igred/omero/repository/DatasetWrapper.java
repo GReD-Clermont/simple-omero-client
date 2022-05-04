@@ -24,6 +24,7 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.roi.ROIWrapper;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
@@ -68,6 +69,8 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> {
 
     public static final String ANNOTATION_LINK = "DatasetAnnotationLink";
+
+    private static final Long[] LONGS = new Long[0];
 
 
     /**
@@ -410,7 +413,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * Imports all images candidates in the paths to the dataset in OMERO.
      *
      * @param client The client handling the connection.
-     * @param paths  Paths to the image on your computer.
+     * @param paths  Paths to the image files on the computer.
      *
      * @return If the import did not exit because of an error.
      *
@@ -453,10 +456,10 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Imports one image candidate in the paths to the dataset in OMERO.
+     * Imports one image file to the dataset in OMERO.
      *
      * @param client The client handling the connection.
-     * @param path   Path to the image on your computer.
+     * @param path   Path to the image file on the computer.
      *
      * @return The list of IDs of the newly imported images.
      *
@@ -508,6 +511,50 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         List<Long> ids = new ArrayList<>(pixels.size());
         pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
         return ids.stream().distinct().collect(Collectors.toList());
+    }
+
+
+    /**
+     * Imports one image file to the dataset in OMERO and replace older images sharing the same name after copying their
+     * annotations and ROIs, and concatenating the descriptions (on new lines).
+     *
+     * @param client The client handling the connection.
+     * @param path   Path to the image on the computer.
+     *
+     * @return The list of IDs of the newly imported images.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws OMEROServerError     Server error.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public List<Long> importAndReplaceImages(Client client, String path)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException, InterruptedException {
+        List<Long> ids    = importImage(client, path);
+        Long[]     newIds = ids.toArray(LONGS);
+
+        List<ImageWrapper> newImages = client.getImages(newIds);
+        for (ImageWrapper image : newImages) {
+            List<ImageWrapper> oldImages = getImages(client, image.getName());
+            oldImages.removeIf(i -> ids.contains(i.getId()));
+            ArrayList<String> descriptions = new ArrayList<>(oldImages.size() + 1);
+            descriptions.add(image.getDescription());
+            for (ImageWrapper oldImage : oldImages) {
+                descriptions.add(oldImage.getDescription());
+                image.copyAnnotations(client, oldImage);
+                List<ROIWrapper> rois = oldImage.getROIs(client);
+                for (ROIWrapper roi : rois) {
+                    roi.setImage(image);
+                    image.saveROI(client, roi);
+                }
+                client.delete(oldImage);
+            }
+            descriptions.removeIf(s -> s == null || s.trim().isEmpty());
+            image.setDescription(String.join("\n", descriptions));
+            image.saveAndUpdate(client);
+        }
+        return ids;
     }
 
 
