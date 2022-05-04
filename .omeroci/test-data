@@ -81,7 +81,7 @@ omero login testUser@localhost -w password -g testGroup
 
 # create a simple project/dataset/image hierarchy
 PROJECT1=$(omero obj new Project name=TestProject description=description)
-PROJECT2=$(omero obj new Project name=TestProject)
+PROJECT2=$(omero obj new Project name=TestProject2)
 
 DATASET1=$(omero obj new Dataset name=TestDataset description=description)
 DATASET2=$(omero obj new Dataset name=TestDatasetImport)
