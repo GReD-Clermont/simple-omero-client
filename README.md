@@ -11,10 +11,10 @@ This library presents a simplified API to put/get objects on an OMERO server.
 <p>The JAR can be put into the ImageJ plugins folder to use it from scripts.
 
 
-## How to use:
+## How to use
 
 
-### Connection:
+### Connection
 The main entry point is the Client class, which can be used to retrieve, save or delete objects.
 
 <p>To use it, a connection has to be established first:
