@@ -322,7 +322,7 @@ public class ProjectTest extends UserTest {
         table.addRow("Annotation");
         project1.addTable(client, table);
 
-        project2.copyAnnotations(client, project1);
+        project2.copyAnnotationLinks(client, project1);
 
         assertEquals(project1.getTags(client).size(), project2.getTags(client).size());
         assertEquals(project1.getTables(client).size(), project2.getTables(client).size());

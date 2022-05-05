@@ -595,7 +595,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Copies annotations from some other object to this one
+     * Copies annotation links from some other object to this one
      *
      * @param client The client handling the connection.
      * @param object Other repository object to copy annotations from.
@@ -604,7 +604,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void copyAnnotations(Client client, GenericRepositoryObjectWrapper<?> object)
+    public void copyAnnotationLinks(Client client, GenericRepositoryObjectWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> newAnnotations = object.getAnnotations(client);
         List<AnnotationData> oldAnnotations = this.getAnnotations(client);

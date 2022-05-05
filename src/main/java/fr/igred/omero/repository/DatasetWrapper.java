@@ -542,7 +542,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             descriptions.add(image.getDescription());
             for (ImageWrapper oldImage : oldImages) {
                 descriptions.add(oldImage.getDescription());
-                image.copyAnnotations(client, oldImage);
+                image.copyAnnotationLinks(client, oldImage);
                 List<ROIWrapper> rois = oldImage.getROIs(client);
                 for (ROIWrapper roi : rois) {
                     roi.setImage(image);
