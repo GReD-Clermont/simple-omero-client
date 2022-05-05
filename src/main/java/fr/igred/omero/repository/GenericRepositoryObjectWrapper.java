@@ -254,7 +254,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try {
             annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
         } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tags for " + this);
+            handleServiceOrAccess(e, "Cannot get map annotations for " + this);
         }
 
         return annotations.stream()
