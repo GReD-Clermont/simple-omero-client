@@ -460,7 +460,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Links a file to the object
+     * Uploads a file and links it to the object
      *
      * @param client The client handling the connection.
      * @param file   File to add.
@@ -477,6 +477,42 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                                          "",
                                          file.getName(),
                                          data).get().getId();
+    }
+
+
+    /**
+     * Uploads a file, links it to the object and unlinks previous files with the same name, or deletes them.
+     *
+     * @param client The client handling the connection.
+     * @param file   File to add.
+     * @param delete Whether older files should be deleted as well: if {@code false}, files will only be unlinked.
+     *
+     * @return ID of the file created in OMERO.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     * @throws OMEROServerError     If the thread was interrupted.
+     */
+    public long replaceFile(Client client, File file, boolean delete)
+    throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
+        List<FileAnnotationWrapper> files = getFileAnnotations(client);
+
+        FileAnnotationData uploaded = client.getDm().attachFile(client.getCtx(),
+                                                                file,
+                                                                null,
+                                                                "",
+                                                                file.getName(),
+                                                                data).get();
+        FileAnnotationWrapper annotation = new FileAnnotationWrapper(uploaded);
+
+        files.removeIf(f -> !f.getFileName().equals(annotation.getFileName()));
+        for(FileAnnotationWrapper f : files) {
+            this.unlink(client, f);
+            if(delete) client.deleteFile(f.getId());
+        }
+        return annotation.getFileID();
     }
 
 
