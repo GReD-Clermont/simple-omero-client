@@ -333,8 +333,8 @@ public class ProjectTest extends UserTest {
         client.delete(tag);
         client.delete(table);
         List<MapAnnotationWrapper> maps = project1.getMapAnnotations(client);
-        if(!maps.isEmpty())
-            for(MapAnnotationWrapper map : maps)
+        if (!maps.isEmpty())
+            for (MapAnnotationWrapper map : maps)
                 client.delete(map);
 
         assertEquals(0, project2.getTags(client).size());
@@ -370,7 +370,7 @@ public class ProjectTest extends UserTest {
         List<FileAnnotationWrapper> files = project1.getFileAnnotations(client);
         assertEquals(1, files.size());
 
-        if(!files.isEmpty()) {
+        if (!files.isEmpty()) {
             project2.addFileAnnotation(client, files.get(0));
         }
         assertEquals(1, project2.getFileAnnotations(client).size());
@@ -378,6 +378,73 @@ public class ProjectTest extends UserTest {
         client.deleteFile(fileId);
 
         assertNotEquals(0L, fileId.longValue());
+    }
+
+
+    @Test
+    public void testReplaceAndUnlinkFile() throws Exception {
+        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+
+        File file = new File("." + File.separator + "test.txt");
+        if (!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
+            out.print(generatedString);
+        }
+
+        long fileId1 = project1.addFile(client, file);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        long fileId2 = project1.replaceFile(client, file, false);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        assertEquals(1, project2.getFileAnnotations(client).size());
+        assertNotEquals(fileId1, fileId2);
+
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+
+        client.delete(project1);
+        client.delete(project2);
+        client.deleteFile(fileId1);
+        client.deleteFile(fileId2);
+    }
+
+
+    @Test
+    public void testReplaceAndDeleteFile() throws Exception {
+        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+
+        File file = new File("." + File.separator + "test.txt");
+        if (!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
+            out.print(generatedString);
+        }
+
+        long fileId1 = project1.addFile(client, file);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        long fileId2 = project1.replaceFile(client, file, true);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        assertEquals(0, project2.getFileAnnotations(client).size());
+        assertNotEquals(fileId1, fileId2);
+
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+
+        client.delete(project1);
+        client.delete(project2);
+        client.deleteFile(fileId2);
     }
 
 }

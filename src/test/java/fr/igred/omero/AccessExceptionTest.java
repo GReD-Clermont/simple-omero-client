@@ -35,6 +35,7 @@ import org.junit.Test;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -160,10 +161,24 @@ public class AccessExceptionTest extends BasicTest {
 
     @Test(expected = AccessException.class)
     public void testSudoFailDeleteProject() throws Exception {
-        ProjectI       projectI    = new ProjectI(1L, false);
+        ProjectI       projectI    = new ProjectI(PROJECT1.id, false);
         ProjectData    projectData = new ProjectData(projectI);
         ProjectWrapper project     = new ProjectWrapper(projectData);
         sudo.delete(project);
+    }
+
+
+    @Test(expected = AccessException.class)
+    public void testSudoFailDeleteProjects() throws Exception {
+        ProjectI    projectI1    = new ProjectI(PROJECT1.id, false);
+        ProjectI    projectI2    = new ProjectI(2L, false);
+        ProjectData projectData1 = new ProjectData(projectI1);
+        ProjectData projectData2 = new ProjectData(projectI2);
+
+        Collection<ProjectWrapper> projects = new ArrayList<>(2);
+        projects.add(new ProjectWrapper(projectData1));
+        projects.add(new ProjectWrapper(projectData2));
+        sudo.delete(projects);
     }
 
 
