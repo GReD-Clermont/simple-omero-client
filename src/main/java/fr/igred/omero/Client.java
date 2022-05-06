@@ -757,6 +757,28 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Deletes multiple objects from OMERO.
+     *
+     * @param objects The OMERO object.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        for (GenericObjectWrapper<?> object : objects) {
+            if (object instanceof FolderWrapper) {
+                ((FolderWrapper) object).unlinkAllROI(this);
+            }
+        }
+        delete(objects.stream().map(GenericObjectWrapper::asIObject).collect(Collectors.toList()));
+    }
+
+
+    /**
      * Deletes an object from OMERO.
      *
      * @param object The OMERO object.
