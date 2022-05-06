@@ -516,10 +516,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
     /**
      * Imports one image file to the dataset in OMERO and replace older images sharing the same name after copying their
-     * annotations and ROIs, and concatenating the descriptions (on new lines).
+     * annotations and ROIs, and concatenating the descriptions (on new lines) by unlinking or even deleting them.
      *
      * @param client The client handling the connection.
      * @param path   Path to the image on the computer.
+     * @param delete Whether older images should be deleted as well: if {@code false}, images will only be unlinked.
      *
      * @return The list of IDs of the newly imported images.
      *
@@ -529,12 +530,13 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public List<Long> importAndReplaceImages(Client client, String path)
+    public List<Long> replaceImages(Client client, String path, boolean delete)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException, InterruptedException {
         List<Long> ids    = importImage(client, path);
         Long[]     newIds = ids.toArray(LONGS);
 
-        List<ImageWrapper> newImages = client.getImages(newIds);
+        List<ImageWrapper>       newImages = client.getImages(newIds);
+        Collection<ImageWrapper> toDelete  = new ArrayList<>(newImages.size());
         for (ImageWrapper image : newImages) {
             List<ImageWrapper> oldImages = getImages(client, image.getName());
             oldImages.removeIf(i -> ids.contains(i.getId()));
@@ -548,11 +550,15 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                     roi.setImage(image);
                     image.saveROI(client, roi);
                 }
-                client.delete(oldImage);
+                this.removeImage(client, oldImage);
+                toDelete.add(oldImage);
             }
             descriptions.removeIf(s -> s == null || s.trim().isEmpty());
             image.setDescription(String.join("\n", descriptions));
             image.saveAndUpdate(client);
+        }
+        if (delete) {
+            client.delete(toDelete);
         }
         return ids;
     }

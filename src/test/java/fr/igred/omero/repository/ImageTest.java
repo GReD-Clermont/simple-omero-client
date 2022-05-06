@@ -744,7 +744,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testImportAndRenameImages() throws Exception {
+    public void testReplaceImages() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
         DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
@@ -790,7 +790,7 @@ public class ImageTest extends UserTest {
         image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
 
         final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
-        ROIWrapper roi = new ROIWrapper();
+        ROIWrapper             roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
         image2.saveROI(client, roi);
@@ -806,7 +806,7 @@ public class ImageTest extends UserTest {
         image1.addTable(client, table);
         image2.addTable(client, table);
 
-        List<Long>   ids3   = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath());
+        List<Long>   ids3   = dataset.replaceImages(client, imageFile.getAbsolutePath(), true);
         ImageWrapper image3 = client.getImage(ids3.get(0));
 
         assertEquals(2, image3.getTags(client).size());
