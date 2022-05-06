@@ -23,6 +23,7 @@ import fr.igred.omero.exception.ServiceException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.FileAnnotationData;
 
 import java.io.File;
@@ -44,51 +45,101 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
     }
 
 
+    /**
+     * Returns the format of the original file.
+     *
+     * @return See above.
+     */
     public String getOriginalMimetype() {
         return data.getOriginalMimetype();
     }
 
 
+    /**
+     * Returns the file format as defined by the specification, corresponding to the file extension.
+     *
+     * @return See above.
+     */
     public String getServerFileMimetype() {
         return data.getServerFileMimetype();
     }
 
 
+    /**
+     * Returns the format of the uploaded file.
+     *
+     * @return See above.
+     */
     public String getFileFormat() {
         return data.getFileFormat();
     }
 
 
+    /**
+     * Returns a user readable description of the file.
+     *
+     * @return See above.
+     */
     public String getFileKind() {
         return data.getFileKind();
     }
 
 
+    /**
+     * Returns the file to upload to the server.
+     *
+     * @return See above.
+     */
     public File getAttachedFile() {
         return data.getAttachedFile();
     }
 
 
+    /**
+     * Returns the name of the file.
+     *
+     * @return See above.
+     */
     public String getFileName() {
         return data.getFileName();
     }
 
 
+    /**
+     * Returns the absolute path to the file.
+     *
+     * @return See above.
+     */
     public String getFilePath() {
         return data.getFilePath();
     }
 
 
+    /**
+     * Returns the size of the file.
+     *
+     * @return See above.
+     */
     public long getFileSize() {
         return data.getFileSize();
     }
 
 
+    /**
+     * Returns the id of the file.
+     *
+     * @return See above.
+     */
     public long getFileID() {
         return data.getFileID();
     }
 
 
+    /**
+     * Returns the original file.
+     *
+     * @return See above.
+     */
     public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
         final int inc = 262144;
 
@@ -121,11 +172,21 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
     }
 
 
+    /**
+     * Returns the absolute path to the file
+     *
+     * @see AnnotationData#getContentAsString()
+     */
     public String getContentAsString() {
         return data.getContentAsString();
     }
 
 
+    /**
+     * Returns {@code true} if it is a movie file. {@code false} otherwise.
+     *
+     * @return See above.
+     */
     public boolean isMovieFile() {
         return data.isMovieFile();
     }
