@@ -992,23 +992,28 @@ public class ImageTest extends UserTest {
         if (!imageFile.createNewFile())
             System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be created.");
 
-        List<Long>         ids1    = dataset.importImage(client, imageFile.getAbsolutePath());
+        List<Long> ids1 = dataset.importImage(client, imageFile.getAbsolutePath());
+        assertEquals(2, ids1.size());
         List<ImageWrapper> images1 = dataset.getImages(client);
+        assertEquals(ids1.size(), images1.size());
         dataset.removeImage(client, images1.get(0));
+        List<ImageWrapper> fsImages = images1.get(0).getFilesetImages(client);
+        assertEquals(images1.size(), fsImages.size());
+        assertTrue(ids1.contains(fsImages.get(0).getId()));
+        assertTrue(ids1.contains(fsImages.get(1).getId()));
 
-        List<Long>         ids2    = dataset.replaceImages(client, imageFile.getAbsolutePath(), true);
+        List<Long> ids2 = dataset.replaceImages(client, imageFile.getAbsolutePath(), true);
+        assertEquals(2, ids2.size());
         List<ImageWrapper> images2 = dataset.getImages(client);
+        assertEquals(ids2.size(), images2.size());
 
         if (!imageFile.delete())
             System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be deleted.");
 
-        assertEquals(2, ids1.size());
-        assertEquals(2, ids2.size());
-        assertEquals(ids1.size(), images1.size());
-        assertEquals(ids2.size(), images2.size());
-
         List<ImageWrapper> images3 = client.getImages(ids1.get(0), ids1.get(1));
         assertEquals(2, images3.size());
+        assertFalse(images2.get(0).isOrphaned(client));
+        assertTrue(images3.get(0).isOrphaned(client));
 
         client.delete(images1);
         client.delete(images2);

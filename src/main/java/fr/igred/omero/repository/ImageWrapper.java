@@ -32,6 +32,7 @@ import ij.process.ImageProcessor;
 import ij.process.LUT;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
+import omero.RLong;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
@@ -161,6 +162,51 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Checks if image is orphaned (not in a WellSample nor linked to a dataset).
+     *
+     * @param client The client handling the connection.
+     *
+     * @return {@code true} if the image is orphaned, {@code false} otherwise.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     */
+    public boolean isOrphaned(Client client) throws ServiceException, OMEROServerError {
+        boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
+                                               "where link.child=" + getId()).isEmpty();
+        boolean noWell = client.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
+        return noDataset && noWell;
+    }
+
+
+    /**
+     * Returns the list of images sharing the same fileset as the current image.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws AccessException    Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<ImageWrapper> getFilesetImages(Client client)
+    throws AccessException, ServiceException, ExecutionException, OMEROServerError {
+        List<ImageWrapper> related = new ArrayList<>(0);
+        if (data.isFSImage()) {
+            long fsId = this.asImageData().getFilesetId();
+
+            List<IObject> objects = client.findByQuery("select i from Image i where fileset=" + fsId);
+
+            Long[] ids = objects.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+            related = client.getImages(ids);
+        }
+        return related;
     }
 
 
