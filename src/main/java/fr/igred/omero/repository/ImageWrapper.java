@@ -622,7 +622,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * Get the parent dataset information of an image.
      *
      * @param client The client handling the connection.
-     * @param id The image ID coming from OMERO
+     * @param imageId The image ID coming from OMERO
      *
      * @return see above
      *
