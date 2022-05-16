@@ -33,20 +33,19 @@ import ij.process.LUT;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TransferFacility;
-import omero.gateway.model.ChannelData;
-import omero.gateway.model.FolderData;
-import omero.gateway.model.ImageData;
-import omero.gateway.model.ROIData;
-import omero.gateway.model.ROIResult;
+import omero.gateway.model.*;
+import omero.model.Dataset;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
+import omero.sys.ParametersI;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -618,4 +617,31 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         return new ArrayList<>(0);
     }
 
+
+    /**
+     * Get the parent dataset information of an image.
+     *
+     * @param client The client handling the connection.
+     * @param id The image ID coming from OMERO
+     *
+     * @return see above
+     *
+     * @throws DSOutOfServiceException
+     * @throws ServerError
+     */
+    public ArrayList<DatasetData> getParentDatasets(Client client, Long imageId) throws DSOutOfServiceException, ServerError {
+        IQueryPrx qs = client.getGateway().getQueryService(client.getCtx());
+        ParametersI p = new ParametersI();
+        p.addLong("id", imageId);
+        List<IObject> objs = qs.findAllByQuery("select l.parent from DatasetImageLink as l " +
+                "where l.child.id = :id", p);
+        ArrayList<DatasetData> dsList = new ArrayList<DatasetData>();
+        for (IObject obj : objs) {
+            DatasetData ds = new DatasetData((Dataset) obj);
+            dsList.add(ds);
+        }
+
+        return dsList;
+    }
 }
+
