@@ -181,6 +181,16 @@ public class ClientTest extends UserTest {
         assertEquals(2, images.size());
     }
 
+    @Test
+    public void testGetDatasetsFromImages() throws Exception {
+        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
+    }
+
+    @Test
+    public void testGetProjectsFromImages() throws Exception {
+        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
+    }
+
 
     @Test
     public void testGetImagesCond() throws Exception {
@@ -283,5 +293,7 @@ public class ClientTest extends UserTest {
         String plateName = client.getWell(1L).getPlate().getName();
         assertEquals(PLATE1.name, plateName);
     }
+
+
 
 }

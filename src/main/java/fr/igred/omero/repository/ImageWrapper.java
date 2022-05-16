@@ -32,8 +32,8 @@ import ij.process.ImageProcessor;
 import ij.process.LUT;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
+import omero.RLong;
 import omero.ServerError;
-import omero.api.IQueryPrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.exception.DSAccessException;
@@ -41,11 +41,9 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TransferFacility;
 import omero.gateway.model.*;
-import omero.model.Dataset;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
-import omero.sys.ParametersI;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -64,6 +62,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 
 import static fr.igred.omero.exception.ExceptionHandler.handleException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
@@ -619,29 +618,46 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Get the parent dataset information of an image.
+     * Retrieves the datasets containing this image
      *
      * @param client The client handling the connection.
-     * @param imageId The image ID coming from OMERO
      *
-     * @return see above
+     * @return See above.
      *
-     * @throws DSOutOfServiceException
-     * @throws ServerError
+     * @throws OMEROServerError   Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ArrayList<DatasetData> getParentDatasets(Client client, Long imageId) throws DSOutOfServiceException, ServerError {
-        IQueryPrx qs = client.getGateway().getQueryService(client.getCtx());
-        ParametersI p = new ParametersI();
-        p.addLong("id", imageId);
-        List<IObject> objs = qs.findAllByQuery("select l.parent from DatasetImageLink as l " +
-                "where l.child.id = :id", p);
-        ArrayList<DatasetData> dsList = new ArrayList<DatasetData>();
-        for (IObject obj : objs) {
-            DatasetData ds = new DatasetData((Dataset) obj);
-            dsList.add(ds);
-        }
+    public List<DatasetWrapper> getDatasets(Client client)
+            throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+        List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
+                "where link.child=" + getId());
+        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+    }
 
-        return dsList;
+    /**
+     * Retrieves the projects containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError   Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ProjectWrapper> getProjects(Client client)
+            throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+        List<DatasetWrapper> dWraps = getDatasets(client);
+        List<ProjectWrapper> pwList = new ArrayList<ProjectWrapper>();
+        for (DatasetWrapper dWrap:dWraps) {
+            List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
+                    "where link.child=" + dWrap.getId());
+            pwList.addAll(client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new)));
+        }
+        return pwList;
     }
 }
 
