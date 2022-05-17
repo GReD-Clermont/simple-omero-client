@@ -108,6 +108,22 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
 
 
     /**
+     * Returns the number of annotations links for this object.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     */
+    public int countAnnotationLinks(Client client) throws ServiceException, OMEROServerError {
+        return client.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
+                                  "where link.child.id=" + getId()).size();
+    }
+
+
+    /**
      * Gets all projects with this tag from OMERO.
      *
      * @param client The client handling the connection.
