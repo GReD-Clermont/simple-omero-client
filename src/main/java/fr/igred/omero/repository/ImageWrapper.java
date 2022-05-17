@@ -40,7 +40,11 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TransferFacility;
-import omero.gateway.model.*;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ROIResult;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
@@ -158,6 +162,49 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Retrieves the projects containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError   Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ProjectWrapper> getProjects(Client client)
+    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+        List<DatasetWrapper> datasets = getDatasets(client);
+        List<ProjectWrapper> projects = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            projects.addAll(dataset.getProjects(client));
+        }
+        return projects;
+    }
+
+
+    /**
+     * Retrieves the datasets containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError   Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<DatasetWrapper> getDatasets(Client client)
+    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+        List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
+                                              "where link.child=" + getId());
+        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
     }
 
 
@@ -615,48 +662,4 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         return new ArrayList<>(0);
     }
 
-    /**
-     * Retrieves the datasets containing this image
-     *
-     * @param client The client handling the connection.
-     *
-     * @return See above.
-     *
-     * @throws OMEROServerError   Server error.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<DatasetWrapper> getDatasets(Client client)
-            throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
-                "where link.child=" + getId());
-
-        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
-    }
-
-    /**
-     * Retrieves the projects containing this image
-     *
-     * @param client The client handling the connection.
-     *
-     * @return See above.
-     *
-     * @throws OMEROServerError   Server error.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<ProjectWrapper> getProjects(Client client)
-            throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<DatasetWrapper> dWraps = getDatasets(client);
-        List<ProjectWrapper> pwList = new ArrayList<ProjectWrapper>();
-        for (DatasetWrapper dWrap:dWraps) {
-            List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
-                    "where link.child=" + dWrap.getId());
-            pwList.addAll(client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new)));
-        }
-        return pwList;
-    }
 }
-
