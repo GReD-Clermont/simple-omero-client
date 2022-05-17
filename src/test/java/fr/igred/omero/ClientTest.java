@@ -57,7 +57,7 @@ public class ClientTest extends UserTest {
     @Test
     public void testGetAllProjects() throws Exception {
         Collection<ProjectWrapper> projects = client.getProjects();
-        assertEquals(3, projects.size()); // Change the expected number of projects from 2 to 3
+        assertEquals(2, projects.size());
     }
 
 
@@ -181,16 +181,6 @@ public class ClientTest extends UserTest {
         assertEquals(2, images.size());
     }
 
-    @Test
-    public void testGetDatasetsFromImages() throws Exception {
-        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
-    }
-
-    @Test
-    public void testGetProjectsFromImages() throws Exception {
-        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
-    }
-
 
     @Test
     public void testGetImagesCond() throws Exception {
@@ -293,7 +283,5 @@ public class ClientTest extends UserTest {
         String plateName = client.getWell(1L).getPlate().getName();
         assertEquals(PLATE1.name, plateName);
     }
-
-
 
 }
