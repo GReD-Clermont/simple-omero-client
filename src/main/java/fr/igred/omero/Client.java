@@ -774,7 +774,9 @@ public class Client extends GatewayWrapper {
                 ((FolderWrapper) object).unlinkAllROI(this);
             }
         }
-        delete(objects.stream().map(GenericObjectWrapper::asIObject).collect(Collectors.toList()));
+        if (!objects.isEmpty()) {
+            delete(objects.stream().map(GenericObjectWrapper::asIObject).collect(Collectors.toList()));
+        }
     }
 
 
