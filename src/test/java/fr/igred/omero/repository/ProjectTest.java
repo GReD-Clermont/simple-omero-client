@@ -376,6 +376,7 @@ public class ProjectTest extends UserTest {
         assertEquals(1, project2.getFileAnnotations(client).size());
 
         client.deleteFile(fileId);
+        client.delete(project2);
 
         assertNotEquals(0L, fileId.longValue());
     }

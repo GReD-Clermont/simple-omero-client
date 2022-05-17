@@ -46,6 +46,19 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
 
 
     /**
+     * Returns whether the channel contains all the RGBA values or not.
+     *
+     * @return See above.
+     */
+    public boolean hasRGBA() {
+        return data.asChannel().getRed() != null &&
+               data.asChannel().getGreen() != null &&
+               data.asChannel().getBlue() != null &&
+               data.asChannel().getAlpha() != null;
+    }
+
+
+    /**
      * Returns the channel index.
      *
      * @return See above.
@@ -87,12 +100,14 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
 
 
     /**
-     * Gets the original channel color.
+     * Gets the original channel color. Defaults to {@link Color#WHITE} if RGBA values are missing.
      *
      * @return The original channel color.
      */
     public Color getColor() {
-        return new Color(getRed(), getGreen(), getBlue(), getAlpha());
+        Color color = Color.WHITE;
+        if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
+        return color;
     }
 
 

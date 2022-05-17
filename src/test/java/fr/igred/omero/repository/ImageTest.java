@@ -62,6 +62,18 @@ public class ImageTest extends UserTest {
 
 
     @Test
+    public void testGetDatasets() throws Exception {
+        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
+    }
+
+
+    @Test
+    public void testGetProjects() throws Exception {
+        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
+    }
+
+
+    @Test
     public void testImportImage() throws Exception {
         String filename1 = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         String filename2 = "8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";

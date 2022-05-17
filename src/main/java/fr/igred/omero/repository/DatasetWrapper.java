@@ -160,6 +160,26 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
+     * Retrieves the projects containing this dataset.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError   Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ProjectWrapper> getProjects(Client client)
+    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+        List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
+                                              "where link.child=" + getId());
+        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+    }
+
+
+    /**
      * Gets all images in the dataset available from OMERO.
      *
      * @param client The client handling the connection.
