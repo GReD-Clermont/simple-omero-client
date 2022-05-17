@@ -49,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE;
+import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -818,7 +820,7 @@ public class ImageTest extends UserTest {
         image1.addTable(client, table);
         image2.addTable(client, table);
 
-        List<Long>   ids3   = dataset.replaceImages(client, imageFile.getAbsolutePath(), true);
+        List<Long>   ids3   = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE);
         ImageWrapper image3 = client.getImage(ids3.get(0));
 
         assertEquals(2, image3.getTags(client).size());
@@ -918,7 +920,7 @@ public class ImageTest extends UserTest {
         image1.addTable(client, table);
         image2.addTable(client, table);
 
-        List<Long>   ids3   = dataset.replaceImages(client, imageFile.getAbsolutePath(), false);
+        List<Long>   ids3   = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath());
         ImageWrapper image3 = client.getImage(ids3.get(0));
 
         assertEquals(2, image3.getTags(client).size());
@@ -973,7 +975,7 @@ public class ImageTest extends UserTest {
         List<Long>         ids1    = dataset.importImage(client, imageFile.getAbsolutePath());
         List<ImageWrapper> images1 = dataset.getImages(client);
 
-        List<Long>         ids2    = dataset.replaceImages(client, imageFile.getAbsolutePath(), true);
+        List<Long>         ids2    = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE);
         List<ImageWrapper> images2 = dataset.getImages(client);
 
         if (!imageFile.delete())
@@ -1014,7 +1016,7 @@ public class ImageTest extends UserTest {
         assertTrue(ids1.contains(fsImages.get(0).getId()));
         assertTrue(ids1.contains(fsImages.get(1).getId()));
 
-        List<Long> ids2 = dataset.replaceImages(client, imageFile.getAbsolutePath(), true);
+        List<Long> ids2 = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE);
         assertEquals(2, ids2.size());
         List<ImageWrapper> images2 = dataset.getImages(client);
         assertEquals(ids2.size(), images2.size());
@@ -1028,6 +1030,49 @@ public class ImageTest extends UserTest {
         assertTrue(images3.get(0).isOrphaned(client));
 
         client.delete(images1);
+        client.delete(images2);
+        List<ImageWrapper> endImages = dataset.getImages(client);
+        client.delete(dataset);
+
+        assertTrue(endImages.isEmpty());
+    }
+
+
+    @Test
+    public void testReplaceImagesFileset3() throws Exception {
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
+
+        DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
+        client.getProject(PROJECT1.id).addDataset(client, dataset);
+
+        File imageFile = new File("." + File.separator + filename);
+        if (!imageFile.createNewFile())
+            System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be created.");
+
+        List<Long> ids1 = dataset.importImage(client, imageFile.getAbsolutePath());
+        assertEquals(2, ids1.size());
+        List<ImageWrapper> images1 = dataset.getImages(client);
+        assertEquals(ids1.size(), images1.size());
+        dataset.removeImage(client, images1.get(0));
+        List<ImageWrapper> fsImages = images1.get(0).getFilesetImages(client);
+        assertEquals(images1.size(), fsImages.size());
+        assertTrue(ids1.contains(fsImages.get(0).getId()));
+        assertTrue(ids1.contains(fsImages.get(1).getId()));
+
+        List<Long> ids2 = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE_ORPHANED);
+        assertEquals(2, ids2.size());
+        List<ImageWrapper> images2 = dataset.getImages(client);
+        assertEquals(ids2.size(), images2.size());
+
+        if (!imageFile.delete())
+            System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be deleted.");
+
+        assertEquals(2, ids1.size());
+        assertEquals(2, ids2.size());
+        assertEquals(ids1.size(), images1.size());
+        assertEquals(ids2.size(), images2.size());
+        assertTrue(client.getImages(ids1.get(0), ids1.get(1)).isEmpty());
+
         client.delete(images2);
         List<ImageWrapper> endImages = dataset.getImages(client);
         client.delete(dataset);

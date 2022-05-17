@@ -30,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.List;
 
+import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE;
+import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -401,7 +403,7 @@ public class ProjectTest extends UserTest {
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
         project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
-        long fileId2 = project1.replaceFile(client, file, false);
+        long fileId2 = project1.addAndReplaceFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(1, project2.getFileAnnotations(client).size());
         assertNotEquals(fileId1, fileId2);
@@ -435,7 +437,7 @@ public class ProjectTest extends UserTest {
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
         project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
-        long fileId2 = project1.replaceFile(client, file, true);
+        long fileId2 = project1.addAndReplaceFile(client, file, DELETE);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(0, project2.getFileAnnotations(client).size());
         assertNotEquals(fileId1, fileId2);
@@ -445,6 +447,69 @@ public class ProjectTest extends UserTest {
 
         client.delete(project1);
         client.delete(project2);
+        client.deleteFile(fileId2);
+    }
+
+
+    @Test
+    public void testReplaceAndDeleteOrphanedFile1() throws Exception {
+        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+
+        File file = new File("." + File.separator + "test.txt");
+        if (!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
+            out.print(generatedString);
+        }
+
+        long fileId1 = project1.addFile(client, file);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        long fileId2 = project1.addAndReplaceFile(client, file, DELETE_ORPHANED);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        assertEquals(1, project2.getFileAnnotations(client).size());
+        assertNotEquals(fileId1, fileId2);
+
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+
+        client.delete(project1);
+        client.delete(project2);
+        client.deleteFile(fileId1);
+        client.deleteFile(fileId2);
+    }
+
+
+    @Test
+    public void testReplaceAndDeleteOrphanedFile2() throws Exception {
+        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+
+        File file = new File("." + File.separator + "test.txt");
+        if (!file.createNewFile())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
+            out.print(generatedString);
+        }
+
+        long fileId1 = project1.addFile(client, file);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        long fileId2 = project1.addAndReplaceFile(client, file, DELETE_ORPHANED);
+        assertEquals(1, project1.getFileAnnotations(client).size());
+        assertNotEquals(fileId1, fileId2);
+
+        if (!file.delete())
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+
+        client.delete(project1);
         client.deleteFile(fileId2);
     }
 

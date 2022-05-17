@@ -485,7 +485,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      *
      * @param client The client handling the connection.
      * @param file   File to add.
-     * @param delete Whether older files should be deleted as well: if {@code false}, files will only be unlinked.
+     * @param policy Whether older files should be unlinked, deleted or deleted only if they become orphaned.
      *
      * @return ID of the file created in OMERO.
      *
@@ -495,7 +495,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws InterruptedException The thread was interrupted.
      * @throws OMEROServerError     If the thread was interrupted.
      */
-    public long replaceFile(Client client, File file, boolean delete)
+    public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
         List<FileAnnotationWrapper> files = getFileAnnotations(client);
 
@@ -508,11 +508,34 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         FileAnnotationWrapper annotation = new FileAnnotationWrapper(uploaded);
 
         files.removeIf(f -> !f.getFileName().equals(annotation.getFileName()));
-        for(FileAnnotationWrapper f : files) {
+        for (FileAnnotationWrapper f : files) {
             this.unlink(client, f);
-            if(delete) client.deleteFile(f.getId());
+            if (policy == ReplacePolicy.DELETE ||
+                policy == ReplacePolicy.DELETE_ORPHANED && f.countAnnotationLinks(client) == 0) {
+                client.deleteFile(f.getId());
+            }
         }
         return annotation.getFileID();
+    }
+
+
+    /**
+     * Uploads a file, links it to the object and unlinks previous files with the same name, or deletes them.
+     *
+     * @param client The client handling the connection.
+     * @param file   File to add.
+     *
+     * @return ID of the file created in OMERO.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     * @throws OMEROServerError     If the thread was interrupted.
+     */
+    public long addAndReplaceFile(Client client, File file)
+    throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
+        return addAndReplaceFile(client, file, ReplacePolicy.UNLINK);
     }
 
 
@@ -655,6 +678,9 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             handleServiceOrAccess(e, "Cannot link annotations to " + this);
         }
     }
+
+
+    public enum ReplacePolicy {UNLINK, DELETE, DELETE_ORPHANED}
 
 
 }
