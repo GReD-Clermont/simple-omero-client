@@ -57,7 +57,7 @@ public class ClientTest extends UserTest {
     @Test
     public void testGetAllProjects() throws Exception {
         Collection<ProjectWrapper> projects = client.getProjects();
-        assertEquals(2, projects.size());
+        assertEquals(3, projects.size()); // Change the expected number of projects from 2 to 3
     }
 
 

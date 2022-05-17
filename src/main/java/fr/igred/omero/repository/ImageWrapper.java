@@ -63,7 +63,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 import static fr.igred.omero.exception.ExceptionHandler.handleException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -616,7 +615,6 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         return new ArrayList<>(0);
     }
 
-
     /**
      * Retrieves the datasets containing this image
      *
@@ -633,6 +631,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             throws OMEROServerError, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
                 "where link.child=" + getId());
+
         return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
     }
 
