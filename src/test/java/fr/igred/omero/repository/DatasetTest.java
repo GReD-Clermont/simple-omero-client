@@ -257,6 +257,12 @@ public class DatasetTest extends UserTest {
 
 
     @Test
+    public void testGetProjects() throws Exception {
+        assertEquals(PROJECT1.id, client.getImage(DATASET1.id).getProjects(client).get(0).getId());
+    }
+
+
+    @Test
     public void testGetImagesInDataset() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 

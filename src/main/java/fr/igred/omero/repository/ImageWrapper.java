@@ -32,6 +32,7 @@ import ij.process.ImageProcessor;
 import ij.process.LUT;
 import loci.common.DataTools;
 import loci.formats.FormatTools;
+import omero.RLong;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
@@ -161,6 +162,49 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Retrieves the projects containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError   Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ProjectWrapper> getProjects(Client client)
+    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+        List<DatasetWrapper> datasets = getDatasets(client);
+        List<ProjectWrapper> projects = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            projects.addAll(dataset.getProjects(client));
+        }
+        return projects;
+    }
+
+
+    /**
+     * Retrieves the datasets containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError   Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<DatasetWrapper> getDatasets(Client client)
+    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+        List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
+                                              "where link.child=" + getId());
+        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
     }
 
 
