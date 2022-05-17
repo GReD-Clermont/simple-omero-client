@@ -93,7 +93,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      *
      * @param property The property where 4D ROI local ID is stored.
      *
-     * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value #IJ_PROPERTY}) if it is null or empty.
+     * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
      */
     public static String checkProperty(String property) {
         if (property == null || property.trim().isEmpty()) return IJ_PROPERTY;
@@ -104,8 +104,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Returns ID property corresponding to input local ID property (appends "_ID" to said property).
      *
-     * @param property The property where 4D ROI local ID is stored, defaults to {@value #IJ_PROPERTY} if null or
-     *                 empty.
+     * @param property The property where 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY} if null or empty.
      *
      * @return See above.
      */
@@ -131,8 +130,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs
      *
      * @param ijRois   A list of ImageJ ROIs.
-     * @param property The property where 4D ROI local ID is stored. Defaults to {@value #IJ_PROPERTY} if null or
-     *                 empty.
+     * @param property The property where 4D ROI local ID is stored. Defaults to {@value IJ_PROPERTY} if null or empty.
      *
      * @return The converted list of OMERO ROIs.
      */
@@ -178,8 +176,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Converts an OMERO list of ROIs to a list of ImageJ ROIs
      *
      * @param rois     A list of OMERO ROIs.
-     * @param property The property where 4D ROI local ID will be stored. Defaults to {@value #IJ_PROPERTY} if null or
-     *                 empty.
+     * @param property The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or empty.
      *
      * @return The converted list of ImageJ ROIs.
      */
