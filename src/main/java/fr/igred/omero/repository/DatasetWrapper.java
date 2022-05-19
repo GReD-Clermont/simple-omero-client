@@ -535,8 +535,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Replaces (unlinks) a collection of images from this dataset with a new image, after copying their annotations and
-     * ROIs, and concatenating the descriptions (on new lines).
+     * Replaces (and unlinks) a collection of images from this dataset by a new image, after copying their annotations
+     * and ROIs, and concatenating the descriptions (on new lines).
      *
      * @param client    The client handling the connection.
      * @param oldImages The list of old images to replace.

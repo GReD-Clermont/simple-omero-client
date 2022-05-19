@@ -138,7 +138,14 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
     /**
      * Returns the original file.
      *
+     * @param client The client handling the connection.
+     * @param path   The path where the file will be saved.
+     *
      * @return See above.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws IOException      Cannot write to the file.
+     * @throws OMEROServerError Server error.
      */
     public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
         final int inc = 262144;
