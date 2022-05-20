@@ -457,7 +457,7 @@ public class Client extends GatewayWrapper {
     public List<ImageWrapper> getImagesKey(String key)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageWrapper image : images) {
             Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
             if (pairsKeyValue.get(key) != null) {
@@ -484,7 +484,7 @@ public class Client extends GatewayWrapper {
     public List<ImageWrapper> getImagesPairKeyValue(String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageWrapper image : images) {
             Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
             if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {

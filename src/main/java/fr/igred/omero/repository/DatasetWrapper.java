@@ -318,7 +318,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from " + this);
         }
 
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
@@ -357,7 +357,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             handleServiceOrAccess(e, "Cannot get images with key-value pair from " + this);
         }
 
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
