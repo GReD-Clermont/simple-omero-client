@@ -182,6 +182,8 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
     /**
      * Returns the absolute path to the file
      *
+     * @return See above.
+     *
      * @see AnnotationData#getContentAsString()
      */
     public String getContentAsString() {
