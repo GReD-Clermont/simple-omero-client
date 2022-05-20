@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
@@ -85,9 +86,12 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @return ImageWrapper list.
      */
     private static List<ImageWrapper> purge(Collection<? extends ImageWrapper> images) {
+        Collection<Long> ids = new ArrayList<>(images.size());
+
         List<ImageWrapper> purged = new ArrayList<>(images.size());
         for (ImageWrapper image : images) {
-            if (purged.isEmpty() || purged.get(purged.size() - 1).getId() != image.getId()) {
+            if (!ids.contains(image.getId())) {
+                ids.add(image.getId());
                 purged.add(image);
             }
         }
@@ -262,11 +266,14 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
-        List<ImageWrapper> images = new ArrayList<>();
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
-            images.addAll(dataset.getImages(client));
+            lists.add(dataset.getImages(client));
         }
-        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
 
         return purge(images);
     }
@@ -288,11 +295,14 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
-        List<ImageWrapper> images = new ArrayList<>();
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
-            images.addAll(dataset.getImages(client, name));
+            lists.add(dataset.getImages(client, name));
         }
-        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
 
         return purge(images);
     }
@@ -312,11 +322,16 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public List<ImageWrapper> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images = new ArrayList<>();
-        for (DatasetWrapper dataset : getDatasets()) {
-            images.addAll(dataset.getImagesLike(client, motif));
+        Collection<DatasetWrapper> datasets = getDatasets();
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            lists.add(dataset.getImagesLike(client, motif));
         }
-        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
 
         return purge(images);
     }
@@ -337,11 +352,16 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<ImageWrapper> images = new ArrayList<>();
-        for (DatasetWrapper dataset : getDatasets()) {
-            images.addAll(dataset.getImagesTagged(client, tag));
+        Collection<DatasetWrapper> datasets = getDatasets();
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            lists.add(dataset.getImagesTagged(client, tag));
         }
-        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
 
         return purge(images);
     }
@@ -362,11 +382,16 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<ImageWrapper> images = new ArrayList<>();
-        for (DatasetWrapper dataset : getDatasets()) {
-            images.addAll(dataset.getImagesTagged(client, tagId));
+        Collection<DatasetWrapper> datasets = getDatasets();
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            lists.add(dataset.getImagesTagged(client, tagId));
         }
-        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
 
         return purge(images);
     }
@@ -386,11 +411,16 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public List<ImageWrapper> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images = new ArrayList<>();
-        for (DatasetWrapper dataset : getDatasets()) {
-            images.addAll(dataset.getImagesKey(client, key));
+        Collection<DatasetWrapper> datasets = getDatasets();
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            lists.add(dataset.getImagesKey(client, key));
         }
-        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
 
         return purge(images);
     }
@@ -411,11 +441,16 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      */
     public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images = new ArrayList<>();
-        for (DatasetWrapper dataset : getDatasets()) {
-            images.addAll(dataset.getImagesPairKeyValue(client, key, value));
+        Collection<DatasetWrapper> datasets = getDatasets();
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            lists.add(dataset.getImagesPairKeyValue(client, key, value));
         }
-        images.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
 
         return purge(images);
     }
