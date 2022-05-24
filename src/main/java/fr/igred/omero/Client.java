@@ -339,7 +339,7 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets all images with a certain from OMERO.
+     * Gets all images with a certain name from OMERO.
      *
      * @param name Name searched.
      *

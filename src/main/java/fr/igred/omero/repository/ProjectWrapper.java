@@ -280,7 +280,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Gets all images in the project with a certain from OMERO.
+     * Gets all images in the project with a certain name from OMERO.
      *
      * @param client The client handling the connection.
      * @param name   Name searched.

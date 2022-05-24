@@ -433,7 +433,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      *
      * @param client The client handling the connection.
      *
-     * @return List of TableWrapper containing the tables information.
+     * @return List of TableWrappers containing the tables.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

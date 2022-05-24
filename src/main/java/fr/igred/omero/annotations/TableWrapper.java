@@ -222,13 +222,13 @@ public class TableWrapper {
 
 
     /**
-     * Rename {@value IMAGE} column if it already exists to:
+     * Rename the {@value IMAGE} column if it already exists to:
      * <ul>
      *     <li>"{@value LABEL} if the column does not exist</li>
      *     <li>{@code "Image_column_" + columnNumber} otherwise</li>
      * </ul>
      *
-     * @param results The results table to process.
+     * @param results The ResultsTable to process.
      */
     private static void renameImageColumn(ResultsTable results) {
         if (results.columnExists(IMAGE)) {

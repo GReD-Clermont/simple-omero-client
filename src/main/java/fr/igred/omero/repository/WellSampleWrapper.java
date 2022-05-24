@@ -68,7 +68,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
     /**
      * Returns the position X.
      *
-     * @param unit The unit (may be null, in which case no conversion will be performed)
+     * @param unit The unit (can be null, in which case no conversion will be performed)
      *
      * @return See above.
      *
@@ -82,7 +82,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
     /**
      * Returns the position Y.
      *
-     * @param unit The unit (may be null, in which case no conversion will be performed)
+     * @param unit The unit (can be null, in which case no conversion will be performed)
      *
      * @return See above.
      *

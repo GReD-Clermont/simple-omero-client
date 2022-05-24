@@ -204,7 +204,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Gets all images in the dataset with a certain from OMERO.
+     * Gets all images in the dataset with a certain name from OMERO.
      *
      * @param client The client handling the connection.
      * @param name   Name searched.
