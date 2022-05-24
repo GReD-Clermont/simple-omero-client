@@ -81,9 +81,7 @@ public class SudoTest extends BasicTest {
         assertEquals(4L, client3.getId());
         client3.switchGroup(6L);
 
-        File f = new File("." + File.separator + filename);
-        if (!f.createNewFile())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
+        File f = createFile(filename);
 
         DatasetWrapper dataset = new DatasetWrapper("sudoTest", "");
         dataset.saveAndUpdate(client3);
@@ -91,8 +89,7 @@ public class SudoTest extends BasicTest {
         assertTrue(dataset.canLink());
         dataset.importImages(client3, f.getAbsolutePath());
 
-        if (!f.delete())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(f);
 
         List<ImageWrapper> images = dataset.getImages(client3);
         assertEquals(1, images.size());

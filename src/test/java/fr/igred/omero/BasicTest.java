@@ -24,7 +24,13 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.SecureRandom;
 import java.util.logging.Logger;
 
 
@@ -112,6 +118,37 @@ public abstract class BasicTest {
             logger.info(String.format("%-40s\t%s (%.3f s)", testName, status, time));
         }
 
+    }
+
+
+    protected static File createFile(String filename) throws IOException {
+        final String tmpdir = System.getProperty("java.io.tmpdir") + File.separator;
+
+        File file = new File(tmpdir + File.separator + filename);
+        if (!file.createNewFile()) {
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+        }
+        return file;
+    }
+
+
+    protected static File createRandomFile(String filename) throws IOException {
+        File file = createFile(filename);
+
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(Files.newOutputStream(file.toPath()), false, "UTF-8")) {
+            out.print(generatedString);
+        }
+        return file;
+    }
+
+
+    protected static void removeFile(File file) throws IOException {
+        if (!file.delete()) {
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+        }
     }
 
 }

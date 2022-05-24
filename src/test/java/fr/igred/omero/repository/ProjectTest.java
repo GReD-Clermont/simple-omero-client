@@ -24,10 +24,6 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.List;
 
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE;
@@ -298,20 +294,10 @@ public class ProjectTest extends UserTest {
         ProjectWrapper project1 = client.getProject(PROJECT1.id);
         ProjectWrapper project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
 
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
+        File file = createRandomFile("test_project.txt");
 
         Long fileId = project1.addFile(client, file);
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(file);
         assertNotEquals(0L, fileId.longValue());
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
@@ -353,20 +339,10 @@ public class ProjectTest extends UserTest {
         ProjectWrapper project1 = client.getProject(PROJECT1.id);
         ProjectWrapper project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
 
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
+        File file = createRandomFile("test_project.txt");
 
         Long fileId = project1.addFile(client, file);
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(file);
         assertNotEquals(0L, fileId.longValue());
 
         List<FileAnnotationWrapper> files = project1.getFileAnnotations(client);
@@ -389,16 +365,7 @@ public class ProjectTest extends UserTest {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
         ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
+        File file = createRandomFile("test_project.txt");
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
@@ -408,9 +375,7 @@ public class ProjectTest extends UserTest {
         assertEquals(1, project2.getFileAnnotations(client).size());
         assertNotEquals(fileId1, fileId2);
 
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
-
+        removeFile(file);
         client.delete(project1);
         client.delete(project2);
         client.deleteFile(fileId1);
@@ -423,16 +388,7 @@ public class ProjectTest extends UserTest {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
         ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
+        File file = createRandomFile("test_project.txt");
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
@@ -442,9 +398,7 @@ public class ProjectTest extends UserTest {
         assertEquals(0, project2.getFileAnnotations(client).size());
         assertNotEquals(fileId1, fileId2);
 
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
-
+        removeFile(file);
         client.delete(project1);
         client.delete(project2);
         client.deleteFile(fileId2);
@@ -456,16 +410,7 @@ public class ProjectTest extends UserTest {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
         ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
+        File file = createRandomFile("test_project.txt");
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
@@ -475,9 +420,7 @@ public class ProjectTest extends UserTest {
         assertEquals(1, project2.getFileAnnotations(client).size());
         assertNotEquals(fileId1, fileId2);
 
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
-
+        removeFile(file);
         client.delete(project1);
         client.delete(project2);
         client.deleteFile(fileId1);
@@ -489,16 +432,7 @@ public class ProjectTest extends UserTest {
     public void testReplaceAndDeleteOrphanedFile2() throws Exception {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
 
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
+        File file = createRandomFile("test_project.txt");
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
@@ -506,9 +440,7 @@ public class ProjectTest extends UserTest {
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertNotEquals(fileId1, fileId2);
 
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
-
+        removeFile(file);
         client.delete(project1);
         client.deleteFile(fileId2);
     }
