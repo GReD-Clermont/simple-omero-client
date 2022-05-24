@@ -79,7 +79,7 @@ public class AccessExceptionTest extends BasicTest {
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
             sudo = null;
             failed = true;
-            logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
+            logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }
         org.junit.Assume.assumeFalse(failed);
         hideErrors();
@@ -93,7 +93,7 @@ public class AccessExceptionTest extends BasicTest {
             showErrors();
         } catch (Exception e) {
             showErrors();
-            logger.log(Level.WARNING, ANSI_YELLOW + "Disconnection failed." + ANSI_RESET, e);
+            logger.log(Level.WARNING, String.format("%sDisconnection failed.%s", ANSI_YELLOW, ANSI_RESET), e);
         }
     }
 

@@ -95,7 +95,7 @@ public abstract class BasicTest {
         @Override
         protected void skipped(AssumptionViolatedException e, Description description) {
             float  time     = (float) (System.currentTimeMillis() - getStart()) / 1000;
-            String status   = ANSI_YELLOW + "SKIPPED" + ANSI_RESET;
+            String status   = String.format("%sSKIPPED%s", ANSI_YELLOW, ANSI_RESET);
             String testName = description.getMethodName() + ":";
             logger.info(String.format("%-40s\t%s (%.3f s)", testName, status, time));
         }
@@ -104,7 +104,7 @@ public abstract class BasicTest {
         @Override
         protected void succeeded(Description description) {
             float  time     = (float) (System.currentTimeMillis() - getStart()) / 1000;
-            String status   = ANSI_GREEN + "SUCCEEDED" + ANSI_RESET;
+            String status   = String.format("%sSUCCEEDED%s", ANSI_GREEN, ANSI_RESET);
             String testName = description.getMethodName() + ":";
             logger.info(String.format("%-40s\t%s (%.3f s)", testName, status, time));
         }
@@ -114,7 +114,7 @@ public abstract class BasicTest {
         protected void failed(Throwable e, Description description) {
             float  time     = (float) (System.currentTimeMillis() - getStart()) / 1000;
             String testName = description.getMethodName() + ":";
-            String status   = ANSI_RED + "FAILED" + ANSI_RESET;
+            String status   = String.format("%sFAILED%s", ANSI_RED, ANSI_RESET);
             logger.info(String.format("%-40s\t%s (%.3f s)", testName, status, time));
         }
 
