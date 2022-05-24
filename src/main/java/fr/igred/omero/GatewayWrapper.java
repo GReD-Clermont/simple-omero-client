@@ -425,6 +425,28 @@ public abstract class GatewayWrapper {
 
 
     /**
+     * Deletes multiple objects from OMERO.
+     *
+     * @param objects The OMERO objects.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    void delete(List<IObject> objects)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        final int ms = 500;
+        try {
+            getDm().delete(ctx, objects).loop(10, ms);
+        } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
+            handleException(e, "Cannot delete objects");
+        }
+    }
+
+
+    /**
      * Deletes a file from OMERO
      *
      * @param id ID of the file to delete.

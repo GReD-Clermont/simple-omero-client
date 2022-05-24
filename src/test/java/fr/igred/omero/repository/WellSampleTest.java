@@ -20,6 +20,7 @@ import fr.igred.omero.UserTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 
 public class WellSampleTest extends UserTest {
@@ -36,6 +37,7 @@ public class WellSampleTest extends UserTest {
 
         ImageWrapper image = sample.getImage();
 
+        assertFalse(image.isOrphaned(client));
         assertEquals(name, image.getName());
     }
 

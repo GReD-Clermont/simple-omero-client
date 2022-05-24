@@ -170,9 +170,7 @@ public class FolderTest extends UserTest {
         assertEquals(2, folders.size());
         assertEquals(nImages, image.getROIs(client).size());
 
-        for (FolderWrapper roiFolder : folders) {
-            client.delete(roiFolder);
-        }
+        client.delete(folders);
 
         assertEquals(0, image.getFolders(client).size());
         assertEquals(nImages, image.getROIs(client).size());

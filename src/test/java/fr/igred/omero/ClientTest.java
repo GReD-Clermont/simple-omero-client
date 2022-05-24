@@ -220,9 +220,7 @@ public class ClientTest extends UserTest {
 
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=256.fake";
 
-        File f = new File("." + File.separator + filename);
-        if (!f.createNewFile())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
+        File f = createFile(filename);
 
         client.switchGroup(newGroupId);
 
@@ -231,8 +229,7 @@ public class ClientTest extends UserTest {
 
         List<Long> ids = dataset.importImage(client, f.getAbsolutePath());
 
-        if (!f.delete())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(f);
 
         assertEquals(1, ids.size());
 

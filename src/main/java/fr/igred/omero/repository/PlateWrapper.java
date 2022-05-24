@@ -245,7 +245,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
     /**
      * Returns the x-coordinate in 2D-space of the well.
      *
-     * @param unit The unit (may be null, in which case no conversion will be performed)
+     * @param unit The unit (can be null, in which case no conversion will be performed)
      *
      * @return See above
      *
@@ -259,7 +259,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
     /**
      * Returns the y-coordinate in 2D-space of the well.
      *
-     * @param unit The unit (may be null, in which case no conversion will be performed)
+     * @param unit The unit (can be null, in which case no conversion will be performed)
      *
      * @return See above
      *

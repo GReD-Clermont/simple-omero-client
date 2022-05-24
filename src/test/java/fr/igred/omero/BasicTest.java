@@ -24,7 +24,13 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.SecureRandom;
 import java.util.logging.Logger;
 
 
@@ -89,7 +95,7 @@ public abstract class BasicTest {
         @Override
         protected void skipped(AssumptionViolatedException e, Description description) {
             float  time     = (float) (System.currentTimeMillis() - getStart()) / 1000;
-            String status   = ANSI_YELLOW + "SKIPPED" + ANSI_RESET;
+            String status   = String.format("%sSKIPPED%s", ANSI_YELLOW, ANSI_RESET);
             String testName = description.getMethodName() + ":";
             logger.info(String.format("%-40s\t%s (%.3f s)", testName, status, time));
         }
@@ -98,7 +104,7 @@ public abstract class BasicTest {
         @Override
         protected void succeeded(Description description) {
             float  time     = (float) (System.currentTimeMillis() - getStart()) / 1000;
-            String status   = ANSI_GREEN + "SUCCEEDED" + ANSI_RESET;
+            String status   = String.format("%sSUCCEEDED%s", ANSI_GREEN, ANSI_RESET);
             String testName = description.getMethodName() + ":";
             logger.info(String.format("%-40s\t%s (%.3f s)", testName, status, time));
         }
@@ -108,10 +114,41 @@ public abstract class BasicTest {
         protected void failed(Throwable e, Description description) {
             float  time     = (float) (System.currentTimeMillis() - getStart()) / 1000;
             String testName = description.getMethodName() + ":";
-            String status   = ANSI_RED + "FAILED" + ANSI_RESET;
+            String status   = String.format("%sFAILED%s", ANSI_RED, ANSI_RESET);
             logger.info(String.format("%-40s\t%s (%.3f s)", testName, status, time));
         }
 
+    }
+
+
+    protected static File createFile(String filename) throws IOException {
+        final String tmpdir = System.getProperty("java.io.tmpdir") + File.separator;
+
+        File file = new File(tmpdir + File.separator + filename);
+        if (!file.createNewFile()) {
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+        }
+        return file;
+    }
+
+
+    protected static File createRandomFile(String filename) throws IOException {
+        File file = createFile(filename);
+
+        final byte[] array = new byte[2 * 262144 + 20];
+        new SecureRandom().nextBytes(array);
+        String generatedString = new String(array, StandardCharsets.UTF_8);
+        try (PrintStream out = new PrintStream(Files.newOutputStream(file.toPath()), false, "UTF-8")) {
+            out.print(generatedString);
+        }
+        return file;
+    }
+
+
+    protected static void removeFile(File file) throws IOException {
+        if (!file.delete()) {
+            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+        }
     }
 
 }

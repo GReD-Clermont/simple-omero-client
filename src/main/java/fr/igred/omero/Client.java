@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.GenericObjectWrapper.distinct;
 import static fr.igred.omero.GenericObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -339,7 +340,7 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets all images with a certain from OMERO.
+     * Gets all images with a certain name from OMERO.
      *
      * @param name Name searched.
      *
@@ -376,15 +377,19 @@ public class Client extends GatewayWrapper {
      */
     public List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper>   images   = new ArrayList<>();
         List<ProjectWrapper> projects = getProjects(projectName);
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(projects.size());
         for (ProjectWrapper project : projects) {
-            List<DatasetWrapper> datasets = project.getDatasets(datasetName);
-            for (DatasetWrapper dataset : datasets) {
-                images.addAll(dataset.getImages(this, imageName));
-            }
+            lists.add(project.getImages(this, datasetName, imageName));
         }
-        return images;
+
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
+
+        return distinct(images);
     }
 
 
@@ -457,7 +462,7 @@ public class Client extends GatewayWrapper {
     public List<ImageWrapper> getImagesKey(String key)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageWrapper image : images) {
             Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
             if (pairsKeyValue.get(key) != null) {
@@ -484,7 +489,7 @@ public class Client extends GatewayWrapper {
     public List<ImageWrapper> getImagesPairKeyValue(String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageWrapper image : images) {
             Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
             if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
@@ -753,6 +758,30 @@ public class Client extends GatewayWrapper {
         tag.setNameSpace(tag.getContentAsString());
 
         return new TagAnnotationWrapper(tag);
+    }
+
+
+    /**
+     * Deletes multiple objects from OMERO.
+     *
+     * @param objects The OMERO object.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        for (GenericObjectWrapper<?> object : objects) {
+            if (object instanceof FolderWrapper) {
+                ((FolderWrapper) object).unlinkAllROI(this);
+            }
+        }
+        if (!objects.isEmpty()) {
+            delete(objects.stream().map(GenericObjectWrapper::asIObject).collect(Collectors.toList()));
+        }
     }
 
 

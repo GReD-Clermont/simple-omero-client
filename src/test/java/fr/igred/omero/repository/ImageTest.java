@@ -35,9 +35,6 @@ import org.junit.Test;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -49,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE;
+import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -78,30 +77,18 @@ public class ImageTest extends UserTest {
         String filename1 = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         String filename2 = "8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";
 
-        File f1 = new File("." + File.separator + filename1);
-        if (!f1.createNewFile())
-            System.err.println("\"" + f1.getCanonicalPath() + "\" could not be created.");
-
-        File f2 = new File("." + File.separator + filename2);
-        if (!f2.createNewFile())
-            System.err.println("\"" + f2.getCanonicalPath() + "\" could not be created.");
+        File f1 = createFile(filename1);
+        File f2 = createFile(filename2);
 
         DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
         boolean imported = dataset.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
 
-        if (!f1.delete())
-            System.err.println("\"" + f1.getCanonicalPath() + "\" could not be deleted.");
-
-        if (!f2.delete())
-            System.err.println("\"" + f2.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(f1);
+        removeFile(f2);
 
         List<ImageWrapper> images = dataset.getImages(client);
-
-        for (ImageWrapper image : images) {
-            client.delete(image);
-        }
-
+        client.delete(images);
         List<ImageWrapper> endImages = dataset.getImages(client);
 
         assertEquals(2, images.size());
@@ -114,17 +101,14 @@ public class ImageTest extends UserTest {
     public void testPairKeyValue() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
-        File f = new File("." + File.separator + filename);
-        if (!f.createNewFile())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
+        File f = createFile(filename);
 
         DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
         List<Long> newIDs = dataset.importImage(client, f.getAbsolutePath());
         assertEquals(1, newIDs.size());
 
-        if (!f.delete())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(f);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -162,17 +146,11 @@ public class ImageTest extends UserTest {
     public void testPairKeyValue2() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
-        File f = new File("." + File.separator + filename);
-        if (!f.createNewFile())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
+        File f = createFile(filename);
 
         DatasetWrapper dataset = client.getDataset(DATASET2.id);
-
         dataset.importImages(client, f.getAbsolutePath());
-
-        if (!f.delete())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
-
+        removeFile(f);
         List<ImageWrapper> images = dataset.getImages(client);
 
         ImageWrapper image = images.get(0);
@@ -201,17 +179,11 @@ public class ImageTest extends UserTest {
 
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
-        File f = new File("." + File.separator + filename);
-        if (!f.createNewFile())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be created.");
+        File f = createFile(filename);
 
         DatasetWrapper dataset = client.getDataset(DATASET2.id);
-
         dataset.importImages(client, f.getAbsolutePath());
-
-        if (!f.delete())
-            System.err.println("\"" + f.getCanonicalPath() + "\" could not be deleted.");
-
+        removeFile(f);
         List<ImageWrapper> images = dataset.getImages(client);
 
         ImageWrapper image = images.get(0);
@@ -383,15 +355,10 @@ public class ImageTest extends UserTest {
         tBound[1] = random.nextInt(5 - tBound[0]) + tBound[0] + 2;
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
-        File   fakeFile = new File(fake);
-
-        if (!fakeFile.createNewFile())
-            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
+        File   fakeFile = createFile(fake);
 
         ImagePlus reference = BF.openImagePlus(fake)[0];
-
-        if (!fakeFile.delete())
-            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(fakeFile);
 
         Duplicator duplicator = new Duplicator();
         reference.setRoi(xBound[0], yBound[0], xBound[1] - xBound[0] + 1, yBound[1] - yBound[0] + 1);
@@ -418,17 +385,11 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testToImagePlus() throws Exception {
-        String fake = "8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
-
-        File fakeFile = new File(fake);
-
-        if (!fakeFile.createNewFile())
-            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be created.");
+        String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        File   fakeFile = createFile(fake);
 
         ImagePlus reference = BF.openImagePlus(fake)[0];
-
-        if (!fakeFile.delete())
-            System.err.println("\"" + fakeFile.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(fakeFile);
 
         ImageWrapper image = client.getImage(IMAGE2.id);
 
@@ -586,22 +547,10 @@ public class ImageTest extends UserTest {
 
     @Test
     public void testAddFileImage() throws Exception {
-        final String tmpdir = System.getProperty("java.io.tmpdir") + File.separator;
-
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        File file = new File(tmpdir + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
-
-        long id = image.addFile(client, file);
+        File file = createRandomFile("test_image.txt");
+        long id   = image.addFile(client, file);
 
         List<FileAnnotationWrapper> files = image.getFileAnnotations(client);
         for (FileAnnotationWrapper f : files) {
@@ -611,8 +560,8 @@ public class ImageTest extends UserTest {
                 assertEquals("text/plain", f.getOriginalMimetype());
                 assertEquals("text/plain", f.getServerFileMimetype());
                 assertEquals("Plain Text Document", f.getFileKind());
-                assertEquals(tmpdir, f.getContentAsString());
-                assertEquals(tmpdir, f.getFilePath());
+                assertEquals(file.getParent() + File.separator, f.getContentAsString());
+                assertEquals(file.getParent() + File.separator, f.getFilePath());
                 assertFalse(f.isMovieFile());
 
                 File uploadedFile = f.getFile(client, "." + File.separator + "uploaded.txt");
@@ -623,16 +572,12 @@ public class ImageTest extends UserTest {
                 for (int i = 0; i < expectedLines.size(); i++) {
                     assertEquals(expectedLines.get(i), lines.get(i));
                 }
-
-                if (!uploadedFile.delete())
-                    System.err.println("\"" + uploadedFile.getCanonicalPath() + "\" could not be deleted.");
+                removeFile(uploadedFile);
             }
         }
 
         client.deleteFile(id);
-
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(file);
 
         assertNotEquals(0L, id);
     }
@@ -756,26 +701,14 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testImportAndRenameImages() throws Exception {
-        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+    public void testReplaceAndDeleteImages() throws Exception {
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeX=512&sizeY=512.fake";
 
         DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
         client.getProject(PROJECT1.id).addDataset(client, dataset);
 
-        File imageFile = new File("." + File.separator + filename);
-        if (!imageFile.createNewFile())
-            System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be created.");
-
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
+        File imageFile = createFile(filename);
+        File file      = createRandomFile("test_image.txt");
 
         List<Long>   ids1   = dataset.importImage(client, imageFile.getAbsolutePath());
         ImageWrapper image1 = client.getImage(ids1.get(0));
@@ -787,13 +720,95 @@ public class ImageTest extends UserTest {
         image1.addPairKeyValue(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(file);
         assertNotEquals(0L, fileId);
 
         List<Long>   ids2   = dataset.importImage(client, imageFile.getAbsolutePath());
         ImageWrapper image2 = client.getImage(ids2.get(0));
         image2.setDescription("a test.");
+        image2.saveAndUpdate(client);
+
+        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
+        image2.addTag(client, tag2);
+        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
+        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+
+        final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        ROIWrapper             roi       = new ROIWrapper();
+        roi.setImage(image2);
+        roi.addShape(rectangle);
+        image2.saveROI(client, roi);
+
+        FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
+        folder.setImage(image2);
+        folder.addROI(client, roi);
+
+        TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
+        table.setColumn(0, "Name", String.class);
+        table.setRowCount(1);
+        table.addRow("Annotation");
+        image1.addTable(client, table);
+        image2.addTable(client, table);
+
+        List<Long>   ids3   = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE);
+        ImageWrapper image3 = client.getImage(ids3.get(0));
+
+        assertEquals(2, image3.getTags(client).size());
+        assertEquals(2, image3.getTables(client).size());
+        assertEquals(3, image3.getFileAnnotations(client).size());
+        assertEquals(1, image3.getMapAnnotations(client).size());
+        assertEquals(1, image3.getROIs(client).size());
+        assertEquals(1, image3.getFolders(client).size());
+        assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
+        assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
+        assertEquals("ReplaceTest", image3.getValue(client, "Map"));
+        assertEquals("ReplaceTestTable", image3.getTables(client).get(0).getName());
+        assertEquals("This is\na test.", image3.getDescription());
+
+        client.delete(image3.getMapAnnotations(client).get(0));
+        removeFile(imageFile);
+
+        List<ImageWrapper> images = dataset.getImages(client);
+
+        client.delete(images);
+        List<ImageWrapper> endImages = dataset.getImages(client);
+        client.delete(dataset);
+        client.delete(tag1);
+        client.delete(tag2);
+        client.delete(table);
+        client.deleteFile(fileId);
+        client.delete(roi);
+        client.delete(folder);
+
+        assertEquals(1, images.size());
+        assertTrue(endImages.isEmpty());
+    }
+
+
+    @Test
+    public void testReplaceAndUnlinkImages() throws Exception {
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeX=512&sizeY=512.fake";
+
+        DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
+        client.getProject(PROJECT1.id).addDataset(client, dataset);
+
+        File imageFile = createFile(filename);
+        File file      = createRandomFile("test_image.txt");
+
+        List<Long>   ids1   = dataset.importImage(client, imageFile.getAbsolutePath());
+        ImageWrapper image1 = client.getImage(ids1.get(0));
+
+        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
+        image1.addTag(client, tag1);
+        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+
+        long fileId = image1.addFile(client, file);
+        removeFile(file);
+        assertNotEquals(0L, fileId);
+
+        List<Long>   ids2   = dataset.importImage(client, imageFile.getAbsolutePath());
+        ImageWrapper image2 = client.getImage(ids2.get(0));
+        image2.setDescription("A test.");
         image2.saveAndUpdate(client);
 
         TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
@@ -831,12 +846,10 @@ public class ImageTest extends UserTest {
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
         assertEquals("ReplaceTest", image3.getValue(client, "Map"));
         assertEquals("ReplaceTestTable", image3.getTables(client).get(0).getName());
-        assertEquals("This is\na test.", image3.getDescription());
+        assertEquals("A test.", image3.getDescription());
 
         client.delete(image3.getMapAnnotations(client).get(0));
-
-        if (!imageFile.delete())
-            System.err.println("\"" + imageFile.getCanonicalPath() + "\" could not be deleted.");
+        removeFile(imageFile);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -851,8 +864,121 @@ public class ImageTest extends UserTest {
         client.deleteFile(fileId);
         client.delete(roi);
         client.delete(folder);
+        client.delete(image1);
+        client.delete(image2);
 
         assertEquals(1, images.size());
+        assertTrue(endImages.isEmpty());
+    }
+
+
+    @Test
+    public void testReplaceImagesFileset1() throws Exception {
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
+
+        DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
+        client.getProject(PROJECT1.id).addDataset(client, dataset);
+
+        File imageFile = createFile(filename);
+
+        List<Long>         ids1    = dataset.importImage(client, imageFile.getAbsolutePath());
+        List<ImageWrapper> images1 = dataset.getImages(client);
+
+        List<Long>         ids2    = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE);
+        List<ImageWrapper> images2 = dataset.getImages(client);
+
+        removeFile(imageFile);
+
+        assertEquals(2, ids1.size());
+        assertEquals(2, ids2.size());
+        assertEquals(ids1.size(), images1.size());
+        assertEquals(ids2.size(), images2.size());
+        assertTrue(client.getImages(ids1.get(0), ids1.get(1)).isEmpty());
+
+        client.delete(images2);
+        List<ImageWrapper> endImages = dataset.getImages(client);
+        client.delete(dataset);
+
+        assertTrue(endImages.isEmpty());
+    }
+
+
+    @Test
+    public void testReplaceImagesFileset2() throws Exception {
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
+
+        DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
+        client.getProject(PROJECT1.id).addDataset(client, dataset);
+
+        File imageFile = createFile(filename);
+
+        List<Long> ids1 = dataset.importImage(client, imageFile.getAbsolutePath());
+        assertEquals(2, ids1.size());
+        List<ImageWrapper> images1 = dataset.getImages(client);
+        assertEquals(ids1.size(), images1.size());
+        dataset.removeImage(client, images1.get(0));
+        List<ImageWrapper> fsImages = images1.get(0).getFilesetImages(client);
+        assertEquals(images1.size(), fsImages.size());
+        assertTrue(ids1.contains(fsImages.get(0).getId()));
+        assertTrue(ids1.contains(fsImages.get(1).getId()));
+
+        List<Long> ids2 = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE);
+        assertEquals(2, ids2.size());
+        List<ImageWrapper> images2 = dataset.getImages(client);
+        assertEquals(ids2.size(), images2.size());
+
+        removeFile(imageFile);
+
+        List<ImageWrapper> images3 = client.getImages(ids1.get(0), ids1.get(1));
+        assertEquals(2, images3.size());
+        assertFalse(images2.get(0).isOrphaned(client));
+        assertTrue(images3.get(0).isOrphaned(client));
+
+        client.delete(images1);
+        client.delete(images2);
+        List<ImageWrapper> endImages = dataset.getImages(client);
+        client.delete(dataset);
+
+        assertTrue(endImages.isEmpty());
+    }
+
+
+    @Test
+    public void testReplaceImagesFileset3() throws Exception {
+        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
+
+        DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
+        client.getProject(PROJECT1.id).addDataset(client, dataset);
+
+        File imageFile = createFile(filename);
+
+        List<Long> ids1 = dataset.importImage(client, imageFile.getAbsolutePath());
+        assertEquals(2, ids1.size());
+        List<ImageWrapper> images1 = dataset.getImages(client);
+        assertEquals(ids1.size(), images1.size());
+        dataset.removeImage(client, images1.get(0));
+        List<ImageWrapper> fsImages = images1.get(0).getFilesetImages(client);
+        assertEquals(images1.size(), fsImages.size());
+        assertTrue(ids1.contains(fsImages.get(0).getId()));
+        assertTrue(ids1.contains(fsImages.get(1).getId()));
+
+        List<Long> ids2 = dataset.importAndReplaceImages(client, imageFile.getAbsolutePath(), DELETE_ORPHANED);
+        assertEquals(2, ids2.size());
+        List<ImageWrapper> images2 = dataset.getImages(client);
+        assertEquals(ids2.size(), images2.size());
+
+        removeFile(imageFile);
+
+        assertEquals(2, ids1.size());
+        assertEquals(2, ids2.size());
+        assertEquals(ids1.size(), images1.size());
+        assertEquals(ids2.size(), images2.size());
+        assertTrue(client.getImages(ids1.get(0), ids1.get(1)).isEmpty());
+
+        client.delete(images2);
+        List<ImageWrapper> endImages = dataset.getImages(client);
+        client.delete(dataset);
+
         assertTrue(endImages.isEmpty());
     }
 

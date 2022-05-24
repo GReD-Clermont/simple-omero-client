@@ -204,7 +204,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Gets all images in the dataset with a certain from OMERO.
+     * Gets all images in the dataset with a certain name from OMERO.
      *
      * @param client The client handling the connection.
      * @param name   Name searched.
@@ -318,7 +318,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from " + this);
         }
 
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
@@ -357,7 +357,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             handleServiceOrAccess(e, "Cannot get images with key-value pair from " + this);
         }
 
-        List<ImageWrapper> selected = new ArrayList<>();
+        List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
@@ -535,8 +535,101 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
+     * Replaces (and unlinks) a collection of images from this dataset by a new image, after copying their annotations
+     * and ROIs, and concatenating the descriptions (on new lines).
+     *
+     * @param client    The client handling the connection.
+     * @param oldImages The list of old images to replace.
+     * @param newImage  The new image.
+     *
+     * @return The list of images that became orphaned once replaced.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws OMEROServerError     Server error.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public List<ImageWrapper> replaceImages(Client client,
+                                            Collection<? extends ImageWrapper> oldImages,
+                                            ImageWrapper newImage)
+    throws AccessException, ServiceException, ExecutionException, OMEROServerError, InterruptedException {
+        Collection<String> descriptions = new ArrayList<>(oldImages.size() + 1);
+        List<ImageWrapper> orphaned     = new ArrayList<>(oldImages.size());
+        descriptions.add(newImage.getDescription());
+        for (ImageWrapper oldImage : oldImages) {
+            descriptions.add(oldImage.getDescription());
+            newImage.copyAnnotationLinks(client, oldImage);
+            List<ROIWrapper> rois = oldImage.getROIs(client);
+            for (ROIWrapper roi : rois) {
+                roi.setImage(newImage);
+                newImage.saveROI(client, roi);
+            }
+            this.removeImage(client, oldImage);
+            if (oldImage.isOrphaned(client)) {
+                orphaned.add(oldImage);
+            }
+        }
+        descriptions.removeIf(s -> s == null || s.trim().isEmpty());
+        newImage.setDescription(String.join("\n", descriptions));
+        newImage.saveAndUpdate(client);
+        return orphaned;
+    }
+
+
+    /**
      * Imports one image file to the dataset in OMERO and replace older images sharing the same name after copying their
-     * annotations and ROIs, and concatenating the descriptions (on new lines).
+     * annotations and ROIs, and concatenating the descriptions (on new lines) by unlinking or even deleting them.
+     *
+     * @param client The client handling the connection.
+     * @param path   Path to the image on the computer.
+     * @param policy Whether older images should be unlinked, deleted or deleted only if they become orphaned.
+     *
+     * @return The list of IDs of the newly imported images.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws OMEROServerError     Server error.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException, InterruptedException {
+        List<Long> ids    = importImage(client, path);
+        Long[]     newIds = ids.toArray(LONGS);
+
+        List<ImageWrapper>       newImages = client.getImages(newIds);
+        Collection<ImageWrapper> toDelete  = new ArrayList<>(newImages.size());
+        for (ImageWrapper image : newImages) {
+            List<ImageWrapper> oldImages = getImages(client, image.getName());
+            oldImages.removeIf(i -> ids.contains(i.getId()));
+            List<ImageWrapper> orphaned = replaceImages(client, oldImages, image);
+            if (policy == ReplacePolicy.DELETE) {
+                toDelete.addAll(oldImages);
+            } else if (policy == ReplacePolicy.DELETE_ORPHANED) {
+                toDelete.addAll(orphaned);
+            }
+        }
+        if (policy == ReplacePolicy.DELETE_ORPHANED) {
+            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+
+            Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
+            for (ImageWrapper orphan : orphans) {
+                for (ImageWrapper other : orphan.getFilesetImages(client)) {
+                    if (!idsToDelete.contains(other.getId()) && other.isOrphaned(client)) {
+                        toDelete.add(other);
+                    }
+                }
+            }
+        }
+        client.delete(toDelete);
+        return ids;
+    }
+
+
+    /**
+     * Imports one image file to the dataset in OMERO and replace older images sharing the same name after copying their
+     * annotations and ROIs, and concatenating the descriptions (on new lines) by unlinking them.
      *
      * @param client The client handling the connection.
      * @param path   Path to the image on the computer.
@@ -551,30 +644,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<Long> importAndReplaceImages(Client client, String path)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException, InterruptedException {
-        List<Long> ids    = importImage(client, path);
-        Long[]     newIds = ids.toArray(LONGS);
-
-        List<ImageWrapper> newImages = client.getImages(newIds);
-        for (ImageWrapper image : newImages) {
-            List<ImageWrapper> oldImages = getImages(client, image.getName());
-            oldImages.removeIf(i -> ids.contains(i.getId()));
-            ArrayList<String> descriptions = new ArrayList<>(oldImages.size() + 1);
-            descriptions.add(image.getDescription());
-            for (ImageWrapper oldImage : oldImages) {
-                descriptions.add(oldImage.getDescription());
-                image.copyAnnotationLinks(client, oldImage);
-                List<ROIWrapper> rois = oldImage.getROIs(client);
-                for (ROIWrapper roi : rois) {
-                    roi.setImage(image);
-                    image.saveROI(client, roi);
-                }
-                client.delete(oldImage);
-            }
-            descriptions.removeIf(s -> s == null || s.trim().isEmpty());
-            image.setDescription(String.join("\n", descriptions));
-            image.saveAndUpdate(client);
-        }
-        return ids;
+        return importAndReplaceImages(client, path, ReplacePolicy.UNLINK);
     }
 
 

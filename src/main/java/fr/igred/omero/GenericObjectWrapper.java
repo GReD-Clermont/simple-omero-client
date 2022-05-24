@@ -28,6 +28,7 @@ import omero.gateway.model.DataObject;
 import omero.model.IObject;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -110,6 +111,29 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     protected static void delete(Client client, IObject object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         client.delete(object);
+    }
+
+
+    /**
+     * Only keeps objects with different IDs in a collection.
+     *
+     * @param objects A collection of objects.
+     * @param <T>     The objects type.
+     *
+     * @return Distinct objects list, sorted by ID.
+     */
+    public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
+        Collection<Long> ids = new ArrayList<>(objects.size());
+
+        List<T> purged = new ArrayList<>(objects.size());
+        for (T image : objects) {
+            if (!ids.contains(image.getId())) {
+                ids.add(image.getId());
+                purged.add(image);
+            }
+        }
+        purged.sort(Comparator.comparing(T::getId));
+        return purged;
     }
 
 

@@ -21,10 +21,6 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -346,23 +342,10 @@ public class DatasetTest extends UserTest {
     public void testAddFileDataset() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
-        File file = new File("." + File.separator + "test.txt");
-        if (!file.createNewFile())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
-
-        final byte[] array = new byte[2 * 262144 + 20];
-        new SecureRandom().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(new FileOutputStream(file), false, "UTF-8")) {
-            out.print(generatedString);
-        }
-
-        Long id = dataset.addFile(client, file);
-        if (!file.delete())
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
-
+        File file = createRandomFile("test_dataset.txt");
+        Long id   = dataset.addFile(client, file);
+        removeFile(file);
         client.deleteFile(id);
-
         assertNotEquals(0L, id.longValue());
     }
 

@@ -40,7 +40,7 @@ public abstract class RootTest extends BasicTest {
             assertEquals("Wrong group", GROUP1.id, client.getCurrentGroupId());
         } catch (Exception e) {
             failed = true;
-            logger.log(Level.SEVERE, ANSI_RED + "Connection failed." + ANSI_RESET, e);
+            logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }
         org.junit.Assume.assumeFalse(failed);
     }
@@ -51,7 +51,7 @@ public abstract class RootTest extends BasicTest {
         try {
             client.disconnect();
         } catch (Exception e) {
-            logger.log(Level.WARNING, ANSI_YELLOW + "Disconnection failed." + ANSI_RESET, e);
+            logger.log(Level.WARNING, String.format("%sDisconnection failed.%s", ANSI_YELLOW, ANSI_RESET), e);
         }
     }
 

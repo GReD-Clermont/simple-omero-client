@@ -433,7 +433,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      *
      * @param client The client handling the connection.
      *
-     * @return List of TableWrapper containing the tables information.
+     * @return List of TableWrappers containing the tables.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -460,7 +460,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Links a file to the object
+     * Uploads a file and links it to the object
      *
      * @param client The client handling the connection.
      * @param file   File to add.
@@ -477,6 +477,65 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                                          "",
                                          file.getName(),
                                          data).get().getId();
+    }
+
+
+    /**
+     * Uploads a file, links it to the object and unlinks previous files with the same name, or deletes them.
+     *
+     * @param client The client handling the connection.
+     * @param file   File to add.
+     * @param policy Whether older files should be unlinked, deleted or deleted only if they become orphaned.
+     *
+     * @return ID of the file created in OMERO.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     * @throws OMEROServerError     If the thread was interrupted.
+     */
+    public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
+    throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
+        List<FileAnnotationWrapper> files = getFileAnnotations(client);
+
+        FileAnnotationData uploaded = client.getDm().attachFile(client.getCtx(),
+                                                                file,
+                                                                null,
+                                                                "",
+                                                                file.getName(),
+                                                                data).get();
+        FileAnnotationWrapper annotation = new FileAnnotationWrapper(uploaded);
+
+        files.removeIf(f -> !f.getFileName().equals(annotation.getFileName()));
+        for (FileAnnotationWrapper f : files) {
+            this.unlink(client, f);
+            if (policy == ReplacePolicy.DELETE ||
+                policy == ReplacePolicy.DELETE_ORPHANED && f.countAnnotationLinks(client) == 0) {
+                client.deleteFile(f.getId());
+            }
+        }
+        return annotation.getFileID();
+    }
+
+
+    /**
+     * Uploads a file, links it to the object and unlinks previous files with the same name, or deletes them.
+     *
+     * @param client The client handling the connection.
+     * @param file   File to add.
+     *
+     * @return ID of the file created in OMERO.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     * @throws OMEROServerError     If the thread was interrupted.
+     */
+    public long addAndReplaceFile(Client client, File file)
+    throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
+        return addAndReplaceFile(client, file, ReplacePolicy.UNLINK);
     }
 
 
@@ -620,5 +679,19 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         }
     }
 
+
+    /**
+     * Policy to specify how to handle objects when they are replaced.
+     */
+    public enum ReplacePolicy {
+        /** Unlink objects only */
+        UNLINK,
+
+        /** Delete all objects */
+        DELETE,
+
+        /** Delete orphaned objects */
+        DELETE_ORPHANED
+    }
 
 }

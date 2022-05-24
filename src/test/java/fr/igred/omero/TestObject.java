@@ -29,4 +29,14 @@ public class TestObject {
         this.description = description;
     }
 
+
+    @Override
+    public String toString() {
+        return "TestObject{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", description='" + description + '\'' +
+               '}';
+    }
+
 }
