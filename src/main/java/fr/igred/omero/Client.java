@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.GenericObjectWrapper.purge;
 import static fr.igred.omero.GenericObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -376,15 +377,19 @@ public class Client extends GatewayWrapper {
      */
     public List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper>   images   = new ArrayList<>();
         List<ProjectWrapper> projects = getProjects(projectName);
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(projects.size());
         for (ProjectWrapper project : projects) {
-            List<DatasetWrapper> datasets = project.getDatasets(datasetName);
-            for (DatasetWrapper dataset : datasets) {
-                images.addAll(dataset.getImages(this, imageName));
-            }
+            lists.add(project.getImages(this, datasetName, imageName));
         }
-        return images;
+
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
+
+        return purge(images);
     }
 
 

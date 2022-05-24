@@ -81,25 +81,6 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Only keep images with different IDs in a collection.
-     *
-     * @return ImageWrapper list.
-     */
-    private static List<ImageWrapper> purge(Collection<? extends ImageWrapper> images) {
-        Collection<Long> ids = new ArrayList<>(images.size());
-
-        List<ImageWrapper> purged = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
-            if (!ids.contains(image.getId())) {
-                ids.add(image.getId());
-                purged.add(image);
-            }
-        }
-        return purged;
-    }
-
-
-    /**
      * Gets the ProjectData name
      *
      * @return ProjectData name.
@@ -298,6 +279,36 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
             lists.add(dataset.getImages(client, name));
+        }
+        List<ImageWrapper> images = lists.stream()
+                                         .flatMap(Collection::stream)
+                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .collect(Collectors.toList());
+
+        return purge(images);
+    }
+
+
+    /**
+     * Gets all images with a certain name from datasets with the specified name inside this project on OMERO.
+     *
+     * @param client      The client handling the connection.
+     * @param datasetName Expected dataset name.
+     * @param imageName   Expected image name.
+     *
+     * @return ImageWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImages(Client client, String datasetName, String imageName)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<DatasetWrapper> datasets = getDatasets(datasetName);
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
+        for (DatasetWrapper dataset : datasets) {
+            lists.add(dataset.getImages(client, imageName));
         }
         List<ImageWrapper> images = lists.stream()
                                          .flatMap(Collection::stream)
