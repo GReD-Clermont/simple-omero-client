@@ -256,7 +256,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
@@ -285,7 +285,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
@@ -315,7 +315,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
@@ -344,7 +344,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
@@ -374,7 +374,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
@@ -404,7 +404,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
@@ -433,7 +433,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
@@ -463,7 +463,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 

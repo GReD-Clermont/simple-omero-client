@@ -120,9 +120,9 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @param objects A collection of objects.
      * @param <T>     The objects type.
      *
-     * @return Purged objects list, sorted by ID.
+     * @return Distinct objects list, sorted by ID.
      */
-    public static <T extends GenericObjectWrapper<?>> List<T> purge(Collection<? extends T> objects) {
+    public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
         Collection<Long> ids = new ArrayList<>(objects.size());
 
         List<T> purged = new ArrayList<>(objects.size());

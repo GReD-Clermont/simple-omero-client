@@ -62,7 +62,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.GenericObjectWrapper.purge;
+import static fr.igred.omero.GenericObjectWrapper.distinct;
 import static fr.igred.omero.GenericObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -389,7 +389,7 @@ public class Client extends GatewayWrapper {
                                          .sorted(Comparator.comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
-        return purge(images);
+        return distinct(images);
     }
 
 
