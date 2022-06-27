@@ -20,9 +20,12 @@ import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class ScreenTest extends UserTest {
@@ -133,6 +136,90 @@ public class ScreenTest extends UserTest {
         screen.setReagentSetIdentifier(identifier);
         screen.saveAndUpdate(client);
         assertEquals(identifier, client.getScreen(SCREEN1.id).getReagentSetIdentifier());
+    }
+
+
+    @Test
+    public void testImportImages() throws Exception {
+
+        String filename1 = "default-screen&screens=1&plates=1&plateAcqs=1&plateRows=3&plateCols=3&fields=4.fake";
+        String filename2 = "default-screen&screens=1&plates=1&plateAcqs=1&plateRows=2&plateCols=2&fields=2.fake";
+
+        File f1 = createFile(filename1);
+        File f2 = createFile(filename2);
+
+        ScreenWrapper screen = new ScreenWrapper(client, "Import", "test-import");
+
+        boolean imported = screen.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
+
+        removeFile(f1);
+        removeFile(f2);
+
+        List<PlateWrapper> plates = screen.getPlates();
+        assertEquals(2, plates.size());
+        List<WellWrapper> wells = plates.get(0).getWells(client);
+        wells.addAll(plates.get(1).getWells(client));
+        assertEquals(13, wells.size());
+        List<WellSampleWrapper> samples = wells.stream()
+                                               .map(WellWrapper::getWellSamples)
+                                               .flatMap(List::stream)
+                                               .collect(Collectors.toList());
+        assertEquals(44, samples.size());
+        List<ImageWrapper> images = samples.stream()
+                                           .map(WellSampleWrapper::getImage)
+                                           .collect(Collectors.toList());
+
+        client.delete(images);
+        client.delete(samples);
+        client.delete(wells);
+        client.delete(plates);
+
+        screen.refresh(client);
+        assertTrue(screen.getPlates().isEmpty());
+
+        client.delete(screen);
+        assertTrue(imported);
+    }
+
+
+    @Test
+    public void testImportImage() throws Exception {
+
+        String filename = "default-screen&screens=1&plates=1&plateAcqs=1&plateRows=2&plateCols=2&fields=2.fake";
+
+        File f = createFile(filename);
+
+        ScreenWrapper screen = new ScreenWrapper(client, "Import", "test-import");
+
+        List<Long> ids = screen.importImage(client, f.getAbsolutePath());
+
+        removeFile(f);
+
+        List<PlateWrapper> plates = screen.getPlates();
+        assertEquals(1, plates.size());
+        List<WellWrapper> wells = plates.get(0).getWells(client);
+        assertEquals(4, wells.size());
+        List<WellSampleWrapper> samples = wells.stream()
+                                               .map(WellWrapper::getWellSamples)
+                                               .flatMap(List::stream)
+                                               .collect(Collectors.toList());
+        assertEquals(8, samples.size());
+        List<ImageWrapper> images = samples.stream()
+                                           .map(WellSampleWrapper::getImage)
+                                           .collect(Collectors.toList());
+
+        assertEquals(images.size(), ids.size());
+        client.delete(images);
+        client.delete(samples);
+        client.delete(wells);
+        client.delete(plates);
+
+        screen.refresh(client);
+        List<PlateWrapper> endPlates = screen.getPlates();
+
+        client.delete(screen);
+
+        assertTrue(endPlates.isEmpty());
     }
 
 }
