@@ -336,7 +336,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Gets the value from a Key-Value pair associated to the object
+     * Gets the value from a Key-Value pair associated to the object.
      *
      * @param client The client handling the connection.
      * @param key    Key researched.
@@ -361,8 +361,8 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Adds a List of Key-Value pair to the object
-     * <p>The list is contained in the MapAnnotationWrapper
+     * Adds a List of Key-Value pair to the object.
+     * <p>The list is contained in the MapAnnotationWrapper.
      *
      * @param client        The client handling the connection.
      * @param mapAnnotation MapAnnotationWrapper containing a list of NamedValue.
@@ -384,7 +384,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Adds a table to the object in OMERO
+     * Adds a table to the object in OMERO.
      *
      * @param client The client handling the connection.
      * @param table  Table to add to the object.
@@ -414,7 +414,63 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Gets a certain table linked to the object in OMERO
+     * Adds a table to the object in OMERO and unlinks or deletes previous tables with the same name.
+     *
+     * @param client The client handling the connection.
+     * @param table  Table to add to the object.
+     * @param policy Whether older tables should be unlinked, deleted or deleted only if they become orphaned.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     * @throws OMEROServerError     Server error.
+     */
+    public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        Collection<FileAnnotationWrapper> tables = new ArrayList<>(0);
+        try {
+            tables = client.getTablesFacility()
+                           .getAvailableTables(client.getCtx(), data)
+                           .stream()
+                           .map(FileAnnotationWrapper::new)
+                           .collect(Collectors.toList());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get tables from " + this);
+        }
+        addTable(client, table);
+        tables.removeIf(t -> !t.getDescription().equals(table.getName()));
+        for (FileAnnotationWrapper f : tables) {
+            this.unlink(client, f);
+            if (policy == ReplacePolicy.DELETE ||
+                policy == ReplacePolicy.DELETE_ORPHANED && f.countAnnotationLinks(client) == 0) {
+                client.deleteFile(f.getId());
+            }
+        }
+    }
+
+
+    /**
+     * Adds a table to the object in OMERO and unlinks previous tables with the same name, or deletes them if they're
+     * orphaned.
+     *
+     * @param client The client handling the connection.
+     * @param table  Table to add to the object.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     * @throws OMEROServerError     Server error.
+     */
+    public void addAndReplaceTable(Client client, TableWrapper table)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
+    }
+
+
+    /**
+     * Gets a certain table linked to the object in OMERO.
      *
      * @param client The client handling the connection.
      * @param fileId FileId of the table researched.
@@ -498,7 +554,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Uploads a file, links it to the object and unlinks previous files with the same name, or deletes them.
+     * Uploads a file, links it to the object and unlinks or deletes previous files with the same name.
      *
      * @param client The client handling the connection.
      * @param file   File to add.
@@ -510,7 +566,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      */
     public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
@@ -537,7 +593,8 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Uploads a file, links it to the object and unlinks previous files with the same name, or deletes them.
+     * Uploads a file, links it to the object and unlinks previous files with the same name, or deletes them if they're
+     * orphaned.
      *
      * @param client The client handling the connection.
      * @param file   File to add.
@@ -548,11 +605,11 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      */
     public long addAndReplaceFile(Client client, File file)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
-        return addAndReplaceFile(client, file, ReplacePolicy.UNLINK);
+        return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
     }
 
 
@@ -616,7 +673,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, A annotation)
@@ -635,7 +692,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     protected void removeLink(Client client, String linkType, long childId)
@@ -715,7 +772,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         boolean success;
 
         ImportConfig config = new ImportConfig();
-        String type = PojoMapper.getGraphType(target.getClass());
+        String       type   = PojoMapper.getGraphType(target.getClass());
         config.target.set(type + ":" + target.getId());
         config.username.set(client.getUser().getUserName());
         config.email.set(client.getUser().getEmail());
@@ -751,13 +808,13 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      *
      * @return The list of IDs of the newly imported images.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws OMEROServerError   Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
      */
     protected static List<Long> importImage(GatewayWrapper client, DataObject target, String path)
     throws ServiceException, OMEROServerError {
         ImportConfig config = new ImportConfig();
-        String type = PojoMapper.getGraphType(target.getClass());
+        String       type   = PojoMapper.getGraphType(target.getClass());
         config.target.set(type + ":" + target.getId());
         config.username.set(client.getUser().getUserName());
         config.email.set(client.getUser().getEmail());
