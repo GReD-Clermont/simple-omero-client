@@ -410,7 +410,7 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void delete(IObject object)
@@ -432,7 +432,7 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void delete(List<IObject> objects)
@@ -454,7 +454,7 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteFile(Long id)
