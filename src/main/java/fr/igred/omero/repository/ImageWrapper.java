@@ -45,9 +45,7 @@ import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
-import omero.model.Folder;
-import omero.model.IObject;
-import omero.model.Length;
+import omero.model.*;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -184,6 +182,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         for (DatasetWrapper dataset : datasets) {
             projects.addAll(dataset.getProjects(client));
         }
+
         return projects;
     }
 
@@ -204,7 +203,61 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
                                               "where link.child=" + getId());
+
         return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+    }
+
+    /**
+     * Retrieves the Wells containing this image
+     *
+     * @param client The client handling the connection.
+     * @return See above
+     */
+    public List<WellWrapper> getWells(Client client) {
+        List<WellSample> wellSamples = this.asImageData().asImage().copyWellSamples();
+        List<WellWrapper> wellWrappers = new ArrayList<>();
+        if(!wellSamples.isEmpty()){
+            wellSamples.forEach(sample-> {
+                try {
+                    wellWrappers.add(client.getWell(sample.getId().getValue()));
+                } catch (ServiceException | AccessException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+        return wellWrappers;
+    }
+
+
+    /**
+     * Retrieves the Plates containing this image
+     *
+     * @param client The client handling the connection.
+     * @return See above
+     */
+    public List<PlateWrapper> getPlates(Client client) {
+        List<WellWrapper> wellWrappers = getWells(client);
+        return wellWrappers.stream().map(WellWrapper::getPlate).collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves the Screens containing this image
+     *
+     * @param client The client handling the connection.
+     * @return See above
+     */
+    public List<ScreenWrapper> getScreens(Client client) throws AccessException, ServiceException, ExecutionException {
+        List<PlateWrapper> plateWrappers = getPlates(client);
+        List<IObject> os = new ArrayList<>();
+        plateWrappers.forEach(plate -> {
+            try {
+                os.addAll(client.findByQuery("select link.parent from ScreenPlateLink as link " +
+                        "where link.child=" + plate.getId()));
+            } catch (ServiceException | OMEROServerError e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return client.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
     }
 
 
