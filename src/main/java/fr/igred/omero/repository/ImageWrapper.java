@@ -219,7 +219,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         if(!wellSamples.isEmpty()){
             wellSamples.forEach(sample-> {
                 try {
-                    wellWrappers.add(client.getWell(sample.getId().getValue()));
+                    wellWrappers.add(client.getWell(sample.getWell().getId().getValue()));
                 } catch (ServiceException | AccessException | ExecutionException e) {
                     throw new RuntimeException(e);
                 }
