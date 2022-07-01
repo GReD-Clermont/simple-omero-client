@@ -91,7 +91,7 @@ public class Client extends GatewayWrapper {
      * @param ctx     The security context
      * @param user    The user
      */
-    private Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
     }
 
