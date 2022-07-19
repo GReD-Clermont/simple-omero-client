@@ -17,11 +17,16 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.WellSampleData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
+
+import java.util.concurrent.ExecutionException;
 
 
 public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
@@ -42,6 +47,22 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      */
     public WellSampleData asWellSampleData() {
         return data;
+    }
+
+
+    /**
+     * Retrieves the well containing this well sample
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public WellWrapper getWell(Client client) throws AccessException, ServiceException, ExecutionException {
+        return client.getWell(asWellSampleData().asWellSample().getWell().getId().getValue());
     }
 
 

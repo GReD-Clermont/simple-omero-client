@@ -74,6 +74,20 @@ public class ImageTest extends UserTest {
 
 
     @Test
+    public void testGetScreens() throws Exception {
+        final long id = 5L;
+        assertEquals(SCREEN1.id, client.getImage(id).getScreens(client).get(0).getId());
+    }
+
+
+    @Test
+    public void testGetPlates() throws Exception {
+        final long id = 5L;
+        assertEquals(PLATE1.id, client.getImage(id).getPlates(client).get(0).getId());
+    }
+
+
+    @Test
     public void testImportImage() throws Exception {
         String filename1 = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         String filename2 = "8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";

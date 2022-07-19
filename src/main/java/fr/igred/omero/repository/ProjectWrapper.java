@@ -80,22 +80,6 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Only keep images with different IDs in a collection.
-     *
-     * @return ImageWrapper list.
-     */
-    private static List<ImageWrapper> purge(Collection<? extends ImageWrapper> images) {
-        List<ImageWrapper> purged = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
-            if (purged.isEmpty() || purged.get(purged.size() - 1).getId() != image.getId()) {
-                purged.add(image);
-            }
-        }
-        return purged;
-    }
-
-
-    /**
      * Gets the ProjectData name
      *
      * @return ProjectData name.

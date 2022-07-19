@@ -45,7 +45,10 @@ import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
-import omero.model.*;
+import omero.model.Folder;
+import omero.model.IObject;
+import omero.model.Length;
+import omero.model.WellSample;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -177,13 +180,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ProjectWrapper> getProjects(Client client)
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<DatasetWrapper> datasets = getDatasets(client);
-        List<ProjectWrapper> projects = new ArrayList<>(datasets.size());
+        List<DatasetWrapper>       datasets = getDatasets(client);
+        Collection<ProjectWrapper> projects = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
             projects.addAll(dataset.getProjects(client));
         }
-
-        return projects;
+        return purge(projects);
     }
 
 
@@ -204,60 +206,66 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
                                               "where link.child=" + getId());
 
-        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
     }
 
+
     /**
-     * Retrieves the Wells containing this image
+     * Retrieves the wells containing this image
      *
      * @param client The client handling the connection.
+     *
      * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client) {
-        List<WellSample> wellSamples = this.asImageData().asImage().copyWellSamples();
-        List<WellWrapper> wellWrappers = new ArrayList<>();
-        if(!wellSamples.isEmpty()){
-            wellSamples.forEach(sample-> {
-                try {
-                    wellWrappers.add(client.getWell(sample.getWell().getId().getValue()));
-                } catch (ServiceException | AccessException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+    public List<WellWrapper> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
+        List<WellSample>        wellSamples  = this.asImageData().asImage().copyWellSamples();
+        Collection<WellWrapper> wellWrappers = new ArrayList<>(wellSamples.size());
+        for (WellSample sample : wellSamples) {
+            wellWrappers.add(client.getWell(sample.getWell().getId().getValue()));
         }
-        return wellWrappers;
+        return purge(wellWrappers);
     }
 
 
     /**
-     * Retrieves the Plates containing this image
+     * Retrieves the plates containing this image
      *
      * @param client The client handling the connection.
+     *
      * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client) {
-        List<WellWrapper> wellWrappers = getWells(client);
-        return wellWrappers.stream().map(WellWrapper::getPlate).collect(Collectors.toList());
+    public List<PlateWrapper> getPlates(Client client) throws AccessException, ServiceException, ExecutionException {
+        return purge(getWells(client).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
     }
 
+
     /**
-     * Retrieves the Screens containing this image
+     * Retrieves the screens containing this image
      *
      * @param client The client handling the connection.
+     *
      * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client) throws AccessException, ServiceException, ExecutionException {
-        List<PlateWrapper> plateWrappers = getPlates(client);
-        List<IObject> os = new ArrayList<>();
-        plateWrappers.forEach(plate -> {
-            try {
-                os.addAll(client.findByQuery("select link.parent from ScreenPlateLink as link " +
-                        "where link.child=" + plate.getId()));
-            } catch (ServiceException | OMEROServerError e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return client.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+    public List<ScreenWrapper> getScreens(Client client)
+    throws AccessException, ServiceException, ExecutionException, OMEROServerError {
+        List<PlateWrapper>        plates  = getPlates(client);
+        Collection<ScreenWrapper> screens = new ArrayList<>(plates.size());
+        for (PlateWrapper plate : plates) {
+            screens.addAll(plate.getScreens(client));
+        }
+        return purge(screens);
     }
 
 
