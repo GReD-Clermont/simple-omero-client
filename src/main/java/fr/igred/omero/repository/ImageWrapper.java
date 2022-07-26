@@ -261,6 +261,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws AccessException, ServiceException, ExecutionException, OMEROServerError {
