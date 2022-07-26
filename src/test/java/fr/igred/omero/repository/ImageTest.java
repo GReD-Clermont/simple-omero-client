@@ -88,6 +88,16 @@ public class ImageTest extends UserTest {
 
 
     @Test
+    public void testGetWells() throws Exception {
+        final long  wellId = 1L;
+        WellWrapper well   = client.getWell(wellId);
+
+        long imageId = well.getWellSamples().get(0).getImage().getId();
+        assertEquals(wellId, client.getImage(imageId).getWells(client).get(0).getId());
+    }
+
+
+    @Test
     public void testImportImage() throws Exception {
         String filename1 = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         String filename2 = "8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";

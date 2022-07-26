@@ -41,6 +41,16 @@ public class WellSampleTest extends UserTest {
 
 
     @Test
+    public void testGetWell() throws Exception {
+        final long  wellId = 1L;
+        WellWrapper well   = client.getWell(wellId);
+        WellSampleWrapper sample = well.getWellSamples().get(0);
+
+        assertEquals(wellId, sample.getWell(client).getId());
+    }
+
+
+    @Test
     public void testGetPositionX() throws Exception {
         WellWrapper well = client.getWells(1L).get(0);
 
