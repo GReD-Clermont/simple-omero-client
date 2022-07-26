@@ -222,12 +222,16 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellWrapper> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
-        List<WellSample>        wellSamples  = this.asImageData().asImage().copyWellSamples();
-        Collection<WellWrapper> wellWrappers = new ArrayList<>(wellSamples.size());
-        for (WellSample sample : wellSamples) {
-            wellWrappers.add(client.getWell(sample.getWell().getId().getValue()));
-        }
-        return purge(wellWrappers);
+        Long[] ids = this.asImageData()
+                         .asImage()
+                         .copyWellSamples()
+                         .stream()
+                         .map(WellSample::getWell)
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .sorted().distinct()
+                         .toArray(Long[]::new);
+        return client.getWells(ids);
     }
 
 
