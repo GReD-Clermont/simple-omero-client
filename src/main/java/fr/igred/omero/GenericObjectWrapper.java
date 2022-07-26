@@ -60,6 +60,24 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
+     * Only keep objects with different IDs in a collection.
+     *
+     * @param objects The collection of objects.
+     * @param <T>     The type of object.
+     *
+     * @return Distinct objects list.
+     */
+    protected static <T extends GenericObjectWrapper<?>> List<T> purge(Collection<? extends T> objects) {
+        return objects.stream()
+                      .collect(Collectors.toMap(T::getId, o -> o))
+                      .values()
+                      .stream()
+                      .sorted(Comparator.comparing(T::getId))
+                      .collect(Collectors.toList());
+    }
+
+
+    /**
      * Converts a DataObject list to a ObjectWrapper list, sorted by {@code sorter}.
      *
      * @param objects The DataObject list.

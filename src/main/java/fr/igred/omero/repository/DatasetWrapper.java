@@ -161,7 +161,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
                                               "where link.child=" + getId());
-        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
     }
 
 
