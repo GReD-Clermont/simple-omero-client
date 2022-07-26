@@ -61,6 +61,9 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     /**
      * Only keep objects with different IDs in a collection.
      *
+     * @param objects The collection of objects.
+     * @param <T>     The type of object.
+     *
      * @return Distinct objects list.
      */
     protected static <T extends GenericObjectWrapper<?>> List<T> purge(Collection<? extends T> objects) {
