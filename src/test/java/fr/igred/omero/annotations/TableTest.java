@@ -86,6 +86,73 @@ public class TableTest extends UserTest {
 
 
     @Test
+    public void testReplaceTable() throws Exception {
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+
+        List<ImageWrapper> images = dataset.getImages(client);
+
+        TableWrapper table1 = new TableWrapper(2, "TableTest");
+
+        assertEquals(2, table1.getColumnCount());
+
+        table1.setColumn(0, "Image", ImageData.class);
+        table1.setColumn(1, "Name", String.class);
+        assertEquals("Image", table1.getColumnName(0));
+        assertEquals("Name", table1.getColumnName(1));
+        assertSame(ImageData.class, table1.getColumnType(0));
+
+        table1.setRowCount(images.size());
+
+        assertEquals(images.size(), table1.getRowCount());
+
+        for (ImageWrapper image : images) {
+            assertNotEquals(true, table1.isComplete());
+            table1.addRow(image.asImageData(), image.getName());
+        }
+
+        assertEquals(images.get(0).asImageData(), table1.getData(0, 0));
+        assertEquals(images.get(1).getName(), table1.getData(0, 1));
+
+        dataset.addTable(client, table1);
+        long tableId1 = table1.getId();
+
+        TableWrapper table2 = new TableWrapper(2, "TableTest 2");
+        table2.setColumn(0, "Image", ImageData.class);
+        table2.setColumn(1, "Name", String.class);
+        table2.setRowCount(images.size());
+        for (ImageWrapper image : images) {
+            assertNotEquals(true, table2.isComplete());
+            table2.addRow(image.asImageData(), image.getDescription());
+        }
+        dataset.addTable(client, table2);
+        long tableId2 = table2.getId();
+
+        TableWrapper table3 = new TableWrapper(2, "TableTest");
+        table3.setColumn(0, "Image", ImageData.class);
+        table3.setColumn(1, "Name", String.class);
+        table3.setRowCount(images.size());
+        for (ImageWrapper image : images) {
+            assertNotEquals(true, table3.isComplete());
+            table3.addRow(image.asImageData(), "Test name");
+        }
+        dataset.addAndReplaceTable(client, table3);
+        long tableId3 = table3.getId();
+
+        assertNotEquals(tableId1, tableId3);
+        assertNotEquals(tableId2, tableId3);
+
+        List<TableWrapper> tables = dataset.getTables(client);
+        for (TableWrapper table : tables) {
+            client.delete(table);
+        }
+        List<TableWrapper> noTables = dataset.getTables(client);
+
+        assertEquals(2, tables.size());
+        assertEquals(0, noTables.size());
+    }
+
+
+    @Test
     public void testErrorTableFull() throws Exception {
         boolean        exception = false;
         DatasetWrapper dataset   = client.getDataset(DATASET1.id);
