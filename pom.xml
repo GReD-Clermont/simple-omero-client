@@ -91,6 +91,13 @@
         <maven.compiler.target>8</maven.compiler.target>
         <license.licenseName>gpl_v2</license.licenseName>
         <license.copyrightOwners>GReD</license.copyrightOwners>
+        <!-- Override OMERO dependencies versions -->
+        <omero-gateway.version>5.6.10</omero-gateway.version>
+        <omero-model.version>5.6.7</omero-model.version>
+        <omero-blitz.version>5.5.12</omero-blitz.version>
+        <ome-common.version>6.0.11</ome-common.version>
+        <!-- 3.2.0 erroneously detects runtime dependencies as test-only. -->
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -98,12 +105,12 @@
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
                 <artifactId>omero-gateway</artifactId>
-                <version>5.6.10</version>
+                <version>${omero-gateway.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
                 <artifactId>omero-model</artifactId>
-                <version>5.6.7</version>
+                <version>${omero-model.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>net.jcip</groupId>
@@ -122,7 +129,7 @@
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
                 <artifactId>omero-blitz</artifactId>
-                <version>5.5.12</version>
+                <version>${omero-blitz.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -161,7 +168,7 @@
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
                 <artifactId>ome-common</artifactId>
-                <version>6.0.11</version>
+                <version>${ome-common.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>xml-apis</groupId>
@@ -172,7 +179,7 @@
             <dependency>
                 <groupId>ome</groupId>
                 <artifactId>formats-api</artifactId>
-                <version>6.10.0</version>
+                <version>${bio-formats.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -285,7 +292,6 @@
                 <configuration>
                     <source>8</source>
                     <detectJavaApiLink>false</detectJavaApiLink>
-                    <additionalJOption>--no-module-directories</additionalJOption>
                 </configuration>
                 <executions>
                     <execution>
@@ -306,7 +312,6 @@
                 <configuration>
                     <source>8</source>
                     <detectJavaApiLink>false</detectJavaApiLink>
-                    <additionalJOption>--no-module-directories</additionalJOption>
                 </configuration>
             </plugin>
         </plugins>
