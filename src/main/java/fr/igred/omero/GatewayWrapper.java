@@ -55,7 +55,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 public abstract class GatewayWrapper {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
-    private final Gateway gateway;
+    private Gateway gateway;
 
     /** Security context of the user, contains the permissions of the user in this group. */
     private SecurityContext ctx;
@@ -245,12 +245,18 @@ public abstract class GatewayWrapper {
      */
     public void disconnect() {
         if (gateway.isConnected()) {
+            boolean sudo = false;
             if (ctx != null) {
+                if (ctx.isSudo()) sudo = true;
                 ctx.setExperimenter(null);
             }
             ctx = null;
             user = null;
-            gateway.disconnect();
+            if (sudo) {
+                gateway = new Gateway(gateway.getLogger());
+            } else {
+                gateway.disconnect();
+            }
         }
     }
 

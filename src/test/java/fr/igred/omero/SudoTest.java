@@ -33,6 +33,20 @@ public class SudoTest extends BasicTest {
 
 
     @Test
+    public void testSudoDisconnect() throws Exception {
+        Client root = new Client();
+        root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+
+        Client test = root.sudoGetUser(USER1.name);
+        assertEquals(USER1.id, test.getId());
+        test.disconnect();
+        assertTrue("root has been disconnected by sudo context", root.isConnected());
+        root.disconnect();
+        assertNotEquals("Gateways should not be the same", root.getGateway(), test.getGateway());
+    }
+
+
+    @Test
     public void testSudoTag() throws Exception {
         Client root = new Client();
         root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
