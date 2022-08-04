@@ -37,6 +37,9 @@ import java.util.stream.Collectors;
 public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
 
 
+    private static final long serialVersionUID = 9076633148525603098L;
+
+
     /**
      * Gets a list of elements from this list whose class is specified.
      *
