@@ -29,6 +29,10 @@ import omero.model.enums.UnitsLength;
 import java.util.concurrent.ExecutionException;
 
 
+/**
+ * Class containing a WellSampleData object.
+ * <p> Wraps function calls to the WellSampleData contained.
+ */
 public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
 
 

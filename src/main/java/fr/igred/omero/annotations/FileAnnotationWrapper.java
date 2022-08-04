@@ -33,6 +33,10 @@ import java.io.IOException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
+/**
+ * Class containing a FileAnnotationData object.
+ * <p> Wraps function calls to the FileAnnotationData contained.
+ */
 public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotationData> {
 
     /**

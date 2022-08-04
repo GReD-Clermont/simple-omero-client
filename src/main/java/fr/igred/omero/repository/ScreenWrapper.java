@@ -34,6 +34,10 @@ import java.util.concurrent.ExecutionException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
+/**
+ * Class containing a ScreenData object.
+ * <p> Wraps function calls to the ScreenData contained.
+ */
 public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
     public static final String ANNOTATION_LINK = "ScreenAnnotationLink";

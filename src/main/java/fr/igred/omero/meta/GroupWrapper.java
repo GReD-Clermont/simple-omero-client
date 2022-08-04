@@ -24,6 +24,10 @@ import omero.gateway.model.GroupData;
 import java.util.List;
 
 
+/**
+ * Class containing a GroupData object.
+ * <p> Wraps function calls to the GroupData contained.
+ */
 public class GroupWrapper extends GenericObjectWrapper<GroupData> {
 
     /** Indicates that the group is {@code Private} i.e. RW----. */

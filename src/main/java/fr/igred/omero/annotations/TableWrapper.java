@@ -568,9 +568,11 @@ public class TableWrapper {
 
 
     /**
+     * Returns the name of the column.
+     *
      * @param column Column number.
      *
-     * @return The name of the column.
+     * @return See above.
      */
     public String getColumnName(int column) {
         return columns[column].getName();
@@ -578,9 +580,11 @@ public class TableWrapper {
 
 
     /**
+     * Returns the type of the column.
+     *
      * @param column Column number.
      *
-     * @return The type of the column.
+     * @return See above.
      */
     public Class<?> getColumnType(int column) {
         return columns[column].getType();
@@ -675,6 +679,11 @@ public class TableWrapper {
     }
 
 
+    /**
+     * Creates the corresponding TableData object.
+     *
+     * @return See above.
+     */
     public TableData createTable() {
         if (!isComplete()) truncateRow();
 

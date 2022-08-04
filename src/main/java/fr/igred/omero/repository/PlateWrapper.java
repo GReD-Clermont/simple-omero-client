@@ -41,6 +41,10 @@ import java.util.stream.Collectors;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
+/**
+ * Class containing a PlateData object.
+ * <p> Wraps function calls to the PlateData contained.
+ */
 public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
 
     public static final String ANNOTATION_LINK = "PlateAnnotationLink";

@@ -30,6 +30,10 @@ import java.sql.Timestamp;
 import java.util.concurrent.ExecutionException;
 
 
+/**
+ * Class containing a PlateAcquisitionData object.
+ * <p> Wraps function calls to the PlateAcquisitionData contained.
+ */
 public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<PlateAcquisitionData> {
 
     public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
