@@ -126,7 +126,7 @@ public abstract class BasicTest {
 
         File file = new File(tmpdir + File.separator + filename);
         if (!file.createNewFile()) {
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be created.");
+            logger.severe("\"" + file.getCanonicalPath() + "\" could not be created.");
         }
         return file;
     }
@@ -147,7 +147,7 @@ public abstract class BasicTest {
 
     protected static void removeFile(File file) throws IOException {
         if (!file.delete()) {
-            System.err.println("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+            logger.severe("\"" + file.getCanonicalPath() + "\" could not be deleted.");
         }
     }
 
