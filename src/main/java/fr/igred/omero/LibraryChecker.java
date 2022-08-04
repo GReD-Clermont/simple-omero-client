@@ -18,8 +18,14 @@
 package fr.igred.omero;
 
 
-/** Utility methods to check if required libraries/classes are available */
+/**
+ * Utility methods to check if required libraries/classes are available
+ */
 public class LibraryChecker {
+
+    private LibraryChecker() {
+    }
+
 
     /**
      * Checks if the required libraries are available.
