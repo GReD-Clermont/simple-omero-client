@@ -43,7 +43,9 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
 
 
     /**
-     * @return the WellSampleData contained.
+     * Returns the WellSampleData contained.
+     *
+     * @return See above.
      */
     public WellSampleData asWellSampleData() {
         return data;

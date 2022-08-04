@@ -24,6 +24,10 @@ import omero.gateway.model.ExperimenterData;
 import java.util.List;
 
 
+/**
+ * Class containing an ExperimenterData object.
+ * <p> Wraps function calls to the ExperimenterData contained.
+ */
 public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> {
 
     /**
@@ -37,7 +41,9 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
 
 
     /**
-     * @return ExperimenterData contained.
+     * Returns the ExperimenterData contained.
+     *
+     * @return See above.
      */
     public ExperimenterData asExperimenterData() {
         return data;

@@ -80,7 +80,9 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
 
 
     /**
-     * @return the PlateAcquisitionData contained.
+     * Returns the PlateAcquisitionData contained.
+     *
+     * @return See above.
      */
     public PlateAcquisitionData asPlateAcquisitionData() {
         return data;

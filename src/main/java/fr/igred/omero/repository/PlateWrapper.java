@@ -91,7 +91,9 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
 
 
     /**
-     * @return the PlateData contained.
+     * Returns the PlateData contained.
+     *
+     * @return See above.
      */
     public PlateData asPlateData() {
         return data;

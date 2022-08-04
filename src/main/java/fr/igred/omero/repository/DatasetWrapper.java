@@ -49,8 +49,8 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
- * Class containing a DatasetData.
- * <p> Implements function using the DatasetData contained
+ * Class containing a DatasetData object.
+ * <p> Wraps function calls to the DatasetData contained.
  */
 public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> {
 
@@ -106,7 +106,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * @return the DatasetData contained.
+     * Returns the DatasetData contained.
+     *
+     * @return See above.
      */
     public DatasetData asDatasetData() {
         return data;
@@ -224,7 +226,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     public List<ImageWrapper> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images = getImages(client);
-        final String       regexp = ".*" + motif + ".*";
+
+        String regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
         return images;
     }

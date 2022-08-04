@@ -76,7 +76,7 @@ import static omero.rtypes.rint;
 
 /**
  * Class containing an ImageData.
- * <p> Implements function using the ImageData contained
+ * <p> Wraps function calls to the ImageData contained.
  */
 public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
@@ -117,7 +117,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * @return ImageData contained.
+     * Returns the ImageData contained.
+     *
+     * @return See above.
      */
     public ImageData asImageData() {
         return data;
@@ -465,7 +467,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the imagePlus generated from the image from OMERO corresponding to the bound
+     * Gets the imagePlus generated from the image from OMERO corresponding to the bound.
      *
      * @param client The client handling the connection.
      * @param xBound Array containing the X bound from which the pixels should be retrieved.

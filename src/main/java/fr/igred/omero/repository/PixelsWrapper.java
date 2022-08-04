@@ -31,8 +31,8 @@ import java.util.concurrent.ExecutionException;
 
 
 /**
- * Class containing a PixelData
- * <p> Implements function using the PixelData contained
+ * Class containing a PixelData object.
+ * <p> Wraps function calls to the PixelData contained.
  */
 public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 

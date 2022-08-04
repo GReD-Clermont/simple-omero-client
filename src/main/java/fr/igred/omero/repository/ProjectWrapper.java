@@ -42,8 +42,8 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
- * Class containing a ProjectData
- * <p> Implements function using the Project contained
+ * Class containing a ProjectData object.
+ * <p> Wraps function calls to the Project contained
  */
 public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> {
 
@@ -104,7 +104,9 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * @return the ProjectData contained.
+     * Returns the ProjectData contained.
+     *
+     * @return See above.
      */
     public ProjectData asProjectData() {
         return data;

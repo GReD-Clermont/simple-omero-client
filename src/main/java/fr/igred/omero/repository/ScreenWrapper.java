@@ -104,7 +104,9 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * @return the ScreenData contained.
+     * Returns the ScreenData contained.
+     *
+     * @return See above.
      */
     public ScreenData asScreenData() {
         return data;

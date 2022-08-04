@@ -813,7 +813,7 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException         Cannot connect to OMERO.
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
+     * @throws IllegalArgumentException ID not defined.
      * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
      */

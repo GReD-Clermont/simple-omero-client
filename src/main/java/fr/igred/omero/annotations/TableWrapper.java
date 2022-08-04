@@ -497,7 +497,9 @@ public class TableWrapper {
 
 
     /**
-     * @return fileId of the table.
+     * Returns the fileId of the table.
+     *
+     * @return See above.
      */
     public Long getFileId() {
         return fileId;
@@ -515,7 +517,9 @@ public class TableWrapper {
 
 
     /**
-     * @return id of the table.
+     * Returns the table ID.
+     *
+     * @return See above.
      */
     public Long getId() {
         return id;
@@ -533,7 +537,9 @@ public class TableWrapper {
 
 
     /**
-     * @return name of the table.
+     * Returns the name of the table.
+     *
+     * @return See above.
      */
     public String getName() {
         return name;
@@ -551,7 +557,9 @@ public class TableWrapper {
 
 
     /**
-     * @return number of column in the table.
+     * Returns the number of columns in the table.
+     *
+     * @return See above.
      */
     public int getColumnCount() {
         return columnCount;
@@ -579,7 +587,9 @@ public class TableWrapper {
 
 
     /**
-     * @return number of row in the table.
+     * Returns the number of rows in the table.
+     *
+     * @return See above.
      */
     public int getRowCount() {
         return rowCount;
@@ -644,14 +654,14 @@ public class TableWrapper {
                 data[i][row] = o;
             }
             row++;
+        } else if (row >= rowCount) {
+            if (rowCount == 0) {
+                throw new IndexOutOfBoundsException("Row size is 0");
+            } else {
+                throw new IndexOutOfBoundsException("The table is already complete");
+            }
         } else {
-            if (row >= rowCount) {
-                if (rowCount == 0)
-                    throw new IndexOutOfBoundsException("Row size is 0");
-                else
-                    throw new IndexOutOfBoundsException("The table is already complete");
-            } else
-                throw new IllegalArgumentException("Argument count is different than the column size");
+            throw new IllegalArgumentException("Argument count is different than the column size");
         }
     }
 

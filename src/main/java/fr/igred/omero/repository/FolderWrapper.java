@@ -45,8 +45,8 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
- * Class containing a FolderData.
- * <p> Implements function using the FolderData contained.
+ * Class containing a FolderData object.
+ * <p> Wraps function calls to the FolderData contained.
  */
 public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 

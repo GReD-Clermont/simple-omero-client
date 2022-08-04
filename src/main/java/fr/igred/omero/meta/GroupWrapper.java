@@ -78,7 +78,9 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
 
 
     /**
-     * @return GroupData contained.
+     * Returns the GroupData contained.
+     *
+     * @return See above.
      */
     public GroupData asGroupData() {
         return data;
