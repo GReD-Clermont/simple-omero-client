@@ -26,6 +26,7 @@ import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.Length;
+import omero.model.Time;
 
 import java.util.concurrent.ExecutionException;
 
@@ -147,6 +148,16 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     public Length getPixelSizeZ() {
         return data.asPixels().getPhysicalSizeZ();
+    }
+
+
+    /**
+     * Gets the time increment between time points.
+     *
+     * @return Time increment between time points.
+     */
+    public Time getTimeIncrement() {
+        return data.asPixels().getTimeIncrement();
     }
 
 

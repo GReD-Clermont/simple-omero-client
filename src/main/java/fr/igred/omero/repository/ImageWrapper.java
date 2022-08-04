@@ -48,6 +48,7 @@ import omero.gateway.model.ROIResult;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
+import omero.model.Time;
 import omero.model.WellSample;
 
 import javax.imageio.ImageIO;
@@ -165,6 +166,36 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Sets the calibration.
+     */
+    private void setCalibration(Calibration calibration) {
+        PixelsWrapper pixels   = this.getPixels();
+        Length        spacingX = pixels.getPixelSizeX();
+        Length        spacingY = pixels.getPixelSizeY();
+        Length        spacingZ = pixels.getPixelSizeZ();
+        Time          stepT    = pixels.getTimeIncrement();
+
+        if (spacingX != null) {
+            calibration.setXUnit(spacingX.getSymbol());
+            calibration.pixelWidth = spacingX.getValue();
+        }
+        if (spacingY != null) {
+            calibration.setYUnit(spacingY.getSymbol());
+            calibration.pixelHeight = spacingY.getValue();
+        }
+        if (spacingZ != null) {
+            calibration.setZUnit(spacingZ.getSymbol());
+            calibration.pixelDepth = spacingZ.getValue();
+        }
+        if (stepT != null) {
+            calibration.setTimeUnit(stepT.getSymbol());
+            calibration.frameInterval = stepT.getValue();
+        }
+
     }
 
 
@@ -502,31 +533,14 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         int sizeZ = bounds.getSize().getZ();
         int sizeT = bounds.getSize().getT();
 
-        Length spacingX = pixels.getPixelSizeX();
-        Length spacingY = pixels.getPixelSizeY();
-        Length spacingZ = pixels.getPixelSizeZ();
-
         int pixelType = FormatTools.pixelTypeFromString(pixels.getPixelType());
         int bpp       = FormatTools.getBytesPerPixel(pixelType);
 
         ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
 
-        Calibration cal = imp.getCalibration();
-
-        if (spacingX != null) {
-            cal.setXUnit(spacingX.getUnit().name());
-            cal.pixelWidth = spacingX.getValue();
-        }
-        if (spacingY != null) {
-            cal.setYUnit(spacingY.getUnit().name());
-            cal.pixelHeight = spacingY.getValue();
-        }
-        if (spacingZ != null) {
-            cal.setZUnit(spacingZ.getUnit().name());
-            cal.pixelDepth = spacingZ.getValue();
-        }
-
-        imp.setCalibration(cal);
+        Calibration calibration = imp.getCalibration();
+        setCalibration(calibration);
+        imp.setCalibration(calibration);
 
         boolean isFloat = FormatTools.isFloatingPoint(pixelType);
 
@@ -580,6 +594,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         if (createdRDF) {
             pixels.destroyRawDataFacility();
         }
+        imp.setPosition(1);
         return imp;
     }
 

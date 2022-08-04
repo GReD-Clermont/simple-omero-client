@@ -402,7 +402,7 @@ public class ImageTest extends UserTest {
         assertEquals(pixSize, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
         assertEquals(pixSize, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
         assertEquals(1.0, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
-        assertEquals("MICROMETER", imp.getCalibration().getUnit());
+        assertEquals("µm", imp.getCalibration().getUnit());
         assertEquals(0, (int) stats.max);
     }
 
