@@ -16,7 +16,6 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.exception.ServiceException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
