@@ -130,7 +130,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -150,7 +150,8 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois,
+                        String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
 
@@ -395,7 +396,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
+    public void addRows(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -415,7 +416,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois,
+    public void addRows(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
