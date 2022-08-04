@@ -65,7 +65,7 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
                 data.getShapeSettings().setMarkerStart(ARROW);
             }
         }
-        copy(line);
+        super.copy(line);
     }
 
 

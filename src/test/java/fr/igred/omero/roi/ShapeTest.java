@@ -395,7 +395,7 @@ public class ShapeTest extends BasicTest {
 
         int differences = 0;
         for (int i = 0; i < 4; i++)
-            differences = (int) (differences + Math.abs(coordinates1[i] - coordinates2[i]));
+            differences += (int) Math.abs(coordinates1[i] - coordinates2[i]);
         for (int i = 0; i < maskValues.length; i++)
             differences += Math.abs(checkValues2[i] - checkValues1[i]);
 

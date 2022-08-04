@@ -119,7 +119,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      *
      * @param ijRoi An ImageJ Roi.
      */
-    protected final void copy(ij.gui.Roi ijRoi) {
+    protected void copy(ij.gui.Roi ijRoi) {
         data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
         data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
         data.setT(Math.max(-1, ijRoi.getTPosition() - 1));

@@ -52,7 +52,7 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      */
     public TextWrapper(TextRoi text) {
         this(text.getText(), text.getBounds().getX(), text.getBounds().getY());
-        copy(text);
+        super.copy(text);
     }
 
 

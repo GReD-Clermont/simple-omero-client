@@ -59,7 +59,7 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
              ijRoi.getBounds().getWidth() / 2,
              ijRoi.getBounds().getHeight() / 2);
         data.setText(ijRoi.getName());
-        copy(ijRoi);
+        super.copy(ijRoi);
     }
 
 

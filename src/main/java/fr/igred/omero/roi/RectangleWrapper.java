@@ -58,7 +58,7 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
              ijRoi.getBounds().getHeight());
 
         data.setText(ijRoi.getName());
-        copy(ijRoi);
+        super.copy(ijRoi);
     }
 
 

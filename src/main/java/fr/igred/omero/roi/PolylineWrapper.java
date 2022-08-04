@@ -64,7 +64,7 @@ public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
 
         data.setPoints(points);
         data.setText(ijRoi.getName());
-        copy(ijRoi);
+        super.copy(ijRoi);
     }
 
 

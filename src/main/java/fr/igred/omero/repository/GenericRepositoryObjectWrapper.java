@@ -401,7 +401,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
             Collection<FileAnnotationData> tables = client.getTablesFacility()
                                                           .getAvailableTables(client.getCtx(), data);
-            final long fileId = tableData.getOriginalFileId();
+            long fileId = tableData.getOriginalFileId();
 
             long id = tables.stream().filter(v -> v.getFileID() == fileId)
                             .mapToLong(DataObject::getId).max().orElse(-1L);
