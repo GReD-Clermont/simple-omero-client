@@ -26,7 +26,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 /**
  * Class with methods to handle OMERO exceptions
  */
-public class ExceptionHandler {
+public final class ExceptionHandler {
 
     private ExceptionHandler() {
     }
