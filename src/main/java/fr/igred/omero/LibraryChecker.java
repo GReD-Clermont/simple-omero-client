@@ -21,7 +21,7 @@ package fr.igred.omero;
 /**
  * Utility methods to check if required libraries/classes are available
  */
-public class LibraryChecker {
+public final class LibraryChecker {
 
     private LibraryChecker() {
     }
@@ -33,11 +33,11 @@ public class LibraryChecker {
      * @return {@code true} if the libraries are available, {@code false} otherwise.
      */
     public static boolean areRequirementsAvailable() {
-        return isOMEROGatewayInstalled()
-               && isOMEROModelInstalled()
-               && isOMEROBlitzInstalled()
-               && isOMECommonInstalled()
-               && isFormatsAPIInstalled();
+        return isOMEROGatewayAvailable() &&
+               isOMEROModelAvailable() &&
+               isOMEROBlitzAvailable() &&
+               isOMECommonAvailable() &&
+               isFormatsAPIAvailable();
     }
 
 
@@ -46,7 +46,7 @@ public class LibraryChecker {
      *
      * @return {@code true} if Gateway is available, {@code false} otherwise.
      */
-    public static boolean isOMEROGatewayInstalled() {
+    public static boolean isOMEROGatewayAvailable() {
         return checkClass("omero.gateway.Gateway");
     }
 
@@ -56,7 +56,7 @@ public class LibraryChecker {
      *
      * @return {@code true} if IObject is available, {@code false} otherwise.
      */
-    public static boolean isOMEROModelInstalled() {
+    public static boolean isOMEROModelAvailable() {
         return checkClass("omero.model.IObject");
     }
 
@@ -66,7 +66,7 @@ public class LibraryChecker {
      *
      * @return {@code true} if OMEROMetadataStoreClient is available, {@code false} otherwise.
      */
-    public static boolean isOMEROBlitzInstalled() {
+    public static boolean isOMEROBlitzAvailable() {
         return checkClass("ome.formats.OMEROMetadataStoreClient");
     }
 
@@ -76,7 +76,7 @@ public class LibraryChecker {
      *
      * @return {@code true} if DataTools is available, {@code false} otherwise.
      */
-    public static boolean isOMECommonInstalled() {
+    public static boolean isOMECommonAvailable() {
         return checkClass("loci.common.DataTools");
     }
 
@@ -86,7 +86,7 @@ public class LibraryChecker {
      *
      * @return {@code true} if DefaultMetadataOptions is available, {@code false} otherwise.
      */
-    public static boolean isFormatsAPIInstalled() {
+    public static boolean isFormatsAPIAvailable() {
         return checkClass("loci.formats.in.DefaultMetadataOptions");
     }
 
