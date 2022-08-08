@@ -54,6 +54,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  */
 public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "DatasetAnnotationLink";
 
     private static final Long[] LONGS = new Long[0];

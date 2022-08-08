@@ -47,6 +47,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  */
 public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ProjectAnnotationLink";
 
 

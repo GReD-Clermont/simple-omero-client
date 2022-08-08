@@ -46,7 +46,7 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      * @param clazz Class of the wanted elements.
      * @param <T>   Subclass of GenericShapeWrapper.
      *
-     * @return List of elements of
+     * @return See above.
      */
     public <T extends GenericShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());

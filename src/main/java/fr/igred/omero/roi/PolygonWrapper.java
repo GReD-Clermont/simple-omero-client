@@ -29,6 +29,10 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 
+/**
+ * Class containing an PolygonData.
+ * <p> Wraps function calls to the PolygonData contained.
+ */
 public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
 
 

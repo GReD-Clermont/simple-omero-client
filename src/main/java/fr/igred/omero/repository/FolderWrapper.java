@@ -50,6 +50,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  */
 public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "FolderAnnotationLink";
 
     /** ID of the associated image */

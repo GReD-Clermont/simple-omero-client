@@ -27,8 +27,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 
+/**
+ * Class containing an LineData.
+ * <p> Wraps function calls to the LineData contained.
+ */
 public class LineWrapper extends GenericShapeWrapper<LineData> {
 
+    /** String to use arrows as markers */
     public static final String ARROW = "Arrow";
 
 

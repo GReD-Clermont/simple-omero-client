@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<PlateAcquisitionData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
 
 

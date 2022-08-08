@@ -46,6 +46,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  */
 public abstract class GenericObjectWrapper<T extends DataObject> {
 
+    /** Wrapped object */
     protected T data;
 
 

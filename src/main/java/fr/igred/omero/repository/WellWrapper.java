@@ -27,6 +27,7 @@ import java.util.List;
  */
 public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";
 
 

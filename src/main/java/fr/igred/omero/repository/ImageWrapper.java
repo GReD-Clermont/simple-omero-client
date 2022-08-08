@@ -81,6 +81,7 @@ import static omero.rtypes.rint;
  */
 public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ImageAnnotationLink";
 
 
