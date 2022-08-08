@@ -237,6 +237,7 @@ public abstract class GatewayWrapper {
         }
         this.ctx = new SecurityContext(user.getGroupId());
         this.ctx.setExperimenter(this.user.asExperimenterData());
+        this.ctx.setServerInformation(cred.getServer());
     }
 
 
@@ -467,6 +468,22 @@ public abstract class GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         FileAnnotationI file = new FileAnnotationI(id, false);
         delete(file);
+    }
+
+
+    /**
+     * Overridden to return the host name, the group ID, the username and the connection status.
+     *
+     * @return See above.
+     */
+    @Override
+    public String toString() {
+        return String.format("%s{host=%s, groupID=%d, user=%s, connected=%b}",
+                             getClass().getSimpleName(),
+                             ctx.getServerInformation().getHostname(),
+                             ctx.getGroupID(),
+                             user.getUserName(),
+                             gateway.isConnected());
     }
 
 }

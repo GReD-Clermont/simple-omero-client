@@ -63,9 +63,13 @@ public class ConnectionTest extends BasicTest {
 
     @Test
     public void testUserConnection() throws Exception {
+        String toString = String.format("Client{host=%s, groupID=%d, user=%s, connected=true}",
+                                        HOST, GROUP1.id, USER1.name);
+
         Client testUser = new Client();
         assertFalse(testUser.isConnected());
         testUser.connect(HOST, PORT, USER1.name, "password".toCharArray());
+        assertEquals(toString, testUser.toString());
         long id      = testUser.getId();
         long groupId = testUser.getCurrentGroupId();
         try {
