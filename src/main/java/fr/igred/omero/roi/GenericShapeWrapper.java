@@ -84,8 +84,8 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
                 list.add(new EllipseWrapper(ijRoi));
                 break;
             case Roi.POINT:
-                int[] x = ijRoi.getPolygon().xpoints;
-                int[] y = ijRoi.getPolygon().ypoints;
+                float[] x = ijRoi.getFloatPolygon().xpoints;
+                float[] y = ijRoi.getFloatPolygon().ypoints;
 
                 Collection<PointWrapper> points = new LinkedList<>();
                 for (int i = 0; i < x.length; i++) {

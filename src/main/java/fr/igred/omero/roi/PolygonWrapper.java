@@ -61,8 +61,8 @@ public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
      */
     public PolygonWrapper(Roi ijRoi) {
         this();
-        int[] x = ijRoi.getPolygon().xpoints;
-        int[] y = ijRoi.getPolygon().ypoints;
+        float[] x = ijRoi.getFloatPolygon().xpoints;
+        float[] y = ijRoi.getFloatPolygon().ypoints;
 
         List<Point2D.Double> points = new LinkedList<>();
         IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
