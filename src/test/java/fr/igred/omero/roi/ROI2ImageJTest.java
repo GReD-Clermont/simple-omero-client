@@ -419,7 +419,8 @@ public class ROI2ImageJTest extends BasicTest {
         polyline.setCZT(0, 0, 2);
 
         Roi ijPolyline = polyline.toImageJ();
-        assertEquals(polyline.toAWTShape().getBounds(), ijPolyline.getBounds());
+        // Compare to getPolygon().getBounds() because polyline bounds are different for ij 1.53h+
+        assertEquals(polyline.toAWTShape().getBounds(), ijPolyline.getPolygon().getBounds());
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPolyline);

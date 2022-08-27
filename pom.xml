@@ -4,7 +4,7 @@
     <parent>
         <artifactId>pom-scijava</artifactId>
         <groupId>org.scijava</groupId>
-        <version>31.1.0</version>
+        <version>32.0.0</version>
     </parent>
 
     <groupId>fr.igred</groupId>
@@ -91,22 +91,12 @@
         <maven.compiler.target>8</maven.compiler.target>
         <license.licenseName>gpl_v2</license.licenseName>
         <license.copyrightOwners>GReD</license.copyrightOwners>
-        <!-- Override OMERO dependencies versions -->
-        <omero-gateway.version>5.6.10</omero-gateway.version>
-        <omero-model.version>5.6.7</omero-model.version>
-        <omero-blitz.version>5.5.12</omero-blitz.version>
-        <ome-common.version>6.0.11</ome-common.version>
         <!-- 3.2.0 erroneously detects runtime dependencies as test-only. -->
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.openmicroscopy</groupId>
-                <artifactId>omero-gateway</artifactId>
-                <version>${omero-gateway.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
                 <artifactId>omero-model</artifactId>
@@ -116,70 +106,7 @@
                         <groupId>net.jcip</groupId>
                         <artifactId>jcip-annotations</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.openmicroscopy</groupId>
-                <artifactId>omero-blitz</artifactId>
-                <version>${omero-blitz.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.security</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.xmlgraphics</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.pdfbox</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.postgresql</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.codahale.metrics</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.openmicroscopy</groupId>
-                <artifactId>ome-common</artifactId>
-                <version>${ome-common.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>xml-apis</groupId>
-                        <artifactId>xml-apis</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>ome</groupId>
-                <artifactId>formats-api</artifactId>
-                <version>${bio-formats.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -225,8 +152,8 @@
 
     <repositories>
         <repository>
-            <id>ome.maven</id>
-            <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
+            <id>scijava.public</id>
+            <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
     </repositories>
 
