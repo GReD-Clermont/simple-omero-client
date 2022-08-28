@@ -96,6 +96,9 @@ public class PlateAcquisitionTest extends UserTest {
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
         assertEquals(-1, acq.getRefPlateId());
+        acq.setRefPlateId(PLATE1.id);
+        // Saving does not work: acq.saveAndUpdate(client);
+        assertEquals(PLATE1.id, acq.getRefPlateId());
     }
 
 

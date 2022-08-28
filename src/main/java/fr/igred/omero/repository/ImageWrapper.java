@@ -782,13 +782,14 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<File> download(Client client, String path)
     throws OMEROServerError, ServiceException, AccessException {
+        List<File> files = new ArrayList<>(0);
         try {
             TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
-            return transfer.downloadImage(client.getCtx(), path, getId());
+            files = transfer.downloadImage(client.getCtx(), path, getId());
         } catch (DSAccessException | DSOutOfServiceException | ExecutionException e) {
             handleException(e, "Could not download image " + getId() + ": " + e.getMessage());
         }
-        return new ArrayList<>(0);
+        return files;
     }
 
 }
