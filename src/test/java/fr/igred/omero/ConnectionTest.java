@@ -27,12 +27,6 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testRequirements() {
-        assertTrue("Libraries are unavailable", LibraryChecker.areRequirementsAvailable());
-    }
-
-
-    @Test
     public void testDisconnect() {
         Client testRoot = new Client();
         testRoot.disconnect();
