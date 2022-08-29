@@ -32,7 +32,7 @@ import static fr.igred.omero.BasicTest.ANSI_YELLOW;
 
 public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallback, BeforeAllCallback {
 
-    private static final String FORMAT = "[%-42s]\t%-10s\t%s (%.3f s)";
+    private static final String FORMAT = "[%-41s] %-17s\t%s (%.3f s)";
 
     private long start = System.currentTimeMillis();
 

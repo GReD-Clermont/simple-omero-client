@@ -18,6 +18,8 @@ package fr.igred.omero;
 
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +43,15 @@ class LibraryCheckerTest extends BasicTest {
     }
 
 
-    @Test
-    void checkUnavailableLibraries() {
-        try (URLClassLoader testClassLoader = new TestClassLoader()) {
+    @ParameterizedTest
+    @ValueSource(strings = {"omero-gateway",
+                            "omero-model",
+                            "omero-blitz",
+                            "ome-common",
+                            "formats-api"})
+    void checkUnavailableLibraries(String excluded) {
+        //noinspection ClassLoaderInstantiation
+        try (URLClassLoader testClassLoader = new TestClassLoader(excluded)) {
             Class<?> checker = testClassLoader.loadClass("fr.igred.omero.LibraryChecker");
             Method   check   = checker.getMethod("areRequirementsAvailable");
             assertFalse((Boolean) check.invoke(null), "Libraries are available");
@@ -57,24 +65,17 @@ class LibraryCheckerTest extends BasicTest {
     }
 
 
+    @SuppressWarnings("CustomClassloader")
     private static class TestClassLoader extends URLClassLoader {
 
-        TestClassLoader() throws MalformedURLException {
+        TestClassLoader(CharSequence excluded) throws MalformedURLException {
             super(new URL[0], getSystemClassLoader().getParent());
             String   classpath = System.getProperty("java.class.path");
             String[] entries   = classpath.split(File.pathSeparator);
             for (String entry : entries) {
-                super.addURL(Paths.get(entry).toAbsolutePath().toUri().toURL());
-            }
-        }
-
-
-        @Override
-        public Class<?> loadClass(String name) throws ClassNotFoundException {
-            if (!name.startsWith("omero.") && !name.startsWith("ome.") && !name.startsWith("loci.")) {
-                return super.loadClass(name);
-            } else {
-                throw new ClassNotFoundException("Disabled packages");
+                if (!entry.contains(excluded)) {
+                    super.addURL(Paths.get(entry).toAbsolutePath().toUri().toURL());
+                }
             }
         }
 
