@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -18,18 +18,18 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class PlateTest extends UserTest {
+class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetWellsFromPlate() throws Exception {
+    void testGetWellsFromPlate() throws Exception {
         PlateWrapper      plate = client.getPlate(PLATE1.id);
         List<WellWrapper> wells = plate.getWells(client);
         assertEquals(9, wells.size());
@@ -37,7 +37,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetWellsFromPlate2() throws Exception {
+    void testGetWellsFromPlate2() throws Exception {
         PlateWrapper      plate = client.getPlate(PLATE2.id);
         List<WellWrapper> wells = plate.getWells(client);
         assertEquals(4, wells.size());
@@ -45,7 +45,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetPlateAcquisitionsFromPlate() throws Exception {
+    void testGetPlateAcquisitionsFromPlate() throws Exception {
         final String name = "PlateAcquisition Name 0";
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -57,7 +57,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testAddTagToPlate() throws Exception {
+    void testAddTagToPlate() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
@@ -72,7 +72,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testSetName() throws Exception {
+    void testSetName() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         String name  = plate.getName();
@@ -88,7 +88,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         String description = plate.getDescription();
@@ -105,7 +105,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testSetStatus() throws Exception {
+    void testSetStatus() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         String status = plate.getStatus();
@@ -122,7 +122,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetDefaultSample() throws Exception {
+    void testGetDefaultSample() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         int sample = plate.getDefaultSample();
@@ -139,7 +139,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testSetExternalIdentifier() throws Exception {
+    void testSetExternalIdentifier() throws Exception {
         final String identifier = "External Identifier Test";
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -150,7 +150,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetPlateType() throws Exception {
+    void testGetPlateType() throws Exception {
         final String type  = "9-Well Plate";
         PlateWrapper plate = client.getPlate(PLATE1.id);
         assertEquals(type, plate.getPlateType());
@@ -158,7 +158,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetColumnSequenceIndex() throws Exception {
+    void testGetColumnSequenceIndex() throws Exception {
         PlateWrapper plate  = client.getPlate(PLATE1.id);
         int          column = 0;
         assertEquals(column, plate.getColumnSequenceIndex());
@@ -166,7 +166,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetRowSequenceIndex() throws Exception {
+    void testGetRowSequenceIndex() throws Exception {
         final int    column = 1;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
         assertEquals(column, plate.getRowSequenceIndex());
@@ -174,7 +174,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetWellOriginX() throws Exception {
+    void testGetWellOriginX() throws Exception {
         final double origin = 0.0d;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginX(null).getValue(), Double.MIN_VALUE);
@@ -182,7 +182,7 @@ public class PlateTest extends UserTest {
 
 
     @Test
-    public void testGetWellOriginY() throws Exception {
+    void testGetWellOriginY() throws Exception {
         final double origin = 1.0d;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginY(null).getValue(), Double.MIN_VALUE);

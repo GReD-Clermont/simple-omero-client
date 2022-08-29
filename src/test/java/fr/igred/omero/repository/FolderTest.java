@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -20,31 +20,31 @@ import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-public class FolderTest extends UserTest {
+class FolderTest extends UserTest {
 
 
-    @Test(expected = NoSuchElementException.class)
-    public void testGetDeletedFolder() throws Exception {
+    @Test
+    void testGetDeletedFolder() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         FolderWrapper folder = new FolderWrapper(client, "Test");
-        folder.setImage(image);
-        folder = image.getFolder(client, folder.getId());
+        long id = folder.getId();
         client.delete(folder);
-        image.getFolder(client, folder.getId());
+        assertThrows(NoSuchElementException.class, () -> image.getFolder(client, id));
     }
 
 
     @Test
-    public void testFolder1() throws Exception {
+    void testFolder1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         FolderWrapper folder = new FolderWrapper(client, "Test");
@@ -83,7 +83,7 @@ public class FolderTest extends UserTest {
 
 
     @Test
-    public void testFolder2() throws Exception {
+    void testFolder2() throws Exception {
         FolderWrapper folder = new FolderWrapper(client, "Test");
         folder.setImage(IMAGE2.id);
 
@@ -118,7 +118,7 @@ public class FolderTest extends UserTest {
 
 
     @Test
-    public void testFolder3() throws Exception {
+    void testFolder3() throws Exception {
         final int nImages = 16;
 
         ImageWrapper image = client.getImage(IMAGE2.id);
@@ -185,7 +185,7 @@ public class FolderTest extends UserTest {
 
 
     @Test
-    public void testAddAndRemoveTagFromFolder() throws Exception {
+    void testAddAndRemoveTagFromFolder() throws Exception {
         FolderWrapper folder = new FolderWrapper(client, "Test1");
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");

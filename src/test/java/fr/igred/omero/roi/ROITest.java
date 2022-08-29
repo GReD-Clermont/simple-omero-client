@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -18,20 +18,20 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.ImageWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class ROITest extends UserTest {
+class ROITest extends UserTest {
 
 
     @Test
-    public void testROI() throws Exception {
+    void testROI() throws Exception {
         ROIWrapper roiWrapper = new ROIWrapper();
 
         ImageWrapper image = client.getImage(IMAGE1.id);
@@ -64,7 +64,7 @@ public class ROITest extends UserTest {
 
 
     @Test
-    public void testROI2() throws Exception {
+    void testROI2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
@@ -97,7 +97,7 @@ public class ROITest extends UserTest {
 
 
     @Test
-    public void testRoiAddShapeAndDeleteIt() throws Exception {
+    void testRoiAddShapeAndDeleteIt() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
@@ -154,7 +154,7 @@ public class ROITest extends UserTest {
 
 
     @Test
-    public void testROIAllShapes() throws Exception {
+    void testROIAllShapes() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         PointWrapper point = new PointWrapper(1, 1);

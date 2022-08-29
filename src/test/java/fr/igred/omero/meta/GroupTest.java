@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -17,25 +17,26 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.RootTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-public class GroupTest extends RootTest {
+class GroupTest extends RootTest {
 
-    @Test(expected = NoSuchElementException.class)
-    public void testGetWrongGroup() throws Exception {
-        client.getGroup("nonexistent");
+    @Test
+    void testGetWrongGroup() {
+        assertThrows(NoSuchElementException.class, () -> client.getGroup("nonexistent"));
     }
 
 
     @Test
-    public void testSetGroupName() throws Exception {
+    void testSetGroupName() throws Exception {
         GroupWrapper group = client.getGroup("testGroup2");
         assertEquals("testGroup2", group.getName());
         group.setName("Empty");
@@ -48,7 +49,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         GroupWrapper group = client.getGroup("testGroup1");
         assertEquals(GroupWrapper.PERMISSIONS_GROUP_READ, group.getPermissionsLevel());
         group.setDescription("Test");
@@ -58,7 +59,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testGetExperimenters() throws Exception {
+    void testGetExperimenters() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
         List<ExperimenterWrapper> experimenters = group.getExperimenters();
@@ -76,7 +77,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testGetMembersOnly() throws Exception {
+    void testGetMembersOnly() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
         List<ExperimenterWrapper> members = group.getMembersOnly();
@@ -86,7 +87,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testGetLeaders() throws Exception {
+    void testGetLeaders() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
         List<ExperimenterWrapper> leaders = group.getLeaders();

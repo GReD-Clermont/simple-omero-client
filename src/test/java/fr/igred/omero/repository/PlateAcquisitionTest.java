@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -18,18 +18,18 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class PlateAcquisitionTest extends UserTest {
+class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testAddTagToPlateAcquisition() throws Exception {
+    void testAddTagToPlateAcquisition() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -46,7 +46,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testSetName() throws Exception {
+    void testSetName() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -64,7 +64,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -82,7 +82,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetLabel() throws Exception {
+    void testGetLabel() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -91,7 +91,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetRefPlateId() throws Exception {
+    void testGetRefPlateId() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -103,7 +103,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetStartTime() throws Exception {
+    void testGetStartTime() throws Exception {
         final long time = 1146766431000L;
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -114,7 +114,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetEndTime() throws Exception {
+    void testGetEndTime() throws Exception {
         final long time = 1146766431000L;
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -125,7 +125,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetMaximumFieldCount() throws Exception {
+    void testGetMaximumFieldCount() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);

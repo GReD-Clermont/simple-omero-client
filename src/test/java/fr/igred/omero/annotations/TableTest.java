@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -25,7 +25,7 @@ import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -33,21 +33,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class TableTest extends UserTest {
+class TableTest extends UserTest {
 
     protected static final double volume1 = 25.0d;
     protected static final double volume2 = 50.0d;
 
 
     @Test
-    public void testCreateTable() throws Exception {
+    void testCreateTable() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
@@ -86,7 +86,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testReplaceTable() throws Exception {
+    void testReplaceTable() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
@@ -153,7 +153,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testErrorTableFull() throws Exception {
+    void testErrorTableFull() throws Exception {
         boolean        exception = false;
         DatasetWrapper dataset   = client.getDataset(DATASET1.id);
 
@@ -181,7 +181,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testErrorTableColumn() {
+    void testErrorTableColumn() {
         boolean exception = false;
 
         TableWrapper table = new TableWrapper(2, "TableTest");
@@ -198,7 +198,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testErrorTableUninitialized() throws Exception {
+    void testErrorTableUninitialized() throws Exception {
         boolean exception = false;
 
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
@@ -221,7 +221,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testErrorTableNotEnoughArgs() throws Exception {
+    void testErrorTableNotEnoughArgs() throws Exception {
         boolean exception = false;
 
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
@@ -246,7 +246,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults1() throws Exception {
+    void testCreateTableWithROIsFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -301,7 +301,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults2() throws Exception {
+    void testCreateTableWithROIsFromIJResults2() throws Exception {
         String property = "Cell";
 
         ImageWrapper image = client.getImage(IMAGE1.id);
@@ -360,7 +360,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults3() throws Exception {
+    void testCreateTableWithROIsFromIJResults3() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -413,7 +413,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults4() throws Exception {
+    void testCreateTableWithROIsFromIJResults4() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -466,7 +466,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableFromIJResults() throws Exception {
+    void testCreateTableFromIJResults() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<Roi> ijRois = new ArrayList<>(0);
@@ -500,7 +500,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsFromIJResults() throws Exception {
+    void testAddRowsFromIJResults() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<Roi> ijRois = new ArrayList<>(0);
@@ -546,7 +546,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsWithROIsFromIJResults() throws Exception {
+    void testAddRowsWithROIsFromIJResults() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -612,7 +612,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithLocalROIFromIJResults1() throws Exception {
+    void testCreateTableWithLocalROIFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -678,7 +678,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithLocalROIFromIJResults2() throws Exception {
+    void testCreateTableWithLocalROIFromIJResults2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -742,7 +742,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROINamesFromIJResults1() throws Exception {
+    void testCreateTableWithROINamesFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi1 = new ROIWrapper();
@@ -813,7 +813,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROINamesFromIJResults2() throws Exception {
+    void testCreateTableWithROINamesFromIJResults2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi1 = new ROIWrapper();
@@ -885,7 +885,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsFromIJResultsError() throws Exception {
+    void testAddRowsFromIJResultsError() throws Exception {
         boolean error = false;
 
         ImageWrapper image = client.getImage(IMAGE1.id);
@@ -915,7 +915,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsFromIJResultsInverted() throws Exception {
+    void testAddRowsFromIJResultsInverted() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<Roi> ijRois = new ArrayList<>(0);
@@ -961,7 +961,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testSaveTableAs() throws Exception {
+    void testSaveTableAs() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();

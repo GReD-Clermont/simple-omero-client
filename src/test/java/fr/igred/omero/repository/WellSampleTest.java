@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -17,17 +17,17 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-public class WellSampleTest extends UserTest {
+class WellSampleTest extends UserTest {
 
 
     @Test
-    public void testGetImage() throws Exception {
+    void testGetImage() throws Exception {
         final String name = "screen1.fake [screen1 2]";
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -43,7 +43,7 @@ public class WellSampleTest extends UserTest {
 
 
     @Test
-    public void testGetWell() throws Exception {
+    void testGetWell() throws Exception {
         final long  wellId = 1L;
         WellWrapper well   = client.getWell(wellId);
         WellSampleWrapper sample = well.getWellSamples().get(0);
@@ -53,7 +53,7 @@ public class WellSampleTest extends UserTest {
 
 
     @Test
-    public void testGetPositionX() throws Exception {
+    void testGetPositionX() throws Exception {
         WellWrapper well = client.getWells(1L).get(0);
 
         WellSampleWrapper sample = well.getWellSamples().get(0);
@@ -62,7 +62,7 @@ public class WellSampleTest extends UserTest {
 
 
     @Test
-    public void testGetPositionY() throws Exception {
+    void testGetPositionY() throws Exception {
         WellWrapper well = client.getWells(1L).get(0);
 
         WellSampleWrapper sample = well.getWellSamples().get(0);
@@ -71,7 +71,7 @@ public class WellSampleTest extends UserTest {
 
 
     @Test
-    public void testGetStartTime() throws Exception {
+    void testGetStartTime() throws Exception {
         final long time = 1146766431000L;
 
         WellWrapper well = client.getWells(1L).get(0);

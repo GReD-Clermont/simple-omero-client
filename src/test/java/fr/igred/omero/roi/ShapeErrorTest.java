@@ -2,115 +2,116 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
 
- * You should have received a copy of the GNU General Public License along with
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-
 package fr.igred.omero.roi;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-public class ShapeErrorTest {
+class ShapeErrorTest {
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPointNullCoordinates() {
+    @Test
+    void testPointNullCoordinates() {
         PointWrapper point = new PointWrapper();
-        point.setCoordinates(null);
+        assertThrows(IllegalArgumentException.class, () -> point.setCoordinates(null));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testTextNullCoordinates() {
+    @Test
+    void testTextNullCoordinates() {
         TextWrapper text = new TextWrapper();
-        text.setCoordinates(null);
+        assertThrows(IllegalArgumentException.class, () -> text.setCoordinates(null));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testRectangleNullCoordinates() {
+    @Test
+    void testRectangleNullCoordinates() {
         RectangleWrapper rectangle = new RectangleWrapper();
-        rectangle.setCoordinates(null);
+        assertThrows(IllegalArgumentException.class, () -> rectangle.setCoordinates(null));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMaskNullCoordinates() {
+    @Test
+    void testMaskNullCoordinates() {
         MaskWrapper mask = new MaskWrapper();
-        mask.setCoordinates(null);
+        assertThrows(IllegalArgumentException.class, () -> mask.setCoordinates(null));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEllipseNullCoordinates() {
+    @Test
+    void testEllipseNullCoordinates() {
         EllipseWrapper ellipse = new EllipseWrapper();
-        ellipse.setCoordinates(null);
+        assertThrows(IllegalArgumentException.class, () -> ellipse.setCoordinates(null));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testLineNullCoordinates() {
+    @Test
+    void testLineNullCoordinates() {
         LineWrapper line = new LineWrapper();
-        line.setCoordinates(null);
+        assertThrows(IllegalArgumentException.class, () -> line.setCoordinates(null));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPointWrongCoordinates() {
+    @Test
+    void testPointWrongCoordinates() {
         PointWrapper point       = new PointWrapper();
         double[]     coordinates = {2, 2, 4, 4};
-        point.setCoordinates(coordinates);
+        assertThrows(IllegalArgumentException.class, () -> point.setCoordinates(coordinates));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testTextWrongCoordinates() {
+    @Test
+    void testTextWrongCoordinates() {
         TextWrapper text        = new TextWrapper();
         double[]    coordinates = {2, 2, 4, 4};
-        text.setCoordinates(coordinates);
+        assertThrows(IllegalArgumentException.class, () -> text.setCoordinates(coordinates));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testRectangleWrongCoordinates() {
+    @Test
+    void testRectangleWrongCoordinates() {
         RectangleWrapper rectangle   = new RectangleWrapper();
         double[]         coordinates = {2, 2};
-        rectangle.setCoordinates(coordinates);
+        assertThrows(IllegalArgumentException.class, () -> rectangle.setCoordinates(coordinates));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMaskWrongCoordinates() {
+    @Test
+    void testMaskWrongCoordinates() {
         MaskWrapper mask        = new MaskWrapper();
         double[]    coordinates = {2, 2};
-        mask.setCoordinates(coordinates);
+        assertThrows(IllegalArgumentException.class, () -> mask.setCoordinates(coordinates));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEllipseWrongCoordinates() {
+    @Test
+    void testEllipseWrongCoordinates() {
         EllipseWrapper ellipse     = new EllipseWrapper();
         double[]       coordinates = {2, 2};
-        ellipse.setCoordinates(coordinates);
+        assertThrows(IllegalArgumentException.class, () -> ellipse.setCoordinates(coordinates));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testLineWrongCoordinates() {
+    @Test
+    void testLineWrongCoordinates() {
         LineWrapper line        = new LineWrapper();
         double[]    coordinates = {2, 2};
-        line.setCoordinates(coordinates);
+        assertThrows(IllegalArgumentException.class, () -> line.setCoordinates(coordinates));
     }
 
 }

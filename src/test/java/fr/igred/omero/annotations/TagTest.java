@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -23,19 +23,19 @@ import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.repository.ScreenWrapper;
 import fr.igred.omero.repository.WellWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class TagTest extends UserTest {
+class TagTest extends UserTest {
 
 
     @Test
-    public void testGetTagInfo() throws Exception {
+    void testGetTagInfo() throws Exception {
         TagAnnotationWrapper tag = client.getTag(TAG1.id);
         assertEquals(TAG1.id, tag.getId());
         assertEquals(TAG1.name, tag.getName());
@@ -44,14 +44,14 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testGetTags() throws Exception {
+    void testGetTags() throws Exception {
         List<TagAnnotationWrapper> tags = client.getTags();
         assertEquals(3, tags.size());
     }
 
 
     @Test
-    public void testGetTagsSorted() throws Exception {
+    void testGetTagsSorted() throws Exception {
         List<TagAnnotationWrapper> tags = client.getTags();
         for (int i = 1; i < tags.size(); i++) {
             assertTrue(tags.get(i - 1).getId() <= tags.get(i).getId());
@@ -60,7 +60,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testGetProjects() throws Exception {
+    void testGetProjects() throws Exception {
         TagAnnotationWrapper tag      = client.getTag(TAG1.id);
         List<ProjectWrapper> projects = tag.getProjects(client);
         assertEquals(1, projects.size());
@@ -69,7 +69,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testGetDatasets() throws Exception {
+    void testGetDatasets() throws Exception {
         TagAnnotationWrapper tag      = client.getTag(TAG1.id);
         List<DatasetWrapper> datasets = tag.getDatasets(client);
         assertEquals(1, datasets.size());
@@ -78,7 +78,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testGetImages() throws Exception {
+    void testGetImages() throws Exception {
         TagAnnotationWrapper tag    = client.getTag(TAG1.id);
         List<ImageWrapper>   images = tag.getImages(client);
         assertEquals(3, images.size());
@@ -89,7 +89,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testGetScreens() throws Exception {
+    void testGetScreens() throws Exception {
         TagAnnotationWrapper tag     = client.getTag(TAG1.id);
         List<ScreenWrapper>  screens = tag.getScreens(client);
         assertEquals(1, screens.size());
@@ -98,7 +98,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testGetPlates() throws Exception {
+    void testGetPlates() throws Exception {
         TagAnnotationWrapper tag    = client.getTag(TAG1.id);
         List<PlateWrapper>   plates = tag.getPlates(client);
         assertEquals(1, plates.size());
@@ -107,7 +107,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testGetWells() throws Exception {
+    void testGetWells() throws Exception {
         TagAnnotationWrapper tag   = client.getTag(TAG1.id);
         List<WellWrapper>    wells = tag.getWells(client);
         assertEquals(1, wells.size());
@@ -116,7 +116,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testSetName() throws Exception {
+    void testSetName() throws Exception {
         TagAnnotationWrapper tag = client.getTag(TAG1.id);
 
         String name  = tag.getName();
@@ -132,7 +132,7 @@ public class TagTest extends UserTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         TagAnnotationWrapper tag = client.getTag(TAG1.id);
 
         String description = tag.getDescription();

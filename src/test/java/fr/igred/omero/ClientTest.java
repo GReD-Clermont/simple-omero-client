@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -22,22 +22,22 @@ import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.repository.ScreenWrapper;
 import fr.igred.omero.repository.WellWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class ClientTest extends UserTest {
+class ClientTest extends UserTest {
 
 
     @Test
-    public void testProjectBasic() throws Exception {
+    void testProjectBasic() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
         assertEquals(PROJECT1.id, project.getId());
         assertEquals(PROJECT1.name, project.getName());
@@ -48,21 +48,21 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testGetSingleProject() throws Exception {
+    void testGetSingleProject() throws Exception {
         String name = client.getProject(PROJECT1.id).getName();
         assertEquals(PROJECT1.name, name);
     }
 
 
     @Test
-    public void testGetAllProjects() throws Exception {
+    void testGetAllProjects() throws Exception {
         Collection<ProjectWrapper> projects = client.getProjects();
         assertEquals(2, projects.size());
     }
 
 
     @Test
-    public void testGetProjectByName() throws Exception {
+    void testGetProjectByName() throws Exception {
         Collection<ProjectWrapper> projects = client.getProjects(PROJECT1.name);
 
         int differences = 0;
@@ -77,7 +77,7 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testCreateAndDeleteProject() throws Exception {
+    void testCreateAndDeleteProject() throws Exception {
         boolean exception = false;
 
         String name = "Foo project";
@@ -98,20 +98,20 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testGetSingleDataset() throws Exception {
+    void testGetSingleDataset() throws Exception {
         assertEquals(DATASET1.name, client.getDataset(DATASET1.id).getName());
     }
 
 
     @Test
-    public void testGetAllDatasets() throws Exception {
+    void testGetAllDatasets() throws Exception {
         Collection<DatasetWrapper> datasets = client.getDatasets();
         assertEquals(3, datasets.size());
     }
 
 
     @Test
-    public void testGetDatasetByName() throws Exception {
+    void testGetDatasetByName() throws Exception {
         Collection<DatasetWrapper> datasets = client.getDatasets(DATASET1.name);
 
         int differences = 0;
@@ -125,7 +125,7 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testGetImages() throws Exception {
+    void testGetImages() throws Exception {
         final int nImages = 56;
 
         List<ImageWrapper> images = client.getImages();
@@ -134,56 +134,56 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testGetImage() throws Exception {
+    void testGetImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
         assertEquals(IMAGE1.name, image.getName());
     }
 
 
     @Test
-    public void testGetImagesName() throws Exception {
+    void testGetImagesName() throws Exception {
         List<ImageWrapper> images = client.getImages(IMAGE1.name);
         assertEquals(3, images.size());
     }
 
 
     @Test
-    public void testGetImagesLike() throws Exception {
+    void testGetImagesLike() throws Exception {
         List<ImageWrapper> images = client.getImagesLike("image1");
         assertEquals(3, images.size());
     }
 
 
     @Test
-    public void testGetImagesTagged() throws Exception {
+    void testGetImagesTagged() throws Exception {
         List<ImageWrapper> images = client.getImagesTagged(TAG1.id);
         assertEquals(3, images.size());
     }
 
 
     @Test
-    public void testGetImagesKey() throws Exception {
+    void testGetImagesKey() throws Exception {
         List<ImageWrapper> images = client.getImagesKey("testKey1");
         assertEquals(3, images.size());
     }
 
 
     @Test
-    public void testGetImagesKeyValue() throws Exception {
+    void testGetImagesKeyValue() throws Exception {
         List<ImageWrapper> images = client.getImagesPairKeyValue("testKey1", "testValue1");
         assertEquals(2, images.size());
     }
 
 
     @Test
-    public void testGetImagesFromNames() throws Exception {
+    void testGetImagesFromNames() throws Exception {
         List<ImageWrapper> images = client.getImages(PROJECT1.name, DATASET1.name, IMAGE1.name);
         assertEquals(2, images.size());
     }
 
 
     @Test
-    public void testGetImagesCond() throws Exception {
+    void testGetImagesCond() throws Exception {
         String key = "testKey2";
 
         /* Load the image with the key */
@@ -206,7 +206,7 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testSwitchGroup() {
+    void testSwitchGroup() {
         final long newGroupId = 4L;
         client.switchGroup(newGroupId);
         long actualGroupId = client.getCurrentGroupId();
@@ -215,7 +215,7 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testSwitchGroupAndImport() throws Exception {
+    void testSwitchGroupAndImport() throws Exception {
         final long newGroupId = 4L;
 
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=256.fake";
@@ -239,35 +239,35 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testGetAllScreens() throws Exception {
+    void testGetAllScreens() throws Exception {
         Collection<ScreenWrapper> screens = client.getScreens();
         assertEquals(2, screens.size());
     }
 
 
     @Test
-    public void testGetSingleScreen() throws Exception {
+    void testGetSingleScreen() throws Exception {
         String name = client.getScreen(SCREEN1.id).getName();
         assertEquals(SCREEN1.name, name);
     }
 
 
     @Test
-    public void testGetAllPlates() throws Exception {
+    void testGetAllPlates() throws Exception {
         Collection<PlateWrapper> screens = client.getPlates();
         assertEquals(3, screens.size());
     }
 
 
     @Test
-    public void testGetSinglePlate() throws Exception {
+    void testGetSinglePlate() throws Exception {
         String name = client.getPlate(PLATE1.id).getName();
         assertEquals(PLATE1.name, name);
     }
 
 
     @Test
-    public void testGetAllWells() throws Exception {
+    void testGetAllWells() throws Exception {
         final int nWells = 17;
 
         Collection<WellWrapper> screens = client.getWells();
@@ -276,7 +276,7 @@ public class ClientTest extends UserTest {
 
 
     @Test
-    public void testGetSingleWell() throws Exception {
+    void testGetSingleWell() throws Exception {
         String plateName = client.getWell(1L).getPlate().getName();
         assertEquals(PLATE1.name, plateName);
     }

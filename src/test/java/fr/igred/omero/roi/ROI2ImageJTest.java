@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -26,7 +26,7 @@ import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
@@ -37,14 +37,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class ROI2ImageJTest extends BasicTest {
+class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void testROIsFromImageJ() {
+    void testROIsFromImageJ() {
         final List<Roi> rois = new ArrayList<>(11);
 
         final float[] x1 = {0.0f, 3.0f, 3.0f};
@@ -108,7 +108,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void testROItoImageJ() {
+    void testROItoImageJ() {
         final int nRois = 11;
 
         AffineTransform transform = new AffineTransform();
@@ -190,7 +190,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertEllipse() {
+    void convertEllipse() {
         EllipseWrapper ellipse = new EllipseWrapper(3, 4, 10, 8);
         ellipse.setCZT(0, 0, 2);
 
@@ -215,7 +215,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertRectangle() {
+    void convertRectangle() {
         RectangleWrapper rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
@@ -239,7 +239,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertArrow() {
+    void convertArrow() {
         LineWrapper arrow = new LineWrapper(3, 3, 10, 10);
         arrow.setCZT(0, 0, 2);
         arrow.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
@@ -269,7 +269,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertLine() {
+    void convertLine() {
         final LineWrapper line = new LineWrapper(3, 3, 10, 10);
         line.setCZT(0, 0, 2);
 
@@ -296,7 +296,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertMask() {
+    void convertMask() {
         MaskWrapper mask = new MaskWrapper();
         mask.setCoordinates(3, 3, 10, 10);
         mask.setCZT(0, 0, 2);
@@ -321,7 +321,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertPoint() {
+    void convertPoint() {
         PointWrapper point = new PointWrapper();
         point.setCoordinates(3, 3);
         point.setCZT(0, 0, 2);
@@ -345,7 +345,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertText() {
+    void convertText() {
         //noinspection HardcodedLineSeparator
         final Pattern c = Pattern.compile("\r", Pattern.LITERAL); // Oddly, IJ adds \r
 
@@ -375,7 +375,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertPolygon() {
+    void convertPolygon() {
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -405,7 +405,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertPolyline() {
+    void convertPolyline() {
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);

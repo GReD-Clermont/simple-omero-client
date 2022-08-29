@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -31,7 +31,7 @@ import ij.process.ImageStatistics;
 import loci.plugins.BF;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -48,46 +48,46 @@ import java.util.Random;
 
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE;
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
-public class ImageTest extends UserTest {
+class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetDatasets() throws Exception {
+    void testGetDatasets() throws Exception {
         assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
     }
 
 
     @Test
-    public void testGetProjects() throws Exception {
+    void testGetProjects() throws Exception {
         assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
     }
 
 
     @Test
-    public void testGetScreens() throws Exception {
+    void testGetScreens() throws Exception {
         final long id = 5L;
         assertEquals(SCREEN1.id, client.getImage(id).getScreens(client).get(0).getId());
     }
 
 
     @Test
-    public void testGetPlates() throws Exception {
+    void testGetPlates() throws Exception {
         final long id = 5L;
         assertEquals(PLATE1.id, client.getImage(id).getPlates(client).get(0).getId());
     }
 
 
     @Test
-    public void testGetWells() throws Exception {
+    void testGetWells() throws Exception {
         final long  wellId = 1L;
         WellWrapper well   = client.getWell(wellId);
 
@@ -97,7 +97,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testImportImage() throws Exception {
+    void testImportImage() throws Exception {
         String filename1 = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         String filename2 = "8bit-unsigned&pixelType=uint8&sizeZ=4&sizeC=5&sizeT=6&sizeX=512&sizeY=512.fake";
 
@@ -122,7 +122,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testPairKeyValue() throws Exception {
+    void testPairKeyValue() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
         File f = createFile(filename);
@@ -167,7 +167,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testPairKeyValue2() throws Exception {
+    void testPairKeyValue2() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
 
         File f = createFile(filename);
@@ -198,7 +198,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testPairKeyValue3() throws Exception {
+    void testPairKeyValue3() throws Exception {
         boolean exception = false;
 
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
@@ -229,7 +229,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetImageInfo() throws Exception {
+    void testGetImageInfo() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
         assertEquals(IMAGE1.name, image.getName());
         assertNull(image.getDescription());
@@ -238,7 +238,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetImageTag() throws Exception {
+    void testGetImageTag() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
@@ -247,7 +247,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetImageSize() throws Exception {
+    void testGetImageSize() throws Exception {
         final int sizeXY = 512;
         final int sizeC  = 5;
         final int sizeZ  = 3;
@@ -265,7 +265,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetRawData() throws Exception {
+    void testGetRawData() throws Exception {
         ImageWrapper     image  = client.getImage(IMAGE1.id);
         PixelsWrapper    pixels = image.getPixels();
         double[][][][][] value  = pixels.getAllPixels(client);
@@ -279,7 +279,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetRawData2() throws Exception {
+    void testGetRawData2() throws Exception {
         ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
         byte[][][][]  value  = pixels.getRawPixels(client, 1);
@@ -298,7 +298,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetRawDataBound() throws Exception {
+    void testGetRawDataBound() throws Exception {
         ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
@@ -319,7 +319,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetRawDataBoundError() throws Exception {
+    void testGetRawDataBoundError() throws Exception {
         ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
@@ -335,7 +335,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetRawDataBoundErrorNegative() throws Exception {
+    void testGetRawDataBoundErrorNegative() throws Exception {
         boolean success = true;
 
         ImageWrapper  image  = client.getImage(IMAGE1.id);
@@ -357,7 +357,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testToImagePlusBound() throws Exception {
+    void testToImagePlusBound() throws Exception {
         final int    lowXY   = 500;
         final int    highXY  = 507;
         final double pixSize = 0.5;
@@ -408,7 +408,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testToImagePlus() throws Exception {
+    void testToImagePlus() throws Exception {
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=2&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = createFile(fake);
 
@@ -428,14 +428,14 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetImageChannel() throws Exception {
+    void testGetImageChannel() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
         assertEquals("0", image.getChannelName(client, 0));
     }
 
 
     @Test
-    public void testGetImageChannelError() throws Exception {
+    void testGetImageChannelError() throws Exception {
         boolean success = true;
 
         ImageWrapper image = client.getImage(IMAGE1.id);
@@ -450,7 +450,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testAddTagToImage() throws Exception {
+    void testAddTagToImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
@@ -467,7 +467,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testAddTagToImage2() throws Exception {
+    void testAddTagToImage2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         image.addTag(client, "image tag", "tag attached to an image");
@@ -482,7 +482,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testAddTagIdToImage() throws Exception {
+    void testAddTagIdToImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
@@ -499,7 +499,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testAddTagsToImage() throws Exception {
+    void testAddTagsToImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
@@ -521,7 +521,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testAddTagsToImage2() throws Exception {
+    void testAddTagsToImage2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
@@ -543,7 +543,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testAddAndRemoveTagFromImage() throws Exception {
+    void testAddAndRemoveTagFromImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
@@ -561,7 +561,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testImageOrder() throws Exception {
+    void testImageOrder() throws Exception {
         List<ImageWrapper> images = client.getImages();
         for (int i = 1; i < images.size(); i++) {
             assertTrue(images.get(i - 1).getId() <= images.get(i).getId());
@@ -570,7 +570,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testAddFileImage() throws Exception {
+    void testAddFileImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         File file = createRandomFile("test_image.txt");
@@ -608,7 +608,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetCreated() throws Exception {
+    void testGetCreated() throws Exception {
         LocalDate created = client.getImage(IMAGE1.id).getCreated().toLocalDateTime().toLocalDate();
         LocalDate now     = LocalDate.now();
 
@@ -617,7 +617,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetAcquisitionDate() throws Exception {
+    void testGetAcquisitionDate() throws Exception {
         LocalDateTime     acq = client.getImage(IMAGE1.id).getAcquisitionDate().toLocalDateTime();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
@@ -626,7 +626,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetChannel() throws Exception {
+    void testGetChannel() throws Exception {
         ChannelWrapper channel = client.getImage(IMAGE1.id).getChannels(client).get(0);
         assertEquals(0, channel.getIndex());
         channel.setName("Foo channel");
@@ -635,7 +635,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         String description  = image.getDescription();
@@ -650,7 +650,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testSetName() throws Exception {
+    void testSetName() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         String name  = image.getName();
@@ -665,7 +665,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetCropFromROI() throws Exception {
+    void testGetCropFromROI() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
@@ -702,7 +702,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testGetThumbnail() throws Exception {
+    void testGetThumbnail() throws Exception {
         final int size = 96;
 
         ImageWrapper  image     = client.getImage(IMAGE1.id);
@@ -714,7 +714,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testDownload() throws Exception {
+    void testDownload() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
         List<File>   files = image.download(client, ".");
         assertEquals(2, files.size());
@@ -725,7 +725,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testReplaceAndDeleteImages() throws Exception {
+    void testReplaceAndDeleteImages() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeX=512&sizeY=512.fake";
 
         DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
@@ -810,7 +810,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testReplaceAndUnlinkImages() throws Exception {
+    void testReplaceAndUnlinkImages() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeX=512&sizeY=512.fake";
 
         DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
@@ -897,7 +897,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testReplaceImagesFileset1() throws Exception {
+    void testReplaceImagesFileset1() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
 
         DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
@@ -928,7 +928,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testReplaceImagesFileset2() throws Exception {
+    void testReplaceImagesFileset2() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
 
         DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");
@@ -968,7 +968,7 @@ public class ImageTest extends UserTest {
 
 
     @Test
-    public void testReplaceImagesFileset3() throws Exception {
+    void testReplaceImagesFileset3() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
 
         DatasetWrapper dataset = new DatasetWrapper("Test Import & Replace", "");

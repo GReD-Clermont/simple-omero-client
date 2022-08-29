@@ -2,13 +2,13 @@
  *  Copyright (C) 2020-2022 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ * the terms of the GNU General License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with
+ * FOR A PARTICULAR PURPOSE. See the GNU General License for more details.
+ * You should have received a copy of the GNU General License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
@@ -16,18 +16,17 @@
 package fr.igred.omero;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-public class ConnectionTest extends BasicTest {
+class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testDisconnect() {
+    void testDisconnect() {
         Client testRoot = new Client();
         testRoot.disconnect();
         assertFalse(testRoot.isConnected());
@@ -35,7 +34,7 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testSessionConnect() throws Exception {
+    void testSessionConnect() throws Exception {
         Client client1 = new Client();
         client1.connect(HOST, PORT, USER1.name, "password".toCharArray());
         String sessionId = client1.getSessionId();
@@ -48,7 +47,7 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testRootConnection() throws Exception {
+    void testRootConnection() throws Exception {
         Client testRoot = new Client();
         testRoot.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
         long id      = testRoot.getId();
@@ -63,7 +62,7 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testUserConnection() throws Exception {
+    void testUserConnection() throws Exception {
         String toString = String.format("Client{host=%s, groupID=%d, user=%s, connected=true}",
                                         HOST, GROUP1.id, USER1.name);
 

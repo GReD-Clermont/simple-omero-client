@@ -16,37 +16,36 @@
 package fr.igred.omero;
 
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.logging.Level;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 
-@Ignore("Abstract class")
 public abstract class RootTest extends BasicTest {
 
     protected final Client client = new Client();
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         boolean failed = false;
         try {
             client.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
-            assertEquals("Wrong user", ROOT.id, client.getId());
-            assertEquals("Wrong group", GROUP1.id, client.getCurrentGroupId());
+            assertEquals(ROOT.id, client.getId(), "Wrong user");
+            assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
         } catch (Exception e) {
             failed = true;
             logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }
-        org.junit.Assume.assumeFalse(failed);
+        assumeFalse(failed);
     }
 
 
-    @After
+    @AfterEach
     public void cleanUp() {
         try {
             client.disconnect();
