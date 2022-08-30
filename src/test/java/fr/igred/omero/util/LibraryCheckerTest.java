@@ -15,9 +15,10 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.util;
 
 
+import fr.igred.omero.BasicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -53,7 +54,7 @@ class LibraryCheckerTest extends BasicTest {
     void checkUnavailableLibraries(String excluded) {
         //noinspection ClassLoaderInstantiation
         try (URLClassLoader testClassLoader = new TestClassLoader(excluded)) {
-            Class<?> checker = testClassLoader.loadClass("fr.igred.omero.LibraryChecker");
+            Class<?> checker = testClassLoader.loadClass("fr.igred.omero.util.LibraryChecker");
             Method   check   = checker.getMethod("areRequirementsAvailable");
             assertFalse((Boolean) check.invoke(null), "Libraries are available");
         } catch (ClassNotFoundException | NoSuchMethodException e) {
