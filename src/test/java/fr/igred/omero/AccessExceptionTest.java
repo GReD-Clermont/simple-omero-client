@@ -32,8 +32,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,28 +47,8 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class AccessExceptionTest extends BasicTest {
 
-    @SuppressWarnings("ImplicitDefaultCharsetUsage")
-    private static final PrintStream empty = new PrintStream(new OutputStream() {
-        public void write(int b) {
-            //DO NOTHING
-        }
-    });
-
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
-    private static final PrintStream error = System.err;
-
     protected Client client;
     protected Client sudo;
-
-
-    static void hideErrors() {
-        System.setErr(empty);
-    }
-
-
-    static void showErrors() {
-        System.setErr(error);
-    }
 
 
     @BeforeEach
@@ -88,7 +66,6 @@ class AccessExceptionTest extends BasicTest {
             logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }
         assumeFalse(failed, "Connection failed");
-        hideErrors();
     }
 
 
@@ -96,9 +73,7 @@ class AccessExceptionTest extends BasicTest {
     void cleanUp() {
         try {
             client.disconnect();
-            showErrors();
         } catch (RuntimeException e) {
-            showErrors();
             logger.log(Level.WARNING, String.format("%sDisconnection failed.%s", ANSI_YELLOW, ANSI_RESET), e);
         }
     }

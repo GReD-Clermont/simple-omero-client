@@ -16,11 +16,17 @@
 package fr.igred.omero;
 
 
+import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestWatcher;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -31,13 +37,23 @@ import static fr.igred.omero.BasicTest.ANSI_RESET;
 import static fr.igred.omero.BasicTest.ANSI_YELLOW;
 
 
-public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallback, BeforeAllCallback {
+public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallback, BeforeAllCallback, AfterAllCallback {
 
-    private static final String FORMAT = "[%-43s]\t%s (%.3f s)";
+    private static final String FORMAT = "[%-43s]\t%s%-9s%s (%.3f s)";
+
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
+    private static final PrintStream error = System.err;
+
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
+    private static final PrintStream output = System.out;
+
+    @SuppressWarnings("InstanceVariableMayNotBeInitialized")
+    private PrintStream logFile;
+
+    @SuppressWarnings("InstanceVariableMayNotBeInitialized")
+    private Logger logger;
 
     private long start = System.currentTimeMillis();
-
-    private Logger logger;
 
 
     /**
@@ -46,11 +62,27 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      * @param context the current extension context; never {@code null}
      */
     @Override
-    public void beforeAll(ExtensionContext context) {
+    public void beforeAll(ExtensionContext context) throws IOException {
         //noinspection AccessOfSystemProperties
         System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
         String klass = context.getRequiredTestClass().getSimpleName();
         logger = Logger.getLogger(klass);
+
+        File file = new File("target" + File.separator + "logs" + File.separator + klass + ".log");
+        Files.createDirectories(file.toPath().getParent());
+        Files.deleteIfExists(file.toPath());
+        logFile = new PrintStream(Files.newOutputStream(file.toPath()), false, StandardCharsets.UTF_8.name());
+    }
+
+
+    /**
+     * Callback that is invoked once <em>after</em> all tests in the current container.
+     *
+     * @param context the current extension context; never {@code null}
+     */
+    @Override
+    public void afterAll(ExtensionContext context) {
+        logFile.close();
     }
 
 
@@ -62,6 +94,11 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void beforeTestExecution(ExtensionContext context) {
+        hideOutputs();
+        String methodName  = context.getRequiredTestMethod().getName();
+        String displayName = context.getDisplayName();
+        displayName = displayName.equals(methodName + "()") ? "" : displayName;
+        logFile.printf("%9s: %s %s%n", "STARTING", methodName, displayName);
         start = System.currentTimeMillis();
     }
 
@@ -77,9 +114,8 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testDisabled(ExtensionContext context, Optional<String> reason) {
-        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
-        String status = String.format("%sDISABLED%s", ANSI_BLUE, ANSI_RESET);
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
+        float time = (float) (System.currentTimeMillis() - start) / 1000;
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "DISABLED", ANSI_BLUE, time);
     }
 
 
@@ -93,9 +129,8 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testSuccessful(ExtensionContext context) {
-        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
-        String status = String.format("%sSUCCEEDED%s", ANSI_GREEN, ANSI_RESET);
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
+        float time = (float) (System.currentTimeMillis() - start) / 1000;
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "SUCCEEDED", ANSI_GREEN, time);
     }
 
 
@@ -110,9 +145,8 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testAborted(ExtensionContext context, Throwable cause) {
-        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
-        String status = String.format("%sABORTED%s", ANSI_YELLOW, ANSI_RESET);
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
+        float time = (float) (System.currentTimeMillis() - start) / 1000;
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "ABORTED", ANSI_YELLOW, time);
     }
 
 
@@ -127,9 +161,8 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
-        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
-        String status = String.format("%sFAILED%s", ANSI_RED, ANSI_RESET);
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
+        float time = (float) (System.currentTimeMillis() - start) / 1000;
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "FAILED", ANSI_RED, time);
     }
 
 
@@ -141,10 +174,30 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      * @param status      The test status.
      * @param time        The time it took to run.
      */
-    private void logStatus(String methodName, String displayName, String status, float time) {
+    private void logStatus(String methodName, String displayName, String status, String color, float time) {
+        showOutputs();
         displayName = displayName.equals(methodName + "()") ? "" : displayName;
         String name = String.format("%s %s", methodName, displayName);
-        logger.info(String.format(FORMAT, name, status, time));
+        logger.info(String.format(FORMAT, name, color, status, ANSI_RESET, time));
+        logFile.printf("%9s: %s%n", status, name);
+    }
+
+
+    /**
+     * Output to console.
+     */
+    private static void showOutputs() {
+        System.setOut(output);
+        System.setErr(error);
+    }
+
+
+    /**
+     * Output to file.
+     */
+    private void hideOutputs() {
+        System.setOut(logFile);
+        System.setErr(logFile);
     }
 
 }
