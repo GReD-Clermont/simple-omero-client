@@ -47,7 +47,6 @@ import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.WellData;
-import omero.log.SimpleLogger;
 import omero.model.IObject;
 import omero.model.TagAnnotation;
 
@@ -80,7 +79,7 @@ public class Client extends GatewayWrapper {
      * Constructor of the Client class. Initializes the gateway.
      */
     public Client() {
-        super(new Gateway(new SimpleLogger()));
+        super(null);
     }
 
 
