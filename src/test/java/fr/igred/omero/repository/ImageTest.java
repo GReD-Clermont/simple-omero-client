@@ -95,109 +95,147 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testPairKeyValue() throws Exception {
-        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
-
-        File f = createFile(filename);
-
-        DatasetWrapper dataset = client.getDataset(DATASET2.id);
-
-        List<Long> newIDs = dataset.importImage(client, f.getAbsolutePath());
-        assertEquals(1, newIDs.size());
-
-        removeFile(f);
-
-        List<ImageWrapper> images = dataset.getImages(client);
-
-        ImageWrapper image = images.get(0);
-
-        List<NamedValue> result1 = new ArrayList<>(2);
-        result1.add(new NamedValue("Test result1", "Value Test"));
-        result1.add(new NamedValue("Test2 result1", "Value Test2"));
-
-        Collection<NamedValue> result2 = new ArrayList<>(2);
-        result2.add(new NamedValue("Test result2", "Value Test"));
-        result2.add(new NamedValue("Test2 result2", "Value Test2"));
-
-        MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
-
-        MapAnnotationData mapData2 = new MapAnnotationData();
-        mapData2.setContent(result2);
-        MapAnnotationWrapper mapAnnotation2 = new MapAnnotationWrapper(mapData2);
-
-        assertEquals(result1, mapAnnotation1.getContent());
-
-        image.addMapAnnotation(client, mapAnnotation1);
-        image.addMapAnnotation(client, mapAnnotation2);
-
-        Map<String, String> result = image.getKeyValuePairs(client);
-
-        assertEquals(4, result.size());
-        assertEquals("Value Test", image.getValue(client, "Test result1"));
-
-        client.delete(image);
+    void testGetKeyValuePair1() throws Exception {
+        ImageWrapper        image = client.getImage(IMAGE1.id);
+        Map<String, String> pairs = image.getKeyValuePairs(client);
+        assertEquals(2, pairs.size());
     }
 
 
     @Test
-    void testPairKeyValue2() throws Exception {
-        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+    void testGetKeyValuePair2() throws Exception {
+        ImageWrapper               image       = client.getImage(IMAGE1.id);
+        List<MapAnnotationWrapper> annotations = image.getMapAnnotations(client);
+        assertEquals(1, annotations.size());
+    }
 
-        File f = createFile(filename);
 
-        DatasetWrapper dataset = client.getDataset(DATASET2.id);
-        dataset.importImages(client, f.getAbsolutePath());
-        removeFile(f);
-        List<ImageWrapper> images = dataset.getImages(client);
+    @Test
+    void testGetValue() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        String       value = image.getValue(client, "testKey1");
+        assertEquals("testValue1", value);
+    }
 
-        ImageWrapper image = images.get(0);
 
-        List<NamedValue> result = new ArrayList<>(2);
-        result.add(new NamedValue("Test result1", "Value Test"));
-        result.add(new NamedValue("Test2 result1", "Value Test2"));
+    @Test
+    void testGetValueWrongKey() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        assertThrows(NoSuchElementException.class, () -> image.getValue(client, "testKey"));
+    }
 
-        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper();
-        mapAnnotation.setContent(result);
 
+    @Test
+    void testAddKeyValuePair1() throws Exception {
+        final long   imageId = 4L;
+        ImageWrapper image   = client.getImage(imageId);
+
+        String name1  = "Test result1";
+        String name2  = "Test2 result1";
+        String value1 = "Value Test";
+        String value2 = "Value Test2";
+
+        List<NamedValue> values = new ArrayList<>(2);
+        values.add(new NamedValue(name1, value1));
+        values.add(new NamedValue(name2, value2));
+
+        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(values);
         image.addMapAnnotation(client, mapAnnotation);
 
-        Map<String, String> results = image.getKeyValuePairs(client);
+        Map<String, String> pairs = image.getKeyValuePairs(client);
 
-        assertEquals(2, results.size());
-        assertEquals("Value Test", image.getValue(client, "Test result1"));
+        String value = image.getValue(client, name1);
 
-        client.delete(image);
+        client.delete(image.getMapAnnotations(client));
+
+        assertEquals(values, mapAnnotation.getContent());
+        assertEquals(2, pairs.size());
+        assertEquals(value1, value);
     }
 
 
     @Test
-    void testPairKeyValue3() throws Exception {
-        boolean exception = false;
+    void testAddKeyValuePair2() throws Exception {
+        final long   imageId = 4L;
+        ImageWrapper image   = client.getImage(imageId);
 
-        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        String name1  = "Test result2";
+        String name2  = "Test2 result2";
+        String value1 = "Value Test";
+        String value2 = "Value Test2";
 
-        File f = createFile(filename);
+        Collection<NamedValue> values = new ArrayList<>(2);
+        values.add(new NamedValue(name1, value1));
+        values.add(new NamedValue(name2, value2));
 
-        DatasetWrapper dataset = client.getDataset(DATASET2.id);
-        dataset.importImages(client, f.getAbsolutePath());
-        removeFile(f);
-        List<ImageWrapper> images = dataset.getImages(client);
+        MapAnnotationData mapData = new MapAnnotationData();
+        mapData.setContent(values);
 
-        ImageWrapper image = images.get(0);
+        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(mapData);
+        image.addMapAnnotation(client, mapAnnotation);
 
-        image.addPairKeyValue(client, "Test result1", "Value Test");
-        image.addPairKeyValue(client, "Test result2", "Value Test2");
+        Map<String, String> pairs = image.getKeyValuePairs(client);
 
-        Map<String, String> results = image.getKeyValuePairs(client);
+        String value = image.getValue(client, name2);
 
-        assertEquals(2, results.size());
-        try {
-            image.getValue(client, "Nonexistent value");
-        } catch (NoSuchElementException e) {
-            exception = true;
-        }
-        client.delete(image);
-        assertTrue(exception);
+        client.delete(image.getMapAnnotations(client));
+
+        assertEquals(values, mapAnnotation.getContent());
+        assertEquals(2, pairs.size());
+        assertEquals(value2, value);
+    }
+
+
+    @Test
+    void testAddKeyValuePair3() throws Exception {
+        final long   imageId = 4L;
+        ImageWrapper image   = client.getImage(imageId);
+
+        String name1  = "Test result3";
+        String name2  = "Test2 result3";
+        String value1 = "Value Test";
+        String value2 = "Value Test2";
+
+        List<NamedValue> values = new ArrayList<>(2);
+        values.add(new NamedValue(name1, value1));
+        values.add(new NamedValue(name2, value2));
+
+        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper();
+        mapAnnotation.setContent(values);
+        image.addMapAnnotation(client, mapAnnotation);
+
+        List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
+
+        String value = image.getValue(client, name1);
+
+        client.delete(image.getMapAnnotations(client));
+
+        assertEquals(values, mapAnnotation.getContent());
+        assertEquals(1, maps.size());
+        assertEquals(value1, value);
+    }
+
+
+    @Test
+    void testAddKeyValuePair4() throws Exception {
+        final long   imageId = 4L;
+        ImageWrapper image   = client.getImage(imageId);
+
+        String key1   = "Test result4";
+        String key2   = "Test2 result4";
+        String value1 = "Value Test";
+        String value2 = "Value Test2";
+
+        image.addPairKeyValue(client, key1, value1);
+        image.addPairKeyValue(client, key2, value2);
+
+        List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
+
+        String value = image.getValue(client, key1);
+        client.delete(maps);
+
+        assertEquals(2, maps.size());
+        assertEquals(value1, value);
     }
 
 
@@ -211,7 +249,7 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testGetImageTag() throws Exception {
+    void testGetImageTags() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
