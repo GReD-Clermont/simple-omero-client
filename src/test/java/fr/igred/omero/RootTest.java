@@ -16,6 +16,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.exception.ServiceException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -37,11 +38,11 @@ public abstract class RootTest extends BasicTest {
             client.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
             assertEquals(ROOT.id, client.getId(), "Wrong user");
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
-        } catch (Exception e) {
+        } catch (ServiceException e) {
             failed = true;
             logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }
-        assumeFalse(failed);
+        assumeFalse(failed, "Connection failed.");
     }
 
 
@@ -49,7 +50,7 @@ public abstract class RootTest extends BasicTest {
     public void cleanUp() {
         try {
             client.disconnect();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logger.log(Level.WARNING, String.format("%sDisconnection failed.%s", ANSI_YELLOW, ANSI_RESET), e);
         }
     }

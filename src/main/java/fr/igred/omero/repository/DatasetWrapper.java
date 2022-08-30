@@ -499,6 +499,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             }
         }
         descriptions.removeIf(s -> s == null || s.trim().isEmpty());
+        //noinspection HardcodedLineSeparator
         newImage.setDescription(String.join("\n", descriptions));
         newImage.saveAndUpdate(client);
         return orphaned;

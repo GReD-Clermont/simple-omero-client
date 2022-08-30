@@ -12,6 +12,7 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 package fr.igred.omero;
 
 
@@ -32,7 +33,7 @@ import static fr.igred.omero.BasicTest.ANSI_YELLOW;
 
 public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallback, BeforeAllCallback {
 
-    private static final String FORMAT = "[%-41s] %-17s\t%s (%.3f s)";
+    private static final String FORMAT = "[%-43s]\t%s (%.3f s)";
 
     private long start = System.currentTimeMillis();
 
@@ -46,10 +47,9 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void beforeAll(ExtensionContext context) {
+        //noinspection AccessOfSystemProperties
         System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
-        final String klass = context.getTestClass()
-                                    .orElse(context.getRequiredTestClass())
-                                    .getName();
+        String klass = context.getRequiredTestClass().getSimpleName();
         logger = Logger.getLogger(klass);
     }
 
@@ -77,11 +77,9 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testDisabled(ExtensionContext context, Optional<String> reason) {
-        float  time        = (float) (System.currentTimeMillis() - start) / 1000;
-        String testName    = context.getTestMethod().orElse(context.getRequiredTestMethod()).getName();
-        String displayName = context.getDisplayName();
+        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
         String status = String.format("%sDISABLED%s", ANSI_BLUE, ANSI_RESET);
-        logger.info(String.format(FORMAT, testName, displayName, status, time));
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
     }
 
 
@@ -95,12 +93,9 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testSuccessful(ExtensionContext context) {
-        float  time        = (float) (System.currentTimeMillis() - start) / 1000;
-        String testName    = context.getTestMethod().orElse(context.getRequiredTestMethod()).getName();
-        String displayName = context.getDisplayName();
-        displayName = displayName.equals(testName + "()") ? "" : displayName;
+        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
         String status = String.format("%sSUCCEEDED%s", ANSI_GREEN, ANSI_RESET);
-        logger.info(String.format(FORMAT, testName, displayName, status, time));
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
     }
 
 
@@ -115,12 +110,9 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testAborted(ExtensionContext context, Throwable cause) {
-        float  time        = (float) (System.currentTimeMillis() - start) / 1000;
-        String testName    = context.getTestMethod().orElse(context.getRequiredTestMethod()).getName();
-        String displayName = context.getDisplayName();
-        displayName = displayName.equals(testName + "()") ? "" : displayName;
+        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
         String status = String.format("%sABORTED%s", ANSI_YELLOW, ANSI_RESET);
-        logger.info(String.format(FORMAT, testName, displayName, status, time));
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
     }
 
 
@@ -135,12 +127,24 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
      */
     @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
-        float  time        = (float) (System.currentTimeMillis() - start) / 1000;
-        String testName    = context.getTestMethod().orElse(context.getRequiredTestMethod()).getName();
-        String displayName = context.getDisplayName();
-        displayName = displayName.equals(testName + "()") ? "" : displayName;
+        float  time   = (float) (System.currentTimeMillis() - start) / 1000;
         String status = String.format("%sFAILED%s", ANSI_RED, ANSI_RESET);
-        logger.info(String.format(FORMAT, testName, displayName, status, time));
+        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), status, time);
+    }
+
+
+    /**
+     * Logs test status.
+     *
+     * @param methodName  The method name.
+     * @param displayName The test display name.
+     * @param status      The test status.
+     * @param time        The time it took to run.
+     */
+    private void logStatus(String methodName, String displayName, String status, float time) {
+        displayName = displayName.equals(methodName + "()") ? "" : displayName;
+        String name = String.format("%s %s", methodName, displayName);
+        logger.info(String.format(FORMAT, name, status, time));
     }
 
 }

@@ -12,6 +12,7 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 package fr.igred.omero;
 
 
@@ -59,7 +60,8 @@ public abstract class BasicTest {
 
 
     protected static File createFile(String filename) throws IOException {
-        final String tmpdir = System.getProperty("java.io.tmpdir") + File.separator;
+        @SuppressWarnings("AccessOfSystemProperties")
+        String tmpdir = System.getProperty("java.io.tmpdir") + File.separator;
 
         File file = new File(tmpdir + File.separator + filename);
         if (!file.createNewFile()) {
@@ -70,9 +72,10 @@ public abstract class BasicTest {
 
 
     protected static File createRandomFile(String filename) throws IOException {
-        File file = createFile(filename);
+        final int size = 2 * 262144 + 20;
 
-        final byte[] array = new byte[2 * 262144 + 20];
+        File   file  = createFile(filename);
+        byte[] array = new byte[size];
         new SecureRandom().nextBytes(array);
         String generatedString = new String(array, StandardCharsets.UTF_8);
         try (PrintStream out = new PrintStream(Files.newOutputStream(file.toPath()), false, "UTF-8")) {

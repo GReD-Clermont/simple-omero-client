@@ -27,8 +27,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,20 +63,14 @@ class ExceptionTest extends BasicTest {
     @Test
     void testConnectionErrorPort() {
         final int badPort = 5000;
-
-        boolean exception = false;
-        Client  root      = new Client();
-        try {
-            root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id);
-        } catch (Exception e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        Client    root    = new Client();
+        assertThrows(ServiceException.class,
+                     () -> root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id));
     }
 
 
     @Test
-    void testConnectionErrorGroupNotExist() throws Exception {
+    void testConnectionErrorGroupNotExist() throws ServiceException {
         final long badGroup = 200L;
 
         Client clientNoSuchGroup = new Client();
@@ -87,7 +81,7 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
-    void testConnectionErrorNotInGroup() throws Exception {
+    void testConnectionErrorNotInGroup() throws ServiceException {
         Client clientWrongGroup = new Client();
         clientWrongGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), 0L);
         assertEquals(USER1.id, clientWrongGroup.getId());
@@ -116,57 +110,88 @@ class ExceptionTest extends BasicTest {
     void testGetImageError() throws Exception {
         final long badImage = 200L;
 
-        Client client = new Client();
+        boolean exception = false;
+        Client  client    = new Client();
         client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
         assertEquals(USER1.id, client.getId());
-        assertThrows(NoSuchElementException.class, () -> client.getImage(badImage));
+
+        try {
+            client.getImage(badImage);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
         client.disconnect();
+        assertTrue(exception);
     }
 
 
     @Test
-    void testGetImageError2() throws ServiceException {
+    void testGetImageError2() throws Exception {
         final long badImage = -5L;
 
-        Client client = new Client();
+        boolean exception = false;
+        Client  client    = new Client();
         client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
         assertEquals(USER1.id, client.getId());
 
-        assertThrows(NoSuchElementException.class, () -> client.getImage(badImage));
+        try {
+            client.getImage(badImage);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
         client.disconnect();
+        assertTrue(exception);
     }
 
 
     @Test
-    void testGetSingleScreenError() throws ServiceException {
+    void testGetSingleScreenError() throws Exception {
         final long badScreen = 333L;
 
-        Client client = new Client();
-        client.connect(HOST, PORT, USER1.name, "password".toCharArray());
-        assertThrows(NoSuchElementException.class, () -> client.getScreen(badScreen));
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.getScreen(badScreen);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
         client.disconnect();
+        assertTrue(exception);
     }
 
 
     @Test
-    void testGetSinglePlateError() throws ServiceException {
+    void testGetSinglePlateError() throws Exception {
         final long badPlate = 333L;
 
-        Client client = new Client();
-        client.connect(HOST, PORT, USER1.name, "password".toCharArray());
-        assertThrows(NoSuchElementException.class, () -> client.getPlate(badPlate));
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.getPlate(badPlate);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
         client.disconnect();
+        assertTrue(exception);
     }
 
 
     @Test
-    void testGetSingleWellError() throws ServiceException {
+    void testGetSingleWellError() throws Exception {
         final long badWell = 333L;
 
-        Client client = new Client();
-        client.connect(HOST, PORT, USER1.name, "password".toCharArray());
-        assertThrows(NoSuchElementException.class, () -> client.getWell(badWell));
+        boolean exception = false;
+        Client  client    = new Client();
+        try {
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.getWell(badWell);
+        } catch (NoSuchElementException e) {
+            exception = true;
+        }
         client.disconnect();
+        assertTrue(exception);
     }
 
 
@@ -200,43 +225,22 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testExceptionHandler5() {
-        boolean exception = false;
-
         Throwable t = new Exception("Nothing");
-        try {
-            ExceptionHandler.handleException(t, "Great");
-        } catch (Throwable t2) {
-            exception = true;
-        }
-        assertFalse(exception);
+        assertDoesNotThrow(() -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
     @Test
     void testExceptionHandler6() {
-        boolean exception = false;
-
         Throwable t = new ServerError(null);
-        try {
-            ExceptionHandler.handleServiceOrAccess(t, "Great");
-        } catch (Throwable t2) {
-            exception = true;
-        }
-        assertFalse(exception);
+        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrAccess(t, "Great"));
     }
 
 
     @Test
     void testExceptionHandler7() {
-        boolean exception = false;
-
         Throwable t = new DSAccessException("Test", null);
-        try {
-            ExceptionHandler.handleServiceOrServer(t, "Great");
-        } catch (Throwable t2) {
-            exception = true;
-        }
-        assertFalse(exception);
+        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrServer(t, "Great"));
     }
 
 }

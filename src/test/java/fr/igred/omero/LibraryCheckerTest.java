@@ -14,6 +14,7 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 package fr.igred.omero;
 
 
@@ -69,9 +70,11 @@ class LibraryCheckerTest extends BasicTest {
     private static class TestClassLoader extends URLClassLoader {
 
         TestClassLoader(CharSequence excluded) throws MalformedURLException {
+            //noinspection ZeroLengthArrayAllocation
             super(new URL[0], getSystemClassLoader().getParent());
-            String   classpath = System.getProperty("java.class.path");
-            String[] entries   = classpath.split(File.pathSeparator);
+            @SuppressWarnings("AccessOfSystemProperties")
+            String classpath = System.getProperty("java.class.path");
+            String[] entries = classpath.split(File.pathSeparator);
             for (String entry : entries) {
                 if (!entry.contains(excluded)) {
                     super.addURL(Paths.get(entry).toAbsolutePath().toUri().toURL());

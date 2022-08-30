@@ -27,6 +27,7 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -35,8 +36,7 @@ class DatasetTest extends UserTest {
 
     @Test
     void testCreateDatasetAndDeleteIt1() throws Exception {
-        boolean exception = false;
-        String  name      = "To delete";
+        String name = "To delete";
 
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
@@ -54,20 +54,12 @@ class DatasetTest extends UserTest {
         assertFalse(dataset.canChown());
 
         client.delete(dataset);
-
-        try {
-            client.getDataset(id);
-        } catch (NoSuchElementException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(NoSuchElementException.class, () -> client.getDataset(id));
     }
 
 
     @Test
     void testCreateDatasetAndDeleteIt2() throws Exception {
-        boolean exception = false;
-
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         String description = "Dataset which will be deleted";
@@ -78,15 +70,8 @@ class DatasetTest extends UserTest {
 
         DatasetWrapper checkDataset = client.getDataset(id);
         client.delete(checkDataset);
-
-        try {
-            client.getDataset(id);
-        } catch (NoSuchElementException e) {
-            exception = true;
-        }
-
+        assertThrows(NoSuchElementException.class, () -> client.getDataset(id));
         assertEquals(description, checkDataset.getDescription());
-        assertTrue(exception);
     }
 
 
@@ -167,24 +152,16 @@ class DatasetTest extends UserTest {
 
     @Test
     void testAddTagIdToDataset() throws Exception {
-        boolean exception = false;
-
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTag(client, tag.getId());
-
+        long tagId = tag.getId();
+        dataset.addTag(client, tagId);
         List<TagAnnotationWrapper> tags = dataset.getTags(client);
         client.delete(tag);
-        try {
-            client.getTag(tag.getId());
-        } catch (NullPointerException e) {
-            exception = true;
-        }
-
+        assertThrows(NullPointerException.class, () -> client.getTag(tagId));
         assertEquals(1, tags.size());
-        assertTrue(exception);
     }
 
 

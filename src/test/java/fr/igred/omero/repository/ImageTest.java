@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE;
@@ -53,8 +54,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 
 class ImageTest extends UserTest {
@@ -220,7 +221,7 @@ class ImageTest extends UserTest {
         assertEquals(2, results.size());
         try {
             image.getValue(client, "Nonexistent value");
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
             exception = true;
         }
         client.delete(image);
@@ -346,13 +347,9 @@ class ImageTest extends UserTest {
         int[] cBound = {0, 2};
         int[] zBound = {0, 2};
         int[] tBound = {0, 2};
-        try {
-            double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
-            success = false;
-            assertNotEquals(3, value[0][0][0][0].length);
-        } catch (Exception e) {
-            assertTrue(success);
-        }
+
+        double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
+        assertNotEquals(3, value[0][0][0][0].length);
     }
 
 
@@ -436,16 +433,8 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetImageChannelError() throws Exception {
-        boolean success = true;
-
         ImageWrapper image = client.getImage(IMAGE1.id);
-        try {
-            image.getChannelName(client, 6);
-            success = false;
-            fail();
-        } catch (Exception e) {
-            assertTrue(success);
-        }
+        assertThrows(IndexOutOfBoundsException.class, () -> image.getChannelName(client, 6));
     }
 
 
@@ -787,6 +776,7 @@ class ImageTest extends UserTest {
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
         assertEquals("ReplaceTest", image3.getValue(client, "Map"));
         assertEquals("ReplaceTestTable", image3.getTables(client).get(0).getName());
+        //noinspection HardcodedLineSeparator
         assertEquals("This is\na test.", image3.getDescription());
 
         client.delete(image3.getMapAnnotations(client).get(0));

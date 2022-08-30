@@ -32,11 +32,7 @@ public class TestObject {
 
     @Override
     public String toString() {
-        return "TestObject{" +
-               "id=" + id +
-               ", name='" + name + '\'' +
-               ", description='" + description + '\'' +
-               '}';
+        return String.format("TestObject{id=%d, name='%s', description='%s'}", id, name, description);
     }
 
 }

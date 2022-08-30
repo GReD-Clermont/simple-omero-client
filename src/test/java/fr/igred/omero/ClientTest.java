@@ -28,9 +28,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class ClientTest extends UserTest {
@@ -78,22 +79,14 @@ class ClientTest extends UserTest {
 
     @Test
     void testCreateAndDeleteProject() throws Exception {
-        boolean exception = false;
-
         String name = "Foo project";
 
         ProjectWrapper project = new ProjectWrapper(client, name, "");
 
         long newId = project.getId();
         assertEquals(name, client.getProject(newId).getName());
-
         client.delete(client.getProject(newId));
-        try {
-            client.getProject(newId);
-        } catch (Exception e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(NoSuchElementException.class, () -> client.getProject(newId));
     }
 
 

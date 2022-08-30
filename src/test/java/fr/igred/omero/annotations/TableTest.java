@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -154,8 +155,7 @@ class TableTest extends UserTest {
 
     @Test
     void testErrorTableFull() throws Exception {
-        boolean        exception = false;
-        DatasetWrapper dataset   = client.getDataset(DATASET1.id);
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -169,38 +169,22 @@ class TableTest extends UserTest {
 
         table.setRowCount(images.size() - 1);
 
-        try {
-            for (ImageWrapper image : images) {
-                table.addRow(image.asImageData(), image.getName());
-            }
-        } catch (IndexOutOfBoundsException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IndexOutOfBoundsException.class,
+                     () -> images.forEach(i -> table.addRow(i.asImageData(), i.getName())));
     }
 
 
     @Test
     void testErrorTableColumn() {
-        boolean exception = false;
-
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-
-        try {
-            table.setColumn(2, "Id", Long.class);
-        } catch (IndexOutOfBoundsException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IndexOutOfBoundsException.class, () -> table.setColumn(2, "Id", Long.class));
     }
 
 
     @Test
     void testErrorTableUninitialized() throws Exception {
-        boolean exception = false;
-
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
@@ -208,22 +192,13 @@ class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-
-        try {
-            for (ImageWrapper image : images) {
-                table.addRow(image.asImageData(), image.getName());
-            }
-        } catch (IndexOutOfBoundsException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IndexOutOfBoundsException.class,
+                     () -> images.forEach(i -> table.addRow(i.asImageData(), i.getName())));
     }
 
 
     @Test
     void testErrorTableNotEnoughArgs() throws Exception {
-        boolean exception = false;
-
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
@@ -231,17 +206,9 @@ class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-
         table.setRowCount(images.size());
-
-        try {
-            for (ImageWrapper image : images) {
-                table.addRow(image.asImageData());
-            }
-        } catch (IllegalArgumentException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IllegalArgumentException.class,
+                     () -> images.forEach(i -> table.addRow(i.asImageData())));
     }
 
 
@@ -1000,12 +967,14 @@ class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
 
+        @SuppressWarnings("MagicCharacter")
+        char delimiter = '\t';
         String filename = "file.csv";
-        table.saveAs(filename, ',');
+        table.saveAs(filename, delimiter);
 
-        String line1 = "\"Image\",\"ROI\",\"Label\",\"Volume\",\"Volume_Unit\"";
-        String line2 = String.format("\"1\",\"%d\",\"image1.fake\",\"%.1f\",\"µm^3\"", roi.getId(), volume1);
-        String line3 = String.format("\"1\",\"%d\",\"image1.fake\",\"%.1f\",\"m^3\"", roi.getId(), volume2);
+        String line1 = "\"Image\"\t\"ROI\"\t\"Label\"\t\"Volume\"\t\"Volume_Unit\"";
+        String line2 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%.1f\"\t\"µm^3\"", roi.getId(), volume1);
+        String line3 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%.1f\"\t\"m^3\"", roi.getId(), volume2);
 
         List<String> expected = Arrays.asList(line1, line2, line3);
 

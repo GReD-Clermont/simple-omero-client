@@ -45,7 +45,7 @@ class ROI2ImageJTest extends BasicTest {
 
     @Test
     void testROIsFromImageJ() {
-        final List<Roi> rois = new ArrayList<>(11);
+        List<Roi> rois = new ArrayList<>(11);
 
         final float[] x1 = {0.0f, 3.0f, 3.0f};
         final float[] y1 = {0.0f, 0.0f, 4.0f};
