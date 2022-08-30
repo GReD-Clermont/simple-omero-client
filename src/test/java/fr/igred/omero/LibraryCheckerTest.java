@@ -1,6 +1,26 @@
+/*
+ *  Copyright (C) 2020-2022 GReD
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 package fr.igred.omero;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,25 +31,31 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
-public class LibraryCheckerTest extends BasicTest {
+class LibraryCheckerTest extends BasicTest {
 
     @Test
-    public void checkAvailableLibraries() {
-        assertTrue("Libraries are unavailable", LibraryChecker.areRequirementsAvailable());
+    void checkAvailableLibraries() {
+        assertTrue(LibraryChecker.areRequirementsAvailable(), "Libraries are unavailable");
     }
 
 
-    @Test
-    public void checkUnavailableLibraries() {
-        try(URLClassLoader testClassLoader = new TestClassLoader()) {
+    @ParameterizedTest
+    @ValueSource(strings = {"omero-gateway",
+                            "omero-model",
+                            "omero-blitz",
+                            "ome-common",
+                            "formats-api"})
+    void checkUnavailableLibraries(String excluded) {
+        //noinspection ClassLoaderInstantiation
+        try (URLClassLoader testClassLoader = new TestClassLoader(excluded)) {
             Class<?> checker = testClassLoader.loadClass("fr.igred.omero.LibraryChecker");
-            Method check = checker.getMethod("areRequirementsAvailable");
-            assertFalse("Libraries are available", (Boolean) check.invoke(null));
+            Method   check   = checker.getMethod("areRequirementsAvailable");
+            assertFalse((Boolean) check.invoke(null), "Libraries are available");
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             fail(String.format("Class or method not found: %s.", e.getMessage()));
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -40,24 +66,19 @@ public class LibraryCheckerTest extends BasicTest {
     }
 
 
+    @SuppressWarnings("CustomClassloader")
     private static class TestClassLoader extends URLClassLoader {
 
-        TestClassLoader() throws MalformedURLException {
+        TestClassLoader(CharSequence excluded) throws MalformedURLException {
+            //noinspection ZeroLengthArrayAllocation
             super(new URL[0], getSystemClassLoader().getParent());
+            @SuppressWarnings("AccessOfSystemProperties")
             String classpath = System.getProperty("java.class.path");
             String[] entries = classpath.split(File.pathSeparator);
             for (String entry : entries) {
-                super.addURL(Paths.get(entry).toAbsolutePath().toUri().toURL());
-            }
-        }
-
-
-        @Override
-        public Class<?> loadClass(String name) throws ClassNotFoundException {
-            if (!name.startsWith("omero.") && !name.startsWith("ome.") && !name.startsWith("loci.")) {
-                return super.loadClass(name);
-            } else {
-                throw new ClassNotFoundException("Disabled packages");
+                if (!entry.contains(excluded)) {
+                    super.addURL(Paths.get(entry).toAbsolutePath().toUri().toURL());
+                }
             }
         }
 

@@ -16,18 +16,18 @@
 package fr.igred.omero;
 
 
-import org.junit.Test;
+import fr.igred.omero.exception.ServiceException;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-public class ConnectionTest extends BasicTest {
+class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testDisconnect() {
+    void testDisconnect() {
         Client testRoot = new Client();
         testRoot.disconnect();
         assertFalse(testRoot.isConnected());
@@ -35,7 +35,7 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testSessionConnect() throws Exception {
+    void testSessionConnect() throws ServiceException {
         Client client1 = new Client();
         client1.connect(HOST, PORT, USER1.name, "password".toCharArray());
         String sessionId = client1.getSessionId();
@@ -48,14 +48,14 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testRootConnection() throws Exception {
+    void testRootConnection() throws ServiceException {
         Client testRoot = new Client();
         testRoot.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
         long id      = testRoot.getId();
         long groupId = testRoot.getCurrentGroupId();
         try {
             testRoot.disconnect();
-        } catch (Exception ignored) {
+        } catch (RuntimeException ignored) {
         }
         assertEquals(0L, id);
         assertEquals(GROUP1.id, groupId);
@@ -63,7 +63,7 @@ public class ConnectionTest extends BasicTest {
 
 
     @Test
-    public void testUserConnection() throws Exception {
+    void testUserConnection() throws ServiceException {
         String toString = String.format("Client{host=%s, groupID=%d, user=%s, connected=true}",
                                         HOST, GROUP1.id, USER1.name);
 
@@ -75,7 +75,7 @@ public class ConnectionTest extends BasicTest {
         long groupId = testUser.getCurrentGroupId();
         try {
             testUser.disconnect();
-        } catch (Exception ignored) {
+        } catch (RuntimeException ignored) {
         }
         assertEquals(USER1.id, id);
         assertEquals(GROUP1.id, groupId);

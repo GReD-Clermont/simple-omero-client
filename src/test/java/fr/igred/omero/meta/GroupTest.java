@@ -17,25 +17,26 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.RootTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-public class GroupTest extends RootTest {
+class GroupTest extends RootTest {
 
-    @Test(expected = NoSuchElementException.class)
-    public void testGetWrongGroup() throws Exception {
-        client.getGroup("nonexistent");
+    @Test
+    void testGetWrongGroup() {
+        assertThrows(NoSuchElementException.class, () -> client.getGroup("nonexistent"));
     }
 
 
     @Test
-    public void testSetGroupName() throws Exception {
+    void testSetGroupName() throws Exception {
         GroupWrapper group = client.getGroup("testGroup2");
         assertEquals("testGroup2", group.getName());
         group.setName("Empty");
@@ -48,7 +49,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         GroupWrapper group = client.getGroup("testGroup1");
         assertEquals(GroupWrapper.PERMISSIONS_GROUP_READ, group.getPermissionsLevel());
         group.setDescription("Test");
@@ -58,7 +59,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testGetExperimenters() throws Exception {
+    void testGetExperimenters() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
         List<ExperimenterWrapper> experimenters = group.getExperimenters();
@@ -76,7 +77,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testGetMembersOnly() throws Exception {
+    void testGetMembersOnly() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
         List<ExperimenterWrapper> members = group.getMembersOnly();
@@ -86,7 +87,7 @@ public class GroupTest extends RootTest {
 
 
     @Test
-    public void testGetLeaders() throws Exception {
+    void testGetLeaders() throws Exception {
         GroupWrapper group = client.getGroup("testGroup3");
 
         List<ExperimenterWrapper> leaders = group.getLeaders();

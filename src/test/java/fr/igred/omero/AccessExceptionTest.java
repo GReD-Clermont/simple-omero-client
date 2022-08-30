@@ -28,78 +28,59 @@ import fr.igred.omero.roi.RectangleWrapper;
 import omero.gateway.model.ProjectData;
 import omero.model.NamedValue;
 import omero.model.ProjectI;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 
-public class AccessExceptionTest extends BasicTest {
+class AccessExceptionTest extends BasicTest {
 
-    private final PrintStream empty = new PrintStream(new OutputStream() {
-        public void write(int b) {
-            //DO NOTHING
-        }
-    });
-    private final PrintStream error = System.err;
-    protected     Client      client;
-    protected     Client      sudo;
+    protected Client client;
+    protected Client sudo;
 
 
-    void hideErrors() {
-        System.setErr(empty);
-    }
-
-
-    void showErrors() {
-        System.setErr(error);
-    }
-
-
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         boolean failed = false;
         client = new Client();
         try {
             client.connect(HOST, PORT, "testUser", "password".toCharArray(), GROUP1.id);
-            assertEquals("Wrong user", USER1.id, client.getId());
-            assertEquals("Wrong group", GROUP1.id, client.getCurrentGroupId());
+            assertEquals(USER1.id, client.getId(), "Wrong user");
+            assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudoGetUser("testUser2");
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
             sudo = null;
             failed = true;
             logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }
-        org.junit.Assume.assumeFalse(failed);
-        hideErrors();
+        assumeFalse(failed, "Connection failed");
     }
 
 
-    @After
-    public void cleanUp() {
+    @AfterEach
+    void cleanUp() {
         try {
             client.disconnect();
-            showErrors();
-        } catch (Exception e) {
-            showErrors();
+        } catch (RuntimeException e) {
             logger.log(Level.WARNING, String.format("%sDisconnection failed.%s", ANSI_YELLOW, ANSI_RESET), e);
         }
     }
 
 
     @Test
-    public void testAddTagToImageWrongUser() throws Exception {
+    void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
         client.disconnect();
         client.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
@@ -126,8 +107,8 @@ public class AccessExceptionTest extends BasicTest {
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testFolderAddROIWithoutImage() throws Exception {
+    @Test
+    void testFolderAddROIWithoutImage() throws Exception {
         FolderWrapper folder = new FolderWrapper(client, "Test1");
 
         RectangleWrapper rectangle = new RectangleWrapper(0, 0, 10, 10);
@@ -137,39 +118,39 @@ public class AccessExceptionTest extends BasicTest {
         roi.addShape(rectangle);
         roi.saveROI(client);
 
-        folder.addROI(client, roi);
+        assertThrows(AccessException.class, () -> folder.addROI(client, roi));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetProjects() throws Exception {
-        sudo.getProjects();
+    @Test
+    void testSudoFailGetProjects() {
+        assertThrows(AccessException.class, () -> sudo.getProjects());
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetSingleProject() throws Exception {
-        sudo.getProject(PROJECT1.id);
+    @Test
+    void testSudoFailGetSingleProject() {
+        assertThrows(AccessException.class, () -> sudo.getProject(PROJECT1.id));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetProjectByName() throws Exception {
-        sudo.getProjects("TestProject");
+    @Test
+    void testSudoFailGetProjectByName() {
+        assertThrows(AccessException.class, () -> sudo.getProjects("TestProject"));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailDeleteProject() throws Exception {
+    @Test
+    void testSudoFailDeleteProject() {
         ProjectI       projectI    = new ProjectI(PROJECT1.id, false);
         ProjectData    projectData = new ProjectData(projectI);
         ProjectWrapper project     = new ProjectWrapper(projectData);
-        sudo.delete(project);
+        assertThrows(AccessException.class, () -> sudo.delete(project));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailDeleteProjects() throws Exception {
+    @Test
+    void testSudoFailDeleteProjects() {
         ProjectI    projectI1    = new ProjectI(PROJECT1.id, false);
         ProjectI    projectI2    = new ProjectI(2L, false);
         ProjectData projectData1 = new ProjectData(projectI1);
@@ -178,81 +159,81 @@ public class AccessExceptionTest extends BasicTest {
         Collection<ProjectWrapper> projects = new ArrayList<>(2);
         projects.add(new ProjectWrapper(projectData1));
         projects.add(new ProjectWrapper(projectData2));
-        sudo.delete(projects);
+        assertThrows(AccessException.class, () -> sudo.delete(projects));
     }
 
 
     // This test returns a ServiceException for a "security violation".
-    @Test(expected = ServiceException.class)
-    public void testSudoFailGetDatasets() throws Exception {
-        sudo.getDatasets();
+    @Test
+    void testSudoFailGetDatasets() {
+        assertThrows(ServiceException.class, () -> sudo.getDatasets());
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetSingleDataset() throws Exception {
-        sudo.getDataset(DATASET1.id);
+    @Test
+    void testSudoFailGetSingleDataset() {
+        assertThrows(AccessException.class, () -> sudo.getDataset(DATASET1.id));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetDatasetByName() throws Exception {
-        sudo.getDatasets("TestDataset");
+    @Test
+    void testSudoFailGetDatasetByName() {
+        assertThrows(AccessException.class, () -> sudo.getDatasets("TestDataset"));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetImages() throws Exception {
-        sudo.getImages();
+    @Test
+    void testSudoFailGetImages() {
+        assertThrows(AccessException.class, () -> sudo.getImages());
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetImage() throws Exception {
-        sudo.getImage(IMAGE1.id);
+    @Test
+    void testSudoFailGetImage() {
+        assertThrows(AccessException.class, () -> sudo.getImage(IMAGE1.id));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetImagesName() throws Exception {
-        sudo.getImages("image1.fake");
+    @Test
+    void testSudoFailGetImagesName() {
+        assertThrows(AccessException.class, () -> sudo.getImages("image1.fake"));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetImagesLike() throws Exception {
-        sudo.getImagesLike("image1");
+    @Test
+    void testSudoFailGetImagesLike() {
+        assertThrows(AccessException.class, () -> sudo.getImagesLike("image1"));
     }
 
 
-    @Test(expected = ServiceException.class)
-    public void testSudoFailGetAllTags() throws Exception {
-        sudo.getTags();
+    @Test
+    void testSudoFailGetAllTags() {
+        assertThrows(ServiceException.class, () -> sudo.getTags());
     }
 
 
-    @Test(expected = ServiceException.class)
-    public void testSudoFailGetTag() throws Exception {
-        sudo.getTag(TAG1.id);
+    @Test
+    void testSudoFailGetTag() {
+        assertThrows(ServiceException.class, () -> sudo.getTag(TAG1.id));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetImageTag() throws Exception {
+    @Test
+    void testSudoFailGetImageTag() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
-        image.getTags(sudo);
+        assertThrows(AccessException.class, () -> image.getTags(sudo));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailGetKVPairs() throws Exception {
+    @Test
+    void testSudoFailGetKVPairs() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
-        image.getKeyValuePairs(sudo);
+        assertThrows(AccessException.class, () -> image.getKeyValuePairs(sudo));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFailAddKVPair() throws Exception {
+    @Test
+    void testSudoFailAddKVPair() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<NamedValue> result1 = new ArrayList<>(2);
@@ -260,13 +241,13 @@ public class AccessExceptionTest extends BasicTest {
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 
         MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
-        image.addMapAnnotation(sudo, mapAnnotation1);
+        assertThrows(AccessException.class, () -> image.addMapAnnotation(sudo, mapAnnotation1));
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testSudoFail() throws Exception {
-        sudo.sudoGetUser("root");
+    @Test
+    void testSudoFail() {
+        assertThrows(AccessException.class, () -> sudo.sudoGetUser("root"));
     }
 
 

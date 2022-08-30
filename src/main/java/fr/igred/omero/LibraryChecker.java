@@ -33,11 +33,11 @@ public final class LibraryChecker {
      * @return {@code true} if the libraries are available, {@code false} otherwise.
      */
     public static boolean areRequirementsAvailable() {
-        return isOMEROGatewayAvailable() &&
+        return isFormatsAPIAvailable() &&
                isOMEROModelAvailable() &&
-               isOMEROBlitzAvailable() &&
                isOMECommonAvailable() &&
-               isFormatsAPIAvailable();
+               isOMEROBlitzAvailable() &&
+               isOMEROGatewayAvailable();
     }
 
 
@@ -57,7 +57,7 @@ public final class LibraryChecker {
      * @return {@code true} if IObject is available, {@code false} otherwise.
      */
     public static boolean isOMEROModelAvailable() {
-        return checkClass("omero.model.IObject");
+        return checkClass("ome.model.IObject");
     }
 
 

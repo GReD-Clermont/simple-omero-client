@@ -18,18 +18,18 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class WellTest extends UserTest {
+class WellTest extends UserTest {
 
 
     @Test
-    public void testAddTagToWell() throws Exception {
+    void testAddTagToWell() throws Exception {
         WellWrapper well = client.getWell(2L);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Well tag", "tag attached to a well");
@@ -44,7 +44,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testGetWellSamples() throws Exception {
+    void testGetWellSamples() throws Exception {
         WellWrapper             well    = client.getWell(1L);
         List<WellSampleWrapper> samples = well.getWellSamples();
         assertEquals(4, samples.size());
@@ -52,7 +52,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testTestGetName() throws Exception {
+    void testTestGetName() throws Exception {
         final String name = "Well A-1";
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -63,7 +63,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testGetDescription() throws Exception {
+    void testGetDescription() throws Exception {
         final String description = "External Description";
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -74,7 +74,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testGetColumn() throws Exception {
+    void testGetColumn() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
         WellWrapper  well  = plate.getWells(client).get(1);
         assertEquals(1, well.getColumn().intValue());
@@ -82,7 +82,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testGetRow() throws Exception {
+    void testGetRow() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
         WellWrapper  well  = plate.getWells(client).get(6);
         assertEquals(2, well.getRow().intValue());
@@ -90,7 +90,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testSetStatus() throws Exception {
+    void testSetStatus() throws Exception {
         WellWrapper well = client.getWell(1L);
 
         String status  = well.getStatus();
@@ -107,7 +107,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testSetWellType() throws Exception {
+    void testSetWellType() throws Exception {
         WellWrapper well = client.getWell(1L);
 
         String type  = well.getWellType();
@@ -124,7 +124,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testSetRed() throws Exception {
+    void testSetRed() throws Exception {
         WellWrapper well = client.getWell(1L);
 
         int red  = well.getRed();
@@ -141,7 +141,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testSetGreen() throws Exception {
+    void testSetGreen() throws Exception {
         WellWrapper well = client.getWell(1L);
 
         int green  = well.getGreen();
@@ -158,7 +158,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testSetBlue() throws Exception {
+    void testSetBlue() throws Exception {
         WellWrapper well = client.getWell(1L);
 
         int blue  = well.getBlue();
@@ -175,7 +175,7 @@ public class WellTest extends UserTest {
 
 
     @Test
-    public void testSetAlpha() throws Exception {
+    void testSetAlpha() throws Exception {
         WellWrapper well = client.getWell(1L);
 
         int alpha  = well.getAlpha();
