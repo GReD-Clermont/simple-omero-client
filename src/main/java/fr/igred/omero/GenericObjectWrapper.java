@@ -28,7 +28,6 @@ import omero.gateway.model.DataObject;
 import omero.model.IObject;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -57,24 +56,6 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     protected GenericObjectWrapper(T object) {
         this.data = object;
-    }
-
-
-    /**
-     * Only keep objects with different IDs in a collection.
-     *
-     * @param objects The collection of objects.
-     * @param <T>     The type of object.
-     *
-     * @return Distinct objects list.
-     */
-    protected static <T extends GenericObjectWrapper<?>> List<T> purge(Collection<? extends T> objects) {
-        return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o))
-                      .values()
-                      .stream()
-                      .sorted(Comparator.comparing(T::getId))
-                      .collect(Collectors.toList());
     }
 
 
@@ -142,17 +123,12 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @return Distinct objects list, sorted by ID.
      */
     public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
-        Collection<Long> ids = new ArrayList<>(objects.size());
-
-        List<T> purged = new ArrayList<>(objects.size());
-        for (T image : objects) {
-            if (!ids.contains(image.getId())) {
-                ids.add(image.getId());
-                purged.add(image);
-            }
-        }
-        purged.sort(Comparator.comparing(T::getId));
-        return purged;
+        return objects.stream()
+                      .collect(Collectors.toMap(T::getId, o -> o))
+                      .values()
+                      .stream()
+                      .sorted(Comparator.comparing(T::getId))
+                      .collect(Collectors.toList());
     }
 
 

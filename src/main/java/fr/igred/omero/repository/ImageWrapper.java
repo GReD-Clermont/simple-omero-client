@@ -219,7 +219,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         for (DatasetWrapper dataset : datasets) {
             projects.addAll(dataset.getProjects(client));
         }
-        return purge(projects);
+        return distinct(projects);
     }
 
 
@@ -281,7 +281,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<PlateWrapper> getPlates(Client client) throws AccessException, ServiceException, ExecutionException {
-        return purge(getWells(client).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
+        return distinct(getWells(client).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
     }
 
 
@@ -304,7 +304,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         for (PlateWrapper plate : plates) {
             screens.addAll(plate.getScreens(client));
         }
-        return purge(screens);
+        return distinct(screens);
     }
 
 
