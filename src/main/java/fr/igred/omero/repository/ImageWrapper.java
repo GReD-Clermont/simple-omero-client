@@ -501,12 +501,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Gets the imagePlus generated from the image from OMERO corresponding to the bound.
      *
-     * @param client The client handling the connection.
-     * @param xBound Array containing the X bound from which the pixels should be retrieved.
-     * @param yBound Array containing the Y bound from which the pixels should be retrieved.
-     * @param cBound Array containing the C bound from which the pixels should be retrieved.
-     * @param zBound Array containing the Z bound from which the pixels should be retrieved.
-     * @param tBound Array containing the T bound from which the pixels should be retrieved.
+     * @param client  The client handling the connection.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
      *
      * @return an ImagePlus from the ij library.
      *
@@ -514,13 +514,18 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client, int[] xBound, int[] yBound, int[] cBound, int[] zBound, int[] tBound)
+    public ImagePlus toImagePlus(Client client,
+                                 int[] xBounds,
+                                 int[] yBounds,
+                                 int[] cBounds,
+                                 int[] zBounds,
+                                 int[] tBounds)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
 
         boolean createdRDF = pixels.createRawDataFacility(client);
 
-        Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
+        Bounds bounds = pixels.getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         int startX = bounds.getStart().getX();
         int startY = bounds.getStart().getY();

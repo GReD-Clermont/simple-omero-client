@@ -263,21 +263,21 @@ class ImageTest extends UserTest {
         final int    highXY  = 507;
         final double pixSize = 0.5;
 
-        int[] xBound = {0, 2};
-        int[] yBound = {0, 2};
-        int[] cBound = {0, 2};
-        int[] zBound = {0, 2};
-        int[] tBound = {0, 2};
+        int[] xBounds = {0, 2};
+        int[] yBounds = {0, 2};
+        int[] cBounds = {0, 2};
+        int[] zBounds = {0, 2};
+        int[] tBounds = {0, 2};
 
         Random random = new SecureRandom();
-        xBound[0] = random.nextInt(lowXY);
-        yBound[0] = random.nextInt(lowXY);
-        cBound[0] = random.nextInt(3);
-        tBound[0] = random.nextInt(5);
-        xBound[1] = random.nextInt(highXY - xBound[0]) + xBound[0] + 5;
-        yBound[1] = random.nextInt(highXY - yBound[0]) + yBound[0] + 5;
-        cBound[1] = random.nextInt(3 - cBound[0]) + cBound[0] + 2;
-        tBound[1] = random.nextInt(5 - tBound[0]) + tBound[0] + 2;
+        xBounds[0] = random.nextInt(lowXY);
+        yBounds[0] = random.nextInt(lowXY);
+        cBounds[0] = random.nextInt(3);
+        tBounds[0] = random.nextInt(5);
+        xBounds[1] = random.nextInt(highXY - xBounds[0]) + xBounds[0] + 5;
+        yBounds[1] = random.nextInt(highXY - yBounds[0]) + yBounds[0] + 5;
+        cBounds[1] = random.nextInt(3 - cBounds[0]) + cBounds[0] + 2;
+        tBounds[1] = random.nextInt(5 - tBounds[0]) + tBounds[0] + 2;
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = createFile(fake);
@@ -286,15 +286,15 @@ class ImageTest extends UserTest {
         removeFile(fakeFile);
 
         Duplicator duplicator = new Duplicator();
-        reference.setRoi(xBound[0], yBound[0], xBound[1] - xBound[0] + 1, yBound[1] - yBound[0] + 1);
+        reference.setRoi(xBounds[0], yBounds[0], xBounds[1] - xBounds[0] + 1, yBounds[1] - yBounds[0] + 1);
         ImagePlus crop = duplicator.run(reference,
-                                        cBound[0] + 1, cBound[1] + 1,
-                                        zBound[0] + 1, zBound[1] + 1,
-                                        tBound[0] + 1, tBound[1] + 1);
+                                        cBounds[0] + 1, cBounds[1] + 1,
+                                        zBounds[0] + 1, zBounds[1] + 1,
+                                        tBounds[0] + 1, tBounds[1] + 1);
 
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ImagePlus imp = image.toImagePlus(client, xBound, yBound, cBound, zBound, tBound);
+        ImagePlus imp = image.toImagePlus(client, xBounds, yBounds, cBounds, zBounds, tBounds);
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
@@ -567,11 +567,11 @@ class ImageTest extends UserTest {
         final EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
-        final int[] xBound = {30, 69};
-        final int[] yBound = {10, 89};
-        final int[] cBound = {1, 1};
-        final int[] zBound = {0, 1};
-        final int[] tBound = {1, 2};
+        final int[] xBounds = {30, 69};
+        final int[] yBounds = {10, 89};
+        final int[] cBounds = {1, 1};
+        final int[] zBounds = {0, 1};
+        final int[] tBounds = {1, 2};
 
         ROIWrapper roiWrapper = new ROIWrapper();
         roiWrapper.setImage(image);
@@ -579,7 +579,7 @@ class ImageTest extends UserTest {
         roiWrapper.addShape(ellipse);
 
         ImagePlus imp1 = image.toImagePlus(client, roiWrapper);
-        ImagePlus imp2 = image.toImagePlus(client, xBound, yBound, cBound, zBound, tBound);
+        ImagePlus imp2 = image.toImagePlus(client, xBounds, yBounds, cBounds, zBounds, tBounds);
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", imp1, imp2);

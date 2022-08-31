@@ -82,13 +82,13 @@ class PixelsTest extends UserTest {
         ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
-        int[] xBound = {0, 2};
-        int[] yBound = {0, 2};
-        int[] cBound = {0, 2};
-        int[] zBound = {0, 2};
-        int[] tBound = {0, 2};
+        int[] xBounds = {0, 2};
+        int[] yBounds = {0, 2};
+        int[] cBounds = {0, 2};
+        int[] zBounds = {0, 2};
+        int[] tBounds = {0, 2};
 
-        double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
+        double[][][][][] value = pixels.getAllPixels(client, xBounds, yBounds, cBounds, zBounds, tBounds);
 
         assertEquals(3, value[0][0][0][0].length);
         assertEquals(3, value[0][0][0].length);
@@ -103,14 +103,14 @@ class PixelsTest extends UserTest {
         ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
-        final int[] xBound = {511, 513};
-        final int[] yBound = {0, 2};
-        final int[] cBound = {0, 2};
-        final int[] zBound = {0, 2};
-        final int[] tBound = {0, 2};
+        final int[] xBounds = {511, 513};
+        final int[] yBounds = {0, 2};
+        final int[] cBounds = {0, 2};
+        final int[] zBounds = {0, 2};
+        final int[] tBounds = {0, 2};
 
-        double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
-        assertNotEquals(xBound[1] - xBound[0] + 1, value[0][0][0][0].length);
+        double[][][][][] value = pixels.getAllPixels(client, xBounds, yBounds, cBounds, zBounds, tBounds);
+        assertNotEquals(xBounds[1] - xBounds[0] + 1, value[0][0][0][0].length);
     }
 
 
@@ -119,13 +119,13 @@ class PixelsTest extends UserTest {
         ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
-        int[] xBound = {-1, 1};
-        int[] yBound = {0, 2};
-        int[] cBound = {0, 2};
-        int[] zBound = {0, 2};
-        int[] tBound = {0, 2};
+        int[] xBounds = {-1, 1};
+        int[] yBounds = {0, 2};
+        int[] cBounds = {0, 2};
+        int[] zBounds = {0, 2};
+        int[] tBounds = {0, 2};
 
-        double[][][][][] value = pixels.getAllPixels(client, xBound, yBound, cBound, zBound, tBound);
+        double[][][][][] value = pixels.getAllPixels(client, xBounds, yBounds, cBounds, zBounds, tBounds);
         assertNotEquals(3, value[0][0][0][0].length);
     }
 
