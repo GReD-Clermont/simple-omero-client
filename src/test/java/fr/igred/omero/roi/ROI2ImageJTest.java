@@ -26,7 +26,7 @@ import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
@@ -37,15 +37,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class ROI2ImageJTest extends BasicTest {
+class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void testROIsFromImageJ() {
-        final List<Roi> rois = new ArrayList<>(11);
+    void testROIsFromImageJ() {
+        List<Roi> rois = new ArrayList<>(11);
 
         final float[] x1 = {0.0f, 3.0f, 3.0f};
         final float[] y1 = {0.0f, 0.0f, 4.0f};
@@ -108,7 +108,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void testROItoImageJ() {
+    void testROItoImageJ() {
         final int nRois = 11;
 
         AffineTransform transform = new AffineTransform();
@@ -190,7 +190,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertEllipse() {
+    void convertEllipse() {
         EllipseWrapper ellipse = new EllipseWrapper(3, 4, 10, 8);
         ellipse.setCZT(0, 0, 2);
 
@@ -215,7 +215,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertRectangle() {
+    void convertRectangle() {
         RectangleWrapper rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
@@ -239,7 +239,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertArrow() {
+    void convertArrow() {
         LineWrapper arrow = new LineWrapper(3, 3, 10, 10);
         arrow.setCZT(0, 0, 2);
         arrow.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
@@ -269,7 +269,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertLine() {
+    void convertLine() {
         final LineWrapper line = new LineWrapper(3, 3, 10, 10);
         line.setCZT(0, 0, 2);
 
@@ -296,7 +296,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertMask() {
+    void convertMask() {
         MaskWrapper mask = new MaskWrapper();
         mask.setCoordinates(3, 3, 10, 10);
         mask.setCZT(0, 0, 2);
@@ -321,7 +321,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertPoint() {
+    void convertPoint() {
         PointWrapper point = new PointWrapper();
         point.setCoordinates(3, 3);
         point.setCZT(0, 0, 2);
@@ -345,7 +345,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertText() {
+    void convertText() {
         //noinspection HardcodedLineSeparator
         final Pattern c = Pattern.compile("\r", Pattern.LITERAL); // Oddly, IJ adds \r
 
@@ -375,7 +375,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertPolygon() {
+    void convertPolygon() {
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -405,7 +405,7 @@ public class ROI2ImageJTest extends BasicTest {
 
 
     @Test
-    public void convertPolyline() {
+    void convertPolyline() {
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -419,7 +419,8 @@ public class ROI2ImageJTest extends BasicTest {
         polyline.setCZT(0, 0, 2);
 
         Roi ijPolyline = polyline.toImageJ();
-        assertEquals(polyline.toAWTShape().getBounds(), ijPolyline.getBounds());
+        // Compare to getFloatPolygon().getBounds() because polyline bounds are different for ij 1.53h+
+        assertEquals(polyline.toAWTShape().getBounds(), ijPolyline.getFloatPolygon().getBounds());
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPolyline);

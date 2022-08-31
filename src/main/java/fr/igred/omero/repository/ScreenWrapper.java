@@ -14,17 +14,55 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Client;
+import fr.igred.omero.GatewayWrapper;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ScreenData;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
+/**
+ * Class containing a ScreenData object.
+ * <p> Wraps function calls to the ScreenData contained.
+ */
 public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ScreenAnnotationLink";
+
+
+    /**
+     * Constructor of the ProjectWrapper class. Creates a new project and saves it to OMERO.
+     *
+     * @param client      The client handling the connection.
+     * @param name        Project name.
+     * @param description Project description.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public ScreenWrapper(Client client, String name, String description)
+    throws ServiceException, AccessException, ExecutionException {
+        super(new ScreenData());
+        data.setName(name);
+        data.setDescription(description);
+        super.saveAndUpdate(client);
+    }
 
 
     /**
@@ -72,7 +110,9 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * @return the ScreenData contained.
+     * Returns the ScreenData contained.
+     *
+     * @return See above.
      */
     public ScreenData asScreenData() {
         return data;
@@ -201,6 +241,69 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public void setReagentSetIdentifier(String value) {
         data.setReagentSetIdentifier(value);
+    }
+
+
+    /**
+     * Refreshes the wrapped screen.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
+        try {
+            data = client.getBrowseFacility()
+                         .getScreens(client.getCtx(), Collections.singletonList(this.getId()))
+                         .iterator().next();
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot refresh " + this);
+        }
+    }
+
+
+    /**
+     * Imports all images candidates in the paths to the screen in OMERO.
+     *
+     * @param client The client handling the connection.
+     * @param paths  Paths to the image files on the computer.
+     *
+     * @return If the import did not exit because of an error.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws IOException        Cannot read file.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public boolean importImages(GatewayWrapper client, String... paths)
+    throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
+        boolean success = importImages(client, data, paths);
+        refresh(client);
+        return success;
+    }
+
+
+    /**
+     * Imports one image file to the screen in OMERO.
+     *
+     * @param client The client handling the connection.
+     * @param path   Path to the image file on the computer.
+     *
+     * @return The list of IDs of the newly imported images.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<Long> importImage(GatewayWrapper client, String path)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        List<Long> ids = importImage(client, data, path);
+        refresh(client);
+        return ids;
     }
 
 }

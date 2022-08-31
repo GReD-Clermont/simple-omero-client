@@ -25,6 +25,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
+/**
+ * Class containing an RectangleData.
+ * <p> Wraps function calls to the RectangleData contained.
+ */
 public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
 
 
@@ -58,7 +62,7 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
              ijRoi.getBounds().getHeight());
 
         data.setText(ijRoi.getName());
-        copy(ijRoi);
+        super.copy(ijRoi);
     }
 
 

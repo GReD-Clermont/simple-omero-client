@@ -26,6 +26,9 @@ import omero.gateway.exception.DSOutOfServiceException;
  */
 public class ServiceException extends DSOutOfServiceException {
 
+    private static final long serialVersionUID = -3953926293960923221L;
+
+
     /**
      * Constructs a new exception with the specified cause and a generic message.
      *

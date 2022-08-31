@@ -37,13 +37,16 @@ import java.util.stream.Collectors;
 public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
 
 
+    private static final long serialVersionUID = 9076633148525603098L;
+
+
     /**
      * Gets a list of elements from this list whose class is specified.
      *
      * @param clazz Class of the wanted elements.
      * @param <T>   Subclass of GenericShapeWrapper.
      *
-     * @return List of elements of
+     * @return See above.
      */
     public <T extends GenericShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());

@@ -18,18 +18,18 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class PlateAcquisitionTest extends UserTest {
+class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testAddTagToPlateAcquisition() throws Exception {
+    void testAddTagToPlateAcquisition() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -46,7 +46,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testSetName() throws Exception {
+    void testSetName() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -64,7 +64,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -82,7 +82,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetLabel() throws Exception {
+    void testGetLabel() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
@@ -91,16 +91,19 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetRefPlateId() throws Exception {
+    void testGetRefPlateId() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
         assertEquals(-1, acq.getRefPlateId());
+        acq.setRefPlateId(PLATE1.id);
+        // Saving does not work: acq.saveAndUpdate(client);
+        assertEquals(PLATE1.id, acq.getRefPlateId());
     }
 
 
     @Test
-    public void testGetStartTime() throws Exception {
+    void testGetStartTime() throws Exception {
         final long time = 1146766431000L;
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -111,7 +114,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetEndTime() throws Exception {
+    void testGetEndTime() throws Exception {
         final long time = 1146766431000L;
 
         PlateWrapper plate = client.getPlate(PLATE1.id);
@@ -122,7 +125,7 @@ public class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    public void testGetMaximumFieldCount() throws Exception {
+    void testGetMaximumFieldCount() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);

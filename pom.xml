@@ -4,12 +4,12 @@
     <parent>
         <artifactId>pom-scijava</artifactId>
         <groupId>org.scijava</groupId>
-        <version>30.0.0</version>
+        <version>32.0.0</version>
     </parent>
 
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <version>5.9.1</version>
+    <version>5.9.2</version>
     <packaging>jar</packaging>
 
     <name>Simple OMERO Client</name>
@@ -91,96 +91,37 @@
         <maven.compiler.target>8</maven.compiler.target>
         <license.licenseName>gpl_v2</license.licenseName>
         <license.copyrightOwners>GReD</license.copyrightOwners>
+        <!-- 3.2.0 erroneously detects runtime dependencies as test-only. -->
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <!-- User surefire 3.0.0-M7 for JUnit5. -->
+        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.openmicroscopy</groupId>
-                <artifactId>omero-gateway</artifactId>
-                <version>5.6.7</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openmicroscopy</groupId>
                 <artifactId>omero-model</artifactId>
-                <version>5.6.3</version>
+                <version>${omero-model.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>net.jcip</groupId>
                         <artifactId>jcip-annotations</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.openmicroscopy</groupId>
-                <artifactId>omero-blitz</artifactId>
-                <version>5.5.8</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.security</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.xmlgraphics</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.pdfbox</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.postgresql</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.codahale.metrics</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.openmicroscopy</groupId>
-                <artifactId>ome-common</artifactId>
-                <version>6.0.7</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>xml-apis</groupId>
-                        <artifactId>xml-apis</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>ome</groupId>
-                <artifactId>formats-api</artifactId>
-                <version>6.7.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -218,8 +159,8 @@
 
     <repositories>
         <repository>
-            <id>ome.maven</id>
-            <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
+            <id>scijava.public</id>
+            <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
     </repositories>
 
@@ -228,7 +169,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
+                <version>${maven-assembly-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -266,7 +207,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>${jacoco-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -287,7 +228,6 @@
                 <configuration>
                     <source>8</source>
                     <detectJavaApiLink>false</detectJavaApiLink>
-                    <additionalJOption>--no-module-directories</additionalJOption>
                 </configuration>
                 <executions>
                     <execution>
@@ -308,7 +248,6 @@
                 <configuration>
                     <source>8</source>
                     <detectJavaApiLink>false</detectJavaApiLink>
-                    <additionalJOption>--no-module-directories</additionalJOption>
                 </configuration>
             </plugin>
         </plugins>

@@ -35,6 +35,8 @@ import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.MetadataFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TablesFacility;
+import omero.gateway.model.ExperimenterData;
+import omero.log.SimpleLogger;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 
@@ -55,7 +57,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 public abstract class GatewayWrapper {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
-    private final Gateway gateway;
+    private Gateway gateway;
 
     /** Security context of the user, contains the permissions of the user in this group. */
     private SecurityContext ctx;
@@ -76,15 +78,16 @@ public abstract class GatewayWrapper {
 
     /**
      * Abstract constructor of the GatewayWrapper class.
+     * <p> Null arguments will be replaced with default empty objects.
      *
      * @param gateway The Gateway.
      * @param ctx     The Security Context.
      * @param user    The connected user.
      */
     protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
-        this.gateway = gateway;
-        this.ctx = ctx;
-        this.user = user;
+        this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
+        this.user = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
+        this.ctx = ctx != null ? ctx : new SecurityContext(-1);
     }
 
 
@@ -162,7 +165,7 @@ public abstract class GatewayWrapper {
      * @return See above.
      */
     public boolean isConnected() {
-        return gateway.isConnected() && ctx != null;
+        return gateway.isConnected();
     }
 
 
@@ -237,6 +240,7 @@ public abstract class GatewayWrapper {
         }
         this.ctx = new SecurityContext(user.getGroupId());
         this.ctx.setExperimenter(this.user.asExperimenterData());
+        this.ctx.setServerInformation(cred.getServer());
     }
 
 
@@ -244,13 +248,16 @@ public abstract class GatewayWrapper {
      * Disconnects the user
      */
     public void disconnect() {
-        if (gateway.isConnected()) {
-            if (ctx != null) {
-                ctx.setExperimenter(null);
+        if (isConnected()) {
+            boolean sudo = ctx.isSudo();
+            user = new ExperimenterWrapper(new ExperimenterData());
+            ctx = new SecurityContext(-1);
+            ctx.setExperimenter(user.asExperimenterData());
+            if (sudo) {
+                gateway = new Gateway(gateway.getLogger());
+            } else {
+                gateway.disconnect();
             }
-            ctx = null;
-            user = null;
-            gateway.disconnect();
         }
     }
 
@@ -410,7 +417,7 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void delete(IObject object)
@@ -432,7 +439,7 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void delete(List<IObject> objects)
@@ -454,13 +461,30 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteFile(Long id)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         FileAnnotationI file = new FileAnnotationI(id, false);
         delete(file);
+    }
+
+
+    /**
+     * Overridden to return the host name, the group ID, the username and the connection status.
+     *
+     * @return See above.
+     */
+    @Override
+    public String toString() {
+        String host = ctx.getServerInformation() != null ? ctx.getServerInformation().getHost() : "null";
+        return String.format("%s{host=%s, groupID=%d, userID=%d, connected=%b}",
+                             getClass().getSimpleName(),
+                             host,
+                             ctx.getGroupID(),
+                             user.getId(),
+                             gateway.isConnected());
     }
 
 }

@@ -47,7 +47,6 @@ import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.WellData;
-import omero.log.SimpleLogger;
 import omero.model.IObject;
 import omero.model.TagAnnotation;
 
@@ -80,7 +79,7 @@ public class Client extends GatewayWrapper {
      * Constructor of the Client class. Initializes the gateway.
      */
     public Client() {
-        super(new Gateway(new SimpleLogger()));
+        super(null);
     }
 
 
@@ -91,7 +90,7 @@ public class Client extends GatewayWrapper {
      * @param ctx     The security context
      * @param user    The user
      */
-    private Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
     }
 
@@ -769,7 +768,7 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
@@ -793,7 +792,7 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(GenericObjectWrapper<?> object)
@@ -813,8 +812,8 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException         Cannot connect to OMERO.
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException Id not defined.
-     * @throws OMEROServerError         If the thread was interrupted.
+     * @throws IllegalArgumentException ID not defined.
+     * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void delete(TableWrapper table)

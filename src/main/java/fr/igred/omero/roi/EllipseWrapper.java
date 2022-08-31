@@ -27,6 +27,10 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.RectangularShape;
 
 
+/**
+ * Class containing an EllipseData.
+ * <p> Wraps function calls to the EllipseData contained.
+ */
 public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
 
 
@@ -59,7 +63,7 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
              ijRoi.getBounds().getWidth() / 2,
              ijRoi.getBounds().getHeight() / 2);
         data.setText(ijRoi.getName());
-        copy(ijRoi);
+        super.copy(ijRoi);
     }
 
 

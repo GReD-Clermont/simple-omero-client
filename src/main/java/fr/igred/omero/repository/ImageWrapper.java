@@ -48,6 +48,8 @@ import omero.gateway.model.ROIResult;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
+import omero.model.Time;
+import omero.model.WellSample;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -75,10 +77,11 @@ import static omero.rtypes.rint;
 
 /**
  * Class containing an ImageData.
- * <p> Implements function using the ImageData contained
+ * <p> Wraps function calls to the ImageData contained.
  */
 public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ImageAnnotationLink";
 
 
@@ -116,7 +119,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * @return ImageData contained.
+     * Returns the ImageData contained.
+     *
+     * @return See above.
      */
     public ImageData asImageData() {
         return data;
@@ -166,6 +171,36 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Sets the calibration.
+     */
+    private void setCalibration(Calibration calibration) {
+        PixelsWrapper pixels   = this.getPixels();
+        Length        spacingX = pixels.getPixelSizeX();
+        Length        spacingY = pixels.getPixelSizeY();
+        Length        spacingZ = pixels.getPixelSizeZ();
+        Time          stepT    = pixels.getTimeIncrement();
+
+        if (spacingX != null) {
+            calibration.setXUnit(spacingX.getSymbol());
+            calibration.pixelWidth = spacingX.getValue();
+        }
+        if (spacingY != null) {
+            calibration.setYUnit(spacingY.getSymbol());
+            calibration.pixelHeight = spacingY.getValue();
+        }
+        if (spacingZ != null) {
+            calibration.setZUnit(spacingZ.getSymbol());
+            calibration.pixelDepth = spacingZ.getValue();
+        }
+        if (stepT != null) {
+            calibration.setTimeUnit(stepT.getSymbol());
+            calibration.frameInterval = stepT.getValue();
+        }
+
+    }
+
+
+    /**
      * Retrieves the projects containing this image
      *
      * @param client The client handling the connection.
@@ -179,12 +214,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ProjectWrapper> getProjects(Client client)
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<DatasetWrapper> datasets = getDatasets(client);
-        List<ProjectWrapper> projects = new ArrayList<>(datasets.size());
+        List<DatasetWrapper>       datasets = getDatasets(client);
+        Collection<ProjectWrapper> projects = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
             projects.addAll(dataset.getProjects(client));
         }
-        return projects;
+        return distinct(projects);
     }
 
 
@@ -204,7 +239,72 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
                                               "where link.child=" + getId());
-        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+
+        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+    }
+
+
+    /**
+     * Retrieves the wells containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<WellWrapper> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
+        Long[] ids = this.asImageData()
+                         .asImage()
+                         .copyWellSamples()
+                         .stream()
+                         .map(WellSample::getWell)
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .sorted().distinct()
+                         .toArray(Long[]::new);
+        return client.getWells(ids);
+    }
+
+
+    /**
+     * Retrieves the plates containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getPlates(Client client) throws AccessException, ServiceException, ExecutionException {
+        return distinct(getWells(client).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
+    }
+
+
+    /**
+     * Retrieves the screens containing this image
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<ScreenWrapper> getScreens(Client client)
+    throws AccessException, ServiceException, ExecutionException, OMEROServerError {
+        List<PlateWrapper>        plates  = getPlates(client);
+        Collection<ScreenWrapper> screens = new ArrayList<>(plates.size());
+        for (PlateWrapper plate : plates) {
+            screens.addAll(plate.getScreens(client));
+        }
+        return distinct(screens);
     }
 
 
@@ -399,14 +499,14 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the imagePlus generated from the image from OMERO corresponding to the bound
+     * Gets the imagePlus generated from the image from OMERO corresponding to the bound.
      *
-     * @param client The client handling the connection.
-     * @param xBound Array containing the X bound from which the pixels should be retrieved.
-     * @param yBound Array containing the Y bound from which the pixels should be retrieved.
-     * @param cBound Array containing the C bound from which the pixels should be retrieved.
-     * @param zBound Array containing the Z bound from which the pixels should be retrieved.
-     * @param tBound Array containing the T bound from which the pixels should be retrieved.
+     * @param client  The client handling the connection.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
      *
      * @return an ImagePlus from the ij library.
      *
@@ -414,13 +514,18 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client, int[] xBound, int[] yBound, int[] cBound, int[] zBound, int[] tBound)
+    public ImagePlus toImagePlus(Client client,
+                                 int[] xBounds,
+                                 int[] yBounds,
+                                 int[] cBounds,
+                                 int[] zBounds,
+                                 int[] tBounds)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
 
         boolean createdRDF = pixels.createRawDataFacility(client);
 
-        Bounds bounds = pixels.getBounds(xBound, yBound, cBound, zBound, tBound);
+        Bounds bounds = pixels.getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         int startX = bounds.getStart().getX();
         int startY = bounds.getStart().getY();
@@ -434,31 +539,14 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         int sizeZ = bounds.getSize().getZ();
         int sizeT = bounds.getSize().getT();
 
-        Length spacingX = pixels.getPixelSizeX();
-        Length spacingY = pixels.getPixelSizeY();
-        Length spacingZ = pixels.getPixelSizeZ();
-
         int pixelType = FormatTools.pixelTypeFromString(pixels.getPixelType());
         int bpp       = FormatTools.getBytesPerPixel(pixelType);
 
         ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
 
-        Calibration cal = imp.getCalibration();
-
-        if (spacingX != null) {
-            cal.setXUnit(spacingX.getUnit().name());
-            cal.pixelWidth = spacingX.getValue();
-        }
-        if (spacingY != null) {
-            cal.setYUnit(spacingY.getUnit().name());
-            cal.pixelHeight = spacingY.getValue();
-        }
-        if (spacingZ != null) {
-            cal.setZUnit(spacingZ.getUnit().name());
-            cal.pixelDepth = spacingZ.getValue();
-        }
-
-        imp.setCalibration(cal);
+        Calibration calibration = imp.getCalibration();
+        setCalibration(calibration);
+        imp.setCalibration(calibration);
 
         boolean isFloat = FormatTools.isFloatingPoint(pixelType);
 
@@ -512,6 +600,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         if (createdRDF) {
             pixels.destroyRawDataFacility();
         }
+        imp.setPosition(1);
         return imp;
     }
 
@@ -698,13 +787,14 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<File> download(Client client, String path)
     throws OMEROServerError, ServiceException, AccessException {
+        List<File> files = new ArrayList<>(0);
         try {
             TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
-            return transfer.downloadImage(client.getCtx(), path, getId());
+            files = transfer.downloadImage(client.getCtx(), path, getId());
         } catch (DSAccessException | DSOutOfServiceException | ExecutionException e) {
             handleException(e, "Could not download image " + getId() + ": " + e.getMessage());
         }
-        return new ArrayList<>(0);
+        return files;
     }
 
 }

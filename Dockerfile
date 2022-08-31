@@ -1,4 +1,4 @@
-FROM maven:3.6.3-jdk-11
+FROM maven:3.8.6-jdk-8
 MAINTAINER pierre.pouchin@uca.fr
 
 COPY . /src

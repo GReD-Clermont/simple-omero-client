@@ -19,21 +19,35 @@ package fr.igred.omero;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class SudoTest extends BasicTest {
+class SudoTest extends BasicTest {
 
 
     @Test
-    public void testSudoTag() throws Exception {
+    void testSudoDisconnect() throws Exception {
+        Client root = new Client();
+        root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+
+        Client test = root.sudoGetUser(USER1.name);
+        assertEquals(USER1.id, test.getId());
+        test.disconnect();
+        assertTrue(root.isConnected(), "root has been disconnected by sudo context");
+        root.disconnect();
+        assertNotEquals(root.getGateway(), test.getGateway(), "Gateways should not be the same");
+    }
+
+
+    @Test
+    void testSudoTag() throws Exception {
         Client root = new Client();
         root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
 
@@ -60,7 +74,7 @@ public class SudoTest extends BasicTest {
         try {
             test.disconnect();
             root.disconnect();
-        } catch (Exception ignored) {
+        } catch (RuntimeException ignored) {
         }
 
         assertNotEquals(0, images.size());
@@ -70,7 +84,7 @@ public class SudoTest extends BasicTest {
 
 
     @Test
-    public void sudoImport() throws Exception {
+    void sudoImport() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
 
         Client client4 = new Client();
@@ -100,7 +114,7 @@ public class SudoTest extends BasicTest {
         try {
             client3.disconnect();
             client4.disconnect();
-        } catch (Exception ignored) {
+        } catch (RuntimeException ignored) {
         }
     }
 

@@ -23,74 +23,54 @@ import fr.igred.omero.exception.ServiceException;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class ExceptionTest extends BasicTest {
+class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testConnectionErrorUsername() {
-        boolean exception = false;
-        Client  client    = new Client();
-        try {
-            client.connect(HOST, PORT, "badUser", "omero".toCharArray(), GROUP1.id);
-        } catch (ServiceException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+    void testConnectionErrorUsername() {
+        Client client = new Client();
+        assertThrows(ServiceException.class,
+                     () -> client.connect(HOST, PORT, "badUser", "omero".toCharArray(), GROUP1.id));
     }
 
 
     @Test
-    public void testConnectionErrorPassword() {
-        boolean exception = false;
-        Client  root      = new Client();
-        try {
-            root.connect(HOST, PORT, "root", "badPassword".toCharArray(), GROUP1.id);
-        } catch (ServiceException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+    void testConnectionErrorPassword() {
+        Client root = new Client();
+        assertThrows(ServiceException.class,
+                     () -> root.connect(HOST, PORT, "root", "badPassword".toCharArray(), GROUP1.id));
     }
 
 
     @Test
-    public void testConnectionErrorHost() {
-        boolean exception = false;
-        Client  root      = new Client();
-        try {
-            root.connect("127.0.0.1", PORT, "root", "omero".toCharArray(), GROUP1.id);
-        } catch (Exception e) {
-            exception = true;
-        }
-        assertTrue(exception);
+    void testConnectionErrorHost() {
+        Client root = new Client();
+        assertThrows(ServiceException.class,
+                     () -> root.connect("127.0.0.1", PORT, "root", "omero".toCharArray(), GROUP1.id));
     }
 
 
     @Test
-    public void testConnectionErrorPort() {
+    void testConnectionErrorPort() {
         final int badPort = 5000;
-
-        boolean exception = false;
-        Client  root      = new Client();
-        try {
-            root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id);
-        } catch (Exception e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        Client    root    = new Client();
+        assertThrows(ServiceException.class,
+                     () -> root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id));
     }
 
 
     @Test
-    public void testConnectionErrorGroupNotExist() throws Exception {
+    void testConnectionErrorGroupNotExist() throws ServiceException {
         final long badGroup = 200L;
 
         Client clientNoSuchGroup = new Client();
@@ -101,7 +81,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testConnectionErrorNotInGroup() throws Exception {
+    void testConnectionErrorNotInGroup() throws ServiceException {
         Client clientWrongGroup = new Client();
         clientWrongGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), 0L);
         assertEquals(USER1.id, clientWrongGroup.getId());
@@ -110,7 +90,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testGetSingleProjectError() throws Exception {
+    void testGetSingleProjectError() throws Exception {
         final long badProject = 333L;
 
         boolean exception = false;
@@ -127,7 +107,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testGetImageError() throws Exception {
+    void testGetImageError() throws Exception {
         final long badImage = 200L;
 
         boolean exception = false;
@@ -146,7 +126,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testGetImageError2() throws Exception {
+    void testGetImageError2() throws Exception {
         final long badImage = -5L;
 
         boolean exception = false;
@@ -165,7 +145,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testGetSingleScreenError() throws Exception {
+    void testGetSingleScreenError() throws Exception {
         final long badScreen = 333L;
 
         boolean exception = false;
@@ -182,7 +162,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testGetSinglePlateError() throws Exception {
+    void testGetSinglePlateError() throws Exception {
         final long badPlate = 333L;
 
         boolean exception = false;
@@ -199,7 +179,7 @@ public class ExceptionTest extends BasicTest {
 
 
     @Test
-    public void testGetSingleWellError() throws Exception {
+    void testGetSingleWellError() throws Exception {
         final long badWell = 333L;
 
         boolean exception = false;
@@ -215,73 +195,52 @@ public class ExceptionTest extends BasicTest {
     }
 
 
-    @Test(expected = AccessException.class)
-    public void testExceptionHandler1() throws Exception {
+    @Test
+    void testExceptionHandler1() {
         Throwable t = new DSAccessException("Test", null);
-        ExceptionHandler.handleException(t, "Great");
+        assertThrows(AccessException.class, () -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
-    @Test(expected = OMEROServerError.class)
-    public void testExceptionHandler2() throws Exception {
+    @Test
+    void testExceptionHandler2() {
         Throwable t = new ServerError(null);
-        ExceptionHandler.handleException(t, "Great");
+        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
-    @Test(expected = OMEROServerError.class)
-    public void testExceptionHandler3() throws Exception {
+    @Test
+    void testExceptionHandler3() {
         Throwable t = new ServerError(null);
-        ExceptionHandler.handleServiceOrServer(t, "Great");
+        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
     }
 
 
-    @Test(expected = ServiceException.class)
-    public void testExceptionHandler4() throws Exception {
+    @Test
+    void testExceptionHandler4() {
         Throwable t = new DSOutOfServiceException(null);
-        ExceptionHandler.handleException(t, "Great");
+        assertThrows(ServiceException.class, () -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
     @Test
-    public void testExceptionHandler5() {
-        boolean exception = false;
-
+    void testExceptionHandler5() {
         Throwable t = new Exception("Nothing");
-        try {
-            ExceptionHandler.handleException(t, "Great");
-        } catch (Throwable t2) {
-            exception = true;
-        }
-        assertFalse(exception);
+        assertDoesNotThrow(() -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
     @Test
-    public void testExceptionHandler6() {
-        boolean exception = false;
-
+    void testExceptionHandler6() {
         Throwable t = new ServerError(null);
-        try {
-            ExceptionHandler.handleServiceOrAccess(t, "Great");
-        } catch (Throwable t2) {
-            exception = true;
-        }
-        assertFalse(exception);
+        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrAccess(t, "Great"));
     }
 
 
     @Test
-    public void testExceptionHandler7() {
-        boolean exception = false;
-
+    void testExceptionHandler7() {
         Throwable t = new DSAccessException("Test", null);
-        try {
-            ExceptionHandler.handleServiceOrServer(t, "Great");
-        } catch (Throwable t2) {
-            exception = true;
-        }
-        assertFalse(exception);
+        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrServer(t, "Great"));
     }
 
 }

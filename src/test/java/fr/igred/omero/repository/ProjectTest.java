@@ -21,22 +21,22 @@ import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
 
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE;
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
-public class ProjectTest extends UserTest {
+class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetDatasetFromProject() throws Exception {
+    void testGetDatasetFromProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<DatasetWrapper> datasets = project.getDatasets();
@@ -46,7 +46,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetDatasetFromProject2() throws Exception {
+    void testGetDatasetFromProject2() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<DatasetWrapper> datasets = project.getDatasets(DATASET1.name);
@@ -56,7 +56,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testAddAndRemoveDataset() throws Exception {
+    void testAddAndRemoveDataset() throws Exception {
         ProjectWrapper project = new ProjectWrapper(client, "To delete", "");
         DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
@@ -77,7 +77,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testAddTagToProject() throws Exception {
+    void testAddTagToProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
@@ -93,7 +93,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testAddTagToProject2() throws Exception {
+    void testAddTagToProject2() throws Exception {
         final String name        = "test";
         final String description = "test";
 
@@ -110,7 +110,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testAddTagIdToProject() throws Exception {
+    void testAddTagIdToProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
@@ -126,7 +126,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testAddTagsToProject() throws Exception {
+    void testAddTagsToProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
@@ -148,7 +148,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testAddTagsToProject2() throws Exception {
+    void testAddTagsToProject2() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
@@ -170,7 +170,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testAddAndRemoveTagFromProject() throws Exception {
+    void testAddAndRemoveTagFromProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
@@ -186,7 +186,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetImagesInProject() throws Exception {
+    void testGetImagesInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImages(client);
@@ -196,7 +196,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetImagesByNameInProject() throws Exception {
+    void testGetImagesByNameInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImages(client, "image1.fake");
@@ -206,7 +206,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetImagesLikeInProject() throws Exception {
+    void testGetImagesLikeInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesLike(client, ".fake");
@@ -216,7 +216,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetImagesTaggedInProject() throws Exception {
+    void testGetImagesTaggedInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesTagged(client, TAG1.id);
@@ -226,7 +226,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetImagesTaggedInProject2() throws Exception {
+    void testGetImagesTaggedInProject2() throws Exception {
         TagAnnotationWrapper tag     = client.getTag(TAG2.id);
         ProjectWrapper       project = client.getProject(PROJECT1.id);
 
@@ -237,7 +237,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetImagesKeyInProject() throws Exception {
+    void testGetImagesKeyInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesKey(client, "testKey1");
@@ -247,7 +247,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testGetImagesPairKeyValueInProject() throws Exception {
+    void testGetImagesPairKeyValueInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
@@ -257,7 +257,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testSetName() throws Exception {
+    void testSetName() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         String name  = project.getName();
@@ -273,7 +273,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testSetDescription() throws Exception {
+    void testSetDescription() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         String description = project.getDescription();
@@ -290,7 +290,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testCopyAnnotations() throws Exception {
+    void testCopyAnnotations() throws Exception {
         ProjectWrapper project1 = client.getProject(PROJECT1.id);
         ProjectWrapper project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
 
@@ -335,7 +335,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testCopyFileAnnotation() throws Exception {
+    void testCopyFileAnnotation() throws Exception {
         ProjectWrapper project1 = client.getProject(PROJECT1.id);
         ProjectWrapper project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
 
@@ -361,7 +361,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testReplaceAndUnlinkFile() throws Exception {
+    void testReplaceAndUnlinkFile() throws Exception {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
         ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
@@ -384,7 +384,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testReplaceAndDeleteFile() throws Exception {
+    void testReplaceAndDeleteFile() throws Exception {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
         ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
@@ -406,7 +406,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testReplaceAndDeleteOrphanedFile1() throws Exception {
+    void testReplaceAndDeleteOrphanedFile1() throws Exception {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
         ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
@@ -429,7 +429,7 @@ public class ProjectTest extends UserTest {
 
 
     @Test
-    public void testReplaceAndDeleteOrphanedFile2() throws Exception {
+    void testReplaceAndDeleteOrphanedFile2() throws Exception {
         ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");

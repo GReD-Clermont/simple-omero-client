@@ -24,6 +24,10 @@ import omero.gateway.model.TextData;
 import java.awt.geom.Path2D;
 
 
+/**
+ * Class containing an TextData.
+ * <p> Wraps function calls to the TextData contained.
+ */
 public class TextWrapper extends GenericShapeWrapper<TextData> {
 
 
@@ -52,7 +56,7 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      */
     public TextWrapper(TextRoi text) {
         this(text.getText(), text.getBounds().getX(), text.getBounds().getY());
-        copy(text);
+        super.copy(text);
     }
 
 

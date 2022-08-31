@@ -25,7 +25,7 @@ import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -33,21 +33,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class TableTest extends UserTest {
+class TableTest extends UserTest {
 
     protected static final double volume1 = 25.0d;
     protected static final double volume2 = 50.0d;
 
 
     @Test
-    public void testCreateTable() throws Exception {
+    void testCreateTable() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
@@ -86,9 +87,75 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testErrorTableFull() throws Exception {
-        boolean        exception = false;
-        DatasetWrapper dataset   = client.getDataset(DATASET1.id);
+    void testReplaceTable() throws Exception {
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+
+        List<ImageWrapper> images = dataset.getImages(client);
+
+        TableWrapper table1 = new TableWrapper(2, "TableTest");
+
+        assertEquals(2, table1.getColumnCount());
+
+        table1.setColumn(0, "Image", ImageData.class);
+        table1.setColumn(1, "Name", String.class);
+        assertEquals("Image", table1.getColumnName(0));
+        assertEquals("Name", table1.getColumnName(1));
+        assertSame(ImageData.class, table1.getColumnType(0));
+
+        table1.setRowCount(images.size());
+
+        assertEquals(images.size(), table1.getRowCount());
+
+        for (ImageWrapper image : images) {
+            assertNotEquals(true, table1.isComplete());
+            table1.addRow(image.asImageData(), image.getName());
+        }
+
+        assertEquals(images.get(0).asImageData(), table1.getData(0, 0));
+        assertEquals(images.get(1).getName(), table1.getData(0, 1));
+
+        dataset.addTable(client, table1);
+        long tableId1 = table1.getId();
+
+        TableWrapper table2 = new TableWrapper(2, "TableTest 2");
+        table2.setColumn(0, "Image", ImageData.class);
+        table2.setColumn(1, "Name", String.class);
+        table2.setRowCount(images.size());
+        for (ImageWrapper image : images) {
+            assertNotEquals(true, table2.isComplete());
+            table2.addRow(image.asImageData(), image.getDescription());
+        }
+        dataset.addTable(client, table2);
+        long tableId2 = table2.getId();
+
+        TableWrapper table3 = new TableWrapper(2, "TableTest");
+        table3.setColumn(0, "Image", ImageData.class);
+        table3.setColumn(1, "Name", String.class);
+        table3.setRowCount(images.size());
+        for (ImageWrapper image : images) {
+            assertNotEquals(true, table3.isComplete());
+            table3.addRow(image.asImageData(), "Test name");
+        }
+        dataset.addAndReplaceTable(client, table3);
+        long tableId3 = table3.getId();
+
+        assertNotEquals(tableId1, tableId3);
+        assertNotEquals(tableId2, tableId3);
+
+        List<TableWrapper> tables = dataset.getTables(client);
+        for (TableWrapper table : tables) {
+            client.delete(table);
+        }
+        List<TableWrapper> noTables = dataset.getTables(client);
+
+        assertEquals(2, tables.size());
+        assertEquals(0, noTables.size());
+    }
+
+
+    @Test
+    void testErrorTableFull() throws Exception {
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
 
@@ -102,38 +169,22 @@ public class TableTest extends UserTest {
 
         table.setRowCount(images.size() - 1);
 
-        try {
-            for (ImageWrapper image : images) {
-                table.addRow(image.asImageData(), image.getName());
-            }
-        } catch (IndexOutOfBoundsException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IndexOutOfBoundsException.class,
+                     () -> images.forEach(i -> table.addRow(i.asImageData(), i.getName())));
     }
 
 
     @Test
-    public void testErrorTableColumn() {
-        boolean exception = false;
-
+    void testErrorTableColumn() {
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-
-        try {
-            table.setColumn(2, "Id", Long.class);
-        } catch (IndexOutOfBoundsException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IndexOutOfBoundsException.class, () -> table.setColumn(2, "Id", Long.class));
     }
 
 
     @Test
-    public void testErrorTableUninitialized() throws Exception {
-        boolean exception = false;
-
+    void testErrorTableUninitialized() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
@@ -141,22 +192,13 @@ public class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-
-        try {
-            for (ImageWrapper image : images) {
-                table.addRow(image.asImageData(), image.getName());
-            }
-        } catch (IndexOutOfBoundsException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IndexOutOfBoundsException.class,
+                     () -> images.forEach(i -> table.addRow(i.asImageData(), i.getName())));
     }
 
 
     @Test
-    public void testErrorTableNotEnoughArgs() throws Exception {
-        boolean exception = false;
-
+    void testErrorTableNotEnoughArgs() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         List<ImageWrapper> images = dataset.getImages(client);
@@ -164,22 +206,14 @@ public class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-
         table.setRowCount(images.size());
-
-        try {
-            for (ImageWrapper image : images) {
-                table.addRow(image.asImageData());
-            }
-        } catch (IllegalArgumentException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(IllegalArgumentException.class,
+                     () -> images.forEach(i -> table.addRow(i.asImageData())));
     }
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults1() throws Exception {
+    void testCreateTableWithROIsFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -234,7 +268,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults2() throws Exception {
+    void testCreateTableWithROIsFromIJResults2() throws Exception {
         String property = "Cell";
 
         ImageWrapper image = client.getImage(IMAGE1.id);
@@ -293,7 +327,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults3() throws Exception {
+    void testCreateTableWithROIsFromIJResults3() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -346,7 +380,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROIsFromIJResults4() throws Exception {
+    void testCreateTableWithROIsFromIJResults4() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -399,7 +433,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableFromIJResults() throws Exception {
+    void testCreateTableFromIJResults() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<Roi> ijRois = new ArrayList<>(0);
@@ -433,7 +467,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsFromIJResults() throws Exception {
+    void testAddRowsFromIJResults() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<Roi> ijRois = new ArrayList<>(0);
@@ -479,7 +513,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsWithROIsFromIJResults() throws Exception {
+    void testAddRowsWithROIsFromIJResults() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -545,7 +579,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithLocalROIFromIJResults1() throws Exception {
+    void testCreateTableWithLocalROIFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -611,7 +645,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithLocalROIFromIJResults2() throws Exception {
+    void testCreateTableWithLocalROIFromIJResults2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -675,7 +709,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROINamesFromIJResults1() throws Exception {
+    void testCreateTableWithROINamesFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi1 = new ROIWrapper();
@@ -746,7 +780,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testCreateTableWithROINamesFromIJResults2() throws Exception {
+    void testCreateTableWithROINamesFromIJResults2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi1 = new ROIWrapper();
@@ -818,7 +852,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsFromIJResultsError() throws Exception {
+    void testAddRowsFromIJResultsError() throws Exception {
         boolean error = false;
 
         ImageWrapper image = client.getImage(IMAGE1.id);
@@ -848,7 +882,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testAddRowsFromIJResultsInverted() throws Exception {
+    void testAddRowsFromIJResultsInverted() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         List<Roi> ijRois = new ArrayList<>(0);
@@ -894,7 +928,7 @@ public class TableTest extends UserTest {
 
 
     @Test
-    public void testSaveTableAs() throws Exception {
+    void testSaveTableAs() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
         ROIWrapper roi = new ROIWrapper();
@@ -933,12 +967,14 @@ public class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
 
+        @SuppressWarnings("MagicCharacter")
+        char delimiter = '\t';
         String filename = "file.csv";
-        table.saveAs(filename, ',');
+        table.saveAs(filename, delimiter);
 
-        String line1 = "\"Image\",\"ROI\",\"Label\",\"Volume\",\"Volume_Unit\"";
-        String line2 = String.format("\"1\",\"%d\",\"image1.fake\",\"%.1f\",\"µm^3\"", roi.getId(), volume1);
-        String line3 = String.format("\"1\",\"%d\",\"image1.fake\",\"%.1f\",\"m^3\"", roi.getId(), volume2);
+        String line1 = "\"Image\"\t\"ROI\"\t\"Label\"\t\"Volume\"\t\"Volume_Unit\"";
+        String line2 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%.1f\"\t\"µm^3\"", roi.getId(), volume1);
+        String line3 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%.1f\"\t\"m^3\"", roi.getId(), volume2);
 
         List<String> expected = Arrays.asList(line1, line2, line3);
 

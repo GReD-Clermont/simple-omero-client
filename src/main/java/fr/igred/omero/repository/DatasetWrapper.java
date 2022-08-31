@@ -25,18 +25,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
-import loci.formats.in.DefaultMetadataOptions;
-import loci.formats.in.MetadataLevel;
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportCandidates;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.cli.ErrorHandler;
-import ome.formats.importer.cli.LoggingImportMonitor;
 import omero.RLong;
-import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
@@ -45,7 +34,6 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
-import omero.model.Pixels;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,19 +43,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
- * Class containing a DatasetData.
- * <p> Implements function using the DatasetData contained
+ * Class containing a DatasetData object.
+ * <p> Wraps function calls to the DatasetData contained.
  */
 public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "DatasetAnnotationLink";
 
     private static final Long[] LONGS = new Long[0];
@@ -120,7 +107,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * @return the DatasetData contained.
+     * Returns the DatasetData contained.
+     *
+     * @return See above.
      */
     public DatasetData asDatasetData() {
         return data;
@@ -175,7 +164,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
                                               "where link.child=" + getId());
-        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).toArray(Long[]::new));
+        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
     }
 
 
@@ -238,7 +227,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     public List<ImageWrapper> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images = getImages(client);
-        final String       regexp = ".*" + motif + ".*";
+
+        String regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
         return images;
     }
@@ -420,7 +410,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void removeImage(Client client, ImageWrapper image)
@@ -445,31 +435,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public boolean importImages(Client client, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
-        boolean success;
-
-        ImportConfig config = new ImportConfig();
-        config.target.set("Dataset:" + data.getId());
-        config.username.set(client.getUser().getUserName());
-        config.email.set(client.getUser().getEmail());
-
-        OMEROMetadataStoreClient store = client.getImportStore();
-        try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            store.logVersionInfo(config.getIniVersionNumber());
-            reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
-
-            ImportLibrary library = new ImportLibrary(store, reader);
-            library.addObserver(new LoggingImportMonitor());
-
-            ErrorHandler handler = new ErrorHandler(config);
-
-            ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
-            success = library.importCandidates(config, candidates);
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
-        } finally {
-            store.logout();
-        }
-
+        boolean success = importImages(client, data, paths);
         refresh(client);
         return success;
     }
@@ -490,47 +456,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<Long> importImage(Client client, String path)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        ImportConfig config = new ImportConfig();
-        config.target.set("Dataset:" + data.getId());
-        config.username.set(client.getUser().getUserName());
-        config.email.set(client.getUser().getEmail());
-
-        Collection<Pixels> pixels = new ArrayList<>(1);
-
-        OMEROMetadataStoreClient store = client.getImportStore();
-        try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            store.logVersionInfo(config.getIniVersionNumber());
-            reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
-
-            ImportLibrary library = new ImportLibrary(store, reader);
-            library.addObserver(new LoggingImportMonitor());
-
-            ErrorHandler handler = new ErrorHandler(config);
-
-            ImportCandidates candidates = new ImportCandidates(reader, new String[]{path}, handler);
-
-            ExecutorService uploadThreadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
-
-            List<ImportContainer> containers = candidates.getContainers();
-            if (containers != null) {
-                for (int i = 0; i < containers.size(); i++) {
-                    ImportContainer container = containers.get(i);
-                    container.setTarget(data.asDataset());
-                    List<Pixels> imported = library.importImage(container, uploadThreadPool, i);
-                    pixels.addAll(imported);
-                }
-            }
-            uploadThreadPool.shutdown();
-        } catch (Throwable e) {
-            throw new OMEROServerError(e);
-        } finally {
-            store.logout();
-        }
+        List<Long> ids = importImage(client, data, path);
         refresh(client);
-
-        List<Long> ids = new ArrayList<>(pixels.size());
-        pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
-        return ids.stream().distinct().collect(Collectors.toList());
+        return ids;
     }
 
 
@@ -571,6 +499,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             }
         }
         descriptions.removeIf(s -> s == null || s.trim().isEmpty());
+        //noinspection HardcodedLineSeparator
         newImage.setDescription(String.join("\n", descriptions));
         newImage.saveAndUpdate(client);
         return orphaned;

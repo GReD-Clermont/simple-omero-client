@@ -21,8 +21,13 @@ import omero.gateway.model.WellData;
 import java.util.List;
 
 
+/**
+ * Class containing a WellData object.
+ * <p> Wraps function calls to the WellData contained.
+ */
 public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";
 
 
@@ -91,7 +96,9 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * @return the WellData contained.
+     * Returns the WellData contained.
+     *
+     * @return See above.
      */
     public WellData asWellData() {
         return data;

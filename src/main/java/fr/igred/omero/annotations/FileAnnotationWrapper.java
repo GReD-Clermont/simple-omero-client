@@ -14,6 +14,7 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 package fr.igred.omero.annotations;
 
 
@@ -33,6 +34,10 @@ import java.io.IOException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
+/**
+ * Class containing a FileAnnotationData object.
+ * <p> Wraps function calls to the FileAnnotationData contained.
+ */
 public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotationData> {
 
     /**

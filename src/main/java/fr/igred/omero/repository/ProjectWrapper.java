@@ -42,11 +42,12 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
- * Class containing a ProjectData
- * <p> Implements function using the Project contained
+ * Class containing a ProjectData object.
+ * <p> Wraps function calls to the Project contained
  */
 public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ProjectAnnotationLink";
 
 
@@ -104,7 +105,9 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * @return the ProjectData contained.
+     * Returns the ProjectData contained.
+     *
+     * @return See above.
      */
     public ProjectData asProjectData() {
         return data;
@@ -223,7 +226,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     If the thread was interrupted.
+     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void removeDataset(Client client, DatasetWrapper dataset)

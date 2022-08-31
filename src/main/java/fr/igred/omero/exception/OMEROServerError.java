@@ -22,6 +22,9 @@ import omero.ServerError;
 /** Reports an error occurred on the server. */
 public class OMEROServerError extends ServerError {
 
+    private static final long serialVersionUID = 3769544644500634998L;
+
+
     /**
      * Constructs a new exception with the specified cause and detailed message.
      *

@@ -14,6 +14,7 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 package fr.igred.omero.repository;
 
 
@@ -30,8 +31,13 @@ import java.sql.Timestamp;
 import java.util.concurrent.ExecutionException;
 
 
+/**
+ * Class containing a PlateAcquisitionData object.
+ * <p> Wraps function calls to the PlateAcquisitionData contained.
+ */
 public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<PlateAcquisitionData> {
 
+    /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
 
 
@@ -80,7 +86,9 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
 
 
     /**
-     * @return the PlateAcquisitionData contained.
+     * Returns the PlateAcquisitionData contained.
+     *
+     * @return See above.
      */
     public PlateAcquisitionData asPlateAcquisitionData() {
         return data;

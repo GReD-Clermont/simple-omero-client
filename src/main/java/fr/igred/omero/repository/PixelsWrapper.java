@@ -26,13 +26,14 @@ import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.Length;
+import omero.model.Time;
 
 import java.util.concurrent.ExecutionException;
 
 
 /**
- * Class containing a PixelData
- * <p> Implements function using the PixelData contained
+ * Class containing a PixelData object.
+ * <p> Wraps function calls to the PixelData contained.
  */
 public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
@@ -40,7 +41,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     public static final int MAX_DIST = 5000;
 
     /** Raw Data Facility to retrieve pixels */
-    private RawDataFacility rawDataFacility = null;
+    private RawDataFacility rawDataFacility;
 
 
     /**
@@ -151,6 +152,16 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /**
+     * Gets the time increment between time points.
+     *
+     * @return Time increment between time points.
+     */
+    public Time getTimeIncrement() {
+        return data.asPixels().getTimeIncrement();
+    }
+
+
+    /**
      * Gets the size of the image on the X axis
      *
      * @return Size of the image on the X axis.
@@ -248,11 +259,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * Returns an array containing the value for each voxel corresponding to the bounds
      *
      * @param client The client handling the connection.
-     * @param xBound Array containing the X bound from which the pixels should be retrieved.
-     * @param yBound Array containing the Y bound from which the pixels should be retrieved.
-     * @param cBound Array containing the C bound from which the pixels should be retrieved.
-     * @param zBound Array containing the Z bound from which the pixels should be retrieved.
-     * @param tBound Array containing the T bound from which the pixels should be retrieved.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
      *
      * @return Array containing the value for each voxel of the image.
      *
@@ -260,14 +271,14 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public double[][][][][] getAllPixels(Client client,
-                                         int[] xBound,
-                                         int[] yBound,
-                                         int[] cBound,
-                                         int[] zBound,
-                                         int[] tBound)
+                                         int[] xBounds,
+                                         int[] yBounds,
+                                         int[] cBounds,
+                                         int[] zBounds,
+                                         int[] tBounds)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
-        Bounds  lim = getBounds(xBound, yBound, cBound, zBound, tBound);
+        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         Coordinates start = lim.getStart();
         Coordinates size = lim.getSize();
@@ -350,11 +361,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
      *
      * @param client The client handling the connection.
-     * @param xBound Array containing the X bound from which the pixels should be retrieved.
-     * @param yBound Array containing the Y bound from which the pixels should be retrieved.
-     * @param cBound Array containing the C bound from which the pixels should be retrieved.
-     * @param zBound Array containing the Z bound from which the pixels should be retrieved.
-     * @param tBound Array containing the T bound from which the pixels should be retrieved.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
      * @param bpp    Bytes per pixels of the image.
      *
      * @return a table of bytes containing the pixel values
@@ -363,15 +374,15 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public byte[][][][] getRawPixels(Client client,
-                                     int[] xBound,
-                                     int[] yBound,
-                                     int[] cBound,
-                                     int[] zBound,
-                                     int[] tBound,
+                                     int[] xBounds,
+                                     int[] yBounds,
+                                     int[] cBounds,
+                                     int[] zBounds,
+                                     int[] tBounds,
                                      int bpp)
     throws ExecutionException, AccessException {
         boolean rdf = createRawDataFacility(client);
-        Bounds  lim = getBounds(xBound, yBound, cBound, zBound, tBound);
+        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         Coordinates start = lim.getStart();
         Coordinates size = lim.getSize();
@@ -437,11 +448,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Checks all bounds
      *
-     * @param xBounds Array containing the X bound from which the pixels should be retrieved.
-     * @param yBounds Array containing the Y bound from which the pixels should be retrieved.
-     * @param cBounds Array containing the C bound from which the pixels should be retrieved.
-     * @param zBounds Array containing the Z bound from which the pixels should be retrieved.
-     * @param tBounds Array containing the T bound from which the pixels should be retrieved.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
      *
      * @return 5D bounds.
      */

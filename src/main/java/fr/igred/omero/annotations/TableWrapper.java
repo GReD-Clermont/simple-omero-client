@@ -130,7 +130,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -150,7 +150,8 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<Roi> ijRois, String roiProperty)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois,
+                        String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
 
@@ -395,7 +396,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois)
+    public void addRows(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -415,7 +416,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<Roi> ijRois,
+    public void addRows(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
@@ -497,7 +498,9 @@ public class TableWrapper {
 
 
     /**
-     * @return fileId of the table.
+     * Returns the fileId of the table.
+     *
+     * @return See above.
      */
     public Long getFileId() {
         return fileId;
@@ -515,7 +518,9 @@ public class TableWrapper {
 
 
     /**
-     * @return id of the table.
+     * Returns the table ID.
+     *
+     * @return See above.
      */
     public Long getId() {
         return id;
@@ -533,7 +538,9 @@ public class TableWrapper {
 
 
     /**
-     * @return name of the table.
+     * Returns the name of the table.
+     *
+     * @return See above.
      */
     public String getName() {
         return name;
@@ -551,7 +558,9 @@ public class TableWrapper {
 
 
     /**
-     * @return number of column in the table.
+     * Returns the number of columns in the table.
+     *
+     * @return See above.
      */
     public int getColumnCount() {
         return columnCount;
@@ -559,9 +568,11 @@ public class TableWrapper {
 
 
     /**
+     * Returns the name of the column.
+     *
      * @param column Column number.
      *
-     * @return The name of the column.
+     * @return See above.
      */
     public String getColumnName(int column) {
         return columns[column].getName();
@@ -569,9 +580,11 @@ public class TableWrapper {
 
 
     /**
+     * Returns the type of the column.
+     *
      * @param column Column number.
      *
-     * @return The type of the column.
+     * @return See above.
      */
     public Class<?> getColumnType(int column) {
         return columns[column].getType();
@@ -579,7 +592,9 @@ public class TableWrapper {
 
 
     /**
-     * @return number of row in the table.
+     * Returns the number of rows in the table.
+     *
+     * @return See above.
      */
     public int getRowCount() {
         return rowCount;
@@ -644,14 +659,14 @@ public class TableWrapper {
                 data[i][row] = o;
             }
             row++;
+        } else if (row >= rowCount) {
+            if (rowCount == 0) {
+                throw new IndexOutOfBoundsException("Row size is 0");
+            } else {
+                throw new IndexOutOfBoundsException("The table is already complete");
+            }
         } else {
-            if (row >= rowCount) {
-                if (rowCount == 0)
-                    throw new IndexOutOfBoundsException("Row size is 0");
-                else
-                    throw new IndexOutOfBoundsException("The table is already complete");
-            } else
-                throw new IllegalArgumentException("Argument count is different than the column size");
+            throw new IllegalArgumentException("Argument count is different than the column size");
         }
     }
 
@@ -664,6 +679,11 @@ public class TableWrapper {
     }
 
 
+    /**
+     * Creates the corresponding TableData object.
+     *
+     * @return See above.
+     */
     public TableData createTable() {
         if (!isComplete()) truncateRow();
 

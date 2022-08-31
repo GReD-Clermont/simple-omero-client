@@ -44,8 +44,8 @@ import static java.util.stream.Collectors.groupingBy;
 
 
 /**
- * Class containing a ROIData
- * <p> Implements function using the ROIData contained
+ * Class containing a ROIData object.
+ * <p> Wraps function calls to the ROIData contained.
  */
 public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
