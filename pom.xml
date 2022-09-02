@@ -141,6 +141,10 @@
             <artifactId>ome-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openmicroscopy</groupId>
+            <artifactId>ome-xml</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ome</groupId>
             <artifactId>formats-api</artifactId>
         </dependency>
