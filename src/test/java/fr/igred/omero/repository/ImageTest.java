@@ -262,6 +262,8 @@ class ImageTest extends UserTest {
         final int    lowXY   = 500;
         final int    highXY  = 507;
         final double pixSize = 0.5;
+        final double pixDepth = 1.5;
+        final double deltaT = 150;
 
         int[] xBounds = {0, 2};
         int[] yBounds = {0, 2};
@@ -302,8 +304,10 @@ class ImageTest extends UserTest {
 
         assertEquals(pixSize, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
         assertEquals(pixSize, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
-        assertEquals(1.0, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
+        assertEquals(pixDepth, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
+        assertEquals(deltaT, imp.getCalibration().frameInterval, Double.MIN_VALUE);
         assertEquals("µm", imp.getCalibration().getUnit());
+        assertEquals("ms", imp.getCalibration().getTimeUnit());
         assertEquals(0, (int) stats.max);
     }
 

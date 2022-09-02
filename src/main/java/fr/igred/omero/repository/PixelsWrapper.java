@@ -21,14 +21,29 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
+import ome.units.unit.Unit;
+import ome.units.UNITS;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlaneInfoData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.Length;
 import omero.model.Time;
+import omero.model.TimeI;
+import ome.model.enums.UnitsTime;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static ome.formats.model.UnitsFactory.convertTime;
+import static ome.model.enums.UnitsTime.bySymbol;
 
 
 /**
@@ -39,6 +54,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
     /** Size of tiles when retrieving pixels */
     public static final int MAX_DIST = 5000;
+
+    /** Planes info (needs to be loaded) */
+    private List<PlaneInfoData> planesInfo = new ArrayList<>(0);
 
     /** Raw Data Facility to retrieve pixels */
     private RawDataFacility rawDataFacility;
@@ -112,6 +130,25 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /**
+     * Loads the planes information.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    void loadPlanesInfo(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        try {
+            planesInfo = client.getMetadata().getPlaneInfos(client.getCtx(), data);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot retrieve planes info: " + e.getMessage());
+        }
+    }
+
+
+    /**
      * Gets the pixel type.
      *
      * @return the pixel type.
@@ -158,6 +195,47 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     public Time getTimeIncrement() {
         return data.asPixels().getTimeIncrement();
+    }
+
+
+    /**
+     * Computes the mean time interval from the planes deltaTs.
+     * <p>Planes information needs to be loaded first.</p>
+     *
+     * @return See above.
+     */
+    Time computeMeanTimeInterval() {
+        // planesInfo should be larger than sizeT, unless it is empty
+        ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[Math.min(getSizeT(), planesInfo.size())];
+
+        for (PlaneInfoData plane : planesInfo) {
+            int t = plane.getTheT();
+            int z = plane.getTheZ();
+            int c = plane.getTheC();
+            if (c == 0 && z == 0 && t < deltas.length) {
+                deltas[t] = convertTime(plane.getDeltaT());
+            }
+        }
+        Unit<ome.units.quantity.Time> u = UNITS.SECOND;
+
+        ome.units.quantity.Time first = Arrays.stream(deltas).findFirst().orElse(null);
+        if (first != null) {
+            u = first.unit();
+        }
+        UnitsTime unit = bySymbol(u.getSymbol());
+
+        double mean  = 0;
+        int    count = 0;
+        for (int i = 1; i < deltas.length; i++) {
+            double delta1 = deltas[i - 1].value(u).doubleValue();
+            double delta2 = deltas[i].value(u).doubleValue();
+            if (!Double.isNaN(delta1) && !Double.isNaN(delta2)) {
+                mean += delta2 - delta1;
+                count++;
+            }
+        }
+        mean /= count == 0 ? Double.NaN : count;
+        return new TimeI(mean, unit);
     }
 
 
@@ -258,7 +336,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the value for each voxel corresponding to the bounds
      *
-     * @param client The client handling the connection.
+     * @param client  The client handling the connection.
      * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
      * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
      * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
@@ -281,7 +359,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
         Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         Coordinates start = lim.getStart();
-        Coordinates size = lim.getSize();
+        Coordinates size  = lim.getSize();
 
         double[][][][][] tab = new double[size.getT()][size.getZ()][size.getC()][][];
 
@@ -360,13 +438,13 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
      *
-     * @param client The client handling the connection.
+     * @param client  The client handling the connection.
      * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
      * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
      * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
      * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
      * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
-     * @param bpp    Bytes per pixels of the image.
+     * @param bpp     Bytes per pixels of the image.
      *
      * @return a table of bytes containing the pixel values
      *
@@ -385,7 +463,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
         Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         Coordinates start = lim.getStart();
-        Coordinates size = lim.getSize();
+        Coordinates size  = lim.getSize();
 
         byte[][][][] bytes = new byte[size.getT()][size.getZ()][size.getC()][];
 

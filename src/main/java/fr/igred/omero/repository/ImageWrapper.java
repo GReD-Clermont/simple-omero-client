@@ -172,13 +172,19 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
     /**
      * Sets the calibration.
+     *
+     * @param pixels      The pixels.
+     * @param calibration The ImageJ calibration.
      */
-    private void setCalibration(Calibration calibration) {
-        PixelsWrapper pixels   = this.getPixels();
-        Length        spacingX = pixels.getPixelSizeX();
-        Length        spacingY = pixels.getPixelSizeY();
-        Length        spacingZ = pixels.getPixelSizeZ();
-        Time          stepT    = pixels.getTimeIncrement();
+    private static void setCalibration(PixelsWrapper pixels, Calibration calibration) {
+        Length spacingX = pixels.getPixelSizeX();
+        Length spacingY = pixels.getPixelSizeY();
+        Length spacingZ = pixels.getPixelSizeZ();
+        Time   stepT    = pixels.getTimeIncrement();
+
+        if (stepT == null) {
+            stepT = pixels.computeMeanTimeInterval();
+        }
 
         if (spacingX != null) {
             calibration.setXUnit(spacingX.getSymbol());
@@ -196,7 +202,6 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             calibration.setTimeUnit(stepT.getSymbol());
             calibration.frameInterval = stepT.getValue();
         }
-
     }
 
 
@@ -522,6 +527,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                                  int[] tBounds)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
+        pixels.loadPlanesInfo(client);
 
         boolean createdRDF = pixels.createRawDataFacility(client);
 
@@ -545,7 +551,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
 
         Calibration calibration = imp.getCalibration();
-        setCalibration(calibration);
+        setCalibration(pixels, calibration);
         imp.setCalibration(calibration);
 
         boolean isFloat = FormatTools.isFloatingPoint(pixelType);
