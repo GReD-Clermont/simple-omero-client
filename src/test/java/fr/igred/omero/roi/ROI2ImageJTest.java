@@ -47,55 +47,55 @@ class ROI2ImageJTest extends BasicTest {
     void testROIsFromImageJ() {
         List<Roi> rois = new ArrayList<>(11);
 
-        final float[] x1 = {0.0f, 3.0f, 3.0f};
-        final float[] y1 = {0.0f, 0.0f, 4.0f};
-        final float[] x2 = {0.0f, 0.0f, 4.0f};
-        final float[] y2 = {0.0f, 3.0f, 3.0f};
+        float[] x1 = {0.0f, 3.0f, 3.0f};
+        float[] y1 = {0.0f, 0.0f, 4.0f};
+        float[] x2 = {0.0f, 0.0f, 4.0f};
+        float[] y2 = {0.0f, 3.0f, 3.0f};
 
-        final Roi rectangle = new Roi(1.0, 2.0, 3.0, 4.0);
+        Roi rectangle = new Roi(1.0, 2.0, 3.0, 4.0);
         rectangle.setName("rectangle");
         rectangle.setPosition(1, 2, 3);
         rectangle.setProperty("ROI", "24");
         rois.add(rectangle);
 
-        final TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
+        TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
         textRoi.setName("text");
         textRoi.setProperty("ROI", "invalid");
         rois.add(textRoi);
 
-        final OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
+        OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
         ovalRoi.setName("oval");
         ovalRoi.setPosition(1, 0, 3);
         ovalRoi.setProperty("ROI", "24");
         rois.add(ovalRoi);
 
-        final Arrow arrow = new Arrow(2.0, 3.0, 3.0, 4.0);
+        Arrow arrow = new Arrow(2.0, 3.0, 3.0, 4.0);
         arrow.setDoubleHeaded(true);
         arrow.setName("arrow");
         rois.add(arrow);
 
-        final Line line = new Line(4.0, 3.0, 2.0, 1.0);
+        Line line = new Line(4.0, 3.0, 2.0, 1.0);
         rois.add(line);
 
-        final PointRoi pointRoi = new PointRoi(x1, y1);
+        PointRoi pointRoi = new PointRoi(x1, y1);
         pointRoi.setProperty("TEST", "24");
         rois.add(pointRoi);
 
-        final PolygonRoi polylineRoi = new PolygonRoi(x2, y2, Roi.POLYLINE);
+        PolygonRoi polylineRoi = new PolygonRoi(x2, y2, Roi.POLYLINE);
         polylineRoi.setPosition(1, 1, 2);
         polylineRoi.setProperty("ROI", "23");
         rois.add(polylineRoi);
 
-        final PolygonRoi polygonRoi = new PolygonRoi(x2, y2, Roi.POLYGON);
+        PolygonRoi polygonRoi = new PolygonRoi(x2, y2, Roi.POLYGON);
         polygonRoi.setPosition(1, 1, 1);
         polygonRoi.setProperty("ROI", "23");
         rois.add(polygonRoi);
 
-        final EllipseRoi ellipseRoi = new EllipseRoi(0.0, 0.0, 5.0, 5.0, 0.5);
+        EllipseRoi ellipseRoi = new EllipseRoi(0.0, 0.0, 5.0, 5.0, 0.5);
         ellipseRoi.setPosition(1, 1, 1);
         rois.add(ellipseRoi);
 
-        final ShapeRoi shapeRoi = new ShapeRoi(new Ellipse2D.Double(0.0, 5.0, 5.0, 10.0));
+        ShapeRoi shapeRoi = new ShapeRoi(new Ellipse2D.Double(0.0, 5.0, 5.0, 10.0));
         shapeRoi.setPosition(1, 3, 1);
         rois.add(shapeRoi);
 
@@ -270,7 +270,7 @@ class ROI2ImageJTest extends BasicTest {
 
     @Test
     void convertLine() {
-        final LineWrapper line = new LineWrapper(3, 3, 10, 10);
+        LineWrapper line = new LineWrapper(3, 3, 10, 10);
         line.setCZT(0, 0, 2);
 
         Line ijLine = (Line) line.toImageJ();
@@ -347,7 +347,7 @@ class ROI2ImageJTest extends BasicTest {
     @Test
     void convertText() {
         //noinspection HardcodedLineSeparator
-        final Pattern c = Pattern.compile("\r", Pattern.LITERAL); // Oddly, IJ adds \r
+        Pattern c = Pattern.compile("\r", Pattern.LITERAL); // Oddly, IJ adds \r
 
         TextWrapper text = new TextWrapper();
         text.setCoordinates(3, 3);

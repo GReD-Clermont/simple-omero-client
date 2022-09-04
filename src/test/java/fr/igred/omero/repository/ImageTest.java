@@ -572,17 +572,17 @@ class ImageTest extends UserTest {
     void testGetCropFromROI() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        final EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
+        EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
-        final int[] xBounds = {30, 69};
-        final int[] yBounds = {10, 89};
-        final int[] cBounds = {1, 1};
-        final int[] zBounds = {0, 1};
-        final int[] tBounds = {1, 2};
+        int[] xBounds = {30, 69};
+        int[] yBounds = {10, 89};
+        int[] cBounds = {1, 1};
+        int[] zBounds = {0, 1};
+        int[] tBounds = {1, 2};
 
         ROIWrapper roiWrapper = new ROIWrapper();
         roiWrapper.setImage(image);

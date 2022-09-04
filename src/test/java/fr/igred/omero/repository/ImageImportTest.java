@@ -95,7 +95,7 @@ class ImageImportTest extends UserTest {
         image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
         image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
 
-        final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
         ROIWrapper             roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
@@ -179,7 +179,7 @@ class ImageImportTest extends UserTest {
         image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
         image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
 
-        final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
         ROIWrapper             roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
