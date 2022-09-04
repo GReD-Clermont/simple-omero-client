@@ -23,8 +23,6 @@ import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.PlaneInfoWrapper;
-import ome.formats.model.UnitsFactory;
-import ome.model.enums.UnitsTime;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
 import omero.gateway.exception.DSAccessException;
@@ -35,21 +33,16 @@ import omero.gateway.model.PixelsData;
 import omero.gateway.model.PlaneInfoData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.Length;
-import omero.model.LengthI;
 import omero.model.Time;
-import omero.model.TimeI;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
-import static ome.formats.model.UnitsFactory.convertTime;
 import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.model.enums.UnitsTime.bySymbol;
 
 
 /**
@@ -144,7 +137,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void loadPlanesInfo(Client client)
+    public void loadPlanesInfo(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<PlaneInfoData> planes = new ArrayList<>(0);
         try {
@@ -218,102 +211,64 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
     /**
      * Computes the mean time interval from the planes deltaTs.
-     * <p>Planes information needs to be loaded first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
      *
      * @return See above.
      */
-    Time computeMeanTimeInterval() {
-        // planesInfo should be larger than sizeT, unless it is empty
-        ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[Math.min(getSizeT(), planesInfo.size())];
+    public Time getMeanTimeInterval() {
+        return PlaneInfoWrapper.computeMeanTimeInterval(planesInfo, getSizeT());
+    }
 
-        for (PlaneInfoWrapper plane : planesInfo) {
-            int t = plane.getTheT();
-            int z = plane.getTheZ();
-            int c = plane.getTheC();
-            if (c == 0 && z == 0 && t < deltas.length) {
-                deltas[t] = convertTime(plane.getDeltaT());
-            }
-        }
-        Unit<ome.units.quantity.Time> u = UNITS.SECOND;
 
-        ome.units.quantity.Time first = Arrays.stream(deltas).findFirst().orElse(null);
-        if (first != null) {
-            u = first.unit();
-        }
-        UnitsTime unit = bySymbol(u.getSymbol());
-
-        double mean  = 0;
-        int    count = 0;
-        for (int i = 1; i < deltas.length; i++) {
-            double delta1 = deltas[i - 1].value(u).doubleValue();
-            double delta2 = deltas[i].value(u).doubleValue();
-            if (!Double.isNaN(delta1) && !Double.isNaN(delta2)) {
-                mean += delta2 - delta1;
-                count++;
-            }
-        }
-        mean /= count == 0 ? Double.NaN : count;
-        return new TimeI(mean, unit);
+    /**
+     * Computes the mean exposure time for a given channel from the planes exposureTime.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @param channel The channel index.
+     *
+     * @return See above.
+     */
+    public Time getMeanExposureTime(int channel) {
+        return PlaneInfoWrapper.computeMeanExposureTime(planesInfo, channel);
     }
 
 
     /**
      * Retrieves the X stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
      *
      * @return See above.
      */
     Length getPositionX() {
         ome.units.quantity.Length       pixSizeX = convertLength(getPixelSizeX());
         Unit<ome.units.quantity.Length> unit     = pixSizeX == null ? UNITS.MICROMETER : pixSizeX.unit();
-
-        List<Double> xPositions = planesInfo.stream()
-                                            .map(PlaneInfoWrapper::getPositionX)
-                                            .map(UnitsFactory::convertLength)
-                                            .map(p -> p.value(unit).doubleValue())
-                                            .collect(Collectors.toList());
-
-        Double pos = xPositions.isEmpty() ? 0.0d : Collections.min(xPositions);
-        return new LengthI(pos, ome.model.enums.UnitsLength.bySymbol(unit.getSymbol()));
+        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionX, unit);
     }
 
 
     /**
      * Retrieves the Y stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
      *
      * @return See above.
      */
     Length getPositionY() {
         ome.units.quantity.Length       pixSizeY = convertLength(getPixelSizeY());
         Unit<ome.units.quantity.Length> unit     = pixSizeY == null ? UNITS.MICROMETER : pixSizeY.unit();
-
-        List<Double> yPositions = planesInfo.stream()
-                                            .map(PlaneInfoWrapper::getPositionY)
-                                            .map(UnitsFactory::convertLength)
-                                            .map(p -> p.value(unit).doubleValue())
-                                            .collect(Collectors.toList());
-
-        Double pos = yPositions.isEmpty() ? 0.0d : Collections.min(yPositions);
-        return new LengthI(pos, ome.model.enums.UnitsLength.bySymbol(unit.getSymbol()));
+        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionY, unit);
     }
 
 
     /**
      * Retrieves the Z stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
      *
      * @return See above.
      */
     Length getPositionZ() {
         ome.units.quantity.Length       pixSizeZ = convertLength(getPixelSizeZ());
         Unit<ome.units.quantity.Length> unit     = pixSizeZ == null ? UNITS.MICROMETER : pixSizeZ.unit();
-
-        List<Double> zPositions = planesInfo.stream()
-                                            .map(PlaneInfoWrapper::getPositionZ)
-                                            .map(UnitsFactory::convertLength)
-                                            .map(p -> p.value(unit).doubleValue())
-                                            .collect(Collectors.toList());
-
-        Double pos = zPositions.isEmpty() ? 0.0d : Collections.min(zPositions);
-        return new LengthI(pos, ome.model.enums.UnitsLength.bySymbol(unit.getSymbol()));
+        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionZ, unit);
     }
 
 

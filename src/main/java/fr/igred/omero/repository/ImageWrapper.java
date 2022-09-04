@@ -186,34 +186,25 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         Time   stepT     = pixels.getTimeIncrement();
 
         if (stepT == null) {
-            stepT = pixels.computeMeanTimeInterval();
+            stepT = pixels.getMeanTimeInterval();
         }
 
-        if (positionX != null) {
-            calibration.setXUnit(positionX.getSymbol());
-            calibration.xOrigin = positionX.getValue();
-        }
-        if (positionY != null) {
-            calibration.setYUnit(positionY.getSymbol());
-            calibration.yOrigin = positionY.getValue();
-        }
-        if (positionZ != null) {
-            calibration.setZUnit(positionZ.getSymbol());
-            calibration.zOrigin = positionZ.getValue();
-        }
+        calibration.setXUnit(positionX.getSymbol());
+        calibration.setYUnit(positionY.getSymbol());
+        calibration.setZUnit(positionZ.getSymbol());
+        calibration.xOrigin = positionX.getValue();
+        calibration.yOrigin = positionY.getValue();
+        calibration.zOrigin = positionZ.getValue();
         if (spacingX != null) {
-            calibration.setXUnit(spacingX.getSymbol());
             calibration.pixelWidth = spacingX.getValue();
         }
         if (spacingY != null) {
-            calibration.setYUnit(spacingY.getSymbol());
             calibration.pixelHeight = spacingY.getValue();
         }
         if (spacingZ != null) {
-            calibration.setZUnit(spacingZ.getSymbol());
             calibration.pixelDepth = spacingZ.getValue();
         }
-        if (stepT != null) {
+        if (!Double.isNaN(stepT.getValue())) {
             calibration.setTimeUnit(stepT.getSymbol());
             calibration.frameInterval = stepT.getValue();
         }
