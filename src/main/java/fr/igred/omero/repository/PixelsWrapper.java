@@ -239,7 +239,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
-    Length getPositionX() {
+    public Length getPositionX() {
         ome.units.quantity.Length       pixSizeX = convertLength(getPixelSizeX());
         Unit<ome.units.quantity.Length> unit     = pixSizeX == null ? UNITS.MICROMETER : pixSizeX.unit();
         return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionX, unit);
@@ -252,7 +252,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
-    Length getPositionY() {
+    public Length getPositionY() {
         ome.units.quantity.Length       pixSizeY = convertLength(getPixelSizeY());
         Unit<ome.units.quantity.Length> unit     = pixSizeY == null ? UNITS.MICROMETER : pixSizeY.unit();
         return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionY, unit);
@@ -265,7 +265,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
-    Length getPositionZ() {
+    public Length getPositionZ() {
         ome.units.quantity.Length       pixSizeZ = convertLength(getPixelSizeZ());
         Unit<ome.units.quantity.Length> unit     = pixSizeZ == null ? UNITS.MICROMETER : pixSizeZ.unit();
         return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionZ, unit);
