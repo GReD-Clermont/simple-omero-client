@@ -171,21 +171,36 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Sets the calibration.
+     * Sets the calibration. Planes information has to be loaded first.
      *
      * @param pixels      The pixels.
      * @param calibration The ImageJ calibration.
      */
     private static void setCalibration(PixelsWrapper pixels, Calibration calibration) {
-        Length spacingX = pixels.getPixelSizeX();
-        Length spacingY = pixels.getPixelSizeY();
-        Length spacingZ = pixels.getPixelSizeZ();
-        Time   stepT    = pixels.getTimeIncrement();
+        Length positionX = pixels.getPositionX();
+        Length positionY = pixels.getPositionY();
+        Length positionZ = pixels.getPositionZ();
+        Length spacingX  = pixels.getPixelSizeX();
+        Length spacingY  = pixels.getPixelSizeY();
+        Length spacingZ  = pixels.getPixelSizeZ();
+        Time   stepT     = pixels.getTimeIncrement();
 
         if (stepT == null) {
             stepT = pixels.computeMeanTimeInterval();
         }
 
+        if (positionX != null) {
+            calibration.setXUnit(positionX.getSymbol());
+            calibration.xOrigin = positionX.getValue();
+        }
+        if (positionY != null) {
+            calibration.setYUnit(positionY.getSymbol());
+            calibration.yOrigin = positionY.getValue();
+        }
+        if (positionZ != null) {
+            calibration.setZUnit(positionZ.getSymbol());
+            calibration.zOrigin = positionZ.getValue();
+        }
         if (spacingX != null) {
             calibration.setXUnit(spacingX.getSymbol());
             calibration.pixelWidth = spacingX.getValue();

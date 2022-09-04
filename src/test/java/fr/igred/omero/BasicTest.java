@@ -58,6 +58,8 @@ public abstract class BasicTest {
     protected static final TestObject TAG1     = new TestObject(1L, "tag1", "description");
     protected static final TestObject TAG2     = new TestObject(2L, "tag2", "");
 
+    protected static final double DOUBLE_PRECISION = 10.0e-15;
+
 
     protected static File createFile(String filename) throws IOException {
         @SuppressWarnings("AccessOfSystemProperties")
