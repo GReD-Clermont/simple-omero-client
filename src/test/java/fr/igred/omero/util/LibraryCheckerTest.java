@@ -49,6 +49,7 @@ class LibraryCheckerTest extends BasicTest {
     @ValueSource(strings = {"omero-gateway",
                             "omero-model",
                             "omero-blitz",
+                            "ome-xml",
                             "ome-common",
                             "formats-api"})
     void checkUnavailableLibraries(String excluded) {

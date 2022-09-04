@@ -35,6 +35,7 @@ public final class LibraryChecker {
     public static boolean areRequirementsAvailable() {
         return isFormatsAPIAvailable() &&
                isOMEROModelAvailable() &&
+               isOMEXMLAvailable() &&
                isOMECommonAvailable() &&
                isOMEROBlitzAvailable() &&
                isOMEROGatewayAvailable();
@@ -68,6 +69,16 @@ public final class LibraryChecker {
      */
     public static boolean isOMEROBlitzAvailable() {
         return checkClass("ome.formats.OMEROMetadataStoreClient");
+    }
+
+
+    /**
+     * Checks if the omero-model is available.
+     *
+     * @return {@code true} if IObject is available, {@code false} otherwise.
+     */
+    public static boolean isOMEXMLAvailable() {
+        return checkClass("ome.units.unit.Unit");
     }
 
 
