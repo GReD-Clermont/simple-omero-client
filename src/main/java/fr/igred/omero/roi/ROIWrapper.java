@@ -143,9 +143,16 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         for (int i = 0; i < ijRois.size(); i++) {
             String value = ijRois.get(i).getProperty(property);
             if (value != null && INT_PATTERN.matcher(value).matches()) {
-                long id = Long.parseLong(value);
-                rois4D.computeIfAbsent(id, val -> new ROIWrapper());
-                shape2roi.put(i, rois4D.get(id));
+                Long id = null;
+                try {
+                    id = Long.parseLong(value);
+                } catch (NumberFormatException ignored) {
+                    // DO NOTHING
+                }
+                if (id != null) {
+                    rois4D.computeIfAbsent(id, val -> new ROIWrapper());
+                    shape2roi.put(i, rois4D.get(id));
+                }
             } else {
                 shape2roi.put(i, new ROIWrapper());
             }

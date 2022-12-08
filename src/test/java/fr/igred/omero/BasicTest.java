@@ -25,6 +25,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.SecureRandom;
+import java.util.Random;
 import java.util.logging.Logger;
 
 
@@ -60,10 +61,11 @@ public abstract class BasicTest {
 
     protected static final double DOUBLE_PRECISION = 10.0e-15;
 
+    protected static final Random SECURE_RANDOM = new SecureRandom();
+
 
     protected static File createFile(String filename) throws IOException {
-        @SuppressWarnings("AccessOfSystemProperties")
-        String tmpdir = System.getProperty("java.io.tmpdir") + File.separator;
+        String tmpdir = Files.createTempDirectory(null).toString();
 
         File file = new File(tmpdir + File.separator + filename);
         if (!file.createNewFile()) {
@@ -78,7 +80,7 @@ public abstract class BasicTest {
 
         File   file  = createFile(filename);
         byte[] array = new byte[size];
-        new SecureRandom().nextBytes(array);
+        SECURE_RANDOM.nextBytes(array);
         String generatedString = new String(array, StandardCharsets.UTF_8);
         try (PrintStream out = new PrintStream(Files.newOutputStream(file.toPath()), false, "UTF-8")) {
             out.print(generatedString);
@@ -88,7 +90,12 @@ public abstract class BasicTest {
 
 
     protected static void removeFile(File file) throws IOException {
-        if (!file.delete()) {
+        File parent = file.getParentFile();
+        if (file.delete()) {
+            if (!parent.delete()) {
+                logger.warning("\"" + parent.getCanonicalPath() + "\" could not be deleted.");
+            }
+        } else {
             logger.severe("\"" + file.getCanonicalPath() + "\" could not be deleted.");
         }
     }
