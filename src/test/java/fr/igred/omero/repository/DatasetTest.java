@@ -66,7 +66,7 @@ class DatasetTest extends UserTest {
 
         DatasetWrapper dataset = new DatasetWrapper("To delete", description);
 
-        Long id = project.addDataset(client, dataset).getId();
+        long id = project.addDataset(client, dataset).getId();
 
         DatasetWrapper checkDataset = client.getDataset(id);
         client.delete(checkDataset);
@@ -320,10 +320,10 @@ class DatasetTest extends UserTest {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
         File file = createRandomFile("test_dataset.txt");
-        Long id   = dataset.addFile(client, file);
+        long id   = dataset.addFile(client, file);
         removeFile(file);
         client.deleteFile(id);
-        assertNotEquals(0L, id.longValue());
+        assertNotEquals(0L, id);
     }
 
 

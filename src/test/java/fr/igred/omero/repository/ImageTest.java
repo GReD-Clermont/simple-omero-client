@@ -35,7 +35,6 @@ import org.junit.jupiter.api.Test;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,7 +43,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -273,15 +271,14 @@ class ImageTest extends UserTest {
         int[] zBounds = {0, 2};
         int[] tBounds = {0, 2};
 
-        Random random = new SecureRandom();
-        xBounds[0] = random.nextInt(lowXY);
-        yBounds[0] = random.nextInt(lowXY);
-        cBounds[0] = random.nextInt(3);
-        tBounds[0] = random.nextInt(5);
-        xBounds[1] = random.nextInt(highXY - xBounds[0]) + xBounds[0] + 5;
-        yBounds[1] = random.nextInt(highXY - yBounds[0]) + yBounds[0] + 5;
-        cBounds[1] = random.nextInt(3 - cBounds[0]) + cBounds[0] + 2;
-        tBounds[1] = random.nextInt(5 - tBounds[0]) + tBounds[0] + 2;
+        xBounds[0] = SECURE_RANDOM.nextInt(lowXY);
+        yBounds[0] = SECURE_RANDOM.nextInt(lowXY);
+        cBounds[0] = SECURE_RANDOM.nextInt(3);
+        tBounds[0] = SECURE_RANDOM.nextInt(5);
+        xBounds[1] = SECURE_RANDOM.nextInt(highXY - xBounds[0]) + xBounds[0] + 5;
+        yBounds[1] = SECURE_RANDOM.nextInt(highXY - yBounds[0]) + yBounds[0] + 5;
+        cBounds[1] = SECURE_RANDOM.nextInt(3 - cBounds[0]) + cBounds[0] + 2;
+        tBounds[1] = SECURE_RANDOM.nextInt(5 - tBounds[0]) + tBounds[0] + 2;
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = createFile(fake);
@@ -481,18 +478,19 @@ class ImageTest extends UserTest {
         long id   = image.addFile(client, file);
 
         List<FileAnnotationWrapper> files = image.getFileAnnotations(client);
-        for (FileAnnotationWrapper f : files) {
-            if (f.getId() == id) {
-                assertEquals(file.getName(), f.getFileName());
-                assertEquals("txt", f.getFileFormat());
-                assertEquals("text/plain", f.getOriginalMimetype());
-                assertEquals("text/plain", f.getServerFileMimetype());
-                assertEquals("Plain Text Document", f.getFileKind());
-                assertEquals(file.getParent() + File.separator, f.getContentAsString());
-                assertEquals(file.getParent() + File.separator, f.getFilePath());
-                assertFalse(f.isMovieFile());
+        for (FileAnnotationWrapper fileAnn : files) {
+            if (fileAnn.getId() == id) {
+                assertEquals(file.getName(), fileAnn.getFileName());
+                assertEquals("txt", fileAnn.getFileFormat());
+                assertEquals("text/plain", fileAnn.getOriginalMimetype());
+                assertEquals("text/plain", fileAnn.getServerFileMimetype());
+                assertEquals("Plain Text Document", fileAnn.getFileKind());
+                assertEquals(file.getParent() + File.separator, fileAnn.getContentAsString());
+                assertEquals(file.getParent() + File.separator, fileAnn.getFilePath());
+                assertFalse(fileAnn.isMovieFile());
 
-                File uploadedFile = f.getFile(client, "." + File.separator + "uploaded.txt");
+                String tmpdir = Files.createTempDirectory(null).toString();
+                File uploadedFile = fileAnn.getFile(client, tmpdir + File.separator + "uploaded.txt");
 
                 List<String> expectedLines = Files.readAllLines(file.toPath());
                 List<String> lines         = Files.readAllLines(uploadedFile.toPath());
