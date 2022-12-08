@@ -208,6 +208,46 @@ public class TableWrapper {
 
 
     /**
+     * Safely converts a String to an Integer, returning null if it fails.
+     *
+     * @param s The string.
+     *
+     * @return The integer value represented by s, null if not applicable.
+     */
+    private static Integer safeParseInt(String s) {
+        Integer i = null;
+        if (s != null) {
+            try {
+                i = Integer.parseInt(s);
+            } catch (NumberFormatException ignored) {
+                // DO NOTHING
+            }
+        }
+        return i;
+    }
+
+
+    /**
+     * Safely converts a String to a Long, returning null if it fails.
+     *
+     * @param s The string.
+     *
+     * @return The integer value represented by s, null if not applicable.
+     */
+    private static Long safeParseLong(String s) {
+        Long l = null;
+        if (s != null) {
+            try {
+                l = Long.parseLong(s);
+            } catch (NumberFormatException ignored) {
+                // DO NOTHING
+            }
+        }
+        return l;
+    }
+
+
+    /**
      * Checks if a column from a {@link ResultsTable} is numeric or not.
      *
      * @param resultsColumn An ImageJ results table column.
@@ -318,11 +358,12 @@ public class TableWrapper {
         Map<Integer, ROIData> index2roi   = new HashMap<>(ijRois.size());
         Map<String, ROIData>  roiName2roi = new HashMap<>(ijRois.size());
         for (Roi ijRoi : ijRois) {
-            String index = ijRoi.getProperty(roiProperty);
-            String id    = ijRoi.getProperty(roiIdProperty);
+            Integer index = safeParseInt(ijRoi.getProperty(roiProperty));
+            Long    id    = safeParseLong(ijRoi.getProperty(roiIdProperty));
             if (id != null) {
-                roiName2roi.put(ijRoi.getName(), id2roi.get(Long.parseLong(id)));
-                if (index != null) index2roi.putIfAbsent(Integer.parseInt(index), id2roi.get(Long.parseLong(id)));
+                ROIData roi = id2roi.get(id);
+                roiName2roi.put(ijRoi.getName(), roi);
+                if (index != null) index2roi.putIfAbsent(index, roi);
             }
         }
 
@@ -702,12 +743,13 @@ public class TableWrapper {
      */
     public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder(10 * columnCount * rowCount);
-        File          f  = new File(path);
+
+        File file = new File(path);
 
         String sol = "\"";
         String sep = String.format("\"%c\"", delimiter);
         String eol = String.format("\"%n");
-        try (PrintWriter stream = new PrintWriter(f, StandardCharsets.UTF_8.name())) {
+        try (PrintWriter stream = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
             sb.append(sol);
             for (int j = 0; j < columnCount; j++) {
                 sb.append(columns[j].getName());
