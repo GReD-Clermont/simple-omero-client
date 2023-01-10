@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,6 +46,7 @@ import java.util.logging.Logger;
  */
 public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericObjectWrapper<T> {
 
+    private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
     /**
      * Constructor of the GenericShapeWrapper class using a ShapeData.
@@ -124,9 +126,13 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
         data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
         LengthI size = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
+        Color defaultStroke = Optional.ofNullable(Roi.getColor()).orElse(Color.YELLOW);
+        Color defaultFill = Optional.ofNullable(Roi.getDefaultFillColor()).orElse(TRANSPARENT);
+        Color stroke = Optional.ofNullable(ijRoi.getStrokeColor()).orElse(defaultStroke);
+        Color fill = Optional.ofNullable(ijRoi.getFillColor()).orElse(defaultFill);
         data.getShapeSettings().setStrokeWidth(size);
-        data.getShapeSettings().setStroke(ijRoi.getStrokeColor());
-        data.getShapeSettings().setFill(ijRoi.getFillColor());
+        data.getShapeSettings().setStroke(stroke);
+        data.getShapeSettings().setFill(fill);
     }
 
 
@@ -253,7 +259,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Sets ShapeData stroke color
+     * Gets the ShapeData stroke color
      *
      * @return The stroke color
      */
@@ -265,10 +271,30 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Sets ShapeData stroke color
      *
-     * @param color The stroke color
+     * @param strokeColour The stroke color
      */
-    public void setStroke(Color color) {
-        data.getShapeSettings().setStroke(color);
+    public void setStroke(Color strokeColour) {
+        data.getShapeSettings().setStroke(strokeColour);
+    }
+
+
+    /**
+     * Gets ShapeData fill color
+     *
+     * @return The fill color
+     */
+    public Color getFill() {
+        return data.getShapeSettings().getFill();
+    }
+
+
+    /**
+     * Sets the ShapeData fill color
+     *
+     * @param fillColour The fill color
+     */
+    public void setFill(Color fillColour) {
+        data.getShapeSettings().setFill(fillColour);
     }
 
 
@@ -379,6 +405,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         boundingBox.setCZT(getC(), getZ(), getT());
         boundingBox.setText(getText() + " (Bounding Box)");
         boundingBox.setStroke(getStroke());
+        boundingBox.setFill(getFill());
         boundingBox.setFontSize(getFontSize());
         return boundingBox;
     }
@@ -393,7 +420,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
         roi.setName(getText());
         roi.setStrokeColor(getStroke());
-        roi.setFillColor(data.getShapeSettings().getFill());
+        roi.setFillColor(getFill());
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);

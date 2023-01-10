@@ -191,6 +191,8 @@ class ShapeTest extends BasicTest {
 
         Color stroke = Color.BLUE;
         ellipse.setStroke(stroke);
+        Color fill = new Color(0, 0, 0, 0);
+        ellipse.setFill(fill);
 
         double[] ellipseCoordinates = {9, 11, 5, 10};
         ellipse.setCoordinates(ellipseCoordinates[0],
@@ -207,6 +209,7 @@ class ShapeTest extends BasicTest {
 
         assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(stroke, ellipse.getStroke());
+        assertEquals(fill, ellipse.getFill());
         assertEquals(text, ellipse.getText());
     }
 
