@@ -60,7 +60,7 @@ class ROI2ImageJTest extends BasicTest {
 
         TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
         textRoi.setName("text");
-        textRoi.setProperty("ROI", "invalid");
+        textRoi.setProperty("ROI", "text");
         rois.add(textRoi);
 
         OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
@@ -104,6 +104,9 @@ class ROI2ImageJTest extends BasicTest {
         List<ROIWrapper> omeroROIs = ROIWrapper.fromImageJ(rois);
 
         assertEquals(9, omeroROIs.size());
+        assertEquals(1, omeroROIs.stream().filter(r -> "text".equals(r.getName())).count());
+        assertEquals(1, omeroROIs.stream().filter(r -> "23".equals(r.getName())).count());
+        assertEquals(0, omeroROIs.stream().filter(r -> "invalid".equals(r.getName())).count());
     }
 
 
@@ -167,25 +170,32 @@ class ROI2ImageJTest extends BasicTest {
         PolygonWrapper polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
-        ROIWrapper roiWrapper = new ROIWrapper();
-        roiWrapper.addShape(point);
-        roiWrapper.addShape(text);
-        roiWrapper.addShape(rectangle);
-        roiWrapper.addShape(rectangle2);
-        roiWrapper.addShape(mask);
-        roiWrapper.addShape(ellipse);
-        roiWrapper.addShape(ellipse2);
-        roiWrapper.addShape(line);
-        roiWrapper.addShape(line2);
-        roiWrapper.addShape(line3);
-        roiWrapper.addShape(polyline);
-        roiWrapper.addShape(polygon);
+        ROIWrapper roiWrapper1 = new ROIWrapper();
+        roiWrapper1.addShape(point);
+        roiWrapper1.addShape(text);
+        roiWrapper1.addShape(rectangle);
+        roiWrapper1.addShape(rectangle2);
+        roiWrapper1.addShape(mask);
+        roiWrapper1.addShape(ellipse);
+        roiWrapper1.setName("2");
 
-        List<ROIWrapper> rois = Collections.singletonList(roiWrapper);
+        ROIWrapper roiWrapper2 = new ROIWrapper();
+        roiWrapper2.addShape(ellipse2);
+        roiWrapper2.addShape(line);
+        roiWrapper2.addShape(line2);
+        roiWrapper2.addShape(line3);
+        roiWrapper2.addShape(polyline);
+        roiWrapper2.addShape(polygon);
+
+        List<ROIWrapper> rois = new ArrayList<>(2);
+        rois.add(roiWrapper1);
+        rois.add(roiWrapper2);
 
         List<Roi> ijRois = ROIWrapper.toImageJ(rois);
 
         assertEquals(nRois, ijRois.size());
+        assertEquals("2", ijRois.get(0).getProperty("ROI"));
+        assertEquals("SOC_INDEX_2", ijRois.get(nRois - 1).getProperty("ROI"));
     }
 
 

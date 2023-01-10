@@ -24,11 +24,13 @@ import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import ij.gui.ShapeRoi;
+import omero.RString;
 import omero.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.Roi;
+import omero.model._RoiOperationsNC;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,7 +38,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -52,8 +53,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Default IJ property to store ROI local IDs / indices.
      */
-    public static final  String  IJ_PROPERTY = "ROI";
-    private static final Pattern INT_PATTERN = Pattern.compile("-?\\d+");
+    public static final String IJ_PROPERTY = "ROI";
 
 
     /**
@@ -136,27 +136,21 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      */
     public static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
         property = checkProperty(property);
-        Map<Long, ROIWrapper> rois4D = new TreeMap<>();
+        Map<String, ROIWrapper> rois4D = new TreeMap<>();
 
         Map<Integer, ROIWrapper> shape2roi = new TreeMap<>();
 
         for (int i = 0; i < ijRois.size(); i++) {
             String value = ijRois.get(i).getProperty(property);
-            if (value != null && INT_PATTERN.matcher(value).matches()) {
-                Long id = null;
-                try {
-                    id = Long.parseLong(value);
-                } catch (NumberFormatException ignored) {
-                    // DO NOTHING
-                }
-                if (id != null) {
-                    rois4D.computeIfAbsent(id, val -> new ROIWrapper());
-                    shape2roi.put(i, rois4D.get(id));
-                }
+            if (value != null && !value.trim().isEmpty()) {
+                rois4D.computeIfAbsent(value, val -> new ROIWrapper());
+                shape2roi.put(i, rois4D.get(value));
             } else {
                 shape2roi.put(i, new ROIWrapper());
             }
         }
+
+        rois4D.forEach((name, roi) -> roi.setName(name));
 
         for (Map.Entry<Integer, ROIWrapper> entry : shape2roi.entrySet()) {
             ij.gui.Roi ijRoi = ijRois.get(entry.getKey());
@@ -197,9 +191,13 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
         int index = 1;
         for (ROIWrapper roi : rois) {
+            String name = roi.getName();
+            if (name == null || name.trim().isEmpty()) {
+                name = "SOC_INDEX_" + index;
+            }
             List<ij.gui.Roi> shapes = roi.toImageJ(property);
             for (ij.gui.Roi r : shapes) {
-                r.setProperty(property, String.valueOf(index));
+                r.setProperty(property, name);
                 if (rois.size() < maxGroups) {
                     r.setGroup(index);
                 }
@@ -208,6 +206,27 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             index++;
         }
         return ijRois;
+    }
+
+
+    /**
+     * Gets the ROI name.
+     *
+     * @return The ROI name (can be null).
+     */
+    public String getName() {
+        RString name = ((_RoiOperationsNC) data.asIObject()).getName();
+        return name != null ? name.getValue() : null;
+    }
+
+
+    /**
+     * Sets the ROI name.
+     *
+     * @param name The ROI name.
+     */
+    public void setName(String name) {
+        ((_RoiOperationsNC) data.asIObject()).setName(omero.rtypes.rstring(name));
     }
 
 

@@ -228,6 +228,7 @@ class TableTest extends UserTest {
             rectangle.setC(0);
 
             roi.addShape(rectangle);
+            roi.setName("ROI_1");
         }
 
         image.saveROI(client, roi);
@@ -239,7 +240,7 @@ class TableTest extends UserTest {
         results.incrementCounter();
         results.setLabel(image.getName(), 0);
         results.setValue("Image", 0, image.getName());
-        results.setValue(ROIWrapper.IJ_PROPERTY, 0, 1);
+        results.setValue(ROIWrapper.IJ_PROPERTY, 0, "ROI_1");
         results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
 
@@ -1002,6 +1003,7 @@ class TableTest extends UserTest {
             rectangle.setC(0);
 
             roi.addShape(rectangle);
+            roi.setName("1");
         }
 
         image.saveROI(client, roi);
