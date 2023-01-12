@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TableTest extends UserTest {
 
-    protected static final double volume1 = 25.0d;
+    protected static final double volume1 = 25.023579d;
     protected static final double volume2 = 50.0d;
 
 
@@ -942,6 +943,64 @@ class TableTest extends UserTest {
 
 
     @Test
+    void testNumericName() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+
+        ROIWrapper roi = new ROIWrapper();
+
+        roi.setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(i);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roi.addShape(rectangle);
+        }
+
+        image.saveROI(client, roi);
+
+        List<ROIWrapper> rois   = image.getROIs(client);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
+        ijRois.get(0).setProperty(ROIWrapper.IJ_PROPERTY, "1");
+        ijRois.get(1).setProperty(ROIWrapper.IJ_PROPERTY, "1");
+        ijRois.get(2).setProperty(ROIWrapper.IJ_PROPERTY, "1");
+
+        ResultsTable results = new ResultsTable();
+        results.incrementCounter();
+        results.setLabel(image.getName(), 0);
+        results.setValue("Image", 0, image.getName());
+        results.setValue(ROIWrapper.IJ_PROPERTY, 0, 1);
+        results.setValue("Volume", 0, volume1);
+        results.setValue("Volume Unit", 0, "µm^3");
+
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois);
+
+        Object[][] data = table.getData();
+        assertEquals(1, table.getRowCount());
+        assertEquals(image.getId(), ((DataObject) data[0][0]).getId());
+        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
+        assertEquals(image.getName(), data[2][0]);
+        assertEquals(image.getName(), data[3][0]);
+        assertEquals(volume1, (Double) data[4][0], Double.MIN_VALUE);
+        assertEquals("µm^3", data[5][0]);
+
+        image.addTable(client, table);
+
+        assertNotNull(table.getFileId());
+
+        client.delete(table);
+
+        for (ROIWrapper r : rois) {
+            client.delete(r);
+        }
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
     void testAddRowsFromIJResultsInverted() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
@@ -1033,9 +1092,14 @@ class TableTest extends UserTest {
         String filename = "file.csv";
         table.saveAs(filename, delimiter);
 
+        NumberFormat formatter = NumberFormat.getInstance();
+        formatter.setMaximumFractionDigits(4);
+        String vol1 = formatter.format(volume1);
+        String vol2 = formatter.format(volume2);
+
         String line1 = "\"Image\"\t\"ROI\"\t\"Label\"\t\"Volume\"\t\"Volume_Unit\"";
-        String line2 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%.1f\"\t\"µm^3\"", roi.getId(), volume1);
-        String line3 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%.1f\"\t\"m^3\"", roi.getId(), volume2);
+        String line2 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%s\"\t\"µm^3\"", roi.getId(), vol1);
+        String line3 = String.format("\"1\"\t\"%d\"\t\"image1.fake\"\t\"%s\"\t\"m^3\"", roi.getId(), vol2);
 
         List<String> expected = Arrays.asList(line1, line2, line3);
 

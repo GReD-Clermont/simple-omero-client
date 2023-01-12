@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -287,15 +288,15 @@ public class TableWrapper {
                                    .map(Double::longValue)
                                    .collect(Collectors.toList());
 
-            List<String> indices = Arrays.stream(roiCol)
-                                         .map(Variable::toString)
-                                         .collect(Collectors.toList());
+            List<String> numericNames = Arrays.stream(roiCol)
+                                              .map(Variable::toString)
+                                              .collect(Collectors.toList());
 
-            name2roi.keySet().retainAll(indices);
+            name2roi.keySet().retainAll(numericNames);
             id2roi.keySet().retainAll(ids);
             boolean isIndices = name2roi.size() >= id2roi.size();
             if (isIndices) {
-                roiColumn = indices.stream().map(name2roi::get).toArray(ROIData[]::new);
+                roiColumn = numericNames.stream().map(name2roi::get).toArray(ROIData[]::new);
                 if (Arrays.asList(roiColumn).contains(null)) isIndices = false;
             }
             if (!isIndices) {
@@ -727,6 +728,9 @@ public class TableWrapper {
      * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
      */
     public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
+        NumberFormat formatter = NumberFormat.getInstance();
+        formatter.setMaximumFractionDigits(4);
+
         StringBuilder sb = new StringBuilder(10 * columnCount * rowCount);
 
         File file = new File(path);
@@ -749,6 +753,9 @@ public class TableWrapper {
                     Object value = data[j][i];
                     if (DataObject.class.isAssignableFrom(columns[j].getType())) {
                         value = ((DataObject) value).getId();
+                    }
+                    if (value instanceof Number) {
+                        value = formatter.format(value);
                     }
                     sb.append(value);
                     if (j != columnCount - 1) {

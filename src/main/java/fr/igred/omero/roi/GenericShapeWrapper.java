@@ -231,7 +231,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Gets ShapeData font size
+     * Gets ShapeData font size.
      *
      * @return The font size (in typography points)
      */
@@ -248,7 +248,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Sets ShapeData font size
+     * Sets ShapeData font size.
      *
      * @param value The font size (in typography points)
      */
@@ -259,7 +259,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Gets the ShapeData stroke color
+     * Gets the ShapeData stroke color.
      *
      * @return The stroke color
      */
@@ -269,7 +269,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Sets ShapeData stroke color
+     * Sets ShapeData stroke color.
      *
      * @param strokeColour The stroke color
      */
@@ -279,7 +279,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Gets ShapeData fill color
+     * Gets ShapeData fill color.
      *
      * @return The fill color
      */
@@ -289,7 +289,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Sets the ShapeData fill color
+     * Sets the ShapeData fill color.
      *
      * @param fillColour The fill color
      */
