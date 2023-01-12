@@ -48,6 +48,22 @@ class TableTest extends UserTest {
     protected static final double volume2 = 50.0d;
 
 
+    private static ROIWrapper createROIWrapper(ImageWrapper image) {
+        ROIWrapper roi = new ROIWrapper();
+        roi.setImage(image);
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(i);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roi.addShape(rectangle);
+        }
+        return roi;
+    }
+
+
     @Test
     void testCreateTable() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
@@ -171,7 +187,7 @@ class TableTest extends UserTest {
         table.setRowCount(images.size() - 1);
 
         assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(i -> table.addRow(i.asImageData(), i.getName())));
+                     () -> images.forEach(img -> table.addRow(img.asImageData(), img.getName())));
     }
 
 
@@ -194,7 +210,7 @@ class TableTest extends UserTest {
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(i -> table.addRow(i.asImageData(), i.getName())));
+                     () -> images.forEach(img -> table.addRow(img.asImageData(), img.getName())));
     }
 
 
@@ -209,7 +225,7 @@ class TableTest extends UserTest {
         table.setColumn(1, "Name", String.class);
         table.setRowCount(images.size());
         assertThrows(IllegalArgumentException.class,
-                     () -> images.forEach(i -> table.addRow(i.asImageData())));
+                     () -> images.forEach(img -> table.addRow(img.asImageData())));
     }
 
 
@@ -217,21 +233,8 @@ class TableTest extends UserTest {
     void testCreateTableWithROIsFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(i);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-            roi.setName("ROI_1");
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
+        roi.setName("ROI_1");
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -275,20 +278,7 @@ class TableTest extends UserTest {
 
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(i);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -332,20 +322,7 @@ class TableTest extends UserTest {
     void testCreateTableWithROIsFromIJResults3() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(0);
-            rectangle.setT(i);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -385,20 +362,7 @@ class TableTest extends UserTest {
     void testCreateTableWithROIsFromIJResults4() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(0);
-            rectangle.setT(0);
-            rectangle.setC(i);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -518,20 +482,7 @@ class TableTest extends UserTest {
     void testAddRowsWithROIsFromIJResults() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(i % 2);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -584,20 +535,7 @@ class TableTest extends UserTest {
     void testCreateTableWithLocalROIFromIJResults1() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(i);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -650,20 +588,7 @@ class TableTest extends UserTest {
     void testCreateTableWithLocalROIFromIJResults2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(0);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -887,20 +812,7 @@ class TableTest extends UserTest {
     void testNumberFormatException() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(i);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -946,20 +858,7 @@ class TableTest extends UserTest {
     void testNumericName() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(i);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
@@ -972,7 +871,7 @@ class TableTest extends UserTest {
         results.incrementCounter();
         results.setLabel(image.getName(), 0);
         results.setValue("Image", 0, image.getName());
-        results.setValue(ROIWrapper.IJ_PROPERTY, 0, 1);
+        results.setValue(ROIWrapper.IJ_PROPERTY, 0, 1.0d);
         results.setValue("Volume", 0, volume1);
         results.setValue("Volume Unit", 0, "µm^3");
 
@@ -1050,21 +949,8 @@ class TableTest extends UserTest {
     void testSaveTableAs() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        ROIWrapper roi = new ROIWrapper();
-
-        roi.setImage(image);
-
-        for (int i = 0; i < 4; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
-            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
-            rectangle.setZ(i % 2);
-            rectangle.setT(0);
-            rectangle.setC(0);
-
-            roi.addShape(rectangle);
-            roi.setName("1");
-        }
-
+        ROIWrapper roi = createROIWrapper(image);
+        roi.setName("1");
         image.saveROI(client, roi);
 
         List<ROIWrapper> rois   = image.getROIs(client);
