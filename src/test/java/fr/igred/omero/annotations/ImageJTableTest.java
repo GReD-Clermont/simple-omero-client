@@ -17,14 +17,12 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import omero.gateway.model.DataObject;
-import omero.gateway.model.ImageData;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -34,15 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class TableTest extends UserTest {
+class ImageJTableTest extends UserTest {
 
     protected static final double volume1 = 25.023579d;
     protected static final double volume2 = 50.0d;
@@ -74,6 +69,7 @@ class TableTest extends UserTest {
     }
 
 
+
     private static void addRowToResultsTable(ResultsTable results, String imageName, double volume, String unit) {
         int i = results.size();
         results.incrementCounter();
@@ -82,171 +78,6 @@ class TableTest extends UserTest {
         results.setValue("Volume", i, volume);
         if (unit != null && !unit.trim().isEmpty())
             results.setValue("Volume Unit", i, unit);
-    }
-
-
-    @Test
-    void testCreateTable() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
-
-        List<ImageWrapper> images = dataset.getImages(client);
-
-        TableWrapper table = new TableWrapper(2, "TableTest");
-
-        assertEquals(2, table.getColumnCount());
-
-        table.setColumn(0, "Image", ImageData.class);
-        table.setColumn(1, "Name", String.class);
-        assertEquals("Image", table.getColumnName(0));
-        assertEquals("Name", table.getColumnName(1));
-        assertSame(ImageData.class, table.getColumnType(0));
-
-        table.setRowCount(images.size());
-
-        assertEquals(images.size(), table.getRowCount());
-
-        for (ImageWrapper image : images) {
-            assertNotEquals(true, table.isComplete());
-            table.addRow(image.asImageData(), image.getName());
-        }
-
-        assertEquals(images.get(0).asImageData(), table.getData(0, 0));
-        assertEquals(images.get(1).getName(), table.getData(0, 1));
-
-        dataset.addTable(client, table);
-
-        List<TableWrapper> tables = dataset.getTables(client);
-        client.delete(tables.get(0));
-        List<TableWrapper> noTables = dataset.getTables(client);
-
-        assertEquals(1, tables.size());
-        assertEquals(0, noTables.size());
-    }
-
-
-    @Test
-    void testReplaceTable() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
-
-        List<ImageWrapper> images = dataset.getImages(client);
-
-        TableWrapper table1 = new TableWrapper(2, "TableTest");
-
-        assertEquals(2, table1.getColumnCount());
-
-        table1.setColumn(0, "Image", ImageData.class);
-        table1.setColumn(1, "Name", String.class);
-        assertEquals("Image", table1.getColumnName(0));
-        assertEquals("Name", table1.getColumnName(1));
-        assertSame(ImageData.class, table1.getColumnType(0));
-
-        table1.setRowCount(images.size());
-
-        assertEquals(images.size(), table1.getRowCount());
-
-        for (ImageWrapper image : images) {
-            assertNotEquals(true, table1.isComplete());
-            table1.addRow(image.asImageData(), image.getName());
-        }
-
-        assertEquals(images.get(0).asImageData(), table1.getData(0, 0));
-        assertEquals(images.get(1).getName(), table1.getData(0, 1));
-
-        dataset.addTable(client, table1);
-        long tableId1 = table1.getId();
-
-        TableWrapper table2 = new TableWrapper(2, "TableTest 2");
-        table2.setColumn(0, "Image", ImageData.class);
-        table2.setColumn(1, "Name", String.class);
-        table2.setRowCount(images.size());
-        for (ImageWrapper image : images) {
-            assertNotEquals(true, table2.isComplete());
-            table2.addRow(image.asImageData(), image.getDescription());
-        }
-        dataset.addTable(client, table2);
-        long tableId2 = table2.getId();
-
-        TableWrapper table3 = new TableWrapper(2, "TableTest");
-        table3.setColumn(0, "Image", ImageData.class);
-        table3.setColumn(1, "Name", String.class);
-        table3.setRowCount(images.size());
-        for (ImageWrapper image : images) {
-            assertNotEquals(true, table3.isComplete());
-            table3.addRow(image.asImageData(), "Test name");
-        }
-        dataset.addAndReplaceTable(client, table3);
-        long tableId3 = table3.getId();
-
-        assertNotEquals(tableId1, tableId3);
-        assertNotEquals(tableId2, tableId3);
-
-        List<TableWrapper> tables = dataset.getTables(client);
-        for (TableWrapper table : tables) {
-            client.delete(table);
-        }
-        List<TableWrapper> noTables = dataset.getTables(client);
-
-        assertEquals(2, tables.size());
-        assertEquals(0, noTables.size());
-    }
-
-
-    @Test
-    void testErrorTableFull() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
-
-        List<ImageWrapper> images = dataset.getImages(client);
-
-        TableWrapper table = new TableWrapper(2, "TableTest");
-        table.setName("TableTestNewName");
-
-        assertEquals("TableTestNewName", table.getName());
-
-        table.setColumn(0, "Image", ImageData.class);
-        table.setColumn(1, "Name", String.class);
-
-        table.setRowCount(images.size() - 1);
-
-        assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(img -> table.addRow(img.asImageData(), img.getName())));
-    }
-
-
-    @Test
-    void testErrorTableColumn() {
-        TableWrapper table = new TableWrapper(2, "TableTest");
-        table.setColumn(0, "Image", ImageData.class);
-        table.setColumn(1, "Name", String.class);
-        assertThrows(IndexOutOfBoundsException.class, () -> table.setColumn(2, "Id", Long.class));
-    }
-
-
-    @Test
-    void testErrorTableUninitialized() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
-
-        List<ImageWrapper> images = dataset.getImages(client);
-
-        TableWrapper table = new TableWrapper(2, "TableTest");
-        table.setColumn(0, "Image", ImageData.class);
-        table.setColumn(1, "Name", String.class);
-        assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(img -> table.addRow(img.asImageData(), img.getName())));
-    }
-
-
-    @Test
-    void testErrorTableNotEnoughArgs() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
-
-        List<ImageWrapper> images = dataset.getImages(client);
-
-        TableWrapper table = new TableWrapper(2, "TableTest");
-        table.setColumn(0, "Image", ImageData.class);
-        table.setColumn(1, "Name", String.class);
-        table.setRowCount(images.size());
-        assertThrows(IllegalArgumentException.class,
-                     () -> images.forEach(img -> table.addRow(img.asImageData())));
     }
 
 
