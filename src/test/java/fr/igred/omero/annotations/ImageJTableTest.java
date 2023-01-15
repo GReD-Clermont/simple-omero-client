@@ -16,13 +16,20 @@
 package fr.igred.omero.annotations;
 
 
+import fr.igred.omero.Client;
 import fr.igred.omero.UserTest;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -31,22 +38,28 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 
 class ImageJTableTest extends UserTest {
 
     protected static final double volume1 = 25.023579d;
     protected static final double volume2 = 50.0d;
+    protected static final String unit1   = "µm^3";
+    protected static final String unit2   = "m^3";
+    protected static final long   imageId = IMAGE1.id;
 
-    protected static final String unit1 = "µm^3";
-    protected static final String unit2 = "m^3";
+    protected ImageWrapper image = new ImageWrapper(new ImageData());
 
 
-    private static ROIWrapper createROIWrapper(ImageWrapper image) {
+    private static List<ROIWrapper> createAndSaveROI(Client client, ImageWrapper image, String name)
+    throws AccessException, ServiceException, ExecutionException {
         ROIWrapper roi = new ROIWrapper();
         roi.setImage(image);
         for (int i = 0; i < 4; i++) {
@@ -58,7 +71,9 @@ class ImageJTableTest extends UserTest {
 
             roi.addShape(rectangle);
         }
-        return roi;
+        if (name != null && !name.trim().isEmpty()) roi.setName(name);
+        image.saveROI(client, roi);
+        return image.getROIs(client);
     }
 
 
@@ -67,7 +82,6 @@ class ImageJTableTest extends UserTest {
         addRowToResultsTable(results, imageName, volume, unit);
         return results;
     }
-
 
 
     private static void addRowToResultsTable(ResultsTable results, String imageName, double volume, String unit) {
@@ -81,17 +95,47 @@ class ImageJTableTest extends UserTest {
     }
 
 
+    @BeforeEach
+    @Override
+    public void setUp() {
+        super.setUp();
+        boolean failed = false;
+        try {
+            image = client.getImage(imageId);
+        } catch (AccessException | RuntimeException | ExecutionException | ServiceException e) {
+            failed = true;
+            logger.log(Level.SEVERE, String.format("%sCould not retrieve image.%s", ANSI_RED, ANSI_RESET), e);
+        }
+        assumeFalse(failed, String.format("Could not retrieve image with ID=%d.", IMAGE1.id));
+    }
+
+
+    @AfterEach
+    @Override
+    public void cleanUp() {
+        if (client.isConnected()) {
+            try {
+                List<ROIWrapper> rois = image.getROIs(client);
+                for (ROIWrapper r : rois) {
+                    client.delete(r);
+                }
+                int nRois = image.getROIs(client).size();
+                if (nRois != 0) {
+                    logger.log(Level.SEVERE,
+                               String.format("%sROIs were not properly deleted.%s", ANSI_RED, ANSI_RESET));
+                }
+            } catch (AccessException | ServiceException | OMEROServerError | ExecutionException |
+                     InterruptedException e) {
+                logger.log(Level.SEVERE, String.format("%sROIs were not properly deleted.%s", ANSI_RED, ANSI_RESET), e);
+            }
+        }
+        super.cleanUp();
+    }
+
+
     @Test
     void testCreateTableWithROIsFromIJResults1() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        roi.setName("ROI_1");
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "ROI_1");
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
 
         String label = image.getName();
@@ -109,9 +153,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -121,22 +162,14 @@ class ImageJTableTest extends UserTest {
         assertEquals(unit1, data[4][0]);
         assertEquals(label, data[5][0]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableWithROIsFromIJResults2() throws Exception {
-        long   imageId  = IMAGE1.id;
-        String property = "Cell";
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = rois.get(0).toImageJ(property);
+        String           property = "Cell";
+        List<ROIWrapper> rois     = createAndSaveROI(client, image, "");
+        List<Roi>        ijRois   = rois.get(0).toImageJ(property);
 
         String label = image.getName();
 
@@ -152,12 +185,8 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
-        //Object[][] expected = {{image.asImageData()}, {rois.get(0))}, {label}, {volume1}, {unit1}, {label}, {label}};
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -168,20 +197,12 @@ class ImageJTableTest extends UserTest {
         assertEquals(label, data[5][0]);
         assertEquals(label, data[6][0]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableWithROIsFromIJResults3() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
         List<Roi>        ijRois = rois.get(0).toImageJ("");
 
         String label = image.getName();
@@ -198,9 +219,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -209,20 +227,12 @@ class ImageJTableTest extends UserTest {
         assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals(unit1, data[4][0]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableWithROIsFromIJResults4() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
         List<Roi>        ijRois = rois.get(0).toImageJ();
 
         String label = image.getName() + ":" + ijRois.get(0).getName() + ":4";
@@ -239,9 +249,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -250,16 +257,11 @@ class ImageJTableTest extends UserTest {
         assertEquals(unit1, data[3][0]);
         assertEquals(label, data[4][0]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableFromIJResults() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
         List<Roi> ijRois = new ArrayList<>(0);
 
         String label = image.getName();
@@ -287,10 +289,6 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testAddRowsFromIJResults() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
         List<Roi> ijRois = new ArrayList<>(0);
 
         String label = image.getName();
@@ -325,14 +323,7 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testAddRowsWithROIsFromIJResults() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois, "");
 
         String label = image.getName();
@@ -353,9 +344,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -369,22 +357,15 @@ class ImageJTableTest extends UserTest {
         assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals(unit2, data[4][1]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableWithLocalROIFromIJResults1() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
-        Roi              local  = new Roi(5, 5, 10, 10);
+
+        Roi local = new Roi(5, 5, 10, 10);
         local.setName("local");
         ijRois.add(local);
 
@@ -403,9 +384,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -419,22 +397,15 @@ class ImageJTableTest extends UserTest {
         assertEquals(unit2, data[3][1]);
         assertEquals(ijRois.get(0).getName(), data[4][1]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableWithLocalROIFromIJResults2() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
         List<Roi>        ijRois = rois.get(0).toImageJ((String) null);
-        Roi              local  = new Roi(5, 5, 10, 10);
+
+        Roi local = new Roi(5, 5, 10, 10);
         local.setName("local");
         ijRois.add(local);
 
@@ -452,9 +423,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -466,16 +434,11 @@ class ImageJTableTest extends UserTest {
         assertEquals(volume2, (Double) data[2][1], Double.MIN_VALUE);
         assertEquals(unit2, data[3][1]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableWithROINamesFromIJResults1() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
         ROIWrapper roi1 = new ROIWrapper();
         ROIWrapper roi2 = new ROIWrapper();
 
@@ -515,9 +478,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -531,16 +491,11 @@ class ImageJTableTest extends UserTest {
         assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals(unit2, data[4][1]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testCreateTableWithROINamesFromIJResults2() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
         ROIWrapper roi1 = new ROIWrapper();
         ROIWrapper roi2 = new ROIWrapper();
 
@@ -581,9 +536,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -597,16 +549,12 @@ class ImageJTableTest extends UserTest {
         assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals(unit2, data[4][1]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testAddRowsFromIJResultsError() throws Exception {
-        boolean error   = false;
-        long    imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
+        boolean error = false;
 
         List<Roi> ijRois = new ArrayList<>(0);
 
@@ -628,14 +576,7 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testNumberFormatException() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
         ijRois.get(0).setProperty(ROIWrapper.IJ_PROPERTY, "tutu");
         ijRois.get(1).setProperty(ROIWrapper.IJ_PROPERTY, "tutu");
@@ -656,9 +597,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -668,24 +606,13 @@ class ImageJTableTest extends UserTest {
         assertEquals(label, data[4][0]);
         assertEquals(1.0, data[5][0]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testNumericName() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        image.saveROI(client, roi);
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "1");
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
-        ijRois.get(0).setProperty(ROIWrapper.IJ_PROPERTY, "1");
-        ijRois.get(1).setProperty(ROIWrapper.IJ_PROPERTY, "1");
-        ijRois.get(2).setProperty(ROIWrapper.IJ_PROPERTY, "1");
 
         String label = image.getName();
 
@@ -701,9 +628,6 @@ class ImageJTableTest extends UserTest {
         Long       fileId   = table.getFileId();
 
         client.delete(table);
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -713,16 +637,11 @@ class ImageJTableTest extends UserTest {
         assertEquals(unit1, data[4][0]);
         assertEquals(label, data[5][0]);
         assertNotNull(fileId);
-        assertEquals(0, image.getROIs(client).size());
     }
 
 
     @Test
     void testAddRowsFromIJResultsInverted() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
         List<Roi> ijRois = new ArrayList<>(0);
 
         String label = image.getName();
@@ -761,19 +680,11 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testSaveTableAs() throws Exception {
-        long imageId = IMAGE1.id;
-
-        ImageWrapper image = client.getImage(imageId);
-
-        ROIWrapper roi = createROIWrapper(image);
-        roi.setName("1");
-        image.saveROI(client, roi);
-        long roiId = roi.getId();
-
-        List<ROIWrapper> rois   = image.getROIs(client);
+        List<ROIWrapper> rois   = createAndSaveROI(client, image, "1");
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois, "");
 
         String label = image.getName();
+        long   roiId = rois.get(0).getId();
 
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
         results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
@@ -807,11 +718,6 @@ class ImageJTableTest extends UserTest {
             assertEquals(expected.get(i), actual.get(i));
         }
         Files.deleteIfExists(file.toPath());
-
-        for (ROIWrapper r : rois) {
-            client.delete(r);
-        }
-        assertEquals(0, image.getROIs(client).size());
     }
 
 }
