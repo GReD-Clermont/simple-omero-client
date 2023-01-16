@@ -90,10 +90,10 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
         super(new FolderData());
         data.setName(name);
         try {
-            Folder f = (Folder) client.getGateway()
-                                      .getUpdateService(client.getCtx())
-                                      .saveAndReturnObject(data.asIObject());
-            data.setFolder(f);
+            Folder folder = (Folder) client.getGateway()
+                                           .getUpdateService(client.getCtx())
+                                           .saveAndReturnObject(data.asIObject());
+            data.setFolder(folder);
         } catch (DSOutOfServiceException | ServerError se) {
             handleServiceOrServer(se, "Could not create Folder with name: " + name);
         }

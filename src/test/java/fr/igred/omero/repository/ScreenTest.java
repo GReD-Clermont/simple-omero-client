@@ -141,7 +141,6 @@ class ScreenTest extends UserTest {
 
     @Test
     void testImportImages() throws Exception {
-
         String filename1 = "default-screen&screens=1&plates=1&plateAcqs=1&plateRows=3&plateCols=3&fields=4.fake";
         String filename2 = "default-screen&screens=1&plates=1&plateAcqs=1&plateRows=2&plateCols=2&fields=2.fake";
 
@@ -184,16 +183,15 @@ class ScreenTest extends UserTest {
 
     @Test
     void testImportImage() throws Exception {
-
         String filename = "default-screen&screens=1&plates=1&plateAcqs=1&plateRows=2&plateCols=2&fields=2.fake";
 
-        File f = createFile(filename);
+        File file = createFile(filename);
 
         ScreenWrapper screen = new ScreenWrapper(client, "Import", "test-import");
 
-        List<Long> ids = screen.importImage(client, f.getAbsolutePath());
+        List<Long> ids = screen.importImage(client, file.getAbsolutePath());
 
-        removeFile(f);
+        removeFile(file);
 
         List<PlateWrapper> plates = screen.getPlates();
         assertEquals(1, plates.size());

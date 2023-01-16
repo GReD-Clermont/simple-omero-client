@@ -41,6 +41,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -489,8 +490,8 @@ class ImageTest extends UserTest {
                 assertEquals(file.getParent() + File.separator, fileAnn.getFilePath());
                 assertFalse(fileAnn.isMovieFile());
 
-                String tmpdir = Files.createTempDirectory(null).toString();
-                File uploadedFile = fileAnn.getFile(client, tmpdir + File.separator + "uploaded.txt");
+                String tmpdir       = Files.createTempDirectory(null).toString();
+                File   uploadedFile = fileAnn.getFile(client, tmpdir + File.separator + "uploaded.txt");
 
                 List<String> expectedLines = Files.readAllLines(file.toPath());
                 List<String> lines         = Files.readAllLines(uploadedFile.toPath());
@@ -521,7 +522,7 @@ class ImageTest extends UserTest {
     @Test
     void testGetAcquisitionDate() throws Exception {
         LocalDateTime     acq = client.getImage(IMAGE1.id).getAcquisitionDate().toLocalDateTime();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss", Locale.getDefault());
 
         assertEquals("2020-04-01_20-04-01", dtf.format(acq));
     }

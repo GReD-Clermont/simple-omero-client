@@ -95,15 +95,15 @@ class SudoTest extends BasicTest {
         assertEquals(4L, client3.getId());
         client3.switchGroup(6L);
 
-        File f = createFile(filename);
+        File file = createFile(filename);
 
         DatasetWrapper dataset = new DatasetWrapper("sudoTest", "");
         dataset.saveAndUpdate(client3);
 
         assertTrue(dataset.canLink());
-        dataset.importImages(client3, f.getAbsolutePath());
+        dataset.importImages(client3, file.getAbsolutePath());
 
-        removeFile(f);
+        removeFile(file);
 
         List<ImageWrapper> images = dataset.getImages(client3);
         assertEquals(1, images.size());

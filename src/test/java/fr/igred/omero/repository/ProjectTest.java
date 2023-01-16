@@ -66,7 +66,7 @@ class ProjectTest extends UserTest {
 
         project.removeDataset(client, dataset);
         List<DatasetWrapper> datasets = project.getDatasets();
-        datasets.removeIf(d -> d.getId() != dataset.getId());
+        datasets.removeIf(ds -> ds.getId() != dataset.getId());
         int newSize = datasets.size();
 
         client.delete(project);
