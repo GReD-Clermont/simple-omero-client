@@ -531,7 +531,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         Collection<ImageWrapper> toDelete  = new ArrayList<>(newImages.size());
         for (ImageWrapper image : newImages) {
             List<ImageWrapper> oldImages = getImages(client, image.getName());
-            oldImages.removeIf(i -> ids.contains(i.getId()));
+            oldImages.removeIf(img -> ids.contains(img.getId()));
             List<ImageWrapper> orphaned = replaceImages(client, oldImages, image);
             if (policy == ReplacePolicy.DELETE) {
                 toDelete.addAll(oldImages);

@@ -21,14 +21,28 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.PlaneInfoWrapper;
+import ome.units.UNITS;
+import ome.units.unit.Unit;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlaneInfoData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.Length;
 import omero.model.Time;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static ome.formats.model.UnitsFactory.convertLength;
 
 
 /**
@@ -39,6 +53,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
     /** Size of tiles when retrieving pixels */
     public static final int MAX_DIST = 5000;
+
+    /** Planes info (needs to be loaded) */
+    private List<PlaneInfoWrapper> planesInfo = new ArrayList<>(0);
 
     /** Raw Data Facility to retrieve pixels */
     private RawDataFacility rawDataFacility;
@@ -112,6 +129,37 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /**
+     * Loads the planes information.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void loadPlanesInfo(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        List<PlaneInfoData> planes = new ArrayList<>(0);
+        try {
+            planes = client.getMetadata().getPlaneInfos(client.getCtx(), data);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot retrieve planes info: " + e.getMessage());
+        }
+        planesInfo = planes.stream().map(PlaneInfoWrapper::new).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Client) loaded} first).
+     *
+     * @return See above.
+     */
+    public List<PlaneInfoWrapper> getPlanesInfo() {
+        return Collections.unmodifiableList(planesInfo);
+    }
+
+
+    /**
      * Gets the pixel type.
      *
      * @return the pixel type.
@@ -158,6 +206,69 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     public Time getTimeIncrement() {
         return data.asPixels().getTimeIncrement();
+    }
+
+
+    /**
+     * Computes the mean time interval from the planes deltaTs.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    public Time getMeanTimeInterval() {
+        return PlaneInfoWrapper.computeMeanTimeInterval(planesInfo, getSizeT());
+    }
+
+
+    /**
+     * Computes the mean exposure time for a given channel from the planes exposureTime.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @param channel The channel index.
+     *
+     * @return See above.
+     */
+    public Time getMeanExposureTime(int channel) {
+        return PlaneInfoWrapper.computeMeanExposureTime(planesInfo, channel);
+    }
+
+
+    /**
+     * Retrieves the X stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    public Length getPositionX() {
+        ome.units.quantity.Length       pixSizeX = convertLength(getPixelSizeX());
+        Unit<ome.units.quantity.Length> unit     = pixSizeX == null ? UNITS.MICROMETER : pixSizeX.unit();
+        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionX, unit);
+    }
+
+
+    /**
+     * Retrieves the Y stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    public Length getPositionY() {
+        ome.units.quantity.Length       pixSizeY = convertLength(getPixelSizeY());
+        Unit<ome.units.quantity.Length> unit     = pixSizeY == null ? UNITS.MICROMETER : pixSizeY.unit();
+        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionY, unit);
+    }
+
+
+    /**
+     * Retrieves the Z stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    public Length getPositionZ() {
+        ome.units.quantity.Length       pixSizeZ = convertLength(getPixelSizeZ());
+        Unit<ome.units.quantity.Length> unit     = pixSizeZ == null ? UNITS.MICROMETER : pixSizeZ.unit();
+        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionZ, unit);
     }
 
 
@@ -258,7 +369,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the value for each voxel corresponding to the bounds
      *
-     * @param client The client handling the connection.
+     * @param client  The client handling the connection.
      * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
      * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
      * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
@@ -281,7 +392,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
         Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         Coordinates start = lim.getStart();
-        Coordinates size = lim.getSize();
+        Coordinates size  = lim.getSize();
 
         double[][][][][] tab = new double[size.getT()][size.getZ()][size.getC()][][];
 
@@ -360,13 +471,13 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
      *
-     * @param client The client handling the connection.
+     * @param client  The client handling the connection.
      * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
      * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
      * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
      * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
      * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
-     * @param bpp    Bytes per pixels of the image.
+     * @param bpp     Bytes per pixels of the image.
      *
      * @return a table of bytes containing the pixel values
      *
@@ -385,7 +496,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
         Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
         Coordinates start = lim.getStart();
-        Coordinates size = lim.getSize();
+        Coordinates size  = lim.getSize();
 
         byte[][][][] bytes = new byte[size.getT()][size.getZ()][size.getC()][];
 

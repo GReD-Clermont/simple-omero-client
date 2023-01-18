@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains wrapper classes for users and groups.
+ * This package contains wrapper classes for users, groups and planes information.
  */
 package fr.igred.omero.meta;

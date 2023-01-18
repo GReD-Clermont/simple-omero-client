@@ -171,32 +171,43 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Sets the calibration.
+     * Sets the calibration. Planes information has to be loaded first.
+     *
+     * @param pixels      The pixels.
+     * @param calibration The ImageJ calibration.
      */
-    private void setCalibration(Calibration calibration) {
-        PixelsWrapper pixels   = this.getPixels();
-        Length        spacingX = pixels.getPixelSizeX();
-        Length        spacingY = pixels.getPixelSizeY();
-        Length        spacingZ = pixels.getPixelSizeZ();
-        Time          stepT    = pixels.getTimeIncrement();
+    private static void setCalibration(PixelsWrapper pixels, Calibration calibration) {
+        Length positionX = pixels.getPositionX();
+        Length positionY = pixels.getPositionY();
+        Length positionZ = pixels.getPositionZ();
+        Length spacingX  = pixels.getPixelSizeX();
+        Length spacingY  = pixels.getPixelSizeY();
+        Length spacingZ  = pixels.getPixelSizeZ();
+        Time   stepT     = pixels.getTimeIncrement();
 
+        if (stepT == null) {
+            stepT = pixels.getMeanTimeInterval();
+        }
+
+        calibration.setXUnit(positionX.getSymbol());
+        calibration.setYUnit(positionY.getSymbol());
+        calibration.setZUnit(positionZ.getSymbol());
+        calibration.xOrigin = positionX.getValue();
+        calibration.yOrigin = positionY.getValue();
+        calibration.zOrigin = positionZ.getValue();
         if (spacingX != null) {
-            calibration.setXUnit(spacingX.getSymbol());
             calibration.pixelWidth = spacingX.getValue();
         }
         if (spacingY != null) {
-            calibration.setYUnit(spacingY.getSymbol());
             calibration.pixelHeight = spacingY.getValue();
         }
         if (spacingZ != null) {
-            calibration.setZUnit(spacingZ.getSymbol());
             calibration.pixelDepth = spacingZ.getValue();
         }
-        if (stepT != null) {
+        if (!Double.isNaN(stepT.getValue())) {
             calibration.setTimeUnit(stepT.getSymbol());
             calibration.frameInterval = stepT.getValue();
         }
-
     }
 
 
@@ -522,6 +533,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                                  int[] tBounds)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = this.getPixels();
+        pixels.loadPlanesInfo(client);
 
         boolean createdRDF = pixels.createRawDataFacility(client);
 
@@ -545,7 +557,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
 
         Calibration calibration = imp.getCalibration();
-        setCalibration(calibration);
+        setCalibration(pixels, calibration);
         imp.setCalibration(calibration);
 
         boolean isFloat = FormatTools.isFloatingPoint(pixelType);

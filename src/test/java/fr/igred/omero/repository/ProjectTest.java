@@ -66,7 +66,7 @@ class ProjectTest extends UserTest {
 
         project.removeDataset(client, dataset);
         List<DatasetWrapper> datasets = project.getDatasets();
-        datasets.removeIf(d -> d.getId() != dataset.getId());
+        datasets.removeIf(ds -> ds.getId() != dataset.getId());
         int newSize = datasets.size();
 
         client.delete(project);
@@ -296,9 +296,9 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        Long fileId = project1.addFile(client, file);
+        long fileId = project1.addFile(client, file);
         removeFile(file);
-        assertNotEquals(0L, fileId.longValue());
+        assertNotEquals(0L, fileId);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
         project1.addTag(client, tag);
@@ -341,9 +341,9 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        Long fileId = project1.addFile(client, file);
+        long fileId = project1.addFile(client, file);
         removeFile(file);
-        assertNotEquals(0L, fileId.longValue());
+        assertNotEquals(0L, fileId);
 
         List<FileAnnotationWrapper> files = project1.getFileAnnotations(client);
         assertEquals(1, files.size());
@@ -356,7 +356,7 @@ class ProjectTest extends UserTest {
         client.deleteFile(fileId);
         client.delete(project2);
 
-        assertNotEquals(0L, fileId.longValue());
+        assertNotEquals(0L, fileId);
     }
 
 

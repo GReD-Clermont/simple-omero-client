@@ -35,16 +35,15 @@ import org.junit.jupiter.api.Test;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -259,9 +258,13 @@ class ImageTest extends UserTest {
 
     @Test
     void testToImagePlusBound() throws Exception {
-        final int    lowXY   = 500;
-        final int    highXY  = 507;
-        final double pixSize = 0.5;
+        final int    lowXY    = 500;
+        final int    highXY   = 507;
+        final double pixSize  = 0.5;
+        final double pixDepth = 1.5;
+        final double deltaT   = 150;
+        final double xyOrigin = 100;
+        final double zOrigin  = 20;
 
         int[] xBounds = {0, 2};
         int[] yBounds = {0, 2};
@@ -269,15 +272,14 @@ class ImageTest extends UserTest {
         int[] zBounds = {0, 2};
         int[] tBounds = {0, 2};
 
-        Random random = new SecureRandom();
-        xBounds[0] = random.nextInt(lowXY);
-        yBounds[0] = random.nextInt(lowXY);
-        cBounds[0] = random.nextInt(3);
-        tBounds[0] = random.nextInt(5);
-        xBounds[1] = random.nextInt(highXY - xBounds[0]) + xBounds[0] + 5;
-        yBounds[1] = random.nextInt(highXY - yBounds[0]) + yBounds[0] + 5;
-        cBounds[1] = random.nextInt(3 - cBounds[0]) + cBounds[0] + 2;
-        tBounds[1] = random.nextInt(5 - tBounds[0]) + tBounds[0] + 2;
+        xBounds[0] = SECURE_RANDOM.nextInt(lowXY);
+        yBounds[0] = SECURE_RANDOM.nextInt(lowXY);
+        cBounds[0] = SECURE_RANDOM.nextInt(3);
+        tBounds[0] = SECURE_RANDOM.nextInt(5);
+        xBounds[1] = SECURE_RANDOM.nextInt(highXY - xBounds[0]) + xBounds[0] + 5;
+        yBounds[1] = SECURE_RANDOM.nextInt(highXY - yBounds[0]) + yBounds[0] + 5;
+        cBounds[1] = SECURE_RANDOM.nextInt(3 - cBounds[0]) + cBounds[0] + 2;
+        tBounds[1] = SECURE_RANDOM.nextInt(5 - tBounds[0]) + tBounds[0] + 2;
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = createFile(fake);
@@ -302,8 +304,15 @@ class ImageTest extends UserTest {
 
         assertEquals(pixSize, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
         assertEquals(pixSize, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
-        assertEquals(1.0, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
+        assertEquals(pixDepth, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
+        // Round numbers because rounding errors happen when converting units
+        assertEquals(deltaT, imp.getCalibration().frameInterval, DOUBLE_PRECISION * deltaT);
+        assertEquals(xyOrigin, imp.getCalibration().xOrigin, DOUBLE_PRECISION * xyOrigin);
+        assertEquals(xyOrigin, imp.getCalibration().yOrigin, DOUBLE_PRECISION * xyOrigin);
+        assertEquals(zOrigin, imp.getCalibration().zOrigin, DOUBLE_PRECISION * zOrigin);
         assertEquals("µm", imp.getCalibration().getUnit());
+        assertEquals("µm", imp.getCalibration().getZUnit());
+        assertEquals("ms", imp.getCalibration().getTimeUnit());
         assertEquals(0, (int) stats.max);
     }
 
@@ -470,18 +479,19 @@ class ImageTest extends UserTest {
         long id   = image.addFile(client, file);
 
         List<FileAnnotationWrapper> files = image.getFileAnnotations(client);
-        for (FileAnnotationWrapper f : files) {
-            if (f.getId() == id) {
-                assertEquals(file.getName(), f.getFileName());
-                assertEquals("txt", f.getFileFormat());
-                assertEquals("text/plain", f.getOriginalMimetype());
-                assertEquals("text/plain", f.getServerFileMimetype());
-                assertEquals("Plain Text Document", f.getFileKind());
-                assertEquals(file.getParent() + File.separator, f.getContentAsString());
-                assertEquals(file.getParent() + File.separator, f.getFilePath());
-                assertFalse(f.isMovieFile());
+        for (FileAnnotationWrapper fileAnn : files) {
+            if (fileAnn.getId() == id) {
+                assertEquals(file.getName(), fileAnn.getFileName());
+                assertEquals("txt", fileAnn.getFileFormat());
+                assertEquals("text/plain", fileAnn.getOriginalMimetype());
+                assertEquals("text/plain", fileAnn.getServerFileMimetype());
+                assertEquals("Plain Text Document", fileAnn.getFileKind());
+                assertEquals(file.getParent() + File.separator, fileAnn.getContentAsString());
+                assertEquals(file.getParent() + File.separator, fileAnn.getFilePath());
+                assertFalse(fileAnn.isMovieFile());
 
-                File uploadedFile = f.getFile(client, "." + File.separator + "uploaded.txt");
+                String tmpdir       = Files.createTempDirectory(null).toString();
+                File   uploadedFile = fileAnn.getFile(client, tmpdir + File.separator + "uploaded.txt");
 
                 List<String> expectedLines = Files.readAllLines(file.toPath());
                 List<String> lines         = Files.readAllLines(uploadedFile.toPath());
@@ -512,7 +522,7 @@ class ImageTest extends UserTest {
     @Test
     void testGetAcquisitionDate() throws Exception {
         LocalDateTime     acq = client.getImage(IMAGE1.id).getAcquisitionDate().toLocalDateTime();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss", Locale.getDefault());
 
         assertEquals("2020-04-01_20-04-01", dtf.format(acq));
     }
@@ -561,17 +571,17 @@ class ImageTest extends UserTest {
     void testGetCropFromROI() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        final RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        final EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
+        EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
-        final int[] xBounds = {30, 69};
-        final int[] yBounds = {10, 89};
-        final int[] cBounds = {1, 1};
-        final int[] zBounds = {0, 1};
-        final int[] tBounds = {1, 2};
+        int[] xBounds = {30, 69};
+        int[] yBounds = {10, 89};
+        int[] cBounds = {1, 1};
+        int[] zBounds = {0, 1};
+        int[] tBounds = {1, 2};
 
         ROIWrapper roiWrapper = new ROIWrapper();
         roiWrapper.setImage(image);

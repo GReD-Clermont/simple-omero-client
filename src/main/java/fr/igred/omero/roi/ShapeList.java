@@ -30,6 +30,7 @@ import omero.gateway.model.TextData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -38,6 +39,24 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
 
 
     private static final long serialVersionUID = 9076633148525603098L;
+
+
+    /**
+     * Tries to convert a ShapeData object to a GenericShapeWrapper object.
+     *
+     * @param object The shape.
+     * @param klass  The suspected class of the shape.
+     * @param mapper The method used to wrap the object.
+     * @param <T>    The type of ShapeData.
+     * @param <U>    The type of GenericObjectWrapper.
+     *
+     * @return A GenericObjectWrapper.
+     */
+    private static <T extends ShapeData, U extends GenericShapeWrapper<T>>
+    U tryConvert(ShapeData object, Class<? extends T> klass, Function<? super T, U> mapper) {
+        if (klass.isInstance(object)) return mapper.apply(klass.cast(object));
+        else return null;
+    }
 
 
     /**
@@ -62,24 +81,18 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      */
     public boolean add(ShapeData shape) {
         boolean added = false;
-        // noinspection IfStatementWithTooManyBranches,ChainOfInstanceofChecks
-        if (shape instanceof PointData) {
-            added = add(new PointWrapper((PointData) shape));
-        } else if (shape instanceof TextData) {
-            added = add(new TextWrapper((TextData) shape));
-        } else if (shape instanceof RectangleData) {
-            added = add(new RectangleWrapper((RectangleData) shape));
-        } else if (shape instanceof MaskData) {
-            added = add(new MaskWrapper((MaskData) shape));
-        } else if (shape instanceof EllipseData) {
-            added = add(new EllipseWrapper((EllipseData) shape));
-        } else if (shape instanceof LineData) {
-            added = add(new LineWrapper((LineData) shape));
-        } else if (shape instanceof PolylineData) {
-            added = add(new PolylineWrapper((PolylineData) shape));
-        } else if (shape instanceof PolygonData) {
-            added = add(new PolygonWrapper((PolygonData) shape));
-        }
+
+        GenericShapeWrapper<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, PointWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, TextData.class, TextWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, RectangleData.class, RectangleWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, MaskData.class, MaskWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, EllipseData.class, EllipseWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, LineData.class, LineWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, PolylineData.class, PolylineWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, PolygonData.class, PolygonWrapper::new);
+
+        if (wrapper != null) added = add(wrapper);
+
         return added;
     }
 

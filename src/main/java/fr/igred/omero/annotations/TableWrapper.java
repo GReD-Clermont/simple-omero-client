@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -208,6 +209,26 @@ public class TableWrapper {
 
 
     /**
+     * Safely converts a String to a Long, returning null if it fails.
+     *
+     * @param s The string.
+     *
+     * @return The integer value represented by s, null if not applicable.
+     */
+    private static Long safeParseLong(String s) {
+        Long l = null;
+        if (s != null) {
+            try {
+                l = Long.parseLong(s);
+            } catch (NumberFormatException ignored) {
+                // DO NOTHING
+            }
+        }
+        return l;
+    }
+
+
+    /**
      * Checks if a column from a {@link ResultsTable} is numeric or not.
      *
      * @param resultsColumn An ImageJ results table column.
@@ -249,17 +270,17 @@ public class TableWrapper {
      *     <li>The ShapeData names (if the column contains Strings)</li>
      * </ul>
      *
-     * @param roiCol      Variable column containing ROI info
-     * @param index2roi   ROI indices map
-     * @param id2roi      ROI IDs map
-     * @param roiName2roi ROI names map
+     * @param roiCol        Variable column containing ROI info
+     * @param name2roi      ROI names map
+     * @param id2roi        ROI IDs map
+     * @param shapeName2roi ROI shape names map
      *
      * @return A ROIData column.
      */
     private static ROIData[] columnToROIColumn(Variable[] roiCol,
-                                               Map<Integer, ROIData> index2roi,
+                                               Map<String, ROIData> name2roi,
                                                Map<Long, ROIData> id2roi,
-                                               Map<String, ROIData> roiName2roi) {
+                                               Map<String, ROIData> shapeName2roi) {
         ROIData[] roiColumn = EMPTY_ROI;
         if (isColumnNumeric(roiCol)) {
             List<Long> ids = Arrays.stream(roiCol)
@@ -267,16 +288,15 @@ public class TableWrapper {
                                    .map(Double::longValue)
                                    .collect(Collectors.toList());
 
-            List<Integer> indices = Arrays.stream(roiCol)
-                                          .map(Variable::getValue)
-                                          .map(Double::intValue)
-                                          .collect(Collectors.toList());
+            List<String> numericNames = Arrays.stream(roiCol)
+                                              .map(Variable::toString)
+                                              .collect(Collectors.toList());
 
-            index2roi.keySet().retainAll(indices);
+            name2roi.keySet().retainAll(numericNames);
             id2roi.keySet().retainAll(ids);
-            boolean isIndices = index2roi.size() >= id2roi.size();
+            boolean isIndices = name2roi.size() >= id2roi.size();
             if (isIndices) {
-                roiColumn = indices.stream().map(index2roi::get).toArray(ROIData[]::new);
+                roiColumn = numericNames.stream().map(name2roi::get).toArray(ROIData[]::new);
                 if (Arrays.asList(roiColumn).contains(null)) isIndices = false;
             }
             if (!isIndices) {
@@ -284,8 +304,14 @@ public class TableWrapper {
             }
         } else {
             roiColumn = Arrays.stream(roiCol)
-                              .map(v -> roiName2roi.get(v.getString()))
+                              .map(v -> name2roi.get(v.getString()))
                               .toArray(ROIData[]::new);
+            // If the names don't all match ROIs, try with shape names
+            if (Arrays.asList(roiColumn).contains(null)) {
+                roiColumn = Arrays.stream(roiCol)
+                                  .map(v -> shapeName2roi.get(v.getString()))
+                                  .toArray(ROIData[]::new);
+            }
         }
         return roiColumn;
     }
@@ -315,14 +341,15 @@ public class TableWrapper {
 
         Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
 
-        Map<Integer, ROIData> index2roi   = new HashMap<>(ijRois.size());
-        Map<String, ROIData>  roiName2roi = new HashMap<>(ijRois.size());
+        Map<String, ROIData> name2roi      = new HashMap<>(ijRois.size());
+        Map<String, ROIData> shapeName2roi = new HashMap<>(ijRois.size());
         for (Roi ijRoi : ijRois) {
-            String index = ijRoi.getProperty(roiProperty);
-            String id    = ijRoi.getProperty(roiIdProperty);
+            String name = ijRoi.getProperty(roiProperty);
+            Long   id   = safeParseLong(ijRoi.getProperty(roiIdProperty));
             if (id != null) {
-                roiName2roi.put(ijRoi.getName(), id2roi.get(Long.parseLong(id)));
-                if (index != null) index2roi.putIfAbsent(Integer.parseInt(index), id2roi.get(Long.parseLong(id)));
+                ROIData roi = id2roi.get(id);
+                shapeName2roi.put(ijRoi.getName(), roi);
+                if (name != null) name2roi.putIfAbsent(name, roi);
             }
         }
 
@@ -330,7 +357,7 @@ public class TableWrapper {
 
         if (results.columnExists(roiProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiProperty);
-            roiColumn = columnToROIColumn(roiCol, index2roi, id2roi, roiName2roi);
+            roiColumn = columnToROIColumn(roiCol, name2roi, id2roi, shapeName2roi);
             // If roiColumn contains null, we return an empty array
             if (Arrays.asList(roiColumn).contains(null)) return EMPTY_ROI;
             results.deleteColumn(roiProperty);
@@ -347,10 +374,10 @@ public class TableWrapper {
         } else if (Arrays.asList(headings).contains(LABEL)) {
             String[] roiNames = Arrays.stream(results.getColumnAsVariables(LABEL))
                                       .map(Variable::getString)
-                                      .map(s -> roiName2roi.keySet().stream().filter(s::contains)
-                                                           .findFirst().orElse(null))
+                                      .map(s -> shapeName2roi.keySet().stream().filter(s::contains)
+                                                             .findFirst().orElse(null))
                                       .toArray(String[]::new);
-            roiColumn = Arrays.stream(roiNames).map(roiName2roi::get).toArray(ROIData[]::new);
+            roiColumn = Arrays.stream(roiNames).map(shapeName2roi::get).toArray(ROIData[]::new);
             if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
         }
 
@@ -701,13 +728,17 @@ public class TableWrapper {
      * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
      */
     public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
+        NumberFormat formatter = NumberFormat.getInstance();
+        formatter.setMaximumFractionDigits(4);
+
         StringBuilder sb = new StringBuilder(10 * columnCount * rowCount);
-        File          f  = new File(path);
+
+        File file = new File(path);
 
         String sol = "\"";
         String sep = String.format("\"%c\"", delimiter);
         String eol = String.format("\"%n");
-        try (PrintWriter stream = new PrintWriter(f, StandardCharsets.UTF_8.name())) {
+        try (PrintWriter stream = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
             sb.append(sol);
             for (int j = 0; j < columnCount; j++) {
                 sb.append(columns[j].getName());
@@ -722,6 +753,9 @@ public class TableWrapper {
                     Object value = data[j][i];
                     if (DataObject.class.isAssignableFrom(columns[j].getType())) {
                         value = ((DataObject) value).getId();
+                    }
+                    if (value instanceof Number) {
+                        value = formatter.format(value);
                     }
                     sb.append(value);
                     if (j != columnCount - 1) {

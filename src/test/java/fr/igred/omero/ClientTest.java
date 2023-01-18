@@ -213,16 +213,16 @@ class ClientTest extends UserTest {
 
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=256.fake";
 
-        File f = createFile(filename);
+        File file = createFile(filename);
 
         client.switchGroup(newGroupId);
 
         DatasetWrapper dataset = new DatasetWrapper("test", "");
         dataset.saveAndUpdate(client);
 
-        List<Long> ids = dataset.importImage(client, f.getAbsolutePath());
+        List<Long> ids = dataset.importImage(client, file.getAbsolutePath());
 
-        removeFile(f);
+        removeFile(file);
 
         assertEquals(1, ids.size());
 

@@ -103,11 +103,11 @@ class PixelsTest extends UserTest {
         ImageWrapper  image  = client.getImage(IMAGE1.id);
         PixelsWrapper pixels = image.getPixels();
 
-        final int[] xBounds = {511, 513};
-        final int[] yBounds = {0, 2};
-        final int[] cBounds = {0, 2};
-        final int[] zBounds = {0, 2};
-        final int[] tBounds = {0, 2};
+        int[] xBounds = {511, 513};
+        int[] yBounds = {0, 2};
+        int[] cBounds = {0, 2};
+        int[] zBounds = {0, 2};
+        int[] tBounds = {0, 2};
 
         double[][][][][] value = pixels.getAllPixels(client, xBounds, yBounds, cBounds, zBounds, tBounds);
         assertNotEquals(xBounds[1] - xBounds[0] + 1, value[0][0][0][0].length);
