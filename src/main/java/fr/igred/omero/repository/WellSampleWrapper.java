@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a WellSampleData object.
  * <p> Wraps function calls to the WellSampleData contained.
  */
-public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
+public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
 
 
     /**

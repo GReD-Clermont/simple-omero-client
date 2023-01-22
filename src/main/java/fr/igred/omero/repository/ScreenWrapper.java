@@ -21,7 +21,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ScreenData;
 
@@ -37,7 +37,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
  * Class containing a ScreenData object.
  * <p> Wraps function calls to the ScreenData contained.
  */
-public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
+public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ScreenAnnotationLink";
@@ -272,12 +272,12 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public boolean importImages(GatewayWrapper client, String... paths)
-    throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
+    throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
         boolean success = importImages(client, data, paths);
         refresh(client);
         return success;
@@ -294,11 +294,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<Long> importImage(GatewayWrapper client, String path)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ServerException, ExecutionException {
         List<Long> ids = importImage(client, data, path);
         refresh(client);
         return ids;

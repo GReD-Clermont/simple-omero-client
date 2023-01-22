@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.gateway.exception.DSAccessException;
@@ -48,7 +48,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
  * Class containing a FolderData object.
  * <p> Wraps function calls to the FolderData contained.
  */
-public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
+public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "FolderAnnotationLink";
@@ -84,9 +84,9 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @param name   Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
-    public FolderWrapper(Client client, String name) throws ServiceException, OMEROServerError {
+    public FolderWrapper(Client client, String name) throws ServiceException, ServerException {
         super(new FolderData());
         data.setName(name);
         Folder f = (Folder) handleServiceAndServer(client.getGateway(),

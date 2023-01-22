@@ -20,7 +20,7 @@ package fr.igred.omero.annotations;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -37,10 +37,10 @@ import java.io.IOException;
  * Class containing a FileAnnotationData object.
  * <p> Wraps function calls to the FileAnnotationData contained.
  */
-public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotationData> {
+public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData> {
 
     /**
-     * Constructor of the GenericAnnotationWrapper class.
+     * Constructor of the AnnotationWrapper class.
      *
      * @param annotation Annotation to be contained.
      */
@@ -178,15 +178,15 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws IOException      Cannot write to the file.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
-    public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
+    public File getFile(Client client, String path) throws IOException, ServiceException, ServerException {
         File file = new File(path);
 
         RawFileStorePrx store;
         try (FileOutputStream stream = new FileOutputStream(file)) {
             store = ExceptionHandler.of(client, c -> writeFile(c, stream), "Could not create RawFileService")
-                                    .rethrow(ServerError.class, OMEROServerError::new)
+                                    .rethrow(ServerError.class, ServerException::new)
                                     .rethrow(DSOutOfServiceException.class, ServiceException::new)
                                     .rethrow(IOException.class)
                                     .get();
@@ -194,7 +194,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
 
         if (store != null) {
             ExceptionHandler.ofConsumer(store, RawFileStorePrx::close, "Could not close RawFileService")
-                            .rethrow(ServerError.class, OMEROServerError::new);
+                            .rethrow(ServerError.class, ServerException::new);
         }
 
         return file;
