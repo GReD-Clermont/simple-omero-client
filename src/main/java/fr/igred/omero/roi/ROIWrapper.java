@@ -192,7 +192,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         int index = 1;
         for (ROIWrapper roi : rois) {
             String name = roi.getName();
-            if (name == null || name.trim().isEmpty()) {
+            if (name.trim().isEmpty()) {
                 name = "SOC_INDEX_" + index;
             }
             List<ij.gui.Roi> shapes = roi.toImageJ(property);
@@ -216,7 +216,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      */
     public String getName() {
         RString name = ((_RoiOperationsNC) data.asIObject()).getName();
-        return name != null ? name.getValue() : null;
+        return name != null ? name.getValue() : "";
     }
 
 
