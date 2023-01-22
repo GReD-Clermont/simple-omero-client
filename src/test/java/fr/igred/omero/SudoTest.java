@@ -37,7 +37,7 @@ class SudoTest extends BasicTest {
         Client root = new Client();
         root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
 
-        Client test = root.sudoGetUser(USER1.name);
+        Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
         test.disconnect();
         assertTrue(root.isConnected(), "root has been disconnected by sudo context");
@@ -51,7 +51,7 @@ class SudoTest extends BasicTest {
         Client root = new Client();
         root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
 
-        Client test = root.sudoGetUser(USER1.name);
+        Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
         TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
@@ -91,7 +91,7 @@ class SudoTest extends BasicTest {
         client4.connect(HOST, PORT, "testUser4", "password4".toCharArray(), 6L);
         assertEquals(5L, client4.getId());
 
-        Client client3 = client4.sudoGetUser("testUser3");
+        Client client3 = client4.sudo("testUser3");
         assertEquals(4L, client3.getId());
         client3.switchGroup(6L);
 
