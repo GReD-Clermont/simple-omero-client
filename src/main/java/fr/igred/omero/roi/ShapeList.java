@@ -34,25 +34,25 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
-/** List of GenericShapeWrapper objects */
-public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
+/** List of ShapeWrapper objects */
+public class ShapeList extends ArrayList<ShapeWrapper<?>> {
 
 
     private static final long serialVersionUID = 9076633148525603098L;
 
 
     /**
-     * Tries to convert a ShapeData object to a GenericShapeWrapper object.
+     * Tries to convert a ShapeData object to a ShapeWrapper object.
      *
      * @param object The shape.
      * @param klass  The suspected class of the shape.
      * @param mapper The method used to wrap the object.
      * @param <T>    The type of ShapeData.
-     * @param <U>    The type of GenericObjectWrapper.
+     * @param <U>    The type of ObjectWrapper.
      *
-     * @return A GenericObjectWrapper.
+     * @return An ObjectWrapper.
      */
-    private static <T extends ShapeData, U extends GenericShapeWrapper<T>>
+    private static <T extends ShapeData, U extends ShapeWrapper<T>>
     U tryConvert(ShapeData object, Class<? extends T> klass, Function<? super T, U> mapper) {
         if (klass.isInstance(object)) return mapper.apply(klass.cast(object));
         else return null;
@@ -63,11 +63,11 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      * Gets a list of elements from this list whose class is specified.
      *
      * @param clazz Class of the wanted elements.
-     * @param <T>   Subclass of GenericShapeWrapper.
+     * @param <T>   Subclass of ShapeWrapper.
      *
      * @return See above.
      */
-    public <T extends GenericShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
+    public <T extends ShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
     }
 
@@ -82,7 +82,7 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
     public boolean add(ShapeData shape) {
         boolean added = false;
 
-        GenericShapeWrapper<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, PointWrapper::new);
+        ShapeWrapper<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, PointWrapper::new);
         if (wrapper == null) wrapper = tryConvert(shape, TextData.class, TextWrapper::new);
         if (wrapper == null) wrapper = tryConvert(shape, RectangleData.class, RectangleWrapper::new);
         if (wrapper == null) wrapper = tryConvert(shape, MaskData.class, MaskWrapper::new);

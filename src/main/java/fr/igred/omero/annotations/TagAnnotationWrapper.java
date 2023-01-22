@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData object.
  * <p> Wraps function calls to the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotationData> {
+public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
 
     /**
      * Constructor of the TagAnnotationWrapper class.

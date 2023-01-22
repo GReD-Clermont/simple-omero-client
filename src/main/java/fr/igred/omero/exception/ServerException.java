@@ -20,7 +20,7 @@ import omero.ServerError;
 
 
 /** Reports an error occurred on the server. */
-public class OMEROServerError extends ServerError {
+public class ServerException extends ServerError {
 
     private static final long serialVersionUID = 3769544644500634998L;
 
@@ -31,7 +31,7 @@ public class OMEROServerError extends ServerError {
      * @param details Short explanation of the problem.
      * @param cause   The exception that caused this one to be risen.
      */
-    public OMEROServerError(String details, Throwable cause) {
+    public ServerException(String details, Throwable cause) {
         super("", "", details, cause);
     }
 
@@ -41,7 +41,7 @@ public class OMEROServerError extends ServerError {
      *
      * @param cause The exception that caused this one to be risen.
      */
-    public OMEROServerError(Throwable cause) {
+    public ServerException(Throwable cause) {
         this("A server error occurred", cause);
     }
 

@@ -28,7 +28,7 @@ import java.util.List;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
  * <p> Wraps function calls to the MapAnnotationData contained.
  */
-public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotationData> {
+public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
 
 
     /**
