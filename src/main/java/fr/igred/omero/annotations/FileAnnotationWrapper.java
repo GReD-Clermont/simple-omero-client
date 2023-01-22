@@ -19,6 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.ServerError;
@@ -30,8 +31,6 @@ import omero.gateway.model.FileAnnotationData;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
@@ -47,6 +46,35 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      */
     public FileAnnotationWrapper(FileAnnotationData annotation) {
         super(annotation);
+    }
+
+
+    /**
+     * Writes this file annotation to the specified {@link FileOutputStream}.
+     *
+     * @param client The client handling the connection.
+     * @param stream The {@link FileOutputStream} where the data will be written.
+     *
+     * @return The {@link RawFileStorePrx} used to read the file annotation.
+     *
+     * @throws ServerError             Server error.
+     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws IOException             Cannot write to the file.
+     */
+    private RawFileStorePrx writeFile(Client client, FileOutputStream stream)
+    throws ServerError, DSOutOfServiceException, IOException {
+        final int inc = 262144;
+
+        RawFileStorePrx store = client.getGateway().getRawFileService(client.getCtx());
+        store.setFileId(this.getFileID());
+
+        long size = getFileSize();
+        long offset;
+        for (offset = 0; offset + inc < size; offset += inc) {
+            stream.write(store.read(offset, inc));
+        }
+        stream.write(store.read(offset, (int) (size - offset)));
+        return store;
     }
 
 
@@ -153,31 +181,20 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      * @throws OMEROServerError Server error.
      */
     public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
-        final int inc = 262144;
-
         File file = new File(path);
 
-        RawFileStorePrx store = null;
+        RawFileStorePrx store;
         try (FileOutputStream stream = new FileOutputStream(file)) {
-            store = client.getGateway().getRawFileService(client.getCtx());
-            store.setFileId(this.getFileID());
-
-            long size = getFileSize();
-            long offset;
-            for (offset = 0; offset + inc < size; offset += inc) {
-                stream.write(store.read(offset, inc));
-            }
-            stream.write(store.read(offset, (int) (size - offset)));
-        } catch (DSOutOfServiceException | ServerError e) {
-            handleServiceOrServer(e, "Could not create RawFileService");
+            store = ExceptionHandler.of(client, c -> writeFile(c, stream), "Could not create RawFileService")
+                                    .rethrow(ServerError.class, OMEROServerError::new)
+                                    .rethrow(DSOutOfServiceException.class, ServiceException::new)
+                                    .rethrow(IOException.class)
+                                    .get();
         }
 
         if (store != null) {
-            try {
-                store.close();
-            } catch (ServerError e) {
-                throw new OMEROServerError("Could not close RawFileService", e);
-            }
+            ExceptionHandler.ofConsumer(store, RawFileStorePrx::close, "Could not close RawFileService")
+                            .rethrow(ServerError.class, OMEROServerError::new);
         }
 
         return file;

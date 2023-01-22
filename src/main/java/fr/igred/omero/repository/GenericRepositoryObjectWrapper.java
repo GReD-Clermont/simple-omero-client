@@ -25,6 +25,7 @@ import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import loci.formats.in.DefaultMetadataOptions;
@@ -39,8 +40,7 @@ import ome.formats.importer.cli.ErrorHandler;
 import ome.formats.importer.cli.LoggingImportMonitor;
 import omero.ServerError;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
@@ -68,7 +68,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -113,7 +113,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            store.logVersionInfo(config.getIniVersionNumber());
+            ExceptionHandler.ofConsumer(store,
+                                        s -> s.logVersionInfo(config.getIniVersionNumber()),
+                                        "Cannot log version information during import.")
+                            .rethrow(ServerError.class, OMEROServerError::new);
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
 
             ImportLibrary library = new ImportLibrary(store, reader);
@@ -123,8 +126,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
             ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
             success = library.importCandidates(config, candidates);
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
         } finally {
             store.logout();
         }
@@ -262,11 +263,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     protected void addTag(Client client, TagAnnotationData tagData)
     throws ServiceException, AccessException, ExecutionException {
-        try {
-            client.getDm().attachAnnotation(client.getCtx(), tagData, data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add tag " + tagData.getTagValue() + " to " + this);
-        }
+        String error = "Cannot add tag " + tagData.getId() + " to " + this;
+        handleServiceAndAccess(client.getDm(),
+                               d -> d.attachAnnotation(client.getCtx(), tagData, data),
+                               error);
     }
 
 
@@ -339,12 +339,12 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tags for " + this);
-        }
+        List<AnnotationData> annotations = handleServiceAndAccess(client.getMetadata(),
+                                                                  m -> m.getAnnotations(client.getCtx(),
+                                                                                        data,
+                                                                                        types,
+                                                                                        null),
+                                                                  "Cannot get tags for " + this);
 
         return annotations.stream()
                           .filter(TagAnnotationData.class::isInstance)
@@ -369,13 +369,12 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     public List<MapAnnotationWrapper> getMapAnnotations(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get map annotations for " + this);
-        }
+        List<AnnotationData> annotations = handleServiceAndAccess(client.getMetadata(),
+                                                                  m -> m.getAnnotations(client.getCtx(),
+                                                                                        data,
+                                                                                        types,
+                                                                                        null),
+                                                                  "Cannot get map annotations for " + this);
 
         return annotations.stream()
                           .filter(MapAnnotationData.class::isInstance)
@@ -419,14 +418,16 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public Map<String, String> getKeyValuePairs(Client client)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get key-value pairs for " + this;
+
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
 
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get key-value pairs for " + this);
-        }
+        List<AnnotationData> annotations = handleServiceAndAccess(client.getMetadata(),
+                                                                  m -> m.getAnnotations(client.getCtx(),
+                                                                                        data,
+                                                                                        types,
+                                                                                        null),
+                                                                  error);
 
         return annotations.stream()
                           .filter(MapAnnotationData.class::isInstance)
@@ -476,13 +477,11 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addMapAnnotation(Client client, MapAnnotationWrapper mapAnnotation)
     throws ServiceException, AccessException, ExecutionException {
-        try {
-            client.getDm().attachAnnotation(client.getCtx(),
-                                            mapAnnotation.asMapAnnotationData(),
-                                            this.data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add key-value pairs to " + this);
-        }
+        handleServiceAndAccess(client.getDm(),
+                               d -> d.attachAnnotation(client.getCtx(),
+                                                       mapAnnotation.asMapAnnotationData(),
+                                                       this.data),
+                               "Cannot add key-value pairs to " + this);
     }
 
 
@@ -498,20 +497,26 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addTable(Client client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException {
-        TableData tableData = table.createTable();
-        try {
-            tableData = client.getTablesFacility().addTable(client.getCtx(), data, table.getName(), tableData);
+        String         error          = "Cannot add table to " + this;
+        TablesFacility tablesFacility = client.getTablesFacility();
+        TableData tableData = handleServiceAndAccess(tablesFacility,
+                                                     tf -> tf.addTable(client.getCtx(),
+                                                                       data,
+                                                                       table.getName(),
+                                                                       table.createTable()),
+                                                     error);
 
-            Collection<FileAnnotationData> tables = client.getTablesFacility()
-                                                          .getAvailableTables(client.getCtx(), data);
-            long fileId = tableData.getOriginalFileId();
+        Collection<FileAnnotationData> tables = handleServiceAndAccess(tablesFacility,
+                                                                       tf -> tf.getAvailableTables(client.getCtx(),
+                                                                                                   data),
+                                                                       error);
+        long fileId = tableData.getOriginalFileId();
 
-            long id = tables.stream().filter(v -> v.getFileID() == fileId)
-                            .mapToLong(DataObject::getId).max().orElse(-1L);
-            table.setId(id);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add table to " + this);
-        }
+        long id = tables.stream()
+                        .filter(v -> v.getFileID() == fileId)
+                        .mapToLong(DataObject::getId)
+                        .max().orElse(-1L);
+        table.setId(id);
         table.setFileId(tableData.getOriginalFileId());
     }
 
@@ -531,16 +536,13 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        Collection<FileAnnotationWrapper> tables = new ArrayList<>(0);
-        try {
-            tables = client.getTablesFacility()
-                           .getAvailableTables(client.getCtx(), data)
-                           .stream()
-                           .map(FileAnnotationWrapper::new)
-                           .collect(Collectors.toList());
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tables from " + this);
-        }
+        String error = String.format("Cannot get tables from %s", this);
+
+        Collection<FileAnnotationWrapper> tables = wrap(handleServiceAndAccess(client.getTablesFacility(),
+                                                                               t -> t.getAvailableTables(
+                                                                                       client.getCtx(), data),
+                                                                               error),
+                                                        FileAnnotationWrapper::new);
         addTable(client, table);
         tables.removeIf(t -> !t.getDescription().equals(table.getName()));
         for (FileAnnotationWrapper fileAnnotation : tables) {
@@ -586,18 +588,15 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
-        TableData table = null;
-        String    name  = null;
-        try {
-            table = client.getTablesFacility().getTable(client.getCtx(), fileId);
-            name = client.getTablesFacility()
-                         .getAvailableTables(client.getCtx(), data)
-                         .stream().filter(t -> t.getFileID() == fileId)
-                         .map(FileAnnotationData::getDescription)
-                         .findFirst().orElse(null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get table from " + this);
-        }
+        TableData table = handleServiceAndAccess(client.getTablesFacility(),
+                                                 tf -> tf.getTable(client.getCtx(), fileId),
+                                                 "Cannot get table from " + this);
+        String name = handleServiceAndAccess(client.getTablesFacility(),
+                                             tf -> tf.getAvailableTables(client.getCtx(), data)
+                                                     .stream().filter(t -> t.getFileID() == fileId)
+                                                     .map(FileAnnotationData::getDescription)
+                                                     .findFirst().orElse(null),
+                                             "Cannot get table name from " + this);
         TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
         result.setName(name);
         return result;
@@ -617,12 +616,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = new ArrayList<>(0);
-        try {
-            tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tables from " + this);
-        }
+        Collection<FileAnnotationData> tables = handleServiceAndAccess(client.getTablesFacility(),
+                                                                       tf -> tf.getAvailableTables(client.getCtx(),
+                                                                                                   data),
+                                                                       "Cannot get tables from " + this);
 
         List<TableWrapper> tablesWrapper = new ArrayList<>(tables.size());
         for (FileAnnotationData table : tables) {
@@ -728,11 +725,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void addFileAnnotation(Client client, FileAnnotationWrapper annotation)
     throws AccessException, ServiceException, ExecutionException {
-        try {
-            client.getDm().attachAnnotation(client.getCtx(), annotation.asFileAnnotationData(), this.data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot link file annotation to " + this);
-        }
+        handleServiceAndAccess(client.getDm(),
+                               dm -> dm.attachAnnotation(client.getCtx(), annotation.asFileAnnotationData(),
+                                                         this.data),
+                               "Cannot link file annotation to " + this);
     }
 
 
@@ -749,14 +745,16 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public List<FileAnnotationWrapper> getFileAnnotations(Client client)
     throws ExecutionException, ServiceException, AccessException {
+        String error = "Cannot retrieve file annotations from " + this;
+
         List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot retrieve file annotations from " + this);
-        }
+        List<AnnotationData> annotations = handleServiceAndAccess(client.getMetadata(),
+                                                                  m -> m.getAnnotations(client.getCtx(),
+                                                                                        data,
+                                                                                        types,
+                                                                                        null),
+                                                                  error);
 
         return annotations.stream()
                           .filter(FileAnnotationData.class::isInstance)
@@ -820,13 +818,9 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     private List<AnnotationData> getAnnotations(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get annotations from " + this);
-        }
-        return annotations;
+        return handleServiceAndAccess(client.getMetadata(),
+                                      m -> m.getAnnotations(client.getCtx(), data),
+                                      "Cannot get annotations from " + this);
     }
 
 
@@ -847,12 +841,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         for (AnnotationData annotation : oldAnnotations) {
             newAnnotations.removeIf(a -> a.getId() == annotation.getId());
         }
-        try {
-            for (AnnotationData annotation : newAnnotations) {
-                client.getDm().attachAnnotation(client.getCtx(), annotation, this.data);
-            }
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot link annotations to " + this);
+        for (AnnotationData annotation : newAnnotations) {
+            handleServiceAndAccess(client.getDm(),
+                                   dm -> dm.attachAnnotation(client.getCtx(), annotation, this.data),
+                                   "Cannot link annotations to " + this);
         }
     }
 

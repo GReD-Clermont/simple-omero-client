@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +35,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ExceptionTest extends BasicTest {
+
+    private static <E extends Exception> Exception thrower(E t) throws E {
+        if (t != null) throw t;
+        return new Exception("Exception");
+    }
 
 
     @Test
@@ -197,50 +203,69 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testExceptionHandler1() {
-        Throwable t = new DSAccessException("Test", null);
-        assertThrows(AccessException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Test");
+        assertThrows(AccessException.class, () -> eh.rethrow(DSAccessException.class, AccessException::new));
     }
 
 
     @Test
     void testExceptionHandler2() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new ServerError(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+        assertThrows(OMEROServerError.class, () -> eh.rethrow(ServerError.class, OMEROServerError::new));
     }
 
 
     @Test
     void testExceptionHandler3() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        Exception e = new DSOutOfServiceException(null);
+        assertThrows(ServiceException.class, () -> handleServiceAndAccess(e, ExceptionTest::thrower, "Great"));
     }
 
 
     @Test
     void testExceptionHandler4() {
-        Throwable t = new DSOutOfServiceException(null);
-        assertThrows(ServiceException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception e = new ServerError(null);
+        assertThrows(ServerError.class, () -> handleServiceAndAccess(e, ExceptionTest::thrower, "Great"));
     }
 
 
     @Test
     void testExceptionHandler5() {
-        Throwable t = new Exception("Nothing");
-        assertDoesNotThrow(() -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new OMEROServerError(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+        assertThrows(OMEROServerError.class, () -> eh.rethrow(OMEROServerError.class));
     }
 
 
     @Test
     void testExceptionHandler6() {
-        Throwable t = new ServerError(null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrAccess(t, "Great"));
+        Exception           e  = new AccessException(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+        assertThrows(AccessException.class, () -> eh.rethrow(AccessException.class));
     }
 
 
     @Test
     void testExceptionHandler7() {
-        Throwable t = new DSAccessException("Test", null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+        assertDoesNotThrow(() -> eh.rethrow(ServerError.class, OMEROServerError::new));
+    }
+
+
+    @Test
+    void testExceptionHandlerToString() {
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+
+        String expected = "ExceptionHandler{" +
+                          "exception=" + e +
+                          ", value=" + null +
+                          ", error='Great'" +
+                          "}";
+        assertEquals(expected, eh.toString());
     }
 
 }

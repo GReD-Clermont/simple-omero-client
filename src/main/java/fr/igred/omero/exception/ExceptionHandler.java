@@ -22,118 +22,245 @@ import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 
+import java.util.Objects;
+
 
 /**
- * Class with methods to handle OMERO exceptions
+ * Class to handle and convert OMERO exceptions.
  */
-public final class ExceptionHandler {
+@SuppressWarnings("ReturnOfThis")
+public class ExceptionHandler<T> {
 
-    private ExceptionHandler() {
+    private final Exception exception;
+    private final T         value;
+    private final String    error;
+
+
+    /**
+     * Private class constructor.
+     *
+     * @param value     Object to process.
+     * @param exception Caught exception.
+     * @param error     Error message.
+     */
+    protected ExceptionHandler(T value, Exception exception, String error) {
+        this.value = value;
+        this.exception = exception;
+        this.error = error;
     }
 
 
     /**
-     * Helper method to convert DSOutOfServiceException to ServiceException.
+     * Creates an ExceptionHandler from an object and a function.
      *
-     * @param t       The Exception
-     * @param message Short explanation of the problem.
+     * @param input        Object to process.
+     * @param mapper       Lambda to apply on object.
+     * @param errorMessage Error message.
+     * @param <I>          Input argument type.
+     * @param <R>          Returned object type.
      *
-     * @throws ServiceException Cannot connect to OMERO.
+     * @return ExceptionHandler wrapping the returned object.
      */
-    private static void handleServiceException(Throwable t, String message)
-    throws ServiceException {
-        if (t instanceof DSOutOfServiceException) {
-            throw new ServiceException(message, t, ((DSOutOfServiceException) t).getConnectionStatus());
+    public static <I, R> ExceptionHandler<R> of(I input,
+                                                ThrowingFunction<? super I, ? extends R, ? extends Exception> mapper,
+                                                String errorMessage) {
+        Objects.requireNonNull(mapper);
+        Exception e = null;
+
+        R result = null;
+        try {
+            result = mapper.apply(input);
+        } catch (Exception ex) {
+            e = ex;
         }
+        return new ExceptionHandler<>(result, e, errorMessage);
     }
 
 
     /**
-     * Helper method to convert ServerError to OMEROServerError.
+     * Creates an ExceptionHandler from an object and a function with no return value.
      *
-     * @param t       The Exception
-     * @param message Short explanation of the problem.
+     * @param input        Object to process.
+     * @param consumer     Lambda to apply on object.
+     * @param errorMessage Error message.
+     * @param <I>          Input argument type.
      *
-     * @throws OMEROServerError Server error.
+     * @return ExceptionHandler wrapping the object to process.
      */
-    private static void handleServerError(Throwable t, String message)
-    throws OMEROServerError {
-        if (t instanceof ServerError) {
-            throw new OMEROServerError(message, t);
+    public static <I> ExceptionHandler<I> ofConsumer(I input,
+                                                     ThrowingConsumer<? super I, ? extends Exception> consumer,
+                                                     String errorMessage) {
+        Objects.requireNonNull(consumer);
+        Exception e = null;
+
+        try {
+            consumer.apply(input);
+        } catch (Exception ex) {
+            e = ex;
         }
+        return new ExceptionHandler<>(input, e, errorMessage);
     }
 
 
     /**
-     * Helper method to convert DSAccessException to AccessException.
+     * Sneakily throws an exception.
      *
-     * @param t       The Exception
-     * @param message Short explanation of the problem.
+     * @param t   The exception to throw.
+     * @param <E> Type of Exception thrown
      *
-     * @throws AccessException Cannot access data.
+     * @throws E Exception thrown.
      */
-    private static void handleAccessException(Throwable t, String message)
-    throws AccessException {
-        if (t instanceof DSAccessException) {
-            throw new AccessException(message, t);
-        }
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void doThrow(Exception t) throws E {
+        throw (E) t;
     }
 
 
     /**
-     * Helper method to convert an exception from:
-     * <ul><li>DSOutOfServiceException to ServiceException</li>
-     * <li>ServerError to OMEROServerError</li></ul>
+     * Applies a function to the specified object and return the result or throw {@link ServiceException} or
+     * {@link AccessException}.
      *
-     * @param t       The Exception
-     * @param message Short explanation of the problem.
+     * @param value  Object to process.
+     * @param mapper Lambda to apply on object.
+     * @param error  Error message if an exception is thrown.
+     * @param <T>    Object type.
+     * @param <U>    Lambda result type.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
-     */
-    public static void handleServiceOrServer(Throwable t, String message)
-    throws ServiceException, OMEROServerError {
-        handleServiceException(t, message);
-        handleServerError(t, message);
-    }
-
-
-    /**
-     * Helper method to convert an exception from:
-     * <ul><li>DSOutOfServiceException to ServiceException</li>
-     * <li>DSAccessException to AccessException</li></ul>
-     *
-     * @param t       The Exception
-     * @param message Short explanation of the problem.
+     * @return Whatever the lambda returns.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public static void handleServiceOrAccess(Throwable t, String message)
+    public static <T, U> U handleServiceAndAccess(T value,
+                                                  ThrowingFunction<? super T, ? extends U, ? extends Exception> mapper,
+                                                  String error)
     throws ServiceException, AccessException {
-        handleServiceException(t, message);
-        handleAccessException(t, message);
+        return of(value, mapper, error)
+                .rethrow(DSOutOfServiceException.class, ServiceException::new)
+                .rethrow(DSAccessException.class, AccessException::new)
+                .get();
     }
 
 
     /**
-     * Helper method to convert an exception from:
-     * <ul><li>DSAccessException to AccessException</li>
-     * <li>DSOutOfServiceException to ServiceException</li>
-     * <li>ServerError to OMEROServerError</li></ul>
+     * Applies a function to the specified object and return the result or throw {@link ServiceException} or
+     * {@link OMEROServerError}.
      *
-     * @param t       The Exception
-     * @param message Short explanation of the problem.
+     * @param value  Object to process.
+     * @param mapper Lambda to apply on object.
+     * @param error  Error message if an exception is thrown.
+     * @param <T>    Object type.
+     * @param <U>    Lambda result type.
      *
-     * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @return Whatever the lambda returns.
+     *
      * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError If the thread was interrupted.
      */
-    public static void handleException(Throwable t, String message)
-    throws ServiceException, AccessException, OMEROServerError {
-        handleAccessException(t, message);
-        handleServerError(t, message);
-        handleServiceException(t, message);
+    public static <T, U> U handleServiceAndServer(T value,
+                                                  ThrowingFunction<? super T, ? extends U, ? extends Exception> mapper,
+                                                  String error)
+    throws ServiceException, OMEROServerError {
+        return of(value, mapper, error)
+                .rethrow(DSOutOfServiceException.class, ServiceException::new)
+                .rethrow(ServerError.class, OMEROServerError::new)
+                .get();
+    }
+
+
+    /**
+     * Throws an exception from the specified type, if one was caught.
+     *
+     * @param type The exception class.
+     * @param <E>  The type of the exception.
+     *
+     * @return The same ExceptionHandler.
+     *
+     * @throws E An exception from the specified type.
+     */
+    public <E extends Throwable> ExceptionHandler<T> rethrow(Class<E> type) throws E {
+        if (type.isInstance(exception))
+            throw type.cast(exception);
+        return this;
+    }
+
+
+    /**
+     * Throws an exception converted from the specified type, if one was caught.
+     *
+     * @param type   The exception class.
+     * @param mapper Lambda to convert the caught exception.
+     * @param <E>    The type of the exception.
+     * @param <F>    The type of the exception thrown.
+     *
+     * @return The same ExceptionHandler.
+     *
+     * @throws F A converted Exception.
+     */
+    public <E extends Throwable, F extends Throwable> ExceptionHandler<T>
+    rethrow(Class<E> type, ExceptionWrapper<? super E, ? extends F> mapper)
+    throws F {
+        if (type.isInstance(exception))
+            throw mapper.apply(error, type.cast(exception));
+        return this;
+    }
+
+
+    /**
+     * Returns the contained object.
+     *
+     * @return See above.
+     */
+    public T get() {
+        if (exception != null) doThrow(exception);
+        return value;
+    }
+
+
+    @Override
+    public String toString() {
+        return "ExceptionHandler{" +
+               "exception=" + exception +
+               ", value=" + value +
+               ", error='" + error + "'" +
+               "}";
+    }
+
+
+    /**
+     * @param <T> The input type.
+     * @param <R> The output type.
+     * @param <E> The exception type.
+     */
+    @FunctionalInterface
+    public interface ThrowingFunction<T, R, E extends Throwable> {
+
+        R apply(T t) throws E;
+
+    }
+
+
+    /**
+     * @param <T> The input type.
+     * @param <E> The exception type.
+     */
+    @FunctionalInterface
+    public interface ThrowingConsumer<T, E extends Throwable> {
+
+        void apply(T t) throws E;
+
+    }
+
+
+    /**
+     * @param <T> The input type.
+     * @param <E> The exception type.
+     */
+    @FunctionalInterface
+    public interface ExceptionWrapper<T, E extends Throwable> {
+
+        E apply(String message, T t);
+
     }
 
 }

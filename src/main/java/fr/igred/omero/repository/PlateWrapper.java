@@ -24,22 +24,19 @@ import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.RLong;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.WellData;
 import omero.model.IObject;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -169,12 +166,10 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellWrapper> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = new ArrayList<>(0);
-        try {
-            wells = client.getBrowseFacility().getWells(client.getCtx(), data.getId());
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get wells from " + this);
-        }
+        Collection<WellData> wells = handleServiceAndAccess(client.getBrowseFacility(),
+                                                            bf -> bf.getWells(client.getCtx(), data.getId()),
+                                                            "Cannot get wells from " + this);
+
         return wells.stream()
                     .map(WellWrapper::new)
                     .sorted(Comparator.comparing(WellWrapper::getRow)

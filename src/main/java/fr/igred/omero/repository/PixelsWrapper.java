@@ -25,8 +25,6 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.PlaneInfoWrapper;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
@@ -39,9 +37,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static ome.formats.model.UnitsFactory.convertLength;
 
 
@@ -140,13 +137,10 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     public void loadPlanesInfo(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = new ArrayList<>(0);
-        try {
-            planes = client.getMetadata().getPlaneInfos(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot retrieve planes info: " + e.getMessage());
-        }
-        planesInfo = planes.stream().map(PlaneInfoWrapper::new).collect(Collectors.toList());
+        List<PlaneInfoData> planes = handleServiceAndAccess(client.getMetadata(),
+                                                            m -> m.getPlaneInfos(client.getCtx(), data),
+                                                            "Cannot retrieve planes info.");
+        planesInfo = wrap(planes, PlaneInfoWrapper::new);
     }
 
 

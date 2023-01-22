@@ -51,4 +51,15 @@ public class ServiceException extends DSOutOfServiceException {
         super("Cannot connect to OMERO", cause, connectionStatus);
     }
 
+
+    /**
+     * Constructs a new exception with the specified cause and a generic message.
+     *
+     * @param message Short explanation of the problem.
+     * @param cause   The exception that caused this one to be risen.
+     */
+    public ServiceException(String message, DSOutOfServiceException cause) {
+        this(message, cause, cause.getConnectionStatus());
+    }
+
 }
