@@ -66,16 +66,6 @@ public abstract class GatewayWrapper {
 
     /**
      * Abstract constructor of the GatewayWrapper class.
-     *
-     * @param gateway The Gateway.
-     */
-    protected GatewayWrapper(Gateway gateway) {
-        this(gateway, null, null);
-    }
-
-
-    /**
-     * Abstract constructor of the GatewayWrapper class.
      * <p> Null arguments will be replaced with default empty objects.
      *
      * @param gateway The Gateway.
