@@ -167,6 +167,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return owner id.
      */
+    @SuppressWarnings("ClassReferencesSubclass")
     public ExperimenterWrapper getOwner() {
         return new ExperimenterWrapper(data.getOwner());
     }
