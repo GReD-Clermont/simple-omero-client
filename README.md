@@ -108,7 +108,8 @@ List<ROIWrapper> rois = image.getROIs(client);
 They can also be converted from or to ImageJ Rois:
 
 ```java
-// The property is a string used to create 3D/4D ROIs in OMERO, by grouping shapes sharing the same value (e.g. local index).
+// The property argument is the name of the ImageJ property used to create 3D/4D ROIs in OMERO, 
+// by grouping shapes sharing the same value (e.g. label/index).
 // The ROI name can be set/accessed using the property ROI.ijNameProperty(property).
 // The OMERO IDs are available through the property ROI.ijIDProperty(property).
 // The ijNameProperty() and ijIDProperty() methods append "_NAME" and "_ID" to the property (respectively).

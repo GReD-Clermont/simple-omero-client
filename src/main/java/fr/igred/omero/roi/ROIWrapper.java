@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -57,7 +56,7 @@ import static java.util.stream.Collectors.groupingBy;
 public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
     /**
-     * Default IJ property to store ROI local IDs / indices.
+     * Default IJ property to store ROI local labels / indices.
      */
     public static final String IJ_PROPERTY = "ROI";
 
@@ -97,7 +96,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Checks the provided property.
      *
-     * @param property The property where 4D ROI local ID is stored.
+     * @param property The property where the 4D ROI local index/label is stored.
      *
      * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
      */
@@ -108,9 +107,10 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
-     * Returns ID property corresponding to input local ID property (appends "_ID" to said property).
+     * Returns the ID property corresponding to the input local index/label property (appends "_ID" to said property).
      *
-     * @param property The property where 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY} if null or empty.
+     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if null
+     *                 or empty.
      *
      * @return See above.
      */
@@ -121,10 +121,10 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
-     * Returns the name property corresponding to input local ID property (appends "_NAME" to said property).
+     * Returns the ID property corresponding to the input local index/label property (appends "_NAME" to said property).
      *
-     * @param property The property where the 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY} if null or
-     *                 empty.
+     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if null
+     *                 or empty.
      *
      * @return See above.
      */
@@ -150,7 +150,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs
      *
      * @param ijRois   A list of ImageJ ROIs.
-     * @param property The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or empty.
+     * @param property The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if null
+     *                 or empty.
      *
      * @return The converted list of OMERO ROIs.
      */
@@ -163,8 +164,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor and shape converter.
      *
      * @param ijRois      A list of ImageJ ROIs.
-     * @param property    The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or
-     *                    empty.
+     * @param property    The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if
+     *                    null or empty.
      * @param constructor A constructor to create ROI instances.
      * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
      *
@@ -175,32 +176,28 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
                                                Supplier<? extends ROIWrapper> constructor,
                                                Function<? super ij.gui.Roi, ? extends List<? extends GenericShapeWrapper<?>>> converter) {
         property = checkProperty(property);
-        Pattern intPattern = Pattern.compile("-?\\d+");
 
-        Map<Long, ROIWrapper> rois4D = new TreeMap<>();
-        Map<Long, String>     names  = new TreeMap<>();
+        Map<String, ROIWrapper> rois4D = new TreeMap<>();
+        Map<String, String>     names  = new TreeMap<>();
 
         Map<Integer, ROIWrapper> shape2roi = new TreeMap<>();
 
         for (int i = 0; i < ijRois.size(); i++) {
             String value = ijRois.get(i).getProperty(property);
             String name  = ijRois.get(i).getProperty(ijNameProperty(property));
-            if (value != null && intPattern.matcher(value).matches()) {
-                long id = Long.parseLong(value);
-                rois4D.computeIfAbsent(id, v -> constructor.get());
-                names.putIfAbsent(id, name);
-                shape2roi.put(i, rois4D.get(id));
+
+            ROIWrapper roi;
+            if (value != null && !value.trim().isEmpty()) {
+                roi = rois4D.computeIfAbsent(value, v -> constructor.get());
+                names.putIfAbsent(value, name);
             } else {
-                shape2roi.put(i, constructor.get());
+                roi = constructor.get();
+                roi.setName(name);
             }
+            shape2roi.put(i, roi);
         }
         rois4D.forEach((id, roi) -> roi.setName(names.get(id)));
-
-        for (Map.Entry<Integer, ROIWrapper> entry : shape2roi.entrySet()) {
-            ij.gui.Roi ijRoi = ijRois.get(entry.getKey());
-            ROIWrapper roi   = entry.getValue();
-            roi.addShapes(converter.apply(ijRoi));
-        }
+        shape2roi.forEach((key, value) -> value.addShapes(converter.apply(ijRois.get(key))));
         return shape2roi.values().stream().distinct().collect(Collectors.toList());
     }
 
@@ -221,7 +218,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Converts an OMERO list of ROIs to a list of ImageJ ROIs
      *
      * @param rois     A list of OMERO ROIs.
-     * @param property The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or empty.
+     * @param property The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if null
+     *                 or empty.
      *
      * @return The converted list of ImageJ ROIs.
      */
@@ -234,7 +232,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * Converts an OMERO list of ROIs to a list of ImageJ ROIs
      *
      * @param rois      A list of OMERO ROIs.
-     * @param property  The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or empty.
+     * @param property  The property used to store the 4D ROI local labels/IDs. Defaults to {@value IJ_PROPERTY} if null
+     *                  or empty.
      * @param groupRois Whether ImageJ Rois belonging to the same OMERO ROI should be grouped or not.
      *
      * @return The converted list of ImageJ ROIs.
@@ -436,7 +435,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Convert ROI to ImageJ list of ROIs.
      *
-     * @param property The property where 4D ROI local ID will be stored.
+     * @param property The property where the 4D ROI local index will be stored.
      *
      * @return A list of ROIs.
      */
