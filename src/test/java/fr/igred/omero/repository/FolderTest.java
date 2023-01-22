@@ -37,7 +37,7 @@ class FolderTest extends UserTest {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         FolderWrapper folder = new FolderWrapper(client, "Test");
-        long id = folder.getId();
+        long          id     = folder.getId();
         client.delete(folder);
         assertThrows(NoSuchElementException.class, () -> image.getFolder(client, id));
     }

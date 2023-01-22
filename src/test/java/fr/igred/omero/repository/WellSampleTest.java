@@ -44,8 +44,8 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetWell() throws Exception {
-        final long  wellId = 1L;
-        WellWrapper well   = client.getWell(wellId);
+        final long        wellId = 1L;
+        WellWrapper       well   = client.getWell(wellId);
         WellSampleWrapper sample = well.getWellSamples().get(0);
 
         assertEquals(wellId, sample.getWell(client).getId());

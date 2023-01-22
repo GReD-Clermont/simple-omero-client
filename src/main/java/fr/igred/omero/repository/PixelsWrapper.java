@@ -68,6 +68,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     public PixelsWrapper(PixelsData pixels) {
         super(pixels);
+        rawDataFacility = null;
     }
 
 

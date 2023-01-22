@@ -16,7 +16,7 @@
  */
 /**
  * This package contains classes related to the hierarchical organization for images.
- * <p> This includes containers (such as screens or projects for example), as well as data contained within images (e.g.
- * pixels and channels).
+ * <p> This includes containers (such as screens or projects for example), as well as data contained within images
+ * (e.g. pixels and channels).
  */
 package fr.igred.omero.repository;

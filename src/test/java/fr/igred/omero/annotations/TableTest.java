@@ -196,4 +196,5 @@ class TableTest extends UserTest {
         assertThrows(IllegalArgumentException.class,
                      () -> images.forEach(img -> table.addRow(img.asImageData())));
     }
+
 }

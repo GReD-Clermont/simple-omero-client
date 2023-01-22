@@ -45,6 +45,7 @@ class PlaneInfoWrapperTest extends UserTest {
         assertEquals(time.getValue(), pixels.getMeanTimeInterval().getValue());
     }
 
+
     @Test
     void testComputeMeanExposureTime() throws Exception {
         PixelsWrapper pixels = client.getImage(IMAGE1.id).getPixels();

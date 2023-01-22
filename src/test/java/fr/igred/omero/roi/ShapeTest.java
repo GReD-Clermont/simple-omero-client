@@ -383,7 +383,7 @@ class ShapeTest extends BasicTest {
     void testMaskConstructor() {
         byte[] maskValues = new byte[25];
         for (int i = 0; i < maskValues.length; i++) {
-            maskValues[i] = (byte) (i >= maskValues.length/2 ? 1 : 0);
+            maskValues[i] = (byte) (i >= maskValues.length / 2 ? 1 : 0);
         }
 
         MaskWrapper m1 = new MaskWrapper(10, 10, 5, 5, maskValues);
@@ -465,7 +465,7 @@ class ShapeTest extends BasicTest {
     void testAWTRectangle() {
         RectangleWrapper shape     = new RectangleWrapper(25, 26, 27, 28);
         Rectangle2D      awtShape  = new Rectangle2D.Double(25, 26, 27, 28);
-        java.awt.Shape         awtShape2 = shape.toAWTShape();
+        java.awt.Shape   awtShape2 = shape.toAWTShape();
         assertEquals(awtShape, awtShape2);
     }
 
@@ -474,10 +474,10 @@ class ShapeTest extends BasicTest {
     void testAWTMask() {
         byte[] maskValues = new byte[25];
         for (int i = 0; i < maskValues.length; i++) {
-            maskValues[i] = (byte) (i >= maskValues.length/2 ? 1 : 0);
+            maskValues[i] = (byte) (i >= maskValues.length / 2 ? 1 : 0);
         }
-        MaskWrapper    shape     = new MaskWrapper(25, 26, 27, 28, maskValues);
-        Rectangle2D    awtShape  = new Rectangle2D.Double(25, 26, 27, 28);
+        MaskWrapper shape    = new MaskWrapper(25, 26, 27, 28, maskValues);
+        Rectangle2D awtShape = new Rectangle2D.Double(25, 26, 27, 28);
 
         java.awt.Shape awtShape2 = shape.toAWTShape();
         assertEquals(awtShape, awtShape2);
