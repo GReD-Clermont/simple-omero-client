@@ -23,8 +23,6 @@ import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
@@ -32,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -254,13 +252,13 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
-        try {
-            data = client.getBrowseFacility()
-                         .getScreens(client.getCtx(), Collections.singletonList(this.getId()))
-                         .iterator().next();
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot refresh " + this);
-        }
+        String message = String.format("Cannot refresh %s", this);
+        data = handleServiceAndAccess(client.getBrowseFacility(),
+                                      bf -> bf.getScreens(client.getCtx(),
+                                                          Collections.singletonList(this.getId()))
+                                              .iterator()
+                                              .next(),
+                                      message);
     }
 
 

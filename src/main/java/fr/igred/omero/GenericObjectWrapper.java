@@ -22,8 +22,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DataObject;
 import omero.model.IObject;
 
@@ -35,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -203,11 +201,9 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     @SuppressWarnings("unchecked")
     public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
-        try {
-            data = (T) client.getDm().saveAndReturnObject(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot save and update object.");
-        }
+        data = (T) handleServiceAndAccess(client.getDm(),
+                                          d -> d.saveAndReturnObject(client.getCtx(), data),
+                                          "Cannot save and update object.");
     }
 
 
