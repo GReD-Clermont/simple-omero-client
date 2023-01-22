@@ -31,6 +31,7 @@ import omero.model.Roi;
 import omero.model._RoiOperationsNC;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -166,7 +167,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      *
      * @return The converted list of ImageJ ROIs.
      */
-    public static List<ij.gui.Roi> toImageJ(List<? extends ROIWrapper> rois) {
+    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois) {
         return toImageJ(rois, IJ_PROPERTY);
     }
 
@@ -179,7 +180,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      *
      * @return The converted list of ImageJ ROIs.
      */
-    public static List<ij.gui.Roi> toImageJ(List<? extends ROIWrapper> rois, String property) {
+    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois, String property) {
         property = checkProperty(property);
         final int maxGroups = 255;
 
@@ -243,7 +244,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      *
      * @param shapes List of GenericShapeWrapper.
      */
-    public void addShapes(List<? extends GenericShapeWrapper<?>> shapes) {
+    public void addShapes(Iterable<? extends GenericShapeWrapper<?>> shapes) {
         shapes.forEach(this::addShape);
     }
 

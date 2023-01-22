@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -100,7 +101,7 @@ class ROITest extends UserTest {
     void testRoiAddShapeAndDeleteIt() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
+        Collection<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
