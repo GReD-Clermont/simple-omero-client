@@ -1,6 +1,6 @@
 [![Java CI with Maven](https://github.com/GReD-Clermont/simple-omero-client/actions/workflows/maven.yml/badge.svg)](https://github.com/GReD-Clermont/simple-omero-client/actions/workflows/maven.yml)
 [![codecov](https://codecov.io/gh/GReD-Clermont/simple-omero-client/branch/main/graph/badge.svg)](https://codecov.io/gh/GReD-Clermont/simple-omero-client)
-[![DOI](https://img.shields.io/badge/DOI-10.12688%2Ff1000research.110385.1-GREEN)](https://doi.org/10.12688/f1000research.110385.1)
+[![DOI](https://img.shields.io/badge/DOI-10.12688%2Ff1000research.110385.2-GREEN)](https://doi.org/10.12688/f1000research.110385.2)
 
 # simple-omero-client
 
@@ -107,7 +107,7 @@ List<ROIWrapper> rois = image.getROIs(client);
 They can also be converted from or to ImageJ Rois:
 
 ```java
-// The property is a string used to create 3D/4D ROIs in OMERO, by grouping shapes sharing the same value
+// The property is a string used to create 3D/4D ROIs in OMERO, by grouping shapes sharing the same value (used to name the ROI)
 List<ROIWrapper> omeroRois = ROIWrapper.fromImageJ(ijRois, property);
 
 ROIWrapper roi = new ROIWrapper();
