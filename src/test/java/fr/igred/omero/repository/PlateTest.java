@@ -17,6 +17,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
@@ -30,16 +31,16 @@ class PlateTest extends UserTest {
 
     @Test
     void testGetWellsFromPlate() throws Exception {
-        PlateWrapper      plate = client.getPlate(PLATE1.id);
-        List<WellWrapper> wells = plate.getWells(client);
+        Plate      plate = client.getPlate(PLATE1.id);
+        List<Well> wells = plate.getWells(client);
         assertEquals(9, wells.size());
     }
 
 
     @Test
     void testGetWellsFromPlate2() throws Exception {
-        PlateWrapper      plate = client.getPlate(PLATE2.id);
-        List<WellWrapper> wells = plate.getWells(client);
+        Plate      plate = client.getPlate(PLATE2.id);
+        List<Well> wells = plate.getWells(client);
         assertEquals(4, wells.size());
     }
 
@@ -48,9 +49,9 @@ class PlateTest extends UserTest {
     void testGetPlateAcquisitionsFromPlate() throws Exception {
         final String name = "PlateAcquisition Name 0";
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        List<PlateAcquisitionWrapper> acquisitions = plate.getPlateAcquisitions();
+        List<PlateAcquisition> acquisitions = plate.getPlateAcquisitions();
         assertEquals(1, acquisitions.size());
         assertEquals(name, acquisitions.get(0).getName());
     }
@@ -58,13 +59,13 @@ class PlateTest extends UserTest {
 
     @Test
     void testAddTagToPlate() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE2.id);
+        Plate plate = client.getPlate(PLATE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
         plate.addTag(client, tag);
-        List<TagAnnotationWrapper> tags = plate.getTags(client);
+        List<TagAnnotation> tags = plate.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> checkTags = plate.getTags(client);
+        List<TagAnnotation> checkTags = plate.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());
@@ -73,7 +74,7 @@ class PlateTest extends UserTest {
 
     @Test
     void testSetName() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
         String name  = plate.getName();
         String name2 = "New name";
@@ -89,7 +90,7 @@ class PlateTest extends UserTest {
 
     @Test
     void testSetDescription() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
         String description = plate.getDescription();
 
@@ -106,7 +107,7 @@ class PlateTest extends UserTest {
 
     @Test
     void testSetStatus() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
         String status = plate.getStatus();
 
@@ -123,7 +124,7 @@ class PlateTest extends UserTest {
 
     @Test
     void testGetDefaultSample() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
         int sample = plate.getDefaultSample();
 
@@ -142,7 +143,7 @@ class PlateTest extends UserTest {
     void testSetExternalIdentifier() throws Exception {
         final String identifier = "External Identifier Test";
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
         plate.setExternalIdentifier(identifier);
         plate.saveAndUpdate(client);
         assertEquals(identifier, client.getPlate(PLATE1.id).getExternalIdentifier());
@@ -152,23 +153,23 @@ class PlateTest extends UserTest {
     @Test
     void testGetPlateType() throws Exception {
         final String type  = "9-Well Plate";
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate        plate = client.getPlate(PLATE1.id);
         assertEquals(type, plate.getPlateType());
     }
 
 
     @Test
     void testGetColumnSequenceIndex() throws Exception {
-        PlateWrapper plate  = client.getPlate(PLATE1.id);
-        int          column = 0;
+        Plate plate  = client.getPlate(PLATE1.id);
+        int   column = 0;
         assertEquals(column, plate.getColumnSequenceIndex());
     }
 
 
     @Test
     void testGetRowSequenceIndex() throws Exception {
-        final int    column = 1;
-        PlateWrapper plate  = client.getPlate(PLATE1.id);
+        final int column = 1;
+        Plate     plate  = client.getPlate(PLATE1.id);
         assertEquals(column, plate.getRowSequenceIndex());
     }
 
@@ -176,7 +177,7 @@ class PlateTest extends UserTest {
     @Test
     void testGetWellOriginX() throws Exception {
         final double origin = 0.0d;
-        PlateWrapper plate  = client.getPlate(PLATE1.id);
+        Plate        plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginX(null).getValue(), Double.MIN_VALUE);
     }
 
@@ -184,7 +185,7 @@ class PlateTest extends UserTest {
     @Test
     void testGetWellOriginY() throws Exception {
         final double origin = 1.0d;
-        PlateWrapper plate  = client.getPlate(PLATE1.id);
+        Plate        plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginY(null).getValue(), Double.MIN_VALUE);
     }
 

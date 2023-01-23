@@ -16,12 +16,14 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.repository.PlateWrapper;
+import fr.igred.omero.repository.Image;
+import fr.igred.omero.repository.Plate;
+import fr.igred.omero.repository.Project;
 import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.repository.ScreenWrapper;
-import fr.igred.omero.repository.WellWrapper;
+import fr.igred.omero.repository.Screen;
+import fr.igred.omero.repository.Well;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -39,7 +41,7 @@ class ClientTest extends UserTest {
 
     @Test
     void testProjectBasic() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
         assertEquals(PROJECT1.id, project.getId());
         assertEquals(PROJECT1.name, project.getName());
         assertEquals(PROJECT1.description, project.getDescription());
@@ -57,17 +59,17 @@ class ClientTest extends UserTest {
 
     @Test
     void testGetAllProjects() throws Exception {
-        Collection<ProjectWrapper> projects = client.getProjects();
+        Collection<Project> projects = client.getProjects();
         assertEquals(2, projects.size());
     }
 
 
     @Test
     void testGetProjectByName() throws Exception {
-        Collection<ProjectWrapper> projects = client.getProjects(PROJECT1.name);
+        Collection<Project> projects = client.getProjects(PROJECT1.name);
 
         int differences = 0;
-        for (ProjectWrapper project : projects) {
+        for (Project project : projects) {
             if (!PROJECT1.name.equals(project.getName()))
                 differences++;
         }
@@ -81,7 +83,7 @@ class ClientTest extends UserTest {
     void testCreateAndDeleteProject() throws Exception {
         String name = "Foo project";
 
-        ProjectWrapper project = new ProjectWrapper(client, name, "");
+        RemoteObject<?> project = new ProjectWrapper(client, name, "");
 
         long newId = project.getId();
         assertEquals(name, client.getProject(newId).getName());
@@ -98,17 +100,17 @@ class ClientTest extends UserTest {
 
     @Test
     void testGetAllDatasets() throws Exception {
-        Collection<DatasetWrapper> datasets = client.getDatasets();
+        Collection<Dataset> datasets = client.getDatasets();
         assertEquals(3, datasets.size());
     }
 
 
     @Test
     void testGetDatasetByName() throws Exception {
-        Collection<DatasetWrapper> datasets = client.getDatasets(DATASET1.name);
+        Collection<Dataset> datasets = client.getDatasets(DATASET1.name);
 
         int differences = 0;
-        for (DatasetWrapper dataset : datasets) {
+        for (Dataset dataset : datasets) {
             if (!DATASET1.name.equals(dataset.getName()))
                 differences++;
         }
@@ -121,56 +123,56 @@ class ClientTest extends UserTest {
     void testGetImages() throws Exception {
         final int nImages = 56;
 
-        List<ImageWrapper> images = client.getImages();
+        List<Image> images = client.getImages();
         assertEquals(nImages, images.size());
     }
 
 
     @Test
     void testGetImage() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertEquals(IMAGE1.name, image.getName());
     }
 
 
     @Test
     void testGetImagesName() throws Exception {
-        List<ImageWrapper> images = client.getImages(IMAGE1.name);
+        List<Image> images = client.getImages(IMAGE1.name);
         assertEquals(3, images.size());
     }
 
 
     @Test
     void testGetImagesLike() throws Exception {
-        List<ImageWrapper> images = client.getImagesLike("image1");
+        List<Image> images = client.getImagesLike("image1");
         assertEquals(3, images.size());
     }
 
 
     @Test
     void testGetImagesTagged() throws Exception {
-        List<ImageWrapper> images = client.getImagesTagged(TAG1.id);
+        List<Image> images = client.getImagesTagged(TAG1.id);
         assertEquals(3, images.size());
     }
 
 
     @Test
     void testGetImagesKey() throws Exception {
-        List<ImageWrapper> images = client.getImagesKey("testKey1");
+        List<Image> images = client.getImagesKey("testKey1");
         assertEquals(3, images.size());
     }
 
 
     @Test
     void testGetImagesKeyValue() throws Exception {
-        List<ImageWrapper> images = client.getImagesPairKeyValue("testKey1", "testValue1");
+        List<Image> images = client.getImagesPairKeyValue("testKey1", "testValue1");
         assertEquals(2, images.size());
     }
 
 
     @Test
     void testGetImagesFromNames() throws Exception {
-        List<ImageWrapper> images = client.getImages(PROJECT1.name, DATASET1.name, IMAGE1.name);
+        List<Image> images = client.getImages(PROJECT1.name, DATASET1.name, IMAGE1.name);
         assertEquals(2, images.size());
     }
 
@@ -180,11 +182,11 @@ class ClientTest extends UserTest {
         String key = "testKey2";
 
         /* Load the image with the key */
-        List<ImageWrapper> images = client.getImagesKey(key);
+        List<Image> images = client.getImagesKey(key);
 
-        Collection<ImageWrapper> imagesCond = new ArrayList<>(1);
+        Collection<Image> imagesCond = new ArrayList<>(1);
 
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             /* Get the value for the key */
             String value = image.getValue(client, key);
 
@@ -217,7 +219,7 @@ class ClientTest extends UserTest {
 
         client.switchGroup(newGroupId);
 
-        DatasetWrapper dataset = new DatasetWrapper("test", "");
+        Dataset dataset = new DatasetWrapper("test", "");
         dataset.saveAndUpdate(client);
 
         List<Long> ids = dataset.importImage(client, file.getAbsolutePath());
@@ -233,7 +235,7 @@ class ClientTest extends UserTest {
 
     @Test
     void testGetAllScreens() throws Exception {
-        Collection<ScreenWrapper> screens = client.getScreens();
+        Collection<Screen> screens = client.getScreens();
         assertEquals(2, screens.size());
     }
 
@@ -247,7 +249,7 @@ class ClientTest extends UserTest {
 
     @Test
     void testGetAllPlates() throws Exception {
-        Collection<PlateWrapper> screens = client.getPlates();
+        Collection<Plate> screens = client.getPlates();
         assertEquals(3, screens.size());
     }
 
@@ -263,7 +265,7 @@ class ClientTest extends UserTest {
     void testGetAllWells() throws Exception {
         final int nWells = 17;
 
-        Collection<WellWrapper> screens = client.getWells();
+        Collection<Well> screens = client.getWells();
         assertEquals(nWells, screens.size());
     }
 

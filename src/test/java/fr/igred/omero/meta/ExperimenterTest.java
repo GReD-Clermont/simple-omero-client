@@ -45,7 +45,7 @@ class ExperimenterTest extends RootTest {
 
     @Test
     void testGetUsername() throws Exception {
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        Experimenter experimenter = client.getUser(USER1.name);
         assertEquals(USER1.name, experimenter.getUserName());
     }
 
@@ -56,7 +56,7 @@ class ExperimenterTest extends RootTest {
         final String last   = "User";
         final String middle = "O.";
 
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        Experimenter experimenter = client.getUser(USER1.name);
         experimenter.setFirstName(first);
         experimenter.setLastName(last);
         experimenter.setMiddleName(middle);
@@ -71,7 +71,7 @@ class ExperimenterTest extends RootTest {
     void testSetEmail() throws Exception {
         final String email = "test.user1.name@example.org";
 
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        Experimenter experimenter = client.getUser(USER1.name);
         experimenter.setEmail(email);
         experimenter.saveAndUpdate(client);
         assertEquals(email, client.getUser(USER1.name).getEmail());
@@ -82,7 +82,7 @@ class ExperimenterTest extends RootTest {
     void testSetInstitution() throws Exception {
         final String institution = "Example";
 
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        Experimenter experimenter = client.getUser(USER1.name);
         experimenter.setInstitution(institution);
         experimenter.saveAndUpdate(client);
         assertEquals(institution, client.getUser(USER1.name).getInstitution());
@@ -91,21 +91,21 @@ class ExperimenterTest extends RootTest {
 
     @Test
     void testIsActive() throws Exception {
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        Experimenter experimenter = client.getUser(USER1.name);
         assertTrue(experimenter.isActive());
     }
 
 
     @Test
     void testIsLDAP() throws Exception {
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        Experimenter experimenter = client.getUser(USER1.name);
         assertFalse(experimenter.isLDAP());
     }
 
 
     @Test
     void testIsMemberOfGroup() throws Exception {
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        Experimenter experimenter = client.getUser(USER1.name);
         assertFalse(experimenter.isMemberOfGroup(0L));
         assertTrue(experimenter.isMemberOfGroup(GROUP1.id));
     }
@@ -113,8 +113,8 @@ class ExperimenterTest extends RootTest {
 
     @Test
     void testGetGroups() throws Exception {
-        ExperimenterWrapper experimenter = client.getUser(USER1.name);
-        List<GroupWrapper>  groups       = experimenter.getGroups();
+        Experimenter experimenter = client.getUser(USER1.name);
+        List<Group>  groups       = experimenter.getGroups();
         assertEquals(3, groups.size());
         assertEquals(GROUP1.name, experimenter.getDefaultGroup().getName());
     }

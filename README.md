@@ -29,15 +29,15 @@ client.connect("host", 4064, "username", password, groupId);
 It can then be used to retrieve all the repository objects the user has access to, like projects or datasets:
 
 ```java
-List<ProjectWrapper> projects = client.getProjects();
-List<DatasetWrapper> datasets = client.getDatasets();
+List<Project> projects = client.getProjects();
+List<Dataset> datasets = client.getDatasets();
 ```
 
 These objects can then be used to retrieve their children:
 
 ```java
-for(DatasetWrapper dataset:datasets){
-    List<ImageWrapper> images = dataset.getImages(client);
+for(Dataset dataset:datasets){
+    List<Image> images = dataset.getImages(client);
     //...
 }
 ```
@@ -49,9 +49,9 @@ For each type of objects (project, dataset or image), annotations can be retriev
 * #### Tags:
 
 ```java
-TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "name", "description");
+TagAnnotation tag = new TagAnnotationWrapper(client, "name", "description");
 dataset.addTag(client, tag);
-List<TagAnnotationWrapper> tags = dataset.getTags(client);
+List<TagAnnotation> tags = dataset.getTags(client);
 ```
 
 * #### Key/Value pairs:
@@ -64,9 +64,9 @@ String value = dataset.getValue(client, "key");
 * #### Tables:
 
 ```java
-TableWrapper table = new TableWrapper(columnCount, "name");
+Table table = new TableWrapper(columnCount, "name");
 dataset.addTable(client, table);
-List<TableWrapper> tables = dataset.getTables(client);
+List<Table> tables = dataset.getTables(client);
 ```
 
 * #### Files:
@@ -97,20 +97,20 @@ BufferedImage thumbnail = image.getThumbnail(client, size);
 ROIs can be added to images or retrieved from them:
 
 ```java
-ROIWrapper roi = new ROIWrapper();
+ROI roi = new ROIWrapper();
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 roi.setImage(image);
 image.saveROI(client, roi);
-List<ROIWrapper> rois = image.getROIs(client);
+List<ROI> rois = image.getROIs(client);
 ```
 
 They can also be converted from or to ImageJ Rois:
 
 ```java
 // The property is a string used to create 3D/4D ROIs in OMERO, by grouping shapes sharing the same value (used to name the ROI)
-List<ROIWrapper> omeroRois = ROIWrapper.fromImageJ(ijRois, property);
+List<ROI> omeroRois = ROIWrapper.fromImageJ(ijRois, property);
 
-ROIWrapper roi = new ROIWrapper();
+ROI roi = new ROIWrapper();
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 List<Roi> imagejRois = roi.toImageJ();
 ```

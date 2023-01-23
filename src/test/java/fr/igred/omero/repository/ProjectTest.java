@@ -16,18 +16,21 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.FileAnnotation;
+import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
 
-import static fr.igred.omero.repository.RepositoryObjectWrapper.ReplacePolicy.DELETE;
-import static fr.igred.omero.repository.RepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
+import static fr.igred.omero.repository.RepositoryObject.ReplacePolicy.DELETE;
+import static fr.igred.omero.repository.RepositoryObject.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -37,9 +40,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetDatasetFromProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<DatasetWrapper> datasets = project.getDatasets();
+        List<Dataset> datasets = project.getDatasets();
 
         assertEquals(2, datasets.size());
     }
@@ -47,9 +50,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetDatasetFromProject2() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<DatasetWrapper> datasets = project.getDatasets(DATASET1.name);
+        List<Dataset> datasets = project.getDatasets(DATASET1.name);
 
         assertEquals(1, datasets.size());
     }
@@ -57,15 +60,15 @@ class ProjectTest extends UserTest {
 
     @Test
     void testAddAndRemoveDataset() throws Exception {
-        ProjectWrapper project = new ProjectWrapper(client, "To delete", "");
-        DatasetWrapper dataset = client.getDataset(DATASET2.id);
+        Project project = new ProjectWrapper(client, "To delete", "");
+        Dataset dataset = client.getDataset(DATASET2.id);
 
         int initialSize = project.getDatasets().size();
         project.addDataset(client, dataset);
         int size = project.getDatasets().size();
 
         project.removeDataset(client, dataset);
-        List<DatasetWrapper> datasets = project.getDatasets();
+        List<Dataset> datasets = project.getDatasets();
         datasets.removeIf(ds -> ds.getId() != dataset.getId());
         int newSize = datasets.size();
 
@@ -78,14 +81,14 @@ class ProjectTest extends UserTest {
 
     @Test
     void testAddTagToProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag);
-        List<TagAnnotationWrapper> tags = project.getTags(client);
+        List<TagAnnotation> tags = project.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> endTags = project.getTags(client);
+        List<TagAnnotation> endTags = project.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -97,12 +100,12 @@ class ProjectTest extends UserTest {
         final String name        = "test";
         final String description = "test";
 
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
         project.addTag(client, name, description);
-        List<TagAnnotationWrapper> tags = client.getTags(name);
+        List<TagAnnotation> tags = client.getTags(name);
         client.delete(tags.get(0));
-        List<TagAnnotationWrapper> endTags = client.getTags(name);
+        List<TagAnnotation> endTags = client.getTags(name);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -111,14 +114,14 @@ class ProjectTest extends UserTest {
 
     @Test
     void testAddTagIdToProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        RemoteObject<?> tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag.getId());
-        List<TagAnnotationWrapper> tags = project.getTags(client);
+        List<TagAnnotation> tags = project.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> endTags = project.getTags(client);
+        List<TagAnnotation> endTags = project.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -127,20 +130,20 @@ class ProjectTest extends UserTest {
 
     @Test
     void testAddTagsToProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Project tag 2", "tag attached to a project");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Project tag 3", "tag attached to a project");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Project tag 4", "tag attached to a project");
+        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
+        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Project tag 2", "tag attached to a project");
+        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Project tag 3", "tag attached to a project");
+        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Project tag 4", "tag attached to a project");
 
         project.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
-        List<TagAnnotationWrapper> tags = project.getTags(client);
+        List<TagAnnotation> tags = project.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = project.getTags(client);
+        List<TagAnnotation> endTags = project.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -149,20 +152,20 @@ class ProjectTest extends UserTest {
 
     @Test
     void testAddTagsToProject2() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTags(client, tag1, tag2, tag3, tag4);
-        List<TagAnnotationWrapper> tags = project.getTags(client);
+        List<TagAnnotation> tags = project.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = project.getTags(client);
+        List<TagAnnotation> endTags = project.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -171,13 +174,13 @@ class ProjectTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
         project.addTag(client, tag);
-        List<TagAnnotationWrapper> tags = project.getTags(client);
+        List<TagAnnotation> tags = project.getTags(client);
         project.unlink(client, tag);
-        List<TagAnnotationWrapper> removedTags = project.getTags(client);
+        List<TagAnnotation> removedTags = project.getTags(client);
         client.delete(tag);
 
         assertEquals(1, tags.size());
@@ -187,9 +190,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetImagesInProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImages(client);
+        List<Image> images = project.getImages(client);
 
         assertEquals(3, images.size());
     }
@@ -197,9 +200,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetImagesByNameInProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImages(client, "image1.fake");
+        List<Image> images = project.getImages(client, "image1.fake");
 
         assertEquals(2, images.size());
     }
@@ -207,9 +210,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetImagesLikeInProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImagesLike(client, ".fake");
+        List<Image> images = project.getImagesLike(client, ".fake");
 
         assertEquals(3, images.size());
     }
@@ -217,9 +220,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetImagesTaggedInProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImagesTagged(client, TAG1.id);
+        List<Image> images = project.getImagesTagged(client, TAG1.id);
 
         assertEquals(2, images.size());
     }
@@ -227,10 +230,10 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetImagesTaggedInProject2() throws Exception {
-        TagAnnotationWrapper tag     = client.getTag(TAG2.id);
-        ProjectWrapper       project = client.getProject(PROJECT1.id);
+        TagAnnotation tag     = client.getTag(TAG2.id);
+        Project       project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImagesTagged(client, tag);
+        List<Image> images = project.getImagesTagged(client, tag);
 
         assertEquals(1, images.size());
     }
@@ -238,9 +241,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetImagesKeyInProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImagesKey(client, "testKey1");
+        List<Image> images = project.getImagesKey(client, "testKey1");
 
         assertEquals(3, images.size());
     }
@@ -248,9 +251,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testGetImagesPairKeyValueInProject() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
+        List<Image> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
 
         assertEquals(2, images.size());
     }
@@ -258,7 +261,7 @@ class ProjectTest extends UserTest {
 
     @Test
     void testSetName() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
         String name  = project.getName();
         String name2 = "NewName";
@@ -274,7 +277,7 @@ class ProjectTest extends UserTest {
 
     @Test
     void testSetDescription() throws Exception {
-        ProjectWrapper project = client.getProject(PROJECT1.id);
+        Project project = client.getProject(PROJECT1.id);
 
         String description = project.getDescription();
 
@@ -291,8 +294,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testCopyAnnotations() throws Exception {
-        ProjectWrapper project1 = client.getProject(PROJECT1.id);
-        ProjectWrapper project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
+        Project project1 = client.getProject(PROJECT1.id);
+
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
 
         File file = createRandomFile("test_project.txt");
 
@@ -300,11 +304,11 @@ class ProjectTest extends UserTest {
         removeFile(file);
         assertNotEquals(0L, fileId);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
         project1.addTag(client, tag);
         project1.addPairKeyValue(client, "CopyTest", "Annotation");
 
-        TableWrapper table = new TableWrapper(1, "CopyTest");
+        Table table = new TableWrapper(1, "CopyTest");
         table.setColumn(0, "Name", String.class);
         table.setRowCount(1);
         table.addRow("Annotation");
@@ -320,9 +324,9 @@ class ProjectTest extends UserTest {
         client.deleteFile(fileId);
         client.delete(tag);
         client.delete(table);
-        List<MapAnnotationWrapper> maps = project1.getMapAnnotations(client);
+        List<MapAnnotation> maps = project1.getMapAnnotations(client);
         if (!maps.isEmpty())
-            for (MapAnnotationWrapper map : maps)
+            for (MapAnnotation map : maps)
                 client.delete(map);
 
         assertEquals(0, project2.getTags(client).size());
@@ -336,8 +340,9 @@ class ProjectTest extends UserTest {
 
     @Test
     void testCopyFileAnnotation() throws Exception {
-        ProjectWrapper project1 = client.getProject(PROJECT1.id);
-        ProjectWrapper project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
+        Project project1 = client.getProject(PROJECT1.id);
+
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -345,7 +350,7 @@ class ProjectTest extends UserTest {
         removeFile(file);
         assertNotEquals(0L, fileId);
 
-        List<FileAnnotationWrapper> files = project1.getFileAnnotations(client);
+        List<FileAnnotation> files = project1.getFileAnnotations(client);
         assertEquals(1, files.size());
 
         if (!files.isEmpty()) {
@@ -362,8 +367,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndUnlinkFile() throws Exception {
-        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -385,8 +390,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteFile() throws Exception {
-        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -407,8 +412,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile1() throws Exception {
-        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        ProjectWrapper project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -430,7 +435,7 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile2() throws Exception {
-        ProjectWrapper project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 

@@ -37,7 +37,7 @@ class GroupTest extends RootTest {
 
     @Test
     void testSetGroupName() throws Exception {
-        GroupWrapper group = client.getGroup("testGroup2");
+        Group group = client.getGroup("testGroup2");
         assertEquals("testGroup2", group.getName());
         group.setName("Empty");
         group.saveAndUpdate(client);
@@ -50,8 +50,8 @@ class GroupTest extends RootTest {
 
     @Test
     void testSetDescription() throws Exception {
-        GroupWrapper group = client.getGroup("testGroup1");
-        assertEquals(GroupWrapper.PERMISSIONS_GROUP_READ, group.getPermissionsLevel());
+        Group group = client.getGroup("testGroup1");
+        assertEquals(Group.PERMISSIONS_GROUP_READ, group.getPermissionsLevel());
         group.setDescription("Test");
         group.saveAndUpdate(client);
         assertEquals("Test", client.getGroup("testGroup1").getDescription());
@@ -60,12 +60,12 @@ class GroupTest extends RootTest {
 
     @Test
     void testGetExperimenters() throws Exception {
-        GroupWrapper group = client.getGroup("testGroup3");
+        Group group = client.getGroup("testGroup3");
 
-        List<ExperimenterWrapper> experimenters = group.getExperimenters();
+        List<Experimenter> experimenters = group.getExperimenters();
 
         List<String> usernames = new ArrayList<>(2);
-        for (ExperimenterWrapper experimenter : experimenters) {
+        for (Experimenter experimenter : experimenters) {
             usernames.add(experimenter.getUserName());
         }
         usernames.sort(String.CASE_INSENSITIVE_ORDER);
@@ -78,9 +78,9 @@ class GroupTest extends RootTest {
 
     @Test
     void testGetMembersOnly() throws Exception {
-        GroupWrapper group = client.getGroup("testGroup3");
+        Group group = client.getGroup("testGroup3");
 
-        List<ExperimenterWrapper> members = group.getMembersOnly();
+        List<Experimenter> members = group.getMembersOnly();
         assertEquals(1, members.size());
         assertEquals("testUser3", members.get(0).getUserName());
     }
@@ -88,9 +88,9 @@ class GroupTest extends RootTest {
 
     @Test
     void testGetLeaders() throws Exception {
-        GroupWrapper group = client.getGroup("testGroup3");
+        Group group = client.getGroup("testGroup3");
 
-        List<ExperimenterWrapper> leaders = group.getLeaders();
+        List<Experimenter> leaders = group.getLeaders();
         assertEquals(1, leaders.size());
         assertEquals("testUser4", leaders.get(0).getUserName());
     }

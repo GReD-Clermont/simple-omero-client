@@ -16,15 +16,21 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.repository.Folder;
 import fr.igred.omero.repository.FolderWrapper;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.Image;
+import fr.igred.omero.repository.Project;
 import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import omero.gateway.model.ProjectData;
 import omero.model.NamedValue;
 import omero.model.ProjectI;
@@ -86,7 +92,7 @@ class AccessExceptionTest extends BasicTest {
         client.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
         assertEquals(0L, client.getId());
 
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
         assertFalse(image.canLink());
         assertFalse(image.canAnnotate());
         assertTrue(image.canEdit());
@@ -94,7 +100,7 @@ class AccessExceptionTest extends BasicTest {
         assertTrue(image.canChgrp());
         assertTrue(image.canChown());
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         try {
             image.addTag(client, tag);
@@ -109,12 +115,12 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testFolderAddROIWithoutImage() throws Exception {
-        FolderWrapper folder = new FolderWrapper(client, "Test1");
+        Folder folder = new FolderWrapper(client, "Test1");
 
-        RectangleWrapper rectangle = new RectangleWrapper(0, 0, 10, 10);
+        Shape<?> rectangle = new RectangleWrapper(0, 0, 10, 10);
         rectangle.setCZT(0, 0, 0);
 
-        ROIWrapper roi = new ROIWrapper();
+        ROI roi = new ROIWrapper();
         roi.addShape(rectangle);
         roi.saveROI(client);
 
@@ -142,9 +148,9 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailDeleteProject() {
-        ProjectI       projectI    = new ProjectI(PROJECT1.id, false);
-        ProjectData    projectData = new ProjectData(projectI);
-        ProjectWrapper project     = new ProjectWrapper(projectData);
+        ProjectI        projectI    = new ProjectI(PROJECT1.id, false);
+        ProjectData     projectData = new ProjectData(projectI);
+        RemoteObject<?> project     = new ProjectWrapper(projectData);
         assertThrows(AccessException.class, () -> sudo.delete(project));
     }
 
@@ -156,7 +162,7 @@ class AccessExceptionTest extends BasicTest {
         ProjectData projectData1 = new ProjectData(projectI1);
         ProjectData projectData2 = new ProjectData(projectI2);
 
-        Collection<ProjectWrapper> projects = new ArrayList<>(2);
+        Collection<Project> projects = new ArrayList<>(2);
         projects.add(new ProjectWrapper(projectData1));
         projects.add(new ProjectWrapper(projectData2));
         assertThrows(AccessException.class, () -> sudo.delete(projects));
@@ -220,27 +226,27 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetImageTag() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertThrows(AccessException.class, () -> image.getTags(sudo));
     }
 
 
     @Test
     void testSudoFailGetKVPairs() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertThrows(AccessException.class, () -> image.getKeyValuePairs(sudo));
     }
 
 
     @Test
     void testSudoFailAddKVPair() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         List<NamedValue> result1 = new ArrayList<>(2);
         result1.add(new NamedValue("Test result1", "Value Test"));
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 
-        MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
+        MapAnnotation mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class, () -> image.addMapAnnotation(sudo, mapAnnotation1));
     }
 

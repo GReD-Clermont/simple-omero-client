@@ -30,12 +30,12 @@ class WellSampleTest extends UserTest {
     void testGetImage() throws Exception {
         final String name = "screen1.fake [screen1 2]";
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
-        WellWrapper  well  = plate.getWells(client).get(0);
+        Plate plate = client.getPlate(PLATE1.id);
+        Well well  = plate.getWells(client).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(1);
+        WellSample sample = well.getWellSamples().get(1);
 
-        ImageWrapper image = sample.getImage();
+        Image image = sample.getImage();
 
         assertFalse(image.isOrphaned(client));
         assertEquals(name, image.getName());
@@ -45,8 +45,8 @@ class WellSampleTest extends UserTest {
     @Test
     void testGetWell() throws Exception {
         final long        wellId = 1L;
-        WellWrapper       well   = client.getWell(wellId);
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        Well       well   = client.getWell(wellId);
+        WellSample sample = well.getWellSamples().get(0);
 
         assertEquals(wellId, sample.getWell(client).getId());
     }
@@ -54,18 +54,18 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetPositionX() throws Exception {
-        WellWrapper well = client.getWells(1L).get(0);
+        Well well = client.getWells(1L).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        WellSample sample = well.getWellSamples().get(0);
         assertEquals(0.0, sample.getPositionX(null).getValue(), Double.MIN_VALUE);
     }
 
 
     @Test
     void testGetPositionY() throws Exception {
-        WellWrapper well = client.getWells(1L).get(0);
+        Well well = client.getWells(1L).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        WellSample sample = well.getWellSamples().get(0);
         assertEquals(1.0, sample.getPositionY(null).getValue(), Double.MIN_VALUE);
     }
 
@@ -74,9 +74,9 @@ class WellSampleTest extends UserTest {
     void testGetStartTime() throws Exception {
         final long time = 1146766431000L;
 
-        WellWrapper well = client.getWells(1L).get(0);
+        Well well = client.getWells(1L).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        WellSample sample = well.getWellSamples().get(0);
         assertEquals(time, sample.getStartTime());
     }
 
