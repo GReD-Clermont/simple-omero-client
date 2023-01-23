@@ -34,25 +34,25 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
-/** List of ShapeWrapper objects */
-public class ShapeList extends ArrayList<ShapeWrapper<?>> {
+/** List of Shape objects */
+public class ShapeList extends ArrayList<Shape<?>> {
 
 
     private static final long serialVersionUID = 9076633148525603098L;
 
 
     /**
-     * Tries to convert a ShapeData object to a ShapeWrapper object.
+     * Tries to convert a ShapeData object to a Shape object.
      *
      * @param object The shape.
      * @param klass  The suspected class of the shape.
      * @param mapper The method used to wrap the object.
      * @param <T>    The type of ShapeData.
-     * @param <U>    The type of ObjectWrapper.
+     * @param <U>    The type of RemoteObject.
      *
-     * @return An ObjectWrapper.
+     * @return An RemoteObject.
      */
-    private static <T extends ShapeData, U extends ShapeWrapper<T>>
+    private static <T extends ShapeData, U extends Shape<T>>
     U tryConvert(ShapeData object, Class<? extends T> klass, Function<? super T, U> mapper) {
         if (klass.isInstance(object)) return mapper.apply(klass.cast(object));
         else return null;
@@ -63,11 +63,11 @@ public class ShapeList extends ArrayList<ShapeWrapper<?>> {
      * Gets a list of elements from this list whose class is specified.
      *
      * @param clazz Class of the wanted elements.
-     * @param <T>   Subclass of ShapeWrapper.
+     * @param <T>   Subclass of Shape.
      *
      * @return See above.
      */
-    public <T extends ShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
+    public <T extends Shape<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
     }
 
@@ -82,14 +82,14 @@ public class ShapeList extends ArrayList<ShapeWrapper<?>> {
     public boolean add(ShapeData shape) {
         boolean added = false;
 
-        ShapeWrapper<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, PointWrapper::new);
-        if (wrapper == null) wrapper = tryConvert(shape, TextData.class, TextWrapper::new);
-        if (wrapper == null) wrapper = tryConvert(shape, RectangleData.class, RectangleWrapper::new);
-        if (wrapper == null) wrapper = tryConvert(shape, MaskData.class, MaskWrapper::new);
-        if (wrapper == null) wrapper = tryConvert(shape, EllipseData.class, EllipseWrapper::new);
-        if (wrapper == null) wrapper = tryConvert(shape, LineData.class, LineWrapper::new);
-        if (wrapper == null) wrapper = tryConvert(shape, PolylineData.class, PolylineWrapper::new);
-        if (wrapper == null) wrapper = tryConvert(shape, PolygonData.class, PolygonWrapper::new);
+        Shape<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, Point::new);
+        if (wrapper == null) wrapper = tryConvert(shape, TextData.class, Text::new);
+        if (wrapper == null) wrapper = tryConvert(shape, RectangleData.class, Rectangle::new);
+        if (wrapper == null) wrapper = tryConvert(shape, MaskData.class, Mask::new);
+        if (wrapper == null) wrapper = tryConvert(shape, EllipseData.class, Ellipse::new);
+        if (wrapper == null) wrapper = tryConvert(shape, LineData.class, Line::new);
+        if (wrapper == null) wrapper = tryConvert(shape, PolylineData.class, Polyline::new);
+        if (wrapper == null) wrapper = tryConvert(shape, PolygonData.class, Polygon::new);
 
         if (wrapper != null) added = add(wrapper);
 

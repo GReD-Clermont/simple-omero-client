@@ -17,12 +17,12 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.repository.PlateWrapper;
-import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.repository.ScreenWrapper;
-import fr.igred.omero.repository.WellWrapper;
+import fr.igred.omero.repository.Dataset;
+import fr.igred.omero.repository.Image;
+import fr.igred.omero.repository.Plate;
+import fr.igred.omero.repository.Project;
+import fr.igred.omero.repository.Screen;
+import fr.igred.omero.repository.Well;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -36,7 +36,7 @@ class TagTest extends UserTest {
 
     @Test
     void testGetTagInfo() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(TAG1.id);
+        TagAnnotation tag = client.getTag(TAG1.id);
         assertEquals(TAG1.id, tag.getId());
         assertEquals(TAG1.name, tag.getName());
         assertEquals(TAG1.description, tag.getDescription());
@@ -45,14 +45,14 @@ class TagTest extends UserTest {
 
     @Test
     void testGetTags() throws Exception {
-        List<TagAnnotationWrapper> tags = client.getTags();
+        List<TagAnnotation> tags = client.getTags();
         assertEquals(3, tags.size());
     }
 
 
     @Test
     void testGetTagsSorted() throws Exception {
-        List<TagAnnotationWrapper> tags = client.getTags();
+        List<TagAnnotation> tags = client.getTags();
         for (int i = 1; i < tags.size(); i++) {
             assertTrue(tags.get(i - 1).getId() <= tags.get(i).getId());
         }
@@ -61,8 +61,8 @@ class TagTest extends UserTest {
 
     @Test
     void testGetProjects() throws Exception {
-        TagAnnotationWrapper tag      = client.getTag(TAG1.id);
-        List<ProjectWrapper> projects = tag.getProjects(client);
+        TagAnnotation tag      = client.getTag(TAG1.id);
+        List<Project> projects = tag.getProjects(client);
         assertEquals(1, projects.size());
         assertEquals(2L, projects.get(0).getId());
     }
@@ -70,8 +70,8 @@ class TagTest extends UserTest {
 
     @Test
     void testGetDatasets() throws Exception {
-        TagAnnotationWrapper tag      = client.getTag(TAG1.id);
-        List<DatasetWrapper> datasets = tag.getDatasets(client);
+        TagAnnotation tag      = client.getTag(TAG1.id);
+        List<Dataset> datasets = tag.getDatasets(client);
         assertEquals(1, datasets.size());
         assertEquals(3L, datasets.get(0).getId());
     }
@@ -79,8 +79,8 @@ class TagTest extends UserTest {
 
     @Test
     void testGetImages() throws Exception {
-        TagAnnotationWrapper tag    = client.getTag(TAG1.id);
-        List<ImageWrapper>   images = tag.getImages(client);
+        TagAnnotation tag    = client.getTag(TAG1.id);
+        List<Image>   images = tag.getImages(client);
         assertEquals(3, images.size());
         assertEquals(1L, images.get(0).getId());
         assertEquals(2L, images.get(1).getId());
@@ -90,8 +90,8 @@ class TagTest extends UserTest {
 
     @Test
     void testGetScreens() throws Exception {
-        TagAnnotationWrapper tag     = client.getTag(TAG1.id);
-        List<ScreenWrapper>  screens = tag.getScreens(client);
+        TagAnnotation tag     = client.getTag(TAG1.id);
+        List<Screen>  screens = tag.getScreens(client);
         assertEquals(1, screens.size());
         assertEquals(1L, screens.get(0).getId());
     }
@@ -99,8 +99,8 @@ class TagTest extends UserTest {
 
     @Test
     void testGetPlates() throws Exception {
-        TagAnnotationWrapper tag    = client.getTag(TAG1.id);
-        List<PlateWrapper>   plates = tag.getPlates(client);
+        TagAnnotation tag    = client.getTag(TAG1.id);
+        List<Plate>   plates = tag.getPlates(client);
         assertEquals(1, plates.size());
         assertEquals(1L, plates.get(0).getId());
     }
@@ -108,8 +108,8 @@ class TagTest extends UserTest {
 
     @Test
     void testGetWells() throws Exception {
-        TagAnnotationWrapper tag   = client.getTag(TAG1.id);
-        List<WellWrapper>    wells = tag.getWells(client);
+        TagAnnotation tag   = client.getTag(TAG1.id);
+        List<Well>    wells = tag.getWells(client);
         assertEquals(1, wells.size());
         assertEquals(1L, wells.get(0).getId());
     }
@@ -117,7 +117,7 @@ class TagTest extends UserTest {
 
     @Test
     void testSetName() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(TAG1.id);
+        TagAnnotation tag = client.getTag(TAG1.id);
 
         String name  = tag.getName();
         String name2 = "NewName";
@@ -133,7 +133,7 @@ class TagTest extends UserTest {
 
     @Test
     void testSetDescription() throws Exception {
-        TagAnnotationWrapper tag = client.getTag(TAG1.id);
+        TagAnnotation tag = client.getTag(TAG1.id);
 
         String description = tag.getDescription();
 
