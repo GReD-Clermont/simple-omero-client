@@ -18,142 +18,25 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObjectWrapper;
 import omero.gateway.model.ChannelData;
-
-import java.awt.Color;
 
 
 /**
  * Class containing a ChannelData object.
  * <p> Wraps function calls to the ChannelData contained.
  */
-public class ChannelWrapper extends ObjectWrapper<ChannelData> {
+public class ChannelWrapper extends RemoteObjectWrapper<ChannelData> implements Channel {
 
 
     /**
-     * Constructor of the class ChannelWrapper.
+     * Constructor of the class Channel.
      *
-     * @param channel The ChannelData contained in the ChannelWrapper.
+     * @param dataObject The ChannelData contained in the Channel.
      */
-    public ChannelWrapper(ChannelData channel) {
-        super(channel);
+    public ChannelWrapper(ChannelData dataObject) {
+        super(dataObject);
     }
 
-
-    /**
-     * Returns the ChannelData contained.
-     *
-     * @return See above.
-     */
-    public ChannelData asChannelData() {
-        return data;
-    }
-
-
-    /**
-     * Returns whether the channel contains all the RGBA values or not.
-     *
-     * @return See above.
-     */
-    public boolean hasRGBA() {
-        return data.asChannel().getRed() != null &&
-               data.asChannel().getGreen() != null &&
-               data.asChannel().getBlue() != null &&
-               data.asChannel().getAlpha() != null;
-    }
-
-
-    /**
-     * Returns the channel index.
-     *
-     * @return See above.
-     */
-    public int getIndex() {
-        return data.getIndex();
-    }
-
-
-    /**
-     * Returns the label of the channel.
-     * <p>Following the specification: Name&rarr;Fluor&rarr;Emission wavelength&rarr;index.
-     *
-     * @return See above.
-     */
-    public String getChannelLabeling() {
-        return data.getChannelLabeling();
-    }
-
-
-    /**
-     * Returns the name of the channel.
-     *
-     * @return See above.
-     */
-    public String getName() {
-        return asChannelData().getName();
-    }
-
-
-    /**
-     * Sets the name of the channel.
-     *
-     * @param name The name of the channel.
-     */
-    public void setName(String name) {
-        data.setName(name);
-    }
-
-
-    /**
-     * Gets the original channel color. Defaults to {@link Color#WHITE} if RGBA values are missing.
-     *
-     * @return The original channel color.
-     */
-    public Color getColor() {
-        Color color = Color.WHITE;
-        if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
-        return color;
-    }
-
-
-    /**
-     * Gets the sRGB alpha value of the channel.
-     *
-     * @return See above.
-     */
-    public int getAlpha() {
-        return data.asChannel().getAlpha().getValue();
-    }
-
-
-    /**
-     * Gets the sRGB red value of the channel.
-     *
-     * @return See above.
-     */
-    public int getRed() {
-        return data.asChannel().getRed().getValue();
-    }
-
-
-    /**
-     * Gets the sRGB green value of the channel.
-     *
-     * @return See above.
-     */
-    public int getGreen() {
-        return data.asChannel().getGreen().getValue();
-    }
-
-
-    /**
-     * Gets the sRGB blue value of the channel.
-     *
-     * @return See above.
-     */
-    public int getBlue() {
-        return data.asChannel().getBlue().getValue();
-    }
 
 }

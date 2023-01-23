@@ -21,7 +21,9 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.repository.Image;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import ij.gui.Roi;
 import ij.macro.Variable;
@@ -54,7 +56,7 @@ import java.util.stream.Collectors;
  * be altered.
  * <p> To get the TableData corresponding to the elements contained use createTable.
  */
-public class TableWrapper {
+public class TableWrapper implements Table {
 
     /** Empty ROI array */
     private static final ROIData[] EMPTY_ROI = new ROIData[0];
@@ -89,7 +91,7 @@ public class TableWrapper {
 
 
     /**
-     * Constructor of the class TableWrapper
+     * Constructor of the class Table
      *
      * @param columnCount Number of column in the table.
      * @param name        Name of the table.
@@ -105,7 +107,7 @@ public class TableWrapper {
 
 
     /**
-     * Constructor of the class TableWrapper. Uses an already existing table to create.
+     * Constructor of the class Table. Uses an already existing table to create.
      *
      * @param table The table.
      */
@@ -120,7 +122,7 @@ public class TableWrapper {
 
 
     /**
-     * Constructor of the class TableWrapper. Uses an ImageJ {@link ResultsTable} to create.
+     * Constructor of the class Table. Uses an ImageJ {@link ResultsTable} to create.
      *
      * @param client  The client handling the connection.
      * @param results An ImageJ results table.
@@ -133,12 +135,12 @@ public class TableWrapper {
      */
     public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        this(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
     }
 
 
     /**
-     * Constructor of the class TableWrapper. Uses an ImageJ {@link ResultsTable} to create.
+     * Constructor of the class Table. Uses an ImageJ {@link ResultsTable} to create.
      *
      * @param client      The client handling the connection.
      * @param results     An ImageJ results table.
@@ -154,7 +156,7 @@ public class TableWrapper {
     public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROIWrapper.checkProperty(roiProperty);
+        roiProperty = ROI.checkProperty(roiProperty);
 
         ResultsTable rt = (ResultsTable) results.clone();
         this.fileId = null;
@@ -163,9 +165,9 @@ public class TableWrapper {
 
         int offset = 0;
 
-        ImageWrapper image = new ImageWrapper(null);
+        Image image = new ImageWrapper(null);
 
-        List<ROIWrapper> rois = new ArrayList<>(0);
+        List<ROI> rois = new ArrayList<>(0);
 
         if (imageId != null) {
             image = client.getImage(imageId);
@@ -187,7 +189,7 @@ public class TableWrapper {
         if (offset > 0) {
             createColumn(0, IMAGE, ImageData.class);
             data[0] = new ImageData[rowCount];
-            Arrays.fill(data[0], image.asImageData());
+            Arrays.fill(data[0], image.asDataObject());
         }
         if (offset > 1) {
             createColumn(1, roiProperty, ROIData.class);
@@ -332,14 +334,14 @@ public class TableWrapper {
      * @return An ROIData column.
      */
     private static ROIData[] createROIColumn(ResultsTable results,
-                                             Collection<? extends ROIWrapper> rois,
+                                             Collection<? extends ROI> rois,
                                              Collection<? extends Roi> ijRois,
                                              String roiProperty) {
-        String roiIdProperty = ROIWrapper.ijIDProperty(roiProperty);
+        String roiIdProperty = ROI.ijIDProperty(roiProperty);
 
         ROIData[] roiColumn = EMPTY_ROI;
 
-        Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROIWrapper::getId, ROIWrapper::asROIData));
+        Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROI::getId, ROI::asDataObject));
 
         Map<String, ROIData> name2roi      = new HashMap<>(ijRois.size());
         Map<String, ROIData> shapeName2roi = new HashMap<>(ijRois.size());
@@ -414,24 +416,6 @@ public class TableWrapper {
     /**
      * Adds rows from an ImageJ {@link ResultsTable}.
      *
-     * @param client  The client handling the connection.
-     * @param results An ImageJ results table.
-     * @param imageId An image ID.
-     * @param ijRois  A list of ImageJ Rois.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
-    throws ServiceException, AccessException, ExecutionException {
-        this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
-    }
-
-
-    /**
-     * Adds rows from an ImageJ {@link ResultsTable}.
-     *
      * @param client      The client handling the connection.
      * @param results     An ImageJ results table.
      * @param imageId     An image ID.
@@ -443,16 +427,17 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROIWrapper.checkProperty(roiProperty);
+        roiProperty = ROI.checkProperty(roiProperty);
 
         ResultsTable rt = (ResultsTable) results.clone();
 
-        ImageWrapper image = new ImageWrapper(null);
+        Image image = new ImageWrapper(null);
 
-        List<ROIWrapper> rois = new ArrayList<>(0);
+        List<ROI> rois = new ArrayList<>(0);
 
         int offset = 0;
         if (imageId != null) {
@@ -474,7 +459,7 @@ public class TableWrapper {
         int n = rt.size();
         setRowCount(rowCount + n);
 
-        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asImageData());
+        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asDataObject());
         if (offset > 1) System.arraycopy(roiColumn, 0, data[1], row, n);
         for (int i = 0; i < nColumns; i++) {
             if (columns[offset + i].getType().equals(String.class)) {
@@ -496,6 +481,7 @@ public class TableWrapper {
      *
      * @return the {@link TableDataColumn} which contains information on each column of the table.
      */
+    @Override
     public TableDataColumn[] getColumns() {
         return columns.clone();
     }
@@ -506,6 +492,7 @@ public class TableWrapper {
      *
      * @return the value contained in the table.
      */
+    @Override
     public Object[][] getData() {
         return data.clone();
     }
@@ -519,6 +506,7 @@ public class TableWrapper {
      *
      * @return the value at position data[y][x].
      */
+    @Override
     public Object getData(int x, int y) {
         return data[y][x];
     }
@@ -529,6 +517,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public Long getFileId() {
         return fileId;
     }
@@ -539,6 +528,7 @@ public class TableWrapper {
      *
      * @param fileId New fileId.
      */
+    @Override
     public void setFileId(Long fileId) {
         this.fileId = fileId;
     }
@@ -549,6 +539,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public Long getId() {
         return id;
     }
@@ -559,6 +550,7 @@ public class TableWrapper {
      *
      * @param id New id.
      */
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -569,6 +561,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -579,6 +572,7 @@ public class TableWrapper {
      *
      * @param name New name.
      */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -589,6 +583,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public int getColumnCount() {
         return columnCount;
     }
@@ -601,6 +596,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public String getColumnName(int column) {
         return columns[column].getName();
     }
@@ -613,6 +609,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public Class<?> getColumnType(int column) {
         return columns[column].getType();
     }
@@ -623,6 +620,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public int getRowCount() {
         return rowCount;
     }
@@ -633,6 +631,7 @@ public class TableWrapper {
      *
      * @param rowCount New rowCount.
      */
+    @Override
     public void setRowCount(int rowCount) {
         if (rowCount != this.rowCount) {
             Object[][] temp = new Object[columnCount][rowCount];
@@ -652,6 +651,7 @@ public class TableWrapper {
      *
      * @return true if the table is completed, false if some rows are still empty.
      */
+    @Override
     public boolean isComplete() {
         return row == rowCount;
     }
@@ -666,6 +666,7 @@ public class TableWrapper {
      *
      * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
      */
+    @Override
     public void setColumn(int column, String columnName, Class<?> type) {
         createColumn(column, columnName, type);
     }
@@ -679,6 +680,7 @@ public class TableWrapper {
      * @throws IndexOutOfBoundsException Table is not initialized or already full.
      * @throws IllegalArgumentException  Incorrect argument number.
      */
+    @Override
     public void addRow(Object... os) {
         if (row < rowCount && os.length == columnCount) {
             for (int i = 0; i < os.length; i++) {
@@ -701,6 +703,7 @@ public class TableWrapper {
     /**
      * Deletes all unused row in the table
      */
+    @Override
     public void truncateRow() {
         setRowCount(row);
     }
@@ -711,6 +714,7 @@ public class TableWrapper {
      *
      * @return See above.
      */
+    @Override
     public TableData createTable() {
         if (!isComplete()) truncateRow();
 
@@ -727,6 +731,7 @@ public class TableWrapper {
      * @throws FileNotFoundException        The requested file cannot be written.
      * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
      */
+    @Override
     public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);

@@ -28,21 +28,21 @@ import java.util.List;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
  * <p> Wraps function calls to the MapAnnotationData contained.
  */
-public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
+public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> implements MapAnnotation {
 
 
     /**
-     * Constructor of the MapAnnotationWrapper class.
+     * Constructor of the MapAnnotation class.
      *
-     * @param data MapAnnotationData to be contained.
+     * @param dataObject MapAnnotationData to be contained.
      */
-    public MapAnnotationWrapper(MapAnnotationData data) {
-        super(data);
+    public MapAnnotationWrapper(MapAnnotationData dataObject) {
+        super(dataObject);
     }
 
 
     /**
-     * Constructor of the MapAnnotationWrapper class. Sets the content of the MapAnnotationData
+     * Constructor of the MapAnnotation class. Sets the content of the MapAnnotationData
      *
      * @param result List of NamedValue(Key-Value pair).
      */
@@ -53,42 +53,11 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
 
 
     /**
-     * Constructor of the MapAnnotationWrapper class.
+     * Constructor of the MapAnnotation class.
      */
     public MapAnnotationWrapper() {
         super(new MapAnnotationData());
     }
 
-
-    /**
-     * Gets the List of NamedValue contained in the MapAnnotationData.
-     *
-     * @return MapAnnotationData content.
-     */
-    @SuppressWarnings("unchecked")
-    public List<NamedValue> getContent() {
-        return (List<NamedValue>) data.getContent();
-    }
-
-
-    /**
-     * Sets the content of the MapAnnotationData.
-     *
-     * @param result List of NamedValue(Key-Value pair).
-     */
-    public void setContent(List<NamedValue> result) {
-        data = new MapAnnotationData();
-        data.setContent(result);
-    }
-
-
-    /**
-     * Gets the MapAnnotationData contained.
-     *
-     * @return the {@link MapAnnotationData} contained.
-     */
-    public MapAnnotationData asMapAnnotationData() {
-        return data;
-    }
 
 }

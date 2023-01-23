@@ -25,19 +25,19 @@ import java.util.List;
  * Class containing a WellData object.
  * <p> Wraps function calls to the WellData contained.
  */
-public class WellWrapper extends RepositoryObjectWrapper<WellData> {
+public class WellWrapper extends RepositoryObjectWrapper<WellData> implements Well {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";
 
 
     /**
-     * Constructor of the class WellWrapper.
+     * Constructor of the class Well.
      *
-     * @param well The WellData contained in the WellWrapper.
+     * @param dataObject The WellData contained in the Well.
      */
-    public WellWrapper(WellData well) {
-        super(well);
+    public WellWrapper(WellData dataObject) {
+        super(dataObject);
     }
 
 
@@ -85,33 +85,14 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    @Override
-    public String getDescription() {
-        return data.getExternalDescription();
-    }
-
-
-    /**
-     * Returns the WellData contained.
-     *
-     * @return See above.
-     */
-    public WellData asWellData() {
-        return data;
-    }
-
-
-    /**
      * Returns the well samples linked to the well.
      *
      * @return See above.
      */
-    public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asImageData().getSeries());
+    @Override
+    public List<WellSample> getWellSamples() {
+        return wrap(asDataObject().getWellSamples(), WellSampleWrapper::new,
+                    w -> w.getImage().asDataObject().getSeries());
     }
 
 
@@ -120,148 +101,9 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public PlateWrapper getPlate() {
-        return new PlateWrapper(data.getPlate());
-    }
-
-
-    /**
-     * Returns the column used to indicate the location of the well on the grid.
-     *
-     * @return See above.
-     */
-    public Integer getColumn() {
-        return data.getColumn();
-    }
-
-
-    /**
-     * Returns the row used to indicate the location of the well on the grid.
-     *
-     * @return See above.
-     */
-    public Integer getRow() {
-        return data.getRow();
-    }
-
-
-    /**
-     * Returns the status of the well.
-     *
-     * @return See above.
-     */
-    public String getStatus() {
-        return data.getStatus();
-    }
-
-
-    /**
-     * Sets the status of the well.
-     *
-     * @param status The status of the well.
-     */
-    public void setStatus(String status) {
-        data.setStatus(status);
-    }
-
-
-    /**
-     * Returns a human-readable identifier for the screening status e.g. empty, positive control, etc.
-     *
-     * @return See above.
-     */
-    public String getWellType() {
-        return data.getWellType();
-    }
-
-
-    /**
-     * Sets a human-readable identifier for the screening status e.g. empty, positive control, etc.
-     *
-     * @param type The value to set.
-     */
-    public void setWellType(String type) {
-        data.setWellType(type);
-    }
-
-
-    /**
-     * Returns the red component of the color associated to the well, or {@code -1}.
-     *
-     * @return See above.
-     */
-    public int getRed() {
-        return data.getRed();
-    }
-
-
-    /**
-     * Sets the red component of the color associated to the well.
-     *
-     * @param red The value to set.
-     */
-    public void setRed(Integer red) {
-        data.setRed(red);
-    }
-
-
-    /**
-     * Returns the green component of the color associated to the well, or {@code -1}.
-     *
-     * @return See above.
-     */
-    public int getGreen() {
-        return data.getGreen();
-    }
-
-
-    /**
-     * Sets the green component of the color associated to the well.
-     *
-     * @param green The value to set.
-     */
-    public void setGreen(Integer green) {
-        data.setGreen(green);
-    }
-
-
-    /**
-     * Returns the blue component of the color associated to the well, or {@code -1}.
-     *
-     * @return See above.
-     */
-    public int getBlue() {
-        return data.getBlue();
-    }
-
-
-    /**
-     * Sets the blue component of the color associated to the well.
-     *
-     * @param blue The value to set.
-     */
-    public void setBlue(Integer blue) {
-        data.setBlue(blue);
-    }
-
-
-    /**
-     * Returns the alpha component of the color associated to the well, or {@code -1}.
-     *
-     * @return See above.
-     */
-    public int getAlpha() {
-        return data.getAlpha();
-    }
-
-
-    /**
-     * Sets the alpha component of the color associated to the well.
-     *
-     * @param alpha The value to set.
-     */
-    public void setAlpha(Integer alpha) {
-        data.setAlpha(alpha);
+    @Override
+    public Plate getPlate() {
+        return new PlateWrapper(asDataObject().getPlate());
     }
 
 }

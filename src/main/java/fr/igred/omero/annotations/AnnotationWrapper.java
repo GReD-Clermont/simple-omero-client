@@ -19,21 +19,26 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
+import fr.igred.omero.repository.Image;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.Plate;
 import fr.igred.omero.repository.PlateWrapper;
+import fr.igred.omero.repository.Project;
 import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.repository.Screen;
 import fr.igred.omero.repository.ScreenWrapper;
+import fr.igred.omero.repository.Well;
 import fr.igred.omero.repository.WellWrapper;
 import omero.RLong;
 import omero.gateway.model.AnnotationData;
 import omero.model.IObject;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -43,83 +48,16 @@ import java.util.concurrent.ExecutionException;
  *
  * @param <T> Subclass of {@link AnnotationData}
  */
-public abstract class AnnotationWrapper<T extends AnnotationData> extends ObjectWrapper<T> {
+public abstract class AnnotationWrapper<T extends AnnotationData> extends RemoteObjectWrapper<T> implements Annotation<T> {
 
 
     /**
-     * Constructor of the AnnotationWrapper class.
+     * Constructor of the Annotation class.
      *
-     * @param object Annotation to be contained.
+     * @param dataObject Annotation to be contained.
      */
-    protected AnnotationWrapper(T object) {
-        super(object);
-    }
-
-
-    /**
-     * Retrieves the {@link AnnotationData} namespace of the underlying {@link AnnotationData} instance.
-     *
-     * @return See above.
-     */
-    public String getNameSpace() {
-        return data.getNameSpace();
-    }
-
-
-    /**
-     * Sets the name space of the underlying {@link AnnotationData} instance.
-     *
-     * @param name The value to set.
-     */
-    public void setNameSpace(String name) {
-        data.setNameSpace(name);
-    }
-
-
-    /**
-     * Returns the time when the annotation was last modified.
-     *
-     * @return See above.
-     */
-    public Timestamp getLastModified() {
-        return data.getLastModified();
-    }
-
-
-    /**
-     * Retrieves the {@link AnnotationData#getDescription() description} of the underlying {@link AnnotationData}
-     * instance.
-     *
-     * @return See above
-     */
-    public String getDescription() {
-        return data.getDescription();
-    }
-
-
-    /**
-     * Sets the description of the underlying {@link AnnotationData} instance.
-     *
-     * @param description The description
-     */
-    public void setDescription(String description) {
-        data.setDescription(description);
-    }
-
-
-    /**
-     * Returns the number of annotations links for this object.
-     *
-     * @param client The client handling the connection.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
-     */
-    public int countAnnotationLinks(Client client) throws ServiceException, ServerException {
-        return client.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
-                                  "where link.child.id=" + getId()).size();
+    protected AnnotationWrapper(T dataObject) {
+        super(dataObject);
     }
 
 
@@ -128,14 +66,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @param client The client handling the connection.
      *
-     * @return ProjectWrapper list.
+     * @return Project list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(Client client)
+    @Override
+    public List<Project> getProjects(Client client)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(client, ProjectWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -148,14 +87,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @param client The client handling the connection.
      *
-     * @return DatasetWrapper list.
+     * @return Dataset list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(Client client)
+    @Override
+    public List<Dataset> getDatasets(Client client)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(client, DatasetWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -168,14 +108,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @param client The client handling the connection.
      *
-     * @return ImageWrapper list.
+     * @return Image list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    @Override
+    public List<Image> getImages(Client client)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(client, ImageWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -188,14 +129,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @param client The client handling the connection.
      *
-     * @return ScreenWrapper list.
+     * @return Screen list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    @Override
+    public List<Screen> getScreens(Client client)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(client, ScreenWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -208,14 +150,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @param client The client handling the connection.
      *
-     * @return PlateWrapper list.
+     * @return Plate list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client)
+    @Override
+    public List<Plate> getPlates(Client client)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(client, PlateWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -228,14 +171,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @param client The client handling the connection.
      *
-     * @return WellWrapper list.
+     * @return Well list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client)
+    @Override
+    public List<Well> getWells(Client client)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(client, WellWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);

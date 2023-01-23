@@ -21,8 +21,6 @@ package fr.igred.omero.roi;
 import ij.gui.Roi;
 import omero.gateway.model.PolygonData;
 
-import java.awt.Shape;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,21 +31,21 @@ import java.util.stream.IntStream;
  * Class containing an PolygonData.
  * <p> Wraps function calls to the PolygonData contained.
  */
-public class PolygonWrapper extends ShapeWrapper<PolygonData> {
+public class PolygonWrapper extends ShapeWrapper<PolygonData> implements Polygon {
 
 
     /**
-     * Constructor of the PolygonWrapper class using a PolygonData.
+     * Constructor of the Polygon class using a PolygonData.
      *
-     * @param shape the shape.
+     * @param dataObject the shape.
      */
-    public PolygonWrapper(PolygonData shape) {
-        super(shape);
+    public PolygonWrapper(PolygonData dataObject) {
+        super(dataObject);
     }
 
 
     /**
-     * Constructor of the PolygonWrapper class using a new empty LineData.
+     * Constructor of the Polygon class using a new empty LineData.
      */
     public PolygonWrapper() {
         this(new PolygonData());
@@ -55,7 +53,7 @@ public class PolygonWrapper extends ShapeWrapper<PolygonData> {
 
 
     /**
-     * Constructor of the PolygonWrapper class using an ImageJ PolygonRoi.
+     * Constructor of the Polygon class using an ImageJ PolygonRoi.
      *
      * @param ijRoi An ImageJ ROI.
      */
@@ -74,7 +72,7 @@ public class PolygonWrapper extends ShapeWrapper<PolygonData> {
 
 
     /**
-     * Constructor of the PolygonWrapper class using a new LineData.
+     * Constructor of the Polygon class using a new LineData.
      *
      * @param points the points in the polyline.
      */
@@ -82,77 +80,5 @@ public class PolygonWrapper extends ShapeWrapper<PolygonData> {
         this(new PolygonData(points));
     }
 
-
-    /**
-     * Gets the text on the ShapeData.
-     *
-     * @return the text
-     */
-    @Override
-    public String getText() {
-        return data.getText();
-    }
-
-
-    /**
-     * Sets the text on the ShapeData.
-     *
-     * @param text the text
-     */
-    @Override
-    public void setText(String text) {
-        data.setText(text);
-    }
-
-
-    /**
-     * Converts the shape to an {@link Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        Path2D polygon = new Path2D.Double();
-
-        List<Point2D.Double> points = getPoints();
-        if (!points.isEmpty()) {
-            polygon.moveTo(points.get(0).x, points.get(0).y);
-            for (int i = 1; i < points.size(); i++) {
-                polygon.lineTo(points.get(i).x, points.get(i).y);
-            }
-            polygon.closePath();
-        }
-        return polygon;
-    }
-
-
-    /**
-     * Returns the points in the Polygon.
-     *
-     * @return See above.
-     */
-    public List<Point2D.Double> getPoints() {
-        return data.getPoints();
-    }
-
-
-    /**
-     * Sets the points in the polyline.
-     *
-     * @param points The points to set.
-     */
-    public void setPoints(List<Point2D.Double> points) {
-        data.setPoints(points);
-    }
-
-
-    /**
-     * Returns the points in the polygon.
-     *
-     * @return See above.
-     */
-    public List<Integer> getMaskPoints() {
-        return data.getMaskPoints();
-    }
 
 }

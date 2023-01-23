@@ -30,21 +30,21 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData object.
  * <p> Wraps function calls to the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
+public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> implements TagAnnotation {
 
     /**
-     * Constructor of the TagAnnotationWrapper class.
+     * Constructor of the TagAnnotation class.
      *
-     * @param tag Tag to be contained.
+     * @param dataObject Tag to be contained.
      */
-    public TagAnnotationWrapper(TagAnnotationData tag) {
-        super(tag);
-        data.setNameSpace(tag.getContentAsString());
+    public TagAnnotationWrapper(TagAnnotationData dataObject) {
+        super(dataObject);
+        data.setNameSpace(dataObject.getContentAsString());
     }
 
 
     /**
-     * Constructor of the TagAnnotationWrapper class. Creates the tag and save it in OMERO.
+     * Constructor of the TagAnnotation class. Creates the tag and save it in OMERO.
      *
      * @param client      The client handling the connection.
      * @param name        Annotation name.
@@ -60,36 +60,5 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
         super.saveAndUpdate(client);
     }
 
-
-    /**
-     * Gets the name of the TagData.
-     *
-     * @return TagData name.
-     */
-    public String getName() {
-        return data.getTagValue();
-    }
-
-
-    /**
-     * Sets the name of the TagData.
-     *
-     * @param name The name of the TagData. Mustn't be {@code null}.
-     *
-     * @throws IllegalArgumentException If the name is {@code null}.
-     */
-    public void setName(String name) {
-        data.setTagValue(name);
-    }
-
-
-    /**
-     * Gets the TagAnnotationData contained.
-     *
-     * @return the {@link TagAnnotationData} contained.
-     */
-    public TagAnnotationData asTagAnnotationData() {
-        return data;
-    }
 
 }

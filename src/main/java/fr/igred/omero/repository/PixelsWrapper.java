@@ -19,9 +19,10 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.PlaneInfo;
 import fr.igred.omero.meta.PlaneInfoWrapper;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
@@ -48,25 +49,25 @@ import static ome.formats.model.UnitsFactory.convertLength;
  * Class containing a PixelData object.
  * <p> Wraps function calls to the PixelData contained.
  */
-public class PixelsWrapper extends ObjectWrapper<PixelsData> {
+public class PixelsWrapper extends RemoteObjectWrapper<PixelsData> implements Pixels {
 
     /** Size of tiles when retrieving pixels */
-    public static final int MAX_DIST = 5000;
+    private static final int MAX_DIST = 5000;
 
     /** Planes info (needs to be loaded) */
-    private List<PlaneInfoWrapper> planesInfo = new ArrayList<>(0);
+    private List<PlaneInfo> planesInfo = new ArrayList<>(0);
 
     /** Raw Data Facility to retrieve pixels */
     private RawDataFacility rawDataFacility;
 
 
     /**
-     * Constructor of the PixelsWrapper class
+     * Constructor of the Pixels class
      *
-     * @param pixels PixelData to be contained.
+     * @param dataObject PixelData to be contained.
      */
-    public PixelsWrapper(PixelsData pixels) {
-        super(pixels);
+    public PixelsWrapper(PixelsData dataObject) {
+        super(dataObject);
         rawDataFacility = null;
     }
 
@@ -129,197 +130,6 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
 
 
     /**
-     * Loads the planes information.
-     *
-     * @param client The client handling the connection.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void loadPlanesInfo(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = handleServiceAndAccess(client.getMetadata(),
-                                                            m -> m.getPlaneInfos(client.getCtx(), data),
-                                                            "Cannot retrieve planes info.");
-        planesInfo = wrap(planes, PlaneInfoWrapper::new);
-    }
-
-
-    /**
-     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Client) loaded} first).
-     *
-     * @return See above.
-     */
-    public List<PlaneInfoWrapper> getPlanesInfo() {
-        return Collections.unmodifiableList(planesInfo);
-    }
-
-
-    /**
-     * Gets the pixel type.
-     *
-     * @return the pixel type.
-     */
-    public String getPixelType() {
-        return data.getPixelType();
-    }
-
-
-    /**
-     * Gets the size of a single image pixel on the X axis.
-     *
-     * @return Size of a pixel on the X axis.
-     */
-    public Length getPixelSizeX() {
-        return data.asPixels().getPhysicalSizeX();
-    }
-
-
-    /**
-     * Gets the size of a single image pixel on the Y axis.
-     *
-     * @return Size of a pixel on the Y axis.
-     */
-    public Length getPixelSizeY() {
-        return data.asPixels().getPhysicalSizeY();
-    }
-
-
-    /**
-     * Gets the size of a single image pixel on the Z axis.
-     *
-     * @return Size of a pixel on the Z axis.
-     */
-    public Length getPixelSizeZ() {
-        return data.asPixels().getPhysicalSizeZ();
-    }
-
-
-    /**
-     * Gets the time increment between time points.
-     *
-     * @return Time increment between time points.
-     */
-    public Time getTimeIncrement() {
-        return data.asPixels().getTimeIncrement();
-    }
-
-
-    /**
-     * Computes the mean time interval from the planes deltaTs.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
-     *
-     * @return See above.
-     */
-    public Time getMeanTimeInterval() {
-        return PlaneInfoWrapper.computeMeanTimeInterval(planesInfo, getSizeT());
-    }
-
-
-    /**
-     * Computes the mean exposure time for a given channel from the planes exposureTime.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
-     *
-     * @param channel The channel index.
-     *
-     * @return See above.
-     */
-    public Time getMeanExposureTime(int channel) {
-        return PlaneInfoWrapper.computeMeanExposureTime(planesInfo, channel);
-    }
-
-
-    /**
-     * Retrieves the X stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
-     *
-     * @return See above.
-     */
-    public Length getPositionX() {
-        ome.units.quantity.Length       pixSizeX = convertLength(getPixelSizeX());
-        Unit<ome.units.quantity.Length> unit     = pixSizeX == null ? UNITS.MICROMETER : pixSizeX.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionX, unit);
-    }
-
-
-    /**
-     * Retrieves the Y stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
-     *
-     * @return See above.
-     */
-    public Length getPositionY() {
-        ome.units.quantity.Length       pixSizeY = convertLength(getPixelSizeY());
-        Unit<ome.units.quantity.Length> unit     = pixSizeY == null ? UNITS.MICROMETER : pixSizeY.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionY, unit);
-    }
-
-
-    /**
-     * Retrieves the Z stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
-     *
-     * @return See above.
-     */
-    public Length getPositionZ() {
-        ome.units.quantity.Length       pixSizeZ = convertLength(getPixelSizeZ());
-        Unit<ome.units.quantity.Length> unit     = pixSizeZ == null ? UNITS.MICROMETER : pixSizeZ.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionZ, unit);
-    }
-
-
-    /**
-     * Gets the size of the image on the X axis
-     *
-     * @return Size of the image on the X axis.
-     */
-    public int getSizeX() {
-        return data.getSizeX();
-    }
-
-
-    /**
-     * Gets the size of the image on the Y axis
-     *
-     * @return Size of the image on the Y axis.
-     */
-    public int getSizeY() {
-        return data.getSizeY();
-    }
-
-
-    /**
-     * Gets the size of the image on the Z axis
-     *
-     * @return Size of the image on the Z axis.
-     */
-    public int getSizeZ() {
-        return data.getSizeZ();
-    }
-
-
-    /**
-     * Gets the size of the image on the C axis
-     *
-     * @return Size of the image on the C axis.
-     */
-    public int getSizeC() {
-        return data.getSizeC();
-    }
-
-
-    /**
-     * Gets the size of the image on the T axis
-     *
-     * @return Size of the image on the T axis.
-     */
-    public int getSizeT() {
-        return data.getSizeT();
-    }
-
-
-    /**
      * Creates a {@link omero.gateway.facility.RawDataFacility} to retrieve the pixel values.
      *
      * @param client The client handling the connection.
@@ -345,67 +155,6 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
     void destroyRawDataFacility() {
         rawDataFacility.close();
         rawDataFacility = null;
-    }
-
-
-    /**
-     * Returns an array containing the value for each voxel
-     *
-     * @param client The client handling the connection.
-     *
-     * @return Array containing the value for each voxel of the image.
-     *
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public double[][][][][] getAllPixels(Client client) throws AccessException, ExecutionException {
-        return getAllPixels(client, null, null, null, null, null);
-    }
-
-
-    /**
-     * Returns an array containing the value for each voxel corresponding to the bounds
-     *
-     * @param client  The client handling the connection.
-     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
-     *
-     * @return Array containing the value for each voxel of the image.
-     *
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public double[][][][][] getAllPixels(Client client,
-                                         int[] xBounds,
-                                         int[] yBounds,
-                                         int[] cBounds,
-                                         int[] zBounds,
-                                         int[] tBounds)
-    throws AccessException, ExecutionException {
-        boolean rdf = createRawDataFacility(client);
-        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
-
-        Coordinates start = lim.getStart();
-        Coordinates size  = lim.getSize();
-
-        double[][][][][] tab = new double[size.getT()][size.getZ()][size.getC()][][];
-
-        for (int t = 0, posT = start.getT(); t < size.getT(); t++, posT++) {
-            for (int z = 0, posZ = start.getZ(); z < size.getZ(); z++, posZ++) {
-                for (int c = 0, posC = start.getC(); c < size.getC(); c++, posC++) {
-                    Coordinates pos = new Coordinates(start.getX(), start.getY(), posC, posZ, posT);
-                    tab[t][z][c] = getTile(client, pos, size.getX(), size.getY());
-                }
-            }
-        }
-
-        if (rdf) {
-            destroyRawDataFacility();
-        }
-        return tab;
     }
 
 
@@ -446,69 +195,6 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
             destroyRawDataFacility();
         }
         return tile;
-    }
-
-
-    /**
-     * Returns an array containing the raw values for each voxel for each planes
-     *
-     * @param client The client handling the connection.
-     * @param bpp    Bytes per pixels of the image.
-     *
-     * @return a table of bytes containing the pixel values
-     *
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public byte[][][][] getRawPixels(Client client, int bpp) throws AccessException, ExecutionException {
-        return getRawPixels(client, null, null, null, null, null, bpp);
-    }
-
-
-    /**
-     * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
-     *
-     * @param client  The client handling the connection.
-     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
-     * @param bpp     Bytes per pixels of the image.
-     *
-     * @return a table of bytes containing the pixel values
-     *
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public byte[][][][] getRawPixels(Client client,
-                                     int[] xBounds,
-                                     int[] yBounds,
-                                     int[] cBounds,
-                                     int[] zBounds,
-                                     int[] tBounds,
-                                     int bpp)
-    throws ExecutionException, AccessException {
-        boolean rdf = createRawDataFacility(client);
-        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
-
-        Coordinates start = lim.getStart();
-        Coordinates size  = lim.getSize();
-
-        byte[][][][] bytes = new byte[size.getT()][size.getZ()][size.getC()][];
-
-        for (int t = 0, posT = start.getT(); t < size.getT(); t++, posT++) {
-            for (int z = 0, posZ = start.getZ(); z < size.getZ(); z++, posZ++) {
-                for (int c = 0, posC = start.getC(); c < size.getC(); c++, posC++) {
-                    Coordinates pos = new Coordinates(start.getX(), start.getY(), posC, posZ, posT);
-                    bytes[t][z][c] = getRawTile(client, pos, size.getX(), size.getY(), bpp);
-                }
-            }
-        }
-        if (rdf) {
-            destroyRawDataFacility();
-        }
-        return bytes;
     }
 
 
@@ -584,5 +270,197 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
         return new Bounds(start, end);
     }
 
+
+    /**
+     * Loads the planes information.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void loadPlanesInfo(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        List<PlaneInfoData> planes = handleServiceAndAccess(client.getMetadata(),
+                                                            m -> m.getPlaneInfos(client.getCtx(), data),
+                                                            "Cannot retrieve planes info.");
+        planesInfo = wrap(planes, PlaneInfoWrapper::new);
+    }
+
+
+    /**
+     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Client) loaded} first).
+     *
+     * @return See above.
+     */
+    @Override
+    public List<PlaneInfo> getPlanesInfo() {
+        return Collections.unmodifiableList(planesInfo);
+    }
+
+
+    /**
+     * Computes the mean time interval from the planes deltaTs.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    @Override
+    public Time getMeanTimeInterval() {
+        return PlaneInfo.computeMeanTimeInterval(planesInfo, getSizeT());
+    }
+
+
+    /**
+     * Computes the mean exposure time for a given channel from the planes exposureTime.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @param channel The channel index.
+     *
+     * @return See above.
+     */
+    @Override
+    public Time getMeanExposureTime(int channel) {
+        return PlaneInfo.computeMeanExposureTime(planesInfo, channel);
+    }
+
+
+    /**
+     * Retrieves the X stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    @Override
+    public Length getPositionX() {
+        ome.units.quantity.Length       pixSizeX = convertLength(getPixelSizeX());
+        Unit<ome.units.quantity.Length> unit     = pixSizeX == null ? UNITS.MICROMETER : pixSizeX.unit();
+        return PlaneInfo.getMinPosition(planesInfo, PlaneInfo::getPositionX, unit);
+    }
+
+
+    /**
+     * Retrieves the Y stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    @Override
+    public Length getPositionY() {
+        ome.units.quantity.Length       pixSizeY = convertLength(getPixelSizeY());
+        Unit<ome.units.quantity.Length> unit     = pixSizeY == null ? UNITS.MICROMETER : pixSizeY.unit();
+        return PlaneInfo.getMinPosition(planesInfo, PlaneInfo::getPositionY, unit);
+    }
+
+
+    /**
+     * Retrieves the Z stage position.
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     *
+     * @return See above.
+     */
+    @Override
+    public Length getPositionZ() {
+        ome.units.quantity.Length       pixSizeZ = convertLength(getPixelSizeZ());
+        Unit<ome.units.quantity.Length> unit     = pixSizeZ == null ? UNITS.MICROMETER : pixSizeZ.unit();
+        return PlaneInfo.getMinPosition(planesInfo, PlaneInfo::getPositionZ, unit);
+    }
+
+
+    /**
+     * Returns an array containing the value for each voxel corresponding to the bounds
+     *
+     * @param client  The client handling the connection.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
+     *
+     * @return Array containing the value for each voxel of the image.
+     *
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public double[][][][][] getAllPixels(Client client,
+                                         int[] xBounds,
+                                         int[] yBounds,
+                                         int[] cBounds,
+                                         int[] zBounds,
+                                         int[] tBounds)
+    throws AccessException, ExecutionException {
+        boolean rdf = createRawDataFacility(client);
+        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
+
+        Coordinates start = lim.getStart();
+        Coordinates size  = lim.getSize();
+
+        double[][][][][] tab = new double[size.getT()][size.getZ()][size.getC()][][];
+
+        for (int t = 0, posT = start.getT(); t < size.getT(); t++, posT++) {
+            for (int z = 0, posZ = start.getZ(); z < size.getZ(); z++, posZ++) {
+                for (int c = 0, posC = start.getC(); c < size.getC(); c++, posC++) {
+                    Coordinates pos = new Coordinates(start.getX(), start.getY(), posC, posZ, posT);
+                    tab[t][z][c] = getTile(client, pos, size.getX(), size.getY());
+                }
+            }
+        }
+
+        if (rdf) {
+            destroyRawDataFacility();
+        }
+        return tab;
+    }
+
+
+    /**
+     * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
+     *
+     * @param client  The client handling the connection.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
+     * @param bpp     Bytes per pixels of the image.
+     *
+     * @return a table of bytes containing the pixel values
+     *
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public byte[][][][] getRawPixels(Client client,
+                                     int[] xBounds,
+                                     int[] yBounds,
+                                     int[] cBounds,
+                                     int[] zBounds,
+                                     int[] tBounds,
+                                     int bpp)
+    throws ExecutionException, AccessException {
+        boolean rdf = createRawDataFacility(client);
+        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
+
+        Coordinates start = lim.getStart();
+        Coordinates size  = lim.getSize();
+
+        byte[][][][] bytes = new byte[size.getT()][size.getZ()][size.getC()][];
+
+        for (int t = 0, posT = start.getT(); t < size.getT(); t++, posT++) {
+            for (int z = 0, posZ = start.getZ(); z < size.getZ(); z++, posZ++) {
+                for (int c = 0, posC = start.getC(); c < size.getC(); c++, posC++) {
+                    Coordinates pos = new Coordinates(start.getX(), start.getY(), posC, posZ, posT);
+                    bytes[t][z][c] = getRawTile(client, pos, size.getX(), size.getY(), bpp);
+                }
+            }
+        }
+        if (rdf) {
+            destroyRawDataFacility();
+        }
+        return bytes;
+    }
 
 }
