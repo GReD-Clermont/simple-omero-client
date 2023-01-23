@@ -5,11 +5,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -25,28 +23,17 @@ import java.util.List;
 
 
 /**
- * Class containing an ExperimenterData object.
- * <p> Wraps function calls to the ExperimenterData contained.
+ * Interface to handle Experimenters on OMERO.
  */
-public class Experimenter extends RemoteObject<ExperimenterData> {
-
-    /**
-     * Constructor of the class Experimenter.
-     *
-     * @param dataObject The experimenter contained in the Experimenter.
-     */
-    public Experimenter(ExperimenterData dataObject) {
-        super(dataObject);
-    }
-
+public interface Experimenter extends RemoteObject<ExperimenterData> {
 
     /**
      * Returns the first name of the experimenter.
      *
      * @return see above.
      */
-    public String getFirstName() {
-        return data.getFirstName();
+    default String getFirstName() {
+        return asDataObject().getFirstName();
     }
 
 
@@ -55,8 +42,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @param firstName The value to set.
      */
-    public void setFirstName(String firstName) {
-        data.setFirstName(firstName);
+    default void setFirstName(String firstName) {
+        asDataObject().setFirstName(firstName);
     }
 
 
@@ -65,8 +52,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return see above.
      */
-    public String getLastName() {
-        return data.getLastName();
+    default String getLastName() {
+        return asDataObject().getLastName();
     }
 
 
@@ -75,8 +62,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @param lastName The value to set.
      */
-    public void setLastName(String lastName) {
-        data.setLastName(lastName);
+    default void setLastName(String lastName) {
+        asDataObject().setLastName(lastName);
     }
 
 
@@ -85,8 +72,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return see above.
      */
-    public String getUserName() {
-        return data.getUserName();
+    default String getUserName() {
+        return asDataObject().getUserName();
     }
 
 
@@ -95,8 +82,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return see above.
      */
-    public String getEmail() {
-        return data.getEmail();
+    default String getEmail() {
+        return asDataObject().getEmail();
     }
 
 
@@ -105,8 +92,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @param email The value to set.
      */
-    public void setEmail(String email) {
-        data.setEmail(email);
+    default void setEmail(String email) {
+        asDataObject().setEmail(email);
     }
 
 
@@ -115,8 +102,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return see above.
      */
-    public String getInstitution() {
-        return data.getInstitution();
+    default String getInstitution() {
+        return asDataObject().getInstitution();
     }
 
 
@@ -125,8 +112,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @param institution The value to set.
      */
-    public void setInstitution(String institution) {
-        data.setInstitution(institution);
+    default void setInstitution(String institution) {
+        asDataObject().setInstitution(institution);
     }
 
 
@@ -135,9 +122,7 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return See above.
      */
-    public List<Group> getGroups() {
-        return wrap(data.getGroups(), Group::new, Group::getName);
-    }
+    List<Group> getGroups();
 
 
     /**
@@ -145,8 +130,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return See above.
      */
-    public Group getDefaultGroup() {
-        return new Group(data.getDefaultGroup());
+    default GroupWrapper getDefaultGroup() {
+        return new GroupWrapper(asDataObject().getDefaultGroup());
     }
 
 
@@ -155,8 +140,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return see above.
      */
-    public String getMiddleName() {
-        return data.getMiddleName();
+    default String getMiddleName() {
+        return asDataObject().getMiddleName();
     }
 
 
@@ -165,8 +150,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @param middleName The value to set.
      */
-    public void setMiddleName(String middleName) {
-        data.setMiddleName(middleName);
+    default void setMiddleName(String middleName) {
+        asDataObject().setMiddleName(middleName);
     }
 
 
@@ -175,8 +160,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return See above.
      */
-    public boolean isActive() {
-        return data.isActive();
+    default boolean isActive() {
+        return asDataObject().isActive();
     }
 
 
@@ -187,8 +172,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return boolean {@code true}/{@code false} depending on the matching id found
      */
-    public boolean isMemberOfGroup(long groupId) {
-        return data.isMemberOfGroup(groupId);
+    default boolean isMemberOfGroup(long groupId) {
+        return asDataObject().isMemberOfGroup(groupId);
     }
 
 
@@ -197,8 +182,8 @@ public class Experimenter extends RemoteObject<ExperimenterData> {
      *
      * @return See above.
      */
-    public boolean isLDAP() {
-        return data.isLDAP();
+    default boolean isLDAP() {
+        return asDataObject().isLDAP();
     }
 
 }

@@ -25,59 +25,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
-/**
- * Class containing an RectangleData.
- * <p> Wraps function calls to the RectangleData contained.
- */
-public class Rectangle extends Shape<RectangleData> {
-
-
-    /**
-     * Constructor of the Rectangle class using a RectangleData.
-     *
-     * @param dataObject the shape
-     */
-    public Rectangle(RectangleData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Rectangle class using a new empty RectangleData.
-     */
-    public Rectangle() {
-        this(new RectangleData());
-    }
-
-
-    /**
-     * Constructor of the Rectangle class using bounds from an ImageJ ROI.
-     *
-     * @param ijRoi An ImageJ ROI.
-     */
-    public Rectangle(ij.gui.Roi ijRoi) {
-        this(ijRoi.getBounds().getX(),
-             ijRoi.getBounds().getY(),
-             ijRoi.getBounds().getWidth(),
-             ijRoi.getBounds().getHeight());
-
-        data.setText(ijRoi.getName());
-        super.copy(ijRoi);
-    }
-
-
-    /**
-     * Constructor of the Rectangle class using a new RectangleData.
-     *
-     * @param x      The x-coordinate of the top-left corner.
-     * @param y      The y-coordinate of the top-left corner.
-     * @param width  The width of the rectangle.
-     * @param height The height of the rectangle.
-     */
-    public Rectangle(double x, double y, double width, double height) {
-        this(new RectangleData(x, y, width, height));
-    }
-
+public interface Rectangle extends Shape<RectangleData> {
 
     /**
      * Gets the text on the ShapeData.
@@ -85,8 +33,8 @@ public class Rectangle extends Shape<RectangleData> {
      * @return the text
      */
     @Override
-    public String getText() {
-        return data.getText();
+    default String getText() {
+        return asDataObject().getText();
     }
 
 
@@ -96,8 +44,8 @@ public class Rectangle extends Shape<RectangleData> {
      * @param text the text
      */
     @Override
-    public void setText(String text) {
-        data.setText(text);
+    default void setText(String text) {
+        asDataObject().setText(text);
     }
 
 
@@ -107,7 +55,7 @@ public class Rectangle extends Shape<RectangleData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
     }
 
@@ -117,8 +65,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @return See above.
      */
-    public double getX() {
-        return data.getX();
+    default double getX() {
+        return asDataObject().getX();
     }
 
 
@@ -127,8 +75,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @param x See above.
      */
-    public void setX(double x) {
-        data.setX(x);
+    default void setX(double x) {
+        asDataObject().setX(x);
     }
 
 
@@ -137,8 +85,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @return See above.
      */
-    public double getY() {
-        return data.getY();
+    default double getY() {
+        return asDataObject().getY();
     }
 
 
@@ -147,8 +95,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @param y See above.
      */
-    public void setY(double y) {
-        data.setY(y);
+    default void setY(double y) {
+        asDataObject().setY(y);
     }
 
 
@@ -157,8 +105,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @return See above.
      */
-    public double getWidth() {
-        return data.getWidth();
+    default double getWidth() {
+        return asDataObject().getWidth();
     }
 
 
@@ -167,8 +115,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @param width See above.
      */
-    public void setWidth(double width) {
-        data.setWidth(width);
+    default void setWidth(double width) {
+        asDataObject().setWidth(width);
     }
 
 
@@ -177,8 +125,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @return See above.
      */
-    public double getHeight() {
-        return data.getHeight();
+    default double getHeight() {
+        return asDataObject().getHeight();
     }
 
 
@@ -187,8 +135,8 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @param height See above.
      */
-    public void setHeight(double height) {
-        data.setHeight(height);
+    default void setHeight(double height) {
+        asDataObject().setHeight(height);
     }
 
 
@@ -200,7 +148,7 @@ public class Rectangle extends Shape<RectangleData> {
      * @param width  The width of the rectangle.
      * @param height The height of the rectangle.
      */
-    public void setCoordinates(double x, double y, double width, double height) {
+    default void setCoordinates(double x, double y, double width, double height) {
         setX(x);
         setY(y);
         setWidth(width);
@@ -213,7 +161,7 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @return Array of coordinates containing {X,Y,Width,Height}.
      */
-    public double[] getCoordinates() {
+    default double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX();
         coordinates[1] = getY();
@@ -228,14 +176,14 @@ public class Rectangle extends Shape<RectangleData> {
      *
      * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
      */
-    public void setCoordinates(double[] coordinates) {
+    default void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("RectangleData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setWidth(coordinates[2]);
-            data.setHeight(coordinates[3]);
+            asDataObject().setX(coordinates[0]);
+            asDataObject().setY(coordinates[1]);
+            asDataObject().setWidth(coordinates[2]);
+            asDataObject().setHeight(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for RectangleData.");
         }
@@ -248,20 +196,20 @@ public class Rectangle extends Shape<RectangleData> {
      * @return An ImageJ ROI.
      */
     @Override
-    public Roi toImageJ() {
+    default Roi toImageJ() {
         AffineTransform transform = toAWTTransform();
 
         Roi roi;
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
-            roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
+            roi = new Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            Point p1 = new Point(getX(), getY() + getHeight() / 2);
-            Point p2 = new Point(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape<?> p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape<?> p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 
-            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
             double x1 = shape1.getX();
             double y1 = shape1.getY();

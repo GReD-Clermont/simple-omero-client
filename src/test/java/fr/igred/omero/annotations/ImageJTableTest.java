@@ -22,8 +22,11 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.Image;
+import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.roi.ROI;
+import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.roi.RectangleWrapper;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import omero.gateway.model.DataObject;
@@ -55,15 +58,15 @@ class ImageJTableTest extends UserTest {
     protected static final String unit2   = "m^3";
     protected static final long   imageId = IMAGE1.id;
 
-    protected Image image = new Image(new ImageData());
+    protected Image image = new ImageWrapper(new ImageData());
 
 
     private static List<ROI> createAndSaveROI(Client client, Image image, String name)
     throws AccessException, ServiceException, ExecutionException {
-        ROI roi = new ROI();
+        ROI roi = new ROIWrapper();
         roi.setImage(image);
         for (int i = 0; i < 4; i++) {
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(i);
             rectangle.setT(0);
@@ -144,7 +147,7 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image", 0, label);
         results.setValue(ROI.IJ_PROPERTY, 0, "ROI_1");
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -178,7 +181,7 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image_Name", 0, label);
         results.setValue(property, 0, rois.get(0).getId());
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois, property);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois, property);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -210,7 +213,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
         results.setValue(ROI.ijIDProperty(null), 0, rois.get(0).getId());
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -240,7 +243,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable("", volume1, unit1);
         results.setValue("Image", 0, label);
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -267,7 +270,7 @@ class ImageJTableTest extends UserTest {
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
-        Table table   = new Table(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        Table table   = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         List<Table> tables = image.getTables(client);
@@ -296,7 +299,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
         ResultsTable results2 = createOneRowResultsTable(label, volume2, unit2);
 
-        Table table = new Table(client, results1, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         table.addRows(client, results2, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
@@ -334,7 +337,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results2 = createOneRowResultsTable(label, volume2, unit2);
         results2.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
 
-        Table table = new Table(client, results1, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
@@ -376,7 +379,7 @@ class ImageJTableTest extends UserTest {
         results.setValue(ROI.IJ_PROPERTY, 0, local.getName());
         results.setValue(ROI.IJ_PROPERTY, 1, ijRois.get(0).getName());
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -415,7 +418,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable(label1, volume1, unit1);
         addRowToResultsTable(results, label2, volume2, unit2);
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -439,14 +442,14 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROINamesFromIJResults1() throws Exception {
-        ROI roi1 = new ROI();
-        ROI roi2 = new ROI();
+        ROI roi1 = new ROIWrapper();
+        ROI roi2 = new ROIWrapper();
 
         roi1.setImage(image);
         roi2.setImage(image);
 
         for (int i = 0; i < 4; i++) {
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setText(String.valueOf(10 + i % 2));
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(i);
@@ -469,7 +472,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
         ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
 
-        Table table = new Table(client, results1, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
@@ -496,15 +499,15 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROINamesFromIJResults2() throws Exception {
-        ROI roi1 = new ROI();
-        ROI roi2 = new ROI();
+        ROI roi1 = new ROIWrapper();
+        ROI roi2 = new ROIWrapper();
 
         roi1.setImage(image);
         roi2.setImage(image);
 
         final int max = 14;
         for (int i = 10; i < max; i++) {
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setText(String.valueOf(10 + i % 2));
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(i);
@@ -527,7 +530,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
         ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
 
-        Table table = new Table(client, results1, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
@@ -563,7 +566,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
         ResultsTable results2 = createOneRowResultsTable(label, volume2, null);
 
-        Table table = new Table(client, results1, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         try {
             table.addRows(client, results2, IMAGE1.id, ijRois);
         } catch (IllegalArgumentException e) {
@@ -589,7 +592,7 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image", 0, label);
         results.setValue(ROI.IJ_PROPERTY, 0, 1);
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -620,7 +623,7 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image", 0, label);
         results.setValue(ROI.IJ_PROPERTY, 0, 1.0d);
 
-        Table table = new Table(client, results, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -654,7 +657,7 @@ class ImageJTableTest extends UserTest {
         results2.setValue("Volume Unit", 0, unit2);
         results2.setValue("Volume", 0, volume2);
 
-        Table table = new Table(client, results1, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         table.addRows(client, results2, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
         Object[][] data = table.getData();
@@ -692,7 +695,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results2 = createOneRowResultsTable(label, volume2, unit2);
         results2.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
 
-        Table table = new Table(client, results1, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
 
         @SuppressWarnings("MagicCharacter")

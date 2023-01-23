@@ -17,14 +17,20 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.Folder;
+import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.Image;
 import fr.igred.omero.repository.Project;
+import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.roi.ROI;
-import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import omero.gateway.model.ProjectData;
 import omero.model.NamedValue;
 import omero.model.ProjectI;
@@ -94,7 +100,7 @@ class AccessExceptionTest extends BasicTest {
         assertTrue(image.canChgrp());
         assertTrue(image.canChown());
 
-        TagAnnotation tag = new TagAnnotation(client, "image tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         try {
             image.addTag(client, tag);
@@ -109,12 +115,12 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testFolderAddROIWithoutImage() throws Exception {
-        Folder folder = new Folder(client, "Test1");
+        Folder folder = new FolderWrapper(client, "Test1");
 
-        Rectangle rectangle = new Rectangle(0, 0, 10, 10);
+        Shape<?> rectangle = new RectangleWrapper(0, 0, 10, 10);
         rectangle.setCZT(0, 0, 0);
 
-        ROI roi = new ROI();
+        ROI roi = new ROIWrapper();
         roi.addShape(rectangle);
         roi.saveROI(client);
 
@@ -142,9 +148,9 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailDeleteProject() {
-        ProjectI       projectI    = new ProjectI(PROJECT1.id, false);
-        ProjectData projectData = new ProjectData(projectI);
-        Project     project     = new Project(projectData);
+        ProjectI        projectI    = new ProjectI(PROJECT1.id, false);
+        ProjectData     projectData = new ProjectData(projectI);
+        RemoteObject<?> project     = new ProjectWrapper(projectData);
         assertThrows(AccessException.class, () -> sudo.delete(project));
     }
 
@@ -157,8 +163,8 @@ class AccessExceptionTest extends BasicTest {
         ProjectData projectData2 = new ProjectData(projectI2);
 
         Collection<Project> projects = new ArrayList<>(2);
-        projects.add(new Project(projectData1));
-        projects.add(new Project(projectData2));
+        projects.add(new ProjectWrapper(projectData1));
+        projects.add(new ProjectWrapper(projectData2));
         assertThrows(AccessException.class, () -> sudo.delete(projects));
     }
 
@@ -240,7 +246,7 @@ class AccessExceptionTest extends BasicTest {
         result1.add(new NamedValue("Test result1", "Value Test"));
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 
-        MapAnnotation mapAnnotation1 = new MapAnnotation(result1);
+        MapAnnotation mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class, () -> image.addMapAnnotation(sudo, mapAnnotation1));
     }
 

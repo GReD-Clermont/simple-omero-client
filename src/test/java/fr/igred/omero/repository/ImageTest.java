@@ -16,13 +16,18 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
-import fr.igred.omero.roi.Ellipse;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.roi.EllipseWrapper;
 import fr.igred.omero.roi.ROI;
-import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
@@ -141,7 +146,7 @@ class ImageTest extends UserTest {
         values.add(new NamedValue(name1, value1));
         values.add(new NamedValue(name2, value2));
 
-        MapAnnotation mapAnnotation = new MapAnnotation(values);
+        MapAnnotation mapAnnotation = new MapAnnotationWrapper(values);
         image.addMapAnnotation(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
@@ -173,7 +178,7 @@ class ImageTest extends UserTest {
         MapAnnotationData mapData = new MapAnnotationData();
         mapData.setContent(values);
 
-        MapAnnotation mapAnnotation = new MapAnnotation(mapData);
+        MapAnnotation mapAnnotation = new MapAnnotationWrapper(mapData);
         image.addMapAnnotation(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
@@ -202,7 +207,7 @@ class ImageTest extends UserTest {
         values.add(new NamedValue(name1, value1));
         values.add(new NamedValue(name2, value2));
 
-        MapAnnotation mapAnnotation = new MapAnnotation();
+        MapAnnotation mapAnnotation = new MapAnnotationWrapper();
         mapAnnotation.setContent(values);
         image.addMapAnnotation(client, mapAnnotation);
 
@@ -361,7 +366,7 @@ class ImageTest extends UserTest {
     void testAddTagToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "image tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         image.addTag(client, tag);
 
@@ -393,7 +398,7 @@ class ImageTest extends UserTest {
     void testAddTagIdToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "image tag", "tag attached to an image");
+        RemoteObject<?> tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         image.addTag(client, tag.getId());
 
@@ -410,10 +415,10 @@ class ImageTest extends UserTest {
     void testAddTagsToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotation tag1 = new TagAnnotation(client, "Image tag 1", "tag attached to an image");
-        TagAnnotation tag2 = new TagAnnotation(client, "Image tag 2", "tag attached to an image");
-        TagAnnotation tag3 = new TagAnnotation(client, "Image tag 3", "tag attached to an image");
-        TagAnnotation tag4 = new TagAnnotation(client, "Image tag 4", "tag attached to an image");
+        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = image.getTags(client);
@@ -432,10 +437,10 @@ class ImageTest extends UserTest {
     void testAddTagsToImage2() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotation tag1 = new TagAnnotation(client, "Image tag 1", "tag attached to an image");
-        TagAnnotation tag2 = new TagAnnotation(client, "Image tag 2", "tag attached to an image");
-        TagAnnotation tag3 = new TagAnnotation(client, "Image tag 3", "tag attached to an image");
-        TagAnnotation tag4 = new TagAnnotation(client, "Image tag 4", "tag attached to an image");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1, tag2, tag3, tag4);
         List<TagAnnotation> tags = image.getTags(client);
@@ -454,7 +459,7 @@ class ImageTest extends UserTest {
     void testAddAndRemoveTagFromImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Dataset tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
 
         image.addTag(client, tag);
 
@@ -577,10 +582,10 @@ class ImageTest extends UserTest {
     void testGetCropFromROI() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        Rectangle rectangle = new Rectangle(30, 30, 20, 20);
+        Shape<?> rectangle = new RectangleWrapper(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        Ellipse ellipse = new Ellipse(50, 50, 20, 40);
+        Shape<?> ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
         int[] xBounds = {30, 69};
@@ -589,7 +594,7 @@ class ImageTest extends UserTest {
         int[] zBounds = {0, 1};
         int[] tBounds = {1, 2};
 
-        ROI roi = new ROI();
+        ROI roi = new ROIWrapper();
         roi.setImage(image);
         roi.addShape(rectangle);
         roi.addShape(ellipse);

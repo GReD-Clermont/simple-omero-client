@@ -19,10 +19,10 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.PlateAcquisitionData;
-import omero.gateway.model.TagAnnotationData;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
 
@@ -30,22 +30,7 @@ import java.sql.Timestamp;
 import java.util.concurrent.ExecutionException;
 
 
-/**
- * Class containing a PlateAcquisitionData object.
- * <p> Wraps function calls to the PlateAcquisitionData contained.
- */
-public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
-
-
-    /**
-     * Constructor of the class PlateAcquisition.
-     *
-     * @param dataObject The plate acquisition contained in the PlateAcquisition.
-     */
-    public PlateAcquisition(PlateAcquisitionData dataObject) {
-        super(dataObject);
-    }
-
+public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
 
     /**
      * Gets the plate acquisition name.
@@ -53,8 +38,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      * @return See above.
      */
     @Override
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -65,8 +50,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -76,8 +61,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      * @return See above.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -86,27 +71,27 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @param description The description of the plate acquisition.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
+    default void setDescription(String description) {
+        asDataObject().setDescription(description);
     }
 
 
     /**
      * Protected function. Adds a tag to the object in OMERO, if possible.
      *
-     * @param client  The client handling the connection.
-     * @param tagData Tag to be added.
+     * @param client The client handling the connection.
+     * @param tag    Tag to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected void addTag(Client client, TagAnnotationData tagData)
+    default void addTag(Client client, TagAnnotation tag)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent((omero.model.PlateAcquisition) data.asIObject());
+        link.setChild(tag.asDataObject().asAnnotation());
+        link.setParent((omero.model.PlateAcquisition) asIObject());
         client.save(link);
     }
 
@@ -116,8 +101,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @return See above.
      */
-    public String getLabel() {
-        return data.getLabel();
+    default String getLabel() {
+        return asDataObject().getLabel();
     }
 
 
@@ -126,8 +111,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @return See above.
      */
-    public long getRefPlateId() {
-        return data.getRefPlateId();
+    default long getRefPlateId() {
+        return asDataObject().getRefPlateId();
     }
 
 
@@ -136,8 +121,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @param refPlateId The value to set.
      */
-    public void setRefPlateId(long refPlateId) {
-        data.setRefPlateId(refPlateId);
+    default void setRefPlateId(long refPlateId) {
+        asDataObject().setRefPlateId(refPlateId);
     }
 
 
@@ -146,8 +131,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @return See above.
      */
-    public Timestamp getStartTime() {
-        return data.getStartTime();
+    default Timestamp getStartTime() {
+        return asDataObject().getStartTime();
     }
 
 
@@ -156,8 +141,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @return See above.
      */
-    public Timestamp getEndTime() {
-        return data.getEndTime();
+    default Timestamp getEndTime() {
+        return asDataObject().getEndTime();
     }
 
 
@@ -166,8 +151,8 @@ public class PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
      *
      * @return See above.
      */
-    public int getMaximumFieldCount() {
-        return data.getMaximumFieldCount();
+    default int getMaximumFieldCount() {
+        return asDataObject().getMaximumFieldCount();
     }
 
 }

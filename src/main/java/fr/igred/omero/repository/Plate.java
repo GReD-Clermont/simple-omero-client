@@ -25,36 +25,15 @@ import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.RLong;
 import omero.gateway.model.PlateData;
-import omero.gateway.model.WellData;
 import omero.model.IObject;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
-/**
- * Class containing a PlateData object.
- * <p> Wraps function calls to the PlateData contained.
- */
-public class Plate extends RepositoryObject<PlateData> {
-
-
-    /**
-     * Constructor of the class Plate.
-     *
-     * @param dataObject The plate contained in the Plate.
-     */
-    public Plate(PlateData dataObject) {
-        super(dataObject);
-    }
-
+public interface Plate extends RepositoryObject<PlateData> {
 
     /**
      * Gets the plate name.
@@ -62,8 +41,8 @@ public class Plate extends RepositoryObject<PlateData> {
      * @return See above.
      */
     @Override
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -74,8 +53,18 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
+    }
+
+
+    /**
+     * Returns the PlateData contained.
+     *
+     * @return See above.
+     */
+    default PlateData asPlateData() {
+        return asDataObject();
     }
 
 
@@ -85,8 +74,8 @@ public class Plate extends RepositoryObject<PlateData> {
      * @return See above.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -95,8 +84,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @param description The description of the plate.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
+    default void setDescription(String description) {
+        asDataObject().setDescription(description);
     }
 
 
@@ -112,7 +101,7 @@ public class Plate extends RepositoryObject<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Screen> getScreens(Client client)
+    default List<Screen> getScreens(Client client)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ScreenPlateLink as link " +
                                               "where link.child=" + getId());
@@ -125,9 +114,7 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @return See above.
      */
-    public List<PlateAcquisition> getPlateAcquisitions() {
-        return wrap(data.getPlateAcquisitions(), PlateAcquisition::new);
-    }
+    List<PlateAcquisition> getPlateAcquisitions();
 
 
     /**
@@ -141,17 +128,7 @@ public class Plate extends RepositoryObject<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Well> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = handleServiceAndAccess(client.getBrowseFacility(),
-                                                            bf -> bf.getWells(client.getCtx(), data.getId()),
-                                                            "Cannot get wells from " + this);
-
-        return wells.stream()
-                    .map(Well::new)
-                    .sorted(Comparator.comparing(Well::getRow)
-                                      .thenComparing(Well::getColumn))
-                    .collect(Collectors.toList());
-    }
+    List<Well> getWells(Client client) throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -159,8 +136,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @return See above.
      */
-    public int getColumnSequenceIndex() {
-        return data.getColumnSequenceIndex();
+    default int getColumnSequenceIndex() {
+        return asDataObject().getColumnSequenceIndex();
     }
 
 
@@ -169,8 +146,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @return See above.
      */
-    public int getRowSequenceIndex() {
-        return data.getRowSequenceIndex();
+    default int getRowSequenceIndex() {
+        return asDataObject().getRowSequenceIndex();
     }
 
 
@@ -179,8 +156,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @return See above.
      */
-    public int getDefaultSample() {
-        return data.getDefaultSample();
+    default int getDefaultSample() {
+        return asDataObject().getDefaultSample();
     }
 
 
@@ -189,8 +166,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @param value The value to set.
      */
-    public void setDefaultSample(int value) {
-        data.setDefaultSample(value);
+    default void setDefaultSample(int value) {
+        asDataObject().setDefaultSample(value);
     }
 
 
@@ -199,8 +176,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @return See above.
      */
-    public String getStatus() {
-        return data.getStatus();
+    default String getStatus() {
+        return asDataObject().getStatus();
     }
 
 
@@ -209,8 +186,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @param value The value to set.
      */
-    public void setStatus(String value) {
-        data.setStatus(value);
+    default void setStatus(String value) {
+        asDataObject().setStatus(value);
     }
 
 
@@ -219,8 +196,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @return See above.
      */
-    public String getExternalIdentifier() {
-        return data.getExternalIdentifier();
+    default String getExternalIdentifier() {
+        return asDataObject().getExternalIdentifier();
     }
 
 
@@ -229,8 +206,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @param value The value to set.
      */
-    public void setExternalIdentifier(String value) {
-        data.setExternalIdentifier(value);
+    default void setExternalIdentifier(String value) {
+        asDataObject().setExternalIdentifier(value);
     }
 
 
@@ -239,8 +216,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @return See above.
      */
-    public String getPlateType() {
-        return data.getPlateType();
+    default String getPlateType() {
+        return asDataObject().getPlateType();
     }
 
 
@@ -253,8 +230,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getWellOriginX(UnitsLength unit) throws BigResult {
-        return data.getWellOriginX(unit);
+    default Length getWellOriginX(UnitsLength unit) throws BigResult {
+        return asDataObject().getWellOriginX(unit);
     }
 
 
@@ -267,8 +244,8 @@ public class Plate extends RepositoryObject<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getWellOriginY(UnitsLength unit) throws BigResult {
-        return data.getWellOriginY(unit);
+    default Length getWellOriginY(UnitsLength unit) throws BigResult {
+        return asDataObject().getWellOriginY(unit);
     }
 
 }

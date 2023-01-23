@@ -17,9 +17,11 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.repository.Dataset;
+import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.Image;
 import fr.igred.omero.repository.Plate;
 import fr.igred.omero.repository.Project;
+import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.repository.Screen;
 import fr.igred.omero.repository.Well;
 import org.junit.jupiter.api.Test;
@@ -81,7 +83,7 @@ class ClientTest extends UserTest {
     void testCreateAndDeleteProject() throws Exception {
         String name = "Foo project";
 
-        Project project = new Project(client, name, "");
+        RemoteObject<?> project = new ProjectWrapper(client, name, "");
 
         long newId = project.getId();
         assertEquals(name, client.getProject(newId).getName());
@@ -217,7 +219,7 @@ class ClientTest extends UserTest {
 
         client.switchGroup(newGroupId);
 
-        Dataset dataset = new Dataset("test", "");
+        Dataset dataset = new DatasetWrapper("test", "");
         dataset.saveAndUpdate(client);
 
         List<Long> ids = dataset.importImage(client, file.getAbsolutePath());

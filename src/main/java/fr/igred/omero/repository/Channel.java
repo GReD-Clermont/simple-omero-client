@@ -1,20 +1,3 @@
-/*
- *  Copyright (C) 2020-2023 GReD
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
-
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
- * Street, Fifth Floor, Boston, MA 02110-1301, USA.
- */
-
 package fr.igred.omero.repository;
 
 
@@ -24,33 +7,18 @@ import omero.gateway.model.ChannelData;
 import java.awt.Color;
 
 
-/**
- * Class containing a ChannelData object.
- * <p> Wraps function calls to the ChannelData contained.
- */
-public class Channel extends RemoteObject<ChannelData> {
-
-
-    /**
-     * Constructor of the class Channel.
-     *
-     * @param dataObject The ChannelData contained in the Channel.
-     */
-    public Channel(ChannelData dataObject) {
-        super(dataObject);
-    }
-
+public interface Channel extends RemoteObject<ChannelData> {
 
     /**
      * Returns whether the channel contains all the RGBA values or not.
      *
      * @return See above.
      */
-    public boolean hasRGBA() {
-        return data.asChannel().getRed() != null &&
-               data.asChannel().getGreen() != null &&
-               data.asChannel().getBlue() != null &&
-               data.asChannel().getAlpha() != null;
+    default boolean hasRGBA() {
+        return asDataObject().asChannel().getRed() != null &&
+               asDataObject().asChannel().getGreen() != null &&
+               asDataObject().asChannel().getBlue() != null &&
+               asDataObject().asChannel().getAlpha() != null;
     }
 
 
@@ -59,8 +27,8 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    public int getIndex() {
-        return data.getIndex();
+    default int getIndex() {
+        return asDataObject().getIndex();
     }
 
 
@@ -70,8 +38,8 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    public String getChannelLabeling() {
-        return data.getChannelLabeling();
+    default String getChannelLabeling() {
+        return asDataObject().getChannelLabeling();
     }
 
 
@@ -80,7 +48,7 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    public String getName() {
+    default String getName() {
         return asDataObject().getName();
     }
 
@@ -90,8 +58,8 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @param name The name of the channel.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -100,7 +68,7 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return The original channel color.
      */
-    public Color getColor() {
+    default Color getColor() {
         Color color = Color.WHITE;
         if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
         return color;
@@ -112,8 +80,8 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    public int getAlpha() {
-        return data.asChannel().getAlpha().getValue();
+    default int getAlpha() {
+        return asDataObject().asChannel().getAlpha().getValue();
     }
 
 
@@ -122,8 +90,8 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    public int getRed() {
-        return data.asChannel().getRed().getValue();
+    default int getRed() {
+        return asDataObject().asChannel().getRed().getValue();
     }
 
 
@@ -132,8 +100,8 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    public int getGreen() {
-        return data.asChannel().getGreen().getValue();
+    default int getGreen() {
+        return asDataObject().asChannel().getGreen().getValue();
     }
 
 
@@ -142,8 +110,8 @@ public class Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    public int getBlue() {
-        return data.asChannel().getBlue().getValue();
+    default int getBlue() {
+        return asDataObject().asChannel().getBlue().getValue();
     }
 
 }

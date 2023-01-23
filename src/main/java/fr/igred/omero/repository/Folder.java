@@ -17,99 +17,37 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.FolderData;
-import omero.gateway.model.ROIData;
-import omero.gateway.model.ROIResult;
-import omero.gateway.model.TagAnnotationData;
 import omero.model.FolderAnnotationLink;
 import omero.model.FolderAnnotationLinkI;
 import omero.model.FolderI;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
 
-
-/**
- * Class containing a FolderData object.
- * <p> Wraps function calls to the FolderData contained.
- */
-public class Folder extends RepositoryObject<FolderData> {
-
-    /** ID of the associated image */
-    private long imageId = -1L;
-
-
-    /**
-     * Constructor of the Folder class.
-     *
-     * @param dataObject FolderData to contain.
-     */
-    public Folder(FolderData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Folder class.
-     *
-     * @param folder Folder to contain.
-     */
-    public Folder(omero.model.Folder folder) {
-        super(new FolderData(folder));
-    }
-
-
-    /**
-     * Constructor of the Folder class. Save the folder in OMERO
-     *
-     * @param client The client handling the connection.
-     * @param name   Name of the folder.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
-     */
-    public Folder(Client client, String name) throws ServiceException, ServerException {
-        super(new FolderData());
-        data.setName(name);
-        omero.model.Folder f = (omero.model.Folder) handleServiceAndServer(client.getGateway(),
-                                                                           g -> g.getUpdateService(client.getCtx())
-                                                                                 .saveAndReturnObject(data.asIObject()),
-                                                                           "Could not create Folder with name: " +
-                                                                           name);
-        data.setFolder(f);
-    }
-
+public interface Folder extends RepositoryObject<FolderData> {
 
     /**
      * Private function. Adds a tag to the object in OMERO, if possible.
      *
-     * @param client  The client handling the connection.
-     * @param tagData Tag to be added.
+     * @param client The client handling the connection.
+     * @param tag    Tag to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected void addTag(Client client, TagAnnotationData tagData)
+    default void addTag(Client client, TagAnnotation tag)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent(new FolderI(data.getId(), false));
+        link.setChild(tag.asDataObject().asAnnotation());
+        link.setParent(new FolderI(asDataObject().getId(), false));
         client.save(link);
     }
 
@@ -120,8 +58,8 @@ public class Folder extends RepositoryObject<FolderData> {
      * @return name.
      */
     @Override
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -132,8 +70,8 @@ public class Folder extends RepositoryObject<FolderData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -143,8 +81,8 @@ public class Folder extends RepositoryObject<FolderData> {
      * @return The folder description.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -153,8 +91,8 @@ public class Folder extends RepositoryObject<FolderData> {
      *
      * @param desc The folder description.
      */
-    public void setDescription(String desc) {
-        data.setDescription(desc);
+    default void setDescription(String desc) {
+        asDataObject().setDescription(desc);
     }
 
 
@@ -163,9 +101,7 @@ public class Folder extends RepositoryObject<FolderData> {
      *
      * @param id ID of the image to associate.
      */
-    public void setImage(long id) {
-        imageId = id;
-    }
+    void setImage(long id);
 
 
     /**
@@ -173,9 +109,7 @@ public class Folder extends RepositoryObject<FolderData> {
      *
      * @param image Image to associate.
      */
-    public void setImage(Image image) {
-        imageId = image.getId();
-    }
+    void setImage(Image image);
 
 
     /**
@@ -188,16 +122,8 @@ public class Folder extends RepositoryObject<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    public void addROI(Client client, ROI roi)
-    throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFac = client.getRoiFacility();
-        handleServiceAndAccess(roiFac,
-                               rf -> rf.addRoisToFolders(client.getCtx(),
-                                                         imageId,
-                                                         Collections.singletonList(roi.asDataObject()),
-                                                         Collections.singletonList(data)),
-                               "Cannot add ROI to " + this);
-    }
+    void addROI(Client client, ROI roi)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -211,28 +137,8 @@ public class Folder extends RepositoryObject<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROI> getROIs(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFac = client.getRoiFacility();
-
-        Collection<ROIResult> roiResults = handleServiceAndAccess(roiFac,
-                                                                  rf -> rf.loadROIsForFolder(client.getCtx(), imageId,
-                                                                                             data.getId()),
-                                                                  "Cannot get ROIs from " + this);
-
-        List<ROI> roiWrappers = new ArrayList<>(roiResults.size());
-        if (!roiResults.isEmpty()) {
-            ROIResult r = roiResults.iterator().next();
-
-            Collection<ROIData> rois = r.getROIs();
-            for (ROIData roi : rois) {
-                ROI temp = new ROI(roi);
-                roiWrappers.add(temp);
-            }
-        }
-
-        return roiWrappers;
-    }
+    List<ROI> getROIs(Client client)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -244,21 +150,7 @@ public class Folder extends RepositoryObject<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkAllROI(Client client) throws ServiceException, AccessException, ExecutionException {
-        String      error = "Cannot unlink ROIs from " + this;
-        ROIFacility rf    = client.getRoiFacility();
-        List<ROI>   rois  = getROIs(client);
-        for (ROI roi : rois) {
-            ExceptionHandler.ofConsumer(roi,
-                                        r -> rf.removeRoisFromFolders(client.getCtx(),
-                                                                      this.imageId,
-                                                                      Collections.singletonList(r.asDataObject()),
-                                                                      Collections.singletonList(data)),
-                                        error)
-                            .rethrow(DSOutOfServiceException.class, ServiceException::new)
-                            .rethrow(DSAccessException.class, AccessException::new);
-        }
-    }
+    void unlinkAllROI(Client client) throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -271,17 +163,7 @@ public class Folder extends RepositoryObject<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkROI(Client client, ROI roi)
-    throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot unlink ROIs from " + this;
-        ExceptionHandler.ofConsumer(client.getRoiFacility(),
-                                    rf -> rf.removeRoisFromFolders(client.getCtx(),
-                                                                   this.imageId,
-                                                                   Collections.singletonList(roi.asDataObject()),
-                                                                   Collections.singletonList(data)),
-                                    error)
-                        .rethrow(DSOutOfServiceException.class, ServiceException::new)
-                        .rethrow(DSAccessException.class, AccessException::new);
-    }
+    void unlinkROI(Client client, ROI roi)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

@@ -19,72 +19,24 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.ServerError;
-import omero.api.RawFileStorePrx;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.FileAnnotationData;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 
-/**
- * Class containing a FileAnnotationData object.
- * <p> Wraps function calls to the FileAnnotationData contained.
- */
-public class FileAnnotation extends Annotation<FileAnnotationData> {
-
-    /**
-     * Constructor of the Annotation class.
-     *
-     * @param dataObject Annotation to be contained.
-     */
-    public FileAnnotation(FileAnnotationData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Writes this file annotation to the specified {@link FileOutputStream}.
-     *
-     * @param client The client handling the connection.
-     * @param stream The {@link FileOutputStream} where the data will be written.
-     *
-     * @return The {@link RawFileStorePrx} used to read the file annotation.
-     *
-     * @throws ServerError             Server error.
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws IOException             Cannot write to the file.
-     */
-    private RawFileStorePrx writeFile(Client client, FileOutputStream stream)
-    throws ServerError, DSOutOfServiceException, IOException {
-        final int inc = 262144;
-
-        RawFileStorePrx store = client.getGateway().getRawFileService(client.getCtx());
-        store.setFileId(this.getFileID());
-
-        long size = getFileSize();
-        long offset;
-        for (offset = 0; offset + inc < size; offset += inc) {
-            stream.write(store.read(offset, inc));
-        }
-        stream.write(store.read(offset, (int) (size - offset)));
-        return store;
-    }
-
+public interface FileAnnotation extends Annotation<FileAnnotationData> {
 
     /**
      * Returns the format of the original file.
      *
      * @return See above.
      */
-    public String getOriginalMimetype() {
-        return data.getOriginalMimetype();
+    default String getOriginalMimetype() {
+        return asDataObject().getOriginalMimetype();
     }
 
 
@@ -93,8 +45,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public String getServerFileMimetype() {
-        return data.getServerFileMimetype();
+    default String getServerFileMimetype() {
+        return asDataObject().getServerFileMimetype();
     }
 
 
@@ -103,8 +55,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public String getFileFormat() {
-        return data.getFileFormat();
+    default String getFileFormat() {
+        return asDataObject().getFileFormat();
     }
 
 
@@ -113,8 +65,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public String getFileKind() {
-        return data.getFileKind();
+    default String getFileKind() {
+        return asDataObject().getFileKind();
     }
 
 
@@ -123,8 +75,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public File getAttachedFile() {
-        return data.getAttachedFile();
+    default File getAttachedFile() {
+        return asDataObject().getAttachedFile();
     }
 
 
@@ -133,8 +85,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public String getFileName() {
-        return data.getFileName();
+    default String getFileName() {
+        return asDataObject().getFileName();
     }
 
 
@@ -143,8 +95,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public String getFilePath() {
-        return data.getFilePath();
+    default String getFilePath() {
+        return asDataObject().getFilePath();
     }
 
 
@@ -153,8 +105,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public long getFileSize() {
-        return data.getFileSize();
+    default long getFileSize() {
+        return asDataObject().getFileSize();
     }
 
 
@@ -163,8 +115,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public long getFileID() {
-        return data.getFileID();
+    default long getFileID() {
+        return asDataObject().getFileID();
     }
 
 
@@ -180,25 +132,7 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      * @throws IOException      Cannot write to the file.
      * @throws ServerException  Server error.
      */
-    public File getFile(Client client, String path) throws IOException, ServiceException, ServerException {
-        File file = new File(path);
-
-        RawFileStorePrx store;
-        try (FileOutputStream stream = new FileOutputStream(file)) {
-            store = ExceptionHandler.of(client, c -> writeFile(c, stream), "Could not create RawFileService")
-                                    .rethrow(ServerError.class, ServerException::new)
-                                    .rethrow(DSOutOfServiceException.class, ServiceException::new)
-                                    .rethrow(IOException.class)
-                                    .get();
-        }
-
-        if (store != null) {
-            ExceptionHandler.ofConsumer(store, RawFileStorePrx::close, "Could not close RawFileService")
-                            .rethrow(ServerError.class, ServerException::new);
-        }
-
-        return file;
-    }
+    File getFile(Client client, String path) throws IOException, ServiceException, ServerException;
 
 
     /**
@@ -208,8 +142,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @see AnnotationData#getContentAsString()
      */
-    public String getContentAsString() {
-        return data.getContentAsString();
+    default String getContentAsString() {
+        return asDataObject().getContentAsString();
     }
 
 
@@ -218,9 +152,8 @@ public class FileAnnotation extends Annotation<FileAnnotationData> {
      *
      * @return See above.
      */
-    public boolean isMovieFile() {
-        return data.isMovieFile();
+    default boolean isMovieFile() {
+        return asDataObject().isMovieFile();
     }
-
 
 }

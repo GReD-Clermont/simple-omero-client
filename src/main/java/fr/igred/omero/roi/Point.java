@@ -24,41 +24,7 @@ import omero.gateway.model.PointData;
 import java.awt.geom.Path2D;
 
 
-/**
- * Class containing an PointData.
- * <p> Wraps function calls to the PointData contained.
- */
-public class Point extends Shape<PointData> {
-
-
-    /**
-     * Constructor of the Point class using a PointData.
-     *
-     * @param dataObject the shape
-     */
-    public Point(PointData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Point class using a new empty PointData.
-     */
-    public Point() {
-        this(new PointData());
-    }
-
-
-    /**
-     * Constructor of the Point class using a new empty ShapeData.
-     *
-     * @param x x-coordinate of the shape.
-     * @param y y-coordinate of the shape.
-     */
-    public Point(double x, double y) {
-        this(new PointData(x, y));
-    }
-
+public interface Point extends Shape<PointData> {
 
     /**
      * Gets the text on the ShapeData.
@@ -66,8 +32,8 @@ public class Point extends Shape<PointData> {
      * @return the text
      */
     @Override
-    public String getText() {
-        return data.getText();
+    default String getText() {
+        return asDataObject().getText();
     }
 
 
@@ -77,8 +43,8 @@ public class Point extends Shape<PointData> {
      * @param text the text
      */
     @Override
-    public void setText(String text) {
-        data.setText(text);
+    default void setText(String text) {
+        asDataObject().setText(text);
     }
 
 
@@ -88,7 +54,7 @@ public class Point extends Shape<PointData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         Path2D point = new Path2D.Double();
         point.moveTo(getX(), getY());
         return point;
@@ -100,8 +66,8 @@ public class Point extends Shape<PointData> {
      *
      * @return See above.
      */
-    public double getX() {
-        return data.getX();
+    default double getX() {
+        return asDataObject().getX();
     }
 
 
@@ -110,8 +76,8 @@ public class Point extends Shape<PointData> {
      *
      * @param x See above.
      */
-    public void setX(double x) {
-        data.setX(x);
+    default void setX(double x) {
+        asDataObject().setX(x);
     }
 
 
@@ -120,8 +86,8 @@ public class Point extends Shape<PointData> {
      *
      * @return See above.
      */
-    public double getY() {
-        return data.getY();
+    default double getY() {
+        return asDataObject().getY();
     }
 
 
@@ -130,8 +96,8 @@ public class Point extends Shape<PointData> {
      *
      * @param y See above.
      */
-    public void setY(double y) {
-        data.setY(y);
+    default void setY(double y) {
+        asDataObject().setY(y);
     }
 
 
@@ -141,7 +107,7 @@ public class Point extends Shape<PointData> {
      * @param x x-coordinate of the PointData shape.
      * @param y y-coordinate of the PointData shape.
      */
-    public void setCoordinates(double x, double y) {
+    default void setCoordinates(double x, double y) {
         setX(x);
         setY(y);
     }
@@ -152,7 +118,7 @@ public class Point extends Shape<PointData> {
      *
      * @return Array of coordinates containing {X,Y}.
      */
-    public double[] getCoordinates() {
+    default double[] getCoordinates() {
         double[] coordinates = new double[2];
         coordinates[0] = getX();
         coordinates[1] = getY();
@@ -165,12 +131,12 @@ public class Point extends Shape<PointData> {
      *
      * @param coordinates Array of coordinates containing {X,Y}.
      */
-    public void setCoordinates(double[] coordinates) {
+    default void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("PointData cannot set null coordinates.");
         } else if (coordinates.length == 2) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
+            asDataObject().setX(coordinates[0]);
+            asDataObject().setY(coordinates[1]);
         } else {
             throw new IllegalArgumentException("2 coordinates required for PointData.");
         }
@@ -183,7 +149,7 @@ public class Point extends Shape<PointData> {
      * @return An ImageJ ROI.
      */
     @Override
-    public ij.gui.Roi toImageJ() {
+    default ij.gui.Roi toImageJ() {
         java.awt.Shape awtShape = createTransformedAWTShape();
 
         double x = awtShape.getBounds2D().getX();

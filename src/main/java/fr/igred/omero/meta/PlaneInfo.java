@@ -5,11 +5,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -39,17 +37,10 @@ import java.util.stream.Collectors;
 import static ome.formats.model.UnitsFactory.convertTime;
 
 
-public class PlaneInfo extends RemoteObject<PlaneInfoData> {
-
-    /**
-     * Constructor of the class PlaneInfo.
-     *
-     * @param dataObject The object contained in the PlaneInfo.
-     */
-    public PlaneInfo(PlaneInfoData dataObject) {
-        super(dataObject);
-    }
-
+/**
+ * Interface to handle PlaneInfo on OMERO.
+ */
+public interface PlaneInfo extends RemoteObject<PlaneInfoData> {
 
     /**
      * Computes the mean time interval from the deltaT in a PlaneInfo collection.
@@ -59,7 +50,7 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public static Time computeMeanTimeInterval(Collection<? extends PlaneInfo> planesInfo, int sizeT) {
+    static Time computeMeanTimeInterval(Collection<? extends PlaneInfo> planesInfo, int sizeT) {
         // planesInfo should be larger than sizeT, unless it is empty
         ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[Math.min(sizeT, planesInfo.size())];
 
@@ -101,7 +92,7 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public static Time computeMeanExposureTime(Iterable<? extends PlaneInfo> planesInfo, int channel) {
+    static Time computeMeanExposureTime(Iterable<? extends PlaneInfo> planesInfo, int channel) {
         ome.units.quantity.Time t = null;
 
         Iterator<? extends PlaneInfo> iterator = planesInfo.iterator();
@@ -137,9 +128,9 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public static Length getMinPosition(Collection<? extends PlaneInfo> planesInfo,
-                                        Function<? super PlaneInfo, ? extends Length> getter,
-                                        Unit<ome.units.quantity.Length> unit) {
+    static Length getMinPosition(Collection<? extends PlaneInfo> planesInfo,
+                                 Function<? super PlaneInfo, ? extends Length> getter,
+                                 Unit<ome.units.quantity.Length> unit) {
         List<Double> positions = planesInfo.stream()
                                            .map(getter)
                                            .map(UnitsFactory::convertLength)
@@ -155,8 +146,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Time getDeltaT() {
-        return data.getDeltaT();
+    default Time getDeltaT() {
+        return asDataObject().getDeltaT();
     }
 
 
@@ -165,8 +156,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Time getExposureTime() {
-        return data.getExposureTime();
+    default Time getExposureTime() {
+        return asDataObject().getExposureTime();
     }
 
 
@@ -175,8 +166,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Length getPositionX() {
-        return data.getPositionX();
+    default Length getPositionX() {
+        return asDataObject().getPositionX();
     }
 
 
@@ -185,8 +176,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Length getPositionY() {
-        return data.getPositionY();
+    default Length getPositionY() {
+        return asDataObject().getPositionY();
     }
 
 
@@ -195,8 +186,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Length getPositionZ() {
-        return data.getPositionZ();
+    default Length getPositionZ() {
+        return asDataObject().getPositionZ();
     }
 
 
@@ -205,8 +196,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public int getTheC() {
-        return data.getTheC();
+    default int getTheC() {
+        return asDataObject().getTheC();
     }
 
 
@@ -215,8 +206,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public int getTheT() {
-        return data.getTheT();
+    default int getTheT() {
+        return asDataObject().getTheT();
     }
 
 
@@ -225,8 +216,8 @@ public class PlaneInfo extends RemoteObject<PlaneInfoData> {
      *
      * @return See above.
      */
-    public int getTheZ() {
-        return data.getTheZ();
+    default int getTheZ() {
+        return asDataObject().getTheZ();
     }
 
 }

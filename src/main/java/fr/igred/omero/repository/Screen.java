@@ -18,7 +18,6 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -26,48 +25,11 @@ import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
-
-/**
- * Class containing a ScreenData object.
- * <p> Wraps function calls to the ScreenData contained.
- */
-public class Screen extends RepositoryObject<ScreenData> {
-
-    /**
-     * Constructor of the Project class. Creates a new project and saves it to OMERO.
-     *
-     * @param client      The client handling the connection.
-     * @param name        Project name.
-     * @param description Project description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public Screen(Client client, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        super(new ScreenData());
-        data.setName(name);
-        data.setDescription(description);
-        super.saveAndUpdate(client);
-    }
-
-
-    /**
-     * Constructor of the class Screen.
-     *
-     * @param dataObject The ScreenData contained in the Screen.
-     */
-    public Screen(ScreenData dataObject) {
-        super(dataObject);
-    }
-
+public interface Screen extends RepositoryObject<ScreenData> {
 
     /**
      * Gets the screen name.
@@ -75,8 +37,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      * @return See above.
      */
     @Override
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -87,8 +49,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -98,8 +60,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      * @return See above.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -108,8 +70,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @param description The description of the screen.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
+    default void setDescription(String description) {
+        asDataObject().setDescription(description);
     }
 
 
@@ -118,9 +80,7 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @return See above.
      */
-    public List<Plate> getPlates() {
-        return wrap(data.getPlates(), Plate::new);
-    }
+    List<Plate> getPlates();
 
 
     /**
@@ -130,7 +90,7 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @return See above.
      */
-    public List<Plate> getPlates(String name) {
+    default List<Plate> getPlates(String name) {
         List<Plate> plates = getPlates();
         plates.removeIf(plate -> !plate.getName().equals(name));
         return plates;
@@ -142,8 +102,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @return See above.
      */
-    public String getProtocolDescription() {
-        return data.getProtocolDescription();
+    default String getProtocolDescription() {
+        return asDataObject().getProtocolDescription();
     }
 
 
@@ -152,8 +112,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setProtocolDescription(String value) {
-        data.setProtocolDescription(value);
+    default void setProtocolDescription(String value) {
+        asDataObject().setProtocolDescription(value);
     }
 
 
@@ -162,8 +122,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @return See above.
      */
-    public String getProtocolIdentifier() {
-        return data.getProtocolIdentifier();
+    default String getProtocolIdentifier() {
+        return asDataObject().getProtocolIdentifier();
     }
 
 
@@ -172,8 +132,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setProtocolIdentifier(String value) {
-        data.setProtocolIdentifier(value);
+    default void setProtocolIdentifier(String value) {
+        asDataObject().setProtocolIdentifier(value);
     }
 
 
@@ -182,8 +142,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @return See above.
      */
-    public String getReagentSetDescription() {
-        return data.getReagentSetDescripion();
+    default String getReagentSetDescription() {
+        return asDataObject().getReagentSetDescripion();
     }
 
 
@@ -192,8 +152,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setReagentSetDescription(String value) {
-        data.setReagentSetDescripion(value);
+    default void setReagentSetDescription(String value) {
+        asDataObject().setReagentSetDescripion(value);
     }
 
 
@@ -202,8 +162,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @return See above.
      */
-    public String getReagentSetIdentifier() {
-        return data.getReagentSetIdentifier();
+    default String getReagentSetIdentifier() {
+        return asDataObject().getReagentSetIdentifier();
     }
 
 
@@ -212,8 +172,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setReagentSetIdentifier(String value) {
-        data.setReagentSetIdentifier(value);
+    default void setReagentSetIdentifier(String value) {
+        asDataObject().setReagentSetIdentifier(value);
     }
 
 
@@ -226,15 +186,7 @@ public class Screen extends RepositoryObject<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
-        String message = String.format("Cannot refresh %s", this);
-        data = handleServiceAndAccess(client.getBrowseFacility(),
-                                      bf -> bf.getScreens(client.getCtx(),
-                                                          Collections.singletonList(this.getId()))
-                                              .iterator()
-                                              .next(),
-                                      message);
-    }
+    void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -251,12 +203,8 @@ public class Screen extends RepositoryObject<ScreenData> {
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public boolean importImages(GatewayWrapper client, String... paths)
-    throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, paths);
-        refresh(client);
-        return success;
-    }
+    boolean importImages(GatewayWrapper client, String... paths)
+    throws ServiceException, ServerException, AccessException, IOException, ExecutionException;
 
 
     /**
@@ -272,11 +220,7 @@ public class Screen extends RepositoryObject<ScreenData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Long> importImage(GatewayWrapper client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        refresh(client);
-        return ids;
-    }
+    List<Long> importImage(GatewayWrapper client, String path)
+    throws ServiceException, AccessException, ServerException, ExecutionException;
 
 }

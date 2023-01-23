@@ -17,7 +17,9 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.repository.Dataset;
+import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.Image;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +55,7 @@ class SudoTest extends BasicTest {
 
         Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
-        TagAnnotation tag = new TagAnnotation(test, "Tag", "This is a tag");
+        TagAnnotation tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
         Dataset     dataset = test.getDataset(DATASET1.id);
         List<Image> images  = dataset.getImages(test);
@@ -97,7 +99,7 @@ class SudoTest extends BasicTest {
 
         File file = createFile(filename);
 
-        Dataset dataset = new Dataset("sudoTest", "");
+        Dataset dataset = new DatasetWrapper("sudoTest", "");
         dataset.saveAndUpdate(client3);
 
         assertTrue(dataset.canLink());

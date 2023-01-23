@@ -27,58 +27,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.RectangularShape;
 
 
-/**
- * Class containing an EllipseData.
- * <p> Wraps function calls to the EllipseData contained.
- */
-public class Ellipse extends Shape<EllipseData> {
-
-
-    /**
-     * Constructor of the Ellipse class using a EllipseData.
-     *
-     * @param dataObject the shape
-     */
-    public Ellipse(EllipseData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Ellipse class using a new empty EllipseData.
-     */
-    public Ellipse() {
-        this(new EllipseData());
-    }
-
-
-    /**
-     * Constructor of the Ellipse class using bounds from an ImageJ ROI.
-     *
-     * @param ijRoi An ImageJ ROI.
-     */
-    public Ellipse(ij.gui.Roi ijRoi) {
-        this(ijRoi.getBounds().getX() + ijRoi.getBounds().getWidth() / 2,
-             ijRoi.getBounds().getY() + ijRoi.getBounds().getHeight() / 2,
-             ijRoi.getBounds().getWidth() / 2,
-             ijRoi.getBounds().getHeight() / 2);
-        data.setText(ijRoi.getName());
-        super.copy(ijRoi);
-    }
-
-
-    /**
-     * Constructor of the Ellipse class using a new EllipseData.
-     *
-     * @param x       The x-coordinate of the center of the ellipse.
-     * @param y       The y-coordinate of the center of the ellipse.
-     * @param radiusX The radius along the X-axis.
-     * @param radiusY The radius along the Y-axis.
-     */
-    public Ellipse(double x, double y, double radiusX, double radiusY) {
-        this(new EllipseData(x, y, radiusX, radiusY));
-    }
-
+public interface Ellipse extends Shape<EllipseData> {
 
     /**
      * Gets the text on the ShapeData.
@@ -86,8 +35,8 @@ public class Ellipse extends Shape<EllipseData> {
      * @return the text
      */
     @Override
-    public String getText() {
-        return data.getText();
+    default String getText() {
+        return asDataObject().getText();
     }
 
 
@@ -97,8 +46,8 @@ public class Ellipse extends Shape<EllipseData> {
      * @param text the text
      */
     @Override
-    public void setText(String text) {
-        data.setText(text);
+    default void setText(String text) {
+        asDataObject().setText(text);
     }
 
 
@@ -108,7 +57,7 @@ public class Ellipse extends Shape<EllipseData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         return new Ellipse2D.Double(getX() - getRadiusX(), getY() - getRadiusY(), 2 * getRadiusX(), 2 * getRadiusY());
     }
 
@@ -118,8 +67,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @return See above.
      */
-    public double getX() {
-        return data.getX();
+    default double getX() {
+        return asDataObject().getX();
     }
 
 
@@ -128,8 +77,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @param x See above.
      */
-    public void setX(double x) {
-        data.setX(x);
+    default void setX(double x) {
+        asDataObject().setX(x);
     }
 
 
@@ -138,8 +87,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @return See above.
      */
-    public double getY() {
-        return data.getY();
+    default double getY() {
+        return asDataObject().getY();
     }
 
 
@@ -148,8 +97,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @param y See above.
      */
-    public void setY(double y) {
-        data.setY(y);
+    default void setY(double y) {
+        asDataObject().setY(y);
     }
 
 
@@ -158,8 +107,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @return See above.
      */
-    public double getRadiusX() {
-        return data.getRadiusX();
+    default double getRadiusX() {
+        return asDataObject().getRadiusX();
     }
 
 
@@ -168,8 +117,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @param x the value to set.
      */
-    public void setRadiusX(double x) {
-        data.setRadiusX(x);
+    default void setRadiusX(double x) {
+        asDataObject().setRadiusX(x);
     }
 
 
@@ -178,8 +127,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @return See above.
      */
-    public double getRadiusY() {
-        return data.getRadiusY();
+    default double getRadiusY() {
+        return asDataObject().getRadiusY();
     }
 
 
@@ -188,8 +137,8 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @param y The value to set.
      */
-    public void setRadiusY(double y) {
-        data.setRadiusY(y);
+    default void setRadiusY(double y) {
+        asDataObject().setRadiusY(y);
     }
 
 
@@ -201,7 +150,7 @@ public class Ellipse extends Shape<EllipseData> {
      * @param radiusX The radius along the X-axis.
      * @param radiusY The radius along the Y-axis.
      */
-    public void setCoordinates(double x, double y, double radiusX, double radiusY) {
+    default void setCoordinates(double x, double y, double radiusX, double radiusY) {
         setX(x);
         setY(y);
         setRadiusX(radiusX);
@@ -214,7 +163,7 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @return Array of coordinates containing {X,Y,RadiusX,RadiusY}.
      */
-    public double[] getCoordinates() {
+    default double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX();
         coordinates[1] = getY();
@@ -229,14 +178,14 @@ public class Ellipse extends Shape<EllipseData> {
      *
      * @param coordinates Array of coordinates containing {X,Y,RadiusX,RadiusY}.
      */
-    public void setCoordinates(double[] coordinates) {
+    default void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("EllipseData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setRadiusX(coordinates[2]);
-            data.setRadiusY(coordinates[3]);
+            asDataObject().setX(coordinates[0]);
+            asDataObject().setY(coordinates[1]);
+            asDataObject().setRadiusX(coordinates[2]);
+            asDataObject().setRadiusY(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for EllipseData.");
         }
@@ -249,7 +198,7 @@ public class Ellipse extends Shape<EllipseData> {
      * @return An ImageJ ROI.
      */
     @Override
-    public Roi toImageJ() {
+    default Roi toImageJ() {
         java.awt.Shape awtShape = createTransformedAWTShape();
 
         Roi roi;
@@ -269,12 +218,12 @@ public class Ellipse extends Shape<EllipseData> {
             Shape<?> p1;
             Shape<?> p2;
             if (ry <= rx) {
-                p1 = new Point(x - rx, y);
-                p2 = new Point(x + rx, y);
+                p1 = new PointWrapper(x - rx, y);
+                p2 = new PointWrapper(x + rx, y);
                 ratio = ry / rx;
             } else {
-                p1 = new Point(x, y - ry);
-                p2 = new Point(x, y + ry);
+                p1 = new PointWrapper(x, y - ry);
+                p2 = new PointWrapper(x, y + ry);
                 ratio = rx / ry;
             }
             p1.setTransform(toAWTTransform());

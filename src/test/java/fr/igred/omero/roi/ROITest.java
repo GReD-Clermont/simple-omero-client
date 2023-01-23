@@ -33,14 +33,14 @@ class ROITest extends UserTest {
 
     @Test
     void testROI() throws Exception {
-        ROI roiWrapper = new ROI();
+        ROI roiWrapper = new ROIWrapper();
 
         Image image = client.getImage(IMAGE1.id);
 
         roiWrapper.setImage(image);
 
         for (int i = 0; i < 4; i++) {
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
@@ -71,7 +71,7 @@ class ROITest extends UserTest {
         List<Shape<?>> shapes = new ArrayList<>(4);
 
         for (int i = 0; i < 4; i++) {
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
@@ -80,7 +80,7 @@ class ROITest extends UserTest {
             shapes.add(rectangle);
         }
 
-        ROI roiWrapper = new ROI(shapes);
+        ROI roiWrapper = new ROIWrapper(shapes);
         roiWrapper.setImage(image);
         image.saveROI(client, roiWrapper);
 
@@ -103,7 +103,7 @@ class ROITest extends UserTest {
 
         Collection<Shape<?>> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
@@ -112,7 +112,7 @@ class ROITest extends UserTest {
             shapes.add(rectangle);
         }
 
-        ROI roi = new ROI();
+        ROI roi = new ROIWrapper();
         roi.addShapes(shapes);
         roi.setImage(image);
         image.saveROI(client, roi);
@@ -121,9 +121,9 @@ class ROITest extends UserTest {
 
         ROI updatedROI = rois.get(0);
         int size       = updatedROI.getShapes().size();
-        int        roiNumber  = rois.size();
+        int roiNumber  = rois.size();
 
-        Rectangle rectangle = new Rectangle();
+        Rectangle rectangle = new RectangleWrapper();
         rectangle.setCoordinates(2, 2, 8, 8);
         rectangle.setZ(2);
         rectangle.setT(2);
@@ -158,23 +158,23 @@ class ROITest extends UserTest {
     void testROIAllShapes() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        Point point = new Point(1, 1);
+        Shape<?> point = new PointWrapper(1, 1);
         point.setCZT(0, 0, 0);
 
-        Text text = new Text("Text", 2, 2);
+        Shape<?> text = new TextWrapper("Text", 2, 2);
         text.setCZT(0, 0, 1);
 
-        Rectangle rectangle = new Rectangle(3, 3, 10, 10);
+        Shape<?> rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
-        Mask mask = new Mask();
+        Mask mask = new MaskWrapper();
         mask.setCoordinates(4, 4, 9, 9);
         mask.setCZT(1, 0, 0);
 
-        Ellipse ellipse = new Ellipse(5, 5, 4, 4);
+        Shape<?> ellipse = new EllipseWrapper(5, 5, 4, 4);
         ellipse.setCZT(1, 0, 1);
 
-        Line line = new Line(0, 0, 10, 10);
+        Shape<?> line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 2);
 
         List<Point2D.Double> points2D = new ArrayList<>(3);
@@ -186,13 +186,13 @@ class ROITest extends UserTest {
         points2D.add(p2);
         points2D.add(p3);
 
-        Polyline polyline = new Polyline(points2D);
+        Shape<?> polyline = new PolylineWrapper(points2D);
         polyline.setCZT(1, 1, 0);
 
-        Polygon polygon = new Polygon(points2D);
+        Shape<?> polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
-        ROI roiWrapper = new ROI();
+        ROI roiWrapper = new ROIWrapper();
         roiWrapper.setImage(image);
         roiWrapper.addShape(point);
         roiWrapper.addShape(text);
@@ -204,7 +204,7 @@ class ROITest extends UserTest {
         roiWrapper.addShape(polygon);
         image.saveROI(client, roiWrapper);
 
-        List<ROI> rois   = image.getROIs(client);
+        List<ROI>       rois       = image.getROIs(client);
         ShapeList       shapes     = rois.get(0).getShapes();
         List<Point>     points     = shapes.getElementsOf(Point.class);
         List<Text>      texts      = shapes.getElementsOf(Text.class);

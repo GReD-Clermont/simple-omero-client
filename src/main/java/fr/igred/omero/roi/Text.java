@@ -24,53 +24,7 @@ import omero.gateway.model.TextData;
 import java.awt.geom.Path2D;
 
 
-/**
- * Class containing an TextData.
- * <p> Wraps function calls to the TextData contained.
- */
-public class Text extends Shape<TextData> {
-
-
-    /**
-     * Constructor of the Text class using a TextData.
-     *
-     * @param dataObject the shape
-     */
-    public Text(TextData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Text class using a new empty ShapeData.
-     */
-    public Text() {
-        this(new TextData());
-    }
-
-
-    /**
-     * Constructor of the Text class using an ImageJ TextRoi.
-     *
-     * @param text An ImageJ TextRoi.
-     */
-    public Text(TextRoi text) {
-        this(text.getText(), text.getBounds().getX(), text.getBounds().getY());
-        super.copy(text);
-    }
-
-
-    /**
-     * Creates a new instance of the Text, sets the centre and major, minor axes.
-     *
-     * @param text Object text.
-     * @param x    x-coordinate of the shape.
-     * @param y    y-coordinate of the shape.
-     */
-    public Text(String text, double x, double y) {
-        this(new TextData(text, x, y));
-    }
-
+public interface Text extends Shape<TextData> {
 
     /**
      * Gets the text on the ShapeData.
@@ -78,8 +32,8 @@ public class Text extends Shape<TextData> {
      * @return the text
      */
     @Override
-    public String getText() {
-        return data.getText();
+    default String getText() {
+        return asDataObject().getText();
     }
 
 
@@ -89,8 +43,8 @@ public class Text extends Shape<TextData> {
      * @param text the text
      */
     @Override
-    public void setText(String text) {
-        data.setText(text);
+    default void setText(String text) {
+        asDataObject().setText(text);
     }
 
 
@@ -100,7 +54,7 @@ public class Text extends Shape<TextData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         Path2D point = new Path2D.Double();
         point.moveTo(getX(), getY());
         return point;
@@ -112,8 +66,8 @@ public class Text extends Shape<TextData> {
      *
      * @return See above.
      */
-    public double getX() {
-        return data.getX();
+    default double getX() {
+        return asDataObject().getX();
     }
 
 
@@ -122,8 +76,8 @@ public class Text extends Shape<TextData> {
      *
      * @param x See above.
      */
-    public void setX(double x) {
-        data.setX(x);
+    default void setX(double x) {
+        asDataObject().setX(x);
     }
 
 
@@ -132,8 +86,8 @@ public class Text extends Shape<TextData> {
      *
      * @return See above.
      */
-    public double getY() {
-        return data.getY();
+    default double getY() {
+        return asDataObject().getY();
     }
 
 
@@ -142,8 +96,8 @@ public class Text extends Shape<TextData> {
      *
      * @param y See above.
      */
-    public void setY(double y) {
-        data.setY(y);
+    default void setY(double y) {
+        asDataObject().setY(y);
     }
 
 
@@ -153,7 +107,7 @@ public class Text extends Shape<TextData> {
      * @param x x-coordinate of the TextData shape.
      * @param y y-coordinate of the TextData shape.
      */
-    public void setCoordinates(double x, double y) {
+    default void setCoordinates(double x, double y) {
         setX(x);
         setY(y);
     }
@@ -164,7 +118,7 @@ public class Text extends Shape<TextData> {
      *
      * @return Array of coordinates containing {X,Y}.
      */
-    public double[] getCoordinates() {
+    default double[] getCoordinates() {
         double[] coordinates = new double[2];
         coordinates[0] = getX();
         coordinates[1] = getY();
@@ -177,12 +131,12 @@ public class Text extends Shape<TextData> {
      *
      * @param coordinates Array of coordinates containing {X,Y}.
      */
-    public void setCoordinates(double[] coordinates) {
+    default void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("TextData cannot set null coordinates.");
         } else if (coordinates.length == 2) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
+            asDataObject().setX(coordinates[0]);
+            asDataObject().setY(coordinates[1]);
         } else {
             throw new IllegalArgumentException("2 coordinates required for TextData.");
         }
@@ -195,7 +149,7 @@ public class Text extends Shape<TextData> {
      * @return An ImageJ ROI.
      */
     @Override
-    public ij.gui.Roi toImageJ() {
+    default ij.gui.Roi toImageJ() {
         java.awt.Shape awtShape = createTransformedAWTShape();
 
         String text = getText();

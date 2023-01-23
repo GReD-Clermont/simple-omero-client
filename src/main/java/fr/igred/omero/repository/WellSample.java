@@ -1,20 +1,3 @@
-/*
- *  Copyright (C) 2020-2023 GReD
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
-
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
- * Street, Fifth Floor, Boston, MA 02110-1301, USA.
- */
-
 package fr.igred.omero.repository;
 
 
@@ -30,22 +13,7 @@ import omero.model.enums.UnitsLength;
 import java.util.concurrent.ExecutionException;
 
 
-/**
- * Class containing a WellSampleData object.
- * <p> Wraps function calls to the WellSampleData contained.
- */
-public class WellSample extends RemoteObject<WellSampleData> {
-
-
-    /**
-     * Constructor of the class WellSample.
-     *
-     * @param dataObject The well sample contained in the WellSample.
-     */
-    public WellSample(WellSampleData dataObject) {
-        super(dataObject);
-    }
-
+public interface WellSample extends RemoteObject<WellSampleData> {
 
     /**
      * Retrieves the well containing this well sample
@@ -58,7 +26,7 @@ public class WellSample extends RemoteObject<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Well getWell(Client client) throws AccessException, ServiceException, ExecutionException {
+    default Well getWell(Client client) throws AccessException, ServiceException, ExecutionException {
         return client.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }
 
@@ -68,9 +36,7 @@ public class WellSample extends RemoteObject<WellSampleData> {
      *
      * @return See above.
      */
-    public Image getImage() {
-        return new Image(data.getImage());
-    }
+    Image getImage();
 
 
     /**
@@ -78,8 +44,8 @@ public class WellSample extends RemoteObject<WellSampleData> {
      *
      * @param image The image to set.
      */
-    public void setImage(Image image) {
-        data.setImage(image.asDataObject());
+    default void setImage(Image image) {
+        asDataObject().setImage(image.asDataObject());
     }
 
 
@@ -92,8 +58,8 @@ public class WellSample extends RemoteObject<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getPositionX(UnitsLength unit) throws BigResult {
-        return data.getPositionX(unit);
+    default Length getPositionX(UnitsLength unit) throws BigResult {
+        return asDataObject().getPositionX(unit);
     }
 
 
@@ -106,8 +72,8 @@ public class WellSample extends RemoteObject<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getPositionY(UnitsLength unit) throws BigResult {
-        return data.getPositionY(unit);
+    default Length getPositionY(UnitsLength unit) throws BigResult {
+        return asDataObject().getPositionY(unit);
     }
 
 
@@ -116,8 +82,8 @@ public class WellSample extends RemoteObject<WellSampleData> {
      *
      * @return See above.
      */
-    public long getStartTime() {
-        return data.getStartTime();
+    default long getStartTime() {
+        return asDataObject().getStartTime();
     }
 
 }

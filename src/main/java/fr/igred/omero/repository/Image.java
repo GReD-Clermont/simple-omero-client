@@ -17,51 +17,33 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.util.Bounds;
-import fr.igred.omero.util.Coordinates;
-import ij.CompositeImage;
-import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
-import ij.measure.Calibration;
-import ij.process.ImageProcessor;
-import ij.process.LUT;
-import loci.common.DataTools;
-import loci.formats.FormatTools;
 import omero.RLong;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
-import omero.api.ThumbnailStorePrx;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TransferFacility;
-import omero.gateway.model.ChannelData;
-import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
-import omero.gateway.model.ROIResult;
 import omero.model.IObject;
-import omero.model.Length;
-import omero.model.Time;
 import omero.model.WellSample;
 
-import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
@@ -70,102 +52,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
-import static omero.rtypes.rint;
 
 
-/**
- * Class containing an ImageData.
- * <p> Wraps function calls to the ImageData contained.
- */
-public class Image extends RepositoryObject<ImageData> {
-
-    /**
-     * Constructor of the class Image
-     *
-     * @param dataObject The image contained in the Image.
-     */
-    public Image(ImageData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Sets the calibration. Planes information has to be loaded first.
-     *
-     * @param pixels      The pixels.
-     * @param calibration The ImageJ calibration.
-     */
-    private static void setCalibration(Pixels pixels, Calibration calibration) {
-        Length positionX = pixels.getPositionX();
-        Length positionY = pixels.getPositionY();
-        Length positionZ = pixels.getPositionZ();
-        Length spacingX  = pixels.getPixelSizeX();
-        Length spacingY  = pixels.getPixelSizeY();
-        Length spacingZ  = pixels.getPixelSizeZ();
-        Time   stepT     = pixels.getTimeIncrement();
-
-        if (stepT == null) {
-            stepT = pixels.getMeanTimeInterval();
-        }
-
-        calibration.setXUnit(positionX.getSymbol());
-        calibration.setYUnit(positionY.getSymbol());
-        calibration.setZUnit(positionZ.getSymbol());
-        calibration.xOrigin = positionX.getValue();
-        calibration.yOrigin = positionY.getValue();
-        calibration.zOrigin = positionZ.getValue();
-        if (spacingX != null) {
-            calibration.pixelWidth = spacingX.getValue();
-        }
-        if (spacingY != null) {
-            calibration.pixelHeight = spacingY.getValue();
-        }
-        if (spacingZ != null) {
-            calibration.pixelDepth = spacingZ.getValue();
-        }
-        if (!Double.isNaN(stepT.getValue())) {
-            calibration.setTimeUnit(stepT.getSymbol());
-            calibration.frameInterval = stepT.getValue();
-        }
-    }
-
-
-    /**
-     * Retrieves the image thumbnail of the specified size as a byte array.
-     * <p>If the image is not square, the size will be the longest side.
-     *
-     * @param client The client handling the connection.
-     * @param size   The thumbnail size.
-     *
-     * @return The thumbnail pixels as a byte array.
-     *
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws ServerError             Server error.
-     */
-    private byte[] getThumbnailBytes(Client client, int size) throws DSOutOfServiceException, ServerError {
-        Pixels pixels = getPixels();
-
-        int   sizeX  = pixels.getSizeX();
-        int   sizeY  = pixels.getSizeY();
-        float ratioX = (float) sizeX / size;
-        float ratioY = (float) sizeY / size;
-        float ratio  = Math.max(ratioX, ratioY);
-        int   width  = (int) (sizeX / ratio);
-        int   height = (int) (sizeY / ratio);
-
-        ThumbnailStorePrx store = null;
-        byte[]            array;
-        try {
-            store = client.getGateway().getThumbnailService(client.getCtx());
-            store.setPixelsId(pixels.getId());
-            array = store.getThumbnail(rint(width), rint(height));
-        } finally {
-            if (store != null) store.close();
-        }
-        return array;
-    }
-
+public interface Image extends RepositoryObject<ImageData> {
 
     /**
      * Gets the ImageData name
@@ -173,8 +62,8 @@ public class Image extends RepositoryObject<ImageData> {
      * @return name.
      */
     @Override
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -185,8 +74,8 @@ public class Image extends RepositoryObject<ImageData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -196,8 +85,8 @@ public class Image extends RepositoryObject<ImageData> {
      * @return description.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -206,8 +95,8 @@ public class Image extends RepositoryObject<ImageData> {
      *
      * @param description The description of the image.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
+    default void setDescription(String description) {
+        asDataObject().setDescription(description);
     }
 
 
@@ -216,8 +105,8 @@ public class Image extends RepositoryObject<ImageData> {
      *
      * @return acquisition date.
      */
-    public Timestamp getAcquisitionDate() {
-        return data.getAcquisitionDate();
+    default Timestamp getAcquisitionDate() {
+        return asDataObject().getAcquisitionDate();
     }
 
 
@@ -233,14 +122,14 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Project> getProjects(Client client)
+    default List<Project> getProjects(Client client)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<Dataset>       datasets = getDatasets(client);
         Collection<Project> projects = new ArrayList<>(datasets.size());
         for (Dataset dataset : datasets) {
             projects.addAll(dataset.getProjects(client));
         }
-        return distinct(projects);
+        return RemoteObject.distinct(projects);
     }
 
 
@@ -256,7 +145,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Dataset> getDatasets(Client client)
+    default List<Dataset> getDatasets(Client client)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
                                               "where link.child=" + getId());
@@ -276,7 +165,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Well> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
+    default List<Well> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
         Long[] ids = this.asDataObject()
                          .asImage()
                          .copyWellSamples()
@@ -301,8 +190,8 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Plate> getPlates(Client client) throws AccessException, ServiceException, ExecutionException {
-        return distinct(getWells(client).stream().map(Well::getPlate).collect(Collectors.toList()));
+    default List<Plate> getPlates(Client client) throws AccessException, ServiceException, ExecutionException {
+        return RemoteObject.distinct(getWells(client).stream().map(Well::getPlate).collect(Collectors.toList()));
     }
 
 
@@ -318,14 +207,14 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<Screen> getScreens(Client client)
+    default List<Screen> getScreens(Client client)
     throws AccessException, ServiceException, ExecutionException, ServerException {
         List<Plate>        plates  = getPlates(client);
         Collection<Screen> screens = new ArrayList<>(plates.size());
         for (Plate plate : plates) {
             screens.addAll(plate.getScreens(client));
         }
-        return distinct(screens);
+        return RemoteObject.distinct(screens);
     }
 
 
@@ -339,7 +228,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    public boolean isOrphaned(Client client) throws ServiceException, ServerException {
+    default boolean isOrphaned(Client client) throws ServiceException, ServerException {
         boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
                                                "where link.child=" + getId()).isEmpty();
         boolean noWell = client.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
@@ -359,10 +248,10 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<Image> getFilesetImages(Client client)
+    default List<Image> getFilesetImages(Client client)
     throws AccessException, ServiceException, ExecutionException, ServerException {
         List<Image> related = new ArrayList<>(0);
-        if (data.isFSImage()) {
+        if (asDataObject().isFSImage()) {
             long fsId = this.asDataObject().getFilesetId();
 
             List<IObject> objects = client.findByQuery("select i from Image i where fileset=" + fsId);
@@ -385,14 +274,14 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void saveROI(Client client, ROI roi)
+    default void saveROI(Client client, ROI roi)
     throws ServiceException, AccessException, ExecutionException {
         ROIData roiData = handleServiceAndAccess(client.getRoiFacility(),
                                                  rf -> rf.saveROIs(client.getCtx(),
-                                                                   data.getId(),
+                                                                   getId(),
                                                                    Collections.singletonList(roi.asDataObject())),
                                                  "Cannot link ROI to " + this).iterator().next();
-        roi.setData(roiData);
+        roi.replace(roiData);
     }
 
 
@@ -407,23 +296,8 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROI> getROIs(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ROIResult> roiResults = handleServiceAndAccess(client.getRoiFacility(),
-                                                            rf -> rf.loadROIs(client.getCtx(), data.getId()),
-                                                            "Cannot get ROIs from " + this);
-        ROIResult r = roiResults.iterator().next();
-
-        Collection<ROIData> rois = r.getROIs();
-
-        List<ROI> roiWrappers = new ArrayList<>(rois.size());
-        for (ROIData roi : rois) {
-            ROI temp = new ROI(roi);
-            roiWrappers.add(temp);
-        }
-
-        return roiWrappers;
-    }
+    List<ROI> getROIs(Client client)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -437,24 +311,8 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Folder> getFolders(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFacility = client.getRoiFacility();
-
-        Collection<FolderData> folders = handleServiceAndAccess(roiFacility,
-                                                                rf -> rf.getROIFolders(client.getCtx(),
-                                                                                       this.data.getId()),
-                                                                "Cannot get folders for " + this);
-
-        List<Folder> roiFolders = new ArrayList<>(folders.size());
-        for (FolderData folder : folders) {
-            Folder roiFolder = new Folder(folder);
-            roiFolder.setImage(this.data.getId());
-            roiFolders.add(roiFolder);
-        }
-
-        return roiFolders;
-    }
+    List<Folder> getFolders(Client client)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -469,17 +327,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws ServerException        Server error.
      * @throws NoSuchElementException Folder does not exist.
      */
-    public Folder getFolder(Client client, Long folderId) throws ServiceException, ServerException {
-        List<IObject> os = client.findByQuery("select f " +
-                                              "from Folder as f " +
-                                              "where f.id = " +
-                                              folderId);
-
-        Folder folderWrapper = new Folder((omero.model.Folder) os.iterator().next());
-        folderWrapper.setImage(this.data.getId());
-
-        return folderWrapper;
-    }
+    Folder getFolder(Client client, Long folderId) throws ServiceException, ServerException;
 
 
     /**
@@ -487,9 +335,7 @@ public class Image extends RepositoryObject<ImageData> {
      *
      * @return Contains the PixelsData associated with the image.
      */
-    public Pixels getPixels() {
-        return new Pixels(data.getDefaultPixels());
-    }
+    Pixels getPixels();
 
 
     /**
@@ -504,7 +350,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client)
+    default ImagePlus toImagePlus(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return this.toImagePlus(client, null, null, null, null, null);
     }
@@ -526,96 +372,13 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client,
-                                 int[] xBounds,
-                                 int[] yBounds,
-                                 int[] cBounds,
-                                 int[] zBounds,
-                                 int[] tBounds)
-    throws ServiceException, AccessException, ExecutionException {
-        Pixels pixels = this.getPixels();
-        pixels.loadPlanesInfo(client);
-
-        boolean createdRDF = pixels.createRawDataFacility(client);
-
-        Bounds bounds = pixels.getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
-
-        int startX = bounds.getStart().getX();
-        int startY = bounds.getStart().getY();
-        int startC = bounds.getStart().getC();
-        int startZ = bounds.getStart().getZ();
-        int startT = bounds.getStart().getT();
-
-        int sizeX = bounds.getSize().getX();
-        int sizeY = bounds.getSize().getY();
-        int sizeC = bounds.getSize().getC();
-        int sizeZ = bounds.getSize().getZ();
-        int sizeT = bounds.getSize().getT();
-
-        int pixelType = FormatTools.pixelTypeFromString(pixels.getPixelType());
-        int bpp       = FormatTools.getBytesPerPixel(pixelType);
-
-        ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
-
-        Calibration calibration = imp.getCalibration();
-        setCalibration(pixels, calibration);
-        imp.setCalibration(calibration);
-
-        boolean isFloat = FormatTools.isFloatingPoint(pixelType);
-
-        ImageStack stack = imp.getImageStack();
-
-        double min = imp.getProcessor().getMin();
-        double max = 0;
-
-        int progressTotal = imp.getStackSize();
-        IJ.showProgress(0, progressTotal);
-        for (int t = 0; t < sizeT; t++) {
-            int posT = t + startT;
-            for (int z = 0; z < sizeZ; z++) {
-                int posZ = z + startZ;
-                for (int c = 0; c < sizeC; c++) {
-                    int posC = c + startC;
-
-                    Coordinates pos = new Coordinates(startX, startY, posC, posZ, posT);
-
-                    byte[] tiles = pixels.getRawTile(client, pos, sizeX, sizeY, bpp);
-
-                    int n = imp.getStackIndex(c + 1, z + 1, t + 1);
-                    stack.setPixels(DataTools.makeDataArray(tiles, bpp, isFloat, false), n);
-                    ImageProcessor ip = stack.getProcessor(n);
-                    ip.resetMinAndMax();
-
-                    max = Math.max(ip.getMax(), max);
-                    min = Math.min(ip.getMin(), min);
-
-                    stack.setProcessor(ip, n);
-                    IJ.showProgress(n, progressTotal);
-                }
-            }
-        }
-
-        imp.setStack(stack);
-        imp.setOpenAsHyperStack(true);
-        imp.setDisplayMode(IJ.COMPOSITE);
-
-        imp.getProcessor().setMinAndMax(min, max);
-
-        LUT[] luts = imp.getLuts();
-        for (int c = 0; c < sizeC; ++c) {
-            luts[c] = LUT.createLutFromColor(getChannelColor(client, startC + c));
-            imp.setC(c + 1);
-            imp.setLut(luts[c]);
-        }
-        if (imp.isComposite()) {
-            ((CompositeImage) imp).setLuts(luts);
-        }
-        if (createdRDF) {
-            pixels.destroyRawDataFacility();
-        }
-        imp.setPosition(1);
-        return imp;
-    }
+    ImagePlus toImagePlus(Client client,
+                                  int[] xBounds,
+                                  int[] yBounds,
+                                  int[] cBounds,
+                                  int[] zBounds,
+                                  int[] tBounds)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -630,7 +393,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client, ROI roi)
+    default ImagePlus toImagePlus(Client client, ROI roi)
     throws ServiceException, AccessException, ExecutionException {
         Bounds bounds = roi.getBounds();
 
@@ -655,16 +418,8 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Channel> getChannels(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData> channels = handleServiceAndAccess(client.getMetadata(),
-                                                            m -> m.getChannelData(client.getCtx(), getId()),
-                                                            "Cannot get the channel name for " + this);
-        return channels.stream()
-                       .sorted(Comparator.comparing(ChannelData::getIndex))
-                       .map(Channel::new)
-                       .collect(Collectors.toList());
-    }
+    List<Channel> getChannels(Client client)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -679,7 +434,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public String getChannelName(Client client, int index)
+    default String getChannelName(Client client, int index)
     throws ServiceException, AccessException, ExecutionException {
         return getChannels(client).get(index).getChannelLabeling();
     }
@@ -697,7 +452,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Color getChannelImportedColor(Client client, int index)
+    default Color getChannelImportedColor(Client client, int index)
     throws ServiceException, AccessException, ExecutionException {
         return getChannels(client).get(index).getColor();
     }
@@ -715,9 +470,9 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Color getChannelColor(Client client, int index)
+    default Color getChannelColor(Client client, int index)
     throws ServiceException, AccessException, ExecutionException {
-        long  pixelsId = data.getDefaultPixels().getId();
+        long  pixelsId = asDataObject().getDefaultPixels().getId();
         Color color    = getChannelImportedColor(client, index);
         try {
             RenderingEnginePrx re = client.getGateway().getRenderingService(client.getCtx(), pixelsId);
@@ -751,18 +506,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws ServerException  Server error.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    public BufferedImage getThumbnail(Client client, int size) throws ServiceException, ServerException, IOException {
-        BufferedImage thumbnail = null;
-
-        byte[] array = handleServiceAndServer(client, c -> getThumbnailBytes(c, size), "Error retrieving thumbnail.");
-        if (array != null) {
-            try (ByteArrayInputStream stream = new ByteArrayInputStream(array)) {
-                //Create a buffered image to display
-                thumbnail = ImageIO.read(stream);
-            }
-        }
-        return thumbnail;
-    }
+    BufferedImage getThumbnail(Client client, int size) throws ServiceException, ServerException, IOException;
 
 
     /**
@@ -777,7 +521,7 @@ public class Image extends RepositoryObject<ImageData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<File> download(Client client, String path)
+    default List<File> download(Client client, String path)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
         return ExceptionHandler.of(transfer,

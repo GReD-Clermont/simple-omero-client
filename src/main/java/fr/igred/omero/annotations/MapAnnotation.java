@@ -24,40 +24,7 @@ import omero.model.NamedValue;
 import java.util.List;
 
 
-/**
- * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
- * <p> Wraps function calls to the MapAnnotationData contained.
- */
-public class MapAnnotation extends Annotation<MapAnnotationData> {
-
-
-    /**
-     * Constructor of the MapAnnotation class.
-     *
-     * @param dataObject MapAnnotationData to be contained.
-     */
-    public MapAnnotation(MapAnnotationData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the MapAnnotation class. Sets the content of the MapAnnotationData
-     *
-     * @param result List of NamedValue(Key-Value pair).
-     */
-    public MapAnnotation(List<NamedValue> result) {
-        super(new MapAnnotationData());
-        data.setContent(result);
-    }
-
-
-    /**
-     * Constructor of the MapAnnotation class.
-     */
-    public MapAnnotation() {
-        super(new MapAnnotationData());
-    }
+public interface MapAnnotation extends Annotation<MapAnnotationData> {
 
 
     /**
@@ -66,8 +33,8 @@ public class MapAnnotation extends Annotation<MapAnnotationData> {
      * @return MapAnnotationData content.
      */
     @SuppressWarnings("unchecked")
-    public List<NamedValue> getContent() {
-        return (List<NamedValue>) data.getContent();
+    default List<NamedValue> getContent() {
+        return (List<NamedValue>) asDataObject().getContent();
     }
 
 
@@ -76,10 +43,8 @@ public class MapAnnotation extends Annotation<MapAnnotationData> {
      *
      * @param content List of NamedValue(Key-Value pair).
      */
-    public void setContent(List<NamedValue> content) {
-        data = new MapAnnotationData();
-        data.setContent(content);
+    default void setContent(List<NamedValue> content) {
+        asDataObject().setContent(content);
     }
-
 
 }

@@ -18,6 +18,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -34,7 +35,7 @@ class PlateAcquisitionTest extends UserTest {
 
         PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
 
-        TagAnnotation tag = new TagAnnotation(client, "Plate acq. tag", "tag attached to a plate acq.");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Plate acq. tag", "tag attached to a plate acq.");
         acq.addTag(client, tag);
         List<TagAnnotation> tags = acq.getTags(client);
         client.delete(tag);

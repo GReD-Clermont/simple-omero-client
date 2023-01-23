@@ -20,18 +20,27 @@ package fr.igred.omero;
 
 import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
-import fr.igred.omero.meta.Group;
+import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.repository.Dataset;
+import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.Folder;
+import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.Image;
+import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.Plate;
+import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.Project;
+import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.repository.Screen;
+import fr.igred.omero.repository.ScreenWrapper;
 import fr.igred.omero.repository.Well;
+import fr.igred.omero.repository.WellWrapper;
 import omero.RLong;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
@@ -57,8 +66,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.RemoteObject.distinct;
-import static fr.igred.omero.RemoteObject.wrap;
+import static fr.igred.omero.RemoteObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
 
@@ -130,7 +138,7 @@ public class Client extends GatewayWrapper {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx(), Arrays.asList(ids)),
                                                                   error);
-        return wrap(projects, Project::new);
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -147,7 +155,7 @@ public class Client extends GatewayWrapper {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx()),
                                                                   "Cannot get projects");
-        return wrap(projects, Project::new);
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -167,7 +175,7 @@ public class Client extends GatewayWrapper {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx(), name),
                                                                   error);
-        return wrap(projects, Project::new);
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -210,7 +218,7 @@ public class Client extends GatewayWrapper {
         Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getDatasets(getCtx(), Arrays.asList(ids)),
                                                                   error);
-        return wrap(datasets, Dataset::new);
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
@@ -251,7 +259,7 @@ public class Client extends GatewayWrapper {
         Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getDatasets(getCtx(), name),
                                                                   error);
-        return wrap(datasets, Dataset::new);
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
@@ -277,7 +285,7 @@ public class Client extends GatewayWrapper {
         if (image == null) {
             throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
         }
-        return new Image(image);
+        return new ImageWrapper(image);
     }
 
 
@@ -297,7 +305,7 @@ public class Client extends GatewayWrapper {
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getImages(getCtx(), Arrays.asList(ids)),
                                                               error);
-        return wrap(images, Image::new);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -314,7 +322,7 @@ public class Client extends GatewayWrapper {
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getUserImages(getCtx()),
                                                               "Cannot get images");
-        return wrap(images, Image::new);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -335,7 +343,7 @@ public class Client extends GatewayWrapper {
                                                               bf -> bf.getImages(getCtx(), name),
                                                               error);
         images.removeIf(image -> !image.getName().equals(name));
-        return wrap(images, Image::new);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -366,7 +374,7 @@ public class Client extends GatewayWrapper {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -515,7 +523,7 @@ public class Client extends GatewayWrapper {
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx(), Arrays.asList(ids)),
                                                                 error);
-        return wrap(screens, Screen::new);
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -532,7 +540,7 @@ public class Client extends GatewayWrapper {
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx()),
                                                                 "Cannot get screens");
-        return wrap(screens, Screen::new);
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -574,7 +582,7 @@ public class Client extends GatewayWrapper {
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx(), Arrays.asList(ids)),
                                                               error);
-        return wrap(plates, Plate::new);
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -591,7 +599,7 @@ public class Client extends GatewayWrapper {
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx()),
                                                               "Cannot get plates");
-        return wrap(plates, Plate::new);
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -634,7 +642,7 @@ public class Client extends GatewayWrapper {
         Collection<WellData> wells = handleServiceAndAccess(getBrowseFacility(),
                                                             bf -> bf.getWells(getCtx(), Arrays.asList(ids)),
                                                             error);
-        return wrap(wells, Well::new);
+        return wrap(wells, WellWrapper::new);
     }
 
 
@@ -676,7 +684,7 @@ public class Client extends GatewayWrapper {
         return os.stream()
                  .map(omero.model.TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
-                 .map(TagAnnotation::new)
+                 .map(TagAnnotationWrapper::new)
                  .sorted(Comparator.comparing(RemoteObject::getId))
                  .collect(Collectors.toList());
     }
@@ -719,7 +727,7 @@ public class Client extends GatewayWrapper {
         TagAnnotationData tag = new TagAnnotationData((omero.model.TagAnnotation) Objects.requireNonNull(o));
         tag.setNameSpace(tag.getContentAsString());
 
-        return new TagAnnotation(tag);
+        return new TagAnnotationWrapper(tag);
     }
 
 
@@ -737,7 +745,7 @@ public class Client extends GatewayWrapper {
     public void delete(Collection<? extends RemoteObject<?>> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         for (RemoteObject<?> object : objects) {
-            if (object instanceof Folder) {
+            if (object instanceof FolderWrapper) {
                 ((Folder) object).unlinkAllROI(this);
             }
         }
@@ -760,7 +768,7 @@ public class Client extends GatewayWrapper {
      */
     public void delete(RemoteObject<?> object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        if (object instanceof Folder) {
+        if (object instanceof FolderWrapper) {
             ((Folder) object).unlinkAllROI(this);
         }
         delete(object.asIObject());
@@ -797,13 +805,13 @@ public class Client extends GatewayWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public Experimenter getUser(String username)
+    public ExperimenterWrapper getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
         ExperimenterData experimenter = handleServiceAndAccess(getAdminFacility(),
                                                                a -> a.lookupExperimenter(getCtx(), username),
                                                                "Cannot retrieve user: " + username);
         if (experimenter != null) {
-            return new Experimenter(experimenter);
+            return new ExperimenterWrapper(experimenter);
         } else {
             throw new NoSuchElementException(String.format("User not found: %s", username));
         }
@@ -822,13 +830,13 @@ public class Client extends GatewayWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested group does not exist.
      */
-    public Group getGroup(String groupName)
+    public GroupWrapper getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
         GroupData group = handleServiceAndAccess(getAdminFacility(),
                                                  a -> a.lookupGroup(getCtx(), groupName),
                                                  "Cannot retrieve group: " + groupName);
         if (group != null) {
-            return new Group(group);
+            return new GroupWrapper(group);
         } else {
             throw new NoSuchElementException(String.format("Group not found: %s", groupName));
         }
@@ -849,7 +857,7 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException The requested user does not exist.
      */
     public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
-        Experimenter sudoUser = getUser(username);
+        ExperimenterWrapper sudoUser = getUser(username);
 
         SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
         context.setExperimenter(sudoUser.asDataObject());

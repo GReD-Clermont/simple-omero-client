@@ -18,6 +18,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -32,7 +33,7 @@ class WellTest extends UserTest {
     void testAddTagToWell() throws Exception {
         Well well = client.getWell(2L);
 
-        TagAnnotation tag = new TagAnnotation(client, "Well tag", "tag attached to a well");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Well tag", "tag attached to a well");
         well.addTag(client, tag);
         List<TagAnnotation> tags = well.getTags(client);
         client.delete(tag);

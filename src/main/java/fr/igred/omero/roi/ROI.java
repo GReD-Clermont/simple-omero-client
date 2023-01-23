@@ -36,7 +36,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
@@ -44,47 +43,14 @@ import static java.util.stream.Collectors.groupingBy;
 
 
 /**
- * Class containing a ROIData object.
- * <p> Wraps function calls to the ROIData contained.
+ * Interface to handle ROIs on OMERO.
  */
-public class ROI extends RemoteObject<ROIData> {
+public interface ROI extends RemoteObject<ROIData> {
 
     /**
      * Default IJ property to store ROI local IDs / indices.
      */
-    public static final String IJ_PROPERTY = "ROI";
-
-
-    /**
-     * Constructor of the ROI class.
-     */
-    public ROI() {
-        super(new ROIData());
-    }
-
-
-    /**
-     * Constructor of the ROI class.
-     *
-     * @param shapes List of shapes to add to the ROIData.
-     */
-    public ROI(Iterable<? extends Shape<?>> shapes) {
-        super(new ROIData());
-
-        for (Shape<?> shape : shapes) {
-            data.addShapeData(shape.asDataObject());
-        }
-    }
-
-
-    /**
-     * Constructor of the ROI class.
-     *
-     * @param dataObject ROIData to be contained.
-     */
-    public ROI(ROIData dataObject) {
-        super(dataObject);
-    }
+    String IJ_PROPERTY = "ROI";
 
 
     /**
@@ -94,7 +60,7 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
      */
-    public static String checkProperty(String property) {
+    static String checkProperty(String property) {
         if (property == null || property.trim().isEmpty()) return IJ_PROPERTY;
         else return property;
     }
@@ -107,56 +73,9 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return See above.
      */
-    public static String ijIDProperty(String property) {
+    static String ijIDProperty(String property) {
         property = checkProperty(property);
         return property + "_ID";
-    }
-
-
-    /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs
-     *
-     * @param ijRois A list of ImageJ ROIs.
-     *
-     * @return The converted list of OMERO ROIs.
-     */
-    public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois) {
-        return fromImageJ(ijRois, IJ_PROPERTY);
-    }
-
-
-    /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs
-     *
-     * @param ijRois   A list of ImageJ ROIs.
-     * @param property The property where 4D ROI local ID is stored. Defaults to {@value IJ_PROPERTY} if null or empty.
-     *
-     * @return The converted list of OMERO ROIs.
-     */
-    public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
-        property = checkProperty(property);
-        Map<String, ROI> rois4D = new TreeMap<>();
-
-        Map<Integer, ROI> shape2roi = new TreeMap<>();
-
-        for (int i = 0; i < ijRois.size(); i++) {
-            String value = ijRois.get(i).getProperty(property);
-            if (value != null && !value.trim().isEmpty()) {
-                rois4D.computeIfAbsent(value, val -> new ROI());
-                shape2roi.put(i, rois4D.get(value));
-            } else {
-                shape2roi.put(i, new ROI());
-            }
-        }
-
-        rois4D.forEach((name, roi) -> roi.setName(name));
-
-        for (Map.Entry<Integer, ROI> entry : shape2roi.entrySet()) {
-            ij.gui.Roi ijRoi = ijRois.get(entry.getKey());
-            ROI        roi   = entry.getValue();
-            roi.addShape(ijRoi);
-        }
-        return shape2roi.values().stream().distinct().collect(Collectors.toList());
     }
 
 
@@ -167,7 +86,7 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return The converted list of ImageJ ROIs.
      */
-    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROI> rois) {
+    static List<ij.gui.Roi> toImageJ(Collection<? extends ROI> rois) {
         return toImageJ(rois, IJ_PROPERTY);
     }
 
@@ -180,7 +99,7 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return The converted list of ImageJ ROIs.
      */
-    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROI> rois, String property) {
+    static List<ij.gui.Roi> toImageJ(Collection<? extends ROI> rois, String property) {
         property = checkProperty(property);
         final int maxGroups = 255;
 
@@ -213,8 +132,8 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return The ROI name (can be null).
      */
-    public String getName() {
-        RString name = ((_RoiOperationsNC) data.asIObject()).getName();
+    default String getName() {
+        RString name = ((_RoiOperationsNC) asIObject()).getName();
         return name != null ? name.getValue() : "";
     }
 
@@ -224,19 +143,17 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @param name The ROI name.
      */
-    public void setName(String name) {
-        ((_RoiOperationsNC) data.asIObject()).setName(omero.rtypes.rstring(name));
+    default void setName(String name) {
+        ((_RoiOperationsNC) asIObject()).setName(omero.rtypes.rstring(name));
     }
 
 
     /**
-     * Changes the wrapped data.
+     * Replaces this ROI by the data provided.
      *
-     * @param data The ROI data.
+     * @param roi The ROI data.
      */
-    public void setData(ROIData data) {
-        this.data = data;
-    }
+    void replace(ROIData roi);
 
 
     /**
@@ -244,7 +161,7 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @param shapes List of Shape.
      */
-    public void addShapes(Iterable<? extends Shape<?>> shapes) {
+    default void addShapes(Iterable<? extends Shape<?>> shapes) {
         shapes.forEach(this::addShape);
     }
 
@@ -254,8 +171,8 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @param shape Shape to add.
      */
-    public void addShape(Shape<?> shape) {
-        data.addShapeData(shape.asDataObject());
+    default void addShape(Shape<?> shape) {
+        asDataObject().addShapeData(shape.asDataObject());
     }
 
 
@@ -264,9 +181,9 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return list of shape contained in the ROIData.
      */
-    public ShapeList getShapes() {
+    default ShapeList getShapes() {
         ShapeList shapes = new ShapeList();
-        data.getShapes().stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
+        asDataObject().getShapes().stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
         return shapes;
     }
 
@@ -276,8 +193,8 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @param image Image linked to the ROIData.
      */
-    public void setImage(Image image) {
-        data.setImage(image.asDataObject().asImage());
+    default void setImage(Image image) {
+        asDataObject().setImage(image.asDataObject().asImage());
     }
 
 
@@ -286,8 +203,8 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @param shape ShapeData to delete.
      */
-    public void deleteShape(ShapeData shape) {
-        data.removeShapeData(shape);
+    default void deleteShape(ShapeData shape) {
+        asDataObject().removeShapeData(shape);
     }
 
 
@@ -298,8 +215,8 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @throws IndexOutOfBoundsException If pos is out of the ShapeData list bounds.
      */
-    public void deleteShape(int pos) {
-        data.removeShapeData(data.getShapes().get(pos));
+    default void deleteShape(int pos) {
+        asDataObject().removeShapeData(asDataObject().getShapes().get(pos));
     }
 
 
@@ -311,13 +228,13 @@ public class ROI extends RemoteObject<ROIData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    public void saveROI(Client client) throws ServerException, ServiceException {
+    default void saveROI(Client client) throws ServerException, ServiceException {
         String message = "Cannot save ROI";
         Roi roi = (Roi) handleServiceAndServer(client.getGateway(),
                                                g -> g.getUpdateService(client.getCtx())
-                                                     .saveAndReturnObject(data.asIObject()),
+                                                     .saveAndReturnObject(asIObject()),
                                                message);
-        data = new ROIData(roi);
+        replace(new ROIData(roi));
     }
 
 
@@ -326,7 +243,7 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return The 5D bounds.
      */
-    public Bounds getBounds() {
+    default Bounds getBounds() {
         int[] x = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] y = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] c = {Integer.MAX_VALUE, Integer.MIN_VALUE};
@@ -356,7 +273,7 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return A list of ROIs.
      */
-    public List<ij.gui.Roi> toImageJ() {
+    default List<ij.gui.Roi> toImageJ() {
         return this.toImageJ(IJ_PROPERTY);
     }
 
@@ -368,7 +285,7 @@ public class ROI extends RemoteObject<ROIData> {
      *
      * @return A list of ROIs.
      */
-    public List<ij.gui.Roi> toImageJ(String property) {
+    default List<ij.gui.Roi> toImageJ(String property) {
         property = checkProperty(property);
         ShapeList shapes = getShapes();
 
@@ -403,16 +320,6 @@ public class ROI extends RemoteObject<ROIData> {
             rois.add(roi);
         }
         return rois;
-    }
-
-
-    /**
-     * Adds an ImageJ ROI to an OMERO ROI.
-     *
-     * @param ijRoi The ImageJ ROI.
-     */
-    private void addShape(ij.gui.Roi ijRoi) {
-        addShapes(Shape.fromImageJ(ijRoi));
     }
 
 }

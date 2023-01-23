@@ -18,56 +18,18 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Client;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
 
-import java.util.concurrent.ExecutionException;
 
-
-/**
- * Class containing a TagAnnotationData object.
- * <p> Wraps function calls to the TagAnnotationData contained.
- */
-public class TagAnnotation extends Annotation<TagAnnotationData> {
-
-    /**
-     * Constructor of the TagAnnotation class.
-     *
-     * @param dataObject Tag to be contained.
-     */
-    public TagAnnotation(TagAnnotationData dataObject) {
-        super(dataObject);
-        data.setNameSpace(dataObject.getContentAsString());
-    }
-
-
-    /**
-     * Constructor of the TagAnnotation class. Creates the tag and save it in OMERO.
-     *
-     * @param client      The client handling the connection.
-     * @param name        Annotation name.
-     * @param description Tag description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public TagAnnotation(Client client, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        super(new TagAnnotationData(name, description));
-        super.saveAndUpdate(client);
-    }
-
+public interface TagAnnotation extends Annotation<TagAnnotationData> {
 
     /**
      * Gets the name of the TagData.
      *
      * @return TagData name.
      */
-    public String getName() {
-        return data.getTagValue();
+    default String getName() {
+        return asDataObject().getTagValue();
     }
 
 
@@ -78,9 +40,8 @@ public class TagAnnotation extends Annotation<TagAnnotationData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setTagValue(name);
+    default void setName(String name) {
+        asDataObject().setTagValue(name);
     }
-
 
 }

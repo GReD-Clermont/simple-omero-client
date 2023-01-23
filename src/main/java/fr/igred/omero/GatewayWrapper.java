@@ -21,6 +21,7 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
+import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
 import omero.gateway.Gateway;
@@ -74,7 +75,7 @@ public abstract class GatewayWrapper {
      */
     protected GatewayWrapper(Gateway gateway, SecurityContext ctx, Experimenter user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
-        this.user = user != null ? user : new Experimenter(new ExperimenterData());
+        this.user = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
         this.ctx = ctx != null ? ctx : new SecurityContext(-1);
     }
 
@@ -220,7 +221,7 @@ public abstract class GatewayWrapper {
         disconnect();
 
         try {
-            this.user = new Experimenter(gateway.connect(cred));
+            this.user = new ExperimenterWrapper(gateway.connect(cred));
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
@@ -236,7 +237,7 @@ public abstract class GatewayWrapper {
     public void disconnect() {
         if (isConnected()) {
             boolean sudo = ctx.isSudo();
-            user = new Experimenter(new ExperimenterData());
+            user = new ExperimenterWrapper(new ExperimenterData());
             ctx = new SecurityContext(-1);
             ctx.setExperimenter(user.asDataObject());
             if (sudo) {

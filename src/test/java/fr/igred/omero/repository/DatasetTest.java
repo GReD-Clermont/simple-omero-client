@@ -16,8 +16,10 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -64,7 +66,7 @@ class DatasetTest extends UserTest {
 
         String description = "Dataset which will be deleted";
 
-        Dataset dataset = new Dataset("To delete", description);
+        Dataset dataset = new DatasetWrapper("To delete", description);
 
         long id = project.addDataset(client, dataset).getId();
 
@@ -121,7 +123,7 @@ class DatasetTest extends UserTest {
     void testAddTagToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTag(client, tag);
 
@@ -154,7 +156,7 @@ class DatasetTest extends UserTest {
     void testAddTagIdToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         long tagId = tag.getId();
         dataset.addTag(client, tagId);
@@ -169,10 +171,10 @@ class DatasetTest extends UserTest {
     void testAddTagsToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotation tag1 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotation tag2 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotation tag3 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotation tag4 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
@@ -192,10 +194,10 @@ class DatasetTest extends UserTest {
     void testAddTagsToDataset2() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotation tag1 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotation tag2 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotation tag3 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotation tag4 = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTags(client, tag1, tag2, tag3, tag4);
 
@@ -215,7 +217,7 @@ class DatasetTest extends UserTest {
     void testAddAndRemoveTagFromDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTag(client, tag);
 

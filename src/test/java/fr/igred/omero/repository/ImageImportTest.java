@@ -18,9 +18,13 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.Table;
+import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.ROI;
-import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -66,7 +70,7 @@ class ImageImportTest extends UserTest {
     void testReplaceAndDeleteImages() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeX=512&sizeY=512.fake";
 
-        Dataset dataset = new Dataset("Test Import & Replace", "");
+        Dataset dataset = new DatasetWrapper("Test Import & Replace", "");
         client.getProject(PROJECT1.id).addDataset(client, dataset);
 
         File imageFile = createFile(filename);
@@ -77,7 +81,7 @@ class ImageImportTest extends UserTest {
         image1.setDescription("This is");
         image1.saveAndUpdate(client);
 
-        TagAnnotation tag1 = new TagAnnotation(client, "ReplaceTestTag1", "Copy annotations");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.addTag(client, tag1);
         image1.addPairKeyValue(client, "Map", "ReplaceTest");
 
@@ -90,22 +94,22 @@ class ImageImportTest extends UserTest {
         image2.setDescription("a test.");
         image2.saveAndUpdate(client);
 
-        TagAnnotation tag2 = new TagAnnotation(client, "ReplaceTestTag2", "Copy annotations");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
         image2.addTag(client, tag2);
         image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
         image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
 
-        Rectangle rectangle = new Rectangle(3, 3, 2, 2);
-        ROI       roi       = new ROI();
+        Shape<?> rectangle = new RectangleWrapper(3, 3, 2, 2);
+        ROI      roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
         image2.saveROI(client, roi);
 
-        Folder folder = new Folder(client, "ReplaceTestFolder");
+        Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.setImage(image2);
         folder.addROI(client, roi);
 
-        Table table = new Table(1, "ReplaceTestTable");
+        Table table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
         table.setRowCount(1);
         table.addRow("Annotation");
@@ -152,7 +156,7 @@ class ImageImportTest extends UserTest {
     void testReplaceAndUnlinkImages() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&sizeX=512&sizeY=512.fake";
 
-        Dataset dataset = new Dataset("Test Import & Replace", "");
+        Dataset dataset = new DatasetWrapper("Test Import & Replace", "");
         client.getProject(PROJECT1.id).addDataset(client, dataset);
 
         File imageFile = createFile(filename);
@@ -161,7 +165,7 @@ class ImageImportTest extends UserTest {
         List<Long> ids1   = dataset.importImage(client, imageFile.getAbsolutePath());
         Image      image1 = client.getImage(ids1.get(0));
 
-        TagAnnotation tag1 = new TagAnnotation(client, "ReplaceTestTag1", "Copy annotations");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.addTag(client, tag1);
         image1.addPairKeyValue(client, "Map", "ReplaceTest");
 
@@ -174,22 +178,22 @@ class ImageImportTest extends UserTest {
         image2.setDescription("A test.");
         image2.saveAndUpdate(client);
 
-        TagAnnotation tag2 = new TagAnnotation(client, "ReplaceTestTag2", "Copy annotations");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
         image2.addTag(client, tag2);
         image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
         image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
 
-        Rectangle rectangle = new Rectangle(3, 3, 2, 2);
-        ROI       roi       = new ROI();
+        Shape<?> rectangle = new RectangleWrapper(3, 3, 2, 2);
+        ROI      roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
         image2.saveROI(client, roi);
 
-        Folder folder = new Folder(client, "ReplaceTestFolder");
+        Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.setImage(image2);
         folder.addROI(client, roi);
 
-        Table table = new Table(1, "ReplaceTestTable");
+        Table table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
         table.setRowCount(1);
         table.addRow("Annotation");
@@ -239,7 +243,7 @@ class ImageImportTest extends UserTest {
     void testReplaceImagesFileset1() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
 
-        Dataset dataset = new Dataset("Test Import & Replace", "");
+        Dataset dataset = new DatasetWrapper("Test Import & Replace", "");
         client.getProject(PROJECT1.id).addDataset(client, dataset);
 
         File imageFile = createFile(filename);
@@ -270,7 +274,7 @@ class ImageImportTest extends UserTest {
     void testReplaceImagesFileset2() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
 
-        Dataset dataset = new Dataset("Test Import & Replace", "");
+        Dataset dataset = new DatasetWrapper("Test Import & Replace", "");
         client.getProject(PROJECT1.id).addDataset(client, dataset);
 
         File imageFile = createFile(filename);
@@ -310,7 +314,7 @@ class ImageImportTest extends UserTest {
     void testReplaceImagesFileset3() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=5&sizeC=5&series=2&sizeX=512&sizeY=512.fake";
 
-        Dataset dataset = new Dataset("Test Import & Replace", "");
+        Dataset dataset = new DatasetWrapper("Test Import & Replace", "");
         client.getProject(PROJECT1.id).addDataset(client, dataset);
 
         File imageFile = createFile(filename);

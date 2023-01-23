@@ -16,10 +16,14 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.ROI;
+import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.roi.RectangleWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -36,8 +40,8 @@ class FolderTest extends UserTest {
     void testGetDeletedFolder() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        Folder folder = new Folder(client, "Test");
-        long   id     = folder.getId();
+        RemoteObject<?> folder = new FolderWrapper(client, "Test");
+        long            id     = folder.getId();
         client.delete(folder);
         assertThrows(NoSuchElementException.class, () -> image.getFolder(client, id));
     }
@@ -47,13 +51,13 @@ class FolderTest extends UserTest {
     void testFolder1() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        Folder folder = new Folder(client, "Test");
+        Folder folder = new FolderWrapper(client, "Test");
         folder.setImage(image);
 
         for (int i = 0; i < 8; i++) {
-            ROI roi = new ROI();
+            ROI roi = new ROIWrapper();
 
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
@@ -84,17 +88,17 @@ class FolderTest extends UserTest {
 
     @Test
     void testFolder2() throws Exception {
-        Folder folder = new Folder(client, "Test");
+        Folder folder = new FolderWrapper(client, "Test");
         folder.setImage(IMAGE2.id);
 
         for (int i = 0; i < 8; i++) {
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
 
-            ROI roi = new ROI();
+            ROI roi = new ROIWrapper();
             roi.addShape(rectangle);
             roi.saveROI(client);
 
@@ -123,7 +127,7 @@ class FolderTest extends UserTest {
 
         Image image = client.getImage(IMAGE2.id);
 
-        Folder folder1 = new Folder(client, "Test1");
+        Folder folder1 = new FolderWrapper(client, "Test1");
         folder1.setDescription("Test 1");
         folder1.saveAndUpdate(client);
         assertEquals("Test1", folder1.getName());
@@ -131,9 +135,9 @@ class FolderTest extends UserTest {
         folder1.setImage(image);
 
         for (int i = 0; i < 8; i++) {
-            ROI roi = new ROI();
+            ROI roi = new ROIWrapper();
 
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
@@ -145,16 +149,16 @@ class FolderTest extends UserTest {
             folder1.addROI(client, roi);
         }
 
-        Folder folder2 = new Folder(client, "Test");
+        Folder folder2 = new FolderWrapper(client, "Test");
         folder2.setName("Test2");
         folder2.saveAndUpdate(client);
         assertEquals("Test2", folder2.getName());
         folder2.setImage(image);
 
         for (int i = 0; i < 8; i++) {
-            ROI roi = new ROI();
+            ROI roi = new ROIWrapper();
 
-            Rectangle rectangle = new Rectangle();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 5, 5);
             rectangle.setZ(i);
             rectangle.setT(0);
@@ -186,9 +190,9 @@ class FolderTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromFolder() throws Exception {
-        Folder folder = new Folder(client, "Test1");
+        RepositoryObject<?> folder = new FolderWrapper(client, "Test1");
 
-        TagAnnotation tag = new TagAnnotation(client, "Dataset tag", "tag attached to a folder");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
 
         folder.addTag(client, tag);
 

@@ -26,64 +26,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 
-/**
- * Class containing an LineData.
- * <p> Wraps function calls to the LineData contained.
- */
-public class Line extends Shape<LineData> {
+public interface Line extends Shape<LineData> {
 
     /** String to use arrows as markers */
-    public static final String ARROW = "Arrow";
-
-
-    /**
-     * Constructor of the Line class using a LineData.
-     *
-     * @param dataObject the shape
-     */
-    public Line(LineData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Rectangle class using a new empty LineData.
-     */
-    public Line() {
-        this(new LineData());
-    }
-
-
-    /**
-     * Constructor of the Line class using an ImageJ Line ROI.
-     *
-     * @param line An ImageJ Line ROI.
-     */
-    public Line(ij.gui.Line line) {
-        this(line.x1d, line.y1d, line.x2d, line.y2d);
-        data.setText(line.getName());
-
-        if (line instanceof Arrow) {
-            data.getShapeSettings().setMarkerEnd(ARROW);
-            if (((Arrow) line).getDoubleHeaded()) {
-                data.getShapeSettings().setMarkerStart(ARROW);
-            }
-        }
-        super.copy(line);
-    }
-
-
-    /**
-     * Constructor of the Rectangle class using a new LineData.
-     *
-     * @param x1 x1-coordinate of the shape.
-     * @param y1 y1-coordinate of the shape.
-     * @param x2 x2-coordinate of the shape.
-     * @param y2 y2-coordinate of the shape.
-     */
-    public Line(double x1, double y1, double x2, double y2) {
-        this(new LineData(x1, y1, x2, y2));
-    }
+    String ARROW = "Arrow";
 
 
     /**
@@ -92,8 +38,8 @@ public class Line extends Shape<LineData> {
      * @return the text
      */
     @Override
-    public String getText() {
-        return data.getText();
+    default String getText() {
+        return asDataObject().getText();
     }
 
 
@@ -103,8 +49,8 @@ public class Line extends Shape<LineData> {
      * @param text the text
      */
     @Override
-    public void setText(String text) {
-        data.setText(text);
+    default void setText(String text) {
+        asDataObject().setText(text);
     }
 
 
@@ -114,7 +60,7 @@ public class Line extends Shape<LineData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         return new Line2D.Double(getX1(), getY1(), getX2(), getY2());
     }
 
@@ -124,8 +70,8 @@ public class Line extends Shape<LineData> {
      *
      * @return See above.
      */
-    public double getX1() {
-        return data.getX1();
+    default double getX1() {
+        return asDataObject().getX1();
     }
 
 
@@ -134,8 +80,8 @@ public class Line extends Shape<LineData> {
      *
      * @param x1 See above.
      */
-    public void setX1(double x1) {
-        data.setX1(x1);
+    default void setX1(double x1) {
+        asDataObject().setX1(x1);
     }
 
 
@@ -144,8 +90,8 @@ public class Line extends Shape<LineData> {
      *
      * @return See above.
      */
-    public double getX2() {
-        return data.getX2();
+    default double getX2() {
+        return asDataObject().getX2();
     }
 
 
@@ -154,8 +100,8 @@ public class Line extends Shape<LineData> {
      *
      * @param x2 See above.
      */
-    public void setX2(double x2) {
-        data.setX2(x2);
+    default void setX2(double x2) {
+        asDataObject().setX2(x2);
     }
 
 
@@ -164,8 +110,8 @@ public class Line extends Shape<LineData> {
      *
      * @return See above.
      */
-    public double getY1() {
-        return data.getY1();
+    default double getY1() {
+        return asDataObject().getY1();
     }
 
 
@@ -174,8 +120,8 @@ public class Line extends Shape<LineData> {
      *
      * @param y1 See above.
      */
-    public void setY1(double y1) {
-        data.setY1(y1);
+    default void setY1(double y1) {
+        asDataObject().setY1(y1);
     }
 
 
@@ -184,8 +130,8 @@ public class Line extends Shape<LineData> {
      *
      * @return See above.
      */
-    public double getY2() {
-        return data.getY2();
+    default double getY2() {
+        return asDataObject().getY2();
     }
 
 
@@ -194,8 +140,8 @@ public class Line extends Shape<LineData> {
      *
      * @param y2 See above.
      */
-    public void setY2(double y2) {
-        data.setY2(y2);
+    default void setY2(double y2) {
+        asDataObject().setY2(y2);
     }
 
 
@@ -207,7 +153,7 @@ public class Line extends Shape<LineData> {
      * @param x2 x-coordinate of the end point of an untransformed line.
      * @param y2 y-coordinate of the end point of an untransformed line.
      */
-    public void setCoordinates(double x1, double y1, double x2, double y2) {
+    default void setCoordinates(double x1, double y1, double x2, double y2) {
         setX1(x1);
         setY1(y1);
         setX2(x2);
@@ -220,7 +166,7 @@ public class Line extends Shape<LineData> {
      *
      * @return Array of coordinates containing {X1,Y1,X2,Y2}.
      */
-    public double[] getCoordinates() {
+    default double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX1();
         coordinates[1] = getY1();
@@ -235,14 +181,14 @@ public class Line extends Shape<LineData> {
      *
      * @param coordinates Array of coordinates containing {X1,Y1,X2,Y2}.
      */
-    public void setCoordinates(double[] coordinates) {
+    default void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("LineData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            data.setX1(coordinates[0]);
-            data.setY1(coordinates[1]);
-            data.setX2(coordinates[2]);
-            data.setY2(coordinates[3]);
+            asDataObject().setX1(coordinates[0]);
+            asDataObject().setY1(coordinates[1]);
+            asDataObject().setX2(coordinates[2]);
+            asDataObject().setY2(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for LineData.");
         }
@@ -255,9 +201,10 @@ public class Line extends Shape<LineData> {
      * @return An ImageJ ROI.
      */
     @Override
-    public Roi toImageJ() {
-        Point           p1        = new Point(getX1(), getY1());
-        Point           p2        = new Point(getX2(), getY2());
+    default Roi toImageJ() {
+        Shape<?> p1 = new PointWrapper(getX1(), getY1());
+        Shape<?> p2 = new PointWrapper(getX2(), getY2());
+
         AffineTransform transform = toAWTTransform();
         if (transform != null) {
             p1.setTransform(transform);

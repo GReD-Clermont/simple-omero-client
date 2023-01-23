@@ -18,69 +18,14 @@
 package fr.igred.omero.roi;
 
 
-import ij.gui.Roi;
 import omero.gateway.model.PolygonData;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 
-/**
- * Class containing an PolygonData.
- * <p> Wraps function calls to the PolygonData contained.
- */
-public class Polygon extends Shape<PolygonData> {
-
-
-    /**
-     * Constructor of the Polygon class using a PolygonData.
-     *
-     * @param dataObject the shape.
-     */
-    public Polygon(PolygonData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Polygon class using a new empty LineData.
-     */
-    public Polygon() {
-        this(new PolygonData());
-    }
-
-
-    /**
-     * Constructor of the Polygon class using an ImageJ PolygonRoi.
-     *
-     * @param ijRoi An ImageJ ROI.
-     */
-    public Polygon(Roi ijRoi) {
-        this();
-        float[] x = ijRoi.getFloatPolygon().xpoints;
-        float[] y = ijRoi.getFloatPolygon().ypoints;
-
-        List<Point2D.Double> points = new LinkedList<>();
-        IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
-
-        data.setPoints(points);
-        data.setText(ijRoi.getName());
-        super.copy(ijRoi);
-    }
-
-
-    /**
-     * Constructor of the Polygon class using a new LineData.
-     *
-     * @param points the points in the polyline.
-     */
-    public Polygon(List<Point2D.Double> points) {
-        this(new PolygonData(points));
-    }
-
+public interface Polygon extends Shape<PolygonData> {
 
     /**
      * Gets the text on the ShapeData.
@@ -88,8 +33,8 @@ public class Polygon extends Shape<PolygonData> {
      * @return the text
      */
     @Override
-    public String getText() {
-        return data.getText();
+    default String getText() {
+        return asDataObject().getText();
     }
 
 
@@ -99,8 +44,8 @@ public class Polygon extends Shape<PolygonData> {
      * @param text the text
      */
     @Override
-    public void setText(String text) {
-        data.setText(text);
+    default void setText(String text) {
+        asDataObject().setText(text);
     }
 
 
@@ -110,7 +55,7 @@ public class Polygon extends Shape<PolygonData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         Path2D polygon = new Path2D.Double();
 
         List<Point2D.Double> points = getPoints();
@@ -130,8 +75,8 @@ public class Polygon extends Shape<PolygonData> {
      *
      * @return See above.
      */
-    public List<Point2D.Double> getPoints() {
-        return data.getPoints();
+    default List<Point2D.Double> getPoints() {
+        return asDataObject().getPoints();
     }
 
 
@@ -140,8 +85,8 @@ public class Polygon extends Shape<PolygonData> {
      *
      * @param points The points to set.
      */
-    public void setPoints(List<Point2D.Double> points) {
-        data.setPoints(points);
+    default void setPoints(List<Point2D.Double> points) {
+        asDataObject().setPoints(points);
     }
 
 
@@ -150,8 +95,8 @@ public class Polygon extends Shape<PolygonData> {
      *
      * @return See above.
      */
-    public List<Integer> getMaskPoints() {
-        return data.getMaskPoints();
+    default List<Integer> getMaskPoints() {
+        return asDataObject().getMaskPoints();
     }
 
 }

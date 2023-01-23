@@ -18,9 +18,8 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.RemoteObject;
 import ij.gui.Roi;
-import ij.gui.ShapeRoi;
-import ij.gui.TextRoi;
 import ome.model.units.BigResult;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
 import omero.model.AffineTransformI;
@@ -29,120 +28,25 @@ import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 /**
- * Generic class containing a ShapeData (or a subclass) object.
+ * Generic interface to handle data related to a ShapeData (or a subclass) object (expected to be wrapped by
+ * instances).
  *
- * @param <T> Subclass of {@link ShapeData}
+ * @param <T> Subclass of {@link DataObject}
  */
-public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
-
-    private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
-
-
-    /**
-     * Constructor of the Shape class using a ShapeData.
-     *
-     * @param dataObject the shape
-     */
-    protected Shape(T dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Converts an IJ roi to a list of shapes.
-     *
-     * @param ijRoi An ImageJ ROI.
-     *
-     * @return A list of ShapeWrappers.
-     */
-    static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
-        ShapeList list = new ShapeList();
-        int       type = ijRoi.getType();
-        switch (type) {
-            case Roi.FREEROI:
-            case Roi.TRACED_ROI:
-            case Roi.POLYGON:
-                list.add(new Polygon(ijRoi));
-                break;
-            case Roi.FREELINE:
-            case Roi.ANGLE:
-            case Roi.POLYLINE:
-                list.add(new Polyline(ijRoi));
-                break;
-            case Roi.LINE:
-                list.add(new Line((ij.gui.Line) ijRoi));
-                break;
-            case Roi.OVAL:
-                list.add(new Ellipse(ijRoi));
-                break;
-            case Roi.POINT:
-                float[] x = ijRoi.getFloatPolygon().xpoints;
-                float[] y = ijRoi.getFloatPolygon().ypoints;
-
-                Collection<Point> points = new LinkedList<>();
-                for (int i = 0; i < x.length; i++) {
-                    points.add(new Point(x[i], y[i]));
-                }
-                points.forEach(p -> p.setText(ijRoi.getName()));
-                points.forEach(p -> p.copy(ijRoi));
-                list.addAll(points);
-                break;
-            case Roi.COMPOSITE:
-                List<ij.gui.Roi> rois = Arrays.asList(((ShapeRoi) ijRoi).getRois());
-                rois.forEach(r -> r.setName(ijRoi.getName()));
-                rois.forEach(r -> r.setPosition(ijRoi.getCPosition(),
-                                                ijRoi.getZPosition(),
-                                                ijRoi.getTPosition()));
-                rois.stream().map(Shape::fromImageJ).forEach(list::addAll);
-                break;
-            default:
-                if (ijRoi instanceof TextRoi)
-                    list.add(new Text((TextRoi) ijRoi));
-                else
-                    list.add(new Rectangle(ijRoi));
-                break;
-        }
-        return list;
-    }
-
-
-    /**
-     * Copies details from an ImageJ ROI (position, stroke color, stroke width).
-     *
-     * @param ijRoi An ImageJ Roi.
-     */
-    protected void copy(ij.gui.Roi ijRoi) {
-        data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
-        data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
-        data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
-        LengthI size          = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
-        Color   defaultStroke = Optional.ofNullable(Roi.getColor()).orElse(Color.YELLOW);
-        Color   defaultFill   = Optional.ofNullable(Roi.getDefaultFillColor()).orElse(TRANSPARENT);
-        Color   stroke        = Optional.ofNullable(ijRoi.getStrokeColor()).orElse(defaultStroke);
-        Color   fill          = Optional.ofNullable(ijRoi.getFillColor()).orElse(defaultFill);
-        data.getShapeSettings().setStrokeWidth(size);
-        data.getShapeSettings().setStroke(stroke);
-        data.getShapeSettings().setFill(fill);
-    }
-
+public interface Shape<T extends ShapeData> extends RemoteObject<T> {
 
     /**
      * Gets the channel.
      *
      * @return the channel. -1 if the shape applies to all channels of the image.
      */
-    public int getC() {
-        return this.data.getC();
+    default int getC() {
+        return asDataObject().getC();
     }
 
 
@@ -151,8 +55,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
      */
-    public void setC(int c) {
-        this.data.setC(c);
+    default void setC(int c) {
+        asDataObject().setC(c);
     }
 
 
@@ -161,8 +65,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return the z-section. -1 if the shape applies to all z-sections of the image.
      */
-    public int getZ() {
-        return this.data.getZ();
+    default int getZ() {
+        return asDataObject().getZ();
     }
 
 
@@ -171,8 +75,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      */
-    public void setZ(int z) {
-        this.data.setZ(z);
+    default void setZ(int z) {
+        asDataObject().setZ(z);
     }
 
 
@@ -181,8 +85,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return the time-point. -1 if the shape applies to all time-points of the image.
      */
-    public int getT() {
-        return this.data.getT();
+    default int getT() {
+        return asDataObject().getT();
     }
 
 
@@ -191,8 +95,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
-    public void setT(int t) {
-        this.data.setT(t);
+    default void setT(int t) {
+        asDataObject().setT(t);
     }
 
 
@@ -203,7 +107,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
-    public void setCZT(int c, int z, int t) {
+    default void setCZT(int c, int z, int t) {
         setC(c);
         setZ(z);
         setT(t);
@@ -215,7 +119,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return See above.
      */
-    String getCZT() {
+    default String getCZT() {
         return String.format("%d,%d,%d", getC(), getZ(), getT());
     }
 
@@ -225,10 +129,10 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return The font size (in typography points)
      */
-    public double getFontSize() {
+    default double getFontSize() {
         double fontSize = Double.NaN;
         try {
-            fontSize = data.getShapeSettings().getFontSize(UnitsLength.POINT).getValue();
+            fontSize = asDataObject().getShapeSettings().getFontSize(UnitsLength.POINT).getValue();
         } catch (BigResult bigResult) {
             Logger.getLogger(getClass().getName())
                   .log(Level.WARNING, "Error while getting font size from ShapeData.", bigResult);
@@ -242,9 +146,9 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param value The font size (in typography points)
      */
-    public void setFontSize(double value) {
+    default void setFontSize(double value) {
         LengthI size = new LengthI(value, UnitsLength.POINT);
-        data.getShapeSettings().setFontSize(size);
+        asDataObject().getShapeSettings().setFontSize(size);
     }
 
 
@@ -253,8 +157,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return The stroke color
      */
-    public Color getStroke() {
-        return data.getShapeSettings().getStroke();
+    default Color getStroke() {
+        return asDataObject().getShapeSettings().getStroke();
     }
 
 
@@ -263,8 +167,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param strokeColour The stroke color
      */
-    public void setStroke(Color strokeColour) {
-        data.getShapeSettings().setStroke(strokeColour);
+    default void setStroke(Color strokeColour) {
+        asDataObject().getShapeSettings().setStroke(strokeColour);
     }
 
 
@@ -273,8 +177,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return The fill color
      */
-    public Color getFill() {
-        return data.getShapeSettings().getFill();
+    default Color getFill() {
+        return asDataObject().getShapeSettings().getFill();
     }
 
 
@@ -283,8 +187,8 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param fillColour The fill color
      */
-    public void setFill(Color fillColour) {
-        data.getShapeSettings().setFill(fillColour);
+    default void setFill(Color fillColour) {
+        asDataObject().getShapeSettings().setFill(fillColour);
     }
 
 
@@ -293,7 +197,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return the text
      */
-    public abstract String getText();
+    String getText();
 
 
     /**
@@ -301,7 +205,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param text the text
      */
-    public abstract void setText(String text);
+    void setText(String text);
 
 
     /**
@@ -309,7 +213,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return The converted AWT Shape.
      */
-    public abstract java.awt.Shape toAWTShape();
+    java.awt.Shape toAWTShape();
 
 
     /**
@@ -322,7 +226,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      * @param a02 the X coordinate translation element of the 3x3 matrix
      * @param a12 the Y coordinate translation element of the 3x3 matrix
      */
-    public void setTransform(double a00, double a10, double a01, double a11, double a02, double a12) {
+    default void setTransform(double a00, double a10, double a01, double a11, double a02, double a12) {
         AffineTransform transform = new AffineTransformI();
         transform.setA00(omero.rtypes.rdouble(a00));
         transform.setA10(omero.rtypes.rdouble(a10));
@@ -330,7 +234,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
         transform.setA11(omero.rtypes.rdouble(a11));
         transform.setA02(omero.rtypes.rdouble(a02));
         transform.setA12(omero.rtypes.rdouble(a12));
-        data.setTransform(transform);
+        asDataObject().setTransform(transform);
     }
 
 
@@ -339,7 +243,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @param transform A Java AffineTransform.
      */
-    public void setTransform(java.awt.geom.AffineTransform transform) {
+    default void setTransform(java.awt.geom.AffineTransform transform) {
         double[] a = new double[6];
         transform.getMatrix(a);
         setTransform(a[0], a[1], a[2], a[3], a[4], a[5]);
@@ -347,19 +251,19 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
 
 
     /**
-     * Converts {@link omero.model.AffineTransform} to {@link java.awt.geom.AffineTransform}.
+     * Converts {@link AffineTransform} to {@link java.awt.geom.AffineTransform}.
      *
      * @return The converted affine transform.
      */
-    public java.awt.geom.AffineTransform toAWTTransform() {
-        if (data.getTransform() == null) return new java.awt.geom.AffineTransform();
+    default java.awt.geom.AffineTransform toAWTTransform() {
+        if (asDataObject().getTransform() == null) return new java.awt.geom.AffineTransform();
         else {
-            double a00 = data.getTransform().getA00().getValue();
-            double a10 = data.getTransform().getA10().getValue();
-            double a01 = data.getTransform().getA01().getValue();
-            double a11 = data.getTransform().getA11().getValue();
-            double a02 = data.getTransform().getA02().getValue();
-            double a12 = data.getTransform().getA12().getValue();
+            double a00 = asDataObject().getTransform().getA00().getValue();
+            double a10 = asDataObject().getTransform().getA10().getValue();
+            double a01 = asDataObject().getTransform().getA01().getValue();
+            double a11 = asDataObject().getTransform().getA11().getValue();
+            double a02 = asDataObject().getTransform().getA02().getValue();
+            double a12 = asDataObject().getTransform().getA12().getValue();
             return new java.awt.geom.AffineTransform(a00, a10, a01, a11, a02, a12);
         }
     }
@@ -371,20 +275,20 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return A new transformed {@link java.awt.Shape}.
      */
-    public java.awt.Shape createTransformedAWTShape() {
+    default java.awt.Shape createTransformedAWTShape() {
         if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) return toAWTShape();
         else return toAWTTransform().createTransformedShape(toAWTShape());
     }
 
 
     /**
-     * Returns a new {@link Rectangle} corresponding to the bounding box of the shape, once the related
+     * Returns a new {@link RectangleWrapper} corresponding to the bounding box of the shape, once the related
      * {@link AffineTransform} has been applied.
      *
      * @return The bounding box.
      */
     @SuppressWarnings("ClassReferencesSubclass")
-    public Rectangle getBoundingBox() {
+    default Rectangle getBoundingBox() {
         Rectangle2D rectangle = createTransformedAWTShape().getBounds2D();
 
         double x      = rectangle.getX();
@@ -392,7 +296,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
         double width  = rectangle.getWidth();
         double height = rectangle.getHeight();
 
-        Rectangle boundingBox = new Rectangle(x, y, width, height);
+        Rectangle boundingBox = new RectangleWrapper(x, y, width, height);
         boundingBox.setCZT(getC(), getZ(), getT());
         boundingBox.setText(getText() + " (Bounding Box)");
         boundingBox.setStroke(getStroke());
@@ -407,7 +311,7 @@ public abstract class Shape<T extends ShapeData> extends RemoteObject<T> {
      *
      * @return An ImageJ ROI.
      */
-    public Roi toImageJ() {
+    default Roi toImageJ() {
         Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
         roi.setName(getText());
         roi.setStrokeColor(getStroke());

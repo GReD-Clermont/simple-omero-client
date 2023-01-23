@@ -5,11 +5,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -25,38 +23,22 @@ import java.util.List;
 
 
 /**
- * Class containing a GroupData object.
- * <p> Wraps function calls to the GroupData contained.
+ * Interface to handle Groups on OMERO.
  */
-public class Group extends RemoteObject<GroupData> {
+public interface Group extends RemoteObject<GroupData> {
 
     /** Indicates that the group is {@code Private} i.e. RW----. */
-    public static final int PERMISSIONS_PRIVATE = GroupData.PERMISSIONS_PRIVATE;
-
+    int PERMISSIONS_PRIVATE           = GroupData.PERMISSIONS_PRIVATE;
     /** Indicates that the group is {@code Group} i.e. RWR---. */
-    public static final int PERMISSIONS_GROUP_READ = GroupData.PERMISSIONS_GROUP_READ;
-
+    int PERMISSIONS_GROUP_READ        = GroupData.PERMISSIONS_GROUP_READ;
     /** Indicates that the group is {@code Group} i.e. RWRA--. */
-    public static final int PERMISSIONS_GROUP_READ_LINK = GroupData.PERMISSIONS_GROUP_READ_LINK;
-
+    int PERMISSIONS_GROUP_READ_LINK   = GroupData.PERMISSIONS_GROUP_READ_LINK;
     /** Indicates that the group is {@code Group} i.e. RWRW--. */
-    public static final int PERMISSIONS_GROUP_READ_WRITE = GroupData.PERMISSIONS_GROUP_READ_WRITE;
-
+    int PERMISSIONS_GROUP_READ_WRITE  = GroupData.PERMISSIONS_GROUP_READ_WRITE;
     /** Indicates that the group is {@code Public} i.e. RWRWR-. */
-    public static final int PERMISSIONS_PUBLIC_READ = GroupData.PERMISSIONS_PUBLIC_READ;
-
+    int PERMISSIONS_PUBLIC_READ       = GroupData.PERMISSIONS_PUBLIC_READ;
     /** Indicates that the group is {@code Public} i.e. RWRWRW. */
-    public static final int PERMISSIONS_PUBLIC_READ_WRITE = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
-
-
-    /**
-     * Constructor of the class Group.
-     *
-     * @param dataObject The object contained in the Group.
-     */
-    public Group(GroupData dataObject) {
-        super(dataObject);
-    }
+    int PERMISSIONS_PUBLIC_READ_WRITE = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
 
 
     /**
@@ -64,8 +46,8 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @return See above.
      */
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -76,8 +58,8 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -86,8 +68,8 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @return See above.
      */
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -98,8 +80,8 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
+    default void setDescription(String description) {
+        asDataObject().setDescription(description);
     }
 
 
@@ -108,9 +90,7 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @return See above.
      */
-    public List<Experimenter> getLeaders() {
-        return wrap(data.getLeaders(), Experimenter::new, Experimenter::getLastName);
-    }
+    List<Experimenter> getLeaders();
 
 
     /**
@@ -118,9 +98,7 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @return See above.
      */
-    public List<Experimenter> getExperimenters() {
-        return wrap(data.getExperimenters(), Experimenter::new, Experimenter::getLastName);
-    }
+    List<Experimenter> getExperimenters();
 
 
     /**
@@ -128,9 +106,7 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @return See above.
      */
-    public List<Experimenter> getMembersOnly() {
-        return wrap(data.getMembersOnly(), Experimenter::new, Experimenter::getLastName);
-    }
+    List<Experimenter> getMembersOnly();
 
 
     /**
@@ -138,8 +114,8 @@ public class Group extends RemoteObject<GroupData> {
      *
      * @return See above.
      */
-    public int getPermissionsLevel() {
-        return data.getPermissions().getPermissionsLevel();
+    default int getPermissionsLevel() {
+        return asDataObject().getPermissions().getPermissionsLevel();
     }
 
 }

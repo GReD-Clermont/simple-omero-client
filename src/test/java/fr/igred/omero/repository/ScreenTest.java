@@ -18,6 +18,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -51,7 +52,7 @@ class ScreenTest extends UserTest {
     void testAddTagToScreen() throws Exception {
         Screen screen = client.getScreen(SCREEN2.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Screen tag", "tag attached to a screen");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Screen tag", "tag attached to a screen");
         screen.addTag(client, tag);
         List<TagAnnotation> tags = screen.getTags(client);
         client.delete(tag);
@@ -147,7 +148,7 @@ class ScreenTest extends UserTest {
         File f1 = createFile(filename1);
         File f2 = createFile(filename2);
 
-        Screen screen = new Screen(client, "Import", "test-import");
+        Screen screen = new ScreenWrapper(client, "Import", "test-import");
 
         boolean imported = screen.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
 
@@ -187,7 +188,7 @@ class ScreenTest extends UserTest {
 
         File file = createFile(filename);
 
-        Screen screen = new Screen(client, "Import", "test-import");
+        Screen screen = new ScreenWrapper(client, "Import", "test-import");
 
         List<Long> ids = screen.importImage(client, file.getAbsolutePath());
 

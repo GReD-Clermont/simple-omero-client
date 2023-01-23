@@ -16,11 +16,14 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.Table;
+import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -57,7 +60,7 @@ class ProjectTest extends UserTest {
 
     @Test
     void testAddAndRemoveDataset() throws Exception {
-        Project project = new Project(client, "To delete", "");
+        Project project = new ProjectWrapper(client, "To delete", "");
         Dataset dataset = client.getDataset(DATASET2.id);
 
         int initialSize = project.getDatasets().size();
@@ -80,7 +83,7 @@ class ProjectTest extends UserTest {
     void testAddTagToProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag);
         List<TagAnnotation> tags = project.getTags(client);
@@ -113,7 +116,7 @@ class ProjectTest extends UserTest {
     void testAddTagIdToProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Project tag", "tag attached to a project");
+        RemoteObject<?> tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag.getId());
         List<TagAnnotation> tags = project.getTags(client);
@@ -129,10 +132,10 @@ class ProjectTest extends UserTest {
     void testAddTagsToProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotation tag1 = new TagAnnotation(client, "Project tag 1", "tag attached to a project");
-        TagAnnotation tag2 = new TagAnnotation(client, "Project tag 2", "tag attached to a project");
-        TagAnnotation tag3 = new TagAnnotation(client, "Project tag 3", "tag attached to a project");
-        TagAnnotation tag4 = new TagAnnotation(client, "Project tag 4", "tag attached to a project");
+        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
+        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Project tag 2", "tag attached to a project");
+        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Project tag 3", "tag attached to a project");
+        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Project tag 4", "tag attached to a project");
 
         project.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = project.getTags(client);
@@ -151,10 +154,10 @@ class ProjectTest extends UserTest {
     void testAddTagsToProject2() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotation tag1 = new TagAnnotation(client, "Project tag", "tag attached to a project");
-        TagAnnotation tag2 = new TagAnnotation(client, "Project tag", "tag attached to a project");
-        TagAnnotation tag3 = new TagAnnotation(client, "Project tag", "tag attached to a project");
-        TagAnnotation tag4 = new TagAnnotation(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTags(client, tag1, tag2, tag3, tag4);
         List<TagAnnotation> tags = project.getTags(client);
@@ -173,7 +176,7 @@ class ProjectTest extends UserTest {
     void testAddAndRemoveTagFromProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotation tag = new TagAnnotation(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
         project.addTag(client, tag);
         List<TagAnnotation> tags = project.getTags(client);
         project.unlink(client, tag);
@@ -292,7 +295,8 @@ class ProjectTest extends UserTest {
     @Test
     void testCopyAnnotations() throws Exception {
         Project project1 = client.getProject(PROJECT1.id);
-        Project project2 = new Project(client, "CopyTest", "Copy annotations");
+
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
 
         File file = createRandomFile("test_project.txt");
 
@@ -300,11 +304,11 @@ class ProjectTest extends UserTest {
         removeFile(file);
         assertNotEquals(0L, fileId);
 
-        TagAnnotation tag = new TagAnnotation(client, "CopyTestTag", "Copy annotations");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
         project1.addTag(client, tag);
         project1.addPairKeyValue(client, "CopyTest", "Annotation");
 
-        Table table = new Table(1, "CopyTest");
+        Table table = new TableWrapper(1, "CopyTest");
         table.setColumn(0, "Name", String.class);
         table.setRowCount(1);
         table.addRow("Annotation");
@@ -337,7 +341,8 @@ class ProjectTest extends UserTest {
     @Test
     void testCopyFileAnnotation() throws Exception {
         Project project1 = client.getProject(PROJECT1.id);
-        Project project2 = new Project(client, "CopyTest", "Copy file annotation");
+
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -362,8 +367,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndUnlinkFile() throws Exception {
-        Project project1 = new Project(client, "ReplaceTest1", "Replace file annotation");
-        Project project2 = new Project(client, "ReplaceTest2", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -385,8 +390,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteFile() throws Exception {
-        Project project1 = new Project(client, "ReplaceTest1", "Replace file annotation");
-        Project project2 = new Project(client, "ReplaceTest2", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -407,8 +412,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile1() throws Exception {
-        Project project1 = new Project(client, "ReplaceTest1", "Replace file annotation");
-        Project project2 = new Project(client, "ReplaceTest2", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -430,7 +435,7 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile2() throws Exception {
-        Project project1 = new Project(client, "ReplaceTest1", "Replace file annotation");
+        RepositoryObject<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 

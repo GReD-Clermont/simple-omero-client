@@ -52,7 +52,7 @@ public class ShapeList extends ArrayList<Shape<?>> {
      *
      * @return An RemoteObject.
      */
-    private static <T extends ShapeData, U extends Shape<T>>
+    private static <T extends ShapeData, U extends ShapeWrapper<T>>
     U tryConvert(ShapeData object, Class<? extends T> klass, Function<? super T, U> mapper) {
         if (klass.isInstance(object)) return mapper.apply(klass.cast(object));
         else return null;
@@ -82,14 +82,14 @@ public class ShapeList extends ArrayList<Shape<?>> {
     public boolean add(ShapeData shape) {
         boolean added = false;
 
-        Shape<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, Point::new);
-        if (wrapper == null) wrapper = tryConvert(shape, TextData.class, Text::new);
-        if (wrapper == null) wrapper = tryConvert(shape, RectangleData.class, Rectangle::new);
-        if (wrapper == null) wrapper = tryConvert(shape, MaskData.class, Mask::new);
-        if (wrapper == null) wrapper = tryConvert(shape, EllipseData.class, Ellipse::new);
-        if (wrapper == null) wrapper = tryConvert(shape, LineData.class, Line::new);
-        if (wrapper == null) wrapper = tryConvert(shape, PolylineData.class, Polyline::new);
-        if (wrapper == null) wrapper = tryConvert(shape, PolygonData.class, Polygon::new);
+        Shape<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, PointWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, TextData.class, TextWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, RectangleData.class, RectangleWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, MaskData.class, MaskWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, EllipseData.class, EllipseWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, LineData.class, LineWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, PolylineData.class, PolylineWrapper::new);
+        if (wrapper == null) wrapper = tryConvert(shape, PolygonData.class, PolygonWrapper::new);
 
         if (wrapper != null) added = add(wrapper);
 

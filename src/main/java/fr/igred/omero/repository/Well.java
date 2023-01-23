@@ -21,52 +21,7 @@ import omero.gateway.model.WellData;
 import java.util.List;
 
 
-/**
- * Class containing a WellData object.
- * <p> Wraps function calls to the WellData contained.
- */
-public class Well extends RepositoryObject<WellData> {
-
-    /**
-     * Constructor of the class Well.
-     *
-     * @param dataObject The WellData contained in the Well.
-     */
-    public Well(WellData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Converts a number to a suit of letters (e.g. 1 to A or 28 to AB).
-     *
-     * @param number The number.
-     *
-     * @return The corresponding identifier
-     */
-    private static String identifier(int number) {
-        final int     alphabetSize = 26;
-        final int     charOffset   = 64; // 'A' - 1
-        int           temp;
-        StringBuilder letters      = new StringBuilder(3);
-        while (number > 0) {
-            temp = number % alphabetSize;
-            letters.append((char) (temp + charOffset));
-            number = (number - temp) / alphabetSize;
-        }
-        return letters.toString();
-    }
-
-
-    /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    @Override
-    public String getName() {
-        return String.format("Well %s-%d", identifier(getRow() + 1), getColumn() + 1);
-    }
+public interface Well extends RepositoryObject<WellData> {
 
 
     /**
@@ -75,8 +30,8 @@ public class Well extends RepositoryObject<WellData> {
      * @return See above.
      */
     @Override
-    public String getDescription() {
-        return data.getExternalDescription();
+    default String getDescription() {
+        return asDataObject().getExternalDescription();
     }
 
 
@@ -85,9 +40,7 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public List<WellSample> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSample::new, w -> w.getImage().asDataObject().getSeries());
-    }
+    List<WellSample> getWellSamples();
 
 
     /**
@@ -95,9 +48,7 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public Plate getPlate() {
-        return new Plate(data.getPlate());
-    }
+    Plate getPlate();
 
 
     /**
@@ -105,8 +56,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public Integer getColumn() {
-        return data.getColumn();
+    default Integer getColumn() {
+        return asDataObject().getColumn();
     }
 
 
@@ -115,8 +66,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public Integer getRow() {
-        return data.getRow();
+    default Integer getRow() {
+        return asDataObject().getRow();
     }
 
 
@@ -125,8 +76,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public String getStatus() {
-        return data.getStatus();
+    default String getStatus() {
+        return asDataObject().getStatus();
     }
 
 
@@ -135,8 +86,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @param status The status of the well.
      */
-    public void setStatus(String status) {
-        data.setStatus(status);
+    default void setStatus(String status) {
+        asDataObject().setStatus(status);
     }
 
 
@@ -145,8 +96,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public String getWellType() {
-        return data.getWellType();
+    default String getWellType() {
+        return asDataObject().getWellType();
     }
 
 
@@ -155,8 +106,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @param type The value to set.
      */
-    public void setWellType(String type) {
-        data.setWellType(type);
+    default void setWellType(String type) {
+        asDataObject().setWellType(type);
     }
 
 
@@ -165,8 +116,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public int getRed() {
-        return data.getRed();
+    default int getRed() {
+        return asDataObject().getRed();
     }
 
 
@@ -175,8 +126,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @param red The value to set.
      */
-    public void setRed(Integer red) {
-        data.setRed(red);
+    default void setRed(Integer red) {
+        asDataObject().setRed(red);
     }
 
 
@@ -185,8 +136,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public int getGreen() {
-        return data.getGreen();
+    default int getGreen() {
+        return asDataObject().getGreen();
     }
 
 
@@ -195,8 +146,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @param green The value to set.
      */
-    public void setGreen(Integer green) {
-        data.setGreen(green);
+    default void setGreen(Integer green) {
+        asDataObject().setGreen(green);
     }
 
 
@@ -205,8 +156,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public int getBlue() {
-        return data.getBlue();
+    default int getBlue() {
+        return asDataObject().getBlue();
     }
 
 
@@ -215,8 +166,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @param blue The value to set.
      */
-    public void setBlue(Integer blue) {
-        data.setBlue(blue);
+    default void setBlue(Integer blue) {
+        asDataObject().setBlue(blue);
     }
 
 
@@ -225,8 +176,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @return See above.
      */
-    public int getAlpha() {
-        return data.getAlpha();
+    default int getAlpha() {
+        return asDataObject().getAlpha();
     }
 
 
@@ -235,8 +186,8 @@ public class Well extends RepositoryObject<WellData> {
      *
      * @param alpha The value to set.
      */
-    public void setAlpha(Integer alpha) {
-        data.setAlpha(alpha);
+    default void setAlpha(Integer alpha) {
+        asDataObject().setAlpha(alpha);
     }
 
 }

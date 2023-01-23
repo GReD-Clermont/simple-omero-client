@@ -25,44 +25,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
-/**
- * Class containing an MaskData.
- * <p> Wraps function calls to the MaskData contained.
- */
-public class Mask extends Shape<MaskData> {
-
-
-    /**
-     * Constructor of the Mask class using a MaskData.
-     *
-     * @param dataObject the shape
-     */
-    public Mask(MaskData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Mask class using a new empty MaskData.
-     */
-    public Mask() {
-        this(new MaskData());
-    }
-
-
-    /**
-     * Constructor of the Mask class using a new MaskData.
-     *
-     * @param x      The x-coordinate of the top-left corner of the image.
-     * @param y      The y-coordinate of the top-left corner of the image.
-     * @param width  The width of the image.
-     * @param height The height of the image.
-     * @param mask   The mask image.
-     */
-    public Mask(double x, double y, double width, double height, byte[] mask) {
-        this(new MaskData(x, y, width, height, mask));
-    }
-
+public interface Mask extends Shape<MaskData> {
 
     /**
      * Gets the text on the ShapeData.
@@ -70,8 +33,8 @@ public class Mask extends Shape<MaskData> {
      * @return the text
      */
     @Override
-    public String getText() {
-        return data.getText();
+    default String getText() {
+        return asDataObject().getText();
     }
 
 
@@ -81,8 +44,8 @@ public class Mask extends Shape<MaskData> {
      * @param text the text
      */
     @Override
-    public void setText(String text) {
-        data.setText(text);
+    default void setText(String text) {
+        asDataObject().setText(text);
     }
 
 
@@ -92,7 +55,7 @@ public class Mask extends Shape<MaskData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
     }
 
@@ -102,8 +65,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @return See above.
      */
-    public double getX() {
-        return data.getX();
+    default double getX() {
+        return asDataObject().getX();
     }
 
 
@@ -112,8 +75,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @param x The value to set.
      */
-    public void setX(double x) {
-        data.setX(x);
+    default void setX(double x) {
+        asDataObject().setX(x);
     }
 
 
@@ -122,8 +85,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @return See above.
      */
-    public double getY() {
-        return data.getY();
+    default double getY() {
+        return asDataObject().getY();
     }
 
 
@@ -132,8 +95,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @param y See above.
      */
-    public void setY(double y) {
-        data.setY(y);
+    default void setY(double y) {
+        asDataObject().setY(y);
     }
 
 
@@ -142,8 +105,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @return See above.
      */
-    public double getWidth() {
-        return data.getWidth();
+    default double getWidth() {
+        return asDataObject().getWidth();
     }
 
 
@@ -152,8 +115,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @param width See above.
      */
-    public void setWidth(double width) {
-        data.setWidth(width);
+    default void setWidth(double width) {
+        asDataObject().setWidth(width);
     }
 
 
@@ -162,8 +125,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @return See above.
      */
-    public double getHeight() {
-        return data.getHeight();
+    default double getHeight() {
+        return asDataObject().getHeight();
     }
 
 
@@ -172,8 +135,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @param height See above.
      */
-    public void setHeight(double height) {
-        data.setHeight(height);
+    default void setHeight(double height) {
+        asDataObject().setHeight(height);
     }
 
 
@@ -182,8 +145,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @return See above.
      */
-    public int[][] getMaskAsBinaryArray() {
-        return data.getMaskAsBinaryArray();
+    default int[][] getMaskAsBinaryArray() {
+        return asDataObject().getMaskAsBinaryArray();
     }
 
 
@@ -192,8 +155,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @return See above.
      */
-    public byte[] getMask() {
-        return data.getMask();
+    default byte[] getMask() {
+        return asDataObject().getMask();
     }
 
 
@@ -202,8 +165,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @param mask See above.
      */
-    public void setMask(byte[] mask) {
-        data.setMask(mask);
+    default void setMask(byte[] mask) {
+        asDataObject().setMask(mask);
     }
 
 
@@ -212,8 +175,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @param mask The binary mask (int[width][height])
      */
-    public void setMask(int[][] mask) {
-        data.setMask(mask);
+    default void setMask(int[][] mask) {
+        asDataObject().setMask(mask);
     }
 
 
@@ -222,8 +185,8 @@ public class Mask extends Shape<MaskData> {
      *
      * @param mask The binary mask (boolean[width][height])
      */
-    public void setMask(boolean[][] mask) {
-        data.setMask(mask);
+    default void setMask(boolean[][] mask) {
+        asDataObject().setMask(mask);
     }
 
 
@@ -235,7 +198,7 @@ public class Mask extends Shape<MaskData> {
      * @param width  The width of the rectangle.
      * @param height The height of the rectangle.
      */
-    public void setCoordinates(double x, double y, double width, double height) {
+    default void setCoordinates(double x, double y, double width, double height) {
         setX(x);
         setY(y);
         setWidth(width);
@@ -248,7 +211,7 @@ public class Mask extends Shape<MaskData> {
      *
      * @return Array of coordinates containing {X,Y,Width,Height}.
      */
-    public double[] getCoordinates() {
+    default double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX();
         coordinates[1] = getY();
@@ -263,14 +226,14 @@ public class Mask extends Shape<MaskData> {
      *
      * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
      */
-    public void setCoordinates(double[] coordinates) {
+    default void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("MaskData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setWidth(coordinates[2]);
-            data.setHeight(coordinates[3]);
+            asDataObject().setX(coordinates[0]);
+            asDataObject().setY(coordinates[1]);
+            asDataObject().setWidth(coordinates[2]);
+            asDataObject().setHeight(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for MaskData.");
         }
@@ -283,20 +246,20 @@ public class Mask extends Shape<MaskData> {
      * @return An ImageJ ROI.
      */
     @Override
-    public Roi toImageJ() {
+    default Roi toImageJ() {
         AffineTransform transform = toAWTTransform();
 
         Roi roi;
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
-            roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
+            roi = new Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            Point p1 = new Point(getX(), getY() + getHeight() / 2);
-            Point p2 = new Point(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape<?> p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape<?> p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 
-            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
             double x1 = shape1.getX();
             double y1 = shape1.getY();

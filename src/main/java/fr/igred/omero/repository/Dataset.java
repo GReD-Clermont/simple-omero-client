@@ -19,7 +19,6 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -27,7 +26,6 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import omero.RLong;
 import omero.gateway.model.DatasetData;
-import omero.gateway.model.ImageData;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -36,47 +34,11 @@ import omero.model.IObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
-/**
- * Class containing a DatasetData object.
- * <p> Wraps function calls to the DatasetData contained.
- */
-public class Dataset extends RepositoryObject<DatasetData> {
-
-    private static final Long[] LONGS = new Long[0];
-
-
-    /**
-     * Constructor of the Dataset class
-     *
-     * @param name        Name of the dataset.
-     * @param description Description of the dataset.
-     */
-    public Dataset(String name, String description) {
-        super(new DatasetData());
-        this.data.setName(name);
-        this.data.setDescription(description);
-    }
-
-
-    /**
-     * Constructor of the Dataset class
-     *
-     * @param dataObject Dataset to be contained.
-     */
-    public Dataset(DatasetData dataObject) {
-        super(dataObject);
-    }
-
+public interface Dataset extends RepositoryObject<DatasetData> {
 
     /**
      * Gets the DatasetData name
@@ -84,8 +46,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @return DatasetData name.
      */
     @Override
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -96,8 +58,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -107,8 +69,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @return DatasetData description.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -117,8 +79,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      *
      * @param description The description of the dataset.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
+    default void setDescription(String description) {
+        asDataObject().setDescription(description);
     }
 
 
@@ -134,7 +96,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Project> getProjects(Client client)
+    default List<Project> getProjects(Client client)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
                                               "where link.child=" + getId());
@@ -153,14 +115,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                            Collections.singletonList(
-                                                                                                    data.getId())),
-                                                              "Cannot get images from " + this);
-        return wrap(images, Image::new);
-    }
+    List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -175,7 +130,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImages(Client client, String name)
+    default List<Image> getImages(Client client, String name)
     throws ServiceException, AccessException, ExecutionException {
         List<Image> images = getImages(client);
         images.removeIf(image -> !image.getName().equals(name));
@@ -195,7 +150,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesLike(Client client, String motif)
+    default List<Image> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
         List<Image> images = getImages(client);
 
@@ -218,7 +173,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesTagged(Client client, TagAnnotation tag)
+    default List<Image> getImagesTagged(Client client, TagAnnotation tag)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         return getImagesTagged(client, tag.getId());
     }
@@ -237,7 +192,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesTagged(Client client, Long tagId)
+    default List<Image> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         Long[] ids = client.findByQuery("select link.parent " +
                                         "from ImageAnnotationLink link " +
@@ -247,7 +202,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
                                         "(select link2.child " +
                                         "from DatasetImageLink link2 " +
                                         "where link2.parent = " +
-                                        data.getId() + ")")
+                                        asDataObject().getId() + ")")
                            .stream()
                            .map(IObject::getId)
                            .map(RLong::getValue)
@@ -268,28 +223,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesKey(Client client, String key)
-    throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get images with key \"" + key + "\" from " + this;
-        Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                            Collections.singletonList(
-                                                                                                    data.getId())),
-                                                              error);
-
-        List<Image> selected = new ArrayList<>(images.size());
-        for (ImageData image : images) {
-            Image imageWrapper = new Image(image);
-
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null) {
-                selected.add(imageWrapper);
-            }
-        }
-        selected.sort(Comparator.comparing(RemoteObject::getId));
-
-        return selected;
-    }
+    List<Image> getImagesKey(Client client, String key)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -305,28 +240,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesPairKeyValue(Client client, String key, String value)
-    throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get images with key-value pair from " + this;
-        Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                            Collections.singletonList(
-                                                                                                    data.getId())),
-                                                              error);
-
-        List<Image> selected = new ArrayList<>(images.size());
-        for (ImageData image : images) {
-            Image imageWrapper = new Image(image);
-
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
-                selected.add(imageWrapper);
-            }
-        }
-        selected.sort(Comparator.comparing(RemoteObject::getId));
-
-        return selected;
-    }
+    List<Image> getImagesPairKeyValue(Client client, String key, String value)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -339,7 +254,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(Client client, Iterable<? extends Image> images)
+    default void addImages(Client client, Iterable<? extends Image> images)
     throws ServiceException, AccessException, ExecutionException {
         for (Image image : images) {
             addImage(client, image);
@@ -357,11 +272,11 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImage(Client client, Image image)
+    default void addImage(Client client, Image image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.asDataObject().asImage());
-        link.setParent(new DatasetI(data.getId(), false));
+        link.setParent(new DatasetI(asDataObject().getId(), false));
 
         client.save(link);
         refresh(client);
@@ -380,10 +295,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void removeImage(Client client, Image image)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        removeLink(client, "DatasetImageLink", image.getId());
-    }
+    void removeImage(Client client, Image image)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
     /**
@@ -400,12 +313,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public boolean importImages(Client client, String... paths)
-    throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, paths);
-        refresh(client);
-        return success;
-    }
+    boolean importImages(Client client, String... paths)
+    throws ServiceException, ServerException, AccessException, IOException, ExecutionException;
 
 
     /**
@@ -421,12 +330,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Long> importImage(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        refresh(client);
-        return ids;
-    }
+    List<Long> importImage(Client client, String path)
+    throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
@@ -445,9 +350,9 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public List<Image> replaceImages(Client client,
-                                     Collection<? extends Image> oldImages,
-                                     Image newImage)
+    default List<Image> replaceImages(Client client,
+                                      Collection<? extends Image> oldImages,
+                                      Image newImage)
     throws AccessException, ServiceException, ExecutionException, ServerException, InterruptedException {
         Collection<String> descriptions = new ArrayList<>(oldImages.size() + 1);
         List<Image>        orphaned     = new ArrayList<>(oldImages.size());
@@ -489,38 +394,8 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
-    throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
-        List<Long> ids    = importImage(client, path);
-        Long[]     newIds = ids.toArray(LONGS);
-
-        List<Image>       newImages = client.getImages(newIds);
-        Collection<Image> toDelete  = new ArrayList<>(newImages.size());
-        for (Image image : newImages) {
-            List<Image> oldImages = getImages(client, image.getName());
-            oldImages.removeIf(img -> ids.contains(img.getId()));
-            List<Image> orphaned = replaceImages(client, oldImages, image);
-            if (policy == ReplacePolicy.DELETE) {
-                toDelete.addAll(oldImages);
-            } else if (policy == ReplacePolicy.DELETE_ORPHANED) {
-                toDelete.addAll(orphaned);
-            }
-        }
-        if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(RemoteObject::getId).collect(Collectors.toList());
-
-            Iterable<Image> orphans = new ArrayList<>(toDelete);
-            for (Image orphan : orphans) {
-                for (Image other : orphan.getFilesetImages(client)) {
-                    if (!idsToDelete.contains(other.getId()) && other.isOrphaned(client)) {
-                        toDelete.add(other);
-                    }
-                }
-            }
-        }
-        client.delete(toDelete);
-        return ids;
-    }
+    List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
+    throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException;
 
 
     /**
@@ -538,7 +413,7 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public List<Long> importAndReplaceImages(Client client, String path)
+    default List<Long> importAndReplaceImages(Client client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
         return importAndReplaceImages(client, path, ReplacePolicy.UNLINK);
     }
@@ -553,12 +428,6 @@ public class Dataset extends RepositoryObject<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
-        data = handleServiceAndAccess(client.getBrowseFacility(),
-                                      bf -> bf.getDatasets(client.getCtx(),
-                                                           Collections.singletonList(this.getId()))
-                                              .iterator().next(),
-                                      "Cannot refresh " + this);
-    }
+    void refresh(Client client) throws ServiceException, AccessException, ExecutionException;
 
 }

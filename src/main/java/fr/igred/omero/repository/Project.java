@@ -30,51 +30,13 @@ import omero.model.ProjectDatasetLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
-
-/**
- * Class containing a ProjectData object.
- * <p> Wraps function calls to the Project contained
- */
-public class Project extends RepositoryObject<ProjectData> {
-
-
-    /**
-     * Constructor of the Project class.
-     *
-     * @param dataObject ProjectData to be contained.
-     */
-    public Project(ProjectData dataObject) {
-        super(dataObject);
-    }
-
-
-    /**
-     * Constructor of the Project class. Creates a new project and save it to OMERO.
-     *
-     * @param client      The client handling the connection.
-     * @param name        Project name.
-     * @param description Project description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public Project(Client client, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        super(new ProjectData());
-        data.setName(name);
-        data.setDescription(description);
-        super.saveAndUpdate(client);
-    }
-
+public interface Project extends RepositoryObject<ProjectData> {
 
     /**
      * Gets the ProjectData name
@@ -82,8 +44,8 @@ public class Project extends RepositoryObject<ProjectData> {
      * @return ProjectData name.
      */
     @Override
-    public String getName() {
-        return data.getName();
+    default String getName() {
+        return asDataObject().getName();
     }
 
 
@@ -94,8 +56,8 @@ public class Project extends RepositoryObject<ProjectData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
+    default void setName(String name) {
+        asDataObject().setName(name);
     }
 
 
@@ -105,8 +67,8 @@ public class Project extends RepositoryObject<ProjectData> {
      * @return The project description.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
+    default String getDescription() {
+        return asDataObject().getDescription();
     }
 
 
@@ -115,8 +77,8 @@ public class Project extends RepositoryObject<ProjectData> {
      *
      * @param description The description of the project.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
+    default void setDescription(String description) {
+        asDataObject().setDescription(description);
     }
 
 
@@ -125,9 +87,7 @@ public class Project extends RepositoryObject<ProjectData> {
      *
      * @return Collection of Dataset.
      */
-    public List<Dataset> getDatasets() {
-        return wrap(data.getDatasets(), Dataset::new);
-    }
+    List<Dataset> getDatasets();
 
 
     /**
@@ -137,7 +97,7 @@ public class Project extends RepositoryObject<ProjectData> {
      *
      * @return List of dataset with the given name.
      */
-    public List<Dataset> getDatasets(String name) {
+    default List<Dataset> getDatasets(String name) {
         List<Dataset> datasets = getDatasets();
         datasets.removeIf(dataset -> !dataset.getName().equals(name));
         return datasets;
@@ -157,12 +117,8 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Dataset addDataset(Client client, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        Dataset dataset = new Dataset(name, description);
-        dataset.saveAndUpdate(client);
-        return addDataset(client, dataset);
-    }
+    Dataset addDataset(Client client, String name, String description)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -177,12 +133,12 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Dataset addDataset(Client client, Dataset dataset)
+    default Dataset addDataset(Client client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException {
         dataset.saveAndUpdate(client);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.setChild(dataset.asDataObject().asDataset());
-        link.setParent(data.asProject());
+        link.setParent(asDataObject().asProject());
 
         client.save(link);
         refresh(client);
@@ -203,11 +159,8 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void removeDataset(Client client, Dataset dataset)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        removeLink(client, "ProjectDatasetLink", dataset.getId());
-        refresh(client);
-    }
+    void removeDataset(Client client, Dataset dataset)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
     /**
@@ -221,7 +174,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
+    default List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
         Collection<List<Image>> lists = new ArrayList<>(datasets.size());
@@ -233,7 +186,7 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -249,7 +202,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImages(Client client, String name)
+    default List<Image> getImages(Client client, String name)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -262,7 +215,7 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -271,7 +224,7 @@ public class Project extends RepositoryObject<ProjectData> {
      *
      * @param client      The client handling the connection.
      * @param datasetName Expected dataset name.
-     * @param name   Expected image name.
+     * @param name        Expected image name.
      *
      * @return Image list.
      *
@@ -279,7 +232,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImages(Client client, String datasetName, String name)
+    default List<Image> getImages(Client client, String datasetName, String name)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets(datasetName);
 
@@ -292,7 +245,7 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -308,7 +261,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesLike(Client client, String motif)
+    default List<Image> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -321,7 +274,7 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -338,7 +291,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesTagged(Client client, TagAnnotation tag)
+    default List<Image> getImagesTagged(Client client, TagAnnotation tag)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -351,7 +304,7 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -368,7 +321,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesTagged(Client client, Long tagId)
+    default List<Image> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -381,7 +334,7 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -397,7 +350,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesKey(Client client, String key)
+    default List<Image> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -410,7 +363,7 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
@@ -427,7 +380,7 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Image> getImagesPairKeyValue(Client client, String key, String value)
+    default List<Image> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -440,12 +393,12 @@ public class Project extends RepositoryObject<ProjectData> {
                                   .sorted(Comparator.comparing(RemoteObject::getId))
                                   .collect(Collectors.toList());
 
-        return distinct(images);
+        return RemoteObject.distinct(images);
     }
 
 
     /**
-     * Refreshes the wrapped project.
+     * Refreshes the project.
      *
      * @param client The client handling the connection.
      *
@@ -453,12 +406,6 @@ public class Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
-        data = handleServiceAndAccess(client.getBrowseFacility(),
-                                      bf -> bf.getProjects(client.getCtx(),
-                                                           Collections.singletonList(this.getId()))
-                                              .iterator().next(),
-                                      "Cannot refresh " + this);
-    }
+    void refresh(Client client) throws ServiceException, AccessException, ExecutionException;
 
 }
