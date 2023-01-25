@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -18,19 +18,28 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
+import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
+import fr.igred.omero.repository.Folder;
 import fr.igred.omero.repository.FolderWrapper;
+import fr.igred.omero.repository.Image;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.Plate;
 import fr.igred.omero.repository.PlateWrapper;
+import fr.igred.omero.repository.Project;
 import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.repository.Screen;
 import fr.igred.omero.repository.ScreenWrapper;
+import fr.igred.omero.repository.Well;
 import fr.igred.omero.repository.WellWrapper;
 import omero.RLong;
 import omero.gateway.Gateway;
@@ -58,7 +67,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.ObjectWrapper.distinct;
+import static fr.igred.omero.RemoteObject.distinct;
 import static fr.igred.omero.ObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
@@ -87,7 +96,7 @@ public class Client extends GatewayWrapper {
      * @param ctx     The security context
      * @param user    The user
      */
-    public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    public Client(Gateway gateway, SecurityContext ctx, Experimenter user) {
         super(gateway, ctx, user);
     }
 
@@ -104,9 +113,9 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException No element with such id.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public ProjectWrapper getProject(Long id)
+    public Project getProject(Long id)
     throws ServiceException, AccessException, ExecutionException {
-        List<ProjectWrapper> projects = getProjects(id);
+        List<Project> projects = getProjects(id);
         if (projects.isEmpty()) {
             throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
         }
@@ -125,7 +134,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(Long... ids)
+    public List<Project> getProjects(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get projects with IDs: " + Arrays.toString(ids);
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
@@ -144,7 +153,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects() throws ServiceException, AccessException, ExecutionException {
+    public List<Project> getProjects() throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx()),
                                                                   "Cannot get projects");
@@ -163,7 +172,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException, ExecutionException {
+    public List<Project> getProjects(String name) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get projects with name: " + name;
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx(), name),
@@ -184,9 +193,9 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException No element with such id.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper getDataset(Long id)
+    public Dataset getDataset(Long id)
     throws ServiceException, AccessException, ExecutionException {
-        List<DatasetWrapper> datasets = getDatasets(id);
+        List<Dataset> datasets = getDatasets(id);
         if (datasets.isEmpty()) {
             throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
         }
@@ -205,7 +214,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(Long... ids)
+    public List<Dataset> getDatasets(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get dataset with ID: " + Arrays.toString(ids);
         Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
@@ -225,7 +234,7 @@ public class Client extends GatewayWrapper {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets()
+    public List<Dataset> getDatasets()
     throws ServiceException, AccessException, ServerException, ExecutionException {
         Long[] ids = this.findByQuery("select d from Dataset d")
                          .stream()
@@ -247,7 +256,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException, ExecutionException {
+    public List<Dataset> getDatasets(String name) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get datasets with name: " + name;
         Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getDatasets(getCtx(), name),
@@ -268,7 +277,7 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException No element with such id.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public ImageWrapper getImage(Long id)
+    public Image getImage(Long id)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get image with ID: " + id;
 
@@ -293,7 +302,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Long... ids) throws ServiceException, AccessException, ExecutionException {
+    public List<Image> getImages(Long... ids) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with IDs: " + Arrays.toString(ids);
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getImages(getCtx(), Arrays.asList(ids)),
@@ -311,7 +320,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages() throws ServiceException, AccessException, ExecutionException {
+    public List<Image> getImages() throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getUserImages(getCtx()),
                                                               "Cannot get images");
@@ -330,7 +339,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(String name) throws ServiceException, AccessException, ExecutionException {
+    public List<Image> getImages(String name) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with name: " + name;
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getImages(getCtx(), name),
@@ -353,19 +362,19 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
+    public List<Image> getImages(String projectName, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
-        List<ProjectWrapper> projects = getProjects(projectName);
+        List<Project> projects = getProjects(projectName);
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(projects.size());
-        for (ProjectWrapper project : projects) {
+        Collection<List<Image>> lists = new ArrayList<>(projects.size());
+        for (Project project : projects) {
             lists.add(project.getImages(this, datasetName, imageName));
         }
 
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -382,9 +391,9 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesLike(String motif) throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images = getImages();
-        String             regexp = ".*" + motif + ".*";
+    public List<Image> getImagesLike(String motif) throws ServiceException, AccessException, ExecutionException {
+        List<Image> images = getImages();
+        String      regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
         return images;
     }
@@ -402,7 +411,7 @@ public class Client extends GatewayWrapper {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
+    public List<Image> getImagesTagged(Annotation<TagAnnotationData> tag)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         return tag.getImages(this);
     }
@@ -420,7 +429,7 @@ public class Client extends GatewayWrapper {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Long tagId)
+    public List<Image> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         return getImagesTagged(getTag(tagId));
     }
@@ -437,11 +446,11 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesKey(String key)
+    public List<Image> getImagesKey(String key)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
+        List<Image> images   = getImages();
+        List<Image> selected = new ArrayList<>(images.size());
+        for (Image image : images) {
             Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
             if (pairsKeyValue.get(key) != null) {
                 selected.add(image);
@@ -464,11 +473,11 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesPairKeyValue(String key, String value)
+    public List<Image> getImagesPairKeyValue(String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
+        List<Image> images   = getImages();
+        List<Image> selected = new ArrayList<>(images.size());
+        for (Image image : images) {
             Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
             if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
                 selected.add(image);
@@ -490,9 +499,9 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException No element with such id.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public ScreenWrapper getScreen(Long id)
+    public Screen getScreen(Long id)
     throws ServiceException, AccessException, ExecutionException {
-        List<ScreenWrapper> screens = getScreens(id);
+        List<Screen> screens = getScreens(id);
         if (screens.isEmpty()) {
             throw new NoSuchElementException(String.format("Screen %d doesn't exist in this context", id));
         }
@@ -511,7 +520,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Long... ids) throws ServiceException, AccessException, ExecutionException {
+    public List<Screen> getScreens(Long... ids) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get screens with IDs: " + Arrays.toString(ids);
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx(), Arrays.asList(ids)),
@@ -529,7 +538,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens() throws ServiceException, AccessException, ExecutionException {
+    public List<Screen> getScreens() throws ServiceException, AccessException, ExecutionException {
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx()),
                                                                 "Cannot get screens");
@@ -549,9 +558,9 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException No element with such id.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public PlateWrapper getPlate(Long id)
+    public Plate getPlate(Long id)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlateWrapper> plates = getPlates(id);
+        List<Plate> plates = getPlates(id);
         if (plates.isEmpty()) {
             throw new NoSuchElementException(String.format("Plate %d doesn't exist in this context", id));
         }
@@ -570,7 +579,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Long... ids) throws ServiceException, AccessException, ExecutionException {
+    public List<Plate> getPlates(Long... ids) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get plates with IDs: " + Arrays.toString(ids);
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx(), Arrays.asList(ids)),
@@ -588,7 +597,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates() throws ServiceException, AccessException, ExecutionException {
+    public List<Plate> getPlates() throws ServiceException, AccessException, ExecutionException {
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx()),
                                                               "Cannot get plates");
@@ -608,9 +617,9 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException No element with such id.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public WellWrapper getWell(Long id)
+    public Well getWell(Long id)
     throws ServiceException, AccessException, ExecutionException {
-        List<WellWrapper> wells = getWells(id);
+        List<Well> wells = getWells(id);
         if (wells.isEmpty()) {
             throw new NoSuchElementException(String.format("Plate %d doesn't exist in this context", id));
         }
@@ -629,7 +638,7 @@ public class Client extends GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Long... ids)
+    public List<Well> getWells(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get wells with IDs: " + Arrays.toString(ids);
         Collection<WellData> wells = handleServiceAndAccess(getBrowseFacility(),
@@ -649,7 +658,7 @@ public class Client extends GatewayWrapper {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<WellWrapper> getWells()
+    public List<Well> getWells()
     throws ServiceException, AccessException, ExecutionException, ServerException {
         Long[] ids = this.findByQuery("select w from Well w")
                          .stream()
@@ -678,7 +687,7 @@ public class Client extends GatewayWrapper {
                  .map(TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
                  .map(TagAnnotationWrapper::new)
-                 .sorted(Comparator.comparing(ObjectWrapper::getId))
+                 .sorted(Comparator.comparing(RemoteObject::getId))
                  .collect(Collectors.toList());
     }
 
@@ -696,7 +705,7 @@ public class Client extends GatewayWrapper {
     public List<TagAnnotationWrapper> getTags(String name) throws ServerException, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(Comparator.comparing(ObjectWrapper::getId));
+        tags.sort(Comparator.comparing(RemoteObject::getId));
         return tags;
     }
 
@@ -735,15 +744,15 @@ public class Client extends GatewayWrapper {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(Collection<? extends ObjectWrapper<?>> objects)
+    public void delete(Collection<? extends RemoteObject<?>> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        for (ObjectWrapper<?> object : objects) {
+        for (RemoteObject<?> object : objects) {
             if (object instanceof FolderWrapper) {
-                ((FolderWrapper) object).unlinkAllROI(this);
+                ((Folder) object).unlinkAllROI(this);
             }
         }
         if (!objects.isEmpty()) {
-            delete(objects.stream().map(ObjectWrapper::asIObject).collect(Collectors.toList()));
+            delete(objects.stream().map(RemoteObject::asIObject).collect(Collectors.toList()));
         }
     }
 
@@ -759,10 +768,10 @@ public class Client extends GatewayWrapper {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(ObjectWrapper<?> object)
+    public void delete(RemoteObject<?> object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof FolderWrapper) {
-            ((FolderWrapper) object).unlinkAllROI(this);
+            ((Folder) object).unlinkAllROI(this);
         }
         delete(object.asIObject());
     }
@@ -780,7 +789,7 @@ public class Client extends GatewayWrapper {
      * @throws ServerException          Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
-    public void delete(TableWrapper table)
+    public void delete(Table table)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         deleteFile(table.getId());
     }
@@ -850,10 +859,10 @@ public class Client extends GatewayWrapper {
      * @throws NoSuchElementException The requested user does not exist.
      */
     public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
+        Experimenter sudoUser = getUser(username);
 
         SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        context.setExperimenter(sudoUser.asExperimenterData());
+        context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
 
         return new Client(this.getGateway(), context, sudoUser);

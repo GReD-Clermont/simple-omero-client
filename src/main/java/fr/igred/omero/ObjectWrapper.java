@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -21,6 +21,7 @@ package fr.igred.omero;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.model.DataObject;
 import omero.model.IObject;
@@ -41,7 +42,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class ObjectWrapper<T extends DataObject> {
+public abstract class ObjectWrapper<T extends DataObject> implements RemoteObject<T> {
 
     /** Wrapped object */
     protected T data;
@@ -69,7 +70,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends ObjectWrapper<U>, W extends Comparable<W>> List<V>
+    protected static <U extends DataObject, V extends RemoteObject<U>, W extends Comparable<W>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
         return objects.stream()
                       .map(mapper)
@@ -88,9 +89,9 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends ObjectWrapper<U>> List<V>
+    protected static <U extends DataObject, V extends RemoteObject<U>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
-        return wrap(objects, mapper, ObjectWrapper::getId);
+        return wrap(objects, mapper, RemoteObject::getId);
     }
 
 
@@ -113,30 +114,13 @@ public abstract class ObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Only keeps objects with different IDs in a collection.
+     * Returns the wrapped DataObject.
      *
-     * @param objects A collection of objects.
-     * @param <T>     The objects type.
-     *
-     * @return Distinct objects list, sorted by ID.
+     * @return An object of type {@link T}.
      */
-    public static <T extends ObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
-        return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o))
-                      .values()
-                      .stream()
-                      .sorted(Comparator.comparing(T::getId))
-                      .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Returns the contained DataObject as IObject.
-     *
-     * @return See above.
-     */
-    IObject asIObject() {
-        return data.asIObject();
+    @Override
+    public T asDataObject() {
+        return data;
     }
 
 
@@ -145,6 +129,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return id.
      */
+    @Override
     public long getId() {
         return data.getId();
     }
@@ -155,6 +140,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return creation date.
      */
+    @Override
     public Timestamp getCreated() {
         return data.getCreated();
     }
@@ -165,8 +151,8 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return owner id.
      */
-    @SuppressWarnings("ClassReferencesSubclass")
-    public ExperimenterWrapper getOwner() {
+    @Override
+    public Experimenter getOwner() {
         return new ExperimenterWrapper(data.getOwner());
     }
 
@@ -176,6 +162,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return group id.
      */
+    @Override
     public Long getGroupId() {
         return data.getGroupId();
     }
@@ -199,6 +186,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
         data = (T) handleServiceAndAccess(client.getDm(),
@@ -212,6 +200,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canAnnotate() {
         return data.canAnnotate();
     }
@@ -223,6 +212,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canEdit() {
         return data.canEdit();
     }
@@ -234,6 +224,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canLink() {
         return data.canLink();
     }
@@ -245,6 +236,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canDelete() {
         return data.canDelete();
     }
@@ -256,6 +248,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canChgrp() {
         data.getPermissions().getPermissionsLevel();
         return data.canChgrp();
@@ -268,6 +261,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canChown() {
         return data.canChown();
     }

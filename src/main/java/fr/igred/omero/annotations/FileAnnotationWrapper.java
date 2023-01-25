@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -37,7 +37,7 @@ import java.io.IOException;
  * Class containing a FileAnnotationData object.
  * <p> Wraps function calls to the FileAnnotationData contained.
  */
-public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData> {
+public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData> implements FileAnnotation {
 
     /**
      * Constructor of the AnnotationWrapper class.
@@ -83,6 +83,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public String getOriginalMimetype() {
         return data.getOriginalMimetype();
     }
@@ -93,6 +94,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public String getServerFileMimetype() {
         return data.getServerFileMimetype();
     }
@@ -103,6 +105,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public String getFileFormat() {
         return data.getFileFormat();
     }
@@ -113,6 +116,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public String getFileKind() {
         return data.getFileKind();
     }
@@ -123,6 +127,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public File getAttachedFile() {
         return data.getAttachedFile();
     }
@@ -133,6 +138,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public String getFileName() {
         return data.getFileName();
     }
@@ -143,6 +149,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public String getFilePath() {
         return data.getFilePath();
     }
@@ -153,6 +160,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public long getFileSize() {
         return data.getFileSize();
     }
@@ -163,6 +171,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public long getFileID() {
         return data.getFileID();
     }
@@ -180,6 +189,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      * @throws IOException      Cannot write to the file.
      * @throws ServerException  Server error.
      */
+    @Override
     public File getFile(Client client, String path) throws IOException, ServiceException, ServerException {
         File file = new File(path);
 
@@ -208,6 +218,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @see AnnotationData#getContentAsString()
      */
+    @Override
     public String getContentAsString() {
         return data.getContentAsString();
     }
@@ -218,18 +229,9 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
+    @Override
     public boolean isMovieFile() {
         return data.isMovieFile();
-    }
-
-
-    /**
-     * Gets the FileAnnotationData contained.
-     *
-     * @return the {@link FileAnnotationData} contained.
-     */
-    public FileAnnotationData asFileAnnotationData() {
-        return data;
     }
 
 }

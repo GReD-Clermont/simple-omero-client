@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -16,10 +18,14 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.Rectangle;
 import fr.igred.omero.roi.RectangleWrapper;
+import omero.gateway.model.FolderData;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -34,10 +40,10 @@ class FolderTest extends UserTest {
 
     @Test
     void testGetDeletedFolder() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        FolderWrapper folder = new FolderWrapper(client, "Test");
-        long          id     = folder.getId();
+        RemoteObject<FolderData> folder = new FolderWrapper(client, "Test");
+        long                     id     = folder.getId();
         client.delete(folder);
         assertThrows(NoSuchElementException.class, () -> image.getFolder(client, id));
     }
@@ -45,15 +51,15 @@ class FolderTest extends UserTest {
 
     @Test
     void testFolder1() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        FolderWrapper folder = new FolderWrapper(client, "Test");
+        Folder folder = new FolderWrapper(client, "Test");
         folder.setImage(image);
 
         for (int i = 0; i < 8; i++) {
-            ROIWrapper roi = new ROIWrapper();
+            ROI roi = new ROIWrapper();
 
-            RectangleWrapper rectangle = new RectangleWrapper();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
@@ -66,12 +72,12 @@ class FolderTest extends UserTest {
         }
 
         folder = image.getFolder(client, folder.getId());
-        List<ROIWrapper> rois = folder.getROIs(client);
+        List<ROI> rois = folder.getROIs(client);
         assertEquals(8, rois.size());
         assertEquals("Test", folder.getName());
         assertEquals(8, image.getROIs(client).size());
 
-        for (ROIWrapper roi : rois) {
+        for (ROI roi : rois) {
             client.delete(roi);
         }
 
@@ -84,34 +90,34 @@ class FolderTest extends UserTest {
 
     @Test
     void testFolder2() throws Exception {
-        FolderWrapper folder = new FolderWrapper(client, "Test");
+        Folder folder = new FolderWrapper(client, "Test");
         folder.setImage(IMAGE2.id);
 
         for (int i = 0; i < 8; i++) {
-            RectangleWrapper rectangle = new RectangleWrapper();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
             rectangle.setC(0);
 
-            ROIWrapper roi = new ROIWrapper();
+            ROI roi = new ROIWrapper();
             roi.addShape(rectangle);
             roi.saveROI(client);
 
             folder.addROI(client, roi);
         }
 
-        List<ROIWrapper> rois = folder.getROIs(client);
+        List<ROI> rois = folder.getROIs(client);
         assertEquals(8, rois.size());
 
         folder.unlinkROI(client, rois.get(0));
         client.delete(rois.get(0));
-        List<ROIWrapper> updatedROIs = folder.getROIs(client);
+        List<ROI> updatedROIs = folder.getROIs(client);
         assertEquals(7, updatedROIs.size());
 
         client.delete(folder);
 
-        for (ROIWrapper roi : updatedROIs) {
+        for (ROI roi : updatedROIs) {
             client.delete(roi);
         }
     }
@@ -121,9 +127,9 @@ class FolderTest extends UserTest {
     void testFolder3() throws Exception {
         final int nImages = 16;
 
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        FolderWrapper folder1 = new FolderWrapper(client, "Test1");
+        Folder folder1 = new FolderWrapper(client, "Test1");
         folder1.setDescription("Test 1");
         folder1.saveAndUpdate(client);
         assertEquals("Test1", folder1.getName());
@@ -131,9 +137,9 @@ class FolderTest extends UserTest {
         folder1.setImage(image);
 
         for (int i = 0; i < 8; i++) {
-            ROIWrapper roi = new ROIWrapper();
+            ROI roi = new ROIWrapper();
 
-            RectangleWrapper rectangle = new RectangleWrapper();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);
             rectangle.setZ(0);
             rectangle.setT(0);
@@ -145,16 +151,16 @@ class FolderTest extends UserTest {
             folder1.addROI(client, roi);
         }
 
-        FolderWrapper folder2 = new FolderWrapper(client, "Test");
+        Folder folder2 = new FolderWrapper(client, "Test");
         folder2.setName("Test2");
         folder2.saveAndUpdate(client);
         assertEquals("Test2", folder2.getName());
         folder2.setImage(image);
 
         for (int i = 0; i < 8; i++) {
-            ROIWrapper roi = new ROIWrapper();
+            ROI roi = new ROIWrapper();
 
-            RectangleWrapper rectangle = new RectangleWrapper();
+            Rectangle rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 5, 5);
             rectangle.setZ(i);
             rectangle.setT(0);
@@ -166,7 +172,7 @@ class FolderTest extends UserTest {
             folder2.addROI(client, roi);
         }
 
-        List<FolderWrapper> folders = image.getFolders(client);
+        List<Folder> folders = image.getFolders(client);
         assertEquals(2, folders.size());
         assertEquals(nImages, image.getROIs(client).size());
 
@@ -175,8 +181,8 @@ class FolderTest extends UserTest {
         assertEquals(0, image.getFolders(client).size());
         assertEquals(nImages, image.getROIs(client).size());
 
-        List<ROIWrapper> rois = image.getROIs(client);
-        for (ROIWrapper roi : rois) {
+        List<ROI> rois = image.getROIs(client);
+        for (ROI roi : rois) {
             client.delete(roi);
         }
 
@@ -186,7 +192,7 @@ class FolderTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromFolder() throws Exception {
-        FolderWrapper folder = new FolderWrapper(client, "Test1");
+        RepositoryObject<FolderData> folder = new FolderWrapper(client, "Test1");
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
 
