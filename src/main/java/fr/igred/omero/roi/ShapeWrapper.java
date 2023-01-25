@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -44,7 +46,7 @@ import java.util.logging.Logger;
  *
  * @param <T> Subclass of {@link ShapeData}
  */
-public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T> {
+public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T> implements Shape<T> {
 
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
@@ -138,20 +140,11 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
 
 
     /**
-     * Gets the ShapeData object contained.
-     *
-     * @return the shape.
-     */
-    public T asShapeData() {
-        return data;
-    }
-
-
-    /**
      * Gets the channel.
      *
      * @return the channel. -1 if the shape applies to all channels of the image.
      */
+    @Override
     public int getC() {
         return this.data.getC();
     }
@@ -162,6 +155,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
      */
+    @Override
     public void setC(int c) {
         this.data.setC(c);
     }
@@ -172,6 +166,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return the z-section. -1 if the shape applies to all z-sections of the image.
      */
+    @Override
     public int getZ() {
         return this.data.getZ();
     }
@@ -182,6 +177,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      */
+    @Override
     public void setZ(int z) {
         this.data.setZ(z);
     }
@@ -192,6 +188,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return the time-point. -1 if the shape applies to all time-points of the image.
      */
+    @Override
     public int getT() {
         return this.data.getT();
     }
@@ -202,6 +199,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
+    @Override
     public void setT(int t) {
         this.data.setT(t);
     }
@@ -214,6 +212,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
+    @Override
     public void setCZT(int c, int z, int t) {
         setC(c);
         setZ(z);
@@ -226,7 +225,8 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return See above.
      */
-    String getCZT() {
+    @Override
+    public String getCZT() {
         return String.format("%d,%d,%d", getC(), getZ(), getT());
     }
 
@@ -236,6 +236,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return The font size (in typography points)
      */
+    @Override
     public double getFontSize() {
         double fontSize = Double.NaN;
         try {
@@ -253,6 +254,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @param value The font size (in typography points)
      */
+    @Override
     public void setFontSize(double value) {
         LengthI size = new LengthI(value, UnitsLength.POINT);
         data.getShapeSettings().setFontSize(size);
@@ -264,6 +266,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return The stroke color
      */
+    @Override
     public Color getStroke() {
         return data.getShapeSettings().getStroke();
     }
@@ -274,6 +277,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @param strokeColour The stroke color
      */
+    @Override
     public void setStroke(Color strokeColour) {
         data.getShapeSettings().setStroke(strokeColour);
     }
@@ -284,6 +288,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return The fill color
      */
+    @Override
     public Color getFill() {
         return data.getShapeSettings().getFill();
     }
@@ -294,33 +299,10 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @param fillColour The fill color
      */
+    @Override
     public void setFill(Color fillColour) {
         data.getShapeSettings().setFill(fillColour);
     }
-
-
-    /**
-     * Gets the text on the ShapeData.
-     *
-     * @return the text
-     */
-    public abstract String getText();
-
-
-    /**
-     * Sets the text on the ShapeData.
-     *
-     * @param text the text
-     */
-    public abstract void setText(String text);
-
-
-    /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    public abstract java.awt.Shape toAWTShape();
 
 
     /**
@@ -333,6 +315,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      * @param a02 the X coordinate translation element of the 3x3 matrix
      * @param a12 the Y coordinate translation element of the 3x3 matrix
      */
+    @Override
     public void setTransform(double a00, double a10, double a01, double a11, double a02, double a12) {
         AffineTransform transform = new AffineTransformI();
         transform.setA00(omero.rtypes.rdouble(a00));
@@ -350,6 +333,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @param transform A Java AffineTransform.
      */
+    @Override
     public void setTransform(java.awt.geom.AffineTransform transform) {
         double[] a = new double[6];
         transform.getMatrix(a);
@@ -362,6 +346,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return The converted affine transform.
      */
+    @Override
     public java.awt.geom.AffineTransform toAWTTransform() {
         if (data.getTransform() == null) return new java.awt.geom.AffineTransform();
         else {
@@ -382,6 +367,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return A new transformed {@link java.awt.Shape}.
      */
+    @Override
     public java.awt.Shape createTransformedAWTShape() {
         if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) return toAWTShape();
         else return toAWTTransform().createTransformedShape(toAWTShape());
@@ -394,8 +380,8 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return The bounding box.
      */
-    @SuppressWarnings("ClassReferencesSubclass")
-    public RectangleWrapper getBoundingBox() {
+    @Override
+    public Rectangle getBoundingBox() {
         Rectangle2D rectangle = createTransformedAWTShape().getBounds2D();
 
         double x      = rectangle.getX();
@@ -403,7 +389,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
         double width  = rectangle.getWidth();
         double height = rectangle.getHeight();
 
-        RectangleWrapper boundingBox = new RectangleWrapper(x, y, width, height);
+        Rectangle boundingBox = new RectangleWrapper(x, y, width, height);
         boundingBox.setCZT(getC(), getZ(), getT());
         boundingBox.setText(getText() + " (Bounding Box)");
         boundingBox.setStroke(getStroke());
@@ -418,6 +404,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return An ImageJ ROI.
      */
+    @Override
     public Roi toImageJ() {
         Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
         roi.setName(getText());

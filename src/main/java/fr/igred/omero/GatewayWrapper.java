@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -20,6 +22,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
@@ -61,7 +64,7 @@ public abstract class GatewayWrapper {
     private SecurityContext ctx;
 
     /** User */
-    private ExperimenterWrapper user;
+    private Experimenter user;
 
 
     /**
@@ -72,7 +75,7 @@ public abstract class GatewayWrapper {
      * @param ctx     The Security Context.
      * @param user    The connected user.
      */
-    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, Experimenter user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
         this.user = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
         this.ctx = ctx != null ? ctx : new SecurityContext(-1);
@@ -94,7 +97,7 @@ public abstract class GatewayWrapper {
      *
      * @return The current user.
      */
-    public ExperimenterWrapper getUser() {
+    public Experimenter getUser() {
         return user;
     }
 
@@ -138,7 +141,7 @@ public abstract class GatewayWrapper {
      */
     public String getSessionId() throws ServiceException {
         return ExceptionHandler.of(gateway,
-                                   g -> g.getSessionId(user.asExperimenterData()),
+                                   g -> g.getSessionId(user.asDataObject()),
                                    "Could not retrieve session ID")
                                .rethrow(DSOutOfServiceException.class, ServiceException::new)
                                .get();
@@ -212,7 +215,7 @@ public abstract class GatewayWrapper {
     /**
      * Connects the user to OMERO. Gets the SecurityContext and the BrowseFacility.
      *
-     * @param cred User credential.
+     * @param cred User credentials.
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
@@ -225,7 +228,7 @@ public abstract class GatewayWrapper {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
         this.ctx = new SecurityContext(user.getGroupId());
-        this.ctx.setExperimenter(this.user.asExperimenterData());
+        this.ctx.setExperimenter(this.user.asDataObject());
         this.ctx.setServerInformation(cred.getServer());
     }
 
@@ -238,7 +241,7 @@ public abstract class GatewayWrapper {
             boolean sudo = ctx.isSudo();
             user = new ExperimenterWrapper(new ExperimenterData());
             ctx = new SecurityContext(-1);
-            ctx.setExperimenter(user.asExperimenterData());
+            ctx.setExperimenter(user.asDataObject());
             if (sudo) {
                 gateway = new Gateway(gateway.getLogger());
             } else {
@@ -256,7 +259,7 @@ public abstract class GatewayWrapper {
     public void switchGroup(long groupId) {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
-        ctx.setExperimenter(user.asExperimenterData());
+        ctx.setExperimenter(user.asDataObject());
         if (sudo) ctx.sudo();
     }
 

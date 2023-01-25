@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -19,11 +19,12 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.RemoteObject.distinct;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
@@ -43,7 +45,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
  * Class containing a ProjectData object.
  * <p> Wraps function calls to the Project contained
  */
-public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
+public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> implements Project {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ProjectAnnotationLink";
@@ -97,18 +99,9 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * Returns the ProjectData contained.
-     *
-     * @return See above.
-     */
-    public ProjectData asProjectData() {
-        return data;
     }
 
 
@@ -128,6 +121,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @param description The description of the project.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -149,7 +143,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @return Collection of DatasetWrapper.
      */
-    public List<DatasetWrapper> getDatasets() {
+    @Override
+    public List<Dataset> getDatasets() {
         return wrap(data.getDatasets(), DatasetWrapper::new);
     }
 
@@ -161,8 +156,9 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @return List of dataset with the given name.
      */
-    public List<DatasetWrapper> getDatasets(String name) {
-        List<DatasetWrapper> datasets = getDatasets();
+    @Override
+    public List<Dataset> getDatasets(String name) {
+        List<Dataset> datasets = getDatasets();
         datasets.removeIf(dataset -> !dataset.getName().equals(name));
         return datasets;
     }
@@ -181,9 +177,10 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(Client client, String name, String description)
+    @Override
+    public Dataset addDataset(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
-        DatasetWrapper dataset = new DatasetWrapper(name, description);
+        Dataset dataset = new DatasetWrapper(name, description);
         dataset.saveAndUpdate(client);
         return addDataset(client, dataset);
     }
@@ -201,11 +198,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(Client client, DatasetWrapper dataset)
+    @Override
+    public Dataset addDataset(Client client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException {
         dataset.saveAndUpdate(client);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setChild(dataset.asDatasetData().asDataset());
+        link.setChild(dataset.asDataObject().asDataset());
         link.setParent(data.asProject());
 
         client.save(link);
@@ -227,7 +225,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void removeDataset(Client client, DatasetWrapper dataset)
+    @Override
+    public void removeDataset(Client client, RemoteObject<DatasetData> dataset)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         removeLink(client, "ProjectDatasetLink", dataset.getId());
         refresh(client);
@@ -245,17 +244,18 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+    @Override
+    public List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(client));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -273,18 +273,19 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client, String name)
+    @Override
+    public List<Image> getImages(Client client, String name)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(client, name));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -303,18 +304,19 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client, String datasetName, String imageName)
+    @Override
+    public List<Image> getImages(Client client, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets(datasetName);
+        Collection<Dataset> datasets = getDatasets(datasetName);
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(client, imageName));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -332,18 +334,19 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesLike(Client client, String motif)
+    @Override
+    public List<Image> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesLike(client, motif));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -362,18 +365,19 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
+    @Override
+    public List<Image> getImagesTagged(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesTagged(client, tag));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -392,18 +396,19 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
+    @Override
+    public List<Image> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesTagged(client, tagId));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -421,18 +426,19 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesKey(Client client, String key)
+    @Override
+    public List<Image> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesKey(client, key));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -451,18 +457,19 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
+    @Override
+    public List<Image> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesPairKeyValue(client, key, value));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        List<Image> images = lists.stream()
+                                  .flatMap(Collection::stream)
+                                  .sorted(Comparator.comparing(RemoteObject::getId))
+                                  .collect(Collectors.toList());
 
         return distinct(images);
     }
@@ -477,6 +484,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
         data = handleServiceAndAccess(client.getBrowseFacility(),
                                       bf -> bf.getProjects(client.getCtx(),

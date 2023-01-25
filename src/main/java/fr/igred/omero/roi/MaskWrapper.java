@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -29,7 +29,7 @@ import java.awt.geom.Rectangle2D;
  * Class containing an MaskData.
  * <p> Wraps function calls to the MaskData contained.
  */
-public class MaskWrapper extends ShapeWrapper<MaskData> {
+public class MaskWrapper extends ShapeWrapper<MaskData> implements Mask {
 
 
     /**
@@ -102,6 +102,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -112,6 +113,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param x The value to set.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -122,6 +124,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -132,6 +135,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
     }
@@ -142,6 +146,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public double getWidth() {
         return data.getWidth();
     }
@@ -152,6 +157,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param width See above.
      */
+    @Override
     public void setWidth(double width) {
         data.setWidth(width);
     }
@@ -162,6 +168,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public double getHeight() {
         return data.getHeight();
     }
@@ -172,6 +179,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param height See above.
      */
+    @Override
     public void setHeight(double height) {
         data.setHeight(height);
     }
@@ -182,6 +190,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public int[][] getMaskAsBinaryArray() {
         return data.getMaskAsBinaryArray();
     }
@@ -192,6 +201,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public byte[] getMask() {
         return data.getMask();
     }
@@ -202,6 +212,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask See above.
      */
+    @Override
     public void setMask(byte[] mask) {
         data.setMask(mask);
     }
@@ -212,6 +223,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask The binary mask (int[width][height])
      */
+    @Override
     public void setMask(int[][] mask) {
         data.setMask(mask);
     }
@@ -222,6 +234,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask The binary mask (boolean[width][height])
      */
+    @Override
     public void setMask(boolean[][] mask) {
         data.setMask(mask);
     }
@@ -235,6 +248,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      * @param width  The width of the rectangle.
      * @param height The height of the rectangle.
      */
+    @Override
     public void setCoordinates(double x, double y, double width, double height) {
         setX(x);
         setY(y);
@@ -248,6 +262,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return Array of coordinates containing {X,Y,Width,Height}.
      */
+    @Override
     public double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX();
@@ -263,6 +278,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
      */
+    @Override
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("MaskData cannot set null coordinates.");
@@ -290,8 +306,8 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape<?> p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape<?> p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 

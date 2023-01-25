@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -43,7 +43,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
  * Class containing a PlateData object.
  * <p> Wraps function calls to the PlateData contained.
  */
-public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
+public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements Plate {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAnnotationLink";
@@ -88,18 +88,9 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * Returns the PlateData contained.
-     *
-     * @return See above.
-     */
-    public PlateData asPlateData() {
-        return data;
     }
 
 
@@ -119,6 +110,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param description The description of the plate.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -136,7 +128,8 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    @Override
+    public List<Screen> getScreens(Client client)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ScreenPlateLink as link " +
                                               "where link.child=" + getId());
@@ -149,7 +142,8 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions() {
+    @Override
+    public List<PlateAcquisition> getPlateAcquisitions() {
         return wrap(data.getPlateAcquisitions(), PlateAcquisitionWrapper::new);
     }
 
@@ -165,15 +159,16 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
+    @Override
+    public List<Well> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = handleServiceAndAccess(client.getBrowseFacility(),
                                                             bf -> bf.getWells(client.getCtx(), data.getId()),
                                                             "Cannot get wells from " + this);
 
         return wells.stream()
                     .map(WellWrapper::new)
-                    .sorted(Comparator.comparing(WellWrapper::getRow)
-                                      .thenComparing(WellWrapper::getColumn))
+                    .sorted(Comparator.comparing(Well::getRow)
+                                      .thenComparing(Well::getColumn))
                     .collect(Collectors.toList());
     }
 
@@ -183,6 +178,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public int getColumnSequenceIndex() {
         return data.getColumnSequenceIndex();
     }
@@ -193,6 +189,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public int getRowSequenceIndex() {
         return data.getRowSequenceIndex();
     }
@@ -203,6 +200,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public int getDefaultSample() {
         return data.getDefaultSample();
     }
@@ -213,6 +211,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setDefaultSample(int value) {
         data.setDefaultSample(value);
     }
@@ -223,6 +222,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public String getStatus() {
         return data.getStatus();
     }
@@ -233,6 +233,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setStatus(String value) {
         data.setStatus(value);
     }
@@ -243,6 +244,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public String getExternalIdentifier() {
         return data.getExternalIdentifier();
     }
@@ -253,6 +255,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setExternalIdentifier(String value) {
         data.setExternalIdentifier(value);
     }
@@ -263,6 +266,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public String getPlateType() {
         return data.getPlateType();
     }
@@ -277,6 +281,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getWellOriginX(UnitsLength unit) throws BigResult {
         return data.getWellOriginX(unit);
     }
@@ -291,6 +296,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getWellOriginY(UnitsLength unit) throws BigResult {
         return data.getWellOriginY(unit);
     }

@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -31,7 +31,7 @@ import java.awt.geom.RectangularShape;
  * Class containing an EllipseData.
  * <p> Wraps function calls to the EllipseData contained.
  */
-public class EllipseWrapper extends ShapeWrapper<EllipseData> {
+public class EllipseWrapper extends ShapeWrapper<EllipseData> implements Ellipse {
 
 
     /**
@@ -118,6 +118,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -128,6 +129,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -138,6 +140,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -148,6 +151,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
     }
@@ -158,6 +162,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
+    @Override
     public double getRadiusX() {
         return data.getRadiusX();
     }
@@ -168,6 +173,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param x the value to set.
      */
+    @Override
     public void setRadiusX(double x) {
         data.setRadiusX(x);
     }
@@ -178,6 +184,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
+    @Override
     public double getRadiusY() {
         return data.getRadiusY();
     }
@@ -188,6 +195,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param y The value to set.
      */
+    @Override
     public void setRadiusY(double y) {
         data.setRadiusY(y);
     }
@@ -201,6 +209,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      * @param radiusX The radius along the X-axis.
      * @param radiusY The radius along the Y-axis.
      */
+    @Override
     public void setCoordinates(double x, double y, double radiusX, double radiusY) {
         setX(x);
         setY(y);
@@ -214,6 +223,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return Array of coordinates containing {X,Y,RadiusX,RadiusY}.
      */
+    @Override
     public double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX();
@@ -229,6 +239,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param coordinates Array of coordinates containing {X,Y,RadiusX,RadiusY}.
      */
+    @Override
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("EllipseData cannot set null coordinates.");
@@ -266,8 +277,8 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
             double ry = getRadiusY();
             double ratio;
 
-            ShapeWrapper<?> p1;
-            ShapeWrapper<?> p2;
+            Shape<?> p1;
+            Shape<?> p2;
             if (ry <= rx) {
                 p1 = new PointWrapper(x - rx, y);
                 p2 = new PointWrapper(x + rx, y);

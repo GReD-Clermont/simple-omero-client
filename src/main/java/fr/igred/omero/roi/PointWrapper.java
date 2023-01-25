@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -28,7 +28,7 @@ import java.awt.geom.Path2D;
  * Class containing an PointData.
  * <p> Wraps function calls to the PointData contained.
  */
-public class PointWrapper extends ShapeWrapper<PointData> {
+public class PointWrapper extends ShapeWrapper<PointData> implements Point {
 
 
     /**
@@ -100,6 +100,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -110,6 +111,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -120,6 +122,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -130,6 +133,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
     }
@@ -141,6 +145,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      * @param x x-coordinate of the PointData shape.
      * @param y y-coordinate of the PointData shape.
      */
+    @Override
     public void setCoordinates(double x, double y) {
         setX(x);
         setY(y);
@@ -152,6 +157,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @return Array of coordinates containing {X,Y}.
      */
+    @Override
     public double[] getCoordinates() {
         double[] coordinates = new double[2];
         coordinates[0] = getX();
@@ -165,6 +171,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @param coordinates Array of coordinates containing {X,Y}.
      */
+    @Override
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("PointData cannot set null coordinates.");

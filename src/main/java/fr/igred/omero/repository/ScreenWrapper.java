@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -37,7 +37,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
  * Class containing a ScreenData object.
  * <p> Wraps function calls to the ScreenData contained.
  */
-public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
+public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implements Screen {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ScreenAnnotationLink";
@@ -102,18 +102,9 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * Returns the ScreenData contained.
-     *
-     * @return See above.
-     */
-    public ScreenData asScreenData() {
-        return data;
     }
 
 
@@ -133,6 +124,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param description The description of the screen.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -143,7 +135,8 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public List<PlateWrapper> getPlates() {
+    @Override
+    public List<Plate> getPlates() {
         return wrap(data.getPlates(), PlateWrapper::new);
     }
 
@@ -155,8 +148,9 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public List<PlateWrapper> getPlates(String name) {
-        List<PlateWrapper> plates = getPlates();
+    @Override
+    public List<Plate> getPlates(String name) {
+        List<Plate> plates = getPlates();
         plates.removeIf(plate -> !plate.getName().equals(name));
         return plates;
     }
@@ -167,6 +161,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getProtocolDescription() {
         return data.getProtocolDescription();
     }
@@ -177,6 +172,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setProtocolDescription(String value) {
         data.setProtocolDescription(value);
     }
@@ -187,6 +183,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getProtocolIdentifier() {
         return data.getProtocolIdentifier();
     }
@@ -197,6 +194,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setProtocolIdentifier(String value) {
         data.setProtocolIdentifier(value);
     }
@@ -207,6 +205,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getReagentSetDescription() {
         return data.getReagentSetDescripion();
     }
@@ -217,6 +216,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setReagentSetDescription(String value) {
         data.setReagentSetDescripion(value);
     }
@@ -227,6 +227,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getReagentSetIdentifier() {
         return data.getReagentSetIdentifier();
     }
@@ -237,6 +238,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setReagentSetIdentifier(String value) {
         data.setReagentSetIdentifier(value);
     }
@@ -251,6 +253,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
         String message = String.format("Cannot refresh %s", this);
         data = handleServiceAndAccess(client.getBrowseFacility(),
@@ -276,6 +279,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public boolean importImages(GatewayWrapper client, String... paths)
     throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
         boolean success = importImages(client, data, paths);
@@ -297,6 +301,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<Long> importImage(GatewayWrapper client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<Long> ids = importImage(client, data, path);

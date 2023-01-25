@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -29,7 +29,7 @@ import java.awt.geom.Rectangle2D;
  * Class containing an RectangleData.
  * <p> Wraps function calls to the RectangleData contained.
  */
-public class RectangleWrapper extends ShapeWrapper<RectangleData> {
+public class RectangleWrapper extends ShapeWrapper<RectangleData> implements Rectangle {
 
 
     /**
@@ -117,6 +117,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -127,6 +128,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -137,6 +139,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -147,6 +150,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
     }
@@ -157,6 +161,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return See above.
      */
+    @Override
     public double getWidth() {
         return data.getWidth();
     }
@@ -167,6 +172,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param width See above.
      */
+    @Override
     public void setWidth(double width) {
         data.setWidth(width);
     }
@@ -177,6 +183,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return See above.
      */
+    @Override
     public double getHeight() {
         return data.getHeight();
     }
@@ -187,6 +194,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param height See above.
      */
+    @Override
     public void setHeight(double height) {
         data.setHeight(height);
     }
@@ -200,6 +208,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      * @param width  The width of the rectangle.
      * @param height The height of the rectangle.
      */
+    @Override
     public void setCoordinates(double x, double y, double width, double height) {
         setX(x);
         setY(y);
@@ -213,6 +222,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return Array of coordinates containing {X,Y,Width,Height}.
      */
+    @Override
     public double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX();
@@ -228,6 +238,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
      */
+    @Override
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("RectangleData cannot set null coordinates.");
@@ -255,8 +266,8 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape<?> p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape<?> p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 
