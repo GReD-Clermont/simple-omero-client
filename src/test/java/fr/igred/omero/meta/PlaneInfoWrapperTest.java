@@ -39,7 +39,7 @@ class PlaneInfoWrapperTest extends UserTest {
     void testComputeMeanTimeInterval() throws Exception {
         Pixels pixels = client.getImage(IMAGE1.id).getPixels();
         pixels.loadPlanesInfo(client);
-        List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
+        List<PlaneInfo> planes = pixels.getPlanesInfo();
 
         Time time = computeMeanTimeInterval(planes, pixels.getSizeT());
         assertEquals(150, time.getValue());
@@ -52,7 +52,7 @@ class PlaneInfoWrapperTest extends UserTest {
     void testComputeMeanExposureTime() throws Exception {
         Pixels pixels = client.getImage(IMAGE1.id).getPixels();
         pixels.loadPlanesInfo(client);
-        List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
+        List<PlaneInfo> planes = pixels.getPlanesInfo();
 
         Time time = computeMeanExposureTime(planes, 0);
         assertEquals(25, time.getValue());
@@ -65,7 +65,7 @@ class PlaneInfoWrapperTest extends UserTest {
     void testGetMinPosition() throws Exception {
         Pixels pixels = client.getImage(IMAGE1.id).getPixels();
         pixels.loadPlanesInfo(client);
-        List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
+        List<PlaneInfo> planes = pixels.getPlanesInfo();
 
         Length positionX = getMinPosition(planes, PlaneInfo::getPositionX, UNITS.NANOMETER);
         assertEquals(100000, positionX.getValue());

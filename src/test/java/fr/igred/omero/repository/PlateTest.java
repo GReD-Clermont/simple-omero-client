@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
@@ -62,11 +63,11 @@ class PlateTest extends UserTest {
     void testAddTagToPlate() throws Exception {
         Plate plate = client.getPlate(PLATE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
         plate.addTag(client, tag);
-        List<TagAnnotationWrapper> tags = plate.getTags(client);
+        List<TagAnnotation> tags = plate.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> checkTags = plate.getTags(client);
+        List<TagAnnotation> checkTags = plate.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());
@@ -154,7 +155,7 @@ class PlateTest extends UserTest {
     @Test
     void testGetPlateType() throws Exception {
         final String type  = "9-Well Plate";
-        Plate plate = client.getPlate(PLATE1.id);
+        Plate        plate = client.getPlate(PLATE1.id);
         assertEquals(type, plate.getPlateType());
     }
 
@@ -162,15 +163,15 @@ class PlateTest extends UserTest {
     @Test
     void testGetColumnSequenceIndex() throws Exception {
         Plate plate  = client.getPlate(PLATE1.id);
-        int          column = 0;
+        int   column = 0;
         assertEquals(column, plate.getColumnSequenceIndex());
     }
 
 
     @Test
     void testGetRowSequenceIndex() throws Exception {
-        final int    column = 1;
-        Plate plate  = client.getPlate(PLATE1.id);
+        final int column = 1;
+        Plate     plate  = client.getPlate(PLATE1.id);
         assertEquals(column, plate.getRowSequenceIndex());
     }
 
@@ -178,7 +179,7 @@ class PlateTest extends UserTest {
     @Test
     void testGetWellOriginX() throws Exception {
         final double origin = 0.0d;
-        Plate plate  = client.getPlate(PLATE1.id);
+        Plate        plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginX(null).getValue(), Double.MIN_VALUE);
     }
 
@@ -186,7 +187,7 @@ class PlateTest extends UserTest {
     @Test
     void testGetWellOriginY() throws Exception {
         final double origin = 1.0d;
-        Plate plate  = client.getPlate(PLATE1.id);
+        Plate        plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginY(null).getValue(), Double.MIN_VALUE);
     }
 

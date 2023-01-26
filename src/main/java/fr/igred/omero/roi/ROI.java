@@ -18,7 +18,7 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.ConnectionHandler;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -254,7 +254,7 @@ public interface ROI extends RemoteObject<ROIData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    void saveROI(Client client) throws ServerException, ServiceException;
+    void saveROI(ConnectionHandler client) throws ServerException, ServiceException;
 
 
     /**

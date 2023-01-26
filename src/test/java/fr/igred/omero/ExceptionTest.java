@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -46,7 +46,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorUsername() {
-        Client client = new Client();
+        ConnectionHandler client = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> client.connect(HOST, PORT, "badUser", "omero".toCharArray(), GROUP1.id));
     }
@@ -54,7 +54,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorPassword() {
-        Client root = new Client();
+        ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, PORT, "root", "badPassword".toCharArray(), GROUP1.id));
     }
@@ -62,7 +62,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorHost() {
-        Client root = new Client();
+        ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> root.connect("127.0.0.1", PORT, "root", "omero".toCharArray(), GROUP1.id));
     }
@@ -70,8 +70,8 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorPort() {
-        final int badPort = 5000;
-        Client    root    = new Client();
+        final int         badPort = 5000;
+        ConnectionHandler root    = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id));
     }
@@ -81,7 +81,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorGroupNotExist() throws ServiceException {
         final long badGroup = 200L;
 
-        Client clientNoSuchGroup = new Client();
+        ConnectionHandler clientNoSuchGroup = new GatewayWrapper();
         clientNoSuchGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), badGroup);
         assertEquals(USER1.id, clientNoSuchGroup.getId());
         assertEquals(GROUP1.id, clientNoSuchGroup.getCurrentGroupId());
@@ -90,7 +90,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorNotInGroup() throws ServiceException {
-        Client clientWrongGroup = new Client();
+        ConnectionHandler clientWrongGroup = new GatewayWrapper();
         clientWrongGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), 0L);
         assertEquals(USER1.id, clientWrongGroup.getId());
         assertEquals(GROUP1.id, clientWrongGroup.getCurrentGroupId());
@@ -102,7 +102,7 @@ class ExceptionTest extends BasicTest {
         final long badProject = 333L;
 
         boolean exception = false;
-        Client  client    = new Client();
+        Client  client    = new GatewayWrapper();
         try {
             client.connect(HOST, PORT, USER1.name, "password".toCharArray());
             client.getProject(badProject);
@@ -119,7 +119,7 @@ class ExceptionTest extends BasicTest {
         final long badImage = 200L;
 
         boolean exception = false;
-        Client  client    = new Client();
+        Client  client    = new GatewayWrapper();
         client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
         assertEquals(USER1.id, client.getId());
 
@@ -138,7 +138,7 @@ class ExceptionTest extends BasicTest {
         final long badImage = -5L;
 
         boolean exception = false;
-        Client  client    = new Client();
+        Client  client    = new GatewayWrapper();
         client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
         assertEquals(USER1.id, client.getId());
 
@@ -157,7 +157,7 @@ class ExceptionTest extends BasicTest {
         final long badScreen = 333L;
 
         boolean exception = false;
-        Client  client    = new Client();
+        Client  client    = new GatewayWrapper();
         try {
             client.connect(HOST, PORT, USER1.name, "password".toCharArray());
             client.getScreen(badScreen);
@@ -174,7 +174,7 @@ class ExceptionTest extends BasicTest {
         final long badPlate = 333L;
 
         boolean exception = false;
-        Client  client    = new Client();
+        Client  client    = new GatewayWrapper();
         try {
             client.connect(HOST, PORT, USER1.name, "password".toCharArray());
             client.getPlate(badPlate);
@@ -191,7 +191,7 @@ class ExceptionTest extends BasicTest {
         final long badWell = 333L;
 
         boolean exception = false;
-        Client  client    = new Client();
+        Client  client    = new GatewayWrapper();
         try {
             client.connect(HOST, PORT, USER1.name, "password".toCharArray());
             client.getWell(badWell);

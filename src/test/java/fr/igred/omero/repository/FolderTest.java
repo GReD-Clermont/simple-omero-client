@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
@@ -194,15 +195,15 @@ class FolderTest extends UserTest {
     void testAddAndRemoveTagFromFolder() throws Exception {
         RepositoryObject<FolderData> folder = new FolderWrapper(client, "Test1");
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
 
         folder.addTag(client, tag);
 
-        List<TagAnnotationWrapper> tags = folder.getTags(client);
+        List<TagAnnotation> tags = folder.getTags(client);
         assertEquals(1, tags.size());
         folder.unlink(client, tags.get(0));
 
-        List<TagAnnotationWrapper> removed = folder.getTags(client);
+        List<TagAnnotation> removed = folder.getTags(client);
         assertEquals(0, removed.size());
 
         client.delete(tag);

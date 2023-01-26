@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -18,7 +18,9 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -61,7 +63,7 @@ class AccessExceptionTest extends BasicTest {
     @BeforeEach
     void setUp() {
         boolean failed = false;
-        client = new Client();
+        client = new GatewayWrapper();
         try {
             client.connect(HOST, PORT, "testUser", "password".toCharArray(), GROUP1.id);
             assertEquals(USER1.id, client.getId(), "Wrong user");
@@ -101,7 +103,7 @@ class AccessExceptionTest extends BasicTest {
         assertTrue(image.canChgrp());
         assertTrue(image.canChown());
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         try {
             image.addTag(client, tag);
@@ -149,7 +151,7 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailDeleteProject() {
-        ProjectI       projectI    = new ProjectI(PROJECT1.id, false);
+        ProjectI                  projectI    = new ProjectI(PROJECT1.id, false);
         ProjectData               projectData = new ProjectData(projectI);
         RemoteObject<ProjectData> project     = new ProjectWrapper(projectData);
         assertThrows(AccessException.class, () -> sudo.delete(project));
@@ -247,7 +249,7 @@ class AccessExceptionTest extends BasicTest {
         result1.add(new NamedValue("Test result1", "Value Test"));
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 
-        MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
+        MapAnnotation mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class, () -> image.addMapAnnotation(sudo, mapAnnotation1));
     }
 

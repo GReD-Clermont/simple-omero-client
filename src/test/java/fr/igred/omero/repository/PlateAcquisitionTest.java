@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
@@ -36,11 +37,11 @@ class PlateAcquisitionTest extends UserTest {
 
         PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate acq. tag", "tag attached to a plate acq.");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Plate acq. tag", "tag attached to a plate acq.");
         acq.addTag(client, tag);
-        List<TagAnnotationWrapper> tags = acq.getTags(client);
+        List<TagAnnotation> tags = acq.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> checkTags = acq.getTags(client);
+        List<TagAnnotation> checkTags = acq.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());

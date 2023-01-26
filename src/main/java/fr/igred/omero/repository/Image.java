@@ -18,7 +18,10 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
+import fr.igred.omero.ConnectionHandler;
+import fr.igred.omero.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -70,7 +73,7 @@ public interface Image extends RepositoryObject<ImageData> {
     /**
      * Retrieves the projects containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -79,14 +82,14 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Project> getProjects(Client client)
+    List<Project> getProjects(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Retrieves the datasets containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -95,14 +98,14 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Dataset> getDatasets(Client client)
+    List<Dataset> getDatasets(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Retrieves the wells containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -110,13 +113,13 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Well> getWells(Client client) throws AccessException, ServiceException, ExecutionException;
+    List<Well> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException;
 
 
     /**
      * Retrieves the plates containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -124,13 +127,13 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Plate> getPlates(Client client) throws AccessException, ServiceException, ExecutionException;
+    List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException;
 
 
     /**
      * Retrieves the screens containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -139,27 +142,27 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    List<Screen> getScreens(Client client)
+    List<Screen> getScreens(Browser browser)
     throws AccessException, ServiceException, ExecutionException, ServerException;
 
 
     /**
      * Checks if image is orphaned (not in a WellSample nor linked to a dataset).
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return {@code true} if the image is orphaned, {@code false} otherwise.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    boolean isOrphaned(Client client) throws ServiceException, ServerException;
+    boolean isOrphaned(Browser browser) throws ServiceException, ServerException;
 
 
     /**
      * Returns the list of images sharing the same fileset as the current image.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -168,7 +171,7 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    List<Image> getFilesetImages(Client client)
+    List<Image> getFilesetImages(Browser browser)
     throws AccessException, ServiceException, ExecutionException, ServerException;
 
 
@@ -176,21 +179,21 @@ public interface Image extends RepositoryObject<ImageData> {
      * Links a ROI to the image in OMERO
      * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *
-     * @param client The client handling the connection.
-     * @param roi    ROI to be added.
+     * @param dm  The data manager.
+     * @param roi ROI to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void saveROI(Client client, ROI roi)
+    void saveROI(DataManager dm, ROI roi)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets all ROIs linked to the image in OMERO
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
      * @return List of ROIs linked to the image.
      *
@@ -198,7 +201,7 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<ROI> getROIs(Client client)
+    List<ROI> getROIs(DataManager dm)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -300,7 +303,7 @@ public interface Image extends RepositoryObject<ImageData> {
     /**
      * Gets the image channels
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return the channels.
      *
@@ -308,15 +311,15 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Channel> getChannels(Client client)
+    List<Channel> getChannels(Browser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets the name of the channel
      *
-     * @param client The client handling the connection.
-     * @param index  Channel number.
+     * @param browser The data browser.
+     * @param index   Channel number.
      *
      * @return name of the channel.
      *
@@ -324,15 +327,15 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    String getChannelName(Client client, int index)
+    String getChannelName(Browser browser, int index)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets the original color of the channel
      *
-     * @param client The client handling the connection.
-     * @param index  Channel number.
+     * @param browser The data browser.
+     * @param index   Channel number.
      *
      * @return Original color of the channel.
      *
@@ -340,7 +343,7 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Color getChannelImportedColor(Client client, int index)
+    Color getChannelImportedColor(Browser browser, int index)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -373,7 +376,8 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws ServerException  Server error.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    BufferedImage getThumbnail(Client client, int size) throws ServiceException, ServerException, IOException;
+    BufferedImage getThumbnail(ConnectionHandler client, int size)
+    throws ServiceException, ServerException, IOException;
 
 
     /**

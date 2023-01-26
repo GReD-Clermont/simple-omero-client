@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
 
@@ -53,11 +54,11 @@ class ScreenTest extends UserTest {
     void testAddTagToScreen() throws Exception {
         Screen screen = client.getScreen(SCREEN2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Screen tag", "tag attached to a screen");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Screen tag", "tag attached to a screen");
         screen.addTag(client, tag);
-        List<TagAnnotationWrapper> tags = screen.getTags(client);
+        List<TagAnnotation> tags = screen.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> checkTags = screen.getTags(client);
+        List<TagAnnotation> checkTags = screen.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());
@@ -167,8 +168,8 @@ class ScreenTest extends UserTest {
                                         .collect(Collectors.toList());
         assertEquals(44, samples.size());
         List<Image> images = samples.stream()
-                                           .map(WellSample::getImage)
-                                           .collect(Collectors.toList());
+                                    .map(WellSample::getImage)
+                                    .collect(Collectors.toList());
 
         client.delete(images);
         client.delete(samples);
@@ -205,8 +206,8 @@ class ScreenTest extends UserTest {
                                         .collect(Collectors.toList());
         assertEquals(8, samples.size());
         List<Image> images = samples.stream()
-                                           .map(WellSample::getImage)
-                                           .collect(Collectors.toList());
+                                    .map(WellSample::getImage)
+                                    .collect(Collectors.toList());
 
         assertEquals(images.size(), ids.size());
         client.delete(images);

@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
@@ -37,7 +38,7 @@ class SudoTest extends BasicTest {
 
     @Test
     void testSudoDisconnect() throws Exception {
-        Client root = new Client();
+        Client root = new GatewayWrapper();
         root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
 
         Client test = root.sudo(USER1.name);
@@ -51,12 +52,12 @@ class SudoTest extends BasicTest {
 
     @Test
     void testSudoTag() throws Exception {
-        Client root = new Client();
+        Client root = new GatewayWrapper();
         root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
 
         Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
+        TagAnnotation tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
         Dataset     dataset = test.getDataset(DATASET1.id);
         List<Image> images  = dataset.getImages(test);
@@ -90,7 +91,7 @@ class SudoTest extends BasicTest {
     void sudoImport() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
 
-        Client client4 = new Client();
+        Client client4 = new GatewayWrapper();
         client4.connect(HOST, PORT, "testUser4", "password4".toCharArray(), 6L);
         assertEquals(5L, client4.getId());
 

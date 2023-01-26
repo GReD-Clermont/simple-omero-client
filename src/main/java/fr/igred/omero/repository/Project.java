@@ -18,9 +18,10 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -124,7 +125,7 @@ public interface Project extends RepositoryObject<ProjectData> {
     /**
      * Gets all images in the project available from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return ImageWrapper list.
      *
@@ -132,14 +133,14 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException;
+    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets all images in the project with a certain name from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param name   Name searched.
+     * @param browser The data browser.
+     * @param name    Name searched.
      *
      * @return ImageWrapper list.
      *
@@ -147,14 +148,14 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Client client, String name)
+    List<Image> getImages(Browser browser, String name)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets all images with a certain name from datasets with the specified name inside this project on OMERO.
      *
-     * @param client      The client handling the connection.
+     * @param browser     The client handling the connection.
      * @param datasetName Expected dataset name.
      * @param imageName   Expected image name.
      *
@@ -164,15 +165,15 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Client client, String datasetName, String imageName)
+    List<Image> getImages(Browser browser, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets all images in the project with a certain motif in their name from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param motif  Motif searched in an image name.
+     * @param browser The data browser.
+     * @param motif   Motif searched in an image name.
      *
      * @return ImageWrapper list.
      *
@@ -180,15 +181,15 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesLike(Client client, String motif)
+    List<Image> getImagesLike(Browser browser, String motif)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param tag    TagAnnotationWrapper containing the tag researched.
+     * @param browser The data browser.
+     * @param tag     TagAnnotationWrapper containing the tag researched.
      *
      * @return ImageWrapper list.
      *
@@ -197,15 +198,15 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesTagged(Client client, TagAnnotationWrapper tag)
+    List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param tagId  Id of the tag researched.
+     * @param browser The data browser.
+     * @param tagId   Id of the tag researched.
      *
      * @return ImageWrapper list.
      *
@@ -214,15 +215,15 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesTagged(Client client, Long tagId)
+    List<Image> getImagesTagged(Browser browser, Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
      * Gets all images in the project with a certain key
      *
-     * @param client The client handling the connection.
-     * @param key    Name of the key researched.
+     * @param browser The data browser.
+     * @param key     Name of the key researched.
      *
      * @return ImageWrapper list.
      *
@@ -230,16 +231,16 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesKey(Client client, String key)
+    List<Image> getImagesKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Gets all images in the project with a certain key value pair from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param key    Name of the key researched.
-     * @param value  Value associated with the key.
+     * @param browser The data browser.
+     * @param key     Name of the key researched.
+     * @param value   Value associated with the key.
      *
      * @return ImageWrapper list.
      *
@@ -247,19 +248,19 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesPairKeyValue(Client client, String key, String value)
+    List<Image> getImagesPairKeyValue(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Refreshes the wrapped project.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void refresh(Client client) throws ServiceException, AccessException, ExecutionException;
+    void refresh(Browser browser) throws ServiceException, AccessException, ExecutionException;
 
 }
