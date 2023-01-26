@@ -21,6 +21,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
@@ -83,7 +84,7 @@ class ImageImportTest extends UserTest {
         image1.setDescription("This is");
         image1.saveAndUpdate(client);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.addTag(client, tag1);
         image1.addPairKeyValue(client, "Map", "ReplaceTest");
 
@@ -96,7 +97,7 @@ class ImageImportTest extends UserTest {
         image2.setDescription("a test.");
         image2.saveAndUpdate(client);
 
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
         image2.addTag(client, tag2);
         image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
         image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
@@ -167,7 +168,7 @@ class ImageImportTest extends UserTest {
         List<Long> ids1   = dataset.importImage(client, imageFile.getAbsolutePath());
         Image      image1 = client.getImage(ids1.get(0));
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.addTag(client, tag1);
         image1.addPairKeyValue(client, "Map", "ReplaceTest");
 
@@ -180,7 +181,7 @@ class ImageImportTest extends UserTest {
         image2.setDescription("A test.");
         image2.saveAndUpdate(client);
 
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
         image2.addTag(client, tag2);
         image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
         image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));

@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -49,7 +49,7 @@ class ShapeTest extends BasicTest {
     @Test
     void testPoint() {
         final String text  = "Point";
-        Point point = new PointWrapper();
+        Point        point = new PointWrapper();
 
         double[] pointCoordinates = {25, 25};
 
@@ -112,8 +112,8 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testRectangleCZT() {
-        final String     text      = "Rectangle";
-        Rectangle rectangle = new RectangleWrapper();
+        final String text      = "Rectangle";
+        Rectangle    rectangle = new RectangleWrapper();
 
         double[] rectangleCoordinates = {2, 2, 5, 5};
         int      c                    = 1;
@@ -162,7 +162,7 @@ class ShapeTest extends BasicTest {
     @Test
     void testValuesMask() {
         final String text = "Mask";
-        Mask  mask = new MaskWrapper();
+        Mask         mask = new MaskWrapper();
         mask.setCoordinates(3, 3, 10, 10);
         mask.setText(text);
 
@@ -190,8 +190,8 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testEllipse() {
-        final String   text    = "Ellipse";
-        Ellipse ellipse = new EllipseWrapper();
+        final String text    = "Ellipse";
+        Ellipse      ellipse = new EllipseWrapper();
 
         Color stroke = Color.BLUE;
         ellipse.setStroke(stroke);
@@ -264,7 +264,7 @@ class ShapeTest extends BasicTest {
     @Test
     void testPolyline() {
         final String         text     = "Polyline";
-        Polyline      polyline = new PolylineWrapper();
+        Polyline             polyline = new PolylineWrapper();
         List<Point2D.Double> points   = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -286,7 +286,7 @@ class ShapeTest extends BasicTest {
     @Test
     void testPolygon() {
         final String         text    = "Polygon";
-        Polygon       polygon = new PolygonWrapper();
+        Polygon              polygon = new PolygonWrapper();
         List<Point2D.Double> points  = new ArrayList<>(3);
 
         Point2D.Double p1 = new Point2D.Double(0, 0);
@@ -467,9 +467,9 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testAWTRectangle() {
-        Shape<RectangleData> shape    = new RectangleWrapper(25, 26, 27, 28);
-        Rectangle2D          awtShape = new Rectangle2D.Double(25, 26, 27, 28);
-        java.awt.Shape   awtShape2 = shape.toAWTShape();
+        Shape<RectangleData> shape     = new RectangleWrapper(25, 26, 27, 28);
+        Rectangle2D          awtShape  = new Rectangle2D.Double(25, 26, 27, 28);
+        java.awt.Shape       awtShape2 = shape.toAWTShape();
         assertEquals(awtShape, awtShape2);
     }
 
@@ -490,18 +490,18 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testAWTEllipse() {
-        Shape<EllipseData> shape    = new EllipseWrapper(28, 27, 26, 25);
-        Ellipse2D          awtShape = new Ellipse2D.Double(2, 2, 52, 50);
-        java.awt.Shape awtShape2 = shape.toAWTShape();
+        Shape<EllipseData> shape     = new EllipseWrapper(28, 27, 26, 25);
+        Ellipse2D          awtShape  = new Ellipse2D.Double(2, 2, 52, 50);
+        java.awt.Shape     awtShape2 = shape.toAWTShape();
         assertEquals(awtShape, awtShape2);
     }
 
 
     @Test
     void testAWTLine() {
-        Line   shape    = new LineWrapper(0, 1, 2, 3);
-        Line2D awtShape = new Line2D.Double(0, 1, 2, 3);
-        Line2D      awtShape2 = (Line2D) shape.toAWTShape();
+        Line   shape     = new LineWrapper(0, 1, 2, 3);
+        Line2D awtShape  = new Line2D.Double(0, 1, 2, 3);
+        Line2D awtShape2 = (Line2D) shape.toAWTShape();
         assertEquals(awtShape.getP1(), awtShape2.getP1());
         assertEquals(awtShape.getP2(), awtShape2.getP2());
     }

@@ -18,7 +18,7 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.Browser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -57,7 +57,7 @@ public interface Plate extends RepositoryObject<PlateData> {
     /**
      * Retrieves the screens containing this dataset.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -66,7 +66,7 @@ public interface Plate extends RepositoryObject<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Screen> getScreens(Client client)
+    List<Screen> getScreens(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException;
 
 
@@ -81,7 +81,7 @@ public interface Plate extends RepositoryObject<PlateData> {
     /**
      * Gets all wells in the plate available from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return WellWrapper list.
      *
@@ -89,7 +89,7 @@ public interface Plate extends RepositoryObject<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Well> getWells(Client client)
+    List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 

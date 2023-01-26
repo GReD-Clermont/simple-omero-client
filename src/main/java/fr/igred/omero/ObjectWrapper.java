@@ -98,7 +98,7 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
     /**
      * Deletes an object from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param dm     The data manager.
      * @param object The OMERO object.
      *
      * @throws ServiceException     Cannot connect to OMERO.
@@ -107,9 +107,9 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    protected static void delete(Client client, IObject object)
+    protected static void delete(DataManager dm, IObject object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        client.delete(object);
+        dm.delete(object);
     }
 
 
@@ -180,7 +180,7 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
     /**
      * Saves and updates object.
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -188,9 +188,9 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
-        data = (T) handleServiceAndAccess(client.getDm(),
-                                          d -> d.saveAndReturnObject(client.getCtx(), data),
+    public void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException {
+        data = (T) handleServiceAndAccess(dm.getDataManagerFacility(),
+                                          d -> d.saveAndReturnObject(dm.getCtx(), data),
                                           "Cannot save and update object.");
     }
 

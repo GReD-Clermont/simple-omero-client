@@ -118,14 +118,13 @@ public interface RemoteObject<T extends DataObject> {
     /**
      * Saves and updates object.
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    @SuppressWarnings("unchecked")
-    void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException;
+    void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException;
 
 
     /**

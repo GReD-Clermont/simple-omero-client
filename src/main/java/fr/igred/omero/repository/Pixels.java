@@ -18,11 +18,12 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.Browser;
+import fr.igred.omero.ConnectionHandler;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.meta.PlaneInfoWrapper;
+import fr.igred.omero.meta.PlaneInfo;
 import omero.gateway.model.PixelsData;
 import omero.model.Length;
 import omero.model.Time;
@@ -39,22 +40,22 @@ public interface Pixels extends RemoteObject<PixelsData> {
     /**
      * Loads the planes information.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void loadPlanesInfo(Client client)
+    void loadPlanesInfo(Browser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
-     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Client) loaded} first).
+     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Browser) loaded} first).
      *
      * @return See above.
      */
-    List<PlaneInfoWrapper> getPlanesInfo();
+    List<PlaneInfo> getPlanesInfo();
 
 
     /**
@@ -99,7 +100,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
 
     /**
      * Computes the mean time interval from the planes deltaTs.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -108,7 +109,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
 
     /**
      * Computes the mean exposure time for a given channel from the planes exposureTime.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @param channel The channel index.
      *
@@ -119,7 +120,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
 
     /**
      * Retrieves the X stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -128,7 +129,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
 
     /**
      * Retrieves the Y stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -137,7 +138,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
 
     /**
      * Retrieves the Z stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -194,7 +195,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    double[][][][][] getAllPixels(Client client) throws AccessException, ExecutionException;
+    double[][][][][] getAllPixels(ConnectionHandler client) throws AccessException, ExecutionException;
 
 
     /**
@@ -212,7 +213,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    double[][][][][] getAllPixels(Client client,
+    double[][][][][] getAllPixels(ConnectionHandler client,
                                   int[] xBounds,
                                   int[] yBounds,
                                   int[] cBounds,
@@ -232,7 +233,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    byte[][][][] getRawPixels(Client client, int bpp) throws AccessException, ExecutionException;
+    byte[][][][] getRawPixels(ConnectionHandler client, int bpp) throws AccessException, ExecutionException;
 
 
     /**
@@ -251,7 +252,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    byte[][][][] getRawPixels(Client client,
+    byte[][][][] getRawPixels(ConnectionHandler client,
                               int[] xBounds,
                               int[] yBounds,
                               int[] cBounds,

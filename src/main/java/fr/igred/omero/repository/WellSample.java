@@ -18,7 +18,7 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.Browser;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -38,7 +38,7 @@ public interface WellSample extends RemoteObject<WellSampleData> {
     /**
      * Retrieves the well containing this well sample
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -46,7 +46,7 @@ public interface WellSample extends RemoteObject<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Well getWell(Client client) throws AccessException, ServiceException, ExecutionException;
+    Well getWell(Browser browser) throws AccessException, ServiceException, ExecutionException;
 
 
     /**

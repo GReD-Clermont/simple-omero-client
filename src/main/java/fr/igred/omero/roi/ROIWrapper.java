@@ -18,7 +18,7 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.ConnectionHandler;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -220,7 +220,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      * @throws ServerException  Server error.
      */
     @Override
-    public void saveROI(Client client) throws ServerException, ServiceException {
+    public void saveROI(ConnectionHandler client) throws ServerException, ServiceException {
         String message = "Cannot save ROI";
         Roi roi = (Roi) handleServiceAndServer(client.getGateway(),
                                                g -> g.getUpdateService(client.getCtx())

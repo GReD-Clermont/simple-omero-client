@@ -18,7 +18,8 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.GatewayWrapper;
+import fr.igred.omero.Browser;
+import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -143,7 +144,7 @@ public interface Screen extends RepositoryObject<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void refresh(GatewayWrapper client)
+    void refresh(Browser client)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -161,7 +162,7 @@ public interface Screen extends RepositoryObject<ScreenData> {
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    boolean importImages(GatewayWrapper client, String... paths)
+    boolean importImages(Client client, String... paths)
     throws ServiceException, ServerException, AccessException, IOException, ExecutionException;
 
 
@@ -178,7 +179,7 @@ public interface Screen extends RepositoryObject<ScreenData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Long> importImage(GatewayWrapper client, String path)
+    List<Long> importImage(Client client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 }

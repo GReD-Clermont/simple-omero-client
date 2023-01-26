@@ -18,8 +18,9 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
-import fr.igred.omero.GatewayWrapper;
+import fr.igred.omero.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -46,7 +47,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
     /**
      * Constructor of the ProjectWrapper class. Creates a new project and saves it to OMERO.
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Project name.
      * @param description Project description.
      *
@@ -54,12 +55,12 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ScreenWrapper(Client client, String name, String description)
+    public ScreenWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ScreenData());
         data.setName(name);
         data.setDescription(description);
-        super.saveAndUpdate(client);
+        super.saveAndUpdate(dm);
     }
 
 
@@ -254,7 +255,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
+    public void refresh(Browser client) throws ServiceException, AccessException, ExecutionException {
         String message = String.format("Cannot refresh %s", this);
         data = handleServiceAndAccess(client.getBrowseFacility(),
                                       bf -> bf.getScreens(client.getCtx(),
@@ -280,7 +281,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public boolean importImages(GatewayWrapper client, String... paths)
+    public boolean importImages(Client client, String... paths)
     throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
         boolean success = importImages(client, data, paths);
         refresh(client);
@@ -302,7 +303,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Long> importImage(GatewayWrapper client, String path)
+    public List<Long> importImage(Client client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<Long> ids = importImage(client, data, path);
         refresh(client);
