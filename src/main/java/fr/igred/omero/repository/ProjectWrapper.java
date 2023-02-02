@@ -429,13 +429,13 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesKey(Browser browser, String key)
+    public List<Image> getImagesWithKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
         Collection<List<Image>> lists = new ArrayList<>(datasets.size());
         for (Dataset dataset : datasets) {
-            lists.add(dataset.getImagesKey(browser, key));
+            lists.add(dataset.getImagesWithKey(browser, key));
         }
         List<Image> images = lists.stream()
                                   .flatMap(Collection::stream)
@@ -460,13 +460,13 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesPairKeyValue(Browser browser, String key, String value)
+    public List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
         Collection<List<Image>> lists = new ArrayList<>(datasets.size());
         for (Dataset dataset : datasets) {
-            lists.add(dataset.getImagesPairKeyValue(browser, key, value));
+            lists.add(dataset.getImagesWithKeyValuePair(browser, key, value));
         }
         List<Image> images = lists.stream()
                                   .flatMap(Collection::stream)

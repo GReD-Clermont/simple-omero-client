@@ -396,7 +396,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void addPairKeyValue(DataManager dm, String key, String value)
+    public void addKeyValuePair(DataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         List<NamedValue> kv  = Collections.singletonList(new NamedValue(key, value));
         MapAnnotation    pkv = new MapAnnotationWrapper(kv);
