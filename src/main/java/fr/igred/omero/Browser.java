@@ -19,6 +19,8 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -45,6 +47,7 @@ import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.MetadataFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
@@ -57,9 +60,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -136,7 +137,7 @@ public interface Browser {
      *
      * @param id ID of the project.
      *
-     * @return ProjectWrapper containing the project.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -158,7 +159,7 @@ public interface Browser {
      *
      * @param ids Project IDs
      *
-     * @return List of ProjectWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -177,7 +178,7 @@ public interface Browser {
     /**
      * Gets all projects available from OMERO.
      *
-     * @return Collection of ProjectWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -196,7 +197,7 @@ public interface Browser {
      *
      * @param name Name searched.
      *
-     * @return Collection of ProjectWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -216,7 +217,7 @@ public interface Browser {
      *
      * @param id ID of the dataset.
      *
-     * @return ProjectWrapper containing the project.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -238,7 +239,7 @@ public interface Browser {
      *
      * @param ids Dataset IDs
      *
-     * @return List of DatasetWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -257,7 +258,7 @@ public interface Browser {
     /**
      * Gets all datasets available from OMERO.
      *
-     * @return List of DatasetWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -280,7 +281,7 @@ public interface Browser {
      *
      * @param name Name searched.
      *
-     * @return Collection of DatasetWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -296,11 +297,11 @@ public interface Browser {
 
 
     /**
-     * Returns an ImageWrapper that contains the image with the specified id from OMERO.
+     * Returns the image with the specified id from OMERO.
      *
      * @param id ID of the image.
      *
-     * @return ImageWrapper containing the image.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -326,7 +327,7 @@ public interface Browser {
      *
      * @param ids Image IDs
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -344,7 +345,7 @@ public interface Browser {
     /**
      * Gets all images owned by the current user.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -363,7 +364,7 @@ public interface Browser {
      *
      * @param name Name searched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -386,7 +387,7 @@ public interface Browser {
      * @param datasetName Expected dataset name.
      * @param imageName   Expected image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -415,7 +416,7 @@ public interface Browser {
      *
      * @param motif Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -430,20 +431,20 @@ public interface Browser {
 
 
     /**
-     * Gets all images tagged with a specified tag from OMERO.
+     * Gets all images with the specified annotation from OMERO.
      *
-     * @param tag TagAnnotationWrapper containing the tag researched.
+     * @param annotation TagAnnotationWrapper containing the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesTagged(Annotation<TagAnnotationData> tag)
+    default List<Image> getImages(Annotation<?> annotation)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        return tag.getImages(this);
+        return annotation.getImages(this);
     }
 
 
@@ -452,7 +453,7 @@ public interface Browser {
      *
      * @param tagId Id of the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -461,33 +462,38 @@ public interface Browser {
      */
     default List<Image> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        return getImagesTagged(getTag(tagId));
+        return getImages(getTag(tagId));
     }
 
 
     /**
-     * Gets all images with a certain key
+     * Gets all images with a certain key.
      *
      * @param key Name of the key researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesKey(String key)
-    throws ServiceException, AccessException, ExecutionException {
-        List<Image> images   = getImages();
-        List<Image> selected = new ArrayList<>(images.size());
-        for (Image image : images) {
-            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
-            if (pairsKeyValue.get(key) != null) {
-                selected.add(image);
-            }
+    default List<Image> getImagesWithKey(String key)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        List<MapAnnotation> maps = getMapAnnotations(key);
+
+        Collection<Collection<Image>> selected = new ArrayList<>(maps.size());
+        for (MapAnnotation map : maps) {
+            selected.add(getImages(map));
         }
 
-        return selected;
+        return selected.stream()
+                       .flatMap(Collection::stream)
+                       .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                       .values()
+                       .stream()
+                       .sorted(Comparator.comparing(RemoteObject::getId))
+                       .collect(Collectors.toList());
     }
 
 
@@ -497,23 +503,29 @@ public interface Browser {
      * @param key   Name of the key researched.
      * @param value Value associated with the key.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesPairKeyValue(String key, String value)
-    throws ServiceException, AccessException, ExecutionException {
-        List<Image> images   = getImages();
-        List<Image> selected = new ArrayList<>(images.size());
-        for (Image image : images) {
-            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
-                selected.add(image);
-            }
+    default List<Image> getImagesWithKeyValuePair(String key, String value)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        List<MapAnnotation> maps = getMapAnnotations(key, value);
+
+        Collection<Collection<Image>> selected = new ArrayList<>(maps.size());
+        for (MapAnnotation map : maps) {
+            selected.add(getImages(map));
         }
-        return selected;
+
+        return selected.stream()
+                       .flatMap(Collection::stream)
+                       .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                       .values()
+                       .stream()
+                       .sorted(Comparator.comparing(RemoteObject::getId))
+                       .collect(Collectors.toList());
     }
 
 
@@ -522,7 +534,7 @@ public interface Browser {
      *
      * @param id ID of the screen.
      *
-     * @return ScreenWrapper containing the screen.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -544,7 +556,7 @@ public interface Browser {
      *
      * @param ids A list of screen ids
      *
-     * @return List of ScreenWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -562,7 +574,7 @@ public interface Browser {
     /**
      * Gets all screens available from OMERO.
      *
-     * @return List of ScreenWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -581,7 +593,7 @@ public interface Browser {
      *
      * @param id ID of the plate.
      *
-     * @return PlateWrapper containing the plate.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -603,7 +615,7 @@ public interface Browser {
      *
      * @param ids A list of plate ids
      *
-     * @return List of PlateWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -621,7 +633,7 @@ public interface Browser {
     /**
      * Gets all plates available from OMERO.
      *
-     * @return List of PlateWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -640,7 +652,7 @@ public interface Browser {
      *
      * @param id ID of the well.
      *
-     * @return WellWrapper containing the well.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -662,7 +674,7 @@ public interface Browser {
      *
      * @param ids A list of well ids
      *
-     * @return List of WellWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -681,7 +693,7 @@ public interface Browser {
     /**
      * Gets all wells available from OMERO.
      *
-     * @return List of WellWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -700,9 +712,9 @@ public interface Browser {
 
 
     /**
-     * Gets the list of TagAnnotationWrapper available to the user
+     * Gets the list of tag annotations available to the user.
      *
-     * @return list of TagAnnotationWrapper.
+     * @return See above.
      *
      * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
@@ -724,43 +736,131 @@ public interface Browser {
 
 
     /**
-     * Gets the list of TagAnnotationWrapper with the specified name available to the user
+     * Gets the list of tag annotations with the specified name available to the user.
      *
      * @param name Name of the tag searched.
      *
-     * @return list of TagAnnotationWrapper.
+     * @return See above.
      *
      * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
     default List<TagAnnotation> getTags(String name) throws ServerException, ServiceException {
-        List<TagAnnotation> tags = getTags();
-        tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(Comparator.comparing(RemoteObject::getId));
-        return tags;
+        String query = String.format("select t from TagAnnotation as t where t.textValue = '%s'", name);
+        return findByQuery(query).stream()
+                                 .map(omero.model.TagAnnotation.class::cast)
+                                 .map(TagAnnotationData::new)
+                                 .map(TagAnnotationWrapper::new)
+                                 .sorted(Comparator.comparing(RemoteObject::getId))
+                                 .collect(Collectors.toList());
     }
 
 
     /**
-     * Gets a specific tag from the OMERO database
+     * Gets a specific tag from the OMERO database.
      *
      * @param id Id of the tag.
      *
-     * @return TagAnnotationWrapper containing the specified tag.
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default TagAnnotation getTag(Long id) throws ServiceException, ExecutionException, AccessException {
+        TagAnnotationData tag = handleServiceAndAccess(getBrowseFacility(),
+                                                       b -> b.findObject(getCtx(), TagAnnotationData.class, id),
+                                                       "Cannot get tag with ID: " + id);
+        tag.setNameSpace(tag.getContentAsString());
+
+        return new TagAnnotationWrapper(tag);
+    }
+
+
+    /**
+     * Gets the list of MapAnnotations available to the user.
+     *
+     * @return See above.
      *
      * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    default TagAnnotation getTag(Long id) throws ServerException, ServiceException {
-        IObject o = ExceptionHandler.of(getQueryService(),
-                                        qs -> qs.find(omero.model.TagAnnotation.class.getSimpleName(), id),
-                                        "Cannot get tag ID: " + id)
-                                    .rethrow(ServerError.class, ServerException::new)
-                                    .get();
-        TagAnnotationData tag = new TagAnnotationData((omero.model.TagAnnotation) Objects.requireNonNull(o));
-        tag.setNameSpace(tag.getContentAsString());
+    default List<MapAnnotation> getMapAnnotations() throws ServerException, ServiceException {
+        return ExceptionHandler.of(getQueryService(),
+                                   qs -> qs.findAll(omero.model.MapAnnotation.class.getSimpleName(),
+                                                    null),
+                                   "Cannot get tags")
+                               .rethrow(ServerError.class, ServerException::new)
+                               .get()
+                               .stream()
+                               .map(omero.model.MapAnnotation.class::cast)
+                               .map(MapAnnotationData::new)
+                               .map(MapAnnotationWrapper::new)
+                               .sorted(Comparator.comparing(RemoteObject::getId))
+                               .collect(Collectors.toList());
+    }
 
-        return new TagAnnotationWrapper(tag);
+
+    /**
+     * Gets the list of MapAnnotations with the specified key available to the user.
+     *
+     * @param key Name of the tag searched.
+     *
+     * @return See above.
+     *
+     * @throws ServerException  Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    default List<MapAnnotation> getMapAnnotations(String key) throws ServerException, ServiceException {
+        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv where mv.name = '%s'", key);
+        return findByQuery(q).stream()
+                             .map(omero.model.MapAnnotation.class::cast)
+                             .map(MapAnnotationData::new)
+                             .map(MapAnnotationWrapper::new)
+                             .sorted(Comparator.comparing(RemoteObject::getId))
+                             .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Gets the list of MapAnnotations with the specified key and value available to the user.
+     *
+     * @param key Name of the tag searched.
+     *
+     * @return See above.
+     *
+     * @throws ServerException  Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    default List<MapAnnotation> getMapAnnotations(String key, String value) throws ServerException, ServiceException {
+        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv " +
+                                 "where mv.name = '%s' and mv.value = '%s'", key, value);
+        return findByQuery(q).stream()
+                             .map(omero.model.MapAnnotation.class::cast)
+                             .map(MapAnnotationData::new)
+                             .map(MapAnnotationWrapper::new)
+                             .sorted(Comparator.comparing(RemoteObject::getId))
+                             .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Gets a specific map annotation (key/value pairs) from the OMERO database.
+     *
+     * @param id Id of the map annotation.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default MapAnnotation getMapAnnotation(Long id) throws ServiceException, ExecutionException, AccessException {
+        MapAnnotationData kv = handleServiceAndAccess(getBrowseFacility(),
+                                                      b -> b.findObject(getCtx(), MapAnnotationData.class, id),
+                                                      "Cannot get map annotation with ID: " + id);
+
+        return new MapAnnotationWrapper(kv);
     }
 
 }

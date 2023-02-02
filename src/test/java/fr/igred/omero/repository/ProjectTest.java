@@ -246,17 +246,17 @@ class ProjectTest extends UserTest {
     void testGetImagesKeyInProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        List<Image> images = project.getImagesKey(client, "testKey1");
+        List<Image> images = project.getImagesWithKey(client, "testKey1");
 
         assertEquals(3, images.size());
     }
 
 
     @Test
-    void testGetImagesPairKeyValueInProject() throws Exception {
+    void testGetImagesKeyValuePairInProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        List<Image> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
+        List<Image> images = project.getImagesWithKeyValuePair(client, "testKey1", "testValue1");
 
         assertEquals(2, images.size());
     }
@@ -308,7 +308,7 @@ class ProjectTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
         project1.addTag(client, tag);
-        project1.addPairKeyValue(client, "CopyTest", "Annotation");
+        project1.addKeyValuePair(client, "CopyTest", "Annotation");
 
         Table table = new TableWrapper(1, "CopyTest");
         table.setColumn(0, "Name", String.class);

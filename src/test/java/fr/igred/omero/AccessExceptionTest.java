@@ -35,15 +35,16 @@ import fr.igred.omero.roi.RectangleWrapper;
 import fr.igred.omero.roi.Shape;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.RectangleData;
-import omero.model.NamedValue;
 import omero.model.ProjectI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -223,7 +224,7 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetTag() {
-        assertThrows(ServiceException.class, () -> sudo.getTag(TAG1.id));
+        assertThrows(AccessException.class, () -> sudo.getTag(TAG1.id));
     }
 
 
@@ -245,9 +246,9 @@ class AccessExceptionTest extends BasicTest {
     void testSudoFailAddKVPair() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        List<NamedValue> result1 = new ArrayList<>(2);
-        result1.add(new NamedValue("Test result1", "Value Test"));
-        result1.add(new NamedValue("Test2 result1", "Value Test2"));
+        List<Map.Entry<String, String>> result1 = new ArrayList<>(2);
+        result1.add(new AbstractMap.SimpleEntry<>("Test result1", "Value Test"));
+        result1.add(new AbstractMap.SimpleEntry<>("Test2 result1", "Value Test2"));
 
         MapAnnotation mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class, () -> image.addMapAnnotation(sudo, mapAnnotation1));

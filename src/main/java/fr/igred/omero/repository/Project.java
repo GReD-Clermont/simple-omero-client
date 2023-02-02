@@ -231,7 +231,7 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesKey(Browser browser, String key)
+    List<Image> getImagesWithKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -248,7 +248,7 @@ public interface Project extends RepositoryObject<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesPairKeyValue(Browser browser, String key, String value)
+    List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException;
 
 

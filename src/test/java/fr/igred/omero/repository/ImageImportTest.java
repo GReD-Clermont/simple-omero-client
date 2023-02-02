@@ -86,7 +86,7 @@ class ImageImportTest extends UserTest {
 
         TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.addTag(client, tag1);
-        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+        image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
         removeFile(file);
@@ -130,7 +130,7 @@ class ImageImportTest extends UserTest {
         assertEquals(1, image3.getFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
-        assertEquals("ReplaceTest", image3.getValue(client, "Map"));
+        assertEquals("ReplaceTest", image3.getValues(client, "Map").get(0));
         assertEquals("ReplaceTestTable", image3.getTables(client).get(0).getName());
         //noinspection HardcodedLineSeparator
         assertEquals("This is\na test.", image3.getDescription());
@@ -170,7 +170,7 @@ class ImageImportTest extends UserTest {
 
         TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.addTag(client, tag1);
-        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+        image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
         removeFile(file);
@@ -214,7 +214,7 @@ class ImageImportTest extends UserTest {
         assertEquals(1, image3.getFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
-        assertEquals("ReplaceTest", image3.getValue(client, "Map"));
+        assertEquals("ReplaceTest", image3.getValues(client, "Map").get(0));
         assertEquals("ReplaceTestTable", image3.getTables(client).get(0).getName());
         assertEquals("A test.", image3.getDescription());
 

@@ -42,9 +42,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -293,7 +295,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesKey(Browser browser, String key)
+    public List<Image> getImagesWithKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
         Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
@@ -306,8 +308,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
         for (ImageData image : images) {
             Image imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(browser);
-            if (pairsKeyValue.get(key) != null) {
+            Map<String, List<String>> pairs = imageWrapper.getKeyValuePairs(browser)
+                                                          .stream()
+                                                          .collect(groupingBy(Map.Entry::getKey,
+                                                                              mapping(Map.Entry::getValue, toList())));
+            if (pairs.get(key) != null) {
                 selected.add(imageWrapper);
             }
         }
@@ -331,7 +336,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesPairKeyValue(Browser browser, String key, String value)
+    public List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key-value pair from " + this;
         Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
@@ -344,8 +349,12 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
         for (ImageData image : images) {
             Image imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(browser);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
+
+            Map<String, List<String>> pairs = imageWrapper.getKeyValuePairs(browser)
+                                                          .stream()
+                                                          .collect(groupingBy(Map.Entry::getKey,
+                                                                              mapping(Map.Entry::getValue, toList())));
+            if (pairs.get(key) != null && pairs.get(key).contains(value)) {
                 selected.add(imageWrapper);
             }
         }
@@ -540,7 +549,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
             }
         }
         if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(RemoteObject::getId).collect(Collectors.toList());
+            List<Long> idsToDelete = toDelete.stream().map(RemoteObject::getId).collect(toList());
 
             Iterable<Image> orphans = new ArrayList<>(toDelete);
             for (Image orphan : orphans) {

@@ -175,22 +175,22 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void addPairKeyValue(DataManager dm, String key, String value)
+    void addKeyValuePair(DataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
-     * Gets the List of NamedValue (Key-Value pair) associated to an object.
+     * Gets the List of Key-Value pairs associated to an object.
      *
      * @param browser The data browser.
      *
-     * @return Collection of NamedValue.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Map<String, String> getKeyValuePairs(Browser browser)
+    List<Map.Entry<String, String>> getKeyValuePairs(Browser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -207,7 +207,7 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    String getValue(Browser browser, String key)
+    List<String> getValues(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -216,7 +216,7 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
      * <p>The list is contained in the MapAnnotationWrapper.
      *
      * @param dm            The data manager.
-     * @param mapAnnotation MapAnnotationWrapper containing a list of NamedValue.
+     * @param mapAnnotation MapAnnotation containing a list of Key-Value pairs.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -374,7 +374,7 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
     /**
      * Returns the file annotations
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The list of tile annotations.
      *
@@ -382,7 +382,7 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<FileAnnotation> getFileAnnotations(Client client)
+    List<FileAnnotation> getFileAnnotations(Browser browser)
     throws ExecutionException, ServiceException, AccessException;
 
 
