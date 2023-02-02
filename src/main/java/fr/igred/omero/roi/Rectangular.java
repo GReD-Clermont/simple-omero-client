@@ -92,10 +92,15 @@ public interface Rectangular {
      *
      * @param x      The x-coordinate of the top-left corner.
      * @param y      The y-coordinate of the top-left corner.
-     * @param width  The width of the rectangle.
-     * @param height The height of the rectangle.
+     * @param width  The width of the rectangular shape.
+     * @param height The height of the rectangular shape.
      */
-    void setCoordinates(double x, double y, double width, double height);
+    default void setCoordinates(double x, double y, double width, double height) {
+        setX(x);
+        setY(y);
+        setWidth(width);
+        setHeight(height);
+    }
 
 
     /**
@@ -103,7 +108,9 @@ public interface Rectangular {
      *
      * @return Array of coordinates containing {X,Y,Width,Height}.
      */
-    double[] getCoordinates();
+    default double[] getCoordinates() {
+        return new double[]{getX(), getY(), getWidth(), getHeight()};
+    }
 
 
     /**
@@ -111,6 +118,17 @@ public interface Rectangular {
      *
      * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
      */
-    void setCoordinates(double[] coordinates);
+    default void setCoordinates(double[] coordinates) {
+        if (coordinates == null) {
+            throw new IllegalArgumentException("Cannot set null coordinates.");
+        } else if (coordinates.length == 4) {
+            setX(coordinates[0]);
+            setY(coordinates[1]);
+            setWidth(coordinates[2]);
+            setHeight(coordinates[3]);
+        } else {
+            throw new IllegalArgumentException("4 coordinates required for rectangular shape.");
+        }
+    }
 
 }

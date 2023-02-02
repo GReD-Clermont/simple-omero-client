@@ -61,7 +61,10 @@ public interface Punctual {
      * @param x x-coordinate of the PointData shape.
      * @param y y-coordinate of the PointData shape.
      */
-    void setCoordinates(double x, double y);
+    default void setCoordinates(double x, double y) {
+        setX(x);
+        setY(y);
+    }
 
 
     /**
@@ -69,7 +72,9 @@ public interface Punctual {
      *
      * @return Array of coordinates containing {X,Y}.
      */
-    double[] getCoordinates();
+    default double[] getCoordinates() {
+        return new double[]{getX(), getY()};
+    }
 
 
     /**
@@ -77,6 +82,15 @@ public interface Punctual {
      *
      * @param coordinates Array of coordinates containing {X,Y}.
      */
-    void setCoordinates(double[] coordinates);
+    default void setCoordinates(double[] coordinates) {
+        if (coordinates == null) {
+            throw new IllegalArgumentException("Cannot set null coordinates.");
+        } else if (coordinates.length == 2) {
+            setX(coordinates[0]);
+            setY(coordinates[1]);
+        } else {
+            throw new IllegalArgumentException("2 coordinates required for punctual shape.");
+        }
+    }
 
 }
