@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.Image;
@@ -153,13 +154,6 @@ class ClientTest extends UserTest {
 
 
     @Test
-    void testGetImagesTagged() throws Exception {
-        List<Image> images = client.getImagesTagged(TAG1.id);
-        assertEquals(3, images.size());
-    }
-
-
-    @Test
     void testGetImagesKey() throws Exception {
         List<Image> images = client.getImagesWithKey("testKey1");
         assertEquals(3, images.size());
@@ -268,8 +262,8 @@ class ClientTest extends UserTest {
     void testGetAllWells() throws Exception {
         final int nWells = 17;
 
-        Collection<Well> screens = client.getWells();
-        assertEquals(nWells, screens.size());
+        Collection<Well> wells = client.getWells();
+        assertEquals(nWells, wells.size());
     }
 
 
@@ -277,6 +271,97 @@ class ClientTest extends UserTest {
     void testGetSingleWell() throws Exception {
         String plateName = client.getWell(1L).getPlate().getName();
         assertEquals(PLATE1.name, plateName);
+    }
+
+
+    @Test
+    void testGetAllProjectsForUser1() throws Exception {
+        Experimenter user = client.getUser("testUser");
+
+        Collection<Project> projects = client.getProjects(user);
+        assertEquals(2, projects.size());
+    }
+
+
+    @Test
+    void testGetAllProjectsForUser2() throws Exception {
+        Experimenter user = client.getUser("testUser2");
+
+        Collection<Project> projects = client.getProjects(user);
+        assertEquals(0, projects.size());
+    }
+
+
+    @Test
+    void testGetAllDatasetsForUser1() throws Exception {
+        Experimenter user = client.getUser("testUser");
+
+        Collection<Dataset> datasets = client.getDatasets(user);
+        assertEquals(3, datasets.size());
+    }
+
+
+    @Test
+    void testGetAllDatasetsForUser2() throws Exception {
+        Experimenter user = client.getUser("testUser2");
+
+        Collection<Dataset> datasets = client.getDatasets(user);
+        assertEquals(0, datasets.size());
+    }
+
+
+    @Test
+    void testGetAllScreensForUser1() throws Exception {
+        Experimenter user = client.getUser("testUser");
+
+        Collection<Screen> screens = client.getScreens(user);
+        assertEquals(2, screens.size());
+    }
+
+
+    @Test
+    void testGetAllScreensForUser2() throws Exception {
+        Experimenter user = client.getUser("testUser2");
+
+        Collection<Screen> screens = client.getScreens(user);
+        assertEquals(0, screens.size());
+    }
+
+
+    @Test
+    void testGetAllPlatesForUser1() throws Exception {
+        Experimenter user = client.getUser("testUser");
+
+        Collection<Plate> plates = client.getPlates(user);
+        assertEquals(3, plates.size());
+    }
+
+
+    @Test
+    void testGetAllPlatesForUser2() throws Exception {
+        Experimenter user = client.getUser("testUser2");
+
+        Collection<Plate> plates = client.getPlates(user);
+        assertEquals(0, plates.size());
+    }
+
+
+    @Test
+    void testGetAllWellsForUser1() throws Exception {
+        Experimenter user   = client.getUser("testUser");
+        final int    nWells = 17;
+
+        Collection<Well> wells = client.getWells(user);
+        assertEquals(nWells, wells.size());
+    }
+
+
+    @Test
+    void testGetAllWellsForUser2() throws Exception {
+        Experimenter user = client.getUser("testUser2");
+
+        Collection<Well> wells = client.getWells(user);
+        assertEquals(0, wells.size());
     }
 
 }
