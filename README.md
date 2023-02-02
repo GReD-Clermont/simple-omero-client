@@ -57,7 +57,7 @@ List<TagAnnotation> tags = dataset.getTags(client);
 * #### Key/Value pairs:
 
 ```java
-dataset.addPairKeyValue(client, "key", "value");
+dataset.addKeyValuePair(client, "key", "value");
 String value = dataset.getValue(client, "key");
 ```
 
@@ -108,7 +108,7 @@ They can also be converted from or to ImageJ Rois:
 
 ```java
 // The property is a string used to create 3D/4D ROIs in OMERO, by grouping shapes sharing the same value (used to name the ROI)
-List<ROI> omeroRois = ROIWrapper.fromImageJ(ijRois, property);
+List<ROI> omeroROIs = ROIWrapper.fromImageJ(ijRois, property);
 
 ROI roi = new ROIWrapper();
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));

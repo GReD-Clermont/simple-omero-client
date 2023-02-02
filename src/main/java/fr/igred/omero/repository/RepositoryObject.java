@@ -175,7 +175,7 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void addPairKeyValue(DataManager dm, String key, String value)
+    void addKeyValuePair(DataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException;
 
 

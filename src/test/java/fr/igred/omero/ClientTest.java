@@ -161,14 +161,14 @@ class ClientTest extends UserTest {
 
     @Test
     void testGetImagesKey() throws Exception {
-        List<Image> images = client.getImagesKey("testKey1");
+        List<Image> images = client.getImagesWithKey("testKey1");
         assertEquals(3, images.size());
     }
 
 
     @Test
     void testGetImagesKeyValue() throws Exception {
-        List<Image> images = client.getImagesPairKeyValue("testKey1", "testValue1");
+        List<Image> images = client.getImagesWithKeyValuePair("testKey1", "testValue1");
         assertEquals(2, images.size());
     }
 
@@ -185,7 +185,7 @@ class ClientTest extends UserTest {
         String key = "testKey2";
 
         /* Load the image with the key */
-        List<Image> images = client.getImagesKey(key);
+        List<Image> images = client.getImagesWithKey(key);
 
         Collection<Image> imagesCond = new ArrayList<>(1);
 

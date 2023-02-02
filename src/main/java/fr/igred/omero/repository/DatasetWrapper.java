@@ -293,7 +293,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesKey(Browser browser, String key)
+    public List<Image> getImagesWithKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
         Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
@@ -331,7 +331,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesPairKeyValue(Browser browser, String key, String value)
+    public List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key-value pair from " + this;
         Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
