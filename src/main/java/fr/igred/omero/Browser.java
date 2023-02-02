@@ -27,6 +27,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.Image;
@@ -193,6 +194,26 @@ public interface Browser {
 
 
     /**
+     * Gets all projects available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Project> getProjects(Experimenter experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
+                                                                  bf -> bf.getProjects(getCtx(), experimenter.getId()),
+                                                                  "Cannot get projects");
+        return wrap(projects, ProjectWrapper::new);
+    }
+
+
+    /**
      * Gets all projects with a certain name from OMERO.
      *
      * @param name Name searched.
@@ -268,6 +289,30 @@ public interface Browser {
     default List<Dataset> getDatasets()
     throws ServiceException, AccessException, ServerException, ExecutionException {
         Long[] ids = this.findByQuery("select d from Dataset d")
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getDatasets(ids);
+    }
+
+
+    /**
+     * Gets all datasets available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ServerException    Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Dataset> getDatasets(Experimenter experimenter)
+    throws ServiceException, AccessException, ServerException, ExecutionException {
+        String query = String.format("select d from Dataset d where d.details.owner.id=%d", experimenter.getId());
+        Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
                          .map(RLong::getValue)
@@ -375,7 +420,6 @@ public interface Browser {
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getImages(getCtx(), name),
                                                               error);
-        images.removeIf(image -> !image.getName().equals(name));
         return wrap(images, ImageWrapper::new);
     }
 
@@ -412,25 +456,6 @@ public interface Browser {
 
 
     /**
-     * Gets all images with a certain motif in their name from OMERO.
-     *
-     * @param motif Motif searched in an image name.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    default List<Image> getImagesLike(String motif) throws ServiceException, AccessException, ExecutionException {
-        List<Image> images = getImages();
-        String      regexp = ".*" + motif + ".*";
-        images.removeIf(image -> !image.getName().matches(regexp));
-        return images;
-    }
-
-
-    /**
      * Gets all images with the specified annotation from OMERO.
      *
      * @param annotation TagAnnotationWrapper containing the tag researched.
@@ -449,20 +474,21 @@ public interface Browser {
 
 
     /**
-     * Gets all images tagged with a specified tag from OMERO.
+     * Gets all images with a certain motif in their name from OMERO.
      *
-     * @param tagId Id of the tag researched.
+     * @param motif Motif searched in an image name.
      *
      * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesTagged(Long tagId)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
-        return getImages(getTag(tagId));
+    default List<Image> getImagesLike(String motif) throws ServiceException, AccessException, ExecutionException {
+        List<Image> images = getImages();
+        String      regexp = ".*" + motif + ".*";
+        images.removeIf(image -> !image.getName().matches(regexp));
+        return images;
     }
 
 
@@ -589,6 +615,26 @@ public interface Browser {
 
 
     /**
+     * Gets all screens available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Screen> getScreens(Experimenter experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
+                                                                bf -> bf.getScreens(getCtx(), experimenter.getId()),
+                                                                "Cannot get screens");
+        return wrap(screens, ScreenWrapper::new);
+    }
+
+
+    /**
      * Gets the plate with the specified id from OMERO.
      *
      * @param id ID of the plate.
@@ -642,6 +688,26 @@ public interface Browser {
     default List<Plate> getPlates() throws ServiceException, AccessException, ExecutionException {
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx()),
+                                                              "Cannot get plates");
+        return wrap(plates, PlateWrapper::new);
+    }
+
+
+    /**
+     * Gets all plates available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Plate> getPlates(Experimenter experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
+                                                              bf -> bf.getPlates(getCtx(), experimenter.getId()),
                                                               "Cannot get plates");
         return wrap(plates, PlateWrapper::new);
     }
@@ -712,6 +778,30 @@ public interface Browser {
 
 
     /**
+     * Gets all wells available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    default List<Well> getWells(Experimenter experimenter)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        String query = String.format("select w from Well w where w.details.owner.id=%d", experimenter.getId());
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getWells(ids);
+    }
+
+
+    /**
      * Gets the list of tag annotations available to the user.
      *
      * @return See above.
@@ -759,7 +849,7 @@ public interface Browser {
     /**
      * Gets a specific tag from the OMERO database.
      *
-     * @param id Id of the tag.
+     * @param id ID of the tag.
      *
      * @return See above.
      *
@@ -847,7 +937,7 @@ public interface Browser {
     /**
      * Gets a specific map annotation (key/value pairs) from the OMERO database.
      *
-     * @param id Id of the map annotation.
+     * @param id ID of the map annotation.
      *
      * @return See above.
      *
