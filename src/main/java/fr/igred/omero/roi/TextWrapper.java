@@ -152,51 +152,6 @@ public class TextWrapper extends ShapeWrapper<TextData> implements Text {
 
 
     /**
-     * Sets the coordinates of the TextData shape.
-     *
-     * @param x x-coordinate of the TextData shape.
-     * @param y y-coordinate of the TextData shape.
-     */
-    @Override
-    public void setCoordinates(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-
-    /**
-     * Gets the coordinates of the TextData shape.
-     *
-     * @return Array of coordinates containing {X,Y}.
-     */
-    @Override
-    public double[] getCoordinates() {
-        double[] coordinates = new double[2];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the TextData object.
-     *
-     * @param coordinates Array of coordinates containing {X,Y}.
-     */
-    @Override
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            throw new IllegalArgumentException("TextData cannot set null coordinates.");
-        } else if (coordinates.length == 2) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-        } else {
-            throw new IllegalArgumentException("2 coordinates required for TextData.");
-        }
-    }
-
-
-    /**
      * Converts shape to ImageJ ROI.
      *
      * @return An ImageJ ROI.

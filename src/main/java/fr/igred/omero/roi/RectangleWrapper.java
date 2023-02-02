@@ -201,59 +201,6 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> implements Rec
 
 
     /**
-     * Sets the coordinates of the RectangleData shape.
-     *
-     * @param x      The x-coordinate of the top-left corner.
-     * @param y      The y-coordinate of the top-left corner.
-     * @param width  The width of the rectangle.
-     * @param height The height of the rectangle.
-     */
-    @Override
-    public void setCoordinates(double x, double y, double width, double height) {
-        setX(x);
-        setY(y);
-        setWidth(width);
-        setHeight(height);
-    }
-
-
-    /**
-     * Gets the coordinates of the RectangleData shape.
-     *
-     * @return Array of coordinates containing {X,Y,Width,Height}.
-     */
-    @Override
-    public double[] getCoordinates() {
-        double[] coordinates = new double[4];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        coordinates[2] = getWidth();
-        coordinates[3] = getHeight();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the RectangleData shape.
-     *
-     * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
-     */
-    @Override
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            throw new IllegalArgumentException("RectangleData cannot set null coordinates.");
-        } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setWidth(coordinates[2]);
-            data.setHeight(coordinates[3]);
-        } else {
-            throw new IllegalArgumentException("4 coordinates required for RectangleData.");
-        }
-    }
-
-
-    /**
      * Converts shape to ImageJ ROI.
      *
      * @return An ImageJ ROI.
