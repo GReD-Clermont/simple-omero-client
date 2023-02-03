@@ -19,10 +19,10 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.DataManager;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.PlateAcquisitionData;
-import omero.gateway.model.TagAnnotationData;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
@@ -109,20 +109,20 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
 
 
     /**
-     * Protected function. Adds a tag to the object in OMERO, if possible.
+     * Adds a tag to the object in OMERO, if possible.
      *
-     * @param dm      The data manager.
-     * @param tagData Tag to be added.
+     * @param dm  The data manager.
+     * @param tag Tag to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected void addTag(DataManager dm, TagAnnotationData tagData)
+    public void addTag(DataManager dm, TagAnnotation tag)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
+        link.setChild(tag.asDataObject().asAnnotation());
         link.setParent((PlateAcquisition) data.asIObject());
         dm.save(link);
     }

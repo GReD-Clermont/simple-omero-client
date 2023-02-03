@@ -21,6 +21,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.ConnectionHandler;
 import fr.igred.omero.DataManager;
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -34,10 +35,8 @@ import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
-import omero.gateway.model.TagAnnotationData;
 import omero.model.FolderAnnotationLink;
 import omero.model.FolderAnnotationLinkI;
-import omero.model.FolderI;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,21 +114,21 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
 
 
     /**
-     * Private function. Adds a tag to the object in OMERO, if possible.
+     * Adds a tag to the object in OMERO, if possible.
      *
-     * @param dm      The data manager.
-     * @param tagData Tag to be added.
+     * @param dm  The data manager.
+     * @param tag Tag to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected void addTag(DataManager dm, TagAnnotationData tagData)
+    public void addTag(DataManager dm, TagAnnotation tag)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent(new FolderI(data.getId(), false));
+        link.setChild(tag.asDataObject().asAnnotation());
+        link.setParent(data.asFolder());
         dm.save(link);
     }
 

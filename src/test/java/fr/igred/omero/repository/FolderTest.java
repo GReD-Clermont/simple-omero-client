@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
@@ -193,7 +194,7 @@ class FolderTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromFolder() throws Exception {
-        RepositoryObject<FolderData> folder = new FolderWrapper(client, "Test1");
+        Annotatable<?> folder = new FolderWrapper(client, "Test1");
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
 
