@@ -374,7 +374,7 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
     /**
      * Returns the file annotations
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The list of tile annotations.
      *
@@ -382,7 +382,7 @@ public interface RepositoryObject<T extends DataObject> extends RemoteObject<T> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<FileAnnotation> getFileAnnotations(Client client)
+    List<FileAnnotation> getFileAnnotations(Browser browser)
     throws ExecutionException, ServiceException, AccessException;
 
 

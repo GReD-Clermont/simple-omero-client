@@ -21,8 +21,12 @@ package fr.igred.omero.annotations;
 import omero.gateway.model.MapAnnotationData;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Map.Entry;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -44,5 +48,15 @@ public interface MapAnnotation extends Annotation<MapAnnotationData> {
      * @param pairs List of Key-Value pairs.
      */
     void setContent(List<? extends Entry<String, String>> pairs);
+
+
+    /**
+     * Gets the List of Key-Value pairs contained in the map annotation as a map.
+     *
+     * @return See above.
+     */
+    default Map<String, List<String>> getContentAsMap() {
+        return getContent().stream().collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
+    }
 
 }

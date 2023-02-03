@@ -56,7 +56,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -139,7 +138,7 @@ class ImageTest extends UserTest {
     @Test
     void testGetValueWrongKey() throws Exception {
         Image image = client.getImage(IMAGE1.id);
-        assertThrows(NoSuchElementException.class, () -> image.getValues(client, "testKey"));
+        assertEquals(0, image.getValues(client, "testKey").size());
     }
 
 

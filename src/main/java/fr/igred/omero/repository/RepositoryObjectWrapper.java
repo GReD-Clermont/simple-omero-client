@@ -74,11 +74,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.mapping;
 
 
 /**
@@ -198,7 +196,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
 
         List<Long> ids = new ArrayList<>(pixels.size());
         pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
-        return ids.stream().distinct().collect(toList());
+        return ids.stream().distinct().collect(Collectors.toList());
     }
 
 
@@ -351,7 +349,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                           .map(TagAnnotationData.class::cast)
                           .map(TagAnnotationWrapper::new)
                           .sorted(Comparator.comparing(TagAnnotationWrapper::getId))
-                          .collect(toList());
+                          .collect(Collectors.toList());
     }
 
 
@@ -382,7 +380,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                           .map(MapAnnotationData.class::cast)
                           .map(MapAnnotationWrapper::new)
                           .sorted(Comparator.comparing(MapAnnotationWrapper::getId))
-                          .collect(toList());
+                          .collect(Collectors.toList());
     }
 
 
@@ -422,24 +420,10 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
     @Override
     public List<Map.Entry<String, String>> getKeyValuePairs(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get key-value pairs for " + this;
-
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-
-        List<AnnotationData> annotations = handleServiceAndAccess(browser.getMetadata(),
-                                                                  m -> m.getAnnotations(browser.getCtx(),
-                                                                                        data,
-                                                                                        types,
-                                                                                        null),
-                                                                  error);
-
-        return annotations.stream()
-                          .filter(MapAnnotationData.class::isInstance)
-                          .map(MapAnnotationData.class::cast)
-                          .map(MapAnnotationWrapper::new)
-                          .map(MapAnnotationWrapper::getContent)
-                          .flatMap(List::stream)
-                          .collect(toList());
+        return getMapAnnotations(browser).stream()
+                                         .map(MapAnnotation::getContent)
+                                         .flatMap(List::stream)
+                                         .collect(Collectors.toList());
     }
 
 
@@ -459,18 +443,12 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
     @Override
     public List<String> getValues(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
-        List<Map.Entry<String, String>> pairs = getKeyValuePairs(browser);
-
-        Map<String, List<String>> map = pairs.stream()
-                                             .collect(groupingBy(Map.Entry::getKey,
-                                                                 mapping(Map.Entry::getValue, toList())));
-
-        List<String> values = map.get(key);
-        if (values != null) {
-            return values;
-        } else {
-            throw new NoSuchElementException("Key \"" + key + "\" not found");
-        }
+        return getMapAnnotations(browser).stream()
+                                         .map(MapAnnotation::getContentAsMap)
+                                         .map(kv -> kv.get(key))
+                                         .filter(Objects::nonNull)
+                                         .flatMap(List::stream)
+                                         .collect(Collectors.toList());
     }
 
 
@@ -746,8 +724,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
     public void addFileAnnotation(DataManager dm, FileAnnotation annotation)
     throws AccessException, ServiceException, ExecutionException {
         handleServiceAndAccess(dm.getDataManagerFacility(),
-                               dmf -> dmf.attachAnnotation(dm.getCtx(), annotation.asDataObject(),
-                                                           this.data),
+                               dmf -> dmf.attachAnnotation(dm.getCtx(), annotation.asDataObject(), this.data),
                                "Cannot link file annotation to " + this);
     }
 
@@ -755,7 +732,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
     /**
      * Returns the file annotations
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The list of tile annotations.
      *
@@ -764,14 +741,14 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<FileAnnotation> getFileAnnotations(Client client)
+    public List<FileAnnotation> getFileAnnotations(Browser browser)
     throws ExecutionException, ServiceException, AccessException {
         String error = "Cannot retrieve file annotations from " + this;
 
         List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = handleServiceAndAccess(client.getMetadata(),
-                                                                  m -> m.getAnnotations(client.getCtx(),
+        List<AnnotationData> annotations = handleServiceAndAccess(browser.getMetadata(),
+                                                                  m -> m.getAnnotations(browser.getCtx(),
                                                                                         data,
                                                                                         types,
                                                                                         null),
@@ -781,7 +758,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                           .filter(FileAnnotationData.class::isInstance)
                           .map(FileAnnotationData.class::cast)
                           .map(FileAnnotationWrapper::new)
-                          .collect(toList());
+                          .collect(Collectors.toList());
     }
 
 
