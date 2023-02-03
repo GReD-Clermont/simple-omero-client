@@ -39,7 +39,6 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> i
      */
     public TagAnnotationWrapper(TagAnnotationData tag) {
         super(tag);
-        data.setNameSpace(tag.getContentAsString());
     }
 
 
