@@ -185,10 +185,10 @@ class ClientTest extends UserTest {
 
         for (Image image : images) {
             /* Get the value for the key */
-            String value = image.getValue(client, key);
+            List<String> values = image.getValues(client, key);
 
             /* Condition */
-            if (value.compareTo("25") > 0) {
+            if (values.get(0).compareTo("25") > 0) {
                 imagesCond.add(image);
             }
         }
