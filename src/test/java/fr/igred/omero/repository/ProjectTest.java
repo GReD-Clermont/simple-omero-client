@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
@@ -26,14 +27,13 @@ import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import omero.gateway.model.ProjectData;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
 
-import static fr.igred.omero.repository.RepositoryObject.ReplacePolicy.DELETE;
-import static fr.igred.omero.repository.RepositoryObject.ReplacePolicy.DELETE_ORPHANED;
+import static fr.igred.omero.util.ReplacePolicy.DELETE;
+import static fr.igred.omero.util.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -297,8 +297,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testCopyAnnotations() throws Exception {
-        Project                       project1 = client.getProject(PROJECT1.id);
-        RepositoryObject<ProjectData> project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
+        Project        project1 = client.getProject(PROJECT1.id);
+        Annotatable<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
 
         File file = createRandomFile("test_project.txt");
 
@@ -342,8 +342,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testCopyFileAnnotation() throws Exception {
-        Project                       project1 = client.getProject(PROJECT1.id);
-        RepositoryObject<ProjectData> project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
+        Project        project1 = client.getProject(PROJECT1.id);
+        Annotatable<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -368,8 +368,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndUnlinkFile() throws Exception {
-        RepositoryObject<ProjectData> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        RepositoryObject<ProjectData> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -391,8 +391,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteFile() throws Exception {
-        RepositoryObject<ProjectData> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        RepositoryObject<ProjectData> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -413,8 +413,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile1() throws Exception {
-        RepositoryObject<ProjectData> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        RepositoryObject<ProjectData> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -436,7 +436,7 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile2() throws Exception {
-        RepositoryObject<ProjectData> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 

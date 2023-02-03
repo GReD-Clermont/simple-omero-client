@@ -25,6 +25,7 @@ import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.util.ReplacePolicy;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
 
