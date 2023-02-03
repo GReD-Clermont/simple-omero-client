@@ -19,9 +19,10 @@ package fr.igred.omero.annotations;
 
 
 import omero.gateway.model.MapAnnotationData;
-import omero.model.NamedValue;
 
 import java.util.List;
+
+import static java.util.Map.Entry;
 
 
 /**
@@ -30,18 +31,18 @@ import java.util.List;
 public interface MapAnnotation extends Annotation<MapAnnotationData> {
 
     /**
-     * Gets the List of NamedValue contained in the MapAnnotation.
+     * Gets the List of Key-Value pairs contained in the map annotation.
      *
-     * @return MapAnnotationData content.
+     * @return See above.
      */
-    List<NamedValue> getContent();
+    List<Entry<String, String>> getContent();
 
 
     /**
-     * Sets the content of the MapAnnotation.
+     * Sets the content of the map annotation.
      *
-     * @param result List of NamedValue(Key-Value pair).
+     * @param pairs List of Key-Value pairs.
      */
-    void setContent(List<NamedValue> result);
+    void setContent(List<? extends Entry<String, String>> pairs);
 
 }

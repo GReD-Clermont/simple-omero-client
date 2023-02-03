@@ -57,12 +57,12 @@ import omero.gateway.model.TableData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.util.PojoMapper;
 import omero.model.IObject;
-import omero.model.NamedValue;
 import omero.model.Pixels;
 import omero.model.TagAnnotationI;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,9 +74,11 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.mapping;
 
 
 /**
@@ -196,7 +198,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
 
         List<Long> ids = new ArrayList<>(pixels.size());
         pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
-        return ids.stream().distinct().collect(Collectors.toList());
+        return ids.stream().distinct().collect(toList());
     }
 
 
@@ -349,7 +351,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                           .map(TagAnnotationData.class::cast)
                           .map(TagAnnotationWrapper::new)
                           .sorted(Comparator.comparing(TagAnnotationWrapper::getId))
-                          .collect(Collectors.toList());
+                          .collect(toList());
     }
 
 
@@ -380,7 +382,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                           .map(MapAnnotationData.class::cast)
                           .map(MapAnnotationWrapper::new)
                           .sorted(Comparator.comparing(MapAnnotationWrapper::getId))
-                          .collect(Collectors.toList());
+                          .collect(toList());
     }
 
 
@@ -398,26 +400,27 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
     @Override
     public void addKeyValuePair(DataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<NamedValue> kv  = Collections.singletonList(new NamedValue(key, value));
-        MapAnnotation    pkv = new MapAnnotationWrapper(kv);
+        List<Map.Entry<String, String>> kv = Collections.singletonList(new AbstractMap.SimpleEntry<>(key, value));
+
+        MapAnnotation pkv = new MapAnnotationWrapper(kv);
         pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
         addMapAnnotation(dm, pkv);
     }
 
 
     /**
-     * Gets the List of NamedValue (Key-Value pair) associated to an object.
+     * Gets the List of Key-Value pairs associated to an object.
      *
      * @param browser The data browser.
      *
-     * @return Collection of NamedValue.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public Map<String, String> getKeyValuePairs(Browser browser)
+    public List<Map.Entry<String, String>> getKeyValuePairs(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get key-value pairs for " + this;
 
@@ -436,7 +439,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                           .map(MapAnnotationWrapper::new)
                           .map(MapAnnotationWrapper::getContent)
                           .flatMap(List::stream)
-                          .collect(Collectors.toMap(nv -> nv.name, nv -> nv.value));
+                          .collect(toList());
     }
 
 
@@ -454,12 +457,17 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     @Override
-    public String getValue(Browser browser, String key)
+    public List<String> getValues(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Map<String, String> keyValuePairs = getKeyValuePairs(browser);
-        String              value         = keyValuePairs.get(key);
-        if (value != null) {
-            return value;
+        List<Map.Entry<String, String>> pairs = getKeyValuePairs(browser);
+
+        Map<String, List<String>> map = pairs.stream()
+                                             .collect(groupingBy(Map.Entry::getKey,
+                                                                 mapping(Map.Entry::getValue, toList())));
+
+        List<String> values = map.get(key);
+        if (values != null) {
+            return values;
         } else {
             throw new NoSuchElementException("Key \"" + key + "\" not found");
         }
@@ -471,7 +479,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * <p>The list is contained in the MapAnnotationWrapper.
      *
      * @param dm            The data manager.
-     * @param mapAnnotation MapAnnotationWrapper containing a list of NamedValue.
+     * @param mapAnnotation MapAnnotation containing a list of key-value pairs.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -773,7 +781,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                           .filter(FileAnnotationData.class::isInstance)
                           .map(FileAnnotationData.class::cast)
                           .map(FileAnnotationWrapper::new)
-                          .collect(Collectors.toList());
+                          .collect(toList());
     }
 
 
