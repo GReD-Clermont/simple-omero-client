@@ -18,8 +18,8 @@
 package fr.igred.omero.roi;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.ConnectionHandler;
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.Image;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * Interface to handle ROIs on OMERO.
  */
-public interface ROI extends RemoteObject<ROIData> {
+public interface ROI extends Annotatable<ROIData> {
 
     /**
      * Default IJ property to store ROI local IDs / indices.
@@ -189,15 +189,7 @@ public interface ROI extends RemoteObject<ROIData> {
 
 
     /**
-     * Changes the wrapped data.
-     *
-     * @param data The ROI data.
-     */
-    void setData(ROIData data);
-
-
-    /**
-     * Adds ShapeData objects from a list of ShapeWrapper to the ROIData
+     * Adds shape objects from a list of shapes to the ROI.
      *
      * @param shapes List of ShapeWrapper.
      */
@@ -205,7 +197,7 @@ public interface ROI extends RemoteObject<ROIData> {
 
 
     /**
-     * Adds a ShapeData from a ShapeWrapper to the ROIData
+     * Adds a Shape to the ROI.
      *
      * @param shape ShapeWrapper to add.
      */
@@ -213,9 +205,9 @@ public interface ROI extends RemoteObject<ROIData> {
 
 
     /**
-     * Returns the list of shapes contained in the ROIData
+     * Returns the list of shapes contained in the ROI.
      *
-     * @return list of shape contained in the ROIData.
+     * @return See above.
      */
     ShapeList getShapes();
 
@@ -223,13 +215,13 @@ public interface ROI extends RemoteObject<ROIData> {
     /**
      * Sets the image linked to the ROI.
      *
-     * @param image Image linked to the ROIData.
+     * @param image Image linked to the ROI.
      */
     void setImage(Image image);
 
 
     /**
-     * Deletes a ShapeData from the ROIData.
+     * Deletes a shape from the ROI.
      *
      * @param shape ShapeData to delete.
      */
@@ -237,9 +229,9 @@ public interface ROI extends RemoteObject<ROIData> {
 
 
     /**
-     * Deletes a ShapeData from the ROIData.
+     * Deletes a shape from the ROI.
      *
-     * @param pos Position of the ShapeData in the ShapeData list from the ROIData.
+     * @param pos Position of the ShapeData in the ShapeData list from the ROI.
      *
      * @throws IndexOutOfBoundsException If pos is out of the ShapeData list bounds.
      */

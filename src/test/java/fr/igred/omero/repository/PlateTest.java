@@ -64,7 +64,7 @@ class PlateTest extends UserTest {
         Plate plate = client.getPlate(PLATE2.id);
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
-        plate.addTag(client, tag);
+        plate.addAnnotation(client, tag);
         List<TagAnnotation> tags = plate.getTags(client);
         client.delete(tag);
         List<TagAnnotation> checkTags = plate.getTags(client);

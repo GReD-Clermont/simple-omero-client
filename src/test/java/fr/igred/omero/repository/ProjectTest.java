@@ -88,7 +88,7 @@ class ProjectTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
-        project.addTag(client, tag);
+        project.addAnnotation(client, tag);
         List<TagAnnotation> tags = project.getTags(client);
         client.delete(tag);
         List<TagAnnotation> endTags = project.getTags(client);
@@ -162,7 +162,7 @@ class ProjectTest extends UserTest {
         TagAnnotation tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
         TagAnnotation tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
-        project.addTags(client, tag1, tag2, tag3, tag4);
+        project.addAnnotations(client, tag1, tag2, tag3, tag4);
         List<TagAnnotation> tags = project.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
@@ -180,7 +180,7 @@ class ProjectTest extends UserTest {
         Project project = client.getProject(PROJECT1.id);
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        project.addTag(client, tag);
+        project.addAnnotation(client, tag);
         List<TagAnnotation> tags = project.getTags(client);
         project.unlink(client, tag);
         List<TagAnnotation> removedTags = project.getTags(client);
@@ -307,7 +307,7 @@ class ProjectTest extends UserTest {
         assertNotEquals(0L, fileId);
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
-        project1.addTag(client, tag);
+        project1.addAnnotation(client, tag);
         project1.addKeyValuePair(client, "CopyTest", "Annotation");
 
         Table table = new TableWrapper(1, "CopyTest");
@@ -355,7 +355,7 @@ class ProjectTest extends UserTest {
         assertEquals(1, files.size());
 
         if (!files.isEmpty()) {
-            project2.addFileAnnotation(client, files.get(0));
+            project2.addAnnotation(client, files.get(0));
         }
         assertEquals(1, project2.getFileAnnotations(client).size());
 
@@ -375,7 +375,7 @@ class ProjectTest extends UserTest {
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
-        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        project2.addAnnotation(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(1, project2.getFileAnnotations(client).size());
@@ -398,7 +398,7 @@ class ProjectTest extends UserTest {
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
-        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        project2.addAnnotation(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file, DELETE);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(0, project2.getFileAnnotations(client).size());
@@ -420,7 +420,7 @@ class ProjectTest extends UserTest {
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
-        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        project2.addAnnotation(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file, DELETE_ORPHANED);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(1, project2.getFileAnnotations(client).size());

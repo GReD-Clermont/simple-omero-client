@@ -19,6 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.repository.Image;
 import omero.gateway.model.EllipseData;
 import omero.gateway.model.LineData;
@@ -32,12 +33,43 @@ import org.junit.jupiter.api.Test;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class ROITest extends UserTest {
+
+
+    @Test
+    void testAddTagToROI() throws Exception {
+        ROI roiWrapper = new ROIWrapper();
+
+        Image image = client.getImage(IMAGE1.id);
+
+        for (int i = 0; i < 4; i++) {
+            Rectangle rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roiWrapper.addShape(rectangle);
+        }
+
+        roiWrapper = image.saveROIs(client, Collections.singletonList(roiWrapper)).get(0);
+        roiWrapper.addTag(client, "ROI Tag", "ROI tag test");
+
+        List<TagAnnotation> tags = roiWrapper.getTags(client);
+        client.delete(tags);
+        List<TagAnnotation> checkTags = roiWrapper.getTags(client);
+        client.delete(roiWrapper);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, checkTags.size());
+        assertEquals(0, image.getROIs(client).size());
+    }
 
 
     @Test
@@ -58,11 +90,13 @@ class ROITest extends UserTest {
             roiWrapper.addShape(rectangle);
         }
 
-        image.saveROI(client, roiWrapper);
+        List<ROI> updated = image.saveROIs(client, Collections.singletonList(roiWrapper));
 
         List<ROI> rois = image.getROIs(client);
 
+        assertEquals(1, updated.size());
         assertEquals(1, rois.size());
+        assertEquals(4, updated.get(0).getShapes().size());
         assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROI roi : rois) {
@@ -90,8 +124,7 @@ class ROITest extends UserTest {
         }
 
         ROI roiWrapper = new ROIWrapper(shapes);
-        roiWrapper.setImage(image);
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, Collections.singletonList(roiWrapper));
 
         List<ROI> rois = image.getROIs(client);
 
@@ -124,7 +157,7 @@ class ROITest extends UserTest {
         ROI roi = new ROIWrapper();
         roi.addShapes(shapes);
         roi.setImage(image);
-        image.saveROI(client, roi);
+        image.saveROIs(client, Collections.singletonList(roi));
 
         List<ROI> rois = image.getROIs(client);
 
@@ -211,7 +244,7 @@ class ROITest extends UserTest {
         roiWrapper.addShape(line);
         roiWrapper.addShape(polyline);
         roiWrapper.addShape(polygon);
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, Collections.singletonList(roiWrapper));
 
         List<ROI>       rois       = image.getROIs(client);
         ShapeList       shapes     = rois.get(0).getShapes();
