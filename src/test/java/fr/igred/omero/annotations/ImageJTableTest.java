@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -77,7 +78,7 @@ class ImageJTableTest extends UserTest {
             roi.addShape(rectangle);
         }
         if (name != null && !name.trim().isEmpty()) roi.setName(name);
-        image.saveROI(dm, roi);
+        image.saveROIs(dm, Collections.singletonList(roi));
         return image.getROIs(dm);
     }
 
@@ -444,11 +445,9 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROINamesFromIJResults1() throws Exception {
-        ROI roi1 = new ROIWrapper();
-        ROI roi2 = new ROIWrapper();
-
-        roi1.setImage(image);
-        roi2.setImage(image);
+        List<ROI> rois0 = new ArrayList<>(2);
+        rois0.add(new ROIWrapper());
+        rois0.add(new ROIWrapper());
 
         for (int i = 0; i < 4; i++) {
             Rectangle rectangle = new RectangleWrapper();
@@ -458,12 +457,11 @@ class ImageJTableTest extends UserTest {
             rectangle.setT(0);
             rectangle.setC(0);
 
-            if (i % 2 == 1) roi1.addShape(rectangle);
-            else roi2.addShape(rectangle);
+            if (i % 2 == 1) rois0.get(0).addShape(rectangle);
+            else rois0.get(1).addShape(rectangle);
         }
 
-        image.saveROI(client, roi1);
-        image.saveROI(client, roi2);
+        image.saveROIs(client, rois0);
 
         List<ROI> rois   = image.getROIs(client);
         List<Roi> ijRois = ROI.toImageJ(rois);
@@ -501,11 +499,12 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROINamesFromIJResults2() throws Exception {
-        ROI roi1 = new ROIWrapper();
-        ROI roi2 = new ROIWrapper();
+        List<ROI> rois0 = new ArrayList<>(2);
+        rois0.add(new ROIWrapper());
+        rois0.add(new ROIWrapper());
 
-        roi1.setImage(image);
-        roi2.setImage(image);
+        rois0.get(0).setImage(image);
+        rois0.get(1).setImage(image);
 
         final int max = 14;
         for (int i = 10; i < max; i++) {
@@ -516,12 +515,11 @@ class ImageJTableTest extends UserTest {
             rectangle.setT(0);
             rectangle.setC(0);
 
-            if (i % 2 == 1) roi1.addShape(rectangle);
-            else roi2.addShape(rectangle);
+            if (i % 2 == 1) rois0.get(0).addShape(rectangle);
+            else rois0.get(1).addShape(rectangle);
         }
 
-        image.saveROI(client, roi1);
-        image.saveROI(client, roi2);
+        image.saveROIs(client, rois0);
 
         List<ROI> rois   = image.getROIs(client);
         List<Roi> ijRois = ROI.toImageJ(rois);

@@ -55,7 +55,7 @@ class ScreenTest extends UserTest {
         Screen screen = client.getScreen(SCREEN2.id);
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Screen tag", "tag attached to a screen");
-        screen.addTag(client, tag);
+        screen.addAnnotation(client, tag);
         List<TagAnnotation> tags = screen.getTags(client);
         client.delete(tag);
         List<TagAnnotation> checkTags = screen.getTags(client);

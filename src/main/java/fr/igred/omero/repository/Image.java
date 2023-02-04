@@ -176,17 +176,19 @@ public interface Image extends RepositoryObject<ImageData> {
 
 
     /**
-     * Links a ROI to the image in OMERO
+     * Links ROIs to the image in OMERO.
      * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *
-     * @param dm  The data manager.
-     * @param roi ROI to be added.
+     * @param dm   The data manager.
+     * @param rois ROI to be added.
+     *
+     * @return The updated list of ROIs.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void saveROI(DataManager dm, ROI roi)
+    List<ROI> saveROIs(DataManager dm, List<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException;
 
 

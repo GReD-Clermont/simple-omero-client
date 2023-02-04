@@ -107,7 +107,7 @@ class AccessExceptionTest extends BasicTest {
         TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         try {
-            image.addTag(client, tag);
+            image.addAnnotation(client, tag);
         } catch (AccessException e) {
             exception = true;
         }
@@ -251,7 +251,7 @@ class AccessExceptionTest extends BasicTest {
         result1.add(new AbstractMap.SimpleEntry<>("Test2 result1", "Value Test2"));
 
         MapAnnotation mapAnnotation1 = new MapAnnotationWrapper(result1);
-        assertThrows(AccessException.class, () -> image.addMapAnnotation(sudo, mapAnnotation1));
+        assertThrows(AccessException.class, () -> image.addAnnotation(sudo, mapAnnotation1));
     }
 
 

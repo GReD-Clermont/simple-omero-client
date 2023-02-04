@@ -22,6 +22,7 @@ import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.ConnectionHandler;
 import fr.igred.omero.DataManager;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -66,7 +67,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -408,25 +408,29 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
 
 
     /**
-     * Links a ROI to the image in OMERO
+     * Links ROIs to the image in OMERO.
      * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *
-     * @param dm  The data manager.
-     * @param roi ROI to be added.
+     * @param dm   The data manager.
+     * @param rois ROIs to be added.
+     *
+     * @return The updated list of ROIs.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void saveROI(DataManager dm, ROI roi)
+    public List<ROI> saveROIs(DataManager dm, List<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException {
-        ROIData roiData = handleServiceAndAccess(dm.getRoiFacility(),
-                                                 rf -> rf.saveROIs(dm.getCtx(),
-                                                                   data.getId(),
-                                                                   Collections.singletonList(roi.asDataObject())),
-                                                 "Cannot link ROI to " + this).iterator().next();
-        roi.setData(roiData);
+        rois.forEach(r -> r.setImage(this));
+        List<ROIData> roisData = rois.stream().map(RemoteObject::asDataObject).collect(Collectors.toList());
+        Collection<ROIData> results = handleServiceAndAccess(dm.getRoiFacility(),
+                                                             rf -> rf.saveROIs(dm.getCtx(),
+                                                                               this.data.getId(),
+                                                                               roisData),
+                                                             "Cannot link ROI to " + this);
+        return wrap(results, ROIWrapper::new);
     }
 
 

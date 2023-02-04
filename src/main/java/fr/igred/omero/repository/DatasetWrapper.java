@@ -498,10 +498,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
             descriptions.add(oldImage.getDescription());
             newImage.copyAnnotationLinks(client, oldImage);
             List<ROI> rois = oldImage.getROIs(client);
-            for (ROI roi : rois) {
-                roi.setImage(newImage);
-                newImage.saveROI(client, roi);
-            }
+            newImage.saveROIs(client, rois);
             this.removeImage(client, oldImage);
             if (oldImage.isOrphaned(client)) {
                 orphaned.add(oldImage);
