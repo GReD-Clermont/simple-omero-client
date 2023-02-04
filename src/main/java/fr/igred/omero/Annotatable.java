@@ -49,6 +49,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      *
      * @param dm         The data manager.
      * @param annotation Annotation to be added.
+     * @param <A>        The type of the annotation.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
