@@ -915,7 +915,8 @@ public interface Browser {
     /**
      * Gets the list of MapAnnotations with the specified key and value available to the user.
      *
-     * @param key Name of the tag searched.
+     * @param key   The required key.
+     * @param value The required value.
      *
      * @return See above.
      *

@@ -62,6 +62,44 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
 
     /**
+     * Adds an annotation to the object in OMERO, if possible.
+     *
+     * @param dm         The data manager.
+     * @param annotation Annotation to be added.
+     * @param <A>        The type of the annotation.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default <A extends Annotation<?>> void addAnnotation(DataManager dm, A annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot add %s to %s", annotation, this);
+        handleServiceAndAccess(dm.getDataManagerFacility(),
+                               d -> d.attachAnnotation(dm.getCtx(), annotation.asDataObject(), asDataObject()),
+                               error);
+    }
+
+
+    /**
+     * Adds multiple annotations to the object in OMERO, if possible.
+     *
+     * @param dm          The data manager.
+     * @param annotations Array of annotations to add.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default void addAnnotations(DataManager dm, Annotation<?>... annotations)
+    throws ServiceException, AccessException, ExecutionException {
+        for (Annotation<?> annotation : annotations) {
+            addAnnotation(dm, annotation);
+        }
+    }
+
+
+    /**
      * Adds a newly created tag to the object in OMERO, if possible.
      *
      * @param dm          The data manager.
@@ -76,31 +114,12 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotation tag = new TagAnnotationWrapper(new TagAnnotationData(name));
         tag.setDescription(description);
-        addTag(dm, tag);
+        addAnnotation(dm, tag);
     }
 
 
     /**
      * Adds a tag to the object in OMERO, if possible.
-     *
-     * @param dm  The data manager.
-     * @param tag Tag to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    default void addTag(DataManager dm, TagAnnotation tag)
-    throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot add tag " + tag.getId() + " to " + this;
-        handleServiceAndAccess(dm.getDataManagerFacility(),
-                               d -> d.attachAnnotation(dm.getCtx(), tag.asDataObject(), asDataObject()),
-                               error);
-    }
-
-
-    /**
-     * Adds multiple tags to the object in OMERO, if possible.
      *
      * @param dm The data manager.
      * @param id ID of the tag to add to the object.
@@ -113,25 +132,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
         TagAnnotationData tagData = new TagAnnotationData(tag);
-        addTag(dm, new TagAnnotationWrapper(tagData));
-    }
-
-
-    /**
-     * Adds multiple tag to the object in OMERO, if possible.
-     *
-     * @param dm   The data manager.
-     * @param tags Array of TagAnnotationWrapper to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    default void addTags(DataManager dm, TagAnnotation... tags)
-    throws ServiceException, AccessException, ExecutionException {
-        for (TagAnnotation tag : tags) {
-            addTag(dm, tag);
-        }
+        addAnnotation(dm, new TagAnnotationWrapper(tagData));
     }
 
 
@@ -231,7 +232,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
         MapAnnotation pkv = new MapAnnotationWrapper(kv);
         pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
-        addMapAnnotation(dm, pkv);
+        addAnnotation(dm, pkv);
     }
 
 
@@ -276,27 +277,6 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
                                          .filter(Objects::nonNull)
                                          .flatMap(List::stream)
                                          .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Adds a List of Key-Value pair to the object.
-     * <p>The list is contained in the MapAnnotationWrapper.
-     *
-     * @param dm            The data manager.
-     * @param mapAnnotation MapAnnotation containing a list of key-value pairs.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    default void addMapAnnotation(DataManager dm, MapAnnotation mapAnnotation)
-    throws ServiceException, AccessException, ExecutionException {
-        handleServiceAndAccess(dm.getDataManagerFacility(),
-                               d -> d.attachAnnotation(dm.getCtx(),
-                                                       mapAnnotation.asDataObject(),
-                                                       this.asDataObject()),
-                               "Cannot add key-value pairs to " + this);
     }
 
 
@@ -525,24 +505,6 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     default long addAndReplaceFile(Client client, File file)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
-    }
-
-
-    /**
-     * Links a file annotation to the object
-     *
-     * @param dm         The data manager.
-     * @param annotation FileAnnotationWrapper to link.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    default void addFileAnnotation(DataManager dm, FileAnnotation annotation)
-    throws AccessException, ServiceException, ExecutionException {
-        handleServiceAndAccess(dm.getDataManagerFacility(),
-                               dmf -> dmf.attachAnnotation(dm.getCtx(), annotation.asDataObject(), asDataObject()),
-                               "Cannot link file annotation to " + this);
     }
 
 

@@ -157,7 +157,7 @@ class ImageTest extends UserTest {
         values.add(new AbstractMap.SimpleEntry<>(name2, value2));
 
         MapAnnotation mapAnnotation = new MapAnnotationWrapper(values);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.addAnnotation(client, mapAnnotation);
 
         Map<String, List<String>> pairs = image.getKeyValuePairs(client)
                                                .stream()
@@ -192,7 +192,7 @@ class ImageTest extends UserTest {
         mapData.setContent(values);
 
         MapAnnotation mapAnnotation = new MapAnnotationWrapper(mapData);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.addAnnotation(client, mapAnnotation);
 
         Map<String, List<String>> pairs = image.getKeyValuePairs(client)
                                                .stream()
@@ -225,7 +225,7 @@ class ImageTest extends UserTest {
 
         MapAnnotation mapAnnotation = new MapAnnotationWrapper();
         mapAnnotation.setContent(values);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.addAnnotation(client, mapAnnotation);
 
         List<MapAnnotation> maps = image.getMapAnnotations(client);
 
@@ -384,7 +384,7 @@ class ImageTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
-        image.addTag(client, tag);
+        image.addAnnotation(client, tag);
 
         List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag);
@@ -458,7 +458,7 @@ class ImageTest extends UserTest {
         TagAnnotation tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
         TagAnnotation tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
-        image.addTags(client, tag1, tag2, tag3, tag4);
+        image.addAnnotations(client, tag1, tag2, tag3, tag4);
         List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
@@ -477,7 +477,7 @@ class ImageTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
 
-        image.addTag(client, tag);
+        image.addAnnotation(client, tag);
 
         List<TagAnnotation> tags = image.getTags(client);
         image.unlink(client, tag);

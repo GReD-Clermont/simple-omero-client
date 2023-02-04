@@ -128,7 +128,7 @@ class DatasetTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTag(client, tag);
+        dataset.addAnnotation(client, tag);
 
         List<TagAnnotation> tags = dataset.getTags(client);
         client.delete(tag);
@@ -203,7 +203,7 @@ class DatasetTest extends UserTest {
         TagAnnotation tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
         TagAnnotation tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTags(client, tag1, tag2, tag3, tag4);
+        dataset.addAnnotations(client, tag1, tag2, tag3, tag4);
 
         List<TagAnnotation> tags = dataset.getTags(client);
         client.delete(tag1);
@@ -223,7 +223,7 @@ class DatasetTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
-        dataset.addTag(client, tag);
+        dataset.addAnnotation(client, tag);
 
         List<TagAnnotation> tags = dataset.getTags(client);
         dataset.unlink(client, tag);

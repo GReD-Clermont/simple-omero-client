@@ -31,6 +31,7 @@ import omero.gateway.model.RectangleData;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static fr.igred.omero.util.ReplacePolicy.DELETE;
@@ -85,7 +86,7 @@ class ImageImportTest extends UserTest {
         image1.saveAndUpdate(client);
 
         TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
-        image1.addTag(client, tag1);
+        image1.addAnnotation(client, tag1);
         image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
@@ -98,15 +99,15 @@ class ImageImportTest extends UserTest {
         image2.saveAndUpdate(client);
 
         TagAnnotation tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
-        image2.addTag(client, tag2);
-        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
-        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+        image2.addAnnotation(client, tag2);
+        image2.addAnnotation(client, image1.getFileAnnotations(client).get(0));
+        image2.addAnnotation(client, image1.getMapAnnotations(client).get(0));
 
         Shape<RectangleData> rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROI                  roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
-        image2.saveROI(client, roi);
+        roi = image2.saveROIs(client, Collections.singletonList(roi)).get(0);
 
         Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.setImage(image2);
@@ -169,7 +170,7 @@ class ImageImportTest extends UserTest {
         Image      image1 = client.getImage(ids1.get(0));
 
         TagAnnotation tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
-        image1.addTag(client, tag1);
+        image1.addAnnotation(client, tag1);
         image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
@@ -182,15 +183,15 @@ class ImageImportTest extends UserTest {
         image2.saveAndUpdate(client);
 
         TagAnnotation tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
-        image2.addTag(client, tag2);
-        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
-        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+        image2.addAnnotation(client, tag2);
+        image2.addAnnotation(client, image1.getFileAnnotations(client).get(0));
+        image2.addAnnotation(client, image1.getMapAnnotations(client).get(0));
 
         Shape<RectangleData> rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROI                  roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
-        image2.saveROI(client, roi);
+        roi = image2.saveROIs(client, Collections.singletonList(roi)).get(0);
 
         Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.setImage(image2);
