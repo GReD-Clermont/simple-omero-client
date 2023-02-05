@@ -62,8 +62,9 @@ class ROITest extends UserTest {
         roiWrapper.addTag(client, "ROI Tag", "ROI tag test");
 
         List<TagAnnotation> tags = roiWrapper.getTags(client);
-        client.delete(tags);
+        roiWrapper.unlink(client, tags.get(0));
         List<TagAnnotation> checkTags = roiWrapper.getTags(client);
+        client.delete(tags);
         client.delete(roiWrapper);
 
         assertEquals(1, tags.size());

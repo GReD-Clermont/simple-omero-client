@@ -351,7 +351,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
     @Override
     public <A extends Annotation<?>> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        List<IObject> os = client.findByQuery("select link from ROIAnnotationLink as link" +
+        List<IObject> os = client.findByQuery("select link from RoiAnnotationLink as link" +
                                               " where link.parent = " + getId() +
                                               " and link.child = " + annotation.getId());
         delete(client, os.iterator().next());
