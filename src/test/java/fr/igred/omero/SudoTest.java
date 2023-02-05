@@ -63,7 +63,7 @@ class SudoTest extends BasicTest {
         List<Image> images  = dataset.getImages(test);
 
         for (Image image : images) {
-            image.addAnnotation(test, tag);
+            image.link(test, tag);
         }
 
         List<Image> tagged = dataset.getImagesTagged(test, tag);

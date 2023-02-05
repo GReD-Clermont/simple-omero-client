@@ -27,6 +27,7 @@ import omero.model.TagAnnotationI;
 import java.io.File;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,6 +46,25 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
 
     /**
+     * Checks if a specific annotation is linked to the object.
+     *
+     * @param browser    The data browser.
+     * @param annotation Annotation to be checked.
+     * @param <A>        The type of the annotation.
+     *
+     * @return True if the object is linked to the given annotation, false otherwise.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default <A extends Annotation<?>> boolean isLinked(Browser browser, A annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
+    }
+
+
+    /**
      * Adds an annotation to the object in OMERO, if possible.
      *
      * @param dm         The data manager.
@@ -55,7 +75,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default <A extends Annotation<?>> void addAnnotation(DataManager dm, A annotation)
+    default <A extends Annotation<?>> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
         handleServiceAndAccess(dm.getDataManagerFacility(),
@@ -68,17 +88,36 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * Adds multiple annotations to the object in OMERO, if possible.
      *
      * @param dm          The data manager.
-     * @param annotations Array of annotations to add.
+     * @param annotations Annotations to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addAnnotations(DataManager dm, Annotation<?>... annotations)
+    default void link(DataManager dm, Annotation<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
         for (Annotation<?> annotation : annotations) {
-            addAnnotation(dm, annotation);
+            link(dm, annotation);
         }
+    }
+
+
+    /**
+     * Adds multiple annotations to the object in OMERO if they are not already linked.
+     *
+     * @param client      The client handling the connection.
+     * @param annotations Annotations to add.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default void linkIfNotLinked(Client client, Annotation<?>... annotations)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Long> annotationData = getAnnotations(client).stream().map(DataObject::getId).collect(Collectors.toList());
+        link(client, Arrays.stream(annotations)
+                           .filter(a -> !annotationData.contains(a.getId()))
+                           .toArray(Annotation<?>[]::new));
     }
 
 
@@ -97,7 +136,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotation tag = new TagAnnotationWrapper(new TagAnnotationData(name));
         tag.setDescription(description);
-        addAnnotation(dm, tag);
+        link(dm, tag);
     }
 
 
@@ -115,7 +154,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
         TagAnnotationData tagData = new TagAnnotationData(tag);
-        addAnnotation(dm, new TagAnnotationWrapper(tagData));
+        link(dm, new TagAnnotationWrapper(tagData));
     }
 
 
@@ -215,7 +254,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
         MapAnnotation pkv = new MapAnnotationWrapper(kv);
         pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
-        addAnnotation(dm, pkv);
+        link(dm, pkv);
     }
 
 
@@ -543,7 +582,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     /**
      * Retrieves annotations linked to the object.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return A list of annotations, as AnnotationData.
      *
@@ -551,10 +590,10 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<AnnotationData> getAnnotations(Client client)
+    default List<AnnotationData> getAnnotations(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return handleServiceAndAccess(client.getMetadata(),
-                                      m -> m.getAnnotations(client.getCtx(), asDataObject()),
+        return handleServiceAndAccess(browser.getMetadata(),
+                                      m -> m.getAnnotations(browser.getCtx(), asDataObject()),
                                       "Cannot get annotations from " + this);
     }
 
