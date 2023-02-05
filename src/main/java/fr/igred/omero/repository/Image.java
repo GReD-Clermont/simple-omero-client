@@ -34,6 +34,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
@@ -180,7 +181,7 @@ public interface Image extends RepositoryObject<ImageData> {
      * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *
      * @param dm   The data manager.
-     * @param rois ROI to be added.
+     * @param rois List of ROIs to be added.
      *
      * @return The updated list of ROIs.
      *
@@ -190,6 +191,25 @@ public interface Image extends RepositoryObject<ImageData> {
      */
     List<ROI> saveROIs(DataManager dm, List<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Links ROIs to the image in OMERO.
+     * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
+     *
+     * @param dm   The data manager.
+     * @param rois ROIs to be added.
+     *
+     * @return The updated list of ROIs.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<ROI> saveROIs(DataManager dm, ROI... rois)
+    throws ServiceException, AccessException, ExecutionException {
+        return saveROIs(dm, Arrays.asList(rois));
+    }
 
 
     /**
