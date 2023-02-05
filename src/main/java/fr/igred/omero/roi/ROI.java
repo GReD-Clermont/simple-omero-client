@@ -19,7 +19,11 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.Annotatable;
+import fr.igred.omero.Client;
 import fr.igred.omero.ConnectionHandler;
+import fr.igred.omero.DataManager;
+import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.Image;
@@ -27,12 +31,16 @@ import fr.igred.omero.util.Bounds;
 import ij.gui.Roi;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
+import omero.model.IObject;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -273,5 +281,48 @@ public interface ROI extends Annotatable<ROIData> {
      * @return A list of ROIs.
      */
     List<Roi> toImageJ(String property);
+
+
+    /**
+     * Adds an annotation to the object in OMERO, if possible.
+     *
+     * @param dm         The data manager.
+     * @param annotation Annotation to be added.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default <A extends Annotation<?>> void link(DataManager dm, A annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        RoiAnnotationLink link = new RoiAnnotationLinkI();
+        link.setChild(annotation.asDataObject().asAnnotation());
+        link.setParent((omero.model.Roi) asIObject());
+        dm.save(link);
+    }
+
+
+    /**
+     * Unlinks the given annotation from the current object.
+     *
+     * @param client     The client handling the connection.
+     * @param annotation An annotation.
+     * @param <A>        The type of the annotation.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws ServerException      Server error.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    @Override
+    default <A extends Annotation<?>> void unlink(Client client, A annotation)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+        List<IObject> os = client.findByQuery("select link from RoiAnnotationLink as link" +
+                                              " where link.parent = " + getId() +
+                                              " and link.child = " + annotation.getId());
+        client.delete(os.iterator().next());
+    }
 
 }

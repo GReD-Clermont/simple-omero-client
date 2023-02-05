@@ -21,13 +21,6 @@ package fr.igred.omero.roi;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.repository.Image;
-import omero.gateway.model.EllipseData;
-import omero.gateway.model.LineData;
-import omero.gateway.model.PointData;
-import omero.gateway.model.PolygonData;
-import omero.gateway.model.PolylineData;
-import omero.gateway.model.RectangleData;
-import omero.gateway.model.TextData;
 import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;
@@ -74,6 +67,30 @@ class ROITest extends UserTest {
 
 
     @Test
+    void testAddTagToShape() throws Exception {
+        ROI roiWrapper = new ROIWrapper();
+
+        Image    image     = client.getImage(IMAGE1.id);
+        Shape<?> rectangle = new RectangleWrapper();
+        roiWrapper.addShape(rectangle);
+
+        roiWrapper = image.saveROIs(client, roiWrapper).get(0);
+        Shape<?> shape = roiWrapper.getShapes().get(0);
+        shape.addTag(client, "Shape tag", "Shape tag test");
+
+        List<TagAnnotation> tags = shape.getTags(client);
+        shape.unlink(client, tags.get(0));
+        List<TagAnnotation> checkTags = roiWrapper.getTags(client);
+        client.delete(tags);
+        client.delete(roiWrapper);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, checkTags.size());
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
     void testROI() throws Exception {
         ROI roiWrapper = new ROIWrapper();
 
@@ -91,7 +108,7 @@ class ROITest extends UserTest {
             roiWrapper.addShape(rectangle);
         }
 
-        List<ROI> updated = image.saveROIs(client, Collections.singletonList(roiWrapper));
+        List<ROI> updated = image.saveROIs(client, roiWrapper);
 
         List<ROI> rois = image.getROIs(client);
 
@@ -201,23 +218,23 @@ class ROITest extends UserTest {
     void testROIAllShapes() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        Shape<PointData> point = new PointWrapper(1, 1);
+        Shape<?> point = new PointWrapper(1, 1);
         point.setCZT(0, 0, 0);
 
-        Shape<TextData> text = new TextWrapper("Text", 2, 2);
+        Shape<?> text = new TextWrapper("Text", 2, 2);
         text.setCZT(0, 0, 1);
 
-        Shape<RectangleData> rectangle = new RectangleWrapper(3, 3, 10, 10);
+        Shape<?> rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
         Mask mask = new MaskWrapper();
         mask.setCoordinates(4, 4, 9, 9);
         mask.setCZT(1, 0, 0);
 
-        Shape<EllipseData> ellipse = new EllipseWrapper(5, 5, 4, 4);
+        Shape<?> ellipse = new EllipseWrapper(5, 5, 4, 4);
         ellipse.setCZT(1, 0, 1);
 
-        Shape<LineData> line = new LineWrapper(0, 0, 10, 10);
+        Shape<?> line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 2);
 
         List<Point2D.Double> points2D = new ArrayList<>(3);
@@ -229,10 +246,10 @@ class ROITest extends UserTest {
         points2D.add(p2);
         points2D.add(p3);
 
-        Shape<PolylineData> polyline = new PolylineWrapper(points2D);
+        Shape<?> polyline = new PolylineWrapper(points2D);
         polyline.setCZT(1, 1, 0);
 
-        Shape<PolygonData> polygon = new PolygonWrapper(points2D);
+        Shape<?> polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
         ROI roiWrapper = new ROIWrapper();

@@ -18,12 +18,8 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.Client;
 import fr.igred.omero.ConnectionHandler;
-import fr.igred.omero.DataManager;
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.Annotation;
-import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.Image;
@@ -33,10 +29,7 @@ import ij.gui.ShapeRoi;
 import omero.RString;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
-import omero.model.IObject;
 import omero.model.Roi;
-import omero.model.RoiAnnotationLink;
-import omero.model.RoiAnnotationLinkI;
 import omero.model._RoiOperationsNC;
 
 import java.util.ArrayList;
@@ -44,7 +37,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
@@ -312,49 +304,6 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
             rois.add(roi);
         }
         return rois;
-    }
-
-
-    /**
-     * Adds an annotation to the object in OMERO, if possible.
-     *
-     * @param dm         The data manager.
-     * @param annotation Annotation to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public <A extends Annotation<?>> void link(DataManager dm, A annotation)
-    throws ServiceException, AccessException, ExecutionException {
-        RoiAnnotationLink link = new RoiAnnotationLinkI();
-        link.setChild(annotation.asDataObject().asAnnotation());
-        link.setParent((Roi) data.asIObject());
-        dm.save(link);
-    }
-
-
-    /**
-     * Unlinks the given annotation from the current object.
-     *
-     * @param client     The client handling the connection.
-     * @param annotation An annotation.
-     * @param <A>        The type of the annotation.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    @Override
-    public <A extends Annotation<?>> void unlink(Client client, A annotation)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        List<IObject> os = client.findByQuery("select link from RoiAnnotationLink as link" +
-                                              " where link.parent = " + getId() +
-                                              " and link.child = " + annotation.getId());
-        delete(client, os.iterator().next());
     }
 
 }

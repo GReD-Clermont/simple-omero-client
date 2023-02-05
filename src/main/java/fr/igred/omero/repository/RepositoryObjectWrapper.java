@@ -219,7 +219,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
         List<IObject> os = client.findByQuery("select link from " + linkType +
                                               " link where link.parent = " + getId() +
                                               " and link.child = " + childId);
-        delete(client, os.iterator().next());
+        client.delete(os.iterator().next());
     }
 
 

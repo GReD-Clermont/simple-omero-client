@@ -19,12 +19,10 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.model.DataObject;
-import omero.model.IObject;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -92,24 +90,6 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
     protected static <U extends DataObject, V extends RemoteObject<U>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
         return wrap(objects, mapper, RemoteObject::getId);
-    }
-
-
-    /**
-     * Deletes an object from OMERO.
-     *
-     * @param dm     The data manager.
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    protected static void delete(DataManager dm, IObject object)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        dm.delete(object);
     }
 
 
