@@ -198,7 +198,7 @@ class FolderTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
 
-        folder.addAnnotation(client, tag);
+        folder.link(client, tag);
 
         List<TagAnnotation> tags = folder.getTags(client);
         assertEquals(1, tags.size());
