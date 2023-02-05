@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.util.NoSuchElementException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
+import static fr.igred.omero.exception.ExceptionHandler.ofConsumer;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -56,7 +57,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorPassword() {
         ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, PORT, "root", "badPassword".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, PORT, ROOT.name, "badPassword".toCharArray(), GROUP1.id));
     }
 
 
@@ -64,7 +65,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorHost() {
         ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
-                     () -> root.connect("127.0.0.1", PORT, "root", "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect("127.0.0.1", PORT, ROOT.name, "omero".toCharArray(), GROUP1.id));
     }
 
 
@@ -73,7 +74,18 @@ class ExceptionTest extends BasicTest {
         final int         badPort = 5000;
         ConnectionHandler root    = new GatewayWrapper();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id));
+    }
+
+
+    @Test
+    void testSneakyThrow() {
+        final int         badPort = 5000;
+        ConnectionHandler root    = new GatewayWrapper();
+        ExceptionHandler<?> eh = ofConsumer(root,
+                                            r -> r.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id),
+                                            "Failure");
+        assertThrows(ServiceException.class, eh::get);
     }
 
 

@@ -119,23 +119,6 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Returns the number of annotations links for this object.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
-     */
-    @Override
-    public int countAnnotationLinks(Browser browser) throws ServiceException, ServerException {
-        return browser.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
-                                   "where link.child.id=" + getId()).size();
-    }
-
-
-    /**
      * Gets all projects with this tag from OMERO.
      *
      * @param browser The data browser.
