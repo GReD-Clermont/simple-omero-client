@@ -90,7 +90,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois) {
-        return ROI.fromImageJ(ijRois, IJ_PROPERTY, ROIWrapper::new);
+        return ROI.fromImageJ(ijRois, ROIWrapper::new);
     }
 
 
