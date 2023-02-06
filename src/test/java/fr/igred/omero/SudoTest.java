@@ -39,7 +39,7 @@ class SudoTest extends BasicTest {
     @Test
     void testSudoDisconnect() throws Exception {
         Client root = new GatewayWrapper();
-        root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+        root.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
 
         Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
@@ -53,7 +53,7 @@ class SudoTest extends BasicTest {
     @Test
     void testSudoTag() throws Exception {
         Client root = new GatewayWrapper();
-        root.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+        root.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
 
         Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());

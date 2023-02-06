@@ -66,7 +66,7 @@ class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new GatewayWrapper();
         try {
-            client.connect(HOST, PORT, "testUser", "password".toCharArray(), GROUP1.id);
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
             assertEquals(USER1.id, client.getId(), "Wrong user");
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudo("testUser2");
@@ -93,7 +93,7 @@ class AccessExceptionTest extends BasicTest {
     void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
         client.disconnect();
-        client.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+        client.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
         assertEquals(0L, client.getId());
 
         Image image = client.getImage(IMAGE2.id);
@@ -257,7 +257,7 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFail() {
-        assertThrows(AccessException.class, () -> sudo.sudo("root"));
+        assertThrows(AccessException.class, () -> sudo.sudo(ROOT.name));
     }
 
 

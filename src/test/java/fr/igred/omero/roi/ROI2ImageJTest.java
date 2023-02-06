@@ -74,7 +74,7 @@ class ROI2ImageJTest extends BasicTest {
         OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
         ovalRoi.setName("oval");
         ovalRoi.setPosition(1, 0, 3);
-        ovalRoi.setProperty("ROI", "24");
+        ovalRoi.setProperty("ROI", " ");
         rois.add(ovalRoi);
 
         Arrow arrow = new Arrow(2.0, 3.0, 3.0, 4.0);
@@ -111,7 +111,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<ROI> omeroROIs = ROIWrapper.fromImageJ(rois);
 
-        assertEquals(9, omeroROIs.size());
+        assertEquals(10, omeroROIs.size());
         assertEquals(1, omeroROIs.stream().filter(r -> "text".equals(r.getName())).count());
         assertEquals(1, omeroROIs.stream().filter(r -> "23".equals(r.getName())).count());
         assertEquals(0, omeroROIs.stream().filter(r -> "invalid".equals(r.getName())).count());
