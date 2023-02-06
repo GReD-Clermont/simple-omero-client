@@ -69,7 +69,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      * @return A list of ShapeWrappers.
      */
     static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
-        ShapeList list = new ShapeList();
+        ShapeList list = new ShapeWrapperList();
         int       type = ijRoi.getType();
         switch (type) {
             case Roi.FREEROI:
