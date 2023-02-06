@@ -877,8 +877,7 @@ public interface Browser {
      */
     default List<MapAnnotation> getMapAnnotations() throws ServerException, ServiceException {
         return ExceptionHandler.of(getQueryService(),
-                                   qs -> qs.findAll(omero.model.MapAnnotation.class.getSimpleName(),
-                                                    null),
+                                   qs -> qs.findAll(omero.model.MapAnnotation.class.getSimpleName(), null),
                                    "Cannot get tags")
                                .rethrow(ServerError.class, ServerException::new)
                                .get()
