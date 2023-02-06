@@ -99,7 +99,6 @@ public final class Wrapper {
     }
 
 
-    @SuppressWarnings("unchecked")
     public static <T extends AnnotationData, U extends Annotation<? extends T>> U wrap(T object) {
         U converted;
 
@@ -117,7 +116,7 @@ public final class Wrapper {
 
 
     @SuppressWarnings("IfStatementWithTooManyBranches")
-    public static <T extends DataObject, U extends RepositoryObjectWrapper< ? extends T>>
+    public static <T extends DataObject, U extends RepositoryObjectWrapper<? extends T>>
     U wrapRepositoryObject(T object) {
         U converted;
 
