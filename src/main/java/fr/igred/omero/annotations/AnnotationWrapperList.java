@@ -15,23 +15,24 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.roi;
+package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.WrapperList;
-import omero.gateway.model.ShapeData;
+import omero.gateway.model.AnnotationData;
 
 
-/** ArrayList of Shape Objects implementing the ShapeList interface */
-public class ShapeWrapperList extends WrapperList<ShapeData, Shape<?>> implements ShapeList {
+/** ArrayList of Annotation Objects implementing the AnnotationList interface */
+public class AnnotationWrapperList extends WrapperList<AnnotationData, Annotation<?>> implements AnnotationList {
 
-    private static final long serialVersionUID = -602818154494998324L;
+
+    private static final long serialVersionUID = -7103737611318554645L;
 
 
     /**
      * Constructs an empty list with an initial capacity of ten.
      */
-    public ShapeWrapperList() {
+    public AnnotationWrapperList() {
     }
 
 
@@ -42,7 +43,7 @@ public class ShapeWrapperList extends WrapperList<ShapeData, Shape<?>> implement
      *
      * @throws IllegalArgumentException if the specified initial capacity is negative
      */
-    public ShapeWrapperList(int initialCapacity) {
+    public AnnotationWrapperList(int initialCapacity) {
         super(initialCapacity);
     }
 

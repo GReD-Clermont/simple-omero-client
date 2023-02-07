@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
@@ -105,6 +106,13 @@ class ImageTest extends UserTest {
 
         long imageId = well.getWellSamples().get(0).getImage().getId();
         assertEquals(wellId, client.getImage(imageId).getWells(client).get(0).getId());
+    }
+
+
+    @Test
+    void testGetAnnotations() throws Exception {
+        AnnotationList annotations = client.getImage(IMAGE1.id).getAnnotations(client);
+        assertEquals(3, annotations.size());
     }
 
 
