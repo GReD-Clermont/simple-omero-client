@@ -15,8 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains the main interfaces to interact with an OMERO server, the clien class implementing them and the
- * basic OMERO object. It also contains a GatewayWrapper, derived from the Client, which handles the retrieval of
- * wrapped objects from OMERO.
+ * This package contains the main interfaces and abstract classes to handle OME Remote Objects.
  */
 package fr.igred.omero;

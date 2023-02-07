@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
@@ -106,13 +107,6 @@ public interface RemoteObject<T extends DataObject> {
      * @return group id.
      */
     Long getGroupId();
-
-
-    /**
-     * Overridden to return the name of the class and the object id.
-     */
-    @Override
-    String toString();
 
 
     /**

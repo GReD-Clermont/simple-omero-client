@@ -18,11 +18,11 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.ConnectionHandler;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.Image;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
 import ij.gui.ShapeRoi;

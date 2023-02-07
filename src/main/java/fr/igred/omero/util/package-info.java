@@ -16,6 +16,6 @@
  */
 /**
  * This package contains classes to handle 5D positions and boundaries as well as a utility class to check if the
- * library requirements are available.
+ * library requirements are available, and another one to convert DataObjects to Wrapper objects.
  */
 package fr.igred.omero.util;

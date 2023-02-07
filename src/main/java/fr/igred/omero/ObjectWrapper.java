@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
@@ -68,7 +69,7 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends RemoteObject<U>, W extends Comparable<W>> List<V>
+    public static <U extends DataObject, V extends RemoteObject<U>, W extends Comparable<W>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
         return objects.stream()
                       .map(mapper)
@@ -87,7 +88,7 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends RemoteObject<U>> List<V>
+    public static <U extends DataObject, V extends RemoteObject<U>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
         return wrap(objects, mapper, RemoteObject::getId);
     }

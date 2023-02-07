@@ -18,13 +18,13 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.DataManager;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.Image;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.core.Image;
+import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.Rectangle;
