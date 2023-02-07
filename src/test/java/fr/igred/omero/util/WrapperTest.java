@@ -1,3 +1,20 @@
+/*
+ *  Copyright (C) 2020-2023 GReD
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 package fr.igred.omero.util;
 
 
@@ -8,7 +25,9 @@ import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.AnnotationWrapperList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.TextualAnnotationWrapper;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.meta.PlaneInfoWrapper;
@@ -54,13 +73,16 @@ import omero.gateway.model.PolygonData;
 import omero.gateway.model.PolylineData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ROIData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TextData;
+import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
+import omero.model.CommentAnnotationI;
 import omero.model.FileAnnotationI;
 import omero.model.RectangleI;
 import omero.model.TagAnnotationI;
@@ -88,6 +110,8 @@ class WrapperTest extends BasicTest {
                 //arguments(named("ChannelData", ChannelData.class, ChannelWrapper.class),
                 //arguments(named("FileAnnotationData", FileAnnotationData.class, FileAnnotationWrapper.class),
                 //arguments(named("TagAnnotationData", TagAnnotationData.class, TagAnnotationWrapper.class),
+                //arguments(named("TextualAnnotationData", TextualAnnotationData.class), TextualAnnotationWrapper.class),
+                arguments(named("RatingAnnotationData", RatingAnnotationData.class), RatingAnnotationWrapper.class),
                 arguments(named("MapAnnotationData", MapAnnotationData.class), MapAnnotationWrapper.class),
                 arguments(named("ProjectData", ProjectData.class), ProjectWrapper.class),
                 arguments(named("DatasetData", DatasetData.class), DatasetWrapper.class),
@@ -143,6 +167,13 @@ class WrapperTest extends BasicTest {
     void testWrapTagAnnotationData() {
         TagAnnotationData object = new TagAnnotationData(new TagAnnotationI());
         assertSame(TagAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+    }
+
+
+    @Test
+    void testWrapTextualAnnotationData() {
+        TextualAnnotationData object = new TextualAnnotationData(new CommentAnnotationI());
+        assertSame(TextualAnnotationWrapper.class, Wrapper.wrap(object).getClass());
     }
 
 
