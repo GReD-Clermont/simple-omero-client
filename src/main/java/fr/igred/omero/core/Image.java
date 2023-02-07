@@ -15,16 +15,23 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.repository;
+package fr.igred.omero.core;
 
 
-import fr.igred.omero.Browser;
-import fr.igred.omero.Client;
-import fr.igred.omero.ConnectionHandler;
-import fr.igred.omero.DataManager;
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.repository.Dataset;
+import fr.igred.omero.repository.Folder;
+import fr.igred.omero.repository.Plate;
+import fr.igred.omero.repository.Project;
+import fr.igred.omero.repository.RepositoryObject;
+import fr.igred.omero.repository.Screen;
+import fr.igred.omero.repository.Well;
 import fr.igred.omero.roi.ROI;
 import ij.ImagePlus;
 import omero.gateway.model.ImageData;

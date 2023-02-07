@@ -15,26 +15,44 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.repository;
+package fr.igred.omero.core;
 
 
-import fr.igred.omero.RemoteObject;
+import fr.igred.omero.ObjectWrapper;
 import omero.gateway.model.ChannelData;
 
 import java.awt.Color;
 
 
 /**
- * Interface to handle Channel information on OMERO.
+ * Class containing a ChannelData object.
+ * <p> Wraps function calls to the ChannelData contained.
  */
-public interface Channel extends RemoteObject<ChannelData> {
+public class ChannelWrapper extends ObjectWrapper<ChannelData> implements Channel {
+
+
+    /**
+     * Constructor of the class ChannelWrapper.
+     *
+     * @param channel The ChannelData contained in the ChannelWrapper.
+     */
+    public ChannelWrapper(ChannelData channel) {
+        super(channel);
+    }
+
 
     /**
      * Returns whether the channel contains all the RGBA values or not.
      *
      * @return See above.
      */
-    boolean hasRGBA();
+    @Override
+    public boolean hasRGBA() {
+        return data.asChannel().getRed() != null &&
+               data.asChannel().getGreen() != null &&
+               data.asChannel().getBlue() != null &&
+               data.asChannel().getAlpha() != null;
+    }
 
 
     /**
@@ -42,7 +60,10 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    int getIndex();
+    @Override
+    public int getIndex() {
+        return data.getIndex();
+    }
 
 
     /**
@@ -51,7 +72,10 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    String getChannelLabeling();
+    @Override
+    public String getChannelLabeling() {
+        return data.getChannelLabeling();
+    }
 
 
     /**
@@ -59,7 +83,10 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    String getName();
+    @Override
+    public String getName() {
+        return this.asDataObject().getName();
+    }
 
 
     /**
@@ -67,7 +94,10 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @param name The name of the channel.
      */
-    void setName(String name);
+    @Override
+    public void setName(String name) {
+        data.setName(name);
+    }
 
 
     /**
@@ -75,7 +105,12 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return The original channel color.
      */
-    Color getColor();
+    @Override
+    public Color getColor() {
+        Color color = Color.WHITE;
+        if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
+        return color;
+    }
 
 
     /**
@@ -83,7 +118,10 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    int getAlpha();
+    @Override
+    public int getAlpha() {
+        return data.asChannel().getAlpha().getValue();
+    }
 
 
     /**
@@ -91,7 +129,10 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    int getRed();
+    @Override
+    public int getRed() {
+        return data.asChannel().getRed().getValue();
+    }
 
 
     /**
@@ -99,7 +140,10 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    int getGreen();
+    @Override
+    public int getGreen() {
+        return data.asChannel().getGreen().getValue();
+    }
 
 
     /**
@@ -107,6 +151,9 @@ public interface Channel extends RemoteObject<ChannelData> {
      *
      * @return See above.
      */
-    int getBlue();
+    @Override
+    public int getBlue() {
+        return data.asChannel().getBlue().getValue();
+    }
 
 }

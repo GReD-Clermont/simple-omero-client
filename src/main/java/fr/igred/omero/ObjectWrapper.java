@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;

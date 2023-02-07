@@ -20,7 +20,7 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
-import fr.igred.omero.repository.Image;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;

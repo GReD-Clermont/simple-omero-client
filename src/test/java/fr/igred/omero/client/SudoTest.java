@@ -15,14 +15,17 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.client;
 
 
+import fr.igred.omero.BasicTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.Image;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

@@ -15,9 +15,10 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.client;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.Table;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;

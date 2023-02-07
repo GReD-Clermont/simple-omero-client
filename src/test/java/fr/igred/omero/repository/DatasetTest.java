@@ -22,6 +22,7 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.core.Image;
 import omero.gateway.model.TagAnnotationData;
 import org.junit.jupiter.api.Test;
 

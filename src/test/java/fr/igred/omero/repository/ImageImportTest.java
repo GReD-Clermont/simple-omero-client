@@ -23,6 +23,7 @@ import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;

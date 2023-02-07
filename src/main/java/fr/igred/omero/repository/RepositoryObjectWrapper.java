@@ -18,8 +18,8 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
-import fr.igred.omero.ConnectionHandler;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.exception.AccessException;
