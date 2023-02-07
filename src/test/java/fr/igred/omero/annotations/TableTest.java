@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2022 GReD
+ *  Copyright (C) 2020-2023 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -196,4 +196,5 @@ class TableTest extends UserTest {
         assertThrows(IllegalArgumentException.class,
                      () -> images.forEach(img -> table.addRow(img.asImageData())));
     }
+
 }

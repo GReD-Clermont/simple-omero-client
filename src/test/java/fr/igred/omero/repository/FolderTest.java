@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2022 GReD
+ *  Copyright (C) 2020-2023 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -37,7 +37,7 @@ class FolderTest extends UserTest {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         FolderWrapper folder = new FolderWrapper(client, "Test");
-        long id = folder.getId();
+        long          id     = folder.getId();
         client.delete(folder);
         assertThrows(NoSuchElementException.class, () -> image.getFolder(client, id));
     }

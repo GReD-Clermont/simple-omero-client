@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2022 GReD
+ *  Copyright (C) 2020-2023 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericObjectWrapper<T> {
 
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+
 
     /**
      * Constructor of the GenericShapeWrapper class using a ShapeData.
@@ -125,11 +126,11 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
         data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
         data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
-        LengthI size = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
-        Color defaultStroke = Optional.ofNullable(Roi.getColor()).orElse(Color.YELLOW);
-        Color defaultFill = Optional.ofNullable(Roi.getDefaultFillColor()).orElse(TRANSPARENT);
-        Color stroke = Optional.ofNullable(ijRoi.getStrokeColor()).orElse(defaultStroke);
-        Color fill = Optional.ofNullable(ijRoi.getFillColor()).orElse(defaultFill);
+        LengthI size          = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
+        Color   defaultStroke = Optional.ofNullable(Roi.getColor()).orElse(Color.YELLOW);
+        Color   defaultFill   = Optional.ofNullable(Roi.getDefaultFillColor()).orElse(TRANSPARENT);
+        Color   stroke        = Optional.ofNullable(ijRoi.getStrokeColor()).orElse(defaultStroke);
+        Color   fill          = Optional.ofNullable(ijRoi.getFillColor()).orElse(defaultFill);
         data.getShapeSettings().setStrokeWidth(size);
         data.getShapeSettings().setStroke(stroke);
         data.getShapeSettings().setFill(fill);
@@ -388,11 +389,12 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Returns a new {@link RectangleWrapper} corresponding to the bounding box of the shape, once the related {@link
-     * AffineTransform} has been applied.
+     * Returns a new {@link RectangleWrapper} corresponding to the bounding box of the shape, once the related
+     * {@link AffineTransform} has been applied.
      *
      * @return The bounding box.
      */
+    @SuppressWarnings("ClassReferencesSubclass")
     public RectangleWrapper getBoundingBox() {
         Rectangle2D rectangle = createTransformedAWTShape().getBounds2D();
 

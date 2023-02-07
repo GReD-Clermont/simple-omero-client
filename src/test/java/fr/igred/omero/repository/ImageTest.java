@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2022 GReD
+ *  Copyright (C) 2020-2023 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,6 +28,7 @@ import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
 import ij.process.ImageStatistics;
 import loci.plugins.BF;
+import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,8 @@ import org.junit.jupiter.api.Test;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -225,6 +228,7 @@ class ImageTest extends UserTest {
         String value1 = "Value Test";
         String value2 = "Value Test2";
 
+        Timestamp ts = Timestamp.from(Instant.now());
         image.addPairKeyValue(client, key1, value1);
         image.addPairKeyValue(client, key2, value2);
 
@@ -234,6 +238,8 @@ class ImageTest extends UserTest {
         client.delete(maps);
 
         assertEquals(2, maps.size());
+        assertEquals(NSCLIENTMAPANNOTATION.value, maps.get(0).getNameSpace());
+        assertEquals(0, (maps.get(0).getLastModified().getTime() - ts.getTime()) / 1000);
         assertEquals(value1, value);
     }
 

@@ -9,7 +9,7 @@
 
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <version>5.9.3</version>
+    <version>5.9.4</version>
     <packaging>jar</packaging>
 
     <name>Simple OMERO Client</name>
@@ -19,7 +19,7 @@
 
     <organization>
         <name>GReD</name>
-        <url>https://www.gred-clermont.fr</url>
+        <url>https://www.igred.fr</url>
     </organization>
 
     <licenses>
@@ -35,9 +35,9 @@
             <id>ppouchin</id>
             <name>Pierre Pouchin</name>
             <email>pierre.pouchin@uca.fr</email>
-            <url>https://www.gred-clermont.fr/directory/member/pierre-pouchin/</url>
+            <url>https://www.igred.fr/directory/member/pierre-pouchin/</url>
             <organization>GReD (INSERM U1103 / CNRS UMR 6293 / UCA)</organization>
-            <organizationUrl>https://www.gred-clermont.fr</organizationUrl>
+            <organizationUrl>https://www.igred.fr</organizationUrl>
             <roles>
                 <role>lead</role>
                 <role>developer</role>
@@ -53,6 +53,9 @@
         </contributor>
         <contributor>
             <name>Rémi Valarcher</name>
+        </contributor>
+        <contributor>
+            <name>Rémy Dornier</name>
         </contributor>
     </contributors>
 

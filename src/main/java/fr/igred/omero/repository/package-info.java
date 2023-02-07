@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2022 GReD
+ *  Copyright (C) 2020-2023 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +16,7 @@
  */
 /**
  * This package contains classes related to the hierarchical organization for images.
- * <p> This includes containers (such as screens or projects for example), as well as data contained within images (e.g.
- * pixels and channels).
+ * <p> This includes containers (such as screens or projects for example), as well as data contained within images
+ * (e.g. pixels and channels).
  */
 package fr.igred.omero.repository;

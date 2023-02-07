@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2022 GReD
+ *  Copyright (C) 2020-2023 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -44,8 +44,8 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetWell() throws Exception {
-        final long  wellId = 1L;
-        WellWrapper well   = client.getWell(wellId);
+        final long        wellId = 1L;
+        WellWrapper       well   = client.getWell(wellId);
         WellSampleWrapper sample = well.getWellSamples().get(0);
 
         assertEquals(wellId, sample.getWell(client).getId());
