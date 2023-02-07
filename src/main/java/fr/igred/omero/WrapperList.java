@@ -54,7 +54,7 @@ public class WrapperList<T extends DataObject, U extends RemoteObject<? extends 
 
 
     /**
-     * Wraps the specified Remote Object and add it to the end of this list.
+     * Wraps the specified DataObject and adds it to the end of this list, if possible.
      *
      * @param object element to be wrapped and appended to this list
      *
@@ -62,13 +62,13 @@ public class WrapperList<T extends DataObject, U extends RemoteObject<? extends 
      */
     @Override
     public boolean add(T object) {
-        boolean added = false;
+        boolean added;
 
         try {
             U wrapper = Wrapper.wrap(object);
             added = add(wrapper);
         } catch (IllegalArgumentException e) {
-            // IGNORE
+            added = false;
         }
 
         return added;
