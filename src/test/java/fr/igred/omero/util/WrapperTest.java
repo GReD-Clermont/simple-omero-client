@@ -2,7 +2,10 @@ package fr.igred.omero.util;
 
 
 import fr.igred.omero.BasicTest;
+import fr.igred.omero.OMEROList;
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.AnnotationWrapperList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -68,6 +71,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Named.named;
@@ -159,6 +164,16 @@ class WrapperTest extends BasicTest {
     void testWrapWrongAnnotationData() {
         AnnotationData object = new WrongAnnotationData();
         assertThrows(IllegalArgumentException.class, () -> Wrapper.wrap(object));
+    }
+
+
+    @Test
+    void testAddWrongAnnotationDataToAnnotationList() {
+        OMEROList<AnnotationData, Annotation<?>> annotations = new AnnotationWrapperList();
+
+        boolean added = annotations.add(new WrongAnnotationData());
+        assertFalse(added);
+        assertEquals(0, annotations.size());
     }
 
 
