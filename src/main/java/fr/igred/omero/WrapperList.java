@@ -14,4 +14,23 @@ public class WrapperList<T extends DataObject, U extends RemoteObject<? extends 
 
     private static final long serialVersionUID = -4150557399805439478L;
 
+
+    /**
+     * Constructs an empty list with an initial capacity of ten.
+     */
+    public WrapperList() {
+    }
+
+
+    /**
+     * Constructs an empty list with the specified initial capacity.
+     *
+     * @param initialCapacity the initial capacity of the list
+     * @throws IllegalArgumentException if the specified initial capacity
+     *                                  is negative
+     */
+    public WrapperList(int initialCapacity) {
+        super(initialCapacity);
+    }
+
 }

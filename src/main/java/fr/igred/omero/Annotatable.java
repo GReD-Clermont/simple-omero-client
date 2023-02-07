@@ -2,6 +2,8 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.AnnotationList;
+import fr.igred.omero.annotations.AnnotationWrapperList;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -60,7 +62,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      */
     default <A extends Annotation<?>> boolean isLinked(Browser browser, A annotation)
     throws ServiceException, AccessException, ExecutionException {
-        return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
+        return getAnnotationData(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
 
 
@@ -114,9 +116,11 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      */
     default void linkIfNotLinked(Client client, Annotation<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long> annotationData = getAnnotations(client).stream().map(DataObject::getId).collect(Collectors.toList());
+        List<Long> annotationIds = getAnnotationData(client).stream()
+                                                            .map(DataObject::getId)
+                                                            .collect(Collectors.toList());
         link(client, Arrays.stream(annotations)
-                           .filter(a -> !annotationData.contains(a.getId()))
+                           .filter(a -> !annotationIds.contains(a.getId()))
                            .toArray(Annotation<?>[]::new));
     }
 
@@ -590,11 +594,31 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<AnnotationData> getAnnotations(Browser browser)
+    default List<AnnotationData> getAnnotationData(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         return handleServiceAndAccess(browser.getMetadata(),
                                       m -> m.getAnnotations(browser.getCtx(), asDataObject()),
                                       "Cannot get annotations from " + this);
+    }
+
+
+    /**
+     * Retrieves annotations linked to the object (of known types).
+     *
+     * @param browser The data browser.
+     *
+     * @return A list of annotations.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default AnnotationList getAnnotations(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        List<AnnotationData> annotationData = getAnnotationData(browser);
+        AnnotationList       annotations    = new AnnotationWrapperList(annotationData.size());
+        annotationData.forEach(annotations::add);
+        return annotations;
     }
 
 
@@ -610,8 +634,8 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      */
     default void copyAnnotationLinks(Client client, Annotatable<?> object)
     throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> newAnnotations = object.getAnnotations(client);
-        List<AnnotationData> oldAnnotations = this.getAnnotations(client);
+        List<AnnotationData> newAnnotations = object.getAnnotationData(client);
+        List<AnnotationData> oldAnnotations = this.getAnnotationData(client);
         for (AnnotationData annotation : oldAnnotations) {
             newAnnotations.removeIf(a -> a.getId() == annotation.getId());
         }

@@ -159,8 +159,9 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      */
     @Override
     public ShapeList getShapes() {
-        ShapeList shapes = new ShapeWrapperList();
-        data.getShapes().stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
+        List<ShapeData> shapeData = data.getShapes();
+        ShapeList       shapes    = new ShapeWrapperList(shapeData.size());
+        shapeData.stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
         return shapes;
     }
 
