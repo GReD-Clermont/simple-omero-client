@@ -15,7 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.meta;
+package fr.igred.omero.core;
 
 
 import fr.igred.omero.RemoteObject;

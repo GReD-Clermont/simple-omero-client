@@ -18,11 +18,12 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Browser;
-import fr.igred.omero.Client;
-import fr.igred.omero.DataManager;
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;

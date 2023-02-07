@@ -19,14 +19,14 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.Annotatable;
-import fr.igred.omero.Client;
-import fr.igred.omero.ConnectionHandler;
-import fr.igred.omero.DataManager;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.Image;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.util.Bounds;
 import ij.gui.Roi;
 import omero.gateway.model.ROIData;

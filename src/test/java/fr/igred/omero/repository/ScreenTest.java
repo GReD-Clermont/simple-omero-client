@@ -21,6 +21,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

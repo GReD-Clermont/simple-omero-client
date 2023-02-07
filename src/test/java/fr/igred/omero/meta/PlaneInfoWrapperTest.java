@@ -19,7 +19,8 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.Pixels;
+import fr.igred.omero.core.Pixels;
+import fr.igred.omero.core.PlaneInfo;
 import ome.units.UNITS;
 import omero.model.Length;
 import omero.model.Time;
@@ -27,9 +28,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static fr.igred.omero.meta.PlaneInfo.computeMeanExposureTime;
-import static fr.igred.omero.meta.PlaneInfo.computeMeanTimeInterval;
-import static fr.igred.omero.meta.PlaneInfo.getMinPosition;
+import static fr.igred.omero.core.PlaneInfo.computeMeanExposureTime;
+import static fr.igred.omero.core.PlaneInfo.computeMeanTimeInterval;
+import static fr.igred.omero.core.PlaneInfo.getMinPosition;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 

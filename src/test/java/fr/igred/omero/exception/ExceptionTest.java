@@ -15,13 +15,13 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.exception;
 
 
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
-import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.BasicTest;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
+import fr.igred.omero.client.GatewayWrapper;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;

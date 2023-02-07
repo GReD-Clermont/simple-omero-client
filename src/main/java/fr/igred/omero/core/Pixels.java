@@ -15,15 +15,14 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.repository;
+package fr.igred.omero.core;
 
 
-import fr.igred.omero.Browser;
-import fr.igred.omero.ConnectionHandler;
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.meta.PlaneInfo;
 import omero.gateway.model.PixelsData;
 import omero.model.Length;
 import omero.model.Time;
