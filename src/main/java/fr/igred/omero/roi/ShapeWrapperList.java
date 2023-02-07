@@ -10,4 +10,13 @@ public class ShapeWrapperList extends WrapperList<ShapeData, Shape<?>> implement
 
     private static final long serialVersionUID = -602818154494998324L;
 
+
+    public ShapeWrapperList() {
+    }
+
+
+    public ShapeWrapperList(int initialCapacity) {
+        super(initialCapacity);
+    }
+
 }
