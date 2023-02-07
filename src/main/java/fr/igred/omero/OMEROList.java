@@ -18,7 +18,6 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.util.Wrapper;
 import omero.gateway.model.DataObject;
 
 import java.util.List;
@@ -43,23 +42,12 @@ public interface OMEROList<T extends DataObject, U extends RemoteObject<? extend
 
 
     /**
-     * Wraps the specified Remote Object and add it to the end of this list.
+     * Converts the specified DataObject to a RemoteObject and add it to the end of this list.
      *
      * @param object element to be wrapped and appended to this list
      *
      * @return {@code true} (as specified by {@link List#add(Object)})
      */
-    default boolean add(T object) {
-        boolean added = false;
-
-        try {
-            U wrapper = Wrapper.wrap(object);
-            added = add(wrapper);
-        } catch (IllegalArgumentException e) {
-            // IGNORE
-        }
-
-        return added;
-    }
+    boolean add(T object);
 
 }
