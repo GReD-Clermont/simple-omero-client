@@ -1,3 +1,20 @@
+/*
+ *  Copyright (C) 2020-2023 GReD
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
 package fr.igred.omero.util;
 
 
@@ -5,7 +22,9 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.TextualAnnotationWrapper;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.meta.PlaneInfoWrapper;
@@ -53,16 +72,18 @@ import omero.gateway.model.PolygonData;
 import omero.gateway.model.PolylineData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ROIData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TextData;
+import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
 
-@SuppressWarnings({"OverlyCoupledClass", "unchecked"})
+@SuppressWarnings({"OverlyCoupledClass", "unchecked", "IfStatementWithTooManyBranches"})
 public final class Wrapper {
 
     private static final String UNKNOWN_TYPE = "Unknown type: %s";
@@ -72,7 +93,6 @@ public final class Wrapper {
     }
 
 
-    @SuppressWarnings("IfStatementWithTooManyBranches")
     public static <T extends ShapeData, U extends Shape<? extends T>> U wrap(T object) {
         U converted;
 
@@ -108,6 +128,10 @@ public final class Wrapper {
             converted = (U) new MapAnnotationWrapper((MapAnnotationData) object);
         } else if (object instanceof TagAnnotationData) {
             converted = (U) new TagAnnotationWrapper((TagAnnotationData) object);
+        } else if (object instanceof RatingAnnotationData) {
+            converted = (U) new RatingAnnotationWrapper((RatingAnnotationData) object);
+        } else if (object instanceof TextualAnnotationData) {
+            converted = (U) new TextualAnnotationWrapper((TextualAnnotationData) object);
         } else {
             throw new IllegalArgumentException(String.format(UNKNOWN_TYPE, object.getClass().getName()));
         }
@@ -115,7 +139,6 @@ public final class Wrapper {
     }
 
 
-    @SuppressWarnings("IfStatementWithTooManyBranches")
     public static <T extends DataObject, U extends RepositoryObjectWrapper<? extends T>>
     U wrapRepositoryObject(T object) {
         U converted;
@@ -143,7 +166,6 @@ public final class Wrapper {
     }
 
 
-    @SuppressWarnings("IfStatementWithTooManyBranches")
     public static <T extends DataObject, U extends RemoteObject<? extends T>> U wrap(T object) {
         U converted;
         if (object instanceof ShapeData) {
