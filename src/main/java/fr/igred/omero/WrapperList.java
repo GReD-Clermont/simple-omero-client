@@ -18,9 +18,11 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.util.Wrapper;
 import omero.gateway.model.DataObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /** ArrayList of Remote Objects implementing the OMEROList interface */
@@ -48,6 +50,28 @@ public class WrapperList<T extends DataObject, U extends RemoteObject<? extends 
      */
     public WrapperList(int initialCapacity) {
         super(initialCapacity);
+    }
+
+
+    /**
+     * Wraps the specified Remote Object and add it to the end of this list.
+     *
+     * @param object element to be wrapped and appended to this list
+     *
+     * @return {@code true} (as specified by {@link List#add(Object)})
+     */
+    @Override
+    public boolean add(T object) {
+        boolean added = false;
+
+        try {
+            U wrapper = Wrapper.wrap(object);
+            added = add(wrapper);
+        } catch (IllegalArgumentException e) {
+            // IGNORE
+        }
+
+        return added;
     }
 
 }
