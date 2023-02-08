@@ -63,7 +63,7 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
              ijRoi.getBounds().getWidth() / 2,
              ijRoi.getBounds().getHeight() / 2);
         data.setText(ijRoi.getName());
-        super.copy(ijRoi);
+        super.copyFromIJRoi(ijRoi);
     }
 
 
@@ -288,12 +288,7 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
             double y2 = shape2.getY();
             roi = new EllipseRoi(x1, y1, x2, y2, ratio);
         }
-        roi.setStrokeColor(getStroke());
-        roi.setFillColor(getFill());
-        int c = Math.max(0, getC() + 1);
-        int z = Math.max(0, getZ() + 1);
-        int t = Math.max(0, getT() + 1);
-        roi.setPosition(c, z, t);
+        copyToIJRoi(roi);
         return roi;
     }
 

@@ -69,7 +69,7 @@ public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
 
         data.setPoints(points);
         data.setText(ijRoi.getName());
-        super.copy(ijRoi);
+        super.copyFromIJRoi(ijRoi);
     }
 
 

@@ -28,6 +28,7 @@ import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
 import org.junit.jupiter.api.Test;
 
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -37,6 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 class ROI2ImageJTest extends BasicTest {
@@ -252,12 +254,14 @@ class ROI2ImageJTest extends BasicTest {
         LineWrapper arrow = new LineWrapper(3, 3, 10, 10);
         arrow.setCZT(0, 0, 2);
         arrow.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        arrow.setFill(new Color(0, 0, 0, 0));
 
         Arrow ijArrow = (Arrow) arrow.toImageJ();
         assertEquals(arrow.getX1(), ijArrow.x2d, Double.MIN_VALUE);
         assertEquals(arrow.getY1(), ijArrow.y2d, Double.MIN_VALUE);
         assertEquals(arrow.getX2(), ijArrow.x1d, Double.MIN_VALUE);
         assertEquals(arrow.getY2(), ijArrow.y1d, Double.MIN_VALUE);
+        assertNull(ijArrow.getFillColor());
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijArrow);
@@ -281,12 +285,14 @@ class ROI2ImageJTest extends BasicTest {
     void convertLine() {
         LineWrapper line = new LineWrapper(3, 3, 10, 10);
         line.setCZT(0, 0, 2);
+        line.setFill(Color.BLUE);
 
         Line ijLine = (Line) line.toImageJ();
         assertEquals(line.getX1(), ijLine.x1d, Double.MIN_VALUE);
         assertEquals(line.getY1(), ijLine.y1d, Double.MIN_VALUE);
         assertEquals(line.getX2(), ijLine.x2d, Double.MIN_VALUE);
         assertEquals(line.getY2(), ijLine.y2d, Double.MIN_VALUE);
+        assertEquals(Color.BLUE, line.getFill());
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijLine);

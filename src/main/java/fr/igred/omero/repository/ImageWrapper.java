@@ -365,6 +365,33 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Links ROIs to the image in OMERO.
+     * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
+     *
+     * @param client The client handling the connection.
+     * @param rois   ROIs to be added.
+     *
+     * @return The updated list of ROIs.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ROIWrapper> saveROIs(Client client, Collection<? extends ROIWrapper> rois)
+    throws ServiceException, AccessException, ExecutionException {
+        rois.forEach(r -> r.setImage(this));
+        List<ROIData>       roisData = rois.stream().map(ROIWrapper::asROIData).collect(Collectors.toList());
+        Collection<ROIData> results  = new ArrayList<>(0);
+        try {
+            results = client.getRoiFacility().saveROIs(client.getCtx(), data.getId(), roisData);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot link ROI to " + this);
+        }
+        return wrap(results, ROIWrapper::new);
+    }
+
+
+    /**
      * Links a ROI to the image in OMERO
      * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *

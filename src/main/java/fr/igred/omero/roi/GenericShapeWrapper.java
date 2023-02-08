@@ -95,7 +95,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
                     points.add(new PointWrapper(x[i], y[i]));
                 }
                 points.forEach(p -> p.setText(ijRoi.getName()));
-                points.forEach(p -> p.copy(ijRoi));
+                points.forEach(p -> p.copyFromIJRoi(ijRoi));
                 list.addAll(points);
                 break;
             case Roi.COMPOSITE:
@@ -122,7 +122,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      *
      * @param ijRoi An ImageJ Roi.
      */
-    protected void copy(ij.gui.Roi ijRoi) {
+    protected void copyFromIJRoi(ij.gui.Roi ijRoi) {
         data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
         data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
         data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
@@ -134,6 +134,23 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         data.getShapeSettings().setStrokeWidth(size);
         data.getShapeSettings().setStroke(stroke);
         data.getShapeSettings().setFill(fill);
+    }
+
+
+    /**
+     * Copies details to an ImageJ ROI (name, position, stroke color, fill color, stroke width).
+     *
+     * @param ijRoi An ImageJ Roi.
+     */
+    protected void copyToIJRoi(ij.gui.Roi ijRoi) {
+        ijRoi.setName(getText());
+        ijRoi.setStrokeColor(getStroke());
+        Color fill = getFill();
+        if(!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
+        int c = Math.max(0, getC() + 1);
+        int z = Math.max(0, getZ() + 1);
+        int t = Math.max(0, getT() + 1);
+        ijRoi.setPosition(c, z, t);
     }
 
 
@@ -420,13 +437,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      */
     public Roi toImageJ() {
         Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
-        roi.setName(getText());
-        roi.setStrokeColor(getStroke());
-        roi.setFillColor(getFill());
-        int c = Math.max(0, getC() + 1);
-        int z = Math.max(0, getZ() + 1);
-        int t = Math.max(0, getT() + 1);
-        roi.setPosition(c, z, t);
+        copyToIJRoi(roi);
         return roi;
     }
 
