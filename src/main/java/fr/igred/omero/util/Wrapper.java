@@ -19,6 +19,7 @@ package fr.igred.omero.util;
 
 
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
@@ -36,7 +37,6 @@ import fr.igred.omero.core.PixelsWrapper;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.WellSampleWrapper;
 import fr.igred.omero.screen.WellWrapper;
@@ -82,6 +82,12 @@ import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 
 @SuppressWarnings({"OverlyCoupledClass", "unchecked", "IfStatementWithTooManyBranches"})
 public final class Wrapper {
@@ -93,6 +99,52 @@ public final class Wrapper {
     }
 
 
+    /**
+     * Converts a DataObject list to a RemoteObject list, sorted by {@code sorter}.
+     *
+     * @param objects The DataObject list.
+     * @param mapper  The method used to map objects.
+     * @param sorter  The method used to sort the objects.
+     * @param <U>     The type of input (extends DataObject).
+     * @param <V>     The type of output (extends ObjectWrapper).
+     * @param <W>     The type used to sort the output.
+     *
+     * @return See above.
+     */
+    public static <U extends DataObject, V extends RemoteObject<U>, W extends Comparable<W>> List<V>
+    wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
+        return objects.stream()
+                      .map(mapper)
+                      .sorted(Comparator.comparing(sorter))
+                      .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a DataObject list to a RemoteObject list, sorted by {@code sorter}.
+     *
+     * @param objects The DataObject list.
+     * @param mapper  The method used to map objects.
+     * @param <U>     The type of input (extends DataObject).
+     * @param <V>     The type of output (extends ObjectWrapper).
+     *
+     * @return See above.
+     */
+    public static <U extends DataObject, V extends RemoteObject<U>> List<V>
+    wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
+        return wrap(objects, mapper, RemoteObject::getId);
+    }
+
+
+    /**
+     * Converts (wraps) a ShapeData object to a Shape object.
+     *
+     * @param object The object to convert
+     * @param <T>    The ShapeData type.
+     * @param <U>    The Shape type.
+     *
+     * @return See above.
+     */
     public static <T extends ShapeData, U extends Shape<? extends T>> U wrap(T object) {
         U converted;
 
@@ -119,6 +171,15 @@ public final class Wrapper {
     }
 
 
+    /**
+     * Converts (wraps) an AnnotationData object to an Annotation object.
+     *
+     * @param object The object to convert
+     * @param <T>    The AnnotationData type.
+     * @param <U>    The Annotation type.
+     *
+     * @return See above.
+     */
     public static <T extends AnnotationData, U extends Annotation<? extends T>> U wrap(T object) {
         U converted;
 
@@ -139,7 +200,16 @@ public final class Wrapper {
     }
 
 
-    public static <T extends DataObject, U extends RepositoryObjectWrapper<? extends T>>
+    /**
+     * Converts (wraps) a DataObject object to a Repository object.
+     *
+     * @param object The object to convert
+     * @param <T>    The DataObject type.
+     * @param <U>    The RepositoryObject type.
+     *
+     * @return See above.
+     */
+    public static <T extends DataObject, U extends RepositoryObject<? extends T>>
     U wrapRepositoryObject(T object) {
         U converted;
 
@@ -166,6 +236,15 @@ public final class Wrapper {
     }
 
 
+    /**
+     * Converts (wraps) a DataObject to a RemoteObject.
+     *
+     * @param object The object to convert
+     * @param <T>    The DataObject type.
+     * @param <U>    The RemoteObject type.
+     *
+     * @return See above.
+     */
     public static <T extends DataObject, U extends RemoteObject<? extends T>> U wrap(T object) {
         U converted;
         if (object instanceof ShapeData) {
@@ -187,7 +266,7 @@ public final class Wrapper {
         } else if (object instanceof ChannelData) {
             converted = (U) new ChannelWrapper((ChannelData) object);
         } else {
-            converted = (U) wrapRepositoryObject(object);
+            converted = wrapRepositoryObject(object);
         }
         return converted;
     }

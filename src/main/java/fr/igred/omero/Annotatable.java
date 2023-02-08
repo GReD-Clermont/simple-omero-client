@@ -43,8 +43,8 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.ObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
+import static fr.igred.omero.util.Wrapper.wrap;
 
 
 public interface Annotatable<T extends DataObject> extends RemoteObject<T> {

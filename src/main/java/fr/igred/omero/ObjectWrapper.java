@@ -26,12 +26,7 @@ import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.model.DataObject;
 
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
@@ -54,43 +49,6 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      */
     protected ObjectWrapper(T object) {
         this.data = object;
-    }
-
-
-    /**
-     * Converts a DataObject list to a ObjectWrapper list, sorted by {@code sorter}.
-     *
-     * @param objects The DataObject list.
-     * @param mapper  The method used to map objects.
-     * @param sorter  The method used to sort the objects.
-     * @param <U>     The type of input (extends DataObject).
-     * @param <V>     The type of output (extends ObjectWrapper).
-     * @param <W>     The type used to sort the output.
-     *
-     * @return See above.
-     */
-    public static <U extends DataObject, V extends RemoteObject<U>, W extends Comparable<W>> List<V>
-    wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
-        return objects.stream()
-                      .map(mapper)
-                      .sorted(Comparator.comparing(sorter))
-                      .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Converts a DataObject list to a ObjectWrapper list, sorted by {@code sorter}.
-     *
-     * @param objects The DataObject list.
-     * @param mapper  The method used to map objects.
-     * @param <U>     The type of input (extends DataObject).
-     * @param <V>     The type of output (extends ObjectWrapper).
-     *
-     * @return See above.
-     */
-    public static <U extends DataObject, V extends RemoteObject<U>> List<V>
-    wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
-        return wrap(objects, mapper, RemoteObject::getId);
     }
 
 
