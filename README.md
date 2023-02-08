@@ -1,4 +1,5 @@
 [![Java CI with Maven](https://github.com/GReD-Clermont/simple-omero-client/actions/workflows/maven.yml/badge.svg)](https://github.com/GReD-Clermont/simple-omero-client/actions/workflows/maven.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GReD-Clermont_simple-omero-client&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=GReD-Clermont_simple-omero-client)
 [![codecov](https://codecov.io/gh/GReD-Clermont/simple-omero-client/branch/main/graph/badge.svg)](https://codecov.io/gh/GReD-Clermont/simple-omero-client)
 [![DOI](https://img.shields.io/badge/DOI-10.12688%2Ff1000research.110385.2-GREEN)](https://doi.org/10.12688/f1000research.110385.2)
 
