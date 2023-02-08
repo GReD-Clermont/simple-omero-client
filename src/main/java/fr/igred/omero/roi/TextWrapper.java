@@ -56,7 +56,7 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      */
     public TextWrapper(TextRoi text) {
         this(text.getText(), text.getBounds().getX(), text.getBounds().getY());
-        super.copy(text);
+        super.copyFromIJRoi(text);
     }
 
 
@@ -198,17 +198,11 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
     public ij.gui.Roi toImageJ() {
         java.awt.Shape awtShape = createTransformedAWTShape();
 
-        String text = getText();
-        double x    = awtShape.getBounds2D().getX();
-        double y    = awtShape.getBounds2D().getY();
+        double x = awtShape.getBounds2D().getX();
+        double y = awtShape.getBounds2D().getY();
 
-        TextRoi roi = new TextRoi(x, y, text);
-        roi.setStrokeColor(getStroke());
-        roi.setFillColor(getFill());
-        int c = Math.max(0, getC() + 1);
-        int z = Math.max(0, getZ() + 1);
-        int t = Math.max(0, getT() + 1);
-        roi.setPosition(c, z, t);
+        TextRoi roi = new TextRoi(x, y, getText());
+        copyToIJRoi(roi);
 
         return roi;
     }

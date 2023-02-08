@@ -70,7 +70,7 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
                 data.getShapeSettings().setMarkerStart(ARROW);
             }
         }
-        super.copy(line);
+        super.copyFromIJRoi(line);
     }
 
 
@@ -295,12 +295,7 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
             default:
                 roi = new Line(x1, y1, x2, y2);
         }
-        roi.setStrokeColor(getStroke());
-        roi.setFillColor(getFill());
-        int c = Math.max(0, getC() + 1);
-        int z = Math.max(0, getZ() + 1);
-        int t = Math.max(0, getT() + 1);
-        roi.setPosition(c, z, t);
+        copyToIJRoi(roi);
         return roi;
     }
 
