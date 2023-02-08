@@ -439,11 +439,12 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROINamesFromIJResults1() throws Exception {
-        ROIWrapper roi1 = new ROIWrapper();
-        ROIWrapper roi2 = new ROIWrapper();
+        List<ROIWrapper> rois = new ArrayList<>(2);
+        rois.add(new ROIWrapper());
+        rois.add(new ROIWrapper());
 
-        roi1.setImage(image);
-        roi2.setImage(image);
+        rois.get(0).setImage(image);
+        rois.get(1).setImage(image);
 
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
@@ -453,18 +454,15 @@ class ImageJTableTest extends UserTest {
             rectangle.setT(0);
             rectangle.setC(0);
 
-            if (i % 2 == 1) roi1.addShape(rectangle);
-            else roi2.addShape(rectangle);
+            if (i % 2 == 1) rois.get(0).addShape(rectangle);
+            else rois.get(1).addShape(rectangle);
         }
 
-        image.saveROI(client, roi1);
-        image.saveROI(client, roi2);
+        List<ROIWrapper> newROIs = image.saveROIs(client, rois);
+        List<Roi>        ijRois  = ROIWrapper.toImageJ(newROIs);
 
-        List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
-
-        String label1 = image.getName() + ":" + rois.get(0).getShapes().get(0).getText() + ":4";
-        String label2 = image.getName() + ":" + rois.get(1).getShapes().get(0).getText() + ":10";
+        String label1 = image.getName() + ":" + newROIs.get(0).getShapes().get(0).getText() + ":4";
+        String label2 = image.getName() + ":" + newROIs.get(1).getShapes().get(0).getText() + ":10";
 
         ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
         ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
@@ -481,12 +479,12 @@ class ImageJTableTest extends UserTest {
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
-        assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
+        assertEquals(newROIs.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(label1, data[2][0]);
         assertEquals(volume1, (Double) data[3][0], Double.MIN_VALUE);
         assertEquals(unit1, data[4][0]);
         assertEquals(imageId, ((DataObject) data[0][1]).getId());
-        assertEquals(rois.get(1).getId(), ((DataObject) data[1][1]).getId());
+        assertEquals(newROIs.get(1).getId(), ((DataObject) data[1][1]).getId());
         assertEquals(label2, data[2][1]);
         assertEquals(volume2, (Double) data[3][1], Double.MIN_VALUE);
         assertEquals(unit2, data[4][1]);
