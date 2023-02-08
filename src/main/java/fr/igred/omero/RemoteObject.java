@@ -110,13 +110,6 @@ public interface RemoteObject<T extends DataObject> {
 
 
     /**
-     * Overridden to return the name of the class and the object id.
-     */
-    @Override
-    String toString();
-
-
-    /**
      * Saves and updates object.
      *
      * @param dm The data manager.

@@ -18,7 +18,6 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -30,18 +29,18 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
-import fr.igred.omero.repository.Dataset;
-import fr.igred.omero.repository.DatasetWrapper;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.repository.Plate;
-import fr.igred.omero.repository.PlateWrapper;
-import fr.igred.omero.repository.Project;
-import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.repository.Screen;
-import fr.igred.omero.repository.ScreenWrapper;
-import fr.igred.omero.repository.Well;
-import fr.igred.omero.repository.WellWrapper;
+import fr.igred.omero.screen.Plate;
+import fr.igred.omero.screen.PlateWrapper;
+import fr.igred.omero.containers.Project;
+import fr.igred.omero.containers.ProjectWrapper;
+import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.ScreenWrapper;
+import fr.igred.omero.screen.Well;
+import fr.igred.omero.screen.WellWrapper;
 import omero.RLong;
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -174,7 +173,7 @@ public interface Browser {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx(), Arrays.asList(ids)),
                                                                   error);
-        return ObjectWrapper.wrap(projects, ProjectWrapper::new);
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -191,7 +190,7 @@ public interface Browser {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx()),
                                                                   "Cannot get projects");
-        return ObjectWrapper.wrap(projects, ProjectWrapper::new);
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -211,7 +210,7 @@ public interface Browser {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx(), experimenter.getId()),
                                                                   "Cannot get projects");
-        return ObjectWrapper.wrap(projects, ProjectWrapper::new);
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -231,7 +230,7 @@ public interface Browser {
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx(), name),
                                                                   error);
-        return ObjectWrapper.wrap(projects, ProjectWrapper::new);
+        return wrap(projects, ProjectWrapper::new);
     }
 
 
@@ -274,7 +273,7 @@ public interface Browser {
         Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getDatasets(getCtx(), Arrays.asList(ids)),
                                                                   error);
-        return ObjectWrapper.wrap(datasets, DatasetWrapper::new);
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
@@ -339,7 +338,7 @@ public interface Browser {
         Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getDatasets(getCtx(), name),
                                                                   error);
-        return ObjectWrapper.wrap(datasets, DatasetWrapper::new);
+        return wrap(datasets, DatasetWrapper::new);
     }
 
 
@@ -385,7 +384,7 @@ public interface Browser {
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getImages(getCtx(), Arrays.asList(ids)),
                                                               error);
-        return ObjectWrapper.wrap(images, ImageWrapper::new);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -402,7 +401,7 @@ public interface Browser {
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getUserImages(getCtx()),
                                                               "Cannot get images");
-        return ObjectWrapper.wrap(images, ImageWrapper::new);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -422,7 +421,7 @@ public interface Browser {
         Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getImages(getCtx(), name),
                                                               error);
-        return ObjectWrapper.wrap(images, ImageWrapper::new);
+        return wrap(images, ImageWrapper::new);
     }
 
 
@@ -595,7 +594,7 @@ public interface Browser {
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx(), Arrays.asList(ids)),
                                                                 error);
-        return ObjectWrapper.wrap(screens, ScreenWrapper::new);
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -612,7 +611,7 @@ public interface Browser {
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx()),
                                                                 "Cannot get screens");
-        return ObjectWrapper.wrap(screens, ScreenWrapper::new);
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -632,7 +631,7 @@ public interface Browser {
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx(), experimenter.getId()),
                                                                 "Cannot get screens");
-        return ObjectWrapper.wrap(screens, ScreenWrapper::new);
+        return wrap(screens, ScreenWrapper::new);
     }
 
 
@@ -674,7 +673,7 @@ public interface Browser {
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx(), Arrays.asList(ids)),
                                                               error);
-        return ObjectWrapper.wrap(plates, PlateWrapper::new);
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -691,7 +690,7 @@ public interface Browser {
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx()),
                                                               "Cannot get plates");
-        return ObjectWrapper.wrap(plates, PlateWrapper::new);
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -711,7 +710,7 @@ public interface Browser {
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx(), experimenter.getId()),
                                                               "Cannot get plates");
-        return ObjectWrapper.wrap(plates, PlateWrapper::new);
+        return wrap(plates, PlateWrapper::new);
     }
 
 
@@ -754,7 +753,7 @@ public interface Browser {
         Collection<WellData> wells = handleServiceAndAccess(getBrowseFacility(),
                                                             bf -> bf.getWells(getCtx(), Arrays.asList(ids)),
                                                             error);
-        return ObjectWrapper.wrap(wells, WellWrapper::new);
+        return wrap(wells, WellWrapper::new);
     }
 
 
