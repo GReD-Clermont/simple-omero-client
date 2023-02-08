@@ -23,6 +23,8 @@ import omero.gateway.model.ExperimenterData;
 
 import java.util.List;
 
+import static fr.igred.omero.util.Wrapper.wrap;
+
 
 /**
  * Class containing an ExperimenterData object.

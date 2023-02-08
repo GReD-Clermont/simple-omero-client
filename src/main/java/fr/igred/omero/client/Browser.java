@@ -66,7 +66,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.ObjectWrapper.wrap;
+import static fr.igred.omero.util.Wrapper.wrap;
 import static fr.igred.omero.RemoteObject.distinct;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 

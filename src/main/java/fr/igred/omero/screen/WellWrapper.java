@@ -23,6 +23,8 @@ import omero.gateway.model.WellData;
 
 import java.util.List;
 
+import static fr.igred.omero.util.Wrapper.wrap;
+
 
 /**
  * Class containing a WellData object.
