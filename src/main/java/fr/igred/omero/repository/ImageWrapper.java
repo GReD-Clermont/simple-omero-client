@@ -96,47 +96,6 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Sets the calibration. Planes information has to be loaded first.
-     *
-     * @param pixels      The pixels.
-     * @param calibration The ImageJ calibration.
-     */
-    private static void setCalibration(PixelsWrapper pixels, Calibration calibration) {
-        Length positionX = pixels.getPositionX();
-        Length positionY = pixels.getPositionY();
-        Length positionZ = pixels.getPositionZ();
-        Length spacingX  = pixels.getPixelSizeX();
-        Length spacingY  = pixels.getPixelSizeY();
-        Length spacingZ  = pixels.getPixelSizeZ();
-        Time   stepT     = pixels.getTimeIncrement();
-
-        if (stepT == null) {
-            stepT = pixels.getMeanTimeInterval();
-        }
-
-        calibration.setXUnit(positionX.getSymbol());
-        calibration.setYUnit(positionY.getSymbol());
-        calibration.setZUnit(positionZ.getSymbol());
-        calibration.xOrigin = positionX.getValue();
-        calibration.yOrigin = positionY.getValue();
-        calibration.zOrigin = positionZ.getValue();
-        if (spacingX != null) {
-            calibration.pixelWidth = spacingX.getValue();
-        }
-        if (spacingY != null) {
-            calibration.pixelHeight = spacingY.getValue();
-        }
-        if (spacingZ != null) {
-            calibration.pixelDepth = spacingZ.getValue();
-        }
-        if (!Double.isNaN(stepT.getValue())) {
-            calibration.setTimeUnit(stepT.getSymbol());
-            calibration.frameInterval = stepT.getValue();
-        }
-    }
-
-
-    /**
      * Gets the ImageData name
      *
      * @return name.
@@ -208,6 +167,47 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Sets the calibration. Planes information has to be loaded first.
+     *
+     * @param pixels      The pixels.
+     * @param calibration The ImageJ calibration.
+     */
+    private static void setCalibration(PixelsWrapper pixels, Calibration calibration) {
+        Length positionX = pixels.getPositionX();
+        Length positionY = pixels.getPositionY();
+        Length positionZ = pixels.getPositionZ();
+        Length spacingX  = pixels.getPixelSizeX();
+        Length spacingY  = pixels.getPixelSizeY();
+        Length spacingZ  = pixels.getPixelSizeZ();
+        Time   stepT     = pixels.getTimeIncrement();
+
+        if (stepT == null) {
+            stepT = pixels.getMeanTimeInterval();
+        }
+
+        calibration.setXUnit(positionX.getSymbol());
+        calibration.setYUnit(positionY.getSymbol());
+        calibration.setZUnit(positionZ.getSymbol());
+        calibration.xOrigin = positionX.getValue();
+        calibration.yOrigin = positionY.getValue();
+        calibration.zOrigin = positionZ.getValue();
+        if (spacingX != null) {
+            calibration.pixelWidth = spacingX.getValue();
+        }
+        if (spacingY != null) {
+            calibration.pixelHeight = spacingY.getValue();
+        }
+        if (spacingZ != null) {
+            calibration.pixelDepth = spacingZ.getValue();
+        }
+        if (!Double.isNaN(stepT.getValue())) {
+            calibration.setTimeUnit(stepT.getSymbol());
+            calibration.frameInterval = stepT.getValue();
+        }
     }
 
 
