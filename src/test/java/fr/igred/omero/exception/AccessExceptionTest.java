@@ -19,20 +19,18 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.client.Client;
-import fr.igred.omero.client.GatewayWrapper;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.Folder;
-import fr.igred.omero.repository.FolderWrapper;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.core.Image;
-import fr.igred.omero.repository.Project;
-import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.containers.Project;
+import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;

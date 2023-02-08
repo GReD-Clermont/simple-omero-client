@@ -15,7 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains classes to handle 5D positions and boundaries as well as a utility class to check if the
- * library requirements are available, and another one to convert DataObjects to Wrapper objects.
+ * This package contains interfaces and classes related to the hierarchical organization for images, e.g. containers
+ * (projects, datasets and folders).
  */
-package fr.igred.omero.util;
+package fr.igred.omero.containers;

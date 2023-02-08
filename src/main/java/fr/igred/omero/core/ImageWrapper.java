@@ -27,14 +27,14 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.Dataset;
-import fr.igred.omero.repository.Folder;
-import fr.igred.omero.repository.FolderWrapper;
-import fr.igred.omero.repository.Plate;
-import fr.igred.omero.repository.Project;
-import fr.igred.omero.repository.RepositoryObjectWrapper;
-import fr.igred.omero.repository.Screen;
-import fr.igred.omero.repository.Well;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.FolderWrapper;
+import fr.igred.omero.screen.Plate;
+import fr.igred.omero.containers.Project;
+import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.Well;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
@@ -485,7 +485,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<fr.igred.omero.repository.Folder> getFolders(Client client)
+    public List<fr.igred.omero.containers.Folder> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = client.getRoiFacility();
 
@@ -494,7 +494,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
                                                                                        this.data.getId()),
                                                                 "Cannot get folders for " + this);
 
-        List<fr.igred.omero.repository.Folder> roiFolders = new ArrayList<>(folders.size());
+        List<fr.igred.omero.containers.Folder> roiFolders = new ArrayList<>(folders.size());
         for (FolderData folder : folders) {
             Folder roiFolder = new FolderWrapper(folder);
             roiFolder.setImage(this.data.getId());
@@ -518,7 +518,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws NoSuchElementException Folder does not exist.
      */
     @Override
-    public fr.igred.omero.repository.Folder getFolder(Client client, Long folderId)
+    public fr.igred.omero.containers.Folder getFolder(Client client, Long folderId)
     throws ServiceException, ServerException {
         List<IObject> os = client.findByQuery("select f " +
                                               "from Folder as f " +

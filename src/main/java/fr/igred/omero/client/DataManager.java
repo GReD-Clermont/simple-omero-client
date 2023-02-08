@@ -24,7 +24,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.Folder;
+import fr.igred.omero.containers.Folder;
 import omero.ServerError;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;

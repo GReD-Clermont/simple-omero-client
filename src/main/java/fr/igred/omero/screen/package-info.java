@@ -15,7 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains classes to handle 5D positions and boundaries as well as a utility class to check if the
- * library requirements are available, and another one to convert DataObjects to Wrapper objects.
+ * This package contains interfaces and classes related to the HCS organization, e.g. screens, plates or wells.
  */
-package fr.igred.omero.util;
+package fr.igred.omero.screen;

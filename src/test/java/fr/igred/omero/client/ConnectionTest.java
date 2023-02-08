@@ -19,8 +19,6 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.client.ConnectionHandler;
-import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.exception.ServiceException;
 import org.junit.jupiter.api.Test;
 
