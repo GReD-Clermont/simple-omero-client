@@ -15,6 +15,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
+/**
+ * Interface to handle objects that can be linked to HCS objects (screens, plates, wells) on OMERO.
+ *
+ * @param <T> Subclass of {@link DataObject}
+ */
 public interface HCSLinked<T extends DataObject> extends ImageLinked<T> {
 
 

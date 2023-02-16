@@ -47,6 +47,11 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
+/**
+ * Interface to handle Annotatable Objects on OMERO.
+ *
+ * @param <T> Subclass of {@link DataObject}
+ */
 public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
 
