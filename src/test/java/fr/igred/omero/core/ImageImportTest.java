@@ -114,8 +114,7 @@ class ImageImportTest extends UserTest {
         roi = image2.saveROIs(client, Collections.singletonList(roi)).get(0);
 
         Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
-        folder.setImage(image2);
-        folder.addROI(client, roi);
+        folder.addROIs(client, image2.getId(), roi);
 
         Table table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
@@ -198,8 +197,7 @@ class ImageImportTest extends UserTest {
         roi = image2.saveROIs(client, Collections.singletonList(roi)).get(0);
 
         Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
-        folder.setImage(image2);
-        folder.addROI(client, roi);
+        folder.addROIs(client, image2.getId(), roi);
 
         Table table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);

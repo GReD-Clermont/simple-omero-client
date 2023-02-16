@@ -79,7 +79,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -521,7 +520,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     /**
      * Gets the list of Folder linked to the image Associate the folder to the image
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
      * @return List of FolderWrapper containing the folder.
      *
@@ -530,50 +529,15 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<fr.igred.omero.containers.Folder> getFolders(Client client)
+    public List<Folder> getFolders(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFacility = client.getRoiFacility();
+        ROIFacility roiFacility = dm.getRoiFacility();
 
         Collection<FolderData> folders = handleServiceAndAccess(roiFacility,
-                                                                rf -> rf.getROIFolders(client.getCtx(),
+                                                                rf -> rf.getROIFolders(dm.getCtx(),
                                                                                        this.data.getId()),
                                                                 "Cannot get folders for " + this);
-
-        List<fr.igred.omero.containers.Folder> roiFolders = new ArrayList<>(folders.size());
-        for (FolderData folder : folders) {
-            Folder roiFolder = new FolderWrapper(folder);
-            roiFolder.setImage(this.data.getId());
-            roiFolders.add(roiFolder);
-        }
-
-        return roiFolders;
-    }
-
-
-    /**
-     * Gets the folder with the specified id on OMERO.
-     *
-     * @param client   The client handling the connection.
-     * @param folderId ID of the folder.
-     *
-     * @return The folder if it exists.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws ServerException        Server error.
-     * @throws NoSuchElementException Folder does not exist.
-     */
-    @Override
-    public fr.igred.omero.containers.Folder getFolder(Client client, Long folderId)
-    throws ServiceException, ServerException {
-        List<IObject> os = client.findByQuery("select f " +
-                                              "from Folder as f " +
-                                              "where f.id = " +
-                                              folderId);
-
-        Folder folderWrapper = new FolderWrapper((omero.model.Folder) os.iterator().next());
-        folderWrapper.setImage(this.data.getId());
-
-        return folderWrapper;
+        return wrap(folders, FolderWrapper::new);
     }
 
 

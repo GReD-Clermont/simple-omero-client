@@ -172,6 +172,7 @@ public interface DataManager {
 
     /**
      * Deletes multiple objects from OMERO.
+     * <p> Make sure to reload folders before deleting them.
      *
      * @param objects The OMERO object.
      *
@@ -185,7 +186,7 @@ public interface DataManager {
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         for (RemoteObject<?> object : objects) {
             if (object instanceof Folder) {
-                ((Folder) object).unlinkAllROI(this);
+                ((Folder) object).unlinkAllROIs(this);
             }
         }
         if (!objects.isEmpty()) {
@@ -196,6 +197,7 @@ public interface DataManager {
 
     /**
      * Deletes an object from OMERO.
+     * <p> Make sure to reload a folder before deleting it.
      *
      * @param object The OMERO object.
      *
@@ -208,7 +210,7 @@ public interface DataManager {
     default void delete(RemoteObject<?> object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof Folder) {
-            ((Folder) object).unlinkAllROI(this);
+            ((Folder) object).unlinkAllROIs(this);
         }
         delete(object.asIObject());
     }
