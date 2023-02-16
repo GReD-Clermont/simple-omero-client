@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.ContainerLinked;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -37,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Projects on OMERO.
  */
-public interface Project extends RepositoryObject<ProjectData> {
+public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<ProjectData> {
 
     /**
      * Sets the name of the project.
@@ -122,20 +123,6 @@ public interface Project extends RepositoryObject<ProjectData> {
      */
     void removeDataset(Client client, RemoteObject<DatasetData> dataset)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
-
-
-    /**
-     * Gets all images in the project available from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return ImageWrapper list.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
 
 
     /**

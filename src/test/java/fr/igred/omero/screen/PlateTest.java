@@ -21,6 +21,7 @@ package fr.igred.omero.screen;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -29,6 +30,44 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class PlateTest extends UserTest {
+
+
+    @Test
+    void testGetScreens() throws Exception {
+        Plate        plate   = client.getPlate(PLATE1.id);
+        List<Screen> screens = plate.getScreens(client);
+        assertEquals(1, screens.size());
+    }
+
+
+    @Test
+    void testGetPlates() throws Exception {
+        Plate plate = client.getPlate(PLATE1.id);
+        assertEquals(plate, plate.getPlates(client).get(0));
+    }
+
+
+    @Test
+    void testGetPlateAcquisitions() throws Exception {
+        Plate plate = client.getPlate(PLATE1.id);
+        assertEquals(1, plate.getPlateAcquisitions(client).size());
+    }
+
+
+    @Test
+    void testGetWells() throws Exception {
+        Plate      plate = client.getPlate(PLATE1.id);
+        List<Well> wells = plate.getWells(client);
+        assertEquals(9, wells.size());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        Plate       plate  = client.getPlate(PLATE1.id);
+        List<Image> images = plate.getImages(client);
+        assertEquals(36, images.size());
+    }
 
 
     @Test

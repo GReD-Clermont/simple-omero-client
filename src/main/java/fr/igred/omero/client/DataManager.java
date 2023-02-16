@@ -141,7 +141,7 @@ public interface DataManager {
      */
     default void delete(List<IObject> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        final long wait = 500L;
+        final long wait = 5000L;
         ExceptionHandler.ofConsumer(getDataManagerFacility(),
                                     d -> d.delete(getCtx(), objects).loop(10, wait),
                                     "Cannot delete object")

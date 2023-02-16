@@ -169,6 +169,19 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
 
 
     /**
+     * Retrieves this dataset as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Dataset> getDatasets(Browser browser) {
+        return Collections.singletonList(this);
+    }
+
+
+    /**
      * Gets all images in the dataset available from OMERO.
      *
      * @param browser The data browser.

@@ -36,12 +36,10 @@ import omero.model.ProjectDatasetLinkI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-import static fr.igred.omero.RemoteObject.distinct;
+import static fr.igred.omero.RemoteObject.flatten;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
@@ -140,6 +138,32 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Returns this project as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Project> getProjects(Browser browser) {
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Retrieves the datasets contained in this project.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Dataset> getDatasets(Browser browser) {
+        return getDatasets();
     }
 
 
@@ -257,12 +281,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(browser));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -287,12 +307,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(browser, name));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -318,12 +334,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(browser, imageName));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -348,12 +360,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesLike(browser, motif));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -379,12 +387,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesTagged(browser, tag));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -410,12 +414,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesTagged(browser, tagId));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -440,12 +440,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesWithKey(browser, key));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -471,12 +467,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
         for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesWithKeyValuePair(browser, key, value));
         }
-        List<Image> images = lists.stream()
-                                  .flatMap(Collection::stream)
-                                  .sorted(Comparator.comparing(RemoteObject::getId))
-                                  .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 

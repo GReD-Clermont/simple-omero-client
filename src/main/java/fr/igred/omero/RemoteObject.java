@@ -44,17 +44,36 @@ public interface RemoteObject<T extends DataObject> {
      * Only keeps objects with different IDs in a collection.
      *
      * @param objects A collection of objects.
-     * @param <T>     The objects type.
+     * @param <U>     The objects type.
      *
      * @return Distinct objects list, sorted by ID.
      */
-    static <T extends RemoteObject<?>> List<T> distinct(Collection<? extends T> objects) {
+    static <U extends RemoteObject<?>> List<U> distinct(Collection<? extends U> objects) {
         return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o))
+                      .collect(Collectors.toMap(U::getId, o -> o))
                       .values()
                       .stream()
-                      .sorted(Comparator.comparing(T::getId))
+                      .sorted(Comparator.comparing(U::getId))
                       .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Flattens a collection of collections and only keeps objects with different IDs.
+     *
+     * @param lists A collection of objects collections.
+     * @param <U>   The objects type.
+     *
+     * @return Distinct objects list, sorted by ID.
+     */
+    static <U extends RemoteObject<?>> List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
+        return lists.stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toMap(U::getId, o -> o))
+                    .values()
+                    .stream()
+                    .sorted(Comparator.comparing(U::getId))
+                    .collect(Collectors.toList());
     }
 
 

@@ -21,6 +21,7 @@ package fr.igred.omero.screen;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -29,6 +30,49 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class PlateAcquisitionTest extends UserTest {
+
+
+    @Test
+    void testGetScreens() throws Exception {
+        Plate            plate   = client.getPlate(PLATE1.id);
+        PlateAcquisition acq     = plate.getPlateAcquisitions().get(0);
+        List<Screen>     screens = acq.getScreens(client);
+        assertEquals(1, screens.size());
+    }
+
+
+    @Test
+    void testGetPlates() throws Exception {
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+        assertEquals(PLATE1.id, acq.getPlates(client).get(0).getId());
+    }
+
+
+    @Test
+    void testGetPlateAcquisitions() throws Exception {
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+        assertEquals(acq, acq.getPlateAcquisitions(client).get(0));
+    }
+
+
+    @Test
+    void testGetWells() throws Exception {
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+        List<Well>       wells = acq.getWells(client);
+        assertEquals(9, wells.size());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        Plate            plate  = client.getPlate(PLATE1.id);
+        PlateAcquisition acq    = plate.getPlateAcquisitions().get(0);
+        List<Image>      images = acq.getImages(client);
+        assertEquals(36, images.size());
+    }
 
 
     @Test
@@ -98,10 +142,10 @@ class PlateAcquisitionTest extends UserTest {
         Plate plate = client.getPlate(PLATE1.id);
 
         PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
-        assertEquals(-1, acq.getRefPlateId());
-        acq.setRefPlateId(PLATE1.id);
-        // Saving does not work: acq.saveAndUpdate(client);
-        assertEquals(PLATE1.id, acq.getRefPlateId());
+        assertEquals(1, acq.getRefPlateId());
+        acq.setRefPlateId(-1L);
+        // Saving does nothing: acq.saveAndUpdate(client);
+        assertEquals(-1L, acq.getRefPlateId());
     }
 
 

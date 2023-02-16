@@ -19,9 +19,17 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.core.Image;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServerException;
+import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.util.Wrapper.wrap;
 
@@ -273,6 +281,89 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
     @Override
     public void setAlpha(Integer alpha) {
         data.setAlpha(alpha);
+    }
+
+
+    /**
+     * Retrieves the screens containing this well.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    public List<Screen> getScreens(Browser browser)
+    throws AccessException, ServiceException, ExecutionException, ServerException {
+        return getPlate().getScreens(browser);
+    }
+
+
+    /**
+     * Returns the plate containing this well.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        return browser.getPlates(getPlate().getId());
+    }
+
+
+    /**
+     * Returns the plate acquisitions linked to the plate containing this well.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return getPlate().getPlateAcquisitions(browser);
+    }
+
+
+    /**
+     * Retrieves the wells in this well.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Well> getWells(Browser browser) {
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Retrieves the images contained in this well.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Image> getImages() {
+        return getWellSamples().stream().map(WellSample::getImage).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the images contained in this well.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        return browser.getWell(getId()).getImages();
     }
 
 }

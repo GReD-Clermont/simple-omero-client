@@ -18,9 +18,11 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.DataManager;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -28,10 +30,15 @@ import fr.igred.omero.RepositoryObjectWrapper;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
+import static fr.igred.omero.RemoteObject.flatten;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
@@ -310,6 +317,96 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
         List<Long> ids = importImage(client, data, path);
         refresh(client);
         return ids;
+    }
+
+
+    /**
+     * Retrieves a list with only this screen.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above
+     */
+    @Override
+    public List<Screen> getScreens(Browser browser) {
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Returns the plates linked to this screen.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        return browser.getScreen(getId()).getPlates();
+    }
+
+
+    /**
+     * Returns the plate acquisitions linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser) {
+        return getPlates().stream()
+                          .map(Plate::getPlateAcquisitions)
+                          .flatMap(Collection::stream)
+                          .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                          .values()
+                          .stream()
+                          .sorted(Comparator.comparing(RemoteObject::getId))
+                          .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the wells linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public List<Well> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        List<Plate>            plates = getPlates();
+        Collection<List<Well>> wells  = new ArrayList<>(plates.size());
+        for (Plate p : plates) {
+            wells.add(p.getWells(browser));
+        }
+        return flatten(wells);
+    }
+
+
+    /**
+     * Retrieves the images contained in this screen.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        List<Plate>             plates = getPlates();
+        Collection<List<Image>> images = new ArrayList<>(plates.size());
+        for (Plate p : plates) {
+            images.add(p.getImages(browser));
+        }
+        return flatten(images);
     }
 
 }
