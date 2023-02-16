@@ -43,6 +43,20 @@ class ProjectTest extends UserTest {
 
 
     @Test
+    void testGetProjects() throws Exception {
+        Project project = client.getProject(PROJECT1.id);
+        assertEquals(project, project.getProjects(client).get(0));
+    }
+
+
+    @Test
+    void testGetDatasets() throws Exception {
+        Project project = client.getProject(PROJECT1.id);
+        assertEquals(2, project.getDatasets(client).size());
+    }
+
+
+    @Test
     void testGetDatasetFromProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 

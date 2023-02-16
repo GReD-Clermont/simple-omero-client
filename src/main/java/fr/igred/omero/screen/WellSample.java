@@ -18,8 +18,8 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Well Samples on OMERO.
  */
-public interface WellSample extends RemoteObject<WellSampleData> {
+public interface WellSample extends HCSLinked<WellSampleData> {
 
     /**
      * Retrieves the well containing this well sample

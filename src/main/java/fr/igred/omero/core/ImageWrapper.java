@@ -33,6 +33,7 @@ import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.screen.Plate;
 import fr.igred.omero.containers.Project;
 import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.Screen;
 import fr.igred.omero.screen.Well;
 import fr.igred.omero.roi.ROI;
@@ -75,6 +76,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -84,6 +86,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.distinct;
+import static fr.igred.omero.RemoteObject.flatten;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
 import static fr.igred.omero.util.Wrapper.wrap;
@@ -294,16 +297,33 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     @Override
     public List<Dataset> getDatasets(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = browser.findByQuery("select link.parent from DatasetImageLink as link " +
-                                               "where link.child=" + getId());
+        Long[] ids = browser.findByQuery("select link.parent from DatasetImageLink as link " +
+                                         "where link.child=" + getId())
+                            .stream()
+                            .map(IObject::getId)
+                            .map(RLong::getValue)
+                            .distinct()
+                            .toArray(Long[]::new);
 
-        return browser.getDatasets(
-                os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        return browser.getDatasets(ids);
     }
 
 
     /**
-     * Retrieves the wells containing this image
+     * Returns this image as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above
+     */
+    @Override
+    public List<Image> getImages(Browser browser) {
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Retrieves the wells containing this image.
      *
      * @param browser The data browser.
      *
@@ -315,8 +335,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      */
     @Override
     public List<Well> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException {
-        Long[] ids = this.asDataObject()
-                         .asImage()
+        Long[] ids = data.asImage()
                          .copyWellSamples()
                          .stream()
                          .map(WellSample::getWell)
@@ -325,6 +344,30 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
                          .sorted().distinct()
                          .toArray(Long[]::new);
         return browser.getWells(ids);
+    }
+
+
+    /**
+     * Returns the plate acquisitions linked to this image.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        List<Well> wells = getWells(browser);
+
+        Collection<List<PlateAcquisition>> acqs = new ArrayList<>(wells.size());
+        for (Well w : wells) {
+            acqs.add(w.getPlateAcquisitions(browser));
+        }
+        return flatten(acqs);
     }
 
 
@@ -360,12 +403,13 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     @Override
     public List<Screen> getScreens(Browser browser)
     throws AccessException, ServiceException, ExecutionException, ServerException {
-        List<Plate>        plates  = getPlates(browser);
-        Collection<Screen> screens = new ArrayList<>(plates.size());
+        List<Plate> plates = getPlates(browser);
+
+        Collection<List<Screen>> screens = new ArrayList<>(plates.size());
         for (Plate plate : plates) {
-            screens.addAll(plate.getScreens(browser));
+            screens.add(plate.getScreens(browser));
         }
-        return distinct(screens);
+        return flatten(screens);
     }
 
 

@@ -18,6 +18,7 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.RepositoryObject;
 import omero.gateway.model.PlateAcquisitionData;
 
@@ -27,7 +28,8 @@ import java.sql.Timestamp;
 /**
  * Interface to handle Plate Acquisitions on OMERO.
  */
-public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
+public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>, HCSLinked<PlateAcquisitionData> {
+
 
     /**
      * Sets the name of the plate acquisition.

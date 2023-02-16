@@ -18,7 +18,9 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.RepositoryObject;
+import fr.igred.omero.core.Image;
 import omero.gateway.model.WellData;
 
 import java.util.List;
@@ -27,7 +29,16 @@ import java.util.List;
 /**
  * Interface to handle Wells on OMERO.
  */
-public interface Well extends RepositoryObject<WellData> {
+public interface Well extends RepositoryObject<WellData>, HCSLinked<WellData> {
+
+
+    /**
+     * Retrieves the images contained in this well.
+     *
+     * @return See above
+     */
+    List<Image> getImages();
+
 
     /**
      * Returns the well samples linked to the well.

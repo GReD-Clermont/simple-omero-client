@@ -75,14 +75,14 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testGetDatasets() throws Exception {
-        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
+    void testGetProjects() throws Exception {
+        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
     }
 
 
     @Test
-    void testGetProjects() throws Exception {
-        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
+    void testGetDatasets() throws Exception {
+        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
     }
 
 
@@ -101,12 +101,27 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetPlateAcquisitions() throws Exception {
+        final long   id   = 5L;
+        final String name = "PlateAcquisition Name 0";
+        assertEquals(name, client.getImage(id).getPlateAcquisitions(client).get(0).getName());
+    }
+
+
+    @Test
     void testGetWells() throws Exception {
         final long wellId = 1L;
         Well       well   = client.getWell(wellId);
 
         long imageId = well.getWellSamples().get(0).getImage().getId();
         assertEquals(wellId, client.getImage(imageId).getWells(client).get(0).getId());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        Image image = client.getImage(IMAGE1.id);
+        assertEquals(image, image.getImages(client).get(0));
     }
 
 

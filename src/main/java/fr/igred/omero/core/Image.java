@@ -18,6 +18,9 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.ContainerLinked;
+import fr.igred.omero.HCSLinked;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
@@ -25,13 +28,7 @@ import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
-import fr.igred.omero.screen.Plate;
-import fr.igred.omero.containers.Project;
-import fr.igred.omero.RepositoryObject;
-import fr.igred.omero.screen.Screen;
-import fr.igred.omero.screen.Well;
 import fr.igred.omero.roi.ROI;
 import ij.ImagePlus;
 import omero.gateway.model.ImageData;
@@ -50,7 +47,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Images on OMERO.
  */
-public interface Image extends RepositoryObject<ImageData> {
+public interface Image extends RepositoryObject<ImageData>, ContainerLinked<ImageData>, HCSLinked<ImageData> {
 
     /**
      * Sets the name of the image.
@@ -76,82 +73,6 @@ public interface Image extends RepositoryObject<ImageData> {
      * @return acquisition date.
      */
     Timestamp getAcquisitionDate();
-
-
-    /**
-     * Retrieves the projects containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServerException    Server error.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Project> getProjects(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException;
-
-
-    /**
-     * Retrieves the datasets containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServerException    Server error.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Dataset> getDatasets(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException;
-
-
-    /**
-     * Retrieves the wells containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Well> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException;
-
-
-    /**
-     * Retrieves the plates containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException;
-
-
-    /**
-     * Retrieves the screens containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
-     */
-    List<Screen> getScreens(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException;
 
 
     /**
@@ -304,12 +225,7 @@ public interface Image extends RepositoryObject<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    ImagePlus toImagePlus(Client client,
-                          int[] xBounds,
-                          int[] yBounds,
-                          int[] cBounds,
-                          int[] zBounds,
-                          int[] tBounds)
+    ImagePlus toImagePlus(Client client, int[] xBounds, int[] yBounds, int[] cBounds, int[] zBounds, int[] tBounds)
     throws ServiceException, AccessException, ExecutionException;
 
 

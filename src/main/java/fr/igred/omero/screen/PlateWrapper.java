@@ -18,7 +18,9 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -32,6 +34,7 @@ import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -140,6 +143,33 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
 
 
     /**
+     * Returns this plate as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above.
+     */
+    @Override
+    public List<Plate> getPlates(Browser browser) {
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Returns the plate acquisitions related to this plate.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return browser.getPlate(getId()).getPlateAcquisitions();
+    }
+
+
+    /**
      * Returns the plate acquisitions related to this plate.
      *
      * @return See above.
@@ -172,6 +202,30 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
                     .sorted(Comparator.comparing(Well::getRow)
                                       .thenComparing(Well::getColumn))
                     .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the images linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        return getWells(browser).stream()
+                                .map(Well::getImages)
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                                .values()
+                                .stream()
+                                .sorted(Comparator.comparing(RemoteObject::getId))
+                                .collect(Collectors.toList());
     }
 
 

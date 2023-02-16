@@ -18,12 +18,13 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.HCSLinked;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.RepositoryObject;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
@@ -34,7 +35,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Screens on OMERO.
  */
-public interface Screen extends RepositoryObject<ScreenData> {
+public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenData> {
+
 
     /**
      * Sets the name of the screen.

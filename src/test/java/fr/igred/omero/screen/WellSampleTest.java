@@ -22,11 +22,62 @@ import fr.igred.omero.UserTest;
 import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 class WellSampleTest extends UserTest {
+
+
+    @Test
+    void testGetScreens() throws Exception {
+        Well         well    = client.getWell(1L);
+        WellSample   sample  = well.getWellSamples().get(0);
+        List<Screen> screens = sample.getScreens(client);
+        assertEquals(1, screens.size());
+        assertEquals(SCREEN1.id, screens.get(0).getId());
+    }
+
+
+    @Test
+    void testGetPlates() throws Exception {
+        Well        well   = client.getWell(1L);
+        WellSample  sample = well.getWellSamples().get(0);
+        List<Plate> plates = sample.getPlates(client);
+        assertEquals(1, plates.size());
+        assertEquals(well.getPlate().getId(), plates.get(0).getId());
+    }
+
+
+    @Test
+    void testGetPlateAcquisitions() throws Exception {
+        Well                   well   = client.getWell(1L);
+        WellSample             sample = well.getWellSamples().get(0);
+        List<PlateAcquisition> acqs   = sample.getPlateAcquisitions(client);
+        assertEquals(1, acqs.size());
+    }
+
+
+    @Test
+    void testGetWells() throws Exception {
+        Well       well   = client.getWell(1L);
+        WellSample sample = well.getWellSamples().get(0);
+        List<Well> wells  = sample.getWells(client);
+        assertEquals(1, wells.size());
+        assertEquals(well.getId(), wells.get(0).getId());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        Well        well   = client.getWell(1L);
+        WellSample  sample = well.getWellSamples().get(0);
+        List<Image> images = sample.getImages(client);
+        assertEquals(1, images.size());
+        assertEquals(sample.getImage().getId(), images.get(0).getId());
+    }
 
 
     @Test

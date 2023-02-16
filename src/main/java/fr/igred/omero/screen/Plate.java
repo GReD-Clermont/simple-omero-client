@@ -18,10 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.client.Browser;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
-import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.RepositoryObject;
 import ome.model.units.BigResult;
 import omero.gateway.model.PlateData;
@@ -29,13 +26,13 @@ import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 
 /**
  * Interface to handle Plates on OMERO.
  */
-public interface Plate extends RepositoryObject<PlateData> {
+public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData> {
+
 
     /**
      * Sets the name of the plate.
@@ -56,42 +53,11 @@ public interface Plate extends RepositoryObject<PlateData> {
 
 
     /**
-     * Retrieves the screens containing this dataset.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServerException    Server error.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Screen> getScreens(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException;
-
-
-    /**
      * Returns the plate acquisitions related to this plate.
      *
      * @return See above.
      */
     List<PlateAcquisition> getPlateAcquisitions();
-
-
-    /**
-     * Gets all wells in the plate available from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return WellWrapper list.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Well> getWells(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
