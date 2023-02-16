@@ -18,14 +18,15 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.ImageLinked;
 import fr.igred.omero.RepositoryObject;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
-import fr.igred.omero.RemoteObject;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import omero.gateway.model.FolderData;
-import omero.gateway.model.ImageData;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -34,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Folders on OMERO.
  */
-public interface Folder extends RepositoryObject<FolderData> {
+public interface Folder extends RepositoryObject<FolderData>, ImageLinked<FolderData> {
 
     /**
      * Sets the name of the folder.
@@ -55,39 +56,57 @@ public interface Folder extends RepositoryObject<FolderData> {
 
 
     /**
-     * Sets the image associated to the folder
-     *
-     * @param id ID of the image to associate.
+     * Reloads the folder from OMERO, to update all links.
      */
-    void setImage(long id);
+    void reload(Browser browser)
+    throws AccessException, ServiceException, ExecutionException;
 
 
     /**
-     * Sets the image associated to the folder
+     * Retrieves the images contained in this folder.
      *
-     * @param image Image to associate.
+     * @return See above
      */
-    void setImage(RemoteObject<ImageData> image);
+    List<Image> getImages();
 
 
     /**
-     * Add an ROI to the folder and associate it to the image id set(an image need to be associated)
+     * Add an ROI to the folder and associate it to the provided image ID.
      *
-     * @param dm  The data manager.
-     * @param roi ROI to add.
+     * @param dm      The data manager.
+     * @param imageId The image ID.
+     * @param rois    ROIs to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    void addROI(DataManager dm, ROI roi)
+    void addROIs(DataManager dm, long imageId, ROI... rois)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
-     * Gets the ROI contained in the folder associated with the image id set (an image need to be associated)
+     * Add an ROI to the folder and associate it to the provided image.
      *
-     * @param dm The data manager.
+     * @param dm    The data manager.
+     * @param image The image .
+     * @param rois  ROIs to add.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
+     */
+    default void addROIs(DataManager dm, Image image, ROI... rois)
+    throws ServiceException, AccessException, ExecutionException {
+        addROIs(dm, image.getId(), rois);
+    }
+
+
+    /**
+     * Gets the ROI contained in the folder associated with the provided image ID.
+     *
+     * @param dm      The data manager.
+     * @param imageId The image ID.
      *
      * @return List of ROIWrapper containing the ROI.
      *
@@ -95,12 +114,63 @@ public interface Folder extends RepositoryObject<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<ROI> getROIs(DataManager dm)
+    List<ROI> getROIs(DataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
-     * Unlink all ROI, associated to the image set, in the folder. ROIs are now linked to the image directly
+     * Gets the ROI contained in the folder associated with the provided image ID.
+     *
+     * @param dm    The data manager.
+     * @param image The image.
+     *
+     * @return List of ROIWrapper containing the ROI.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<ROI> getROIs(DataManager dm, Image image)
+    throws ServiceException, AccessException, ExecutionException {
+        return getROIs(dm, image.getId());
+    }
+
+
+    /**
+     * Unlink all ROIs associated to the provided image ID from the folder.
+     * <p> ROIs are now linked to the image directly.
+     *
+     * @param dm      The data manager.
+     * @param imageId The image ID.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    void unlinkAllROIs(DataManager dm, long imageId)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Unlink all ROIs associated to the provided image from the folder.
+     * <p> ROIs are now linked to the image directly.
+     *
+     * @param dm    The data manager.
+     * @param image The image.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default void unlinkAllROIs(DataManager dm, Image image)
+    throws ServiceException, AccessException, ExecutionException {
+        unlinkAllROIs(dm, image.getId());
+    }
+
+
+    /**
+     * Unlink all ROIs associated to this folder.
+     * <p> ROIs are now linked to their images directly.
      *
      * @param dm The data manager.
      *
@@ -108,20 +178,22 @@ public interface Folder extends RepositoryObject<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void unlinkAllROI(DataManager dm) throws ServiceException, AccessException, ExecutionException;
+    void unlinkAllROIs(DataManager dm)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
-     * Unlink an ROI, associated to the image set, in the folder. the ROI is now linked to the image directly
+     * Unlink ROIs from the folder.
+     * <p> The ROIs are now linked to the image directly.
      *
-     * @param dm  The data manager.
-     * @param roi ROI to unlink.
+     * @param dm      The data manager.
+     * @param rois    ROI to unlink.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void unlinkROI(DataManager dm, ROI roi)
+    void unlinkROIs(DataManager dm, ROI... rois)
     throws ServiceException, AccessException, ExecutionException;
 
 }

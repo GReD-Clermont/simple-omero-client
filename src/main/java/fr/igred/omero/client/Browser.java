@@ -24,6 +24,8 @@ import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -48,6 +50,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.MetadataFacility;
 import omero.gateway.model.DatasetData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.PlateData;
@@ -207,9 +210,10 @@ public interface Browser {
      */
     default List<Project> getProjects(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot get projects for user %s", experimenter);
         Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
                                                                   bf -> bf.getProjects(getCtx(), experimenter.getId()),
-                                                                  "Cannot get projects");
+                                                                  error);
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -623,9 +627,10 @@ public interface Browser {
      */
     default List<Screen> getScreens(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot get screens for user %s", experimenter);
         Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
                                                                 bf -> bf.getScreens(getCtx(), experimenter.getId()),
-                                                                "Cannot get screens");
+                                                                error);
         return wrap(screens, ScreenWrapper::new);
     }
 
@@ -702,9 +707,10 @@ public interface Browser {
      */
     default List<Plate> getPlates(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot get plates for user %s", experimenter);
         Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
                                                               bf -> bf.getPlates(getCtx(), experimenter.getId()),
-                                                              "Cannot get plates");
+                                                              error);
         return wrap(plates, PlateWrapper::new);
     }
 
@@ -794,6 +800,88 @@ public interface Browser {
                          .map(RLong::getValue)
                          .toArray(Long[]::new);
         return getWells(ids);
+    }
+
+
+    /**
+     * Gets the folder with the specified ID from OMERO, fully loaded.
+     *
+     * @param id ID of the folder.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException No element with such id.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     */
+    default Folder getFolder(long id)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Folder> folders = loadFolders(id);
+        if (folders.isEmpty()) {
+            throw new NoSuchElementException(String.format("Folder %d doesn't exist in this context", id));
+        }
+        return folders.iterator().next();
+    }
+
+
+    /**
+     * Gets all folders available from OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Folder> getFolders()
+    throws ExecutionException, AccessException, ServiceException {
+        Collection<FolderData> folders = handleServiceAndAccess(getBrowseFacility(),
+                                                                b -> b.getFolders(getCtx()),
+                                                                "Cannot get folders.");
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
+     * Gets all the folders owned by a given user from OMERO.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Folder> getFolders(Experimenter experimenter)
+    throws ExecutionException, AccessException, ServiceException {
+        String error = String.format("Cannot get folders for user %s", experimenter);
+        Collection<FolderData> folders = handleServiceAndAccess(getBrowseFacility(),
+                                                                b -> b.getFolders(getCtx(), experimenter.getId()),
+                                                                error);
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
+     * Gets the folders with the specified IDs from OMERO (fully loaded).
+     *
+     * @param ids Project IDs
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Folder> loadFolders(Long... ids)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
+        Collection<FolderData> folders = handleServiceAndAccess(getBrowseFacility(),
+                                                                bf -> bf.loadFolders(getCtx(), Arrays.asList(ids)),
+                                                                error);
+        return wrap(folders, FolderWrapper::new);
     }
 
 

@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 
@@ -158,7 +157,7 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
     /**
      * Gets the list of Folder linked to the image Associate the folder to the image
      *
-     * @param client The client handling the connection.
+     * @param dm The client handling the connection.
      *
      * @return List of FolderWrapper containing the folder.
      *
@@ -166,23 +165,8 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Folder> getFolders(Client client)
+    List<Folder> getFolders(DataManager dm)
     throws ServiceException, AccessException, ExecutionException;
-
-
-    /**
-     * Gets the folder with the specified id on OMERO.
-     *
-     * @param client   The client handling the connection.
-     * @param folderId ID of the folder.
-     *
-     * @return The folder if it exists.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws ServerException        Server error.
-     * @throws NoSuchElementException Folder does not exist.
-     */
-    Folder getFolder(Client client, Long folderId) throws ServiceException, ServerException;
 
 
     /**
