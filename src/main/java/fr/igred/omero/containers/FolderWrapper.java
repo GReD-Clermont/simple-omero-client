@@ -40,6 +40,9 @@ import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 import omero.model.FolderAnnotationLink;
 import omero.model.FolderAnnotationLinkI;
+import omero.model.FolderImageLink;
+import omero.model.FolderImageLinkI;
+import omero.model.IObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -189,6 +192,64 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     public void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         data = browser.getFolder(getId()).asDataObject();
+    }
+
+
+    /**
+     * Retrieves the parent folders for this folder.
+     *
+     * @return See above
+     */
+    @Override
+    public Folder getParent() {
+        return new FolderWrapper(data.getParentFolder());
+    }
+
+
+    /**
+     * Sets the parent folder for this folder.
+     *
+     * @param folder The new parent folder.
+     */
+    @Override
+    public void setParent(Folder folder) {
+        data.setParentFolder(folder.asDataObject().asFolder());
+    }
+
+
+    /**
+     * Retrieves the children folders for this folder.
+     *
+     * @return See above
+     */
+    public List<Folder> getChildren() {
+        return wrap(data.copyChildFolders(), FolderWrapper::new);
+    }
+
+
+    /**
+     * Links images to the folder in OMERO.
+     *
+     * @param dm     The data manager.
+     * @param images Images to add.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void addImages(DataManager dm, Image... images)
+    throws ServiceException, AccessException, ExecutionException {
+        List<IObject> links = new ArrayList<>(images.length);
+        for (Image image : images) {
+            FolderImageLink link = new FolderImageLinkI();
+            link.setChild(image.asDataObject().asImage());
+            link.setParent(data.asFolder());
+            links.add(link);
+        }
+        handleServiceAndAccess(dm.getDataManagerFacility(),
+                               d -> d.saveAndReturnObject(dm.getCtx(), links, null, null),
+                               "Cannot save links.");
     }
 
 

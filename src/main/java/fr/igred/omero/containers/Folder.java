@@ -63,6 +63,45 @@ public interface Folder extends RepositoryObject<FolderData>, ImageLinked<Folder
 
 
     /**
+     * Retrieves the parent folder for this folder.
+     *
+     * @return See above
+     */
+    Folder getParent();
+
+
+    /**
+     * Sets the parent folder for this folder.
+     *
+     * @param folder The new parent folder.
+     */
+    void setParent(Folder folder);
+
+
+    /**
+     * Retrieves the children folders for this folder.
+     *
+     * @return See above
+     */
+    List<Folder> getChildren();
+
+
+    /**
+     * Adds images to the folder in OMERO.
+     * <p> The folder needs to be reloaded afterwards.
+     *
+     * @param dm     The client handling the connection.
+     * @param images Images to add.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    void addImages(DataManager dm, Image... images)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
      * Retrieves the images contained in this folder.
      *
      * @return See above
@@ -186,8 +225,8 @@ public interface Folder extends RepositoryObject<FolderData>, ImageLinked<Folder
      * Unlink ROIs from the folder.
      * <p> The ROIs are now linked to the image directly.
      *
-     * @param dm      The data manager.
-     * @param rois    ROI to unlink.
+     * @param dm   The data manager.
+     * @param rois ROI to unlink.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

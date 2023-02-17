@@ -28,7 +28,6 @@ import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.Rectangle;
 import fr.igred.omero.roi.RectangleWrapper;
-import omero.gateway.model.FolderData;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -42,8 +41,35 @@ class FolderTest extends UserTest {
 
 
     @Test
+    void testHierarchyFolders() throws Exception {
+        Folder parent = new FolderWrapper(client, "Parent");
+        Folder child1 = new FolderWrapper(client, "Child 1");
+        Folder child2 = new FolderWrapper(client, "Child 2");
+        child1.setParent(parent);
+        child1.saveAndUpdate(client);
+        child2.setParent(parent);
+        child2.saveAndUpdate(client);
+        child2.addImages(client, client.getImage(IMAGE1.id), client.getImage(IMAGE2.id));
+        child2.reload(client);
+
+        parent.reload(client);
+        List<Folder> children = parent.getChildren();
+        List<Image>  images   = child2.getImages(client);
+
+        client.delete(parent);
+        client.delete(child1);
+        client.delete(child2);
+
+        assertEquals(2, children.size());
+        assertEquals(parent.getId(), children.get(0).getParent().getId());
+        assertEquals(2, images.size());
+        assertEquals(IMAGE1.id, images.get(0).getId());
+    }
+
+
+    @Test
     void testGetDeletedFolder() throws Exception {
-        RemoteObject<FolderData> folder = new FolderWrapper(client, "Test");
+        RemoteObject<?> folder = new FolderWrapper(client, "Test");
         assertEquals(1, client.getFolders().size());
         assertEquals(1, client.getFolders(client.getUser()).size());
 
@@ -76,7 +102,6 @@ class FolderTest extends UserTest {
 
         folder = client.getFolder(folder.getId());
         List<ROI> rois = folder.getROIs(client, image);
-        //assertEquals(1, folder.getImages(client).size());
         assertEquals(8, rois.size());
         assertEquals("Test", folder.getName());
         assertEquals(8, image.getROIs(client).size());
