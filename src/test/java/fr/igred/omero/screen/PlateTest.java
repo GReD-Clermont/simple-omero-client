@@ -43,7 +43,7 @@ class PlateTest extends UserTest {
     @Test
     void testGetPlates() throws Exception {
         Plate plate = client.getPlate(PLATE1.id);
-        assertEquals(plate, plate.getPlates(client).get(0));
+        assertEquals(plate.getId(), plate.getPlates(client).get(0).getId());
     }
 
 

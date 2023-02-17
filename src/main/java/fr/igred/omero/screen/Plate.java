@@ -20,12 +20,17 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.HCSLinked;
 import fr.igred.omero.RepositoryObject;
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.core.Image;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.PlateData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -53,11 +58,73 @@ public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData>
 
 
     /**
+     * Returns this plate as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Returns the plate acquisitions related to this plate.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
      * Returns the plate acquisitions related to this plate.
      *
      * @return See above.
      */
     List<PlateAcquisition> getPlateAcquisitions();
+
+
+    /**
+     * Gets all wells in the plate available from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return WellWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Retrieves the images linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
 
 
     /**

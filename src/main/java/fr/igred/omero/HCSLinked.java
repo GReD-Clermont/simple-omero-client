@@ -36,7 +36,7 @@ public interface HCSLinked<T extends DataObject> extends ImageLinked<T> {
      * @throws ServerException    Server error.
      */
     List<Screen> getScreens(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException;
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 
     /**
@@ -49,9 +49,10 @@ public interface HCSLinked<T extends DataObject> extends ImageLinked<T> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     List<Plate> getPlates(Browser browser)
-    throws AccessException, ServiceException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 
     /**
@@ -64,9 +65,10 @@ public interface HCSLinked<T extends DataObject> extends ImageLinked<T> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws AccessException, ServiceException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 
     /**
@@ -79,8 +81,9 @@ public interface HCSLinked<T extends DataObject> extends ImageLinked<T> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     List<Well> getWells(Browser browser)
-    throws AccessException, ServiceException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 }

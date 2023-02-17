@@ -62,6 +62,21 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
 
 
     /**
+     * Gets all images in the dataset available from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return ImageWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
      * Gets all images in the dataset with a certain name from OMERO.
      *
      * @param browser The data browser.

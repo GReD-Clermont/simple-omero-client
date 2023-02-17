@@ -126,6 +126,21 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
 
 
     /**
+     * Gets all images in the project available from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return ImageWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
      * Gets all images in the project with a certain name from OMERO.
      *
      * @param browser The data browser.

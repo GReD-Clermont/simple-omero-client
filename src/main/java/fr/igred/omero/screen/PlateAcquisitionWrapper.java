@@ -224,7 +224,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      */
     @Override
     public List<Screen> getScreens(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         List<Plate>              plates  = getPlates(browser);
         Collection<List<Screen>> screens = new ArrayList<>(plates.size());
         for (Plate p : plates) {
@@ -246,7 +246,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return browser.getPlates(getRefPlateId());
     }
 
@@ -257,14 +257,9 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @param browser The data browser (unused).
      *
      * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser) {
         return Collections.singletonList(this);
     }
 
@@ -281,7 +276,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return getPlates(browser).iterator().next().getWells(browser);
     }
 
@@ -298,7 +293,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return getWells(browser).stream()
                                 .map(Well::getImages)
                                 .flatMap(Collection::stream)

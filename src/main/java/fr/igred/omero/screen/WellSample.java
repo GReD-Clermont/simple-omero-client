@@ -28,6 +28,7 @@ import omero.gateway.model.WellSampleData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -96,5 +97,69 @@ public interface WellSample extends HCSLinked<WellSampleData> {
      * @return See above.
      */
     long getStartTime();
+
+
+    /**
+     * Returns the plates linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Returns the plate acquisitions linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Retrieves the wells linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Well> getWells(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Retrieves the images linked to this object, either directly, or through parents/children.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Image> getImages(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }
