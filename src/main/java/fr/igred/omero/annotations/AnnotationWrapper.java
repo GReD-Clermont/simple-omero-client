@@ -28,6 +28,8 @@ import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.screen.Plate;
+import fr.igred.omero.screen.PlateAcquisition;
+import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.containers.Project;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -37,11 +39,13 @@ import fr.igred.omero.screen.Well;
 import fr.igred.omero.screen.WellWrapper;
 import omero.RLong;
 import omero.gateway.model.AnnotationData;
+import omero.gateway.model.PlateAcquisitionData;
 import omero.model.IObject;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -220,6 +224,27 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
         List<IObject> os  = getLinks(browser, PlateWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getPlates(ids);
+    }
+
+
+    /**
+     * Gets all plate acquisitions with this tag from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, ExecutionException, ServerException {
+        List<IObject> os = getLinks(browser, PlateAcquisitionWrapper.ANNOTATION_LINK);
+        return os.stream()
+                 .map(o -> new PlateAcquisitionWrapper(new PlateAcquisitionData((omero.model.PlateAcquisition) o)))
+                 .collect(Collectors.toList());
     }
 
 

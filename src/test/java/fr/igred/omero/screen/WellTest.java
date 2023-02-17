@@ -61,7 +61,7 @@ class WellTest extends UserTest {
     @Test
     void testGetWells() throws Exception {
         Well well = client.getWell(1L);
-        assertEquals(well, well.getWells(client).get(0));
+        assertEquals(well.getId(), well.getWells(client).get(0).getId());
     }
 
 

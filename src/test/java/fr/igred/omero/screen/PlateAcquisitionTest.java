@@ -83,12 +83,16 @@ class PlateAcquisitionTest extends UserTest {
 
         TagAnnotation tag = new TagAnnotationWrapper(client, "Plate acq. tag", "tag attached to a plate acq.");
         acq.link(client, tag);
-        List<TagAnnotation> tags = acq.getTags(client);
+
+        List<PlateAcquisition> taggedAcqs = tag.getPlateAcquisitions(client);
+        List<TagAnnotation>    tags       = acq.getTags(client);
         client.delete(tag);
         List<TagAnnotation> checkTags = acq.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());
+        assertEquals(1, taggedAcqs.size());
+        assertEquals(acq.getId(), taggedAcqs.get(0).getId());
     }
 
 

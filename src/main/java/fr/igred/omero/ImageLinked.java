@@ -4,6 +4,7 @@ package fr.igred.omero;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.DataObject;
 
@@ -16,8 +17,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public interface ImageLinked<T extends DataObject> extends RemoteObject<T>{
-
+public interface ImageLinked<T extends DataObject> extends RemoteObject<T> {
 
 
     /**
@@ -30,8 +30,9 @@ public interface ImageLinked<T extends DataObject> extends RemoteObject<T>{
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     List<Image> getImages(Browser browser)
-    throws AccessException, ServiceException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 }

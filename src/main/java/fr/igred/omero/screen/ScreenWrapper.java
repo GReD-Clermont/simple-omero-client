@@ -321,15 +321,19 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
 
 
     /**
-     * Retrieves a list with only this screen.
+     * Returns this screen as a singleton list.
      *
      * @param browser The data browser (unused).
      *
      * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Screen> getScreens(Browser browser) {
-        return Collections.singletonList(this);
+    public List<Screen> getScreens(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        return Collections.singletonList(browser.getScreen(getId()));
     }
 
 
@@ -339,9 +343,13 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      * @param browser The data browser.
      *
      * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return browser.getScreen(getId()).getPlates();
     }
 
@@ -352,17 +360,22 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      * @param browser The data browser.
      *
      * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<PlateAcquisition> getPlateAcquisitions(Browser browser) {
-        return getPlates().stream()
-                          .map(Plate::getPlateAcquisitions)
-                          .flatMap(Collection::stream)
-                          .collect(Collectors.toMap(RemoteObject::getId, o -> o))
-                          .values()
-                          .stream()
-                          .sorted(Comparator.comparing(RemoteObject::getId))
-                          .collect(Collectors.toList());
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        return getPlates(browser).stream()
+                                 .map(Plate::getPlateAcquisitions)
+                                 .flatMap(Collection::stream)
+                                 .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                                 .values()
+                                 .stream()
+                                 .sorted(Comparator.comparing(RemoteObject::getId))
+                                 .collect(Collectors.toList());
     }
 
 
@@ -371,14 +384,14 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      *
      * @param browser The data browser.
      *
-     * @return See above
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
         List<Plate>            plates = getPlates();
         Collection<List<Well>> wells  = new ArrayList<>(plates.size());
         for (Plate p : plates) {
@@ -400,7 +413,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
         List<Plate>             plates = getPlates();
         Collection<List<Image>> images = new ArrayList<>(plates.size());
         for (Plate p : plates) {

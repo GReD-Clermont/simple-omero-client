@@ -146,7 +146,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      */
     @Override
     public List<Screen> getScreens(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         return getWell(browser).getScreens(browser);
     }
 
@@ -163,7 +163,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return getWell(browser).getPlates(browser);
     }
 
@@ -181,7 +181,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      */
     @Override
     public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         return getWell(browser).getPlateAcquisitions(browser);
     }
 
@@ -198,7 +198,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(browser));
     }
 
@@ -215,7 +215,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getImage());
     }
 

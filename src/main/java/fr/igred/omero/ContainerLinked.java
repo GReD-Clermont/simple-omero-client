@@ -28,13 +28,13 @@ public interface ContainerLinked<T extends DataObject> extends ImageLinked<T> {
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     List<Project> getProjects(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 
     /**
@@ -44,12 +44,12 @@ public interface ContainerLinked<T extends DataObject> extends ImageLinked<T> {
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     List<Dataset> getDatasets(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 }

@@ -38,7 +38,7 @@ class ScreenTest extends UserTest {
     @Test
     void testGetScreens() throws Exception {
         Screen screen = client.getScreen(SCREEN1.id);
-        assertEquals(screen, screen.getScreens(client).get(0));
+        assertEquals(screen.getId(), screen.getScreens(client).get(0).getId());
     }
 
 

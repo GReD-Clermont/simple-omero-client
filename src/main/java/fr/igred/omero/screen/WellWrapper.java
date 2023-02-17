@@ -298,7 +298,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
      */
     @Override
     public List<Screen> getScreens(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         return getPlate().getScreens(browser);
     }
 
@@ -309,9 +309,13 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
      * @param browser The data browser.
      *
      * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return browser.getPlates(getPlate().getId());
     }
 
@@ -322,10 +326,14 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
      * @param browser The data browser.
      *
      * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         return getPlate().getPlateAcquisitions(browser);
     }
 
@@ -336,10 +344,14 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
      * @param browser The data browser (unused).
      *
      * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Browser browser) {
-        return Collections.singletonList(this);
+    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        return Collections.singletonList(browser.getWell(getId()));
     }
 
 
@@ -360,9 +372,13 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
      * @param browser The data browser.
      *
      * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
         return browser.getWell(getId()).getImages();
     }
 

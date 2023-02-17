@@ -57,6 +57,12 @@ public interface Folder extends RepositoryObject<FolderData>, ImageLinked<Folder
 
     /**
      * Reloads the folder from OMERO, to update all links.
+     *
+     * @param browser The data browser.
+     *
+     * @throws AccessException    Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException;
