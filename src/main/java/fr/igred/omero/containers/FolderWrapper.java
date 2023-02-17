@@ -188,6 +188,15 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     }
 
 
+    /**
+     * Reloads the folder from OMERO, to update all links.
+     *
+     * @param browser The data browser.
+     *
+     * @throws AccessException    Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
     @Override
     public void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
