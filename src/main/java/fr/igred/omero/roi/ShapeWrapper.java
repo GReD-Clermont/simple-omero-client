@@ -54,10 +54,10 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
     /**
      * Constructor of the ShapeWrapper class using a ShapeData.
      *
-     * @param object the shape
+     * @param s The shape.
      */
-    protected ShapeWrapper(T object) {
-        super(object);
+    protected ShapeWrapper(T s) {
+        super(s);
     }
 
 
@@ -148,7 +148,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
         ijRoi.setName(getText());
         ijRoi.setStrokeColor(getStroke());
         Color fill = getFill();
-        if(!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
+        if (!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);

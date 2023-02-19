@@ -18,9 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -143,41 +141,6 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
 
 
     /**
-     * Returns this plate as a singleton list.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return Collections.singletonList(browser.getPlate(getId()));
-    }
-
-
-    /**
-     * Returns the plate acquisitions related to this plate.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return browser.getPlate(getId()).getPlateAcquisitions();
-    }
-
-
-    /**
      * Returns the plate acquisitions related to this plate.
      *
      * @return See above.
@@ -210,30 +173,6 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
                     .sorted(Comparator.comparing(Well::getRow)
                                       .thenComparing(Well::getColumn))
                     .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Retrieves the images linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return getWells(browser).stream()
-                                .map(Well::getImages)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toMap(RemoteObject::getId, o -> o))
-                                .values()
-                                .stream()
-                                .sorted(Comparator.comparing(RemoteObject::getId))
-                                .collect(Collectors.toList());
     }
 
 
@@ -363,6 +302,26 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
     @Override
     public Length getWellOriginY(UnitsLength unit) throws BigResult {
         return data.getWellOriginY(unit);
+    }
+
+
+    /**
+     * Refreshes the plate.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void refresh(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        data = handleServiceAndAccess(browser.getBrowseFacility(),
+                                      bf -> bf.getPlates(browser.getCtx(),
+                                                         Collections.singletonList(this.getId()))
+                                              .iterator().next(),
+                                      "Cannot refresh " + this);
     }
 
 }

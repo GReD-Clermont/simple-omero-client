@@ -121,7 +121,7 @@ class ImageTest extends UserTest {
     @Test
     void testGetImages() throws Exception {
         Image image = client.getImage(IMAGE1.id);
-        assertEquals(image, image.getImages(client).get(0));
+        assertEquals(image.getId(), image.getImages(client).get(0).getId());
     }
 
 
@@ -243,7 +243,7 @@ class ImageTest extends UserTest {
         String value1 = "Value Test";
         String value2 = "Value Test2";
 
-        List<Map.Entry<String, String>> values = new ArrayList<>(2);
+        Collection<Map.Entry<String, String>> values = new ArrayList<>(2);
         values.add(new AbstractMap.SimpleEntry<>(name1, value1));
         values.add(new AbstractMap.SimpleEntry<>(name2, value2));
 

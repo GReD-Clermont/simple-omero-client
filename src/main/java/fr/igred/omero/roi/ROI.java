@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -83,29 +84,36 @@ public interface ROI extends Annotatable<ROIData> {
 
 
     /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor.
+     * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor and shape converter.
      *
      * @param ijRois      A list of ImageJ ROIs.
      * @param constructor A constructor to create ROI instances.
+     * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
      *
      * @return The converted list of OMERO ROIs.
      */
-    static List<ROI> fromImageJ(List<? extends Roi> ijRois, Supplier<? extends ROI> constructor) {
-        return fromImageJ(ijRois, IJ_PROPERTY, constructor);
+    static List<ROI> fromImageJ(List<? extends Roi> ijRois,
+                                Supplier<? extends ROI> constructor,
+                                Function<? super Roi, Iterable<? extends Shape<?>>> converter) {
+        return fromImageJ(ijRois, IJ_PROPERTY, constructor, converter);
     }
 
 
     /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs.
+     * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor and shape converter.
      *
      * @param ijRois      A list of ImageJ ROIs.
      * @param property    The property where 4D ROI local ID is stored. Defaults to {@value IJ_PROPERTY} if null or
      *                    empty.
      * @param constructor A constructor to create ROI instances.
+     * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
      *
      * @return The converted list of OMERO ROIs.
      */
-    static List<ROI> fromImageJ(List<? extends Roi> ijRois, String property, Supplier<? extends ROI> constructor) {
+    static List<ROI> fromImageJ(List<? extends Roi> ijRois,
+                                String property,
+                                Supplier<? extends ROI> constructor,
+                                Function<? super Roi, Iterable<? extends Shape<?>>> converter) {
         property = checkProperty(property);
         Map<String, ROI> rois4D = new TreeMap<>();
 
@@ -126,7 +134,7 @@ public interface ROI extends Annotatable<ROIData> {
         for (Map.Entry<Integer, ROI> entry : shape2roi.entrySet()) {
             Roi ijRoi = ijRois.get(entry.getKey());
             ROI roi   = entry.getValue();
-            roi.addShapes(ShapeWrapper.fromImageJ(ijRoi));
+            roi.addShapes(converter.apply(ijRoi));
         }
         return shape2roi.values().stream().distinct().collect(Collectors.toList());
     }
@@ -156,7 +164,10 @@ public interface ROI extends Annotatable<ROIData> {
         property = checkProperty(property);
         final int maxGroups = 255;
 
-        int nShapes = rois.stream().map(ROI::asDataObject).mapToInt(ROIData::getShapeCount).sum();
+        int nShapes = rois.stream()
+                          .map(ROI::asDataObject)
+                          .mapToInt(ROIData::getShapeCount)
+                          .sum();
 
         List<Roi> ijRois = new ArrayList<>(nShapes);
 
@@ -199,15 +210,17 @@ public interface ROI extends Annotatable<ROIData> {
     /**
      * Adds shape objects from a list of shapes to the ROI.
      *
-     * @param shapes List of ShapeWrapper.
+     * @param shapes List of Shapes.
      */
-    void addShapes(Iterable<? extends Shape<?>> shapes);
+    default void addShapes(Iterable<? extends Shape<?>> shapes) {
+        shapes.forEach(this::addShape);
+    }
 
 
     /**
      * Adds a Shape to the ROI.
      *
-     * @param shape ShapeWrapper to add.
+     * @param shape Shape to add.
      */
     void addShape(Shape<?> shape);
 
@@ -270,7 +283,9 @@ public interface ROI extends Annotatable<ROIData> {
      *
      * @return A list of ROIs.
      */
-    List<Roi> toImageJ();
+    default List<Roi> toImageJ() {
+        return this.toImageJ(IJ_PROPERTY);
+    }
 
 
     /**

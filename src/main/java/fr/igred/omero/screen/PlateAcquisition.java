@@ -19,16 +19,25 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.HCSLinked;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.PlateAcquisitionData;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static fr.igred.omero.RemoteObject.flatten;
 
 
 /**
@@ -64,7 +73,7 @@ public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>
 
 
     /**
-     * Returns the id of the plate of reference.
+     * Returns the ID of the reference plate.
      *
      * @return See above.
      */
@@ -72,7 +81,7 @@ public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>
 
 
     /**
-     * Sets the id of the plate this plate acquisition is for.
+     * Sets the ID of the plate this plate acquisition is for.
      *
      * @param refPlateId The value to set.
      */
@@ -104,7 +113,31 @@ public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>
 
 
     /**
-     * Returns the plates linked to this object, either directly, or through parents/children.
+     * Retrieves the screens containing the parent plates.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    default List<Screen> getScreens(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        List<Plate>              plates  = getPlates(browser);
+        Collection<List<Screen>> screens = new ArrayList<>(plates.size());
+        for (Plate p : plates) {
+            screens.add(p.getScreens(browser));
+        }
+        return flatten(screens);
+    }
+
+
+    /**
+     * Returns the (updated) parent plate as a singleton list.
      *
      * @param browser The data browser.
      *
@@ -115,7 +148,10 @@ public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        return browser.getPlates(getRefPlateId());
+    }
 
 
     /**
@@ -126,11 +162,13 @@ public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>
      * @return See above.
      */
     @Override
-    List<PlateAcquisition> getPlateAcquisitions(Browser browser);
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser) {
+        return Collections.singletonList(this);
+    }
 
 
     /**
-     * Retrieves the wells linked to this object, either directly, or through parents/children.
+     * Retrieves the wells contained in the parent plate.
      *
      * @param browser The data browser.
      *
@@ -141,11 +179,14 @@ public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Well> getWells(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        return getPlates(browser).iterator().next().getWells(browser);
+    }
 
 
     /**
-     * Retrieves the images linked to this object, either directly, or through parents/children.
+     * Retrieves the images contained in the wells in the parent plate.
      *
      * @param browser The data browser.
      *
@@ -156,6 +197,16 @@ public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImages(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        return getWells(browser).stream()
+                                .map(Well::getImages)
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                                .values()
+                                .stream()
+                                .sorted(Comparator.comparing(RemoteObject::getId))
+                                .collect(Collectors.toList());
+    }
 
 }

@@ -342,12 +342,12 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
 
 
     /**
-     * Gets the ROI contained in the folder associated with the provided image ID.
+     * Gets the ROIs contained in the folder associated with the provided image ID.
      *
      * @param dm      The data manager.
      * @param imageId The image.
      *
-     * @return List of ROIWrapper containing the ROI.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

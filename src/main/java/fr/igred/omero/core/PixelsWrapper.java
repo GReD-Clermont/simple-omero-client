@@ -367,22 +367,6 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
 
     /**
-     * Returns an array containing the value for each voxel
-     *
-     * @param client The client handling the connection.
-     *
-     * @return Array containing the value for each voxel of the image.
-     *
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public double[][][][][] getAllPixels(ConnectionHandler client) throws AccessException, ExecutionException {
-        return getAllPixels(client, null, null, null, null, null);
-    }
-
-
-    /**
      * Returns an array containing the value for each voxel corresponding to the bounds
      *
      * @param client  The client handling the connection.
@@ -466,23 +450,6 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
             destroyRawDataFacility();
         }
         return tile;
-    }
-
-
-    /**
-     * Returns an array containing the raw values for each voxel for each planes
-     *
-     * @param client The client handling the connection.
-     * @param bpp    Bytes per pixels of the image.
-     *
-     * @return a table of bytes containing the pixel values
-     *
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public byte[][][][] getRawPixels(ConnectionHandler client, int bpp) throws AccessException, ExecutionException {
-        return getRawPixels(client, null, null, null, null, null, bpp);
     }
 
 

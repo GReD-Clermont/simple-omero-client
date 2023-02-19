@@ -170,7 +170,7 @@ public interface Folder extends RepositoryObject<FolderData>, ImageLinked<Folder
      * @param dm      The data manager.
      * @param imageId The image ID.
      *
-     * @return List of ROIWrapper containing the ROI.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -186,7 +186,7 @@ public interface Folder extends RepositoryObject<FolderData>, ImageLinked<Folder
      * @param dm    The data manager.
      * @param image The image.
      *
-     * @return List of ROIWrapper containing the ROI.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

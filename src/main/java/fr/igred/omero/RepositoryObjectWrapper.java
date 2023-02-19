@@ -61,10 +61,10 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
     /**
      * Constructor of the class RepositoryObjectWrapper.
      *
-     * @param object The object contained in the RepositoryObjectWrapper.
+     * @param o The object contained in the RepositoryObjectWrapper.
      */
-    protected RepositoryObjectWrapper(T object) {
-        super(object);
+    protected RepositoryObjectWrapper(T o) {
+        super(o);
     }
 
 

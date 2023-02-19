@@ -26,8 +26,10 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -37,23 +39,15 @@ public interface Well extends RepositoryObject<WellData>, HCSLinked<WellData> {
 
 
     /**
-     * Returns the plates linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
+     * Returns the plate containing this Well.
      *
      * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    @Override
-    List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    Plate getPlate();
 
 
     /**
-     * Returns the plate acquisitions linked to this object, either directly, or through parents/children.
+     * Refreshes this well and returns the plate containing it.
      *
      * @param browser The data browser.
      *
@@ -64,12 +58,14 @@ public interface Well extends RepositoryObject<WellData>, HCSLinked<WellData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return browser.getPlates(getPlate().getId());
+    }
 
 
     /**
-     * Retrieves the wells linked to this object, either directly, or through parents/children.
+     * Refreshes this well and returns the plate acquisitions linked to it.
      *
      * @param browser The data browser.
      *
@@ -80,15 +76,58 @@ public interface Well extends RepositoryObject<WellData>, HCSLinked<WellData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return getPlate().getPlateAcquisitions(browser);
+    }
+
+
+    /**
+     * Refreshes this well and returns it as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Refreshes this well and retrieves the images it contains.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Image> getImages(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return getImages();
+    }
 
 
     /**
      * Retrieves the images contained in this well.
      *
-     * @return See above
+     * @return See above.
      */
-    List<Image> getImages();
+    default List<Image> getImages() {
+        return getWellSamples().stream().map(WellSample::getImage).collect(Collectors.toList());
+    }
 
 
     /**
@@ -97,14 +136,6 @@ public interface Well extends RepositoryObject<WellData>, HCSLinked<WellData> {
      * @return See above.
      */
     List<WellSample> getWellSamples();
-
-
-    /**
-     * Returns the plate containing this Well.
-     *
-     * @return See above.
-     */
-    Plate getPlate();
 
 
     /**
@@ -217,5 +248,18 @@ public interface Well extends RepositoryObject<WellData>, HCSLinked<WellData> {
      * @param alpha The value to set.
      */
     void setAlpha(Integer alpha);
+
+
+    /**
+     * Refreshes the well.
+     *
+     * @param browser The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    void refresh(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

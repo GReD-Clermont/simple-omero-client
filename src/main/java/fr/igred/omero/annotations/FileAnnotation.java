@@ -98,7 +98,7 @@ public interface FileAnnotation extends Annotation<FileAnnotationData> {
 
 
     /**
-     * Returns the id of the file.
+     * Returns the ID of the file.
      *
      * @return See above.
      */

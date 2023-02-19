@@ -19,6 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.HCSLinked;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
@@ -29,8 +30,12 @@ import omero.gateway.model.PlateData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -58,7 +63,7 @@ public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData>
 
 
     /**
-     * Returns this plate as a singleton list.
+     * Refreshes and returns this plate as a singleton list.
      *
      * @param browser The data browser.
      *
@@ -69,12 +74,15 @@ public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData>
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return Collections.singletonList(this);
+    }
 
 
     /**
-     * Returns the plate acquisitions related to this plate.
+     * Refreshes this plate and returns the related plate acquisitions.
      *
      * @param browser The data browser.
      *
@@ -85,8 +93,11 @@ public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData>
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return getPlateAcquisitions();
+    }
 
 
     /**
@@ -102,29 +113,40 @@ public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData>
      *
      * @param browser The data browser.
      *
-     * @return WellWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    List<Well> getWells(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
-     * Retrieves the images linked to this object, either directly, or through parents/children.
+     * Returns the images contained in the wells of this plate.
      *
      * @param browser The data browser.
      *
-     * @return See above
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImages(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        return getWells(browser).stream()
+                                .map(Well::getImages)
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                                .values()
+                                .stream()
+                                .sorted(Comparator.comparing(RemoteObject::getId))
+                                .collect(Collectors.toList());
+    }
 
 
     /**
@@ -221,5 +243,18 @@ public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData>
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
     Length getWellOriginY(UnitsLength unit) throws BigResult;
+
+
+    /**
+     * Refreshes the plate.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    void refresh(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

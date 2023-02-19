@@ -32,6 +32,7 @@ import omero.gateway.model.DatasetData;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -60,11 +61,30 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
 
 
     /**
+     * Updates and returns this dataset (updated from OMERO) as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Dataset> getDatasets(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        refresh(browser);
+        return Collections.singletonList(this);
+    }
+
+
+    /**
      * Gets all images in the dataset available from OMERO.
      *
      * @param browser The data browser.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -80,7 +100,7 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * @param browser The data browser.
      * @param name    Name searched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -96,7 +116,7 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * @param browser The data browser.
      * @param motif   Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -110,9 +130,9 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param browser The data browser.
-     * @param tag     TagAnnotationWrapper containing the tag researched.
+     * @param tag     TagAnnotation containing the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -127,9 +147,9 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param browser The data browser.
-     * @param tagId   Id of the tag researched.
+     * @param tagId   ID of the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -146,7 +166,7 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * @param browser The data browser.
      * @param key     Name of the key researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -163,7 +183,7 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * @param key     Name of the key researched.
      * @param value   Value associated with the key.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -307,12 +327,14 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    List<Long> importAndReplaceImages(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException;
+    default List<Long> importAndReplaceImages(Client client, String path)
+    throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
+        return importAndReplaceImages(client, path, ReplacePolicy.UNLINK);
+    }
 
 
     /**
-     * Refreshes the wrapped dataset.
+     * Refreshes the dataset.
      *
      * @param browser The data browser.
      *

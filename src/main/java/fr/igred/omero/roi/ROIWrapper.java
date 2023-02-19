@@ -90,7 +90,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois) {
-        return ROI.fromImageJ(ijRois, ROIWrapper::new);
+        return ROI.fromImageJ(ijRois, ROIWrapper::new, ShapeWrapper::fromImageJ);
     }
 
 
@@ -103,7 +103,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
-        return ROI.fromImageJ(ijRois, property, ROIWrapper::new);
+        return ROI.fromImageJ(ijRois, property, ROIWrapper::new, ShapeWrapper::fromImageJ);
     }
 
 
@@ -127,17 +127,6 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
     @Override
     public void setName(String name) {
         ((_RoiOperationsNC) data.asIObject()).setName(omero.rtypes.rstring(name));
-    }
-
-
-    /**
-     * Adds ShapeData objects from a list of Shapes to the ROIData
-     *
-     * @param shapes List of Shapes.
-     */
-    @Override
-    public void addShapes(Iterable<? extends Shape<?>> shapes) {
-        shapes.forEach(this::addShape);
     }
 
 
@@ -248,17 +237,6 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
         Coordinates start = new Coordinates(x[0], y[0], c[0], z[0], t[0]);
         Coordinates end   = new Coordinates(x[1], y[1], c[1], z[1], t[1]);
         return new Bounds(start, end);
-    }
-
-
-    /**
-     * Convert ROI to ImageJ list of ROIs.
-     *
-     * @return A list of ROIs.
-     */
-    @Override
-    public List<ij.gui.Roi> toImageJ() {
-        return this.toImageJ(IJ_PROPERTY);
     }
 
 

@@ -25,11 +25,18 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.Project;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.containers.Folder;
 import fr.igred.omero.roi.ROI;
+import fr.igred.omero.screen.Plate;
+import fr.igred.omero.screen.PlateAcquisition;
+import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.Well;
+import fr.igred.omero.util.Bounds;
 import ij.ImagePlus;
 import omero.gateway.model.ImageData;
 
@@ -38,9 +45,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static fr.igred.omero.RemoteObject.distinct;
+import static fr.igred.omero.RemoteObject.flatten;
 
 
 /**
@@ -72,6 +86,127 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      * @return acquisition date.
      */
     Timestamp getAcquisitionDate();
+
+
+    /**
+     * Retrieves the projects containing this image.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServerException    Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Project> getProjects(Browser browser)
+    throws ServerException, ServiceException, AccessException, ExecutionException {
+        List<Dataset> datasets = getDatasets(browser);
+
+        Collection<List<Project>> projects = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            projects.add(dataset.getProjects(browser));
+        }
+        return flatten(projects);
+    }
+
+
+    /**
+     * Returns this image, updated from OMERO, as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above
+     */
+    @Override
+    default List<Image> getImages(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return Collections.singletonList(browser.getImage(getId()));
+    }
+
+
+    /**
+     * Retrieves the wells containing this image.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    List<Well> getWells(Browser browser)
+    throws AccessException, ServiceException, ExecutionException;
+
+
+    /**
+     * Returns the plate acquisitions linked to this image.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        List<Well> wells = getWells(browser);
+
+        Collection<List<PlateAcquisition>> acqs = new ArrayList<>(wells.size());
+        for (Well w : wells) {
+            acqs.add(w.getPlateAcquisitions(browser));
+        }
+        return flatten(acqs);
+    }
+
+
+    /**
+     * Retrieves the plates containing this image.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        return distinct(getWells(browser).stream().map(Well::getPlate).collect(Collectors.toList()));
+    }
+
+
+    /**
+     * Retrieves the screens containing this image
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    default List<Screen> getScreens(Browser browser)
+    throws AccessException, ServiceException, ExecutionException, ServerException {
+        List<Plate> plates = getPlates(browser);
+
+        Collection<List<Screen>> screens = new ArrayList<>(plates.size());
+        for (Plate plate : plates) {
+            screens.add(plate.getScreens(browser));
+        }
+        return flatten(screens);
+    }
 
 
     /**
@@ -205,8 +340,10 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    ImagePlus toImagePlus(Client client)
-    throws ServiceException, AccessException, ExecutionException;
+    default ImagePlus toImagePlus(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return this.toImagePlus(client, null, null, null, null, null);
+    }
 
 
     /**
@@ -241,8 +378,18 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    ImagePlus toImagePlus(Client client, ROI roi)
-    throws ServiceException, AccessException, ExecutionException;
+    default ImagePlus toImagePlus(Client client, ROI roi)
+    throws ServiceException, AccessException, ExecutionException {
+        Bounds bounds = roi.getBounds();
+
+        int[] x = {bounds.getStart().getX(), bounds.getEnd().getX()};
+        int[] y = {bounds.getStart().getY(), bounds.getEnd().getY()};
+        int[] c = {bounds.getStart().getC(), bounds.getEnd().getC()};
+        int[] z = {bounds.getStart().getZ(), bounds.getEnd().getZ()};
+        int[] t = {bounds.getStart().getT(), bounds.getEnd().getT()};
+
+        return toImagePlus(client, x, y, c, z, t);
+    }
 
 
     /**
@@ -272,8 +419,10 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    String getChannelName(Browser browser, int index)
-    throws ServiceException, AccessException, ExecutionException;
+    default String getChannelName(Browser browser, int index)
+    throws ServiceException, AccessException, ExecutionException {
+        return getChannels(browser).get(index).getChannelLabeling();
+    }
 
 
     /**
@@ -288,8 +437,10 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Color getChannelImportedColor(Browser browser, int index)
-    throws ServiceException, AccessException, ExecutionException;
+    default Color getChannelImportedColor(Browser browser, int index)
+    throws ServiceException, AccessException, ExecutionException {
+        return getChannels(browser).get(index).getColor();
+    }
 
 
     /**
