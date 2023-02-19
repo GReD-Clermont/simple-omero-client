@@ -179,6 +179,7 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     List<Folder> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException;

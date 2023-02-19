@@ -22,7 +22,6 @@ import fr.igred.omero.ContainerLinked;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
@@ -30,7 +29,6 @@ import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
 import omero.gateway.model.DatasetData;
-import omero.gateway.model.ImageData;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -215,7 +213,7 @@ public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    void removeImage(Client client, RemoteObject<? extends ImageData> image)
+    void removeImage(Client client, Image image)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 

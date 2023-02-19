@@ -51,7 +51,7 @@ class FolderTest extends UserTest {
         List<Folder> folders = image.getFolders(client);
         List<Image>  images  = parent.getImages(client);
 
-        client.delete(folders);
+        client.delete(parent);
 
         assertEquals(2, images.size());
         assertEquals(IMAGE1.id, images.get(0).getId());

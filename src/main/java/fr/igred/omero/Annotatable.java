@@ -336,6 +336,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
     /**
      * Rates the object (using a Rating Annotation).
+     * <p>If multiple ratings are present, only one will be kept and updated.
      *
      * @param client The client handling the connection.
      * @param rating The rating.
@@ -380,9 +381,11 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
 
     /**
-     * Rates the user rating for this object (average if multiple ratings).
+     * Returns the user rating for this object (averaged if multiple ratings are linked).
      *
      * @param browser The data browser.
+     *
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

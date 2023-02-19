@@ -436,7 +436,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    public void removeImage(Client client, RemoteObject<? extends ImageData> image)
+    public void removeImage(Client client, Image image)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         removeLink(client, "DatasetImageLink", image.getId());
     }

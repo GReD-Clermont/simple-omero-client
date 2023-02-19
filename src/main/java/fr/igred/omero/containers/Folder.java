@@ -28,6 +28,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import omero.gateway.model.FolderData;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -97,7 +98,7 @@ public interface Folder extends RepositoryObject<FolderData>, ImageLinked<Folder
      *
      * @param folders The new children folders.
      */
-    void addChildren(List<? extends Folder> folders);
+    void addChildren(Collection<? extends Folder> folders);
 
 
     /**

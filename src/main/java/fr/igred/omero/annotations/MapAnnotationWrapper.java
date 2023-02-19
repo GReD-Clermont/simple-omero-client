@@ -85,10 +85,10 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> i
     /**
      * Sets the content of the MapAnnotationData.
      *
-     * @param pairs List of Key-Value pairs.
+     * @param pairs Collection of Key-Value pairs.
      */
     @Override
-    public void setContent(List<? extends Entry<String, String>> pairs) {
+    public void setContent(Collection<? extends Entry<String, String>> pairs) {
         data = new MapAnnotationData();
         List<NamedValue> nv = pairs.stream()
                                    .map(e -> new NamedValue(e.getKey(), e.getValue()))
