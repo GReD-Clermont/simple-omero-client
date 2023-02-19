@@ -131,7 +131,7 @@ class ImageImportTest extends UserTest {
         assertEquals(3, image3.getFileAnnotations(client).size());
         assertEquals(1, image3.getMapAnnotations(client).size());
         assertEquals(1, image3.getROIs(client).size());
-        assertEquals(1, image3.getFolders(client).size());
+        assertEquals(1, image3.getROIFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
         assertEquals("ReplaceTest", image3.getValues(client, "Map").get(0));
@@ -214,7 +214,7 @@ class ImageImportTest extends UserTest {
         assertEquals(3, image3.getFileAnnotations(client).size());
         assertEquals(1, image3.getMapAnnotations(client).size());
         assertEquals(1, image3.getROIs(client).size());
-        assertEquals(1, image3.getFolders(client).size());
+        assertEquals(1, image3.getROIFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
         assertEquals("ReplaceTest", image3.getValues(client, "Map").get(0));

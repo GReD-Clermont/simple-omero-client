@@ -85,6 +85,22 @@ public interface Folder extends RepositoryObject<FolderData>, ImageLinked<Folder
 
 
     /**
+     * Adds a child folder to this folder.
+     *
+     * @param folder The new child folder.
+     */
+    void addChild(Folder folder);
+
+
+    /**
+     * Adds children folders to this folder.
+     *
+     * @param folders The new children folders.
+     */
+    void addChildren(List<? extends Folder> folders);
+
+
+    /**
      * Retrieves the children folders for this folder.
      *
      * @return See above

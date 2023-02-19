@@ -155,18 +155,33 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
 
 
     /**
-     * Gets the list of Folder linked to the image Associate the folder to the image
+     * Gets the list of Folders linked to the ROIs in this image.
      *
      * @param dm The client handling the connection.
      *
-     * @return List of FolderWrapper containing the folder.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Folder> getFolders(DataManager dm)
+    List<Folder> getROIFolders(DataManager dm)
     throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Gets the list of Folders linked to this image.
+     *
+     * @param browser The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    List<Folder> getFolders(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 
     /**

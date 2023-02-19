@@ -30,6 +30,7 @@ import fr.igred.omero.roi.Rectangle;
 import fr.igred.omero.roi.RectangleWrapper;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -41,29 +42,48 @@ class FolderTest extends UserTest {
 
 
     @Test
+    void testImageFolderLinks() throws Exception {
+        Folder parent = new FolderWrapper(client, "Parent");
+        parent.addImages(client, client.getImage(IMAGE1.id), client.getImage(IMAGE2.id));
+        parent.reload(client);
+
+        Image        image   = client.getImage(IMAGE2.id);
+        List<Folder> folders = image.getFolders(client);
+        List<Image>  images  = parent.getImages(client);
+
+        client.delete(folders);
+
+        assertEquals(2, images.size());
+        assertEquals(IMAGE1.id, images.get(0).getId());
+        assertEquals(1, folders.size());
+        assertEquals(parent.getId(), folders.get(0).getId());
+    }
+
+
+    @Test
     void testHierarchyFolders() throws Exception {
         Folder parent = new FolderWrapper(client, "Parent");
         Folder child1 = new FolderWrapper(client, "Child 1");
         Folder child2 = new FolderWrapper(client, "Child 2");
-        child1.setParent(parent);
-        child1.saveAndUpdate(client);
+        parent.addChild(child1);
+        parent.saveAndUpdate(client);
         child2.setParent(parent);
+        child2.addChildren(Collections.singletonList(child1));
         child2.saveAndUpdate(client);
-        child2.addImages(client, client.getImage(IMAGE1.id), client.getImage(IMAGE2.id));
-        child2.reload(client);
 
         parent.reload(client);
-        List<Folder> children = parent.getChildren();
-        List<Image>  images   = child2.getImages(client);
+        List<Folder> children  = parent.getChildren();
+        List<Folder> children2 = child2.getChildren();
 
         client.delete(parent);
         client.delete(child1);
         client.delete(child2);
 
         assertEquals(2, children.size());
-        assertEquals(parent.getId(), children.get(0).getParent().getId());
-        assertEquals(2, images.size());
-        assertEquals(IMAGE1.id, images.get(0).getId());
+        assertEquals(child2.getId(), children.get(1).getId());
+        assertEquals(parent.getId(), children.get(1).getParent().getId());
+        assertEquals(1, children2.size());
+        assertEquals(child1.getId(), children.get(0).getId());
     }
 
 
@@ -202,14 +222,14 @@ class FolderTest extends UserTest {
             folder2.addROIs(client, image, roi);
         }
 
-        List<Folder> folders = image.getFolders(client);
+        List<Folder> folders = image.getROIFolders(client);
         assertEquals(2, folders.size());
         assertEquals(nImages, image.getROIs(client).size());
 
         for (Folder f : folders) f.reload(client);
         client.delete(folders);
 
-        assertEquals(0, image.getFolders(client).size());
+        assertEquals(0, image.getROIFolders(client).size());
         assertEquals(nImages, image.getROIs(client).size());
 
         List<ROI> rois = image.getROIs(client);
