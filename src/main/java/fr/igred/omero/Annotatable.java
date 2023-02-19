@@ -8,6 +8,8 @@ import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.RatingAnnotation;
+import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
@@ -25,6 +27,7 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TagAnnotationData;
 import omero.model.TagAnnotationI;
@@ -311,6 +314,87 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
                                          .filter(Objects::nonNull)
                                          .flatMap(List::stream)
                                          .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Rates the object (using a Rating Annotation).
+     *
+     * @param client The client handling the connection.
+     * @param rating The rating.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws ServerException      Server error.
+     * @throws InterruptedException The thread was interrupted.
+     */
+    default void rate(Client client, int rating)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+        String error = "Cannot retrieve rating annotations from " + this;
+
+        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
+        List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
+
+        List<AnnotationData> annotations = handleServiceAndAccess(client.getMetadata(),
+                                                                  m -> m.getAnnotations(client.getCtx(),
+                                                                                        asDataObject(),
+                                                                                        types,
+                                                                                        userIds),
+                                                                  error);
+        List<RatingAnnotation> myRatings = annotations.stream()
+                                                      .filter(RatingAnnotationData.class::isInstance)
+                                                      .map(RatingAnnotationData.class::cast)
+                                                      .map(RatingAnnotationWrapper::new)
+                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
+                                                      .collect(Collectors.toList());
+
+        if (myRatings.isEmpty()) {
+            RatingAnnotation rate = new RatingAnnotationWrapper(rating);
+            link(client, rate);
+        } else {
+            int n = myRatings.size();
+            if (n > 1) client.delete(myRatings.subList(1, n));
+            RatingAnnotation rate = myRatings.get(0);
+            rate.setRating(rating);
+            rate.saveAndUpdate(client);
+        }
+    }
+
+
+    /**
+     * Rates the user rating for this object (average if multiple ratings).
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default int getMyRating(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot retrieve rating annotations from " + this;
+
+        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
+        List<Long>                            userIds = Collections.singletonList(browser.getCtx().getExperimenter());
+
+        List<AnnotationData> annotations = handleServiceAndAccess(browser.getMetadata(),
+                                                                  m -> m.getAnnotations(browser.getCtx(),
+                                                                                        asDataObject(),
+                                                                                        types,
+                                                                                        userIds),
+                                                                  error);
+        List<RatingAnnotation> myRatings = annotations.stream()
+                                                      .filter(RatingAnnotationData.class::isInstance)
+                                                      .map(RatingAnnotationData.class::cast)
+                                                      .map(RatingAnnotationWrapper::new)
+                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
+                                                      .collect(Collectors.toList());
+        int score = 0;
+        for (RatingAnnotation rate : myRatings) {
+            score += rate.getRating();
+        }
+        return score / Math.max(1, myRatings.size());
     }
 
 
