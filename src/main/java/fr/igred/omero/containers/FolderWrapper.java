@@ -244,7 +244,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
      * @param folders The new children folders.
      */
     @Override
-    public void addChildren(List<? extends Folder> folders) {
+    public void addChildren(Collection<? extends Folder> folders) {
         data.asFolder().addAllChildFoldersSet(folders.stream()
                                                      .map(RemoteObject::asDataObject)
                                                      .map(DataObject::asFolder)

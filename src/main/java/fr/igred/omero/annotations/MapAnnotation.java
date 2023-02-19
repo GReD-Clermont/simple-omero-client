@@ -20,6 +20,7 @@ package fr.igred.omero.annotations;
 
 import omero.gateway.model.MapAnnotationData;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -45,9 +46,9 @@ public interface MapAnnotation extends Annotation<MapAnnotationData> {
     /**
      * Sets the content of the map annotation.
      *
-     * @param pairs List of Key-Value pairs.
+     * @param pairs Collection of Key-Value pairs.
      */
-    void setContent(List<? extends Entry<String, String>> pairs);
+    void setContent(Collection<? extends Entry<String, String>> pairs);
 
 
     /**

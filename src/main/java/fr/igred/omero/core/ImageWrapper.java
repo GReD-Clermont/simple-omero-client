@@ -557,7 +557,11 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     public List<Folder> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
-        Long[] ids   = browser.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
+        Long[] ids   = browser.findByQuery(query)
+                              .stream()
+                              .map(o -> o.getId().getValue())
+                              .sorted().distinct()
+                              .toArray(Long[]::new);
         return browser.loadFolders(ids);
     }
 
