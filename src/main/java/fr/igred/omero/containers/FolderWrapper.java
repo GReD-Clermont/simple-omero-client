@@ -35,6 +35,7 @@ import fr.igred.omero.roi.ROIWrapper;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
@@ -223,6 +224,31 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     @Override
     public void setParent(Folder folder) {
         data.setParentFolder(folder.asDataObject().asFolder());
+    }
+
+
+    /**
+     * Adds a child folder to this folder.
+     *
+     * @param folder The new child folder.
+     */
+    @Override
+    public void addChild(Folder folder) {
+        data.asFolder().addChildFolders(folder.asDataObject().asFolder());
+    }
+
+
+    /**
+     * Adds children folders to this folder.
+     *
+     * @param folders The new children folders.
+     */
+    @Override
+    public void addChildren(List<? extends Folder> folders) {
+        data.asFolder().addAllChildFoldersSet(folders.stream()
+                                                     .map(RemoteObject::asDataObject)
+                                                     .map(DataObject::asFolder)
+                                                     .collect(Collectors.toList()));
     }
 
 

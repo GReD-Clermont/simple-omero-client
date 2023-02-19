@@ -131,6 +131,7 @@ class AccessExceptionTest extends BasicTest {
         roi.saveROI(client);
 
         assertThrows(AccessException.class, () -> folder.addROIs(client, -1L, roi));
+        client.delete(folder);
     }
 
 

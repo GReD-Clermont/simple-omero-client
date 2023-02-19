@@ -518,18 +518,18 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
 
 
     /**
-     * Gets the list of Folder linked to the image Associate the folder to the image
+     * Gets the list of Folders linked to the ROIs in this image.
      *
      * @param dm The data manager.
      *
-     * @return List of FolderWrapper containing the folder.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Folder> getFolders(DataManager dm)
+    public List<Folder> getROIFolders(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = dm.getRoiFacility();
 
@@ -538,6 +538,27 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
                                                                                        this.data.getId()),
                                                                 "Cannot get folders for " + this);
         return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
+     * Gets the list of Folders linked to this image.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    public List<Folder> getFolders(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
+        Long[] ids   = browser.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
+        return browser.loadFolders(ids);
     }
 
 
