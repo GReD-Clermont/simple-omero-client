@@ -261,7 +261,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param browser The data browser.
-     * @param tagId   Id of the tag researched.
+     * @param tagId   ID of the tag researched.
      *
      * @return See above.
      *

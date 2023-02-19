@@ -143,7 +143,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
 
 
     /**
-     * Returns the id of the plate of reference.
+     * Returns the ID of the reference plate.
      *
      * @return See above.
      */
@@ -154,7 +154,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
 
 
     /**
-     * Sets the id of the plate this plate acquisition is for.
+     * Sets the ID of the plate this plate acquisition is for.
      *
      * @param refPlateId The value to set.
      */

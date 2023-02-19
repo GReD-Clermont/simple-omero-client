@@ -288,7 +288,7 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
      * @param browser The data browser.
-     * @param tagId   Id of the tag researched.
+     * @param tagId   ID of the tag researched.
      *
      * @return See above.
      *

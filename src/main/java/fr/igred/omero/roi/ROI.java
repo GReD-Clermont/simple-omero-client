@@ -88,6 +88,7 @@ public interface ROI extends Annotatable<ROIData> {
      *
      * @param ijRois      A list of ImageJ ROIs.
      * @param constructor A constructor to create ROI instances.
+     * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
      *
      * @return The converted list of OMERO ROIs.
      */
@@ -105,6 +106,7 @@ public interface ROI extends Annotatable<ROIData> {
      * @param property    The property where 4D ROI local ID is stored. Defaults to {@value IJ_PROPERTY} if null or
      *                    empty.
      * @param constructor A constructor to create ROI instances.
+     * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
      *
      * @return The converted list of OMERO ROIs.
      */
@@ -162,7 +164,10 @@ public interface ROI extends Annotatable<ROIData> {
         property = checkProperty(property);
         final int maxGroups = 255;
 
-        int nShapes = rois.stream().map(ROI::asDataObject).mapToInt(ROIData::getShapeCount).sum();
+        int nShapes = rois.stream()
+                          .map(ROI::asDataObject)
+                          .mapToInt(ROIData::getShapeCount)
+                          .sum();
 
         List<Roi> ijRois = new ArrayList<>(nShapes);
 

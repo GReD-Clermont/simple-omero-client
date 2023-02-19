@@ -144,7 +144,7 @@ public interface Experimenter extends RemoteObject<ExperimenterData> {
     /**
      * Checks if supplied group id matches any group to which the current experimenter belongs to.
      *
-     * @param groupId The id of the group.
+     * @param groupId The ID of the group.
      *
      * @return boolean {@code true}/{@code false} depending on the matching id found
      */

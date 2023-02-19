@@ -546,7 +546,7 @@ public class TableWrapper implements Table {
 
 
     /**
-     * Sets the id of the table.
+     * Sets the ID of the table.
      *
      * @param id New id.
      */
