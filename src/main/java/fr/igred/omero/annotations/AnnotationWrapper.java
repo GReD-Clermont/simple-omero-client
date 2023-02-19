@@ -59,10 +59,10 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     /**
      * Constructor of the AnnotationWrapper class.
      *
-     * @param object Annotation to be contained.
+     * @param a Annotation to wrap.
      */
-    protected AnnotationWrapper(T object) {
-        super(object);
+    protected AnnotationWrapper(T a) {
+        super(a);
     }
 
 
@@ -123,11 +123,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all projects with this tag from OMERO.
+     * Gets all projects with this annotation from OMERO.
      *
      * @param browser The data browser.
      *
-     * @return ProjectWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -144,11 +144,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all datasets with this tag from OMERO.
+     * Gets all datasets with this annotation from OMERO.
      *
      * @param browser The data browser.
      *
-     * @return DatasetWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -165,11 +165,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all images with this tag from OMERO.
+     * Gets all images with this annotation from OMERO.
      *
      * @param browser The data browser.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -186,11 +186,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all screens with this tag from OMERO.
+     * Gets all screens with this annotation from OMERO.
      *
      * @param browser The data browser.
      *
-     * @return ScreenWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -207,11 +207,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all plates with this tag from OMERO.
+     * Gets all plates with this annotation from OMERO.
      *
      * @param browser The data browser.
      *
-     * @return PlateWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -228,7 +228,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all plate acquisitions with this tag from OMERO.
+     * Gets all plate acquisitions with this annotation from OMERO.
      *
      * @param browser The data browser.
      *
@@ -249,11 +249,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all wells with this tag from OMERO.
+     * Gets all wells with this annotation from OMERO.
      *
      * @param browser The data browser.
      *
-     * @return WellWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

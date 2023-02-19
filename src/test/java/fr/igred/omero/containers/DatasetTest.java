@@ -245,7 +245,7 @@ class DatasetTest extends UserTest {
     @Test
     void testGetDatasets() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
-        assertEquals(dataset, dataset.getDatasets(client).get(0));
+        assertEquals(dataset.getId(), dataset.getDatasets(client).get(0).getId());
     }
 
 

@@ -496,7 +496,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @param dm     The data manager.
      * @param fileId FileId of the table researched.
      *
-     * @return TableWrapper containing the table information.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

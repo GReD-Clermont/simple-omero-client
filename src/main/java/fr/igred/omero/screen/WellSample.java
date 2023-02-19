@@ -22,12 +22,14 @@ import fr.igred.omero.HCSLinked;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.WellSampleData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -48,7 +50,8 @@ public interface WellSample extends HCSLinked<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Well getWell(Browser browser) throws AccessException, ServiceException, ExecutionException;
+    Well getWell(Browser browser)
+    throws AccessException, ServiceException, ExecutionException;
 
 
     /**
@@ -100,7 +103,26 @@ public interface WellSample extends HCSLinked<WellSampleData> {
 
 
     /**
-     * Returns the plates linked to this object, either directly, or through parents/children.
+     * Returns the screens containing the parent Well.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    default List<Screen> getScreens(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        return getWell(browser).getScreens(browser);
+    }
+
+
+    /**
+     * Returns the plates containing the parent Well.
      *
      * @param browser The data browser.
      *
@@ -111,12 +133,13 @@ public interface WellSample extends HCSLinked<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        return getWell(browser).getPlates(browser);
+    }
 
 
     /**
-     * Returns the plate acquisitions linked to this object, either directly, or through parents/children.
+     * Returns the plate acquisitions linked to the parent Well.
      *
      * @param browser The data browser.
      *
@@ -127,12 +150,14 @@ public interface WellSample extends HCSLinked<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        return getWell(browser).getPlateAcquisitions(browser);
+    }
 
 
     /**
-     * Retrieves the wells linked to this object, either directly, or through parents/children.
+     * Retrieves well containing this Well Sample as a singleton list.
      *
      * @param browser The data browser.
      *
@@ -143,12 +168,13 @@ public interface WellSample extends HCSLinked<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Well> getWells(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        return Collections.singletonList(getWell(browser));
+    }
 
 
     /**
-     * Retrieves the images linked to this object, either directly, or through parents/children.
+     * Retrieves the image contained in this Well Sample as a singleton list.
      *
      * @param browser The data browser (unused).
      *
@@ -159,7 +185,8 @@ public interface WellSample extends HCSLinked<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Image> getImages(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        return Collections.singletonList(getImage());
+    }
 
 }

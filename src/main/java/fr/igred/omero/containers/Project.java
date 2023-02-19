@@ -22,17 +22,20 @@ import fr.igred.omero.ContainerLinked;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.DatasetData;
 import omero.gateway.model.ProjectData;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.RemoteObject.flatten;
 
 
 /**
@@ -56,6 +59,44 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @param description The description of the project.
      */
     void setDescription(String description);
+
+
+    /**
+     * Updates and returns this project as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Project> getProjects(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        refresh(browser);
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Refreshes this project and retrieves the updated list of datasets contained in this project.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Dataset> getDatasets(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        refresh(browser);
+        return getDatasets();
+    }
 
 
     /**
@@ -121,7 +162,7 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    void removeDataset(Client client, RemoteObject<DatasetData> dataset)
+    void removeDataset(Client client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
@@ -130,14 +171,15 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      *
      * @param browser The data browser.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    List<Image> getImages(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -146,14 +188,23 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @param browser The data browser.
      * @param name    Name searched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Browser browser, String name)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImages(Browser browser, String name)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets();
+
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            lists.add(dataset.getImages(browser, name));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
@@ -163,14 +214,23 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @param datasetName Expected dataset name.
      * @param imageName   Expected image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Browser browser, String datasetName, String imageName)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImages(Browser browser, String datasetName, String imageName)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets(datasetName);
+
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            lists.add(dataset.getImages(browser, imageName));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
@@ -179,31 +239,49 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @param browser The data browser.
      * @param motif   Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesLike(Browser browser, String motif)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImagesLike(Browser browser, String motif)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets();
+
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            lists.add(dataset.getImagesLike(browser, motif));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
      * @param browser The data browser.
-     * @param tag     TagAnnotationWrapper containing the tag researched.
+     * @param tag     TagAnnotation containing the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    default List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
+    throws ServiceException, AccessException, ServerException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets();
+
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            lists.add(dataset.getImagesTagged(browser, tag));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
@@ -212,15 +290,24 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @param browser The data browser.
      * @param tagId   Id of the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesTagged(Browser browser, Long tagId)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    default List<Image> getImagesTagged(Browser browser, Long tagId)
+    throws ServiceException, AccessException, ServerException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets();
+
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            lists.add(dataset.getImagesTagged(browser, tagId));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
@@ -229,14 +316,23 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @param browser The data browser.
      * @param key     Name of the key researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesWithKey(Browser browser, String key)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImagesWithKey(Browser browser, String key)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets();
+
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            lists.add(dataset.getImagesWithKey(browser, key));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
@@ -246,18 +342,27 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @param key     Name of the key researched.
      * @param value   Value associated with the key.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<Dataset> datasets = getDatasets();
+
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
+            lists.add(dataset.getImagesWithKeyValuePair(browser, key, value));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
-     * Refreshes the wrapped project.
+     * Refreshes the project.
      *
      * @param browser The data browser.
      *
@@ -265,6 +370,7 @@ public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void refresh(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    void refresh(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

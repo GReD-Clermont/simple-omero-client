@@ -217,9 +217,9 @@ public interface DataManager {
 
 
     /**
-     * Deletes a table from OMERO
+     * Deletes a table from OMERO.
      *
-     * @param table TableWrapper containing the table to delete.
+     * @param table Table to delete.
      *
      * @throws ServiceException         Cannot connect to OMERO.
      * @throws AccessException          Cannot access data.

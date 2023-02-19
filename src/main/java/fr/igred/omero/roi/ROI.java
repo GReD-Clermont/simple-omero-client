@@ -201,13 +201,15 @@ public interface ROI extends Annotatable<ROIData> {
      *
      * @param shapes List of ShapeWrapper.
      */
-    void addShapes(Iterable<? extends Shape<?>> shapes);
+    default void addShapes(Iterable<? extends Shape<?>> shapes) {
+        shapes.forEach(this::addShape);
+    }
 
 
     /**
      * Adds a Shape to the ROI.
      *
-     * @param shape ShapeWrapper to add.
+     * @param shape Shape to add.
      */
     void addShape(Shape<?> shape);
 
@@ -270,7 +272,9 @@ public interface ROI extends Annotatable<ROIData> {
      *
      * @return A list of ROIs.
      */
-    List<Roi> toImageJ();
+    default List<Roi> toImageJ() {
+        return this.toImageJ(IJ_PROPERTY);
+    }
 
 
     /**

@@ -131,17 +131,6 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
 
 
     /**
-     * Adds ShapeData objects from a list of Shapes to the ROIData
-     *
-     * @param shapes List of Shapes.
-     */
-    @Override
-    public void addShapes(Iterable<? extends Shape<?>> shapes) {
-        shapes.forEach(this::addShape);
-    }
-
-
-    /**
      * Adds a ShapeData from a Shape to the ROIData
      *
      * @param shape Shape to add.
@@ -248,17 +237,6 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
         Coordinates start = new Coordinates(x[0], y[0], c[0], z[0], t[0]);
         Coordinates end   = new Coordinates(x[1], y[1], c[1], z[1], t[1]);
         return new Bounds(start, end);
-    }
-
-
-    /**
-     * Convert ROI to ImageJ list of ROIs.
-     *
-     * @return A list of ROIs.
-     */
-    @Override
-    public List<ij.gui.Roi> toImageJ() {
-        return this.toImageJ(IJ_PROPERTY);
     }
 
 

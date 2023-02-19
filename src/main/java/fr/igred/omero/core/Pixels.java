@@ -194,7 +194,10 @@ public interface Pixels extends RemoteObject<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    double[][][][][] getAllPixels(ConnectionHandler client) throws AccessException, ExecutionException;
+    default double[][][][][] getAllPixels(ConnectionHandler client)
+    throws AccessException, ExecutionException {
+        return getAllPixels(client, null, null, null, null, null);
+    }
 
 
     /**
@@ -222,7 +225,7 @@ public interface Pixels extends RemoteObject<PixelsData> {
 
 
     /**
-     * Returns an array containing the raw values for each voxel for each planes
+     * Returns an array containing the raw values for each voxel for each planes.
      *
      * @param client The client handling the connection.
      * @param bpp    Bytes per pixels of the image.
@@ -232,7 +235,10 @@ public interface Pixels extends RemoteObject<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    byte[][][][] getRawPixels(ConnectionHandler client, int bpp) throws AccessException, ExecutionException;
+    default byte[][][][] getRawPixels(ConnectionHandler client, int bpp)
+    throws AccessException, ExecutionException {
+        return getRawPixels(client, null, null, null, null, null, bpp);
+    }
 
 
     /**

@@ -21,8 +21,6 @@ package fr.igred.omero.core;
 import fr.igred.omero.ObjectWrapper;
 import omero.gateway.model.ChannelData;
 
-import java.awt.Color;
-
 
 /**
  * Class containing a ChannelData object.
@@ -85,7 +83,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> implements Channe
      */
     @Override
     public String getName() {
-        return this.asDataObject().getName();
+        return data.getName();
     }
 
 
@@ -97,19 +95,6 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> implements Channe
     @Override
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * Gets the original channel color. Defaults to {@link Color#WHITE} if RGBA values are missing.
-     *
-     * @return The original channel color.
-     */
-    @Override
-    public Color getColor() {
-        Color color = Color.WHITE;
-        if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
-        return color;
     }
 
 

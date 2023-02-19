@@ -163,21 +163,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from ProjectDatasetLink as link " +
                                                "where link.child=" + getId());
-        return browser.getProjects(
-                os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
-    }
-
-
-    /**
-     * Retrieves this dataset as a singleton list.
-     *
-     * @param browser The data browser (unused).
-     *
-     * @return See above.
-     */
-    @Override
-    public List<Dataset> getDatasets(Browser browser) {
-        return Collections.singletonList(this);
+        return browser.getProjects(os.stream()
+                                     .map(IObject::getId)
+                                     .map(RLong::getValue)
+                                     .distinct()
+                                     .toArray(Long[]::new));
     }
 
 
@@ -186,7 +176,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      *
      * @param browser The data browser.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -194,10 +184,10 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      */
     @Override
     public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        List<Long> datasetIds = Collections.singletonList(getId());
         Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
                                                               bf -> bf.getImagesForDatasets(browser.getCtx(),
-                                                                                            Collections.singletonList(
-                                                                                                    data.getId())),
+                                                                                            datasetIds),
                                                               "Cannot get images from " + this);
         return wrap(images, ImageWrapper::new);
     }
@@ -209,7 +199,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @param browser The data browser.
      * @param name    Name searched.
      *
-     * @return ImageWrapper list.
+     * @return Image list.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -230,7 +220,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @param browser The data browser.
      * @param motif   Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -251,9 +241,9 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param browser The data browser.
-     * @param tag     TagAnnotationWrapper containing the tag researched.
+     * @param tag     TagAnnotation containing the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -273,7 +263,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @param browser The data browser.
      * @param tagId   Id of the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -306,7 +296,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @param browser The data browser.
      * @param key     Name of the key researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -347,7 +337,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @param key     Name of the key researched.
      * @param value   Value associated with the key.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -577,28 +567,6 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
         }
         client.delete(toDelete);
         return ids;
-    }
-
-
-    /**
-     * Imports one image file to the dataset in OMERO and replace older images sharing the same name after copying their
-     * annotations and ROIs, and concatenating the descriptions (on new lines) by unlinking them.
-     *
-     * @param client The client handling the connection.
-     * @param path   Path to the image on the computer.
-     *
-     * @return The list of IDs of the newly imported images.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ServerException      Server error.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    @Override
-    public List<Long> importAndReplaceImages(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
-        return importAndReplaceImages(client, path, ReplacePolicy.UNLINK);
     }
 
 

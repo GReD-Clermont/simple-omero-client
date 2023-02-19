@@ -77,6 +77,8 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 /**
  * Interface to browse data on an OMERO server in a given {@link SecurityContext}.
  */
+@SuppressWarnings("ClassWithTooManyMethods")
+//Fewer methods than counted because of polymorphism.
 public interface Browser {
 
     /**
@@ -458,7 +460,7 @@ public interface Browser {
     /**
      * Gets all images with the specified annotation from OMERO.
      *
-     * @param annotation TagAnnotationWrapper containing the tag researched.
+     * @param annotation TagAnnotation containing the tag researched.
      *
      * @return See above.
      *

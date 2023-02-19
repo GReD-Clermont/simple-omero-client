@@ -45,10 +45,10 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
     /**
      * Constructor of the class ObjectWrapper.
      *
-     * @param object The object contained in the ObjectWrapper.
+     * @param o The object contained in the ObjectWrapper.
      */
-    protected ObjectWrapper(T object) {
-        this.data = object;
+    protected ObjectWrapper(T o) {
+        this.data = o;
     }
 
 

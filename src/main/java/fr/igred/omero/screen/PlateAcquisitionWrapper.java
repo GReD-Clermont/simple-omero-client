@@ -18,13 +18,9 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RemoteObject;
-import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.annotations.Annotation;
-import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.RepositoryObjectWrapper;
 import omero.gateway.model.PlateAcquisitionData;
@@ -33,16 +29,7 @@ import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model._PlateAcquisitionOperationsNC;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-
-import static fr.igred.omero.RemoteObject.flatten;
 
 
 /**
@@ -207,101 +194,6 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
     @Override
     public int getMaximumFieldCount() {
         return data.getMaximumFieldCount();
-    }
-
-
-    /**
-     * Retrieves the screens linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
-     */
-    @Override
-    public List<Screen> getScreens(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
-        List<Plate>              plates  = getPlates(browser);
-        Collection<List<Screen>> screens = new ArrayList<>(plates.size());
-        for (Plate p : plates) {
-            screens.add(p.getScreens(browser));
-        }
-        return flatten(screens);
-    }
-
-
-    /**
-     * Returns the plates linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return browser.getPlates(getRefPlateId());
-    }
-
-
-    /**
-     * Returns this plate acquisitions as a singleton list.
-     *
-     * @param browser The data browser (unused).
-     *
-     * @return See above.
-     */
-    @Override
-    public List<PlateAcquisition> getPlateAcquisitions(Browser browser) {
-        return Collections.singletonList(this);
-    }
-
-
-    /**
-     * Retrieves the wells linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return getPlates(browser).iterator().next().getWells(browser);
-    }
-
-
-    /**
-     * Retrieves the images linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return getWells(browser).stream()
-                                .map(Well::getImages)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toMap(RemoteObject::getId, o -> o))
-                                .values()
-                                .stream()
-                                .sorted(Comparator.comparing(RemoteObject::getId))
-                                .collect(Collectors.toList());
     }
 
 }

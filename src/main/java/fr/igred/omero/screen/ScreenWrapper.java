@@ -18,11 +18,9 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.DataManager;
-import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -30,15 +28,10 @@ import fr.igred.omero.RepositoryObjectWrapper;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-import static fr.igred.omero.RemoteObject.flatten;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
@@ -152,21 +145,6 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
 
 
     /**
-     * Returns the plates contained in this screen, with the specified name.
-     *
-     * @param name The expected plates name.
-     *
-     * @return See above.
-     */
-    @Override
-    public List<Plate> getPlates(String name) {
-        List<Plate> plates = getPlates();
-        plates.removeIf(plate -> !plate.getName().equals(name));
-        return plates;
-    }
-
-
-    /**
      * Returns the description of the protocol.
      *
      * @return See above.
@@ -257,17 +235,17 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
     /**
      * Refreshes the wrapped screen.
      *
-     * @param client The client handling the connection.
+     * @param browser The client handling the connection.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void refresh(Browser client) throws ServiceException, AccessException, ExecutionException {
+    public void refresh(Browser browser) throws ServiceException, AccessException, ExecutionException {
         String message = String.format("Cannot refresh %s", this);
-        data = handleServiceAndAccess(client.getBrowseFacility(),
-                                      bf -> bf.getScreens(client.getCtx(),
+        data = handleServiceAndAccess(browser.getBrowseFacility(),
+                                      bf -> bf.getScreens(browser.getCtx(),
                                                           Collections.singletonList(this.getId()))
                                               .iterator()
                                               .next(),
@@ -317,109 +295,6 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
         List<Long> ids = importImage(client, data, path);
         refresh(client);
         return ids;
-    }
-
-
-    /**
-     * Returns this screen as a singleton list.
-     *
-     * @param browser The data browser (unused).
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Screen> getScreens(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return Collections.singletonList(browser.getScreen(getId()));
-    }
-
-
-    /**
-     * Returns the plates linked to this screen.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return browser.getScreen(getId()).getPlates();
-    }
-
-
-    /**
-     * Returns the plate acquisitions linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return getPlates(browser).stream()
-                                 .map(Plate::getPlateAcquisitions)
-                                 .flatMap(Collection::stream)
-                                 .collect(Collectors.toMap(RemoteObject::getId, o -> o))
-                                 .values()
-                                 .stream()
-                                 .sorted(Comparator.comparing(RemoteObject::getId))
-                                 .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Retrieves the wells linked to this object, either directly, or through parents/children.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        List<Plate>            plates = getPlates();
-        Collection<List<Well>> wells  = new ArrayList<>(plates.size());
-        for (Plate p : plates) {
-            wells.add(p.getWells(browser));
-        }
-        return flatten(wells);
-    }
-
-
-    /**
-     * Retrieves the images contained in this screen.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        List<Plate>             plates = getPlates();
-        Collection<List<Image>> images = new ArrayList<>(plates.size());
-        for (Plate p : plates) {
-            images.add(p.getImages(browser));
-        }
-        return flatten(images);
     }
 
 }

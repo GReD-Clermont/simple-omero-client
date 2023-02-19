@@ -30,11 +30,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.FolderWrapper;
-import fr.igred.omero.screen.Plate;
-import fr.igred.omero.containers.Project;
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.screen.PlateAcquisition;
-import fr.igred.omero.screen.Screen;
 import fr.igred.omero.screen.Well;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.util.Bounds;
@@ -76,7 +72,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -84,8 +79,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.RemoteObject.distinct;
-import static fr.igred.omero.RemoteObject.flatten;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
 import static fr.igred.omero.util.Wrapper.wrap;
@@ -258,30 +251,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
 
 
     /**
-     * Retrieves the projects containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServerException    Server error.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Project> getProjects(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException {
-        List<Dataset>       datasets = getDatasets(browser);
-        Collection<Project> projects = new ArrayList<>(datasets.size());
-        for (Dataset dataset : datasets) {
-            projects.addAll(dataset.getProjects(browser));
-        }
-        return distinct(projects);
-    }
-
-
-    /**
      * Retrieves the datasets containing this image
      *
      * @param browser The data browser.
@@ -309,19 +278,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
 
 
     /**
-     * Returns this image as a singleton list.
-     *
-     * @param browser The data browser (unused).
-     *
-     * @return See above
-     */
-    @Override
-    public List<Image> getImages(Browser browser) {
-        return Collections.singletonList(this);
-    }
-
-
-    /**
      * Retrieves the wells containing this image.
      *
      * @param browser The data browser.
@@ -343,72 +299,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
                          .sorted().distinct()
                          .toArray(Long[]::new);
         return browser.getWells(ids);
-    }
-
-
-    /**
-     * Returns the plate acquisitions linked to this image.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
-        List<Well> wells = getWells(browser);
-
-        Collection<List<PlateAcquisition>> acqs = new ArrayList<>(wells.size());
-        for (Well w : wells) {
-            acqs.add(w.getPlateAcquisitions(browser));
-        }
-        return flatten(acqs);
-    }
-
-
-    /**
-     * Retrieves the plates containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<Plate> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
-        return distinct(getWells(browser).stream().map(Well::getPlate).collect(Collectors.toList()));
-    }
-
-
-    /**
-     * Retrieves the screens containing this image
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
-     */
-    @Override
-    public List<Screen> getScreens(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
-        List<Plate> plates = getPlates(browser);
-
-        Collection<List<Screen>> screens = new ArrayList<>(plates.size());
-        for (Plate plate : plates) {
-            screens.add(plate.getScreens(browser));
-        }
-        return flatten(screens);
     }
 
 
@@ -578,25 +468,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
 
 
     /**
-     * Generates the ImagePlus from the ij library corresponding to the image from OMERO WARNING : you need to include
-     * the ij library to use this function
-     *
-     * @param client The client handling the connection.
-     *
-     * @return ImagePlus generated from the current image.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public ImagePlus toImagePlus(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        return this.toImagePlus(client, null, null, null, null, null);
-    }
-
-
-    /**
      * Gets the imagePlus generated from the image from OMERO corresponding to the bound.
      *
      * @param client  The client handling the connection.
@@ -706,33 +577,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
 
 
     /**
-     * Gets the imagePlus from the image generated from the ROI.
-     *
-     * @param client The client handling the connection.
-     * @param roi    The ROI.
-     *
-     * @return an ImagePlus from the ij library.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public ImagePlus toImagePlus(Client client, ROI roi)
-    throws ServiceException, AccessException, ExecutionException {
-        Bounds bounds = roi.getBounds();
-
-        int[] x = {bounds.getStart().getX(), bounds.getEnd().getX()};
-        int[] y = {bounds.getStart().getY(), bounds.getEnd().getY()};
-        int[] c = {bounds.getStart().getC(), bounds.getEnd().getC()};
-        int[] z = {bounds.getStart().getZ(), bounds.getEnd().getZ()};
-        int[] t = {bounds.getStart().getT(), bounds.getEnd().getT()};
-
-        return toImagePlus(client, x, y, c, z, t);
-    }
-
-
-    /**
      * Gets the image channels
      *
      * @param browser The data browser.
@@ -753,44 +597,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
                        .sorted(Comparator.comparing(ChannelData::getIndex))
                        .map(ChannelWrapper::new)
                        .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Gets the name of the channel
-     *
-     * @param browser The data browser.
-     * @param index   Channel number.
-     *
-     * @return name of the channel.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public String getChannelName(Browser browser, int index)
-    throws ServiceException, AccessException, ExecutionException {
-        return getChannels(browser).get(index).getChannelLabeling();
-    }
-
-
-    /**
-     * Gets the original color of the channel
-     *
-     * @param browser The data browser.
-     * @param index   Channel number.
-     *
-     * @return Original color of the channel.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public Color getChannelImportedColor(Browser browser, int index)
-    throws ServiceException, AccessException, ExecutionException {
-        return getChannels(browser).get(index).getColor();
     }
 
 

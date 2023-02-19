@@ -19,6 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.HCSLinked;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -29,8 +30,15 @@ import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static fr.igred.omero.RemoteObject.flatten;
 
 
 /**
@@ -66,13 +74,17 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
 
 
     /**
-     * Returns the plates contained in this screen, with the specified name.
+     * Returns the plates with the specified name contained in this screen.
      *
      * @param name The expected plates name.
      *
      * @return See above.
      */
-    List<Plate> getPlates(String name);
+    default List<Plate> getPlates(String name) {
+        List<Plate> plates = getPlates();
+        plates.removeIf(plate -> !plate.getName().equals(name));
+        return plates;
+    }
 
 
     /**
@@ -140,15 +152,15 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
 
 
     /**
-     * Refreshes the wrapped screen.
+     * Refreshes the screen.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void refresh(Browser client)
+    void refresh(Browser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -188,7 +200,7 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
 
 
     /**
-     * Returns this screen as a singleton list.
+     * Refreshes and returns this screen as a singleton list.
      *
      * @param browser The data browser (unused).
      *
@@ -199,11 +211,15 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Screen> getScreens(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Screen> getScreens(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return Collections.singletonList(this);
+    }
 
 
     /**
-     * Returns the plates linked to this screen.
+     * Refreshes this screen and returns the updated list of plates linked to this screen.
      *
      * @param browser The data browser.
      *
@@ -214,7 +230,11 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(browser);
+        return getPlates();
+    }
 
 
     /**
@@ -229,8 +249,17 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        return getPlates(browser).stream()
+                                 .map(Plate::getPlateAcquisitions)
+                                 .flatMap(Collection::stream)
+                                 .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                                 .values()
+                                 .stream()
+                                 .sorted(Comparator.comparing(RemoteObject::getId))
+                                 .collect(Collectors.toList());
+    }
 
 
     /**
@@ -245,7 +274,15 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Well> getWells(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Plate>            plates = getPlates(browser);
+        Collection<List<Well>> wells  = new ArrayList<>(plates.size());
+        for (Plate p : plates) {
+            wells.add(p.getWells(browser));
+        }
+        return flatten(wells);
+    }
 
 
     /**
@@ -260,6 +297,14 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException;
+    default List<Image> getImages(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Plate>             plates = getPlates();
+        Collection<List<Image>> images = new ArrayList<>(plates.size());
+        for (Plate p : plates) {
+            images.add(p.getImages(browser));
+        }
+        return flatten(images);
+    }
 
 }
