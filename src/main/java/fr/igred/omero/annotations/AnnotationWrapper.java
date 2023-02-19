@@ -20,6 +20,8 @@ package fr.igred.omero.annotations;
 
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -235,12 +237,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
     @Override
     public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, ExecutionException, ServerException {
+    throws ServiceException, ServerException {
         List<IObject> os = getLinks(browser, PlateAcquisitionWrapper.ANNOTATION_LINK);
         return os.stream()
                  .map(o -> new PlateAcquisitionWrapper(new PlateAcquisitionData((omero.model.PlateAcquisition) o)))
@@ -266,6 +267,27 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
         List<IObject> os  = getLinks(browser, WellWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getWells(ids);
+    }
+
+
+    /**
+     * Gets all folders with this annotation from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ServerException    Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public List<Folder> getFolders(Browser browser)
+    throws ServiceException, AccessException, ServerException, ExecutionException {
+        List<IObject> os  = getLinks(browser, FolderWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return browser.loadFolders(ids);
     }
 
 

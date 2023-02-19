@@ -88,6 +88,25 @@ class FolderTest extends UserTest {
 
 
     @Test
+    void testTagFolder() throws Exception {
+        Annotatable<?> folder = new FolderWrapper(client, "Test");
+        TagAnnotation  tag    = new TagAnnotationWrapper(client, "Folder test", "Folder tag");
+        folder.link(client, tag);
+
+        List<Folder>        folders = tag.getFolders(client);
+        List<TagAnnotation> tags    = folder.getTags(client);
+
+        client.delete(tag);
+        client.delete(folder);
+
+        assertEquals(1, folders.size());
+        assertEquals(folders.get(0).getId(), folder.getId());
+        assertEquals(1, tags.size());
+        assertEquals(tags.get(0).getId(), tag.getId());
+    }
+
+
+    @Test
     void testGetDeletedFolder() throws Exception {
         RemoteObject<?> folder = new FolderWrapper(client, "Test");
         assertEquals(1, client.getFolders().size());

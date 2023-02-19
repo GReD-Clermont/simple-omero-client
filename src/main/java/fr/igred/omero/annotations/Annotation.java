@@ -21,11 +21,15 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.ContainerLinked;
 import fr.igred.omero.HCSLinked;
 import fr.igred.omero.client.Browser;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -74,6 +78,22 @@ public interface Annotation<T extends AnnotationData> extends ContainerLinked<T>
      * @param description The description
      */
     void setDescription(String description);
+
+
+    /**
+     * Gets all folders with this annotation from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ServerException    Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    List<Folder> getFolders(Browser browser)
+    throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**

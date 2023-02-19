@@ -179,13 +179,9 @@ public interface WellSample extends HCSLinked<WellSampleData> {
      * @param browser The data browser (unused).
      *
      * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    default List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
+    default List<Image> getImages(Browser browser) {
         return Collections.singletonList(getImage());
     }
 
