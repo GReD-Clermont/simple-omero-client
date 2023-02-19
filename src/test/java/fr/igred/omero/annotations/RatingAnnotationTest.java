@@ -34,14 +34,12 @@ class RatingAnnotationTest extends UserTest {
     @Test
     void testAddRating1() throws Exception {
         Image image = client.getImage(IMAGE1.id);
-        int score = 5;
+        int   score = 5;
 
         RatingAnnotation rating = new RatingAnnotationWrapper(score);
         image.link(client, rating);
 
-        AnnotationList annotations = image.getAnnotations(client);
-
-        List<RatingAnnotation> ratings = annotations.getElementsOf(RatingAnnotation.class);
+        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -52,19 +50,63 @@ class RatingAnnotationTest extends UserTest {
     @Test
     void testAddTextualAnnotation2() throws Exception {
         Image image = client.getImage(IMAGE1.id);
-        int score = 3;
+        int   score = 3;
 
         RatingAnnotation rating = new RatingAnnotationWrapper(new RatingAnnotationData());
         rating.setRating(score);
         image.link(client, rating);
 
-        AnnotationList annotations = image.getAnnotations(client);
-
-        List<RatingAnnotation> ratings = annotations.getElementsOf(RatingAnnotation.class);
+        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
         assertEquals(score, ratings.get(0).getRating());
+    }
+
+
+    @Test
+    void testRate1() throws Exception {
+        Image image  = client.getImage(IMAGE1.id);
+        int   score1 = 4;
+        int   score2 = 3;
+
+        image.rate(client, score1);
+        int rating1 = image.getMyRating(client);
+        image.rate(client, score2);
+        int rating2 = image.getMyRating(client);
+
+        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
+        client.delete(ratings);
+
+        assertEquals(1, ratings.size());
+        assertEquals(score1, rating1);
+        assertEquals(score2, rating2);
+    }
+
+
+    @Test
+    void testRate2() throws Exception {
+        Image image  = client.getImage(IMAGE1.id);
+        int   score0 = 1;
+        int   score1 = 2;
+        int   score2 = 3;
+
+        RatingAnnotation rating1 = new RatingAnnotationWrapper(new RatingAnnotationData());
+        rating1.setRating(score0);
+        RatingAnnotation rating2 = new RatingAnnotationWrapper(new RatingAnnotationData());
+        rating1.setRating(score1);
+        image.link(client, rating1);
+        image.link(client, rating2);
+        int myRating1 = image.getMyRating(client);
+        image.rate(client, score2);
+        int myRating2 = image.getMyRating(client);
+
+        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
+        client.delete(ratings);
+
+        assertEquals(1, ratings.size());
+        assertEquals((score0 + score1) / 2, myRating1);
+        assertEquals(score2, myRating2);
     }
 
 }
