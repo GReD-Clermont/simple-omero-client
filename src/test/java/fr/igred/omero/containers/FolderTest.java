@@ -42,8 +42,10 @@ class FolderTest extends UserTest {
 
 
     @Test
-    void testImageFolderLinks() throws Exception {
+    void testImageFolderLinks1() throws Exception {
         Folder parent = new FolderWrapper(client, "Parent");
+        parent.addImages(client, client.getImage(IMAGE1.id), client.getImage(IMAGE2.id));
+        parent.reload(client);
         parent.addImages(client, client.getImage(IMAGE1.id), client.getImage(IMAGE2.id));
         parent.reload(client);
 

@@ -113,8 +113,10 @@ class ImageImportTest extends UserTest {
         roi.addShape(rectangle);
         roi = image2.saveROIs(client, Collections.singletonList(roi)).get(0);
 
-        Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
-        folder.addROIs(client, image2.getId(), roi);
+        Folder roiFolder = new FolderWrapper(client, "ReplaceTestROIFolder");
+        roiFolder.addROIs(client, image2.getId(), roi);
+        Folder imgFolder = new FolderWrapper(client, "ReplaceTestImageFolder");
+        imgFolder.addImages(client, image2);
 
         Table table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
@@ -132,6 +134,7 @@ class ImageImportTest extends UserTest {
         assertEquals(1, image3.getMapAnnotations(client).size());
         assertEquals(1, image3.getROIs(client).size());
         assertEquals(1, image3.getROIFolders(client).size());
+        assertEquals(1, image3.getFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
         assertEquals("ReplaceTest", image3.getValues(client, "Map").get(0));
@@ -152,7 +155,8 @@ class ImageImportTest extends UserTest {
         client.delete(table);
         client.deleteFile(fileId);
         client.delete(roi);
-        client.delete(folder);
+        client.delete(roiFolder);
+        client.delete(imgFolder);
 
         assertEquals(1, images.size());
         assertTrue(endImages.isEmpty());

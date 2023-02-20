@@ -275,12 +275,15 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     @Override
     public void addImages(DataManager dm, Image... images)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> links = new ArrayList<>(images.length);
+        List<IObject> links     = new ArrayList<>(images.length);
+        List<Long>    linkedIds = getImages().stream().map(RemoteObject::getId).collect(Collectors.toList());
         for (Image image : images) {
-            FolderImageLink link = new FolderImageLinkI();
-            link.setChild(image.asDataObject().asImage());
-            link.setParent(data.asFolder());
-            links.add(link);
+            if (!linkedIds.contains(image.getId())) {
+                FolderImageLink link = new FolderImageLinkI();
+                link.setChild(image.asDataObject().asImage());
+                link.setParent(data.asFolder());
+                links.add(link);
+            }
         }
         handleServiceAndAccess(dm.getDataManagerFacility(),
                                d -> d.saveAndReturnObject(dm.getCtx(), links, null, null),

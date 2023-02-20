@@ -506,6 +506,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
             newImage.copyAnnotationLinks(client, oldImage);
             List<ROI> rois = oldImage.getROIs(client);
             newImage.saveROIs(client, rois);
+            List<Folder> folders = oldImage.getFolders(client);
+            for (Folder folder : folders) folder.addImages(client, newImage);
             this.removeImage(client, oldImage);
             if (oldImage.isOrphaned(client)) {
                 orphaned.add(oldImage);
