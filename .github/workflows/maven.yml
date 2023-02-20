@@ -78,8 +78,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Upload to codecov after successful tests
-        if: ${{ success() }}
-        run: bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v3
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
