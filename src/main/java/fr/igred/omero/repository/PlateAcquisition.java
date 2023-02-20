@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -18,60 +18,15 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.PlateAcquisitionData;
-import omero.gateway.model.TagAnnotationData;
-import omero.model.PlateAcquisition;
-import omero.model.PlateAcquisitionAnnotationLink;
-import omero.model.PlateAcquisitionAnnotationLinkI;
 
 import java.sql.Timestamp;
-import java.util.concurrent.ExecutionException;
 
 
 /**
- * Class containing a PlateAcquisitionData object.
- * <p> Wraps function calls to the PlateAcquisitionData contained.
+ * Interface to handle Plate Acquisitions on OMERO.
  */
-public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
-
-
-    /**
-     * Constructor of the class PlateAcquisitionWrapper.
-     *
-     * @param plateAcquisition The plate acquisition contained in the PlateAcquisitionWrapper.
-     */
-    public PlateAcquisitionWrapper(PlateAcquisitionData plateAcquisition) {
-        super(plateAcquisition);
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object
-     *
-     * @return See above.
-     */
-    @Override
-    protected String annotationLinkType() {
-        return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Gets the plate acquisition name.
-     *
-     * @return See above.
-     */
-    @Override
-    public String getName() {
-        return data.getName();
-    }
-
+public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData> {
 
     /**
      * Sets the name of the plate acquisition.
@@ -80,30 +35,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
-    }
-
-
-    /**
-     * Returns the PlateAcquisitionData contained.
-     *
-     * @return See above.
-     */
-    public PlateAcquisitionData asPlateAcquisitionData() {
-        return data;
-    }
-
-
-    /**
-     * Gets the plate acquisition description
-     *
-     * @return See above.
-     */
-    @Override
-    public String getDescription() {
-        return data.getDescription();
-    }
+    void setName(String name);
 
 
     /**
@@ -111,29 +43,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param description The description of the plate acquisition.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
-    }
-
-
-    /**
-     * Protected function. Adds a tag to the object in OMERO, if possible.
-     *
-     * @param client  The client handling the connection.
-     * @param tagData Tag to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    protected void addTag(Client client, TagAnnotationData tagData)
-    throws ServiceException, AccessException, ExecutionException {
-        PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent((PlateAcquisition) data.asIObject());
-        client.save(link);
-    }
+    void setDescription(String description);
 
 
     /**
@@ -141,9 +51,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public String getLabel() {
-        return data.getLabel();
-    }
+    String getLabel();
 
 
     /**
@@ -151,9 +59,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public long getRefPlateId() {
-        return data.getRefPlateId();
-    }
+    long getRefPlateId();
 
 
     /**
@@ -161,9 +67,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param refPlateId The value to set.
      */
-    public void setRefPlateId(long refPlateId) {
-        data.setRefPlateId(refPlateId);
-    }
+    void setRefPlateId(long refPlateId);
 
 
     /**
@@ -171,9 +75,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public Timestamp getStartTime() {
-        return data.getStartTime();
-    }
+    Timestamp getStartTime();
 
 
     /**
@@ -181,9 +83,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public Timestamp getEndTime() {
-        return data.getEndTime();
-    }
+    Timestamp getEndTime();
 
 
     /**
@@ -191,8 +91,6 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public int getMaximumFieldCount() {
-        return data.getMaximumFieldCount();
-    }
+    int getMaximumFieldCount();
 
 }

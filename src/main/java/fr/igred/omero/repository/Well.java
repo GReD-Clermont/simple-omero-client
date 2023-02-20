@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -22,97 +24,16 @@ import java.util.List;
 
 
 /**
- * Class containing a WellData object.
- * <p> Wraps function calls to the WellData contained.
+ * Interface to handle Wells on OMERO.
  */
-public class WellWrapper extends RepositoryObjectWrapper<WellData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "WellAnnotationLink";
-
-
-    /**
-     * Constructor of the class WellWrapper.
-     *
-     * @param well The WellData contained in the WellWrapper.
-     */
-    public WellWrapper(WellData well) {
-        super(well);
-    }
-
-
-    /**
-     * Converts a number to a suit of letters (e.g. 1 to A or 28 to AB).
-     *
-     * @param number The number.
-     *
-     * @return The corresponding identifier
-     */
-    private static String identifier(int number) {
-        final int     alphabetSize = 26;
-        final int     charOffset   = 64; // 'A' - 1
-        int           temp;
-        StringBuilder letters      = new StringBuilder(3);
-        while (number > 0) {
-            temp = number % alphabetSize;
-            letters.append((char) (temp + charOffset));
-            number = (number - temp) / alphabetSize;
-        }
-        return letters.toString();
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object
-     *
-     * @return See above.
-     */
-    @Override
-    protected String annotationLinkType() {
-        return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    @Override
-    public String getName() {
-        return String.format("Well %s-%d", identifier(getRow() + 1), getColumn() + 1);
-    }
-
-
-    /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    @Override
-    public String getDescription() {
-        return data.getExternalDescription();
-    }
-
-
-    /**
-     * Returns the WellData contained.
-     *
-     * @return See above.
-     */
-    public WellData asWellData() {
-        return data;
-    }
-
+public interface Well extends RepositoryObject<WellData> {
 
     /**
      * Returns the well samples linked to the well.
      *
      * @return See above.
      */
-    public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asImageData().getSeries());
-    }
+    List<WellSample> getWellSamples();
 
 
     /**
@@ -120,9 +41,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public PlateWrapper getPlate() {
-        return new PlateWrapper(data.getPlate());
-    }
+    Plate getPlate();
 
 
     /**
@@ -130,9 +49,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public Integer getColumn() {
-        return data.getColumn();
-    }
+    Integer getColumn();
 
 
     /**
@@ -140,9 +57,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public Integer getRow() {
-        return data.getRow();
-    }
+    Integer getRow();
 
 
     /**
@@ -150,9 +65,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public String getStatus() {
-        return data.getStatus();
-    }
+    String getStatus();
 
 
     /**
@@ -160,9 +73,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param status The status of the well.
      */
-    public void setStatus(String status) {
-        data.setStatus(status);
-    }
+    void setStatus(String status);
 
 
     /**
@@ -170,9 +81,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public String getWellType() {
-        return data.getWellType();
-    }
+    String getWellType();
 
 
     /**
@@ -180,9 +89,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param type The value to set.
      */
-    public void setWellType(String type) {
-        data.setWellType(type);
-    }
+    void setWellType(String type);
 
 
     /**
@@ -190,9 +97,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getRed() {
-        return data.getRed();
-    }
+    int getRed();
 
 
     /**
@@ -200,9 +105,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param red The value to set.
      */
-    public void setRed(Integer red) {
-        data.setRed(red);
-    }
+    void setRed(Integer red);
 
 
     /**
@@ -210,9 +113,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getGreen() {
-        return data.getGreen();
-    }
+    int getGreen();
 
 
     /**
@@ -220,9 +121,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param green The value to set.
      */
-    public void setGreen(Integer green) {
-        data.setGreen(green);
-    }
+    void setGreen(Integer green);
 
 
     /**
@@ -230,9 +129,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getBlue() {
-        return data.getBlue();
-    }
+    int getBlue();
 
 
     /**
@@ -240,9 +137,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param blue The value to set.
      */
-    public void setBlue(Integer blue) {
-        data.setBlue(blue);
-    }
+    void setBlue(Integer blue);
 
 
     /**
@@ -250,9 +145,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getAlpha() {
-        return data.getAlpha();
-    }
+    int getAlpha();
 
 
     /**
@@ -260,8 +153,6 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param alpha The value to set.
      */
-    public void setAlpha(Integer alpha) {
-        data.setAlpha(alpha);
-    }
+    void setAlpha(Integer alpha);
 
 }
