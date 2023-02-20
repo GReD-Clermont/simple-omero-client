@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -20,7 +22,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.Image;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
 import ij.gui.ShapeRoi;
@@ -31,12 +33,10 @@ import omero.model.Roi;
 import omero.model._RoiOperationsNC;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
@@ -47,12 +47,7 @@ import static java.util.stream.Collectors.groupingBy;
  * Class containing a ROIData object.
  * <p> Wraps function calls to the ROIData contained.
  */
-public class ROIWrapper extends ObjectWrapper<ROIData> {
-
-    /**
-     * Default IJ property to store ROI local IDs / indices.
-     */
-    public static final String IJ_PROPERTY = "ROI";
+public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
 
 
     /**
@@ -68,11 +63,11 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIWrapper(Iterable<? extends ShapeWrapper<?>> shapes) {
+    public ROIWrapper(Iterable<? extends Shape<?>> shapes) {
         super(new ROIData());
 
-        for (ShapeWrapper<?> shape : shapes) {
-            data.addShapeData(shape.asShapeData());
+        for (Shape<?> shape : shapes) {
+            data.addShapeData(shape.asDataObject());
         }
     }
 
@@ -88,123 +83,27 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
 
 
     /**
-     * Checks the provided property.
-     *
-     * @param property The property where 4D ROI local ID is stored.
-     *
-     * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
-     */
-    public static String checkProperty(String property) {
-        if (property == null || property.trim().isEmpty()) return IJ_PROPERTY;
-        else return property;
-    }
-
-
-    /**
-     * Returns ID property corresponding to input local ID property (appends "_ID" to said property).
-     *
-     * @param property The property where 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY} if null or empty.
-     *
-     * @return See above.
-     */
-    public static String ijIDProperty(String property) {
-        property = checkProperty(property);
-        return property + "_ID";
-    }
-
-
-    /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs
+     * Converts an ImageJ list of ROIs to a list of OMERO ROIs.
      *
      * @param ijRois A list of ImageJ ROIs.
      *
      * @return The converted list of OMERO ROIs.
      */
-    public static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois) {
-        return fromImageJ(ijRois, IJ_PROPERTY);
+    public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois) {
+        return ROI.fromImageJ(ijRois, IJ_PROPERTY, ROIWrapper::new);
     }
 
 
     /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs
+     * Converts an ImageJ list of ROIs to a list of OMERO ROIs.
      *
      * @param ijRois   A list of ImageJ ROIs.
      * @param property The property where 4D ROI local ID is stored. Defaults to {@value IJ_PROPERTY} if null or empty.
      *
      * @return The converted list of OMERO ROIs.
      */
-    public static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
-        property = checkProperty(property);
-        Map<String, ROIWrapper> rois4D = new TreeMap<>();
-
-        Map<Integer, ROIWrapper> shape2roi = new TreeMap<>();
-
-        for (int i = 0; i < ijRois.size(); i++) {
-            String value = ijRois.get(i).getProperty(property);
-            if (value != null && !value.trim().isEmpty()) {
-                rois4D.computeIfAbsent(value, val -> new ROIWrapper());
-                shape2roi.put(i, rois4D.get(value));
-            } else {
-                shape2roi.put(i, new ROIWrapper());
-            }
-        }
-
-        rois4D.forEach((name, roi) -> roi.setName(name));
-
-        for (Map.Entry<Integer, ROIWrapper> entry : shape2roi.entrySet()) {
-            ij.gui.Roi ijRoi = ijRois.get(entry.getKey());
-            ROIWrapper roi   = entry.getValue();
-            roi.addShape(ijRoi);
-        }
-        return shape2roi.values().stream().distinct().collect(Collectors.toList());
-    }
-
-
-    /**
-     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
-     *
-     * @param rois A list of OMERO ROIs.
-     *
-     * @return The converted list of ImageJ ROIs.
-     */
-    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois) {
-        return toImageJ(rois, IJ_PROPERTY);
-    }
-
-
-    /**
-     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
-     *
-     * @param rois     A list of OMERO ROIs.
-     * @param property The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or empty.
-     *
-     * @return The converted list of ImageJ ROIs.
-     */
-    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois, String property) {
-        property = checkProperty(property);
-        final int maxGroups = 255;
-
-        int nShapes = rois.stream().map(ROIWrapper::asROIData).mapToInt(ROIData::getShapeCount).sum();
-
-        List<ij.gui.Roi> ijRois = new ArrayList<>(nShapes);
-
-        int index = 1;
-        for (ROIWrapper roi : rois) {
-            String name = roi.getName();
-            if (name.trim().isEmpty()) {
-                name = "SOC_INDEX_" + index;
-            }
-            List<ij.gui.Roi> shapes = roi.toImageJ(property);
-            for (ij.gui.Roi r : shapes) {
-                r.setProperty(property, name);
-                if (rois.size() < maxGroups) {
-                    r.setGroup(index);
-                }
-            }
-            ijRois.addAll(shapes);
-            index++;
-        }
-        return ijRois;
+    public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
+        return ROI.fromImageJ(ijRois, property, ROIWrapper::new);
     }
 
 
@@ -213,6 +112,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @return The ROI name (can be null).
      */
+    @Override
     public String getName() {
         RString name = ((_RoiOperationsNC) data.asIObject()).getName();
         return name != null ? name.getValue() : "";
@@ -224,6 +124,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param name The ROI name.
      */
+    @Override
     public void setName(String name) {
         ((_RoiOperationsNC) data.asIObject()).setName(omero.rtypes.rstring(name));
     }
@@ -234,28 +135,31 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param data The ROI data.
      */
+    @Override
     public void setData(ROIData data) {
         this.data = data;
     }
 
 
     /**
-     * Adds ShapeData objects from a list of ShapeWrapper to the ROIData
+     * Adds ShapeData objects from a list of Shapes to the ROIData
      *
-     * @param shapes List of ShapeWrapper.
+     * @param shapes List of Shapes.
      */
-    public void addShapes(Iterable<? extends ShapeWrapper<?>> shapes) {
+    @Override
+    public void addShapes(Iterable<? extends Shape<?>> shapes) {
         shapes.forEach(this::addShape);
     }
 
 
     /**
-     * Adds a ShapeData from a ShapeWrapper to the ROIData
+     * Adds a ShapeData from a Shape to the ROIData
      *
-     * @param shape ShapeWrapper to add.
+     * @param shape Shape to add.
      */
-    public void addShape(ShapeWrapper<?> shape) {
-        data.addShapeData(shape.asShapeData());
+    @Override
+    public void addShape(Shape<?> shape) {
+        data.addShapeData(shape.asDataObject());
     }
 
 
@@ -264,6 +168,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @return list of shape contained in the ROIData.
      */
+    @Override
     public ShapeList getShapes() {
         ShapeList shapes = new ShapeList();
         data.getShapes().stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
@@ -276,18 +181,9 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param image Image linked to the ROIData.
      */
-    public void setImage(ImageWrapper image) {
-        data.setImage(image.asImageData().asImage());
-    }
-
-
-    /**
-     * Returns the ROIData contained.
-     *
-     * @return the {@link ROIData} contained.
-     */
-    public ROIData asROIData() {
-        return data;
+    @Override
+    public void setImage(Image image) {
+        data.setImage(image.asDataObject().asImage());
     }
 
 
@@ -296,6 +192,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @param shape ShapeData to delete.
      */
+    @Override
     public void deleteShape(ShapeData shape) {
         data.removeShapeData(shape);
     }
@@ -308,6 +205,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @throws IndexOutOfBoundsException If pos is out of the ShapeData list bounds.
      */
+    @Override
     public void deleteShape(int pos) {
         data.removeShapeData(data.getShapes().get(pos));
     }
@@ -321,6 +219,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
+    @Override
     public void saveROI(Client client) throws ServerException, ServiceException {
         String message = "Cannot save ROI";
         Roi roi = (Roi) handleServiceAndServer(client.getGateway(),
@@ -336,14 +235,15 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @return The 5D bounds.
      */
+    @Override
     public Bounds getBounds() {
         int[] x = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] y = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] c = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] z = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] t = {Integer.MAX_VALUE, Integer.MIN_VALUE};
-        for (ShapeWrapper<?> shape : getShapes()) {
-            RectangleWrapper box = shape.getBoundingBox();
+        for (Shape<?> shape : getShapes()) {
+            Rectangle box = shape.getBoundingBox();
             x[0] = Math.min(x[0], (int) box.getX());
             y[0] = Math.min(y[0], (int) box.getY());
             c[0] = Math.min(c[0], box.getC());
@@ -366,6 +266,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @return A list of ROIs.
      */
+    @Override
     public List<ij.gui.Roi> toImageJ() {
         return this.toImageJ(IJ_PROPERTY);
     }
@@ -378,24 +279,25 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      *
      * @return A list of ROIs.
      */
+    @Override
     public List<ij.gui.Roi> toImageJ(String property) {
-        property = checkProperty(property);
+        property = ROI.checkProperty(property);
         ShapeList shapes = getShapes();
 
-        Map<String, List<ShapeWrapper<?>>> sameSlice = shapes.stream()
-                                                             .collect(groupingBy(ShapeWrapper::getCZT,
-                                                                                 LinkedHashMap::new,
-                                                                                 Collectors.toList()));
+        Map<String, List<Shape<?>>> sameSlice = shapes.stream()
+                                                      .collect(groupingBy(Shape::getCZT,
+                                                                          LinkedHashMap::new,
+                                                                          Collectors.toList()));
         sameSlice.values().removeIf(List::isEmpty);
         List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
-        for (List<ShapeWrapper<?>> slice : sameSlice.values()) {
-            ShapeWrapper<?> shape = slice.iterator().next();
+        for (List<Shape<?>> slice : sameSlice.values()) {
+            Shape<?> shape = slice.iterator().next();
 
             ij.gui.Roi roi = shape.toImageJ();
             String     txt = shape.getText();
             if (slice.size() > 1) {
                 ij.gui.Roi xor = slice.stream()
-                                      .map(ShapeWrapper::toImageJ)
+                                      .map(Shape::toImageJ)
                                       .map(ShapeRoi::new)
                                       .reduce(ShapeRoi::xor)
                                       .map(ij.gui.Roi.class::cast)
@@ -409,20 +311,10 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
             } else {
                 roi.setName(txt);
             }
-            roi.setProperty(ijIDProperty(property), String.valueOf(getId()));
+            roi.setProperty(ROI.ijIDProperty(property), String.valueOf(getId()));
             rois.add(roi);
         }
         return rois;
-    }
-
-
-    /**
-     * Adds an ImageJ ROI to an OMERO ROI.
-     *
-     * @param ijRoi The ImageJ ROI.
-     */
-    private void addShape(ij.gui.Roi ijRoi) {
-        addShapes(ShapeWrapper.fromImageJ(ijRoi));
     }
 
 }

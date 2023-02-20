@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -20,8 +22,10 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.AnnotationWrapper;
+import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -76,7 +80,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class RepositoryObjectWrapper<T extends DataObject> extends ObjectWrapper<T> {
+public abstract class RepositoryObjectWrapper<T extends DataObject> extends ObjectWrapper<T> implements RepositoryObject<T> {
 
     /**
      * Constructor of the class RepositoryObjectWrapper.
@@ -201,22 +205,6 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
 
 
     /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    public abstract String getName();
-
-
-    /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    public abstract String getDescription();
-
-
-    /**
      * Adds a newly created tag to the object in OMERO, if possible.
      *
      * @param client      The client handling the connection.
@@ -227,6 +215,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTag(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationData tagData = new TagAnnotationData(name);
@@ -245,9 +234,10 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTag(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ExecutionException {
-        addTag(client, tag.asTagAnnotationData());
+        addTag(client, tag.asDataObject());
     }
 
 
@@ -280,6 +270,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
@@ -298,10 +289,11 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTags(Client client, TagAnnotationWrapper... tags)
     throws ServiceException, AccessException, ExecutionException {
         for (TagAnnotationWrapper tag : tags) {
-            addTag(client, tag.asTagAnnotationData());
+            addTag(client, tag.asDataObject());
         }
     }
 
@@ -316,6 +308,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTags(Client client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         for (Long id : ids) {
@@ -335,6 +328,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
@@ -366,6 +360,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<MapAnnotationWrapper> getMapAnnotations(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
@@ -396,6 +391,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         List<NamedValue>     kv  = Collections.singletonList(new NamedValue(key, value));
@@ -416,6 +412,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public Map<String, String> getKeyValuePairs(Client client)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get key-value pairs for " + this;
@@ -452,6 +449,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
+    @Override
     public String getValue(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Map<String, String> keyValuePairs = getKeyValuePairs(client);
@@ -475,11 +473,12 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addMapAnnotation(Client client, MapAnnotationWrapper mapAnnotation)
     throws ServiceException, AccessException, ExecutionException {
         handleServiceAndAccess(client.getDm(),
                                d -> d.attachAnnotation(client.getCtx(),
-                                                       mapAnnotation.asMapAnnotationData(),
+                                                       mapAnnotation.asDataObject(),
                                                        this.data),
                                "Cannot add key-value pairs to " + this);
     }
@@ -495,7 +494,8 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTable(Client client, TableWrapper table)
+    @Override
+    public void addTable(Client client, Table table)
     throws ServiceException, AccessException, ExecutionException {
         String         error          = "Cannot add table to " + this;
         TablesFacility tablesFacility = client.getTablesFacility();
@@ -534,7 +534,8 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
-    public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    @Override
+    public void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         String error = String.format("Cannot get tables from %s", this);
 
@@ -568,7 +569,8 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
-    public void addAndReplaceTable(Client client, TableWrapper table)
+    @Override
+    public void addAndReplaceTable(Client client, Table table)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
     }
@@ -586,7 +588,8 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper getTable(Client client, Long fileId)
+    @Override
+    public Table getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData table = handleServiceAndAccess(client.getTablesFacility(),
                                                  tf -> tf.getTable(client.getCtx(), fileId),
@@ -597,7 +600,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                                                      .map(FileAnnotationData::getDescription)
                                                      .findFirst().orElse(null),
                                              "Cannot get table name from " + this);
-        TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
+        Table result = new TableWrapper(Objects.requireNonNull(table));
         result.setName(name);
         return result;
     }
@@ -614,16 +617,17 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TableWrapper> getTables(Client client)
+    @Override
+    public List<Table> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FileAnnotationData> tables = handleServiceAndAccess(client.getTablesFacility(),
                                                                        tf -> tf.getAvailableTables(client.getCtx(),
                                                                                                    data),
                                                                        "Cannot get tables from " + this);
 
-        List<TableWrapper> tablesWrapper = new ArrayList<>(tables.size());
+        List<Table> tablesWrapper = new ArrayList<>(tables.size());
         for (FileAnnotationData table : tables) {
-            TableWrapper tableWrapper = getTable(client, table.getFileID());
+            Table tableWrapper = getTable(client, table.getFileID());
             tableWrapper.setId(table.getId());
             tablesWrapper.add(tableWrapper);
         }
@@ -643,6 +647,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
+    @Override
     public long addFile(Client client, File file) throws ExecutionException, InterruptedException {
         return client.getDm().attachFile(client.getCtx(),
                                          file,
@@ -668,6 +673,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
+    @Override
     public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException {
         List<FileAnnotationWrapper> files = getFileAnnotations(client);
@@ -678,7 +684,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
                                                                 "",
                                                                 file.getName(),
                                                                 data).get();
-        FileAnnotationWrapper annotation = new FileAnnotationWrapper(uploaded);
+        FileAnnotation annotation = new FileAnnotationWrapper(uploaded);
 
         files.removeIf(fileAnnotation -> !fileAnnotation.getFileName().equals(annotation.getFileName()));
         for (FileAnnotationWrapper fileAnnotation : files) {
@@ -707,6 +713,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
+    @Override
     public long addAndReplaceFile(Client client, File file)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
@@ -723,10 +730,11 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addFileAnnotation(Client client, FileAnnotationWrapper annotation)
     throws AccessException, ServiceException, ExecutionException {
         handleServiceAndAccess(client.getDm(),
-                               dm -> dm.attachAnnotation(client.getCtx(), annotation.asFileAnnotationData(),
+                               dm -> dm.attachAnnotation(client.getCtx(), annotation.asDataObject(),
                                                          this.data),
                                "Cannot link file annotation to " + this);
     }
@@ -743,6 +751,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<FileAnnotationWrapper> getFileAnnotations(Client client)
     throws ExecutionException, ServiceException, AccessException {
         String error = "Cannot retrieve file annotations from " + this;
@@ -777,6 +786,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
+    @Override
     public <A extends AnnotationWrapper<?>> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         removeLink(client, annotationLinkType(), annotation.getId());
@@ -816,7 +826,8 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<AnnotationData> getAnnotations(Client client)
+    @Override
+    public List<AnnotationData> getAnnotations(Client client)
     throws AccessException, ServiceException, ExecutionException {
         return handleServiceAndAccess(client.getMetadata(),
                                       m -> m.getAnnotations(client.getCtx(), data),
@@ -834,7 +845,8 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void copyAnnotationLinks(Client client, RepositoryObjectWrapper<?> object)
+    @Override
+    public void copyAnnotationLinks(Client client, RepositoryObject<?> object)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> newAnnotations = object.getAnnotations(client);
         List<AnnotationData> oldAnnotations = this.getAnnotations(client);
@@ -848,19 +860,5 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
         }
     }
 
-
-    /**
-     * Policy to specify how to handle objects when they are replaced.
-     */
-    public enum ReplacePolicy {
-        /** Unlink objects only */
-        UNLINK,
-
-        /** Delete all objects */
-        DELETE,
-
-        /** Delete orphaned objects */
-        DELETE_ORPHANED
-    }
 
 }

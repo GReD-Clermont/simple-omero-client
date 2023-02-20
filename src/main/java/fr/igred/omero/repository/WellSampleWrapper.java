@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a WellSampleData object.
  * <p> Wraps function calls to the WellSampleData contained.
  */
-public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
+public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements WellSample {
 
 
     /**
@@ -44,16 +44,6 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      */
     public WellSampleWrapper(WellSampleData wellSample) {
         super(wellSample);
-    }
-
-
-    /**
-     * Returns the WellSampleData contained.
-     *
-     * @return See above.
-     */
-    public WellSampleData asWellSampleData() {
-        return data;
     }
 
 
@@ -68,8 +58,9 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public WellWrapper getWell(Client client) throws AccessException, ServiceException, ExecutionException {
-        return client.getWell(asWellSampleData().asWellSample().getWell().getId().getValue());
+    @Override
+    public Well getWell(Client client) throws AccessException, ServiceException, ExecutionException {
+        return client.getWell(this.asDataObject().asWellSample().getWell().getId().getValue());
     }
 
 
@@ -78,7 +69,8 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @return See above.
      */
-    public ImageWrapper getImage() {
+    @Override
+    public Image getImage() {
         return new ImageWrapper(data.getImage());
     }
 
@@ -88,8 +80,9 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @param image The image to set.
      */
-    public void setImage(ImageWrapper image) {
-        data.setImage(image.asImageData());
+    @Override
+    public void setImage(Image image) {
+        data.setImage(image.asDataObject());
     }
 
 
@@ -102,6 +95,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getPositionX(UnitsLength unit) throws BigResult {
         return data.getPositionX(unit);
     }
@@ -116,6 +110,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getPositionY(UnitsLength unit) throws BigResult {
         return data.getPositionY(unit);
     }
@@ -126,6 +121,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @return See above.
      */
+    @Override
     public long getStartTime() {
         return data.getStartTime();
     }

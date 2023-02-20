@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a PlateAcquisitionData object.
  * <p> Wraps function calls to the PlateAcquisitionData contained.
  */
-public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> {
+public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> implements fr.igred.omero.repository.PlateAcquisition {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
@@ -80,18 +80,9 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * Returns the PlateAcquisitionData contained.
-     *
-     * @return See above.
-     */
-    public PlateAcquisitionData asPlateAcquisitionData() {
-        return data;
     }
 
 
@@ -111,6 +102,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param description The description of the plate acquisition.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -141,6 +133,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public String getLabel() {
         return data.getLabel();
     }
@@ -151,6 +144,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public long getRefPlateId() {
         return data.getRefPlateId();
     }
@@ -161,6 +155,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param refPlateId The value to set.
      */
+    @Override
     public void setRefPlateId(long refPlateId) {
         data.setRefPlateId(refPlateId);
     }
@@ -171,6 +166,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public Timestamp getStartTime() {
         return data.getStartTime();
     }
@@ -181,6 +177,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public Timestamp getEndTime() {
         return data.getEndTime();
     }
@@ -191,6 +188,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public int getMaximumFieldCount() {
         return data.getMaximumFieldCount();
     }

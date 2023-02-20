@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -19,12 +19,12 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.ROI;
 import omero.RLong;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
@@ -50,7 +50,7 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
  * Class containing a DatasetData object.
  * <p> Wraps function calls to the DatasetData contained.
  */
-public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
+public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> implements Dataset {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "DatasetAnnotationLink";
@@ -99,18 +99,9 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * Returns the DatasetData contained.
-     *
-     * @return See above.
-     */
-    public DatasetData asDatasetData() {
-        return data;
     }
 
 
@@ -130,6 +121,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      *
      * @param description The description of the dataset.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -158,7 +150,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(Client client)
+    @Override
+    public List<Project> getProjects(Client client)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
                                               "where link.child=" + getId());
@@ -177,7 +170,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
+    @Override
+    public List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
                                                               bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                             Collections.singletonList(
@@ -199,9 +193,10 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client, String name)
+    @Override
+    public List<Image> getImages(Client client, String name)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images = getImages(client);
+        List<Image> images = getImages(client);
         images.removeIf(image -> !image.getName().equals(name));
         return images;
     }
@@ -219,9 +214,10 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesLike(Client client, String motif)
+    @Override
+    public List<Image> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images = getImages(client);
+        List<Image> images = getImages(client);
 
         String regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
@@ -242,7 +238,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
+    @Override
+    public List<Image> getImagesTagged(Client client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         return getImagesTagged(client, tag.getId());
     }
@@ -261,7 +258,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
+    @Override
+    public List<Image> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         Long[] ids = client.findByQuery("select link.parent " +
                                         "from ImageAnnotationLink link " +
@@ -292,7 +290,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesKey(Client client, String key)
+    @Override
+    public List<Image> getImagesKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
         Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
@@ -301,16 +300,16 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
                                                                                                     data.getId())),
                                                               error);
 
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
+        List<Image> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
-            ImageWrapper imageWrapper = new ImageWrapper(image);
+            Image imageWrapper = new ImageWrapper(image);
 
             Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
             if (pairsKeyValue.get(key) != null) {
                 selected.add(imageWrapper);
             }
         }
-        selected.sort(Comparator.comparing(ObjectWrapper::getId));
+        selected.sort(Comparator.comparing(RemoteObject::getId));
 
         return selected;
     }
@@ -329,7 +328,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
+    @Override
+    public List<Image> getImagesPairKeyValue(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key-value pair from " + this;
         Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
@@ -338,16 +338,16 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
                                                                                                     data.getId())),
                                                               error);
 
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
+        List<Image> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
-            ImageWrapper imageWrapper = new ImageWrapper(image);
+            Image imageWrapper = new ImageWrapper(image);
 
             Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
             if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
                 selected.add(imageWrapper);
             }
         }
-        selected.sort(Comparator.comparing(ObjectWrapper::getId));
+        selected.sort(Comparator.comparing(RemoteObject::getId));
 
         return selected;
     }
@@ -363,9 +363,10 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(Client client, Iterable<? extends ImageWrapper> images)
+    @Override
+    public void addImages(Client client, Iterable<? extends Image> images)
     throws ServiceException, AccessException, ExecutionException {
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             addImage(client, image);
         }
     }
@@ -381,10 +382,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImage(Client client, ImageWrapper image)
+    @Override
+    public void addImage(Client client, Image image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild(image.asImageData().asImage());
+        link.setChild(image.asDataObject().asImage());
         link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);
@@ -404,7 +406,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void removeImage(Client client, ImageWrapper image)
+    @Override
+    public void removeImage(Client client, RemoteObject<? extends ImageData> image)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         removeLink(client, "DatasetImageLink", image.getId());
     }
@@ -424,6 +427,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public boolean importImages(Client client, String... paths)
     throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
         boolean success = importImages(client, data, paths);
@@ -445,6 +449,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<Long> importImage(Client client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<Long> ids = importImage(client, data, path);
@@ -469,18 +474,19 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public List<ImageWrapper> replaceImages(Client client,
-                                            Collection<? extends ImageWrapper> oldImages,
-                                            ImageWrapper newImage)
+    @Override
+    public List<Image> replaceImages(Client client,
+                                     Collection<? extends Image> oldImages,
+                                     Image newImage)
     throws AccessException, ServiceException, ExecutionException, ServerException, InterruptedException {
         Collection<String> descriptions = new ArrayList<>(oldImages.size() + 1);
-        List<ImageWrapper> orphaned     = new ArrayList<>(oldImages.size());
+        List<Image>        orphaned     = new ArrayList<>(oldImages.size());
         descriptions.add(newImage.getDescription());
-        for (ImageWrapper oldImage : oldImages) {
+        for (Image oldImage : oldImages) {
             descriptions.add(oldImage.getDescription());
             newImage.copyAnnotationLinks(client, oldImage);
-            List<ROIWrapper> rois = oldImage.getROIs(client);
-            for (ROIWrapper roi : rois) {
+            List<ROI> rois = oldImage.getROIs(client);
+            for (ROI roi : rois) {
                 roi.setImage(newImage);
                 newImage.saveROI(client, roi);
             }
@@ -513,17 +519,18 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
+    @Override
     public List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
     throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
         List<Long> ids    = importImage(client, path);
         Long[]     newIds = ids.toArray(LONGS);
 
-        List<ImageWrapper>       newImages = client.getImages(newIds);
-        Collection<ImageWrapper> toDelete  = new ArrayList<>(newImages.size());
-        for (ImageWrapper image : newImages) {
-            List<ImageWrapper> oldImages = getImages(client, image.getName());
+        List<Image>       newImages = client.getImages(newIds);
+        Collection<Image> toDelete  = new ArrayList<>(newImages.size());
+        for (Image image : newImages) {
+            List<Image> oldImages = getImages(client, image.getName());
             oldImages.removeIf(img -> ids.contains(img.getId()));
-            List<ImageWrapper> orphaned = replaceImages(client, oldImages, image);
+            List<Image> orphaned = replaceImages(client, oldImages, image);
             if (policy == ReplacePolicy.DELETE) {
                 toDelete.addAll(oldImages);
             } else if (policy == ReplacePolicy.DELETE_ORPHANED) {
@@ -531,11 +538,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
             }
         }
         if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(ObjectWrapper::getId).collect(Collectors.toList());
+            List<Long> idsToDelete = toDelete.stream().map(RemoteObject::getId).collect(Collectors.toList());
 
-            Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
-            for (ImageWrapper orphan : orphans) {
-                for (ImageWrapper other : orphan.getFilesetImages(client)) {
+            Iterable<Image> orphans = new ArrayList<>(toDelete);
+            for (Image orphan : orphans) {
+                for (Image other : orphan.getFilesetImages(client)) {
                     if (!idsToDelete.contains(other.getId()) && other.isOrphaned(client)) {
                         toDelete.add(other);
                     }
@@ -562,6 +569,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
+    @Override
     public List<Long> importAndReplaceImages(Client client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
         return importAndReplaceImages(client, path, ReplacePolicy.UNLINK);
@@ -577,6 +585,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
         data = handleServiceAndAccess(client.getBrowseFacility(),
                                       bf -> bf.getDatasets(client.getCtx(),

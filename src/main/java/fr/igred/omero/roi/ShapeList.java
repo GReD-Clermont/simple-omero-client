@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 
 /** List of ShapeWrapper objects */
-public class ShapeList extends ArrayList<ShapeWrapper<?>> {
+public class ShapeList extends ArrayList<Shape<?>> {
 
 
     private static final long serialVersionUID = 9076633148525603098L;
@@ -67,7 +67,7 @@ public class ShapeList extends ArrayList<ShapeWrapper<?>> {
      *
      * @return See above.
      */
-    public <T extends ShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
+    public <T extends Shape<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
     }
 
@@ -82,7 +82,7 @@ public class ShapeList extends ArrayList<ShapeWrapper<?>> {
     public boolean add(ShapeData shape) {
         boolean added = false;
 
-        ShapeWrapper<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, PointWrapper::new);
+        Shape<? extends ShapeData> wrapper = tryConvert(shape, PointData.class, PointWrapper::new);
         if (wrapper == null) wrapper = tryConvert(shape, TextData.class, TextWrapper::new);
         if (wrapper == null) wrapper = tryConvert(shape, RectangleData.class, RectangleWrapper::new);
         if (wrapper == null) wrapper = tryConvert(shape, MaskData.class, MaskWrapper::new);

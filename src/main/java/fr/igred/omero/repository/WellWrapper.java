@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -25,7 +27,7 @@ import java.util.List;
  * Class containing a WellData object.
  * <p> Wraps function calls to the WellData contained.
  */
-public class WellWrapper extends RepositoryObjectWrapper<WellData> {
+public class WellWrapper extends RepositoryObjectWrapper<WellData> implements Well {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";
@@ -96,22 +98,13 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Returns the WellData contained.
-     *
-     * @return See above.
-     */
-    public WellData asWellData() {
-        return data;
-    }
-
-
-    /**
      * Returns the well samples linked to the well.
      *
      * @return See above.
      */
-    public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asImageData().getSeries());
+    @Override
+    public List<WellSample> getWellSamples() {
+        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
     }
 
 
@@ -120,7 +113,8 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public PlateWrapper getPlate() {
+    @Override
+    public Plate getPlate() {
         return new PlateWrapper(data.getPlate());
     }
 
@@ -130,6 +124,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public Integer getColumn() {
         return data.getColumn();
     }
@@ -140,6 +135,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public Integer getRow() {
         return data.getRow();
     }
@@ -150,6 +146,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public String getStatus() {
         return data.getStatus();
     }
@@ -160,6 +157,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param status The status of the well.
      */
+    @Override
     public void setStatus(String status) {
         data.setStatus(status);
     }
@@ -170,6 +168,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public String getWellType() {
         return data.getWellType();
     }
@@ -180,6 +179,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param type The value to set.
      */
+    @Override
     public void setWellType(String type) {
         data.setWellType(type);
     }
@@ -190,6 +190,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getRed() {
         return data.getRed();
     }
@@ -200,6 +201,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param red The value to set.
      */
+    @Override
     public void setRed(Integer red) {
         data.setRed(red);
     }
@@ -210,6 +212,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getGreen() {
         return data.getGreen();
     }
@@ -220,6 +223,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param green The value to set.
      */
+    @Override
     public void setGreen(Integer green) {
         data.setGreen(green);
     }
@@ -230,6 +234,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getBlue() {
         return data.getBlue();
     }
@@ -240,6 +245,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param blue The value to set.
      */
+    @Override
     public void setBlue(Integer blue) {
         data.setBlue(blue);
     }
@@ -250,6 +256,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getAlpha() {
         return data.getAlpha();
     }
@@ -260,6 +267,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param alpha The value to set.
      */
+    @Override
     public void setAlpha(Integer alpha) {
         data.setAlpha(alpha);
     }

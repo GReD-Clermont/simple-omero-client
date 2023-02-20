@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -17,8 +19,9 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.repository.Dataset;
 import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.Image;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -55,14 +58,14 @@ class SudoTest extends BasicTest {
         assertEquals(USER1.id, test.getId());
         TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
-        DatasetWrapper     dataset = test.getDataset(DATASET1.id);
-        List<ImageWrapper> images  = dataset.getImages(test);
+        Dataset     dataset = test.getDataset(DATASET1.id);
+        List<Image> images  = dataset.getImages(test);
 
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             image.addTag(test, tag);
         }
 
-        List<ImageWrapper> tagged = dataset.getImagesTagged(test, tag);
+        List<Image> tagged = dataset.getImagesTagged(test, tag);
 
         int differences = 0;
         for (int i = 0; i < images.size(); i++) {
@@ -97,7 +100,7 @@ class SudoTest extends BasicTest {
 
         File file = createFile(filename);
 
-        DatasetWrapper dataset = new DatasetWrapper("sudoTest", "");
+        Dataset dataset = new DatasetWrapper("sudoTest", "");
         dataset.saveAndUpdate(client3);
 
         assertTrue(dataset.canLink());
@@ -105,7 +108,7 @@ class SudoTest extends BasicTest {
 
         removeFile(file);
 
-        List<ImageWrapper> images = dataset.getImages(client3);
+        List<Image> images = dataset.getImages(client3);
         assertEquals(1, images.size());
 
         client4.delete(images.get(0));

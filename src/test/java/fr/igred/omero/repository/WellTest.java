@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -30,7 +32,7 @@ class WellTest extends UserTest {
 
     @Test
     void testAddTagToWell() throws Exception {
-        WellWrapper well = client.getWell(2L);
+        Well well = client.getWell(2L);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Well tag", "tag attached to a well");
         well.addTag(client, tag);
@@ -45,8 +47,8 @@ class WellTest extends UserTest {
 
     @Test
     void testGetWellSamples() throws Exception {
-        WellWrapper             well    = client.getWell(1L);
-        List<WellSampleWrapper> samples = well.getWellSamples();
+        Well             well    = client.getWell(1L);
+        List<WellSample> samples = well.getWellSamples();
         assertEquals(4, samples.size());
     }
 
@@ -55,8 +57,8 @@ class WellTest extends UserTest {
     void testTestGetName() throws Exception {
         final String name = "Well A-1";
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
-        WellWrapper  well  = plate.getWells(client).get(0);
+        Plate plate = client.getPlate(PLATE1.id);
+        Well  well  = plate.getWells(client).get(0);
 
         assertEquals(name, well.getName());
     }
@@ -66,8 +68,8 @@ class WellTest extends UserTest {
     void testGetDescription() throws Exception {
         final String description = "External Description";
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
-        WellWrapper  well  = plate.getWells(client).get(0);
+        Plate plate = client.getPlate(PLATE1.id);
+        Well  well  = plate.getWells(client).get(0);
 
         assertEquals(description, well.getDescription());
     }
@@ -75,23 +77,23 @@ class WellTest extends UserTest {
 
     @Test
     void testGetColumn() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
-        WellWrapper  well  = plate.getWells(client).get(1);
+        Plate plate = client.getPlate(PLATE1.id);
+        Well  well  = plate.getWells(client).get(1);
         assertEquals(1, well.getColumn().intValue());
     }
 
 
     @Test
     void testGetRow() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
-        WellWrapper  well  = plate.getWells(client).get(6);
+        Plate plate = client.getPlate(PLATE1.id);
+        Well  well  = plate.getWells(client).get(6);
         assertEquals(2, well.getRow().intValue());
     }
 
 
     @Test
     void testSetStatus() throws Exception {
-        WellWrapper well = client.getWell(1L);
+        Well well = client.getWell(1L);
 
         String status  = well.getStatus();
         String status2 = "New status";
@@ -108,7 +110,7 @@ class WellTest extends UserTest {
 
     @Test
     void testSetWellType() throws Exception {
-        WellWrapper well = client.getWell(1L);
+        Well well = client.getWell(1L);
 
         String type  = well.getWellType();
         String type2 = "New type";
@@ -125,7 +127,7 @@ class WellTest extends UserTest {
 
     @Test
     void testSetRed() throws Exception {
-        WellWrapper well = client.getWell(1L);
+        Well well = client.getWell(1L);
 
         int red  = well.getRed();
         int red2 = 2;
@@ -142,7 +144,7 @@ class WellTest extends UserTest {
 
     @Test
     void testSetGreen() throws Exception {
-        WellWrapper well = client.getWell(1L);
+        Well well = client.getWell(1L);
 
         int green  = well.getGreen();
         int green2 = 3;
@@ -159,7 +161,7 @@ class WellTest extends UserTest {
 
     @Test
     void testSetBlue() throws Exception {
-        WellWrapper well = client.getWell(1L);
+        Well well = client.getWell(1L);
 
         int blue  = well.getBlue();
         int blue2 = 4;
@@ -176,7 +178,7 @@ class WellTest extends UserTest {
 
     @Test
     void testSetAlpha() throws Exception {
-        WellWrapper well = client.getWell(1L);
+        Well well = client.getWell(1L);
 
         int alpha  = well.getAlpha();
         int alpha2 = 5;
