@@ -254,7 +254,7 @@ public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenDa
         return getPlates(browser).stream()
                                  .map(Plate::getPlateAcquisitions)
                                  .flatMap(Collection::stream)
-                                 .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                                 .collect(Collectors.toMap(RemoteObject::getId, p -> p, (p1, p2) -> p1))
                                  .values()
                                  .stream()
                                  .sorted(Comparator.comparing(RemoteObject::getId))

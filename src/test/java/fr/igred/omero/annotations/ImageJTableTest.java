@@ -142,7 +142,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults1() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "ROI_1");
-        List<Roi> ijRois = ROI.toImageJ(rois, null);
+        List<Roi> ijRois = ROI.toImageJ(rois, null, false);
 
         String label = image.getName();
 

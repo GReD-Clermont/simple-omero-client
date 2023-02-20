@@ -40,14 +40,16 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import java.util.function.BiFunction;
+
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -269,52 +271,85 @@ public class TableWrapper implements Table {
      * <ul>
      *     <li>The ROI local IDs (indices, assumed by default)</li>
      *     <li>The ROI OMERO IDs (if indices do not map)</li>
+     *     <li>The ROI names (if IDs do not map or if the column contains Strings)</li>
      *     <li>The ShapeData names (if the column contains Strings)</li>
      * </ul>
      *
      * @param roiCol        Variable column containing ROI info
-     * @param name2roi      ROI names map
+     * @param index2roi     ROI indices map
      * @param id2roi        ROI IDs map
+     * @param name2roi      ROI names map
      * @param shapeName2roi ROI shape names map
      *
      * @return A ROIData column.
      */
-    private static ROIData[] columnToROIColumn(Variable[] roiCol,
-                                               Map<String, ROIData> name2roi,
-                                               Map<Long, ROIData> id2roi,
-                                               Map<String, ROIData> shapeName2roi) {
-        ROIData[] roiColumn = EMPTY_ROI;
+    private static ROIData[] propertyColumnToROIColumn(Variable[] roiCol,
+                                                       Map<Long, ROIData> index2roi,
+                                                       Map<Long, ROIData> id2roi,
+                                                       Map<String, ROIData> name2roi,
+                                                       Map<String, ROIData> shapeName2roi) {
+        ROIData[] roiColumn;
         if (isColumnNumeric(roiCol)) {
-            List<Long> ids = Arrays.stream(roiCol)
-                                   .map(Variable::getValue)
-                                   .map(Double::longValue)
-                                   .collect(Collectors.toList());
-
-            List<String> numericNames = Arrays.stream(roiCol)
-                                              .map(Variable::toString)
-                                              .collect(Collectors.toList());
-
-            name2roi.keySet().retainAll(numericNames);
-            id2roi.keySet().retainAll(ids);
-            boolean isIndices = name2roi.size() >= id2roi.size();
-            if (isIndices) {
-                roiColumn = numericNames.stream().map(name2roi::get).toArray(ROIData[]::new);
-                if (Arrays.asList(roiColumn).contains(null)) isIndices = false;
-            }
-            if (!isIndices) {
-                roiColumn = ids.stream().map(id2roi::get).toArray(ROIData[]::new);
-            }
+            roiColumn = idColumnToROIColumn(roiCol, index2roi);
+            if (roiColumn.length == 0) roiColumn = idColumnToROIColumn(roiCol, id2roi);
+            if (roiColumn.length == 0) roiColumn = Arrays.stream(roiCol)
+                                                         .map(Variable::toString)
+                                                         .map(name2roi::get)
+                                                         .toArray(ROIData[]::new);
         } else {
-            roiColumn = Arrays.stream(roiCol)
-                              .map(v -> name2roi.get(v.getString()))
-                              .toArray(ROIData[]::new);
-            // If the names don't all match ROIs, try with shape names
-            if (Arrays.asList(roiColumn).contains(null)) {
-                roiColumn = Arrays.stream(roiCol)
-                                  .map(v -> shapeName2roi.get(v.getString()))
-                                  .toArray(ROIData[]::new);
-            }
+            roiColumn = labelColumnToROIColumn(roiCol, name2roi, shapeName2roi, (m, s) -> s);
         }
+        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        return roiColumn;
+    }
+
+
+    /**
+     * Creates a ROIData column from a Variable column containing the ROI OMERO IDs.
+     *
+     * @param roiCol Variable column containing ROI info
+     * @param id2roi ROI IDs map
+     *
+     * @return A ROIData column.
+     */
+    private static ROIData[] idColumnToROIColumn(Variable[] roiCol, Map<Long, ROIData> id2roi) {
+        ROIData[] roiColumn = Arrays.stream(roiCol)
+                                    .map(Variable::getValue)
+                                    .map(Double::longValue)
+                                    .map(id2roi::get).toArray(ROIData[]::new);
+        // If roiColumn contains null, we return an empty array
+        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        return roiColumn;
+    }
+
+
+    /**
+     * Creates a ROIData column from a Variable column containing the ROI OMERO IDs.
+     *
+     * @param roiCol        Variable column containing ROI info
+     * @param name2roi      ROI names map
+     * @param shapeName2roi ROI shape names map
+     *
+     * @return A ROIData column.
+     */
+    private static ROIData[] labelColumnToROIColumn(Variable[] roiCol,
+                                                    Map<String, ROIData> name2roi,
+                                                    Map<String, ROIData> shapeName2roi,
+                                                    BiFunction<? super Map<String, ROIData>, ? super String, String> filter) {
+        ROIData[] roiColumn = Arrays.stream(roiCol)
+                                    .map(Variable::getString)
+                                    .map(s -> filter.apply(shapeName2roi, s))
+                                    .map(shapeName2roi::get)
+                                    .toArray(ROIData[]::new);
+        if (Arrays.asList(roiColumn).contains(null)) {
+            roiColumn = Arrays.stream(roiCol)
+                              .map(Variable::getString)
+                              .map(s -> filter.apply(name2roi, s))
+                              .map(name2roi::get)
+                              .toArray(ROIData[]::new);
+        }
+        // If roiColumn contains null, we return an empty array
+        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
         return roiColumn;
     }
 
@@ -341,46 +376,47 @@ public class TableWrapper implements Table {
 
         ROIData[] roiColumn = EMPTY_ROI;
 
-        Map<Long, ROIData> id2roi = rois.stream().collect(Collectors.toMap(ROI::getId, ROI::asDataObject));
+        Map<Long, ROIData>   id2roi   = rois.stream().collect(toMap(ROI::getId, ROI::asDataObject, (r1, r2) -> r1));
+        Map<String, ROIData> name2roi = rois.stream()
+                                            .filter(r -> !r.getName().isEmpty())
+                                            .collect(toMap(ROI::getName, ROI::asDataObject, (r1, r2) -> r1));
 
-        Map<String, ROIData> name2roi      = new HashMap<>(ijRois.size());
-        Map<String, ROIData> shapeName2roi = new HashMap<>(ijRois.size());
-        for (Roi ijRoi : ijRois) {
-            String name = ijRoi.getProperty(roiProperty);
-            Long   id   = safeParseLong(ijRoi.getProperty(roiIdProperty));
-            if (id != null) {
-                ROIData roi = id2roi.get(id);
-                shapeName2roi.put(ijRoi.getName(), roi);
-                if (name != null) name2roi.putIfAbsent(name, roi);
-            }
-        }
+        Map<Long, ROIData> index2roi = ijRois.stream()
+                                             .map(r -> new SimpleEntry<>(safeParseLong(r.getProperty(roiProperty)),
+                                                                         safeParseLong(r.getProperty(roiIdProperty))))
+                                             .filter(p -> p.getKey() != null)
+                                             .filter(p -> p.getValue() != null)
+                                             .collect(toMap(SimpleEntry::getKey,
+                                                            p -> id2roi.get(p.getValue()),
+                                                            (x1, x2) -> x1));
+
+        Map<String, ROIData> shape2roi = ijRois.stream()
+                                               .map(r -> new SimpleEntry<>(r.getName(),
+                                                                           safeParseLong(r.getProperty(roiIdProperty))))
+                                               .filter(p -> p.getKey() != null)
+                                               .filter(p -> p.getValue() != null)
+                                               .collect(toMap(SimpleEntry::getKey,
+                                                              p -> id2roi.get(p.getValue()),
+                                                              (x1, x2) -> x1));
 
         String[] headings = results.getHeadings();
-
         if (results.columnExists(roiProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiProperty);
-            roiColumn = columnToROIColumn(roiCol, name2roi, id2roi, shapeName2roi);
-            // If roiColumn contains null, we return an empty array
-            if (Arrays.asList(roiColumn).contains(null)) return EMPTY_ROI;
-            results.deleteColumn(roiProperty);
-        } else if (results.columnExists(roiIdProperty)) {
+            roiColumn = propertyColumnToROIColumn(roiCol, index2roi, id2roi, name2roi, shape2roi);
+            if (roiColumn.length != 0) results.deleteColumn(roiProperty);
+        }
+        if (roiColumn.length == 0 && results.columnExists(roiIdProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
-            List<Long> ids = Arrays.stream(roiCol)
-                                   .map(Variable::getValue)
-                                   .map(Double::longValue)
-                                   .collect(Collectors.toList());
-            roiColumn = ids.stream().map(id2roi::get).toArray(ROIData[]::new);
-            // If roiColumn contains null, we return an empty array
-            if (Arrays.asList(roiColumn).contains(null)) return EMPTY_ROI;
-            results.deleteColumn(roiIdProperty);
-        } else if (Arrays.asList(headings).contains(LABEL)) {
-            String[] roiNames = Arrays.stream(results.getColumnAsVariables(LABEL))
-                                      .map(Variable::getString)
-                                      .map(s -> shapeName2roi.keySet().stream().filter(s::contains)
-                                                             .findFirst().orElse(null))
-                                      .toArray(String[]::new);
-            roiColumn = Arrays.stream(roiNames).map(shapeName2roi::get).toArray(ROIData[]::new);
-            if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+            roiColumn = idColumnToROIColumn(roiCol, id2roi);
+            if (roiColumn.length != 0) results.deleteColumn(roiIdProperty);
+        }
+        if (roiColumn.length == 0 && Arrays.asList(headings).contains(LABEL)) {
+            Variable[] roiCol = results.getColumnAsVariables(LABEL);
+            roiColumn = labelColumnToROIColumn(roiCol, name2roi, shape2roi, (m, s) -> m.keySet()
+                                                                                       .stream()
+                                                                                       .filter(s::contains)
+                                                                                       .findFirst()
+                                                                                       .orElse(null));
         }
 
         return roiColumn;
@@ -735,6 +771,7 @@ public class TableWrapper implements Table {
     public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);
+        formatter.setGroupingUsed(false);
 
         StringBuilder sb = new StringBuilder(10 * columnCount * rowCount);
 

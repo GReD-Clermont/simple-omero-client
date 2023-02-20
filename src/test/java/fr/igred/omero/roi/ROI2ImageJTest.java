@@ -70,7 +70,8 @@ class ROI2ImageJTest extends BasicTest {
 
         TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
         textRoi.setName("text");
-        textRoi.setProperty("ROI", "text");
+        textRoi.setProperty("ROI", "24");
+        textRoi.setProperty("ROI_NAME", "text");
         rois.add(textRoi);
 
         OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
@@ -94,11 +95,13 @@ class ROI2ImageJTest extends BasicTest {
         PolygonRoi polylineRoi = new PolygonRoi(x2, y2, Roi.POLYLINE);
         polylineRoi.setPosition(1, 1, 2);
         polylineRoi.setProperty("ROI", "23");
+        polylineRoi.setProperty("ROI_NAME", "23");
         rois.add(polylineRoi);
 
         PolygonRoi polygonRoi = new PolygonRoi(x2, y2, Roi.POLYGON);
         polygonRoi.setPosition(1, 1, 1);
         polygonRoi.setProperty("ROI", "23");
+        polygonRoi.setProperty("ROI_NAME", "233");
         rois.add(polygonRoi);
 
         EllipseRoi ellipseRoi = new EllipseRoi(0.0, 0.0, 5.0, 5.0, 0.5);
@@ -113,9 +116,10 @@ class ROI2ImageJTest extends BasicTest {
 
         List<ROI> omeroROIs = ROIWrapper.fromImageJ(rois);
 
-        assertEquals(10, omeroROIs.size());
+        assertEquals(9, omeroROIs.size());
         assertEquals(1, omeroROIs.stream().filter(r -> "text".equals(r.getName())).count());
         assertEquals(1, omeroROIs.stream().filter(r -> "23".equals(r.getName())).count());
+        assertEquals(0, omeroROIs.stream().filter(r -> "233".equals(r.getName())).count());
         assertEquals(0, omeroROIs.stream().filter(r -> "invalid".equals(r.getName())).count());
     }
 
@@ -204,8 +208,9 @@ class ROI2ImageJTest extends BasicTest {
         List<Roi> ijRois = ROI.toImageJ(rois);
 
         assertEquals(nRois, ijRois.size());
-        assertEquals("2", ijRois.get(0).getProperty("ROI"));
-        assertEquals("SOC_INDEX_2", ijRois.get(nRois - 1).getProperty("ROI"));
+        assertEquals("2", ijRois.get(0).getProperty("ROI_NAME"));
+        assertEquals("2", ijRois.get(nRois - 1).getProperty("ROI"));
+        assertNull(ijRois.get(nRois - 1).getProperty("ROI_NAME"));
     }
 
 

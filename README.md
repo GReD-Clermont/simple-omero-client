@@ -37,7 +37,7 @@ List<Dataset> datasets = client.getDatasets();
 These objects can then be used to retrieve their children:
 
 ```java
-for(Dataset dataset:datasets){
+for (Dataset dataset:datasets) {
     List<Image> images = dataset.getImages(client);
     //...
 }
@@ -108,12 +108,25 @@ List<ROI> rois = image.getROIs(client);
 They can also be converted from or to ImageJ Rois:
 
 ```java
-// The property is a string used to create 3D/4D ROIs in OMERO, by grouping shapes sharing the same value (used to name the ROI)
+// The property is a string used to create 3D/4D ROIs in OMERO, by grouping shapes sharing the same value (e.g. local index).
+// The ROI name can be set/accessed using the property ROI.ijNameProperty(property).
+// The OMERO IDs are available through the property ROI.ijIDProperty(property).
+// The ijNameProperty() and ijIDProperty() methods append "_NAME" and "_ID" to the property (respectively).
+// By default, the property is "ROI", and thus, the name property is "ROI_NAME" and the ID property, "ROI_ID".
 List<ROI> omeroROIs = ROIWrapper.fromImageJ(ijRois, property);
 
 ROI roi = new ROIWrapper();
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 List<Roi> imagejRois = roi.toImageJ();
+String name = imagejRois.get(0).getProperty(ROI.ijNameProperty(property));
+String ID = imagejRois.get(0).getProperty(ROI.ijIDProperty(property));
+
+// Conversely ImageJ Rois can be converted to OMERO from ImageJ using "ROIWrapper::fromImageJ"
+Roi ijRoi = new Roi(1.0, 2.0, 3.0, 4.0);
+ijRoi.setProperty(property, 0);
+ijRoi.setProperty(ROI.ijNameProperty(property), name);
+List<ROI> rois = ROIWrapper.fromImageJ(Collections.singletonList(roi));
+
 ```
 
 ## License

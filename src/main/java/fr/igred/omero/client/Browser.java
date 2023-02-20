@@ -517,7 +517,7 @@ public interface Browser {
 
         return selected.stream()
                        .flatMap(Collection::stream)
-                       .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                       .collect(Collectors.toMap(RemoteObject::getId, i -> i, (i1, i2) -> i1))
                        .values()
                        .stream()
                        .sorted(Comparator.comparing(RemoteObject::getId))
@@ -549,7 +549,7 @@ public interface Browser {
 
         return selected.stream()
                        .flatMap(Collection::stream)
-                       .collect(Collectors.toMap(RemoteObject::getId, o -> o))
+                       .collect(Collectors.toMap(RemoteObject::getId, i -> i, (i1, i2) -> i1))
                        .values()
                        .stream()
                        .sorted(Comparator.comparing(RemoteObject::getId))

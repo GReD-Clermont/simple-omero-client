@@ -46,6 +46,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -65,7 +66,7 @@ public interface ROI extends Annotatable<ROIData> {
     /**
      * Checks the provided property.
      *
-     * @param property The property where 4D ROI local ID is stored.
+     * @param property The property where the 4D ROI local ID is stored.
      *
      * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
      */
@@ -89,6 +90,19 @@ public interface ROI extends Annotatable<ROIData> {
 
 
     /**
+     * Returns the name property corresponding to input local ID property (appends "_NAME" to said property).
+     *
+     * @param property The property where 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY} if null or empty.
+     *
+     * @return See above.
+     */
+    static String ijNameProperty(String property) {
+        property = checkProperty(property);
+        return property + "_NAME";
+    }
+
+
+    /**
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor and shape converter.
      *
      * @param ijRois      A list of ImageJ ROIs.
@@ -108,7 +122,7 @@ public interface ROI extends Annotatable<ROIData> {
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor and shape converter.
      *
      * @param ijRois      A list of ImageJ ROIs.
-     * @param property    The property where 4D ROI local ID is stored. Defaults to {@value IJ_PROPERTY} if null or
+     * @param property    The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or
      *                    empty.
      * @param constructor A constructor to create ROI instances.
      * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
@@ -120,21 +134,26 @@ public interface ROI extends Annotatable<ROIData> {
                                 Supplier<? extends ROI> constructor,
                                 Function<? super Roi, Iterable<? extends Shape<?>>> converter) {
         property = checkProperty(property);
-        Map<String, ROI> rois4D = new TreeMap<>();
+        Pattern intPattern = Pattern.compile("-?\\d+");
+
+        Map<Long, ROI>    rois4D = new TreeMap<>();
+        Map<Long, String> names  = new TreeMap<>();
 
         Map<Integer, ROI> shape2roi = new TreeMap<>();
 
         for (int i = 0; i < ijRois.size(); i++) {
             String value = ijRois.get(i).getProperty(property);
-            if (value != null && !value.trim().isEmpty()) {
-                rois4D.computeIfAbsent(value, val -> constructor.get());
-                shape2roi.put(i, rois4D.get(value));
+            String name  = ijRois.get(i).getProperty(ijNameProperty(property));
+            if (value != null && intPattern.matcher(value).matches()) {
+                long id = Long.parseLong(value);
+                rois4D.computeIfAbsent(id, v -> constructor.get());
+                names.putIfAbsent(id, name);
+                shape2roi.put(i, rois4D.get(id));
             } else {
                 shape2roi.put(i, constructor.get());
             }
         }
-
-        rois4D.forEach((name, roi) -> roi.setName(name));
+        rois4D.forEach((id, roi) -> roi.setName(names.get(id)));
 
         for (Map.Entry<Integer, ROI> entry : shape2roi.entrySet()) {
             Roi ijRoi = ijRois.get(entry.getKey());
@@ -166,6 +185,20 @@ public interface ROI extends Annotatable<ROIData> {
      * @return The converted list of ImageJ ROIs.
      */
     static List<Roi> toImageJ(Collection<? extends ROI> rois, String property) {
+        return toImageJ(rois, property, true);
+    }
+
+
+    /**
+     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
+     *
+     * @param rois      A list of OMERO ROIs.
+     * @param property  The property used to store 4D ROI local IDs. Defaults to {@value IJ_PROPERTY} if null or empty.
+     * @param groupRois Whether ImageJ Rois belonging to the same OMERO ROI should be grouped or not.
+     *
+     * @return The converted list of ImageJ ROIs.
+     */
+    static List<Roi> toImageJ(Collection<? extends ROI> rois, String property, boolean groupRois) {
         property = checkProperty(property);
         final int maxGroups = 255;
 
@@ -178,14 +211,12 @@ public interface ROI extends Annotatable<ROIData> {
 
         int index = 1;
         for (ROI roi : rois) {
-            String name = roi.getName();
-            if (name.trim().isEmpty()) {
-                name = "SOC_INDEX_" + index;
-            }
+            String    name   = roi.getName();
             List<Roi> shapes = roi.toImageJ(property);
             for (Roi r : shapes) {
-                r.setProperty(property, name);
-                if (rois.size() < maxGroups) {
+                r.setProperty(property, String.valueOf(index));
+                r.setProperty(ijNameProperty(property), name);
+                if (groupRois && rois.size() < maxGroups) {
                     r.setGroup(index);
                 }
             }
