@@ -28,7 +28,9 @@ import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.util.Bounds;
+import fr.igred.omero.util.Coordinates;
 import ij.gui.Roi;
+import ij.gui.ShapeRoi;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.IObject;
@@ -37,6 +39,7 @@ import omero.model.RoiAnnotationLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,6 +47,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 
 /**
@@ -275,7 +280,29 @@ public interface ROI extends Annotatable<ROIData> {
      *
      * @return The 5D bounds.
      */
-    Bounds getBounds();
+    default Bounds getBounds() {
+        int[] x = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] y = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] c = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] z = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        int[] t = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+        for (Shape<?> shape : getShapes()) {
+            Rectangle box = shape.getBoundingBox();
+            x[0] = Math.min(x[0], (int) box.getX());
+            y[0] = Math.min(y[0], (int) box.getY());
+            c[0] = Math.min(c[0], box.getC());
+            z[0] = Math.min(z[0], box.getZ());
+            t[0] = Math.min(t[0], box.getT());
+            x[1] = Math.max(x[1], (int) (box.getX() + box.getWidth() - 1));
+            y[1] = Math.max(y[1], (int) (box.getY() + box.getHeight() - 1));
+            c[1] = Math.max(c[1], box.getC());
+            z[1] = Math.max(z[1], box.getZ());
+            t[1] = Math.max(t[1], box.getT());
+        }
+        Coordinates start = new Coordinates(x[0], y[0], c[0], z[0], t[0]);
+        Coordinates end   = new Coordinates(x[1], y[1], c[1], z[1], t[1]);
+        return new Bounds(start, end);
+    }
 
 
     /**
@@ -289,13 +316,48 @@ public interface ROI extends Annotatable<ROIData> {
 
 
     /**
-     * Convert ROI to ImageJ list of ROIs.
+     * Converts a ROI to a list of ImageJ ROIs.
      *
      * @param property The property where 4D ROI local ID will be stored.
      *
      * @return A list of ROIs.
      */
-    List<Roi> toImageJ(String property);
+    default List<Roi> toImageJ(String property) {
+        property = checkProperty(property);
+        ShapeList shapes = getShapes();
+
+        Map<String, List<Shape<?>>> sameSlice = shapes.stream()
+                                                      .collect(groupingBy(Shape::getCZT,
+                                                                          LinkedHashMap::new,
+                                                                          Collectors.toList()));
+        sameSlice.values().removeIf(List::isEmpty);
+        List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
+        for (List<Shape<?>> slice : sameSlice.values()) {
+            Shape<?> shape = slice.iterator().next();
+
+            ij.gui.Roi roi = shape.toImageJ();
+            String     txt = shape.getText();
+            if (slice.size() > 1) {
+                ij.gui.Roi xor = slice.stream()
+                                      .map(Shape::toImageJ)
+                                      .map(ShapeRoi::new)
+                                      .reduce(ShapeRoi::xor)
+                                      .map(ij.gui.Roi.class::cast)
+                                      .orElse(roi);
+                xor.setStrokeColor(roi.getStrokeColor());
+                xor.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
+                roi = xor;
+            }
+            if (txt.isEmpty()) {
+                roi.setName(String.format("%d-%d", getId(), shape.getId()));
+            } else {
+                roi.setName(txt);
+            }
+            roi.setProperty(ijIDProperty(property), String.valueOf(getId()));
+            rois.add(roi);
+        }
+        return rois;
+    }
 
 
     /**
