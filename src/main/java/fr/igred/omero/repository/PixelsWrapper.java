@@ -18,7 +18,8 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.Browser;
+import fr.igred.omero.ConnectionHandler;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -55,7 +56,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
     public static final int MAX_DIST = 5000;
 
     /** Planes info (needs to be loaded) */
-    private List<PlaneInfoWrapper> planesInfo = new ArrayList<>(0);
+    private List<PlaneInfo> planesInfo = new ArrayList<>(0);
 
     /** Raw Data Facility to retrieve pixels */
     private RawDataFacility rawDataFacility;
@@ -132,29 +133,29 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
     /**
      * Loads the planes information.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void loadPlanesInfo(Client client)
+    public void loadPlanesInfo(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = handleServiceAndAccess(client.getMetadata(),
-                                                            m -> m.getPlaneInfos(client.getCtx(), data),
+        List<PlaneInfoData> planes = handleServiceAndAccess(browser.getMetadata(),
+                                                            m -> m.getPlaneInfos(browser.getCtx(), data),
                                                             "Cannot retrieve planes info.");
         planesInfo = wrap(planes, PlaneInfoWrapper::new);
     }
 
 
     /**
-     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Client) loaded} first).
+     * Retrieves the planes information (which need to be {@link Pixels#loadPlanesInfo(Browser) loaded} first).
      *
      * @return See above.
      */
     @Override
-    public List<PlaneInfoWrapper> getPlanesInfo() {
+    public List<PlaneInfo> getPlanesInfo() {
         return Collections.unmodifiableList(planesInfo);
     }
 
@@ -216,7 +217,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Computes the mean time interval from the planes deltaTs.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link Pixels#loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -228,7 +229,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Computes the mean exposure time for a given channel from the planes exposureTime.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link Pixels#loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @param channel The channel index.
      *
@@ -242,7 +243,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Retrieves the X stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link Pixels#loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -256,7 +257,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Retrieves the Y stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link Pixels#loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -270,7 +271,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Retrieves the Z stage position.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link Pixels#loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -347,7 +348,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      *
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    boolean createRawDataFacility(Client client) throws ExecutionException {
+    boolean createRawDataFacility(ConnectionHandler client) throws ExecutionException {
         boolean created = false;
         if (rawDataFacility == null) {
             rawDataFacility = client.getGateway().getFacility(RawDataFacility.class);
@@ -377,7 +378,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public double[][][][][] getAllPixels(Client client) throws AccessException, ExecutionException {
+    public double[][][][][] getAllPixels(ConnectionHandler client) throws AccessException, ExecutionException {
         return getAllPixels(client, null, null, null, null, null);
     }
 
@@ -398,7 +399,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public double[][][][][] getAllPixels(Client client,
+    public double[][][][][] getAllPixels(ConnectionHandler client,
                                          int[] xBounds,
                                          int[] yBounds,
                                          int[] cBounds,
@@ -442,7 +443,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    double[][] getTile(Client client, Coordinates start, int width, int height)
+    double[][] getTile(ConnectionHandler client, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
         Plane2D p;
@@ -481,7 +482,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public byte[][][][] getRawPixels(Client client, int bpp) throws AccessException, ExecutionException {
+    public byte[][][][] getRawPixels(ConnectionHandler client, int bpp) throws AccessException, ExecutionException {
         return getRawPixels(client, null, null, null, null, null, bpp);
     }
 
@@ -503,7 +504,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public byte[][][][] getRawPixels(Client client,
+    public byte[][][][] getRawPixels(ConnectionHandler client,
                                      int[] xBounds,
                                      int[] yBounds,
                                      int[] cBounds,
@@ -548,7 +549,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    byte[] getRawTile(Client client, Coordinates start, int width, int height, int bpp)
+    byte[] getRawTile(ConnectionHandler client, Coordinates start, int width, int height, int bpp)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
         Plane2D p;

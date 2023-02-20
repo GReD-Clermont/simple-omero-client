@@ -110,8 +110,8 @@ class ShapeErrorTest {
 
     @Test
     void testLineWrongCoordinates() {
-        Line line        = new LineWrapper();
-        double[]    coordinates = {2, 2};
+        Line     line        = new LineWrapper();
+        double[] coordinates = {2, 2};
         assertThrows(IllegalArgumentException.class, () -> line.setCoordinates(coordinates));
     }
 

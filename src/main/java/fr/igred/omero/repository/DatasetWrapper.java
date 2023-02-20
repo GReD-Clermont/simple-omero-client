@@ -18,9 +18,10 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -141,7 +142,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     /**
      * Retrieves the projects containing this dataset.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -151,18 +152,19 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Project> getProjects(Client client)
+    public List<Project> getProjects(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
-                                              "where link.child=" + getId());
-        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        List<IObject> os = browser.findByQuery("select link.parent from ProjectDatasetLink as link " +
+                                               "where link.child=" + getId());
+        return browser.getProjects(
+                os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
     }
 
 
     /**
      * Gets all images in the dataset available from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return ImageWrapper list.
      *
@@ -171,9 +173,9 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(client.getCtx(),
+    public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
+                                                              bf -> bf.getImagesForDatasets(browser.getCtx(),
                                                                                             Collections.singletonList(
                                                                                                     data.getId())),
                                                               "Cannot get images from " + this);
@@ -184,8 +186,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     /**
      * Gets all images in the dataset with a certain name from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param name   Name searched.
+     * @param browser The data browser.
+     * @param name    Name searched.
      *
      * @return ImageWrapper list.
      *
@@ -194,9 +196,9 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Client client, String name)
+    public List<Image> getImages(Browser browser, String name)
     throws ServiceException, AccessException, ExecutionException {
-        List<Image> images = getImages(client);
+        List<Image> images = getImages(browser);
         images.removeIf(image -> !image.getName().equals(name));
         return images;
     }
@@ -205,8 +207,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     /**
      * Gets all images in the dataset with a certain motif in their name from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param motif  Motif searched in an image name.
+     * @param browser The data browser.
+     * @param motif   Motif searched in an image name.
      *
      * @return ImageWrapper list.
      *
@@ -215,9 +217,9 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesLike(Client client, String motif)
+    public List<Image> getImagesLike(Browser browser, String motif)
     throws ServiceException, AccessException, ExecutionException {
-        List<Image> images = getImages(client);
+        List<Image> images = getImages(browser);
 
         String regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
@@ -228,8 +230,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     /**
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param tag    TagAnnotationWrapper containing the tag researched.
+     * @param browser The data browser.
+     * @param tag     TagAnnotationWrapper containing the tag researched.
      *
      * @return ImageWrapper list.
      *
@@ -239,17 +241,17 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesTagged(Client client, TagAnnotationWrapper tag)
+    public List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        return getImagesTagged(client, tag.getId());
+        return getImagesTagged(browser, tag.getId());
     }
 
 
     /**
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
-     * @param client The client handling the connection.
-     * @param tagId  Id of the tag researched.
+     * @param browser The data browser.
+     * @param tagId   Id of the tag researched.
      *
      * @return ImageWrapper list.
      *
@@ -259,30 +261,30 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesTagged(Client client, Long tagId)
+    public List<Image> getImagesTagged(Browser browser, Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        Long[] ids = client.findByQuery("select link.parent " +
-                                        "from ImageAnnotationLink link " +
-                                        "where link.child = " +
-                                        tagId +
-                                        " and link.parent in " +
-                                        "(select link2.child " +
-                                        "from DatasetImageLink link2 " +
-                                        "where link2.parent = " +
-                                        data.getId() + ")")
-                           .stream()
-                           .map(IObject::getId)
-                           .map(RLong::getValue)
-                           .toArray(Long[]::new);
-        return client.getImages(ids);
+        Long[] ids = browser.findByQuery("select link.parent " +
+                                         "from ImageAnnotationLink link " +
+                                         "where link.child = " +
+                                         tagId +
+                                         " and link.parent in " +
+                                         "(select link2.child " +
+                                         "from DatasetImageLink link2 " +
+                                         "where link2.parent = " +
+                                         data.getId() + ")")
+                            .stream()
+                            .map(IObject::getId)
+                            .map(RLong::getValue)
+                            .toArray(Long[]::new);
+        return browser.getImages(ids);
     }
 
 
     /**
      * Gets all images in the dataset with a certain key
      *
-     * @param client The client handling the connection.
-     * @param key    Name of the key researched.
+     * @param browser The data browser.
+     * @param key     Name of the key researched.
      *
      * @return ImageWrapper list.
      *
@@ -291,11 +293,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesKey(Client client, String key)
+    public List<Image> getImagesKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
-        Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(client.getCtx(),
+        Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
+                                                              bf -> bf.getImagesForDatasets(browser.getCtx(),
                                                                                             Collections.singletonList(
                                                                                                     data.getId())),
                                                               error);
@@ -304,7 +306,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
         for (ImageData image : images) {
             Image imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
+            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(browser);
             if (pairsKeyValue.get(key) != null) {
                 selected.add(imageWrapper);
             }
@@ -318,9 +320,9 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     /**
      * Gets all images in the dataset with a certain key value pair from OMERO
      *
-     * @param client The client handling the connection.
-     * @param key    Name of the key researched.
-     * @param value  Value associated with the key.
+     * @param browser The data browser.
+     * @param key     Name of the key researched.
+     * @param value   Value associated with the key.
      *
      * @return ImageWrapper list.
      *
@@ -329,11 +331,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImagesPairKeyValue(Client client, String key, String value)
+    public List<Image> getImagesPairKeyValue(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key-value pair from " + this;
-        Collection<ImageData> images = handleServiceAndAccess(client.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(client.getCtx(),
+        Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
+                                                              bf -> bf.getImagesForDatasets(browser.getCtx(),
                                                                                             Collections.singletonList(
                                                                                                     data.getId())),
                                                               error);
@@ -342,7 +344,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
         for (ImageData image : images) {
             Image imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
+            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(browser);
             if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
                 selected.add(imageWrapper);
             }
@@ -579,16 +581,16 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     /**
      * Refreshes the wrapped dataset.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
-        data = handleServiceAndAccess(client.getBrowseFacility(),
-                                      bf -> bf.getDatasets(client.getCtx(),
+    public void refresh(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        data = handleServiceAndAccess(browser.getBrowseFacility(),
+                                      bf -> bf.getDatasets(browser.getCtx(),
                                                            Collections.singletonList(this.getId()))
                                               .iterator().next(),
                                       "Cannot refresh " + this);

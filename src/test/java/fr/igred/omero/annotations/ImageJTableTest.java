@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.DataManager;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -63,7 +63,7 @@ class ImageJTableTest extends UserTest {
     protected Image image = new ImageWrapper(new ImageData());
 
 
-    private static List<ROI> createAndSaveROI(Client client, Image image, String name)
+    private static List<ROI> createAndSaveROI(DataManager dm, Image image, String name)
     throws AccessException, ServiceException, ExecutionException {
         ROI roi = new ROIWrapper();
         roi.setImage(image);
@@ -77,8 +77,8 @@ class ImageJTableTest extends UserTest {
             roi.addShape(rectangle);
         }
         if (name != null && !name.trim().isEmpty()) roi.setName(name);
-        image.saveROI(client, roi);
-        return image.getROIs(client);
+        image.saveROI(dm, roi);
+        return image.getROIs(dm);
     }
 
 
@@ -141,7 +141,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults1() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "ROI_1");
-        List<Roi>        ijRois = ROI.toImageJ(rois, null);
+        List<Roi> ijRois = ROI.toImageJ(rois, null);
 
         String label = image.getName();
 
@@ -172,9 +172,9 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROIsFromIJResults2() throws Exception {
-        String           property = "Cell";
+        String    property = "Cell";
         List<ROI> rois     = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois   = rois.get(0).toImageJ(property);
+        List<Roi> ijRois   = rois.get(0).toImageJ(property);
 
         String label = image.getName();
 
@@ -208,7 +208,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults3() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = rois.get(0).toImageJ("");
+        List<Roi> ijRois = rois.get(0).toImageJ("");
 
         String label = image.getName();
 
@@ -238,7 +238,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults4() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = rois.get(0).toImageJ();
+        List<Roi> ijRois = rois.get(0).toImageJ();
 
         String label = image.getName() + ":" + ijRois.get(0).getName() + ":4";
 
@@ -272,7 +272,7 @@ class ImageJTableTest extends UserTest {
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
-        Table table   = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        Table        table   = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         List<Table> tables = image.getTables(client);
@@ -329,7 +329,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testAddRowsWithROIsFromIJResults() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = ROI.toImageJ(rois, "");
+        List<Roi> ijRois = ROI.toImageJ(rois, "");
 
         String label = image.getName();
 
@@ -368,7 +368,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithLocalROIFromIJResults1() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = ROI.toImageJ(rois);
+        List<Roi> ijRois = ROI.toImageJ(rois);
 
         Roi local = new Roi(5, 5, 10, 10);
         local.setName("local");
@@ -408,7 +408,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithLocalROIFromIJResults2() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = rois.get(0).toImageJ((String) null);
+        List<Roi> ijRois = rois.get(0).toImageJ((String) null);
 
         Roi local = new Roi(5, 5, 10, 10);
         local.setName("local");
@@ -466,7 +466,7 @@ class ImageJTableTest extends UserTest {
         image.saveROI(client, roi2);
 
         List<ROI> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROI.toImageJ(rois);
+        List<Roi> ijRois = ROI.toImageJ(rois);
 
         String label1 = image.getName() + ":" + rois.get(0).getShapes().get(0).getText() + ":4";
         String label2 = image.getName() + ":" + rois.get(1).getShapes().get(0).getText() + ":10";
@@ -524,7 +524,7 @@ class ImageJTableTest extends UserTest {
         image.saveROI(client, roi2);
 
         List<ROI> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROI.toImageJ(rois);
+        List<Roi> ijRois = ROI.toImageJ(rois);
 
         String label1 = rois.get(0).getShapes().get(0).getText();
         String label2 = rois.get(1).getShapes().get(0).getText();
@@ -582,7 +582,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testNumberFormatException() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = ROI.toImageJ(rois, null);
+        List<Roi> ijRois = ROI.toImageJ(rois, null);
         ijRois.get(0).setProperty(ROI.IJ_PROPERTY, "tutu");
         ijRois.get(1).setProperty(ROI.IJ_PROPERTY, "tutu");
         ijRois.get(2).setProperty(ROI.IJ_PROPERTY, "tutu");
@@ -617,7 +617,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testNumericName() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "1");
-        List<Roi>        ijRois = ROI.toImageJ(rois, null);
+        List<Roi> ijRois = ROI.toImageJ(rois, null);
 
         String label = image.getName();
 
@@ -686,7 +686,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testSaveTableAs() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "1");
-        List<Roi>        ijRois = ROI.toImageJ(rois, "");
+        List<Roi> ijRois = ROI.toImageJ(rois, "");
 
         String label = image.getName();
         long   roiId = rois.get(0).getId();

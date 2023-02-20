@@ -18,7 +18,7 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.Browser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -119,7 +119,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
     /**
      * Retrieves the screens containing this dataset.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -129,11 +129,11 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Screen> getScreens(Client client)
+    public List<Screen> getScreens(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from ScreenPlateLink as link " +
-                                              "where link.child=" + getId());
-        return client.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        List<IObject> os = browser.findByQuery("select link.parent from ScreenPlateLink as link " +
+                                               "where link.child=" + getId());
+        return browser.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
     }
 
 
@@ -151,7 +151,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
     /**
      * Gets all wells in the plate available from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return WellWrapper list.
      *
@@ -160,9 +160,9 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = handleServiceAndAccess(client.getBrowseFacility(),
-                                                            bf -> bf.getWells(client.getCtx(), data.getId()),
+    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        Collection<WellData> wells = handleServiceAndAccess(browser.getBrowseFacility(),
+                                                            bf -> bf.getWells(browser.getCtx(), data.getId()),
                                                             "Cannot get wells from " + this);
 
         return wells.stream()

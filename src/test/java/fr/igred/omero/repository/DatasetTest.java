@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import omero.gateway.model.TagAnnotationData;
 import org.junit.jupiter.api.Test;
@@ -125,13 +126,13 @@ class DatasetTest extends UserTest {
     void testAddTagToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTag(client, tag);
 
-        List<TagAnnotationWrapper> tags = dataset.getTags(client);
+        List<TagAnnotation> tags = dataset.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> endTags = dataset.getTags(client);
+        List<TagAnnotation> endTags = dataset.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -144,11 +145,11 @@ class DatasetTest extends UserTest {
 
         dataset.addTag(client, "Dataset tag", "tag attached to a dataset");
 
-        List<TagAnnotationWrapper> tags = client.getTags("Dataset tag");
+        List<TagAnnotation> tags = client.getTags("Dataset tag");
         assertEquals(1, tags.size());
 
         client.delete(tags.get(0));
-        List<TagAnnotationWrapper> endTags = client.getTags("Dataset tag");
+        List<TagAnnotation> endTags = client.getTags("Dataset tag");
 
         assertEquals(0, endTags.size());
     }
@@ -163,7 +164,7 @@ class DatasetTest extends UserTest {
 
         long tagId = tag.getId();
         dataset.addTag(client, tagId);
-        List<TagAnnotationWrapper> tags = dataset.getTags(client);
+        List<TagAnnotation> tags = dataset.getTags(client);
         client.delete(tag);
         assertThrows(NullPointerException.class, () -> client.getTag(tagId));
         assertEquals(1, tags.size());
@@ -174,19 +175,19 @@ class DatasetTest extends UserTest {
     void testAddTagsToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
-        List<TagAnnotationWrapper> tags = dataset.getTags(client);
+        List<TagAnnotation> tags = dataset.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = dataset.getTags(client);
+        List<TagAnnotation> endTags = dataset.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -197,19 +198,19 @@ class DatasetTest extends UserTest {
     void testAddTagsToDataset2() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTags(client, tag1, tag2, tag3, tag4);
 
-        List<TagAnnotationWrapper> tags = dataset.getTags(client);
+        List<TagAnnotation> tags = dataset.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = dataset.getTags(client);
+        List<TagAnnotation> endTags = dataset.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -220,13 +221,13 @@ class DatasetTest extends UserTest {
     void testAddAndRemoveTagFromDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTag(client, tag);
 
-        List<TagAnnotationWrapper> tags = dataset.getTags(client);
+        List<TagAnnotation> tags = dataset.getTags(client);
         dataset.unlink(client, tag);
-        List<TagAnnotationWrapper> removed = dataset.getTags(client);
+        List<TagAnnotation> removed = dataset.getTags(client);
         client.delete(tag);
 
         assertEquals(1, tags.size());
@@ -282,8 +283,8 @@ class DatasetTest extends UserTest {
 
     @Test
     void testGetImagesTaggedInDataset2() throws Exception {
-        TagAnnotationWrapper tag     = client.getTag(TAG2.id);
-        Dataset              dataset = client.getDataset(DATASET1.id);
+        TagAnnotation tag     = client.getTag(TAG2.id);
+        Dataset       dataset = client.getDataset(DATASET1.id);
 
         List<Image> images = dataset.getImagesTagged(client, tag);
 

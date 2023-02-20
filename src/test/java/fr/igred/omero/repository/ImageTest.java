@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -18,9 +18,12 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
+import fr.igred.omero.annotations.FileAnnotation;
+import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.EllipseWrapper;
 import fr.igred.omero.roi.ROI;
@@ -112,8 +115,8 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetKeyValuePair2() throws Exception {
-        Image                      image       = client.getImage(IMAGE1.id);
-        List<MapAnnotationWrapper> annotations = image.getMapAnnotations(client);
+        Image               image       = client.getImage(IMAGE1.id);
+        List<MapAnnotation> annotations = image.getMapAnnotations(client);
         assertEquals(1, annotations.size());
     }
 
@@ -147,7 +150,7 @@ class ImageTest extends UserTest {
         values.add(new NamedValue(name1, value1));
         values.add(new NamedValue(name2, value2));
 
-        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(values);
+        MapAnnotation mapAnnotation = new MapAnnotationWrapper(values);
         image.addMapAnnotation(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
@@ -179,7 +182,7 @@ class ImageTest extends UserTest {
         MapAnnotationData mapData = new MapAnnotationData();
         mapData.setContent(values);
 
-        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(mapData);
+        MapAnnotation mapAnnotation = new MapAnnotationWrapper(mapData);
         image.addMapAnnotation(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
@@ -208,11 +211,11 @@ class ImageTest extends UserTest {
         values.add(new NamedValue(name1, value1));
         values.add(new NamedValue(name2, value2));
 
-        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper();
+        MapAnnotation mapAnnotation = new MapAnnotationWrapper();
         mapAnnotation.setContent(values);
         image.addMapAnnotation(client, mapAnnotation);
 
-        List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
+        List<MapAnnotation> maps = image.getMapAnnotations(client);
 
         String value = image.getValue(client, name1);
 
@@ -238,7 +241,7 @@ class ImageTest extends UserTest {
         image.addPairKeyValue(client, key1, value1);
         image.addPairKeyValue(client, key2, value2);
 
-        List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
+        List<MapAnnotation> maps = image.getMapAnnotations(client);
 
         String value = image.getValue(client, key1);
         client.delete(maps);
@@ -263,7 +266,7 @@ class ImageTest extends UserTest {
     void testGetImageTags() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         assertEquals(2, tags.size());
     }
 
@@ -367,13 +370,13 @@ class ImageTest extends UserTest {
     void testAddTagToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         image.addTag(client, tag);
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -386,9 +389,9 @@ class ImageTest extends UserTest {
 
         image.addTag(client, "image tag", "tag attached to an image");
 
-        List<TagAnnotationWrapper> tags = client.getTags("image tag");
+        List<TagAnnotation> tags = client.getTags("image tag");
         client.delete(tags.get(0));
-        List<TagAnnotationWrapper> endTags = client.getTags("image tag");
+        List<TagAnnotation> endTags = client.getTags("image tag");
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -399,13 +402,13 @@ class ImageTest extends UserTest {
     void testAddTagIdToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        RemoteObject<?> tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         image.addTag(client, tag.getId());
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -416,18 +419,18 @@ class ImageTest extends UserTest {
     void testAddTagsToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
+        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -438,18 +441,18 @@ class ImageTest extends UserTest {
     void testAddTagsToImage2() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1, tag2, tag3, tag4);
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -460,13 +463,13 @@ class ImageTest extends UserTest {
     void testAddAndRemoveTagFromImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
 
         image.addTag(client, tag);
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         image.unlink(client, tag);
-        List<TagAnnotationWrapper> removed = image.getTags(client);
+        List<TagAnnotation> removed = image.getTags(client);
         client.delete(tag);
 
         assertEquals(1, tags.size());
@@ -490,8 +493,8 @@ class ImageTest extends UserTest {
         File file = createRandomFile("test_image.txt");
         long id   = image.addFile(client, file);
 
-        List<FileAnnotationWrapper> files = image.getFileAnnotations(client);
-        for (FileAnnotationWrapper fileAnn : files) {
+        List<FileAnnotation> files = image.getFileAnnotations(client);
+        for (FileAnnotation fileAnn : files) {
             if (fileAnn.getId() == id) {
                 assertEquals(file.getName(), fileAnn.getFileName());
                 assertEquals("txt", fileAnn.getFileFormat());

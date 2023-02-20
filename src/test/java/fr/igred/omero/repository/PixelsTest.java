@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -35,7 +35,7 @@ class PixelsTest extends UserTest {
         final int sizeZ  = 3;
         final int sizeT  = 7;
 
-        Image image  = client.getImage(IMAGE1.id);
+        Image  image  = client.getImage(IMAGE1.id);
         Pixels pixels = image.getPixels();
 
         assertEquals(sizeXY, pixels.getSizeX());
@@ -48,8 +48,8 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawData() throws Exception {
-        Image image  = client.getImage(IMAGE1.id);
-        Pixels    pixels = image.getPixels();
+        Image            image  = client.getImage(IMAGE1.id);
+        Pixels           pixels = image.getPixels();
         double[][][][][] value  = pixels.getAllPixels(client);
 
         assertEquals(pixels.getSizeX(), value[0][0][0][0].length);
@@ -62,9 +62,9 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawData2() throws Exception {
-        Image image  = client.getImage(IMAGE1.id);
-        Pixels pixels = image.getPixels();
-        byte[][][][]  value  = pixels.getRawPixels(client, 1);
+        Image        image  = client.getImage(IMAGE1.id);
+        Pixels       pixels = image.getPixels();
+        byte[][][][] value  = pixels.getRawPixels(client, 1);
 
         int sizeX = pixels.getSizeX();
         int sizeY = pixels.getSizeY();
@@ -81,7 +81,7 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawDataBound() throws Exception {
-        Image image  = client.getImage(IMAGE1.id);
+        Image  image  = client.getImage(IMAGE1.id);
         Pixels pixels = image.getPixels();
 
         int[] xBounds = {0, 2};
@@ -102,7 +102,7 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawDataBoundError() throws Exception {
-        Image image  = client.getImage(IMAGE1.id);
+        Image  image  = client.getImage(IMAGE1.id);
         Pixels pixels = image.getPixels();
 
         int[] xBounds = {511, 513};
@@ -118,7 +118,7 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawDataBoundErrorNegative() throws Exception {
-        Image image  = client.getImage(IMAGE1.id);
+        Image  image  = client.getImage(IMAGE1.id);
         Pixels pixels = image.getPixels();
 
         int[] xBounds = {-1, 1};

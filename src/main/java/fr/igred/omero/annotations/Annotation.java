@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.Browser;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -87,20 +87,20 @@ public interface Annotation<T extends AnnotationData> extends RemoteObject<T> {
     /**
      * Returns the number of annotations links for this object.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    int countAnnotationLinks(Client client) throws ServiceException, ServerException;
+    int countAnnotationLinks(Browser browser) throws ServiceException, ServerException;
 
 
     /**
      * Gets all projects with this tag from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The projects list.
      *
@@ -109,14 +109,14 @@ public interface Annotation<T extends AnnotationData> extends RemoteObject<T> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Project> getProjects(Client client)
+    List<Project> getProjects(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
      * Gets all datasets with this tag from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The datasets list.
      *
@@ -125,14 +125,14 @@ public interface Annotation<T extends AnnotationData> extends RemoteObject<T> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Dataset> getDatasets(Client client)
+    List<Dataset> getDatasets(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
      * Gets all images with this tag from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The images list.
      *
@@ -141,14 +141,14 @@ public interface Annotation<T extends AnnotationData> extends RemoteObject<T> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Client client)
+    List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
      * Gets all screens with this tag from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The screens list.
      *
@@ -157,14 +157,14 @@ public interface Annotation<T extends AnnotationData> extends RemoteObject<T> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Screen> getScreens(Client client)
+    List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
      * Gets all plates with this tag from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The plates list.
      *
@@ -173,14 +173,14 @@ public interface Annotation<T extends AnnotationData> extends RemoteObject<T> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Plate> getPlates(Client client)
+    List<Plate> getPlates(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
      * Gets all wells with this tag from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The wells list.
      *
@@ -189,7 +189,7 @@ public interface Annotation<T extends AnnotationData> extends RemoteObject<T> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Well> getWells(Client client)
+    List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 }
