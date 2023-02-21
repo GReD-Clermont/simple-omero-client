@@ -107,7 +107,7 @@ class ClientTest extends UserTest {
     @Test
     void testGetAllDatasets() throws Exception {
         Collection<Dataset> datasets = client.getDatasets();
-        assertEquals(3, datasets.size());
+        assertEquals(4, datasets.size());
     }
 
 
@@ -299,7 +299,7 @@ class ClientTest extends UserTest {
         Experimenter user = client.getUser("testUser");
 
         Collection<Dataset> datasets = client.getDatasets(user);
-        assertEquals(3, datasets.size());
+        assertEquals(4, datasets.size());
     }
 
 

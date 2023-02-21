@@ -98,15 +98,19 @@ PROJECT2=$(omero obj new Project name=TestProject2)
 DATASET1=$(omero obj new Dataset name=TestDataset description=description)
 DATASET2=$(omero obj new Dataset name=TestDatasetImport)
 DATASET3=$(omero obj new Dataset name=TestDataset)
+DATASET4=$(omero obj new Dataset name=TestDataset4)
 
 omero obj new ProjectDatasetLink parent="$PROJECT1" child="$DATASET1"
 omero obj new ProjectDatasetLink parent="$PROJECT1" child="$DATASET2"
 omero obj new ProjectDatasetLink parent="$PROJECT2" child="$DATASET3"
+omero obj new ProjectDatasetLink parent="$PROJECT1" child="$DATASET4"
 
 IMAGE1=$(omero import --output=ids "$WORKDIR/image1.fake" -T "$DATASET1")
 IMAGE2=$(omero import --output=ids "$WORKDIR/image1.fake" -T "$DATASET1")
 IMAGE3=$(omero import --output=ids "$WORKDIR/image2.fake" -T "$DATASET1")
 IMAGE4=$(omero import --output=ids "$WORKDIR/image1.fake" -T "$DATASET3")
+
+omero obj new DatasetImageLink parent="$DATASET4" child="$IMAGE1"
 
 # import screens
 SCREEN1=$(omero obj new Screen name=TestScreen description=description)

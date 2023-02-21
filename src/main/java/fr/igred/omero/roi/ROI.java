@@ -92,7 +92,7 @@ public interface ROI extends Annotatable<ROIData> {
     /**
      * Returns the name property corresponding to input local ID property (appends "_NAME" to said property).
      *
-     * @param property The property where 4D ROI local ID is stored, defaults to {@value IJ_PROPERTY} if null or empty.
+     * @param property The property where the 4D ROI name is stored, defaults to {@value IJ_PROPERTY} if null or empty.
      *
      * @return See above.
      */

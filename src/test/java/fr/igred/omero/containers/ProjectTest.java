@@ -52,7 +52,7 @@ class ProjectTest extends UserTest {
     @Test
     void testGetDatasets() throws Exception {
         Project project = client.getProject(PROJECT1.id);
-        assertEquals(2, project.getDatasets(client).size());
+        assertEquals(3, project.getDatasets(client).size());
     }
 
 
@@ -62,7 +62,7 @@ class ProjectTest extends UserTest {
 
         List<Dataset> datasets = project.getDatasets();
 
-        assertEquals(2, datasets.size());
+        assertEquals(3, datasets.size());
     }
 
 

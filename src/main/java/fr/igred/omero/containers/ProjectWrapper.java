@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static fr.igred.omero.RemoteObject.distinct;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
@@ -251,7 +252,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
                                                               bf -> bf.getImagesForProjects(browser.getCtx(),
                                                                                             projectIds),
                                                               "Cannot get images from " + this);
-        return wrap(images, ImageWrapper::new);
+        return distinct(wrap(images, ImageWrapper::new));
     }
 
 
