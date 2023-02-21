@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -17,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
@@ -96,6 +99,47 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Sets the calibration. Planes information has to be loaded first.
+     *
+     * @param pixels      The pixels.
+     * @param calibration The ImageJ calibration.
+     */
+    private static void setCalibration(PixelsWrapper pixels, Calibration calibration) {
+        Length positionX = pixels.getPositionX();
+        Length positionY = pixels.getPositionY();
+        Length positionZ = pixels.getPositionZ();
+        Length spacingX  = pixels.getPixelSizeX();
+        Length spacingY  = pixels.getPixelSizeY();
+        Length spacingZ  = pixels.getPixelSizeZ();
+        Time   stepT     = pixels.getTimeIncrement();
+
+        if (stepT == null) {
+            stepT = pixels.getMeanTimeInterval();
+        }
+
+        calibration.setXUnit(positionX.getSymbol());
+        calibration.setYUnit(positionY.getSymbol());
+        calibration.setZUnit(positionZ.getSymbol());
+        calibration.xOrigin = positionX.getValue();
+        calibration.yOrigin = positionY.getValue();
+        calibration.zOrigin = positionZ.getValue();
+        if (spacingX != null) {
+            calibration.pixelWidth = spacingX.getValue();
+        }
+        if (spacingY != null) {
+            calibration.pixelHeight = spacingY.getValue();
+        }
+        if (spacingZ != null) {
+            calibration.pixelDepth = spacingZ.getValue();
+        }
+        if (!Double.isNaN(stepT.getValue())) {
+            calibration.setTimeUnit(stepT.getSymbol());
+            calibration.frameInterval = stepT.getValue();
+        }
+    }
+
+
+    /**
      * Gets the ImageData name
      *
      * @return name.
@@ -167,47 +211,6 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Sets the calibration. Planes information has to be loaded first.
-     *
-     * @param pixels      The pixels.
-     * @param calibration The ImageJ calibration.
-     */
-    private static void setCalibration(PixelsWrapper pixels, Calibration calibration) {
-        Length positionX = pixels.getPositionX();
-        Length positionY = pixels.getPositionY();
-        Length positionZ = pixels.getPositionZ();
-        Length spacingX  = pixels.getPixelSizeX();
-        Length spacingY  = pixels.getPixelSizeY();
-        Length spacingZ  = pixels.getPixelSizeZ();
-        Time   stepT     = pixels.getTimeIncrement();
-
-        if (stepT == null) {
-            stepT = pixels.getMeanTimeInterval();
-        }
-
-        calibration.setXUnit(positionX.getSymbol());
-        calibration.setYUnit(positionY.getSymbol());
-        calibration.setZUnit(positionZ.getSymbol());
-        calibration.xOrigin = positionX.getValue();
-        calibration.yOrigin = positionY.getValue();
-        calibration.zOrigin = positionZ.getValue();
-        if (spacingX != null) {
-            calibration.pixelWidth = spacingX.getValue();
-        }
-        if (spacingY != null) {
-            calibration.pixelHeight = spacingY.getValue();
-        }
-        if (spacingZ != null) {
-            calibration.pixelDepth = spacingZ.getValue();
-        }
-        if (!Double.isNaN(stepT.getValue())) {
-            calibration.setTimeUnit(stepT.getSymbol());
-            calibration.frameInterval = stepT.getValue();
-        }
     }
 
 
@@ -436,17 +439,15 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get ROIs from " + this);
         }
-        ROIResult r = roiResults.iterator().next();
 
-        Collection<ROIData> rois = r.getROIs();
+        List<ROIWrapper> roiWrappers = roiResults.stream()
+                                                 .map(ROIResult::getROIs)
+                                                 .flatMap(Collection::stream)
+                                                 .map(ROIWrapper::new)
+                                                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                                 .collect(Collectors.toList());
 
-        List<ROIWrapper> roiWrappers = new ArrayList<>(rois.size());
-        for (ROIData roi : rois) {
-            ROIWrapper temp = new ROIWrapper(roi);
-            roiWrappers.add(temp);
-        }
-
-        return roiWrappers;
+        return distinct(roiWrappers);
     }
 
 

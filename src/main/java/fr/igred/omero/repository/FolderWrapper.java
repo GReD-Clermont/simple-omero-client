@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -17,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
@@ -26,7 +29,6 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.FolderData;
-import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 import omero.gateway.model.TagAnnotationData;
 import omero.model.Folder;
@@ -37,8 +39,10 @@ import omero.model.FolderI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -251,18 +255,14 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
             handleServiceOrAccess(e, "Cannot get ROIs from " + this);
         }
 
-        List<ROIWrapper> roiWrappers = new ArrayList<>(roiResults.size());
-        if (!roiResults.isEmpty()) {
-            ROIResult r = roiResults.iterator().next();
+        List<ROIWrapper> roiWrappers = roiResults.stream()
+                                                 .map(ROIResult::getROIs)
+                                                 .flatMap(Collection::stream)
+                                                 .map(ROIWrapper::new)
+                                                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                                 .collect(Collectors.toList());
 
-            Collection<ROIData> rois = r.getROIs();
-            for (ROIData roi : rois) {
-                ROIWrapper temp = new ROIWrapper(roi);
-                roiWrappers.add(temp);
-            }
-        }
-
-        return roiWrappers;
+        return distinct(roiWrappers);
     }
 
 

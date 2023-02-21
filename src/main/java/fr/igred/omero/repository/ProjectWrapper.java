@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -26,6 +26,7 @@ import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.ImageData;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -248,18 +249,15 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
-
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
-            lists.add(dataset.getImages(client));
+        Collection<ImageData> images = new ArrayList<>(0);
+        try {
+            images = client.getBrowseFacility()
+                           .getImagesForProjects(client.getCtx(),
+                                                 Collections.singletonList(data.getId()));
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get images from " + this);
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                         .collect(Collectors.toList());
-
-        return distinct(images);
+        return distinct(wrap(images, ImageWrapper::new));
     }
 
 

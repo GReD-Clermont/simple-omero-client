@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -52,10 +52,10 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     /**
      * Constructor of the class GenericObjectWrapper.
      *
-     * @param object The object contained in the GenericObjectWrapper.
+     * @param o The object contained in the GenericObjectWrapper.
      */
-    protected GenericObjectWrapper(T object) {
-        this.data = object;
+    protected GenericObjectWrapper(T o) {
+        this.data = o;
     }
 
 
@@ -124,7 +124,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
         return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o))
+                      .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
                       .values()
                       .stream()
                       .sorted(Comparator.comparing(T::getId))
