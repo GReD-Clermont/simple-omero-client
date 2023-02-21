@@ -24,6 +24,7 @@ import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.TextualAnnotationWrapper;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.meta.PlaneInfoWrapper;
@@ -71,11 +72,13 @@ import omero.gateway.model.PolygonData;
 import omero.gateway.model.PolylineData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ROIData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TextData;
+import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
@@ -145,6 +148,8 @@ public final class Wrapper {
             converted = (U) new TagAnnotationWrapper((TagAnnotationData) object);
         } else if (object instanceof RatingAnnotationData) {
             converted = (U) new RatingAnnotationWrapper((RatingAnnotationData) object);
+        } else if (object instanceof TextualAnnotationData) {
+            converted = (U) new TextualAnnotationWrapper((TextualAnnotationData) object);
         } else {
             throw new IllegalArgumentException(String.format(UNKNOWN_TYPE, object.getClass().getName()));
         }

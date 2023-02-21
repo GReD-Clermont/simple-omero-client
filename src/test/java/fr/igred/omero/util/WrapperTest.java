@@ -25,6 +25,7 @@ import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.TextualAnnotationWrapper;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.meta.PlaneInfoWrapper;
@@ -164,6 +165,13 @@ class WrapperTest extends BasicTest {
     void testWrapTagAnnotationData() {
         TagAnnotationData object = new TagAnnotationData(new TagAnnotationI());
         assertSame(TagAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+    }
+
+
+    @Test
+    void testWrapTextualAnnotationData() {
+        TextualAnnotationData object = new TextualAnnotationData(new CommentAnnotationI());
+        assertSame(TextualAnnotationWrapper.class, Wrapper.wrap(object).getClass());
     }
 
 
