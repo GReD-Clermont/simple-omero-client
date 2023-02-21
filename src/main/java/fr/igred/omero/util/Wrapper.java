@@ -143,6 +143,8 @@ public final class Wrapper {
             converted = (U) new MapAnnotationWrapper((MapAnnotationData) object);
         } else if (object instanceof TagAnnotationData) {
             converted = (U) new TagAnnotationWrapper((TagAnnotationData) object);
+        } else if (object instanceof RatingAnnotationData) {
+            converted = (U) new RatingAnnotationWrapper((RatingAnnotationData) object);
         } else {
             throw new IllegalArgumentException(String.format(UNKNOWN_TYPE, object.getClass().getName()));
         }

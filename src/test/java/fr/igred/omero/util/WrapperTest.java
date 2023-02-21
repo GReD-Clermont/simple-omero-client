@@ -23,6 +23,7 @@ import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
@@ -69,13 +70,16 @@ import omero.gateway.model.PolygonData;
 import omero.gateway.model.PolylineData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ROIData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TextData;
+import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
+import omero.model.CommentAnnotationI;
 import omero.model.FileAnnotationI;
 import omero.model.RectangleI;
 import omero.model.TagAnnotationI;
@@ -103,6 +107,8 @@ class WrapperTest extends BasicTest {
                 //arguments(named("ChannelData", ChannelData.class, ChannelWrapper.class),
                 //arguments(named("FileAnnotationData", FileAnnotationData.class, FileAnnotationWrapper.class),
                 //arguments(named("TagAnnotationData", TagAnnotationData.class, TagAnnotationWrapper.class),
+                //arguments(named("TextualAnnotationData", TextualAnnotationData.class), TextualAnnotationWrapper.class),
+                arguments(named("RatingAnnotationData", RatingAnnotationData.class), RatingAnnotationWrapper.class),
                 arguments(named("MapAnnotationData", MapAnnotationData.class), MapAnnotationWrapper.class),
                 arguments(named("ProjectData", ProjectData.class), ProjectWrapper.class),
                 arguments(named("DatasetData", DatasetData.class), DatasetWrapper.class),

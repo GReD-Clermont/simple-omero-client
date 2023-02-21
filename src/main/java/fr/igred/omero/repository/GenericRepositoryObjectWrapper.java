@@ -25,6 +25,7 @@ import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -48,6 +49,7 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.util.PojoMapper;
@@ -511,6 +513,95 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         } else {
             throw new NoSuchElementException("Key \"" + key + "\" not found");
         }
+    }
+
+
+    /**
+     * Rates the object (using a rating annotation).
+     *
+     * @param client The client handling the connection.
+     * @param rating The rating.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     Server error.
+     * @throws InterruptedException The thread was interrupted.
+     */
+    public void rate(Client client, int rating)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        String error = "Cannot retrieve rating annotations from " + this;
+
+        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
+        List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
+
+        List<AnnotationData> anns = new ArrayList<>(0);
+        try {
+            anns = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, error);
+        }
+        List<RatingAnnotationWrapper> myRatings = anns.stream()
+                                                      .filter(RatingAnnotationData.class::isInstance)
+                                                      .map(RatingAnnotationData.class::cast)
+                                                      .map(RatingAnnotationWrapper::new)
+                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
+                                                      .collect(Collectors.toList());
+
+        if (myRatings.isEmpty()) {
+            RatingAnnotationWrapper rate = new RatingAnnotationWrapper(rating);
+            try {
+                client.getDm().attachAnnotation(client.getCtx(),
+                                                rate.asDataObject(),
+                                                this.data);
+            } catch (DSOutOfServiceException | DSAccessException e) {
+                handleServiceOrAccess(e, "Cannot add rating to " + this);
+            }
+        } else {
+            int n = myRatings.size();
+            if (n > 1) client.delete(myRatings.subList(1, n));
+            RatingAnnotationWrapper rate = myRatings.get(0);
+            rate.setRating(rating);
+            rate.saveAndUpdate(client);
+        }
+    }
+
+
+    /**
+     * Returns the user rating for this object (averaged if multiple ratings are linked).
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public int getMyRating(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot retrieve rating annotations from " + this;
+
+        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
+        List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
+
+        List<AnnotationData> anns = new ArrayList<>(0);
+        try {
+            anns = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, error);
+        }
+        List<RatingAnnotationWrapper> myRatings = anns.stream()
+                                                      .filter(RatingAnnotationData.class::isInstance)
+                                                      .map(RatingAnnotationData.class::cast)
+                                                      .map(RatingAnnotationWrapper::new)
+                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
+                                                      .collect(Collectors.toList());
+        int score = 0;
+        for (RatingAnnotationWrapper rate : myRatings) {
+            score += rate.getRating();
+        }
+        return score / Math.max(1, myRatings.size());
     }
 
 
