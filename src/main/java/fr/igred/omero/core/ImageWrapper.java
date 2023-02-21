@@ -381,7 +381,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      *
      * @param dm The data manager.
      *
-     * @return List of ROIs linked to the image.
+     * @return List of distinct ROIs linked to the image.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -390,20 +390,14 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     @Override
     public List<ROI> getROIs(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIResult> roiResults = handleServiceAndAccess(dm.getRoiFacility(),
-                                                            rf -> rf.loadROIs(dm.getCtx(), data.getId()),
-                                                            "Cannot get ROIs from " + this);
-        ROIResult r = roiResults.iterator().next();
-
-        Collection<ROIData> rois = r.getROIs();
-
-        List<ROI> roiWrappers = new ArrayList<>(rois.size());
-        for (ROIData roi : rois) {
-            ROI temp = new ROIWrapper(roi);
-            roiWrappers.add(temp);
+        Collection<ROIResult> roiResults = handleServiceAndAccess(dm.getRoiFacility(),
+                                                                  rf -> rf.loadROIs(dm.getCtx(), data.getId()),
+                                                                  "Cannot get ROIs from " + this);
+        Collection<Collection<ROI>> rois = new ArrayList<>(roiResults.size());
+        for (ROIResult r : roiResults) {
+            rois.add(wrap(r.getROIs(), ROIWrapper::new));
         }
-
-        return roiWrappers;
+        return RemoteObject.flatten(rois);
     }
 
 
@@ -447,11 +441,11 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     public List<Folder> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
-        Long[] ids   = browser.findByQuery(query)
-                              .stream()
-                              .map(o -> o.getId().getValue())
-                              .sorted().distinct()
-                              .toArray(Long[]::new);
+        Long[] ids = browser.findByQuery(query)
+                            .stream()
+                            .map(o -> o.getId().getValue())
+                            .sorted().distinct()
+                            .toArray(Long[]::new);
         return browser.loadFolders(ids);
     }
 

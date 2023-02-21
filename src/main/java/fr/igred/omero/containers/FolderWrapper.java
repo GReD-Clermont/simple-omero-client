@@ -359,14 +359,11 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     @Override
     public List<ROI> getROIs(DataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFac = dm.getRoiFacility();
-
-        Collection<ROIResult> roiResults = handleServiceAndAccess(roiFac,
+        Collection<ROIResult> roiResults = handleServiceAndAccess(dm.getRoiFacility(),
                                                                   rf -> rf.loadROIsForFolder(dm.getCtx(),
                                                                                              imageId,
                                                                                              data.getId()),
                                                                   "Cannot get ROIs from " + this);
-
         Collection<Collection<ROI>> rois = new ArrayList<>(roiResults.size());
         for (ROIResult r : roiResults) {
             rois.add(wrap(r.getROIs(), ROIWrapper::new));

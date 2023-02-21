@@ -362,7 +362,7 @@ public class TableWrapper implements Table {
      * <p>If neither column is present, it will check the {@value LABEL} column for the ROI names inside.
      *
      * @param results     An ImageJ results table.
-     * @param rois        A list of OMERO ROIs.
+     * @param rois        A list of OMERO ROIs (each ID should be present only once).
      * @param ijRois      A list of ImageJ Rois.
      * @param roiProperty The Roi property storing the local ROI IDs.
      *
@@ -376,14 +376,10 @@ public class TableWrapper implements Table {
 
         ROIData[] roiColumn = EMPTY_ROI;
 
-        Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROI::getId,
-                                                                ROI::asDataObject,
-                                                                (r1, r2) -> r1));
+        Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROI::getId, ROI::asDataObject));
         Map<String, ROIData> name2roi = rois.stream()
                                             .filter(r -> !r.getName().isEmpty())
-                                            .collect(toMap(ROI::getName,
-                                                           ROI::asDataObject,
-                                                           (r1, r2) -> r1));
+                                            .collect(toMap(ROI::getName, ROI::asDataObject));
 
         Map<Long, ROIData> index2roi = ijRois.stream()
                                              .map(r -> new SimpleEntry<>(safeParseLong(r.getProperty(roiProperty)),
