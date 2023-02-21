@@ -133,6 +133,16 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
+     * Returns the wrapped DataObject.
+     *
+     * @return An object of type {@link T}.
+     */
+    public T asDataObject() {
+        return data;
+    }
+
+
+    /**
      * Returns the contained DataObject as IObject.
      *
      * @return See above.

@@ -80,7 +80,7 @@ class ImageImportTest extends UserTest {
         image1.saveAndUpdate(client);
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
-        image1.addTag(client, tag1);
+        image1.link(client, tag1);
         image1.addPairKeyValue(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
@@ -93,9 +93,9 @@ class ImageImportTest extends UserTest {
         image2.saveAndUpdate(client);
 
         TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
-        image2.addTag(client, tag2);
-        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
-        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+        image2.link(client, tag2);
+        image2.link(client, image1.getFileAnnotations(client).get(0));
+        image2.link(client, image1.getMapAnnotations(client).get(0));
 
         RectangleWrapper rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROIWrapper       roi       = new ROIWrapper();
@@ -164,7 +164,7 @@ class ImageImportTest extends UserTest {
         ImageWrapper image1 = client.getImage(ids1.get(0));
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
-        image1.addTag(client, tag1);
+        image1.link(client, tag1);
         image1.addPairKeyValue(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
@@ -177,9 +177,9 @@ class ImageImportTest extends UserTest {
         image2.saveAndUpdate(client);
 
         TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
-        image2.addTag(client, tag2);
-        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
-        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+        image2.link(client, tag2);
+        image2.link(client, image1.getFileAnnotations(client).get(0));
+        image2.link(client, image1.getMapAnnotations(client).get(0));
 
         RectangleWrapper rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROIWrapper       roi       = new ROIWrapper();

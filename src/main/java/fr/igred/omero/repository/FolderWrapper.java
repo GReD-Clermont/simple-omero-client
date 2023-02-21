@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
@@ -30,11 +31,9 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIResult;
-import omero.gateway.model.TagAnnotationData;
 import omero.model.Folder;
 import omero.model.FolderAnnotationLink;
 import omero.model.FolderAnnotationLinkI;
-import omero.model.FolderI;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -116,21 +115,22 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * Private function. Adds a tag to the object in OMERO, if possible.
+     * Adds an annotation to the object in OMERO, if possible.
      *
-     * @param client  The client handling the connection.
-     * @param tagData Tag to be added.
+     * @param client     The client handling the connection.
+     * @param annotation Annotation to be added.
+     * @param <A>        The type of the annotation.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected void addTag(Client client, TagAnnotationData tagData)
+    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent(new FolderI(data.getId(), false));
+        link.setChild(annotation.asDataObject().asAnnotation());
+        link.setParent(data.asFolder());
         client.save(link);
     }
 
@@ -159,10 +159,11 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * Gets the folder contained in the FolderWrapper
-     *
      * @return the FolderData.
+     *
+     * @deprecated Gets the folder contained in the FolderWrapper. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public FolderData asFolderData() {
         return data;
     }

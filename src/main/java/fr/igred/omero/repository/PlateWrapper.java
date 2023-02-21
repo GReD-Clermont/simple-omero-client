@@ -97,10 +97,11 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
 
 
     /**
-     * Returns the PlateData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the PlateData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public PlateData asPlateData() {
         return data;
     }

@@ -99,7 +99,7 @@ class AccessExceptionTest extends BasicTest {
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         try {
-            image.addTag(client, tag);
+            image.link(client, tag);
         } catch (AccessException e) {
             exception = true;
         }

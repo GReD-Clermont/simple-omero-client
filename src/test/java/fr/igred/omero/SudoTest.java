@@ -61,7 +61,7 @@ class SudoTest extends BasicTest {
         List<ImageWrapper> images  = dataset.getImages(test);
 
         for (ImageWrapper image : images) {
-            image.addTag(test, tag);
+            image.link(test, tag);
         }
 
         List<ImageWrapper> tagged = dataset.getImagesTagged(test, tag);

@@ -48,10 +48,11 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
 
 
     /**
-     * Returns the WellSampleData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the WellSampleData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public WellSampleData asWellSampleData() {
         return data;
     }
@@ -69,7 +70,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public WellWrapper getWell(Client client) throws AccessException, ServiceException, ExecutionException {
-        return client.getWell(asWellSampleData().asWellSample().getWell().getId().getValue());
+        return client.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }
 
 
@@ -89,7 +90,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @param image The image to set.
      */
     public void setImage(ImageWrapper image) {
-        data.setImage(image.asImageData());
+        data.setImage(image.asDataObject());
     }
 
 

@@ -37,7 +37,7 @@ class PlateAcquisitionTest extends UserTest {
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate acq. tag", "tag attached to a plate acq.");
-        acq.addTag(client, tag);
+        acq.link(client, tag);
         List<TagAnnotationWrapper> tags = acq.getTags(client);
         client.delete(tag);
         List<TagAnnotationWrapper> checkTags = acq.getTags(client);

@@ -39,7 +39,6 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      */
     public TagAnnotationWrapper(TagAnnotationData tag) {
         super(tag);
-        data.setNameSpace(tag.getContentAsString());
     }
 
 
@@ -84,10 +83,11 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
 
 
     /**
-     * Gets the TagAnnotationData contained.
-     *
      * @return the {@link TagAnnotationData} contained.
+     *
+     * @deprecated Gets the TagAnnotationData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public TagAnnotationData asTagAnnotationData() {
         return data;
     }

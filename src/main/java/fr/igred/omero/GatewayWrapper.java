@@ -143,7 +143,7 @@ public abstract class GatewayWrapper {
     public String getSessionId() throws ServiceException {
         String sessionId;
         try {
-            sessionId = gateway.getSessionId(user.asExperimenterData());
+            sessionId = gateway.getSessionId(user.asDataObject());
         } catch (DSOutOfServiceException e) {
             throw new ServiceException("Could not retrieve session ID", e, e.getConnectionStatus());
         }
@@ -231,7 +231,7 @@ public abstract class GatewayWrapper {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
         this.ctx = new SecurityContext(user.getGroupId());
-        this.ctx.setExperimenter(this.user.asExperimenterData());
+        this.ctx.setExperimenter(this.user.asDataObject());
         this.ctx.setServerInformation(cred.getServer());
     }
 
@@ -244,7 +244,7 @@ public abstract class GatewayWrapper {
             boolean sudo = ctx.isSudo();
             user = new ExperimenterWrapper(new ExperimenterData());
             ctx = new SecurityContext(-1);
-            ctx.setExperimenter(user.asExperimenterData());
+            ctx.setExperimenter(user.asDataObject());
             if (sudo) {
                 gateway = new Gateway(gateway.getLogger());
             } else {
@@ -262,7 +262,7 @@ public abstract class GatewayWrapper {
     public void switchGroup(long groupId) {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
-        ctx.setExperimenter(user.asExperimenterData());
+        ctx.setExperimenter(user.asDataObject());
         if (sudo) ctx.sudo();
     }
 

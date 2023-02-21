@@ -57,10 +57,10 @@ class TableTest extends UserTest {
 
         for (ImageWrapper image : images) {
             assertNotEquals(true, table.isComplete());
-            table.addRow(image.asImageData(), image.getName());
+            table.addRow(image.asDataObject(), image.getName());
         }
 
-        assertEquals(images.get(0).asImageData(), table.getData(0, 0));
+        assertEquals(images.get(0).asDataObject(), table.getData(0, 0));
         assertEquals(images.get(1).getName(), table.getData(0, 1));
 
         dataset.addTable(client, table);
@@ -96,10 +96,10 @@ class TableTest extends UserTest {
 
         for (ImageWrapper image : images) {
             assertNotEquals(true, table1.isComplete());
-            table1.addRow(image.asImageData(), image.getName());
+            table1.addRow(image.asDataObject(), image.getName());
         }
 
-        assertEquals(images.get(0).asImageData(), table1.getData(0, 0));
+        assertEquals(images.get(0).asDataObject(), table1.getData(0, 0));
         assertEquals(images.get(1).getName(), table1.getData(0, 1));
 
         dataset.addTable(client, table1);
@@ -111,7 +111,7 @@ class TableTest extends UserTest {
         table2.setRowCount(images.size());
         for (ImageWrapper image : images) {
             assertNotEquals(true, table2.isComplete());
-            table2.addRow(image.asImageData(), image.getDescription());
+            table2.addRow(image.asDataObject(), image.getDescription());
         }
         dataset.addTable(client, table2);
         long tableId2 = table2.getId();
@@ -122,7 +122,7 @@ class TableTest extends UserTest {
         table3.setRowCount(images.size());
         for (ImageWrapper image : images) {
             assertNotEquals(true, table3.isComplete());
-            table3.addRow(image.asImageData(), "Test name");
+            table3.addRow(image.asDataObject(), "Test name");
         }
         dataset.addAndReplaceTable(client, table3);
         long tableId3 = table3.getId();
@@ -158,7 +158,7 @@ class TableTest extends UserTest {
         table.setRowCount(images.size() - 1);
 
         assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(img -> table.addRow(img.asImageData(), img.getName())));
+                     () -> images.forEach(img -> table.addRow(img.asDataObject(), img.getName())));
     }
 
 
@@ -181,7 +181,7 @@ class TableTest extends UserTest {
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(img -> table.addRow(img.asImageData(), img.getName())));
+                     () -> images.forEach(img -> table.addRow(img.asDataObject(), img.getName())));
     }
 
 

@@ -151,7 +151,7 @@ class ROI2ImageJTest extends BasicTest {
 
         LineWrapper line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 3);
-        line.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        line.asDataObject().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
 
         LineWrapper line2 = new LineWrapper(0, 0, 10, 10);
         line2.setCZT(1, 0, 4);
@@ -159,8 +159,8 @@ class ROI2ImageJTest extends BasicTest {
 
         LineWrapper line3 = new LineWrapper(2, 2, 3, 4);
         line3.setCZT(1, 0, 5);
-        line3.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
-        line3.asShapeData().getShapeSettings().setMarkerEnd(LineWrapper.ARROW);
+        line3.asDataObject().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        line3.asDataObject().getShapeSettings().setMarkerEnd(LineWrapper.ARROW);
 
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
@@ -283,8 +283,8 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(arrow.getC(), newArrow.getC());
         assertEquals(arrow.getZ(), newArrow.getZ());
         assertEquals(arrow.getT(), newArrow.getT());
-        assertEquals(arrow.asShapeData().getShapeSettings().getMarkerStart(),
-                     newArrow.asShapeData().getShapeSettings().getMarkerEnd());
+        assertEquals(arrow.asDataObject().getShapeSettings().getMarkerStart(),
+                     newArrow.asDataObject().getShapeSettings().getMarkerEnd());
     }
 
 

@@ -895,7 +895,7 @@ public class Client extends GatewayWrapper {
         ExperimenterWrapper sudoUser = getUser(username);
 
         SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        context.setExperimenter(sudoUser.asExperimenterData());
+        context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
 
         return new Client(this.getGateway(), context, sudoUser);

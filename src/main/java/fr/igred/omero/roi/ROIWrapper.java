@@ -79,7 +79,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         super(new ROIData());
 
         for (GenericShapeWrapper<?> shape : shapes) {
-            data.addShapeData(shape.asShapeData());
+            data.addShapeData(shape.asDataObject());
         }
     }
 
@@ -244,7 +244,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
         final int maxGroups = 255;
         groupRois = groupRois && rois.size() < maxGroups;
 
-        int nShapes = rois.stream().map(ROIWrapper::asROIData).mapToInt(ROIData::getShapeCount).sum();
+        int nShapes = rois.stream().map(GenericObjectWrapper::asDataObject).mapToInt(ROIData::getShapeCount).sum();
 
         List<ij.gui.Roi> ijRois = new ArrayList<>(nShapes);
 
@@ -314,7 +314,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @param shape GenericShapeWrapper to add.
      */
     public void addShape(GenericShapeWrapper<?> shape) {
-        data.addShapeData(shape.asShapeData());
+        data.addShapeData(shape.asDataObject());
     }
 
 
@@ -336,15 +336,16 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @param image Image linked to the ROIData.
      */
     public void setImage(ImageWrapper image) {
-        data.setImage(image.asImageData().asImage());
+        data.setImage(image.asDataObject().asImage());
     }
 
 
     /**
-     * Returns the ROIData contained.
-     *
      * @return the {@link ROIData} contained.
+     *
+     * @deprecated Returns the ROIData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public ROIData asROIData() {
         return data;
     }

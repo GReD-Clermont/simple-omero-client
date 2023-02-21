@@ -35,7 +35,7 @@ class WellTest extends UserTest {
         WellWrapper well = client.getWell(2L);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Well tag", "tag attached to a well");
-        well.addTag(client, tag);
+        well.link(client, tag);
         List<TagAnnotationWrapper> tags = well.getTags(client);
         client.delete(tag);
         List<TagAnnotationWrapper> checkTags = well.getTags(client);

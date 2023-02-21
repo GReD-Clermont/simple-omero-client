@@ -83,10 +83,11 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
 
 
     /**
-     * Gets the MapAnnotationData contained.
-     *
      * @return the {@link MapAnnotationData} contained.
+     *
+     * @deprecated Gets the MapAnnotationData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public MapAnnotationData asMapAnnotationData() {
         return data;
     }

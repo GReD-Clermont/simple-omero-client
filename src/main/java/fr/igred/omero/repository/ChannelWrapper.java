@@ -42,10 +42,11 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
 
 
     /**
-     * Returns the ChannelData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the ChannelData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public ChannelData asChannelData() {
         return data;
     }
@@ -91,7 +92,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      * @return See above.
      */
     public String getName() {
-        return asChannelData().getName();
+        return asDataObject().getName();
     }
 
 

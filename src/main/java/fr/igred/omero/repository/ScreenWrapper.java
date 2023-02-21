@@ -110,10 +110,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Returns the ScreenData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the ScreenData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public ScreenData asScreenData() {
         return data;
     }

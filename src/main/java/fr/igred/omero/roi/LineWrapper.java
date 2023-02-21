@@ -268,8 +268,8 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
         java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
         java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
-        String start = asShapeData().getShapeSettings().getMarkerStart();
-        String end   = asShapeData().getShapeSettings().getMarkerEnd();
+        String start = data.getShapeSettings().getMarkerStart();
+        String end   = data.getShapeSettings().getMarkerEnd();
 
         double x1 = shape1.getX();
         double x2 = shape2.getX();

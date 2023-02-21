@@ -207,10 +207,11 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
 
 
     /**
-     * Gets the FileAnnotationData contained.
+     * @return the {@link FileAnnotationData} contained. Use {@link #asDataObject()} instead.
      *
-     * @return the {@link FileAnnotationData} contained.
+     * @deprecated Gets the FileAnnotationData contained.
      */
+    @Deprecated
     public FileAnnotationData asFileAnnotationData() {
         return data;
     }

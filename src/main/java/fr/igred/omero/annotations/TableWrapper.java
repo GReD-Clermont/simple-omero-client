@@ -19,6 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
@@ -189,7 +190,7 @@ public class TableWrapper {
         if (offset > 0) {
             createColumn(0, IMAGE, ImageData.class);
             data[0] = new ImageData[rowCount];
-            Arrays.fill(data[0], image.asImageData());
+            Arrays.fill(data[0], image.asDataObject());
         }
         if (offset > 1) {
             createColumn(1, roiProperty, ROIData.class);
@@ -374,10 +375,10 @@ public class TableWrapper {
 
         ROIData[] roiColumn = EMPTY_ROI;
 
-        Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROIWrapper::getId, ROIWrapper::asROIData));
+        Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROIWrapper::getId, GenericObjectWrapper::asDataObject));
         Map<String, ROIData> name2roi = rois.stream()
                                             .filter(r -> !r.getName().isEmpty())
-                                            .collect(toMap(ROIWrapper::getName, ROIWrapper::asROIData));
+                                            .collect(toMap(ROIWrapper::getName, GenericObjectWrapper::asDataObject));
 
         Map<Long, ROIData> index2roi = ijRois.stream()
                                              .map(r -> new SimpleEntry<>(safeParseLong(r.getProperty(roiProperty)),
@@ -510,7 +511,7 @@ public class TableWrapper {
         int n = rt.size();
         setRowCount(rowCount + n);
 
-        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asImageData());
+        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asDataObject());
         if (offset > 1) System.arraycopy(roiColumn, 0, data[1], row, n);
         for (int i = 0; i < nColumns; i++) {
             if (columns[offset + i].getType().equals(String.class)) {

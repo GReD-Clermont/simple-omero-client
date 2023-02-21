@@ -41,10 +41,11 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
 
 
     /**
-     * Returns the ExperimenterData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the ExperimenterData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public ExperimenterData asExperimenterData() {
         return data;
     }

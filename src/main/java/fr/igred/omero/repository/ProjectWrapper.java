@@ -106,10 +106,11 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Returns the ProjectData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the ProjectData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public ProjectData asProjectData() {
         return data;
     }
@@ -208,7 +209,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     throws ServiceException, AccessException, ExecutionException {
         dataset.saveAndUpdate(client);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setChild(dataset.asDatasetData().asDataset());
+        link.setChild(dataset.asDataObject().asDataset());
         link.setParent(data.asProject());
 
         client.save(link);

@@ -82,10 +82,11 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
 
 
     /**
-     * Returns the GroupData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the GroupData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public GroupData asGroupData() {
         return data;
     }

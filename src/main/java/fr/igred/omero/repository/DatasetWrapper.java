@@ -107,10 +107,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Returns the DatasetData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the DatasetData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public DatasetData asDatasetData() {
         return data;
     }
@@ -393,7 +394,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     public void addImage(Client client, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild(image.asImageData().asImage());
+        link.setChild(image.asDataObject().asImage());
         link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);

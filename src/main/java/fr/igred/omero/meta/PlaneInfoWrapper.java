@@ -151,10 +151,11 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
 
 
     /**
-     * Returns the PlaneInfoData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the PlaneInfoData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public PlaneInfoData asPlaneInfoData() {
         return data;
     }

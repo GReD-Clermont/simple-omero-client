@@ -98,10 +98,11 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Returns the WellData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the WellData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public WellData asWellData() {
         return data;
     }
@@ -113,7 +114,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @return See above.
      */
     public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asImageData().getSeries());
+        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
     }
 
 

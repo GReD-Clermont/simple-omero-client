@@ -157,10 +157,11 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Gets the ShapeData object contained.
-     *
      * @return the shape.
+     *
+     * @deprecated Gets the ShapeData object contained.
      */
+    @Deprecated
     public T asShapeData() {
         return data;
     }

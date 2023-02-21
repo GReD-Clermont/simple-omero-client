@@ -144,7 +144,7 @@ class ImageTest extends UserTest {
         values.add(new NamedValue(name2, value2));
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(values);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.link(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
 
@@ -176,7 +176,7 @@ class ImageTest extends UserTest {
         mapData.setContent(values);
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(mapData);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.link(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
 
@@ -206,7 +206,7 @@ class ImageTest extends UserTest {
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper();
         mapAnnotation.setContent(values);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.link(client, mapAnnotation);
 
         List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
 
@@ -365,7 +365,7 @@ class ImageTest extends UserTest {
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
-        image.addTag(client, tag);
+        image.link(client, tag);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
         client.delete(tag);
@@ -439,7 +439,7 @@ class ImageTest extends UserTest {
         TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
         TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
-        image.addTags(client, tag1, tag2, tag3, tag4);
+        image.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
         List<TagAnnotationWrapper> tags = image.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
@@ -453,12 +453,33 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testAddNewTagsToImage() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+
+        TagAnnotationWrapper tag1 = client.getTag(TAG1.id);
+        TagAnnotationWrapper tag2 = client.getTag(TAG2.id);
+        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+
+        image.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
+        List<TagAnnotationWrapper> tags = image.getTags(client);
+        client.delete(tag3);
+        client.delete(tag4);
+        List<TagAnnotationWrapper> endTags = image.getTags(client);
+
+        assertTrue(image.isLinked(client, tag1));
+        assertEquals(4, tags.size());
+        assertEquals(2, endTags.size());
+    }
+
+
+    @Test
     void testAddAndRemoveTagFromImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
 
-        image.addTag(client, tag);
+        image.link(client, tag);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
         image.unlink(client, tag);

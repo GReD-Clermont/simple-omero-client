@@ -163,10 +163,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Returns the ImageData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the ImageData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public ImageData asImageData() {
         return data;
     }
@@ -270,7 +271,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellWrapper> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
-        Long[] ids = this.asImageData()
+        Long[] ids = this.asDataObject()
                          .asImage()
                          .copyWellSamples()
                          .stream()
@@ -356,7 +357,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws AccessException, ServiceException, ExecutionException, OMEROServerError {
         List<ImageWrapper> related = new ArrayList<>(0);
         if (data.isFSImage()) {
-            long fsId = this.asImageData().getFilesetId();
+            long fsId = this.asDataObject().getFilesetId();
 
             List<IObject> objects = client.findByQuery("select i from Image i where fileset=" + fsId);
 
@@ -383,7 +384,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     public List<ROIWrapper> saveROIs(Client client, Collection<? extends ROIWrapper> rois)
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
-        List<ROIData>       roisData = rois.stream().map(ROIWrapper::asROIData).collect(Collectors.toList());
+        List<ROIData>       roisData = rois.stream()
+                                           .map(GenericObjectWrapper::asDataObject)
+                                           .collect(Collectors.toList());
         Collection<ROIData> results  = new ArrayList<>(0);
         try {
             results = client.getRoiFacility().saveROIs(client.getCtx(), data.getId(), roisData);
