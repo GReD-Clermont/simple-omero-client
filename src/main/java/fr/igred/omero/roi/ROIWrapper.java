@@ -324,7 +324,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      * @return list of shape contained in the ROIData.
      */
     public ShapeList getShapes() {
-        ShapeList shapes = new ShapeList();
+        List<ShapeData> shapeData = data.getShapes();
+        ShapeList       shapes    = new ShapeList(shapeData.size());
         data.getShapes().stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
         return shapes;
     }

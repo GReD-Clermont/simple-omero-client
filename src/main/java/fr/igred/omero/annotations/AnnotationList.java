@@ -15,11 +15,11 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.roi;
+package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.util.Wrapper;
-import omero.gateway.model.ShapeData;
+import omero.gateway.model.AnnotationData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +27,16 @@ import java.util.stream.Collectors;
 
 
 /** List of GenericShapeWrapper objects */
-public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
+public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
 
 
-    private static final long serialVersionUID = -5942132062803749727L;
+    private static final long serialVersionUID = 8792604507462788823L;
 
 
     /**
      * Constructs an empty list with an initial capacity of ten.
      */
-    public ShapeList() {
+    public AnnotationList() {
     }
 
 
@@ -47,7 +47,7 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      *
      * @throws IllegalArgumentException if the specified initial capacity is negative
      */
-    public ShapeList(int initialCapacity) {
+    public AnnotationList(int initialCapacity) {
         super(initialCapacity);
     }
 
@@ -60,23 +60,23 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      *
      * @return See above.
      */
-    public <T extends GenericShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
+    public <T extends GenericAnnotationWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
     }
 
 
     /**
-     * Wraps the specified ShapeData object and add it to the end of this list.
+     * Wraps the specified AnnotationData object and add it to the end of this list.
      *
      * @param shape element to be wrapped and appended to this list
      *
      * @return {@code true} (as specified by {@link ArrayList#add(Object)})
      */
-    public boolean add(ShapeData shape) {
+    public boolean add(AnnotationData shape) {
         boolean added;
 
         try {
-            GenericShapeWrapper<? extends ShapeData> wrapper = Wrapper.wrap(shape);
+            GenericAnnotationWrapper<? extends AnnotationData> wrapper = Wrapper.wrap(shape);
             added = add(wrapper);
         } catch (IllegalArgumentException e) {
             added = false;

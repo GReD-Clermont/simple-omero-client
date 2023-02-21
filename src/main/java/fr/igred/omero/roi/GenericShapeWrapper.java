@@ -148,7 +148,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         ijRoi.setName(getText());
         ijRoi.setStrokeColor(getStroke());
         Color fill = getFill();
-        if(!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
+        if (!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);
