@@ -202,4 +202,12 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
         System.setErr(logFile);
     }
 
+
+    @Override
+    public String toString() {
+        return "LoggingExtension{" +
+               "start=" + start +
+               "}";
+    }
+
 }

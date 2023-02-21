@@ -79,7 +79,7 @@ public class Client extends GatewayWrapper {
      * Constructor of the Client class. Initializes the gateway.
      */
     public Client() {
-        super(null);
+        this(null, null, null);
     }
 
 

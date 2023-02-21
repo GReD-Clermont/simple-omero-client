@@ -45,7 +45,7 @@ class LibraryCheckerTest extends BasicTest {
     }
 
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0}")
     @ValueSource(strings = {"omero-gateway",
                             "omero-model",
                             "omero-blitz",
