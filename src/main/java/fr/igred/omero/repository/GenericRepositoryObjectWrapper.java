@@ -21,6 +21,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
@@ -289,9 +290,9 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void linkIfNotLinked(Client client, GenericAnnotationWrapper<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long> annotationIds = getAnnotations(client).stream()
-                                                         .map(DataObject::getId)
-                                                         .collect(Collectors.toList());
+        List<Long> annotationIds = getAnnotationData(client).stream()
+                                                            .map(DataObject::getId)
+                                                            .collect(Collectors.toList());
         link(client, Arrays.stream(annotations)
                            .filter(a -> !annotationIds.contains(a.getId()))
                            .toArray(GenericAnnotationWrapper<?>[]::new));
@@ -858,7 +859,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<AnnotationData> getAnnotations(Client client)
+    private List<AnnotationData> getAnnotationData(Client client)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> annotations = new ArrayList<>(0);
         try {
@@ -866,6 +867,26 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get annotations from " + this);
         }
+        return annotations;
+    }
+
+
+    /**
+     * Retrieves annotations linked to the object (of known types).
+     *
+     * @param client The client handling the connection.
+     *
+     * @return A list of annotations.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public AnnotationList getAnnotations(Client client)
+    throws AccessException, ServiceException, ExecutionException {
+        List<AnnotationData> annotationData = getAnnotationData(client);
+        AnnotationList       annotations    = new AnnotationList(annotationData.size());
+        annotationData.forEach(annotations::add);
         return annotations;
     }
 
@@ -882,8 +903,8 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      */
     public void copyAnnotationLinks(Client client, GenericRepositoryObjectWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> newAnnotations = object.getAnnotations(client);
-        List<AnnotationData> oldAnnotations = this.getAnnotations(client);
+        List<AnnotationData> newAnnotations = object.getAnnotationData(client);
+        List<AnnotationData> oldAnnotations = this.getAnnotationData(client);
         for (AnnotationData annotation : oldAnnotations) {
             newAnnotations.removeIf(a -> a.getId() == annotation.getId());
         }
