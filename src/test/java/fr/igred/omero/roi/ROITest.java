@@ -83,7 +83,7 @@ class ROITest extends UserTest {
 
         ROIWrapper roiWrapper = new ROIWrapper(shapes);
         roiWrapper.setImage(image);
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, roiWrapper);
 
         List<ROIWrapper> rois = image.getROIs(client);
 
@@ -116,7 +116,7 @@ class ROITest extends UserTest {
         ROIWrapper roi = new ROIWrapper();
         roi.addShapes(shapes);
         roi.setImage(image);
-        image.saveROI(client, roi);
+        image.saveROIs(client, roi);
 
         List<ROIWrapper> rois = image.getROIs(client);
 
@@ -203,7 +203,7 @@ class ROITest extends UserTest {
         roiWrapper.addShape(line);
         roiWrapper.addShape(polyline);
         roiWrapper.addShape(polygon);
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, roiWrapper);
 
         List<ROIWrapper>       rois       = image.getROIs(client);
         ShapeList              shapes     = rois.get(0).getShapes();

@@ -101,7 +101,7 @@ class ImageImportTest extends UserTest {
         ROIWrapper       roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
-        image2.saveROI(client, roi);
+        roi = image2.saveROIs(client, roi).get(0);
 
         FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.setImage(image2);
@@ -185,7 +185,7 @@ class ImageImportTest extends UserTest {
         ROIWrapper       roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
-        image2.saveROI(client, roi);
+        roi = image2.saveROIs(client, roi).get(0);
 
         FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.setImage(image2);

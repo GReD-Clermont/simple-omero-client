@@ -289,10 +289,11 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
-     * Changes the wrapped data.
-     *
      * @param data The ROI data.
+     *
+     * @deprecated Changes the wrapped data.
      */
+    @Deprecated
     public void setData(ROIData data) {
         this.data = data;
     }
@@ -319,14 +320,14 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
-     * Returns the list of shapes contained in the ROIData
+     * Returns the list of shapes contained in the ROIData.
      *
      * @return list of shape contained in the ROIData.
      */
     public ShapeList getShapes() {
         List<ShapeData> shapeData = data.getShapes();
         ShapeList       shapes    = new ShapeList(shapeData.size());
-        data.getShapes().stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
+        shapeData.stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
         return shapes;
     }
 

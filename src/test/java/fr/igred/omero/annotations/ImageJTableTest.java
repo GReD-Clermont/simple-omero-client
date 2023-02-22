@@ -74,7 +74,7 @@ class ImageJTableTest extends UserTest {
             roi.addShape(rectangle);
         }
         if (name != null && !name.trim().isEmpty()) roi.setName(name);
-        image.saveROI(client, roi);
+        image.saveROIs(client, roi);
         return image.getROIs(client);
     }
 
@@ -138,7 +138,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults1() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "ROI_1");
-        List<Roi> ijRois = ROIWrapper.toImageJ(rois, null, false);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null, false);
 
         String label = image.getName();
 
@@ -515,8 +515,8 @@ class ImageJTableTest extends UserTest {
             else roi2.addShape(rectangle);
         }
 
-        image.saveROI(client, roi1);
-        image.saveROI(client, roi2);
+        image.saveROIs(client, roi1);
+        image.saveROIs(client, roi2);
 
         List<ROIWrapper> rois   = image.getROIs(client);
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);

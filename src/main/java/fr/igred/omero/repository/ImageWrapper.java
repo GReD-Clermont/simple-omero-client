@@ -62,8 +62,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -384,10 +384,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     public List<ROIWrapper> saveROIs(Client client, Collection<? extends ROIWrapper> rois)
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
-        List<ROIData>       roisData = rois.stream()
-                                           .map(GenericObjectWrapper::asDataObject)
-                                           .collect(Collectors.toList());
-        Collection<ROIData> results  = new ArrayList<>(0);
+        List<ROIData> roisData = rois.stream()
+                                     .map(GenericObjectWrapper::asDataObject)
+                                     .collect(Collectors.toList());
+        Collection<ROIData> results = new ArrayList<>(0);
         try {
             results = client.getRoiFacility().saveROIs(client.getCtx(), data.getId(), roisData);
         } catch (DSOutOfServiceException | DSAccessException e) {
@@ -398,28 +398,38 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Links a ROI to the image in OMERO
+     * Links ROIs to the image in OMERO.
      * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      *
+     * @param client The data manager.
+     * @param rois   ROIs to be added.
+     *
+     * @return The updated list of ROIs.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ROIWrapper> saveROIs(Client client, ROIWrapper... rois)
+    throws ServiceException, AccessException, ExecutionException {
+        return saveROIs(client, Arrays.asList(rois));
+    }
+
+
+    /**
      * @param client The client handling the connection.
      * @param roi    ROI to be added.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Links a ROI to the image in OMERO
+     * <p> DO NOT USE IT IF A SHAPE WAS DELETED !!!
      */
+    @Deprecated
     public void saveROI(Client client, ROIWrapper roi)
     throws ServiceException, AccessException, ExecutionException {
-        try {
-            ROIData roiData = client.getRoiFacility()
-                                    .saveROIs(client.getCtx(),
-                                              data.getId(),
-                                              Collections.singletonList(roi.asROIData()))
-                                    .iterator().next();
-            roi.setData(roiData);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot link ROI to " + this);
-        }
+        roi.setData(saveROIs(client, roi).iterator().next().asDataObject());
     }
 
 
