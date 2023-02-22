@@ -81,7 +81,7 @@ class ImageImportTest extends UserTest {
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.link(client, tag1);
-        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+        image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
         removeFile(file);
@@ -168,7 +168,7 @@ class ImageImportTest extends UserTest {
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
         image1.link(client, tag1);
-        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+        image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
         removeFile(file);

@@ -452,6 +452,23 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
+     * @param client The client handling the connection.
+     * @param key    Name of the key.
+     * @param value  Value associated to the key.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Adds a single Key-Value pair to the object.
+     */
+    @Deprecated
+    public void addPairKeyValue(Client client, String key, String value)
+    throws ServiceException, AccessException, ExecutionException {
+        addKeyValuePair(client, key, value);
+    }
+
+
+    /**
      * Adds a single Key-Value pair to the object.
      *
      * @param client The client handling the connection.
@@ -462,7 +479,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addPairKeyValue(Client client, String key, String value)
+    public void addKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         List<NamedValue>     kv  = Collections.singletonList(new NamedValue(key, value));
         MapAnnotationWrapper pkv = new MapAnnotationWrapper(kv);

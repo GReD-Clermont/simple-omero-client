@@ -243,7 +243,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      *
      * @param client The client handling the connection.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -268,7 +268,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @param client The client handling the connection.
      * @param name   Name searched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -282,12 +282,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : datasets) {
             lists.add(dataset.getImages(client, name));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                         .collect(Collectors.toList());
-
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -298,7 +293,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @param datasetName Expected dataset name.
      * @param imageName   Expected image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -327,7 +322,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @param client The client handling the connection.
      * @param motif  Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -341,12 +336,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : datasets) {
             lists.add(dataset.getImagesLike(client, motif));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                         .collect(Collectors.toList());
-
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -356,7 +346,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @param client The client handling the connection.
      * @param tag    TagAnnotationWrapper containing the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -371,12 +361,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : datasets) {
             lists.add(dataset.getImagesTagged(client, tag));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                         .collect(Collectors.toList());
-
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -386,7 +371,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @param client The client handling the connection.
      * @param tagId  Id of the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -401,12 +386,25 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         for (DatasetWrapper dataset : datasets) {
             lists.add(dataset.getImagesTagged(client, tagId));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        return flatten(lists);
+    }
 
-        return distinct(images);
+
+    /**
+     * @param client The client handling the connection.
+     * @param key    Name of the key researched.
+     *
+     * @return ImageWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images in the project with a certain key
+     */
+    @Deprecated
+    public List<ImageWrapper> getImagesKey(Client client, String key)
+    throws ServiceException, AccessException, ExecutionException {
+        return getImagesWithKey(client, key);
     }
 
 
@@ -422,20 +420,34 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesKey(Client client, String key)
+    public List<ImageWrapper> getImagesWithKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
         Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
-            lists.add(dataset.getImagesKey(client, key));
+            lists.add(dataset.getImagesWithKey(client, key));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                         .collect(Collectors.toList());
+        return flatten(lists);
+    }
 
-        return distinct(images);
+
+    /**
+     * @param client The client handling the connection.
+     * @param key    Name of the key researched.
+     * @param value  Value associated with the key.
+     *
+     * @return ImageWrapper list.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images in the project with a certain key value pair from OMERO.
+     */
+    @Deprecated
+    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
+    throws ServiceException, AccessException, ExecutionException {
+        return getImagesWithKeyValuePair(client, key, value);
     }
 
 
@@ -452,20 +464,15 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
+    public List<ImageWrapper> getImagesWithKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
         Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
-            lists.add(dataset.getImagesPairKeyValue(client, key, value));
+            lists.add(dataset.getImagesWithKeyValuePair(client, key, value));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                         .collect(Collectors.toList());
-
-        return distinct(images);
+        return flatten(lists);
     }
 
 

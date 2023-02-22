@@ -133,6 +133,26 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
+     * Flattens a collection of collections and only keeps objects with different IDs.
+     *
+     * @param lists A collection of objects collections.
+     * @param <U>   The objects type.
+     *
+     * @return Distinct objects list, sorted by ID.
+     */
+    public static <U extends GenericObjectWrapper<?>>
+    List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
+        return lists.stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toMap(U::getId, o -> o, (o1, o2) -> o1))
+                    .values()
+                    .stream()
+                    .sorted(Comparator.comparing(U::getId))
+                    .collect(Collectors.toList());
+    }
+
+
+    /**
      * Returns the wrapped DataObject.
      *
      * @return An object of type {@link T}.

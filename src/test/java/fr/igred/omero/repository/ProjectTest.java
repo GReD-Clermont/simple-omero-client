@@ -253,7 +253,6 @@ class ProjectTest extends UserTest {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
-
         assertEquals(2, images.size());
     }
 

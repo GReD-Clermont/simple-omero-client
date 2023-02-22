@@ -231,8 +231,8 @@ class ImageTest extends UserTest {
         String value2 = "Value Test2";
 
         Timestamp ts = Timestamp.from(Instant.now());
-        image.addPairKeyValue(client, key1, value1);
-        image.addPairKeyValue(client, key2, value2);
+        image.addKeyValuePair(client, key1, value1);
+        image.addKeyValuePair(client, key2, value2);
 
         List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
 
