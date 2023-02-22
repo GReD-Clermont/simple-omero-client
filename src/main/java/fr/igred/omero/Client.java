@@ -40,6 +40,7 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -811,6 +812,99 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets the folder with the specified ID from OMERO, fully loaded.
+     *
+     * @param id ID of the folder.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException No element with such id.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     */
+    public FolderWrapper getFolder(long id)
+    throws ServiceException, AccessException, ExecutionException {
+        List<FolderWrapper> folders = loadFolders(id);
+        if (folders.isEmpty()) {
+            throw new NoSuchElementException(String.format("Folder %d doesn't exist in this context", id));
+        }
+        return folders.iterator().next();
+    }
+
+
+    /**
+     * Gets all folders available from OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> getFolders()
+    throws ExecutionException, AccessException, ServiceException {
+        Collection<FolderData> folders = new ArrayList<>(0);
+        try {
+            folders = getBrowseFacility().getFolders(getCtx());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get folders");
+        }
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
+     * Gets all the folders owned by a given user from OMERO.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> getFolders(ExperimenterWrapper experimenter)
+    throws ExecutionException, AccessException, ServiceException {
+        String error = String.format("Cannot get folders for user %s", experimenter);
+
+        Collection<FolderData> folders = new ArrayList<>(0);
+        try {
+            folders = getBrowseFacility().getFolders(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, error);
+        }
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
+     * Gets the folders with the specified IDs from OMERO (fully loaded).
+     *
+     * @param ids Project IDs
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> loadFolders(Long... ids)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
+
+        Collection<FolderData> folders = new ArrayList<>(0);
+        try {
+            folders = getBrowseFacility().loadFolders(getCtx(), Arrays.asList(ids));
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, error);
+        }
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
      * Gets the list of TagAnnotationWrapper available to the user
      *
      * @return list of TagAnnotationWrapper.
@@ -892,7 +986,7 @@ public class Client extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         for (GenericObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
-                ((FolderWrapper) object).unlinkAllROI(this);
+                ((FolderWrapper) object).unlinkAllROIs(this);
             }
         }
         if (!objects.isEmpty()) {
@@ -915,7 +1009,7 @@ public class Client extends GatewayWrapper {
     public void delete(GenericObjectWrapper<?> object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         if (object instanceof FolderWrapper) {
-            ((FolderWrapper) object).unlinkAllROI(this);
+            ((FolderWrapper) object).unlinkAllROIs(this);
         }
         delete(object.asIObject());
     }

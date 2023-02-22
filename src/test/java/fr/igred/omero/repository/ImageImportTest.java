@@ -103,9 +103,10 @@ class ImageImportTest extends UserTest {
         roi.addShape(rectangle);
         roi = image2.saveROIs(client, roi).get(0);
 
-        FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
-        folder.setImage(image2);
-        folder.addROI(client, roi);
+        FolderWrapper roiFolder = new FolderWrapper(client, "ReplaceTestFolder");
+        roiFolder.addROIs(client, image2, roi);
+        FolderWrapper imgFolder = new FolderWrapper(client, "ReplaceTestImageFolder");
+        imgFolder.addImages(client, image2);
 
         TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
@@ -122,6 +123,7 @@ class ImageImportTest extends UserTest {
         assertEquals(3, image3.getFileAnnotations(client).size());
         assertEquals(1, image3.getMapAnnotations(client).size());
         assertEquals(1, image3.getROIs(client).size());
+        assertEquals(1, image3.getROIFolders(client).size());
         assertEquals(1, image3.getFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
@@ -143,7 +145,8 @@ class ImageImportTest extends UserTest {
         client.delete(table);
         client.deleteFile(fileId);
         client.delete(roi);
-        client.delete(folder);
+        client.delete(roiFolder);
+        client.delete(imgFolder);
 
         assertEquals(1, images.size());
         assertTrue(endImages.isEmpty());
@@ -188,8 +191,7 @@ class ImageImportTest extends UserTest {
         roi = image2.saveROIs(client, roi).get(0);
 
         FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
-        folder.setImage(image2);
-        folder.addROI(client, roi);
+        folder.addROIs(client, image2, roi);
 
         TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
@@ -206,7 +208,7 @@ class ImageImportTest extends UserTest {
         assertEquals(3, image3.getFileAnnotations(client).size());
         assertEquals(1, image3.getMapAnnotations(client).size());
         assertEquals(1, image3.getROIs(client).size());
-        assertEquals(1, image3.getFolders(client).size());
+        assertEquals(1, image3.getROIFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
         assertEquals("ReplaceTest", image3.getValue(client, "Map"));

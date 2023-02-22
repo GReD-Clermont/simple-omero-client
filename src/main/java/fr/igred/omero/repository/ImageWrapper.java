@@ -465,17 +465,17 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the list of Folder linked to the image Associate the folder to the image
+     * Gets the list of folders linked to the ROIs in this image.
      *
      * @param client The client handling the connection.
      *
-     * @return List of FolderWrapper containing the folder.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FolderWrapper> getFolders(Client client)
+    public List<FolderWrapper> getROIFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = client.getRoiFacility();
 
@@ -489,7 +489,6 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         List<FolderWrapper> roiFolders = new ArrayList<>(folders.size());
         for (FolderData folder : folders) {
             FolderWrapper roiFolder = new FolderWrapper(folder);
-            roiFolder.setImage(this.data.getId());
             roiFolders.add(roiFolder);
         }
 
@@ -498,8 +497,26 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the folder with the specified id on OMERO.
+     * Gets the list of folders linked to this image.
      *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<FolderWrapper> getFolders(Client client)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
+        Long[] ids   = client.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
+        return client.loadFolders(ids);
+    }
+
+
+    /**
      * @param client   The client handling the connection.
      * @param folderId ID of the folder.
      *
@@ -508,7 +525,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws OMEROServerError       Server error.
      * @throws NoSuchElementException Folder does not exist.
+     * @deprecated Gets the folder with the specified id on OMERO.
      */
+    @Deprecated
     public FolderWrapper getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
         List<IObject> os = client.findByQuery("select f " +
                                               "from Folder as f " +

@@ -24,6 +24,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.DatasetWrapper;
+import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
@@ -240,6 +241,26 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
         List<IObject> os  = getLinks(client, WellWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return client.getWells(ids);
+    }
+
+
+    /**
+     * Gets all folders with this annotation from OMERO.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> getFolders(Client client)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        List<IObject> os  = getLinks(client, FolderWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.loadFolders(ids);
     }
 
 

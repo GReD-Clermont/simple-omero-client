@@ -490,10 +490,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             descriptions.add(oldImage.getDescription());
             newImage.copyAnnotationLinks(client, oldImage);
             List<ROIWrapper> rois = oldImage.getROIs(client);
-            for (ROIWrapper roi : rois) {
-                roi.setImage(newImage);
-                newImage.saveROI(client, roi);
-            }
+            newImage.saveROIs(client, rois);
+            List<FolderWrapper> folders = oldImage.getFolders(client);
+            for (FolderWrapper folder : folders) folder.addImages(client, newImage);
             this.removeImage(client, oldImage);
             if (oldImage.isOrphaned(client)) {
                 orphaned.add(oldImage);
