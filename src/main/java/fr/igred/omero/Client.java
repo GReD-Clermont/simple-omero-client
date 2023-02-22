@@ -160,6 +160,29 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all projects available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ProjectWrapper> getProjects(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ProjectData> projects = new ArrayList<>(0);
+        try {
+            projects = getBrowseFacility().getProjects(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get projects for user " + experimenter);
+        }
+        return wrap(projects, ProjectWrapper::new);
+    }
+
+
+    /**
      * Gets all projects with a certain name from OMERO.
      *
      * @param name Name searched.
@@ -223,6 +246,30 @@ public class Client extends GatewayWrapper {
             handleServiceOrAccess(e, "Cannot get datasets");
         }
         return wrap(datasets, DatasetWrapper::new);
+    }
+
+
+    /**
+     * Gets all datasets available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<DatasetWrapper> getDatasets(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        String query = String.format("select d from Dataset d where d.details.owner.id=%d", experimenter.getId());
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getDatasets(ids);
     }
 
 
@@ -564,6 +611,29 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all screens available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ScreenWrapper> getScreens(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ScreenData> screens = new ArrayList<>(0);
+        try {
+            screens = getBrowseFacility().getScreens(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get screens for user " + experimenter);
+        }
+        return wrap(screens, ScreenWrapper::new);
+    }
+
+
+    /**
      * Gets the plate with the specified id from OMERO.
      *
      * @param id ID of the plate.
@@ -628,6 +698,29 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all plates available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getPlates(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<PlateData> plates = new ArrayList<>(0);
+        try {
+            plates = getBrowseFacility().getPlates(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get plates for user " + experimenter);
+        }
+        return wrap(plates, PlateWrapper::new);
+    }
+
+
+    /**
      * Gets the well with the specified id from OMERO.
      *
      * @param id ID of the well.
@@ -685,6 +778,30 @@ public class Client extends GatewayWrapper {
     public List<WellWrapper> getWells()
     throws ServiceException, AccessException, ExecutionException, OMEROServerError {
         Long[] ids = this.findByQuery("select w from Well w")
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getWells(ids);
+    }
+
+
+    /**
+     * Gets all wells available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<WellWrapper> getWells(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        String query = String.format("select w from Well w where w.details.owner.id=%d", experimenter.getId());
+        Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
                          .map(RLong::getValue)
@@ -902,4 +1019,3 @@ public class Client extends GatewayWrapper {
     }
 
 }
-
