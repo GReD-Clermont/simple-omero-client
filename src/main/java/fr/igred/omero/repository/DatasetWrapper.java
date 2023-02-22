@@ -174,7 +174,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @param client The client handling the connection.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -199,7 +199,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param name   Name searched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -219,7 +219,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param motif  Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -615,7 +615,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Refreshes the wrapped dataset.
+     * Refreshes the dataset.
      *
      * @param client The client handling the connection.
      *

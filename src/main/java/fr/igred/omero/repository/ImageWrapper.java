@@ -260,7 +260,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Retrieves the wells containing this image
+     * Retrieves the wells containing this image.
      *
      * @param client The client handling the connection.
      *
@@ -285,7 +285,30 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Retrieves the plates containing this image
+     * Returns the plate acquisitions linked to this image.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    throws AccessException, ServiceException, ExecutionException {
+        List<WellWrapper> wells = getWells(client);
+
+        Collection<List<PlateAcquisitionWrapper>> acqs = new ArrayList<>(wells.size());
+        for (WellWrapper w : wells) {
+            acqs.add(w.getPlateAcquisitions(client));
+        }
+        return flatten(acqs);
+    }
+
+
+    /**
+     * Retrieves the plates containing this image.
      *
      * @param client The client handling the connection.
      *
@@ -314,12 +337,13 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws AccessException, ServiceException, ExecutionException, OMEROServerError {
-        List<PlateWrapper>        plates  = getPlates(client);
-        Collection<ScreenWrapper> screens = new ArrayList<>(plates.size());
+        List<PlateWrapper> plates = getPlates(client);
+
+        Collection<List<ScreenWrapper>> screens = new ArrayList<>(plates.size());
         for (PlateWrapper plate : plates) {
-            screens.addAll(plate.getScreens(client));
+            screens.add(plate.getScreens(client));
         }
-        return distinct(screens);
+        return flatten(screens);
     }
 
 

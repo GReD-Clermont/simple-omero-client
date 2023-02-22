@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
@@ -163,7 +164,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @param client The client handling the connection.
      *
-     * @return WellWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -181,6 +182,30 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
                     .sorted(Comparator.comparing(WellWrapper::getRow)
                                       .thenComparing(WellWrapper::getColumn))
                     .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Returns the images contained in the wells of this plate.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImages(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return getWells(client).stream()
+                               .map(WellWrapper::getImages)
+                               .flatMap(Collection::stream)
+                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                               .values()
+                               .stream()
+                               .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                               .collect(Collectors.toList());
     }
 
 
@@ -299,6 +324,21 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      */
     public Length getWellOriginY(UnitsLength unit) throws BigResult {
         return data.getWellOriginY(unit);
+    }
+
+
+    /**
+     * Refreshes the plate.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void refresh(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        data = client.getPlate(getId()).asDataObject();
     }
 
 }

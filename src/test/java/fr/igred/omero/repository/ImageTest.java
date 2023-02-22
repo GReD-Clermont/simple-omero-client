@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -63,14 +64,14 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testGetDatasets() throws Exception {
-        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
+    void testGetProjects() throws Exception {
+        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
     }
 
 
     @Test
-    void testGetProjects() throws Exception {
-        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
+    void testGetDatasets() throws Exception {
+        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
     }
 
 
@@ -89,12 +90,27 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetPlateAcquisitions() throws Exception {
+        final long   id   = 5L;
+        final String name = "PlateAcquisition Name 0";
+        assertEquals(name, client.getImage(id).getPlateAcquisitions(client).get(0).getName());
+    }
+
+
+    @Test
     void testGetWells() throws Exception {
         final long  wellId = 1L;
         WellWrapper well   = client.getWell(wellId);
 
         long imageId = well.getWellSamples().get(0).getImage().getId();
         assertEquals(wellId, client.getImage(imageId).getWells(client).get(0).getId());
+    }
+
+
+    @Test
+    void testGetAnnotations() throws Exception {
+        AnnotationList annotations = client.getImage(IMAGE1.id).getAnnotations(client);
+        assertEquals(3, annotations.size());
     }
 
 

@@ -31,6 +31,30 @@ class PlateTest extends UserTest {
 
 
     @Test
+    void testGetScreens() throws Exception {
+        PlateWrapper        plate   = client.getPlate(PLATE1.id);
+        List<ScreenWrapper> screens = plate.getScreens(client);
+        assertEquals(1, screens.size());
+    }
+
+
+    @Test
+    void testGetWells() throws Exception {
+        PlateWrapper      plate = client.getPlate(PLATE1.id);
+        List<WellWrapper> wells = plate.getWells(client);
+        assertEquals(9, wells.size());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        PlateWrapper       plate  = client.getPlate(PLATE1.id);
+        List<ImageWrapper> images = plate.getImages(client);
+        assertEquals(36, images.size());
+    }
+
+
+    @Test
     void testGetWellsFromPlate() throws Exception {
         PlateWrapper      plate = client.getPlate(PLATE1.id);
         List<WellWrapper> wells = plate.getWells(client);

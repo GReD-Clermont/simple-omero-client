@@ -21,12 +21,42 @@ package fr.igred.omero.repository;
 import fr.igred.omero.UserTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 class WellSampleTest extends UserTest {
 
+
+    @Test
+    void testGetScreens() throws Exception {
+        WellWrapper         well    = client.getWell(1L);
+        WellSampleWrapper   sample  = well.getWellSamples().get(0);
+        List<ScreenWrapper> screens = sample.getScreens(client);
+        assertEquals(1, screens.size());
+        assertEquals(SCREEN1.id, screens.get(0).getId());
+    }
+
+
+    @Test
+    void testGetPlates() throws Exception {
+        WellWrapper        well   = client.getWell(1L);
+        WellSampleWrapper  sample = well.getWellSamples().get(0);
+        List<PlateWrapper> plates = sample.getPlates(client);
+        assertEquals(1, plates.size());
+        assertEquals(well.getPlate().getId(), plates.get(0).getId());
+    }
+
+
+    @Test
+    void testGetPlateAcquisitions() throws Exception {
+        WellWrapper                   well   = client.getWell(1L);
+        WellSampleWrapper             sample = well.getWellSamples().get(0);
+        List<PlateAcquisitionWrapper> acqs   = sample.getPlateAcquisitions(client);
+        assertEquals(1, acqs.size());
+    }
 
     @Test
     void testGetImage() throws Exception {

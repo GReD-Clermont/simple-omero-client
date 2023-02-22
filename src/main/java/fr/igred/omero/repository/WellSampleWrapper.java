@@ -21,12 +21,15 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.WellSampleData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -55,6 +58,57 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
     @Deprecated
     public WellSampleData asWellSampleData() {
         return data;
+    }
+
+
+    /**
+     * Returns the screens containing the parent Well.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<ScreenWrapper> getScreens(Client client)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        return getWell(client).getScreens(client);
+    }
+
+
+    /**
+     * Returns the plates containing the parent Well.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getPlates(Client client) throws ServiceException, AccessException, ExecutionException {
+        return Collections.singletonList(getWell(client).getPlate());
+    }
+
+
+    /**
+     * Returns the plate acquisitions linked to the parent Well.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return getWell(client).getPlateAcquisitions(client);
     }
 
 

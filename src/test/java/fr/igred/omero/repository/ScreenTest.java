@@ -34,6 +34,29 @@ class ScreenTest extends UserTest {
 
 
     @Test
+    void testGetPlateAcquisitions() throws Exception {
+        ScreenWrapper screen = client.getScreen(SCREEN2.id);
+        assertEquals(2, screen.getPlateAcquisitions(client).size());
+    }
+
+
+    @Test
+    void testGetWells() throws Exception {
+        ScreenWrapper     screen = client.getScreen(SCREEN2.id);
+        List<WellWrapper> wells  = screen.getWells(client);
+        assertEquals(8, wells.size());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        ScreenWrapper      screen = client.getScreen(SCREEN2.id);
+        List<ImageWrapper> images = screen.getImages(client);
+        assertEquals(16, images.size());
+    }
+
+
+    @Test
     void testGetPlatesFromScreen() throws Exception {
         ScreenWrapper      screen = client.getScreen(SCREEN2.id);
         List<PlateWrapper> plates = screen.getPlates();

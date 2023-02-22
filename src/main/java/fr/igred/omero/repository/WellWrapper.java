@@ -18,9 +18,15 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Client;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -119,12 +125,61 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
+     * Refreshes this well and retrieves the screens containing it.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<ScreenWrapper> getScreens(Client client)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        refresh(client);
+        return getPlate().getScreens(client);
+    }
+
+
+    /**
      * Returns the plate containing this Well.
      *
      * @return See above.
      */
     public PlateWrapper getPlate() {
         return new PlateWrapper(data.getPlate());
+    }
+
+
+    /**
+     * Refreshes this well and returns the plate acquisitions linked to it.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(client);
+        return client.getPlate(getPlate().getId()).getPlateAcquisitions();
+    }
+
+
+    /**
+     * Retrieves the images contained in this well.
+     *
+     * @return See above.
+     */
+    public List<ImageWrapper> getImages() {
+        return getWellSamples().stream()
+                               .map(WellSampleWrapper::getImage)
+                               .collect(Collectors.toList());
     }
 
 
@@ -265,6 +320,21 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      */
     public void setAlpha(Integer alpha) {
         data.setAlpha(alpha);
+    }
+
+
+    /**
+     * Refreshes the well.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void refresh(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        data = client.getWell(getId()).asDataObject();
     }
 
 }

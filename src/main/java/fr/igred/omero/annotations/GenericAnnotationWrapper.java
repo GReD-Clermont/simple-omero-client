@@ -26,17 +26,20 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.PlateAcquisitionWrapper;
 import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.repository.ScreenWrapper;
 import fr.igred.omero.repository.WellWrapper;
 import omero.RLong;
 import omero.gateway.model.AnnotationData;
+import omero.gateway.model.PlateAcquisitionData;
 import omero.model.IObject;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -221,6 +224,25 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
         List<IObject> os  = getLinks(client, PlateWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return client.getPlates(ids);
+    }
+
+
+    /**
+     * Gets all plate acquisitions with this annotation from OMERO.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     */
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    throws ServiceException, OMEROServerError {
+        List<IObject> os = getLinks(client, PlateAcquisitionWrapper.ANNOTATION_LINK);
+        return os.stream()
+                 .map(o -> new PlateAcquisitionWrapper(new PlateAcquisitionData((omero.model.PlateAcquisition) o)))
+                 .collect(Collectors.toList());
     }
 
 
