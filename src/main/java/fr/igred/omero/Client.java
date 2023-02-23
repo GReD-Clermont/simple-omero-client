@@ -23,7 +23,7 @@ import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
@@ -262,11 +262,11 @@ public class Client extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets(ExperimenterWrapper experimenter)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ServerException, ExecutionException {
         String query = String.format("select d from Dataset d where d.details.owner.id=%d", experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
@@ -284,11 +284,11 @@ public class Client extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets()
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ServerException, ExecutionException {
         Long[] ids = this.findByQuery("select d from Dataset d")
                          .stream()
                          .map(IObject::getId)
@@ -452,11 +452,11 @@ public class Client extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ServerException, ExecutionException {
         return annotation.getImages(this);
     }
 
@@ -489,11 +489,11 @@ public class Client extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesWithKey(String key)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         List<MapAnnotationWrapper> maps = getMapAnnotations(key);
 
         Collection<Collection<ImageWrapper>> selected = new ArrayList<>(maps.size());
@@ -515,11 +515,11 @@ public class Client extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesWithKeyValuePair(String key, String value)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         List<MapAnnotationWrapper> maps = getMapAnnotations(key, value);
 
         Collection<Collection<ImageWrapper>> selected = new ArrayList<>(maps.size());
@@ -758,10 +758,10 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      */
     public List<WellWrapper> getWells()
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         Long[] ids = this.findByQuery("select w from Well w")
                          .stream()
                          .map(IObject::getId)
@@ -781,10 +781,10 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      */
     public List<WellWrapper> getWells(ExperimenterWrapper experimenter)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         String query = String.format("select w from Well w where w.details.owner.id=%d", experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
@@ -893,10 +893,10 @@ public class Client extends GatewayWrapper {
      *
      * @return list of TagAnnotationWrapper.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationWrapper> getTags() throws OMEROServerError, ServiceException {
+    public List<TagAnnotationWrapper> getTags() throws ServerException, ServiceException {
         List<IObject> os = new ArrayList<>(0);
         try {
             os = getGateway().getQueryService(getCtx()).findAll(TagAnnotation.class.getSimpleName(), null);
@@ -919,10 +919,10 @@ public class Client extends GatewayWrapper {
      *
      * @return list of TagAnnotationWrapper.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationWrapper> getTags(String name) throws OMEROServerError, ServiceException {
+    public List<TagAnnotationWrapper> getTags(String name) throws ServerException, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
         tags.sort(Comparator.comparing(GenericObjectWrapper::getId));
@@ -937,10 +937,10 @@ public class Client extends GatewayWrapper {
      *
      * @return TagAnnotationWrapper containing the specified tag.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public TagAnnotationWrapper getTag(Long id) throws OMEROServerError, ServiceException {
+    public TagAnnotationWrapper getTag(Long id) throws ServerException, ServiceException {
         IObject o = null;
         try {
             o = getGateway().getQueryService(getCtx()).find(TagAnnotation.class.getSimpleName(), id);
@@ -960,10 +960,10 @@ public class Client extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<MapAnnotationWrapper> getMapAnnotations() throws OMEROServerError, ServiceException {
+    public List<MapAnnotationWrapper> getMapAnnotations() throws ServerException, ServiceException {
         List<MapAnnotationWrapper> kvs = new ArrayList<>(0);
         try {
             kvs = getGateway().getQueryService(getCtx()).findAll(omero.model.MapAnnotation.class.getSimpleName(), null)
@@ -987,10 +987,10 @@ public class Client extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<MapAnnotationWrapper> getMapAnnotations(String key) throws OMEROServerError, ServiceException {
+    public List<MapAnnotationWrapper> getMapAnnotations(String key) throws ServerException, ServiceException {
         String q = String.format("select m from MapAnnotation as m join m.mapValue as mv where mv.name = '%s'", key);
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
@@ -1009,11 +1009,11 @@ public class Client extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<MapAnnotationWrapper> getMapAnnotations(String key, String value)
-    throws OMEROServerError, ServiceException {
+    throws ServerException, ServiceException {
         String q = String.format("select m from MapAnnotation as m join m.mapValue as mv " +
                                  "where mv.name = '%s' and mv.value = '%s'", key, value);
         return findByQuery(q).stream()
@@ -1055,11 +1055,11 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         for (GenericObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
                 ((FolderWrapper) object).unlinkAllROIs(this);
@@ -1079,11 +1079,11 @@ public class Client extends GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(GenericObjectWrapper<?> object)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof FolderWrapper) {
             ((FolderWrapper) object).unlinkAllROIs(this);
         }
@@ -1100,11 +1100,11 @@ public class Client extends GatewayWrapper {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException ID not defined.
-     * @throws OMEROServerError         Server error.
+     * @throws ServerException          Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void delete(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         deleteFile(table.getId());
     }
 
@@ -1178,7 +1178,7 @@ public class Client extends GatewayWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public Client sudoGetUser(String username) throws ServiceException, AccessException, ExecutionException {
+    public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
         ExperimenterWrapper sudoUser = getUser(username);
 
         SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());

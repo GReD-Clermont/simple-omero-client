@@ -22,7 +22,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.ServerError;
@@ -93,9 +93,9 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @param name   Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException Server error.
      */
-    public FolderWrapper(Client client, String name) throws ServiceException, OMEROServerError {
+    public FolderWrapper(Client client, String name) throws ServiceException, ServerException {
         super(new FolderData());
         data.setName(name);
         try {

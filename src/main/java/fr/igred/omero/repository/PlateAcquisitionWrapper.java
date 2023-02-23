@@ -22,7 +22,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.model.PlateAcquisitionAnnotationLink;
@@ -145,10 +145,10 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException   Server error.
      */
     public List<ScreenWrapper> getScreens(Client client)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         PlateWrapper plate = client.getPlate(getRefPlateId());
         return plate.getScreens(client);
     }

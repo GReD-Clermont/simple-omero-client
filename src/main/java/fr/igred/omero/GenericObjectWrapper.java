@@ -19,7 +19,7 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.exception.DSAccessException;
@@ -105,11 +105,11 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     protected static void delete(Client client, IObject object)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         client.delete(object);
     }
 

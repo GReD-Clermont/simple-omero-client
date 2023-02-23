@@ -49,17 +49,17 @@ public final class ExceptionHandler {
 
 
     /**
-     * Helper method to convert ServerError to OMEROServerError.
+     * Helper method to convert ServerError to ServerException.
      *
      * @param t       The Exception
      * @param message Short explanation of the problem.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException Server error.
      */
     private static void handleServerError(Throwable t, String message)
-    throws OMEROServerError {
+    throws ServerException {
         if (t instanceof ServerError) {
-            throw new OMEROServerError(message, t);
+            throw new ServerException(message, t);
         }
     }
 
@@ -83,16 +83,16 @@ public final class ExceptionHandler {
     /**
      * Helper method to convert an exception from:
      * <ul><li>DSOutOfServiceException to ServiceException</li>
-     * <li>ServerError to OMEROServerError</li></ul>
+     * <li>ServerError to ServerException</li></ul>
      *
      * @param t       The Exception
      * @param message Short explanation of the problem.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException Server error.
      */
     public static void handleServiceOrServer(Throwable t, String message)
-    throws ServiceException, OMEROServerError {
+    throws ServiceException, ServerException {
         handleServiceException(t, message);
         handleServerError(t, message);
     }
@@ -120,17 +120,17 @@ public final class ExceptionHandler {
      * Helper method to convert an exception from:
      * <ul><li>DSAccessException to AccessException</li>
      * <li>DSOutOfServiceException to ServiceException</li>
-     * <li>ServerError to OMEROServerError</li></ul>
+     * <li>ServerError to ServerException</li></ul>
      *
      * @param t       The Exception
      * @param message Short explanation of the problem.
      *
      * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
     public static void handleException(Throwable t, String message)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, ServerException {
         handleAccessException(t, message);
         handleServerError(t, message);
         handleServiceException(t, message);

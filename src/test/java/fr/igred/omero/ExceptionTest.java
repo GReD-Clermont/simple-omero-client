@@ -20,7 +20,7 @@ package fr.igred.omero;
 
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
@@ -207,14 +207,14 @@ class ExceptionTest extends BasicTest {
     @Test
     void testExceptionHandler2() {
         Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleException(t, "Great"));
+        assertThrows(ServerException.class, () -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
     @Test
     void testExceptionHandler3() {
         Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        assertThrows(ServerException.class, () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
     }
 
 
