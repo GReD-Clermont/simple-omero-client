@@ -59,7 +59,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -482,68 +481,6 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * @param tag TagAnnotationWrapper containing the tag researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images tagged with a specified tag from OMERO.
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        return getImages(tag);
-    }
-
-
-    /**
-     * @param tagId Id of the tag researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images tagged with a specified tag from OMERO.
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesTagged(Long tagId)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        return getImagesTagged(getTag(tagId));
-    }
-
-
-    /**
-     * @param key Name of the key researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images with a certain key
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesKey(String key)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
-            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
-            if (pairsKeyValue.get(key) != null) {
-                selected.add(image);
-            }
-        }
-
-        return selected;
-    }
-
-
-    /**
      * Gets all images with a certain key.
      *
      * @param key Name of the key researched.
@@ -565,32 +502,6 @@ public class Client extends GatewayWrapper {
         }
 
         return flatten(selected);
-    }
-
-
-    /**
-     * @param key   Name of the key researched.
-     * @param value Value associated with the key.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images with a certain key value pair from OMERO
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesPairKeyValue(String key, String value)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
-            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
-                selected.add(image);
-            }
-        }
-        return selected;
     }
 
 

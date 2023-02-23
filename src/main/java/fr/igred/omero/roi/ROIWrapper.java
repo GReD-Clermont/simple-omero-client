@@ -109,8 +109,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Returns the ID property corresponding to the input local index/label property (appends "_ID" to said property).
      *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if null
-     *                 or empty.
+     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
+     *                 null or empty.
      *
      * @return See above.
      */
@@ -121,10 +121,11 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
-     * Returns the ID property corresponding to the input local index/label property (appends "_NAME" to said property).
+     * Returns the ID property corresponding to the input local index/label property (appends "_NAME" to said
+     * property).
      *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if null
-     *                 or empty.
+     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
+     *                 null or empty.
      *
      * @return See above.
      */
@@ -288,17 +289,6 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
-     * @param data The ROI data.
-     *
-     * @deprecated Changes the wrapped data.
-     */
-    @Deprecated
-    public void setData(ROIData data) {
-        this.data = data;
-    }
-
-
-    /**
      * Adds ShapeData objects from a list of GenericShapeWrapper to the ROIData
      *
      * @param shapes List of GenericShapeWrapper.
@@ -338,17 +328,6 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      */
     public void setImage(ImageWrapper image) {
         data.setImage(image.asDataObject().asImage());
-    }
-
-
-    /**
-     * @return the {@link ROIData} contained.
-     *
-     * @deprecated Returns the ROIData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public ROIData asROIData() {
-        return data;
     }
 
 

@@ -157,17 +157,6 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * @return the shape.
-     *
-     * @deprecated Gets the ShapeData object contained.
-     */
-    @Deprecated
-    public T asShapeData() {
-        return data;
-    }
-
-
-    /**
      * Gets the channel.
      *
      * @return the channel. -1 if the shape applies to all channels of the image.

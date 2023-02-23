@@ -81,15 +81,4 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
         data.setTagValue(name);
     }
 
-
-    /**
-     * @return the {@link TagAnnotationData} contained.
-     *
-     * @deprecated Gets the TagAnnotationData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public TagAnnotationData asTagAnnotationData() {
-        return data;
-    }
-
 }

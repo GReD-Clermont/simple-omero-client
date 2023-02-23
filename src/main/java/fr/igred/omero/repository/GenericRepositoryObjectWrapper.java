@@ -321,22 +321,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * @param client The client handling the connection.
-     * @param tag    Tag to be added.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Adds a tag to the object in OMERO, if possible. Use {@link #link} instead.
-     */
-    @Deprecated
-    public void addTag(Client client, TagAnnotationWrapper tag)
-    throws ServiceException, AccessException, ExecutionException {
-        link(client, tag);
-    }
-
-
-    /**
      * Adds a tag to the object in OMERO, if possible.
      *
      * @param client The client handling the connection.
@@ -351,23 +335,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
         TagAnnotationData tagData = new TagAnnotationData(tag);
         link(client, new TagAnnotationWrapper(tagData));
-    }
-
-
-    /**
-     * @param client The client handling the connection.
-     * @param tags   Array of TagAnnotationWrapper to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Adds multiple tag to the object in OMERO, if possible. Use
-     * {@link #link(Client, GenericAnnotationWrapper[])} instead.
-     */
-    @Deprecated
-    public void addTags(Client client, TagAnnotationWrapper... tags)
-    throws ServiceException, AccessException, ExecutionException {
-        link(client, tags);
     }
 
 
@@ -448,23 +415,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
                           .map(MapAnnotationWrapper::new)
                           .sorted(Comparator.comparing(MapAnnotationWrapper::getId))
                           .collect(Collectors.toList());
-    }
-
-
-    /**
-     * @param client The client handling the connection.
-     * @param key    Name of the key.
-     * @param value  Value associated to the key.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Adds a single Key-Value pair to the object.
-     */
-    @Deprecated
-    public void addPairKeyValue(Client client, String key, String value)
-    throws ServiceException, AccessException, ExecutionException {
-        addKeyValuePair(client, key, value);
     }
 
 
@@ -619,23 +569,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             score += rate.getRating();
         }
         return score / Math.max(1, myRatings.size());
-    }
-
-
-    /**
-     * @param client        The client handling the connection.
-     * @param mapAnnotation MapAnnotationWrapper containing a list of NamedValue.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Adds a List of Key-Value pair to the object. Use {@link #link} instead.
-     * <p>The list is contained in the MapAnnotationWrapper.
-     */
-    @Deprecated
-    public void addMapAnnotation(Client client, MapAnnotationWrapper mapAnnotation)
-    throws ServiceException, AccessException, ExecutionException {
-        link(client, mapAnnotation);
     }
 
 
@@ -866,22 +799,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     public long addAndReplaceFile(Client client, File file)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
-    }
-
-
-    /**
-     * @param client     The client handling the connection.
-     * @param annotation FileAnnotationWrapper to link.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Links a file annotation to the object. Use {@link #link} instead.
-     */
-    @Deprecated
-    public void addFileAnnotation(Client client, FileAnnotationWrapper annotation)
-    throws AccessException, ServiceException, ExecutionException {
-        link(client, annotation);
     }
 
 
