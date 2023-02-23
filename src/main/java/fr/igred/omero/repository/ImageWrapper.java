@@ -138,6 +138,42 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Retrieves the image thumbnail of the specified size as a byte array.
+     * <p>If the image is not square, the size will be the longest side.
+     *
+     * @param client The client handling the connection.
+     * @param size   The thumbnail size.
+     *
+     * @return The thumbnail pixels as a byte array.
+     *
+     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws ServerError             Server error.
+     */
+    private byte[] getThumbnailBytes(Client client, int size) throws DSOutOfServiceException, ServerError {
+        PixelsWrapper pixels = getPixels();
+
+        int   sizeX  = pixels.getSizeX();
+        int   sizeY  = pixels.getSizeY();
+        float ratioX = (float) sizeX / size;
+        float ratioY = (float) sizeY / size;
+        float ratio  = Math.max(ratioX, ratioY);
+        int   width  = (int) (sizeX / ratio);
+        int   height = (int) (sizeY / ratio);
+
+        ThumbnailStorePrx store = null;
+        byte[]            array;
+        try {
+            store = client.getGateway().getThumbnailService(client.getCtx());
+            store.setPixelsId(pixels.getId());
+            array = store.getThumbnail(rint(width), rint(height));
+        } finally {
+            if (store != null) store.close();
+        }
+        return array;
+    }
+
+
+    /**
      * Gets the ImageData name
      *
      * @return name.
@@ -209,7 +245,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return See above.
      *
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
@@ -232,7 +268,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return See above.
      *
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
@@ -320,7 +356,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws AccessException, ServiceException, ExecutionException, ServerException {
@@ -342,7 +378,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @return {@code true} if the image is orphaned, {@code false} otherwise.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      */
     public boolean isOrphaned(Client client) throws ServiceException, ServerException {
         boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
@@ -362,7 +398,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      */
     public List<ImageWrapper> getFilesetImages(Client client)
     throws AccessException, ServiceException, ExecutionException, ServerException {
@@ -480,13 +516,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             handleServiceOrAccess(e, "Cannot get folders for " + this);
         }
 
-        List<FolderWrapper> roiFolders = new ArrayList<>(folders.size());
-        for (FolderData folder : folders) {
-            FolderWrapper roiFolder = new FolderWrapper(folder);
-            roiFolders.add(roiFolder);
-        }
-
-        return roiFolders;
+        return wrap(folders, FolderWrapper::new);
     }
 
 
@@ -500,7 +530,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      */
     public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException, ServerException {
@@ -779,28 +809,15 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @return The thumbnail as a {@link BufferedImage}.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      * @throws IOException      Cannot read thumbnail from store.
      */
     public BufferedImage getThumbnail(Client client, int size) throws ServiceException, ServerException, IOException {
-        PixelsWrapper pixels = getPixels();
-
-        int   sizeX  = pixels.getSizeX();
-        int   sizeY  = pixels.getSizeY();
-        float ratioX = (float) sizeX / size;
-        float ratioY = (float) sizeY / size;
-        float ratio  = Math.max(ratioX, ratioY);
-        int   width  = (int) (sizeX / ratio);
-        int   height = (int) (sizeY / ratio);
-
         BufferedImage thumbnail = null;
 
         byte[] array = null;
         try {
-            ThumbnailStorePrx store = client.getGateway().getThumbnailService(client.getCtx());
-            store.setPixelsId(pixels.getId());
-            array = store.getThumbnail(rint(width), rint(height));
-            store.close();
+            array = getThumbnailBytes(client, size);
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Error retrieving thumbnail.");
         }
@@ -822,7 +839,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return See above.
      *
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */

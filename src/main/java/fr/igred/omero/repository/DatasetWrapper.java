@@ -43,9 +43,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -145,7 +147,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @return See above.
      *
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
@@ -234,7 +236,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
@@ -253,7 +255,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
@@ -302,8 +304,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null) {
+            Map<String, List<String>> pairs = imageWrapper.getKeyValuePairs(client)
+                                                          .stream()
+                                                          .collect(groupingBy(Map.Entry::getKey,
+                                                                              mapping(Map.Entry::getValue, toList())));
+            if (pairs.get(key) != null) {
                 selected.add(imageWrapper);
             }
         }
@@ -341,8 +346,12 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
+
+            Map<String, List<String>> pairs = imageWrapper.getKeyValuePairs(client)
+                                                          .stream()
+                                                          .collect(groupingBy(Map.Entry::getKey,
+                                                                              mapping(Map.Entry::getValue, toList())));
+            if (pairs.get(key) != null && pairs.get(key).contains(value)) {
                 selected.add(imageWrapper);
             }
         }
@@ -400,7 +409,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void removeImage(Client client, ImageWrapper image)
@@ -419,7 +428,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
@@ -441,7 +450,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<Long> importImage(Client client, String path)
@@ -464,7 +473,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
@@ -507,7 +516,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
@@ -529,7 +538,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             }
         }
         if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(toList());
 
             Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
             for (ImageWrapper orphan : orphans) {
@@ -556,7 +565,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */

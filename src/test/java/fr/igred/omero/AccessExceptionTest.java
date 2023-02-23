@@ -28,15 +28,16 @@ import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import omero.gateway.model.ProjectData;
-import omero.model.NamedValue;
 import omero.model.ProjectI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -58,7 +59,7 @@ class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect(HOST, PORT, "testUser", "password".toCharArray(), GROUP1.id);
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
             assertEquals(USER1.id, client.getId(), "Wrong user");
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudo("testUser2");
@@ -85,7 +86,7 @@ class AccessExceptionTest extends BasicTest {
     void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
         client.disconnect();
-        client.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+        client.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
         assertEquals(0L, client.getId());
 
         ImageWrapper image = client.getImage(IMAGE2.id);
@@ -239,9 +240,9 @@ class AccessExceptionTest extends BasicTest {
     void testSudoFailAddKVPair() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<NamedValue> result1 = new ArrayList<>(2);
-        result1.add(new NamedValue("Test result1", "Value Test"));
-        result1.add(new NamedValue("Test2 result1", "Value Test2"));
+        List<Map.Entry<String, String>> result1 = new ArrayList<>(2);
+        result1.add(new AbstractMap.SimpleEntry<>("Test result1", "Value Test"));
+        result1.add(new AbstractMap.SimpleEntry<>("Test2 result1", "Value Test2"));
 
         MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class, () -> image.link(sudo, mapAnnotation1));
@@ -250,7 +251,7 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFail() {
-        assertThrows(AccessException.class, () -> sudo.sudo("root"));
+        assertThrows(AccessException.class, () -> sudo.sudo(ROOT.name));
     }
 
 

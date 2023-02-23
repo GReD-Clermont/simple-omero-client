@@ -53,7 +53,7 @@ class ConnectionTest extends BasicTest {
     @Test
     void testRootConnection() throws ServiceException {
         Client testRoot = new Client();
-        testRoot.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+        testRoot.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
         long id      = testRoot.getId();
         long groupId = testRoot.getCurrentGroupId();
         try {
