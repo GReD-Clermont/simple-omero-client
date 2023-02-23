@@ -39,8 +39,24 @@ class RatingAnnotationTest extends UserTest {
         RatingAnnotationWrapper rating = new RatingAnnotationWrapper(score);
         image.link(client, rating);
 
-        List<RatingAnnotationWrapper> ratings = image.getAnnotations(client)
-                                                     .getElementsOf(RatingAnnotationWrapper.class);
+        List<RatingAnnotationWrapper> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotationWrapper.class);
+        client.delete(ratings);
+
+        assertEquals(1, ratings.size());
+        assertEquals(score, ratings.get(0).getRating());
+    }
+
+
+    @Test
+    void testAddRating2() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        int   score = 3;
+
+        RatingAnnotationWrapper rating = new RatingAnnotationWrapper(new RatingAnnotationData());
+        rating.setRating(score);
+        image.link(client, rating);
+
+        List<RatingAnnotationWrapper> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotationWrapper.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
