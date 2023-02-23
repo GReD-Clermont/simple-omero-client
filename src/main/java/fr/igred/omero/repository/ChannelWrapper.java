@@ -42,17 +42,6 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the ChannelData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public ChannelData asChannelData() {
-        return data;
-    }
-
-
-    /**
      * Returns whether the channel contains all the RGBA values or not.
      *
      * @return See above.

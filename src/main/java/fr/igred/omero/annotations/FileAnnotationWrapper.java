@@ -222,15 +222,4 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
         return data.isMovieFile();
     }
 
-
-    /**
-     * @return the {@link FileAnnotationData} contained. Use {@link #asDataObject()} instead.
-     *
-     * @deprecated Gets the FileAnnotationData contained.
-     */
-    @Deprecated
-    public FileAnnotationData asFileAnnotationData() {
-        return data;
-    }
-
 }

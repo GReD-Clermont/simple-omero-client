@@ -104,17 +104,6 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the WellData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public WellData asWellData() {
-        return data;
-    }
-
-
-    /**
      * Returns the well samples linked to the well.
      *
      * @return See above.

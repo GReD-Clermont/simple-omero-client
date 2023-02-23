@@ -105,17 +105,6 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the DatasetData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public DatasetData asDatasetData() {
-        return data;
-    }
-
-
-    /**
      * Gets the DatasetData description
      *
      * @return DatasetData description.
@@ -282,24 +271,6 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * @param client The client handling the connection.
-     * @param key    Name of the key researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images in the dataset with a certain key
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesKey(Client client, String key)
-    throws ServiceException, AccessException, ExecutionException {
-        return getImagesWithKey(client, key);
-    }
-
-
-    /**
      * Gets all images in the dataset with a certain key
      *
      * @param client The client handling the connection.
@@ -332,25 +303,6 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         selected.sort(Comparator.comparing(GenericObjectWrapper::getId));
 
         return selected;
-    }
-
-
-    /**
-     * @param client The client handling the connection.
-     * @param key    Name of the key researched.
-     * @param value  Value associated with the key.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images in the dataset with a certain key value pair from OMERO
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
-    throws ServiceException, AccessException, ExecutionException {
-        return getImagesWithKeyValuePair(client, key, value);
     }
 
 

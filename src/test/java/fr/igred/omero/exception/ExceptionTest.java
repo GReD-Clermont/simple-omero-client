@@ -202,50 +202,57 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testExceptionHandler1() {
-        Throwable t = new DSAccessException("Test", null);
-        assertThrows(AccessException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(AccessException.class, () -> eh.rethrow(DSAccessException.class, AccessException::new, "Great"));
     }
 
 
     @Test
     void testExceptionHandler2() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new ServerError(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(OMEROServerError.class, () -> eh.handleException("Great"));
     }
 
 
     @Test
     void testExceptionHandler3() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        Exception           e  = new DSOutOfServiceException(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServiceException.class, () -> eh.handleServiceOrServer("Great"));
     }
 
 
     @Test
     void testExceptionHandler4() {
-        Throwable t = new DSOutOfServiceException(null);
-        assertThrows(ServiceException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new ServerError(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServerError.class, eh::rethrow);
     }
 
 
     @Test
     void testExceptionHandler5() {
-        Throwable t = new Exception("Nothing");
-        assertDoesNotThrow(() -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new OMEROServerError(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(OMEROServerError.class, () -> eh.rethrow(OMEROServerError.class));
     }
 
 
     @Test
     void testExceptionHandler6() {
-        Throwable t = new ServerError(null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrAccess(t, "Great"));
+        Exception           e  = new AccessException(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(AccessException.class, () -> eh.rethrow(AccessException.class));
     }
 
 
     @Test
     void testExceptionHandler7() {
-        Throwable t = new DSAccessException("Test", null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertDoesNotThrow(() -> eh.rethrow(ServerError.class, OMEROServerError::new, "Great"));
     }
 
 

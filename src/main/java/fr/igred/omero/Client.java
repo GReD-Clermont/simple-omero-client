@@ -37,7 +37,6 @@ import omero.gateway.model.GroupData;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -116,60 +115,6 @@ public class Client extends Browser {
     public List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         return annotation.getImages(this);
-    }
-
-
-    /**
-     * @param key Name of the key researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images with a certain key
-     */
-    @Deprecated
-    @Override
-    public List<ImageWrapper> getImagesKey(String key)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
-            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
-            if (pairsKeyValue.get(key) != null) {
-                selected.add(image);
-            }
-        }
-
-        return selected;
-    }
-
-
-    /**
-     * @param key   Name of the key researched.
-     * @param value Value associated with the key.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images with a certain key value pair from OMERO
-     */
-    @Deprecated
-    @Override
-    public List<ImageWrapper> getImagesPairKeyValue(String key, String value)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ImageWrapper> images   = getImages();
-        List<ImageWrapper> selected = new ArrayList<>(images.size());
-        for (ImageWrapper image : images) {
-            Map<String, String> pairsKeyValue = image.getKeyValuePairs(this);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
-                selected.add(image);
-            }
-        }
-        return selected;
     }
 
 

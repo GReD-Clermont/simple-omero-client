@@ -58,8 +58,8 @@ List<TagAnnotationWrapper> tags = dataset.getTags(client);
 * #### Key/Value pairs:
 
 ```java
-dataset.addPairKeyValue(client, "key", "value");
-String value = dataset.getValue(client, "key");
+dataset.addKeyValuePair(client, "key", "value");
+List<String> values = dataset.getValues(client, "key");
 ```
 
 * #### Tables:

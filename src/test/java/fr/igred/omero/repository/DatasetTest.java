@@ -292,7 +292,7 @@ class DatasetTest extends UserTest {
     void testGetImagesKeyInDataset() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImagesKey(client, "testKey1");
+        List<ImageWrapper> images = dataset.getImagesWithKey(client, "testKey1");
 
         assertEquals(3, images.size());
     }
@@ -302,7 +302,7 @@ class DatasetTest extends UserTest {
     void testGetImagesPairKeyValueInDataset() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImagesPairKeyValue(client, "testKey1", "testValue1");
+        List<ImageWrapper> images = dataset.getImagesWithKeyValuePair(client, "testKey1", "testValue1");
 
         assertEquals(2, images.size());
     }

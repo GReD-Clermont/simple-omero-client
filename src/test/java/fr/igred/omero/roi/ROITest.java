@@ -107,7 +107,7 @@ class ROITest extends UserTest {
             roiWrapper.addShape(rectangle);
         }
 
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, roiWrapper);
 
         List<ROIWrapper> rois = image.getROIs(client);
 
