@@ -61,8 +61,8 @@ public interface Table {
      * @param results     An ImageJ results table.
      * @param imageId     An image ID.
      * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI IDs. Defaults to {@link ROIWrapper#IJ_PROPERTY} if null
-     *                    or empty.
+     * @param roiProperty The Roi property storing the local ROI index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY}
+     *                    if null or empty.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

@@ -66,6 +66,7 @@ class ROI2ImageJTest extends BasicTest {
         rectangle.setName("rectangle");
         rectangle.setPosition(1, 2, 3);
         rectangle.setProperty("ROI", "24");
+        rectangle.setProperty("ROI_NAME", "");
         rois.add(rectangle);
 
         TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");

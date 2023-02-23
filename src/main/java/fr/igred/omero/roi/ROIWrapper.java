@@ -90,7 +90,8 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs.
      *
      * @param ijRois   A list of ImageJ ROIs.
-     * @param property The property where 4D ROI local ID is stored. Defaults to {@value IJ_PROPERTY} if null or empty.
+     * @param property The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if null
+     *                 or empty.
      *
      * @return The converted list of OMERO ROIs.
      */
