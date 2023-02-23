@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -57,17 +59,19 @@ class ROI2ImageJTest extends BasicTest {
         rectangle.setName("rectangle");
         rectangle.setPosition(1, 2, 3);
         rectangle.setProperty("ROI", "24");
+        rectangle.setProperty("ROI_NAME", "");
         rois.add(rectangle);
 
         TextRoi textRoi = new TextRoi(3.0, 4.0, "Text");
         textRoi.setName("text");
-        textRoi.setProperty("ROI", "text");
+        textRoi.setProperty("ROI", "24");
+        textRoi.setProperty("ROI_NAME", "text");
         rois.add(textRoi);
 
         OvalRoi ovalRoi = new OvalRoi(4.0, 5.0, 6.0, 7.0);
         ovalRoi.setName("oval");
         ovalRoi.setPosition(1, 0, 3);
-        ovalRoi.setProperty("ROI", "24");
+        ovalRoi.setProperty("ROI", " ");
         rois.add(ovalRoi);
 
         Arrow arrow = new Arrow(2.0, 3.0, 3.0, 4.0);
@@ -85,11 +89,13 @@ class ROI2ImageJTest extends BasicTest {
         PolygonRoi polylineRoi = new PolygonRoi(x2, y2, Roi.POLYLINE);
         polylineRoi.setPosition(1, 1, 2);
         polylineRoi.setProperty("ROI", "23");
+        polylineRoi.setProperty("ROI_NAME", "23");
         rois.add(polylineRoi);
 
         PolygonRoi polygonRoi = new PolygonRoi(x2, y2, Roi.POLYGON);
         polygonRoi.setPosition(1, 1, 1);
         polygonRoi.setProperty("ROI", "23");
+        polygonRoi.setProperty("ROI_NAME", "233");
         rois.add(polygonRoi);
 
         EllipseRoi ellipseRoi = new EllipseRoi(0.0, 0.0, 5.0, 5.0, 0.5);
@@ -107,6 +113,7 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(9, omeroROIs.size());
         assertEquals(1, omeroROIs.stream().filter(r -> "text".equals(r.getName())).count());
         assertEquals(1, omeroROIs.stream().filter(r -> "23".equals(r.getName())).count());
+        assertEquals(0, omeroROIs.stream().filter(r -> "233".equals(r.getName())).count());
         assertEquals(0, omeroROIs.stream().filter(r -> "invalid".equals(r.getName())).count());
     }
 
@@ -145,7 +152,7 @@ class ROI2ImageJTest extends BasicTest {
 
         LineWrapper line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 3);
-        line.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        line.asDataObject().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
 
         LineWrapper line2 = new LineWrapper(0, 0, 10, 10);
         line2.setCZT(1, 0, 4);
@@ -153,8 +160,8 @@ class ROI2ImageJTest extends BasicTest {
 
         LineWrapper line3 = new LineWrapper(2, 2, 3, 4);
         line3.setCZT(1, 0, 5);
-        line3.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
-        line3.asShapeData().getShapeSettings().setMarkerEnd(LineWrapper.ARROW);
+        line3.asDataObject().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        line3.asDataObject().getShapeSettings().setMarkerEnd(LineWrapper.ARROW);
 
         List<Point2D.Double> points2D = new ArrayList<>(3);
 
@@ -195,8 +202,9 @@ class ROI2ImageJTest extends BasicTest {
         List<Roi> ijRois = ROIWrapper.toImageJ(rois);
 
         assertEquals(nRois, ijRois.size());
-        assertEquals("2", ijRois.get(0).getProperty("ROI"));
-        assertEquals("SOC_INDEX_2", ijRois.get(nRois - 1).getProperty("ROI"));
+        assertEquals("2", ijRois.get(0).getProperty("ROI_NAME"));
+        assertEquals("2", ijRois.get(nRois - 1).getProperty("ROI"));
+        assertNull(ijRois.get(nRois - 1).getProperty("ROI_NAME"));
     }
 
 
@@ -276,8 +284,8 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(arrow.getC(), newArrow.getC());
         assertEquals(arrow.getZ(), newArrow.getZ());
         assertEquals(arrow.getT(), newArrow.getT());
-        assertEquals(arrow.asShapeData().getShapeSettings().getMarkerStart(),
-                     newArrow.asShapeData().getShapeSettings().getMarkerEnd());
+        assertEquals(arrow.asDataObject().getShapeSettings().getMarkerStart(),
+                     newArrow.asDataObject().getShapeSettings().getMarkerEnd());
     }
 
 

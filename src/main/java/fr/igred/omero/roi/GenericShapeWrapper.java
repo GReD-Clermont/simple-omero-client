@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -52,10 +54,10 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
     /**
      * Constructor of the GenericShapeWrapper class using a ShapeData.
      *
-     * @param object the shape
+     * @param s The shape.
      */
-    protected GenericShapeWrapper(T object) {
-        super(object);
+    protected GenericShapeWrapper(T s) {
+        super(s);
     }
 
 
@@ -146,7 +148,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         ijRoi.setName(getText());
         ijRoi.setStrokeColor(getStroke());
         Color fill = getFill();
-        if(!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
+        if (!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);
@@ -155,10 +157,11 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
 
 
     /**
-     * Gets the ShapeData object contained.
-     *
      * @return the shape.
+     *
+     * @deprecated Gets the ShapeData object contained.
      */
+    @Deprecated
     public T asShapeData() {
         return data;
     }

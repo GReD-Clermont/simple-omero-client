@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -41,7 +43,7 @@ class ProjectTest extends UserTest {
 
         List<DatasetWrapper> datasets = project.getDatasets();
 
-        assertEquals(2, datasets.size());
+        assertEquals(3, datasets.size());
     }
 
 
@@ -174,7 +176,7 @@ class ProjectTest extends UserTest {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        project.addTag(client, tag);
+        project.link(client, tag);
         List<TagAnnotationWrapper> tags = project.getTags(client);
         project.unlink(client, tag);
         List<TagAnnotationWrapper> removedTags = project.getTags(client);
@@ -251,7 +253,6 @@ class ProjectTest extends UserTest {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
-
         assertEquals(2, images.size());
     }
 
@@ -301,7 +302,7 @@ class ProjectTest extends UserTest {
         assertNotEquals(0L, fileId);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
-        project1.addTag(client, tag);
+        project1.link(client, tag);
         project1.addPairKeyValue(client, "CopyTest", "Annotation");
 
         TableWrapper table = new TableWrapper(1, "CopyTest");
@@ -369,7 +370,7 @@ class ProjectTest extends UserTest {
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
-        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        project2.link(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(1, project2.getFileAnnotations(client).size());
@@ -392,7 +393,7 @@ class ProjectTest extends UserTest {
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
-        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        project2.link(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file, DELETE);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(0, project2.getFileAnnotations(client).size());
@@ -414,7 +415,7 @@ class ProjectTest extends UserTest {
 
         long fileId1 = project1.addFile(client, file);
         assertEquals(1, project1.getFileAnnotations(client).size());
-        project2.addFileAnnotation(client, project1.getFileAnnotations(client).get(0));
+        project2.link(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file, DELETE_ORPHANED);
         assertEquals(1, project1.getFileAnnotations(client).size());
         assertEquals(1, project2.getFileAnnotations(client).size());

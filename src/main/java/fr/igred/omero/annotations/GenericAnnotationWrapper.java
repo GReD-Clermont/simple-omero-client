@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -24,18 +24,22 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.DatasetWrapper;
+import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.PlateAcquisitionWrapper;
 import fr.igred.omero.repository.PlateWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.repository.ScreenWrapper;
 import fr.igred.omero.repository.WellWrapper;
 import omero.RLong;
 import omero.gateway.model.AnnotationData;
+import omero.gateway.model.PlateAcquisitionData;
 import omero.model.IObject;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -49,10 +53,10 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
     /**
      * Constructor of the GenericAnnotationWrapper class.
      *
-     * @param object Annotation to be contained.
+     * @param a Annotation to be contained.
      */
-    protected GenericAnnotationWrapper(T object) {
-        super(object);
+    protected GenericAnnotationWrapper(T a) {
+        super(a);
     }
 
 
@@ -224,6 +228,25 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
 
 
     /**
+     * Gets all plate acquisitions with this annotation from OMERO.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws OMEROServerError Server error.
+     */
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    throws ServiceException, OMEROServerError {
+        List<IObject> os = getLinks(client, PlateAcquisitionWrapper.ANNOTATION_LINK);
+        return os.stream()
+                 .map(o -> new PlateAcquisitionWrapper(new PlateAcquisitionData((omero.model.PlateAcquisition) o)))
+                 .collect(Collectors.toList());
+    }
+
+
+    /**
      * Gets all wells with this tag from OMERO.
      *
      * @param client The client handling the connection.
@@ -240,6 +263,26 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
         List<IObject> os  = getLinks(client, WellWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return client.getWells(ids);
+    }
+
+
+    /**
+     * Gets all folders with this annotation from OMERO.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> getFolders(Client client)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        List<IObject> os  = getLinks(client, FolderWrapper.ANNOTATION_LINK);
+        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        return client.loadFolders(ids);
     }
 
 

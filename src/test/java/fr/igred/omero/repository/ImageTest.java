@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -17,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -61,14 +64,14 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testGetDatasets() throws Exception {
-        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
+    void testGetProjects() throws Exception {
+        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
     }
 
 
     @Test
-    void testGetProjects() throws Exception {
-        assertEquals(PROJECT1.id, client.getImage(IMAGE1.id).getProjects(client).get(0).getId());
+    void testGetDatasets() throws Exception {
+        assertEquals(DATASET1.id, client.getImage(IMAGE1.id).getDatasets(client).get(0).getId());
     }
 
 
@@ -87,12 +90,27 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetPlateAcquisitions() throws Exception {
+        final long   id   = 5L;
+        final String name = "PlateAcquisition Name 0";
+        assertEquals(name, client.getImage(id).getPlateAcquisitions(client).get(0).getName());
+    }
+
+
+    @Test
     void testGetWells() throws Exception {
         final long  wellId = 1L;
         WellWrapper well   = client.getWell(wellId);
 
         long imageId = well.getWellSamples().get(0).getImage().getId();
         assertEquals(wellId, client.getImage(imageId).getWells(client).get(0).getId());
+    }
+
+
+    @Test
+    void testGetAnnotations() throws Exception {
+        AnnotationList annotations = client.getImage(IMAGE1.id).getAnnotations(client);
+        assertEquals(3, annotations.size());
     }
 
 
@@ -142,7 +160,7 @@ class ImageTest extends UserTest {
         values.add(new NamedValue(name2, value2));
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(values);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.link(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
 
@@ -174,7 +192,7 @@ class ImageTest extends UserTest {
         mapData.setContent(values);
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(mapData);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.link(client, mapAnnotation);
 
         Map<String, String> pairs = image.getKeyValuePairs(client);
 
@@ -204,7 +222,7 @@ class ImageTest extends UserTest {
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper();
         mapAnnotation.setContent(values);
-        image.addMapAnnotation(client, mapAnnotation);
+        image.link(client, mapAnnotation);
 
         List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
 
@@ -229,8 +247,8 @@ class ImageTest extends UserTest {
         String value2 = "Value Test2";
 
         Timestamp ts = Timestamp.from(Instant.now());
-        image.addPairKeyValue(client, key1, value1);
-        image.addPairKeyValue(client, key2, value2);
+        image.addKeyValuePair(client, key1, value1);
+        image.addKeyValuePair(client, key2, value2);
 
         List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
 
@@ -363,7 +381,7 @@ class ImageTest extends UserTest {
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
-        image.addTag(client, tag);
+        image.link(client, tag);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
         client.delete(tag);
@@ -437,7 +455,7 @@ class ImageTest extends UserTest {
         TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
         TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
-        image.addTags(client, tag1, tag2, tag3, tag4);
+        image.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
         List<TagAnnotationWrapper> tags = image.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
@@ -451,12 +469,33 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testAddNewTagsToImage() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+
+        TagAnnotationWrapper tag1 = client.getTag(TAG1.id);
+        TagAnnotationWrapper tag2 = client.getTag(TAG2.id);
+        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+
+        image.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
+        List<TagAnnotationWrapper> tags = image.getTags(client);
+        client.delete(tag3);
+        client.delete(tag4);
+        List<TagAnnotationWrapper> endTags = image.getTags(client);
+
+        assertTrue(image.isLinked(client, tag1));
+        assertEquals(4, tags.size());
+        assertEquals(2, endTags.size());
+    }
+
+
+    @Test
     void testAddAndRemoveTagFromImage() throws Exception {
         ImageWrapper image = client.getImage(IMAGE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
 
-        image.addTag(client, tag);
+        image.link(client, tag);
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
         image.unlink(client, tag);

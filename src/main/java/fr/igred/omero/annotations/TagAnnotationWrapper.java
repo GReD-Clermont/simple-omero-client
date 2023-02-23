@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -39,7 +39,6 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      */
     public TagAnnotationWrapper(TagAnnotationData tag) {
         super(tag);
-        data.setNameSpace(tag.getContentAsString());
     }
 
 
@@ -84,10 +83,11 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
 
 
     /**
-     * Gets the TagAnnotationData contained.
-     *
      * @return the {@link TagAnnotationData} contained.
+     *
+     * @deprecated Gets the TagAnnotationData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public TagAnnotationData asTagAnnotationData() {
         return data;
     }

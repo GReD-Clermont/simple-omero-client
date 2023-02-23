@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -78,8 +80,8 @@ class ImageImportTest extends UserTest {
         image1.saveAndUpdate(client);
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
-        image1.addTag(client, tag1);
-        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+        image1.link(client, tag1);
+        image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
         removeFile(file);
@@ -91,19 +93,20 @@ class ImageImportTest extends UserTest {
         image2.saveAndUpdate(client);
 
         TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
-        image2.addTag(client, tag2);
-        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
-        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+        image2.link(client, tag2);
+        image2.link(client, image1.getFileAnnotations(client).get(0));
+        image2.link(client, image1.getMapAnnotations(client).get(0));
 
         RectangleWrapper rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROIWrapper       roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
-        image2.saveROI(client, roi);
+        roi = image2.saveROIs(client, roi).get(0);
 
-        FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
-        folder.setImage(image2);
-        folder.addROI(client, roi);
+        FolderWrapper roiFolder = new FolderWrapper(client, "ReplaceTestFolder");
+        roiFolder.addROIs(client, image2, roi);
+        FolderWrapper imgFolder = new FolderWrapper(client, "ReplaceTestImageFolder");
+        imgFolder.addImages(client, image2);
 
         TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
@@ -120,6 +123,7 @@ class ImageImportTest extends UserTest {
         assertEquals(3, image3.getFileAnnotations(client).size());
         assertEquals(1, image3.getMapAnnotations(client).size());
         assertEquals(1, image3.getROIs(client).size());
+        assertEquals(1, image3.getROIFolders(client).size());
         assertEquals(1, image3.getFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
@@ -141,7 +145,8 @@ class ImageImportTest extends UserTest {
         client.delete(table);
         client.deleteFile(fileId);
         client.delete(roi);
-        client.delete(folder);
+        client.delete(roiFolder);
+        client.delete(imgFolder);
 
         assertEquals(1, images.size());
         assertTrue(endImages.isEmpty());
@@ -162,8 +167,8 @@ class ImageImportTest extends UserTest {
         ImageWrapper image1 = client.getImage(ids1.get(0));
 
         TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "ReplaceTestTag1", "Copy annotations");
-        image1.addTag(client, tag1);
-        image1.addPairKeyValue(client, "Map", "ReplaceTest");
+        image1.link(client, tag1);
+        image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
         long fileId = image1.addFile(client, file);
         removeFile(file);
@@ -175,19 +180,18 @@ class ImageImportTest extends UserTest {
         image2.saveAndUpdate(client);
 
         TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "ReplaceTestTag2", "Copy annotations");
-        image2.addTag(client, tag2);
-        image2.addFileAnnotation(client, image1.getFileAnnotations(client).get(0));
-        image2.addMapAnnotation(client, image1.getMapAnnotations(client).get(0));
+        image2.link(client, tag2);
+        image2.link(client, image1.getFileAnnotations(client).get(0));
+        image2.link(client, image1.getMapAnnotations(client).get(0));
 
         RectangleWrapper rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROIWrapper       roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
-        image2.saveROI(client, roi);
+        roi = image2.saveROIs(client, roi).get(0);
 
         FolderWrapper folder = new FolderWrapper(client, "ReplaceTestFolder");
-        folder.setImage(image2);
-        folder.addROI(client, roi);
+        folder.addROIs(client, image2, roi);
 
         TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
@@ -204,7 +208,7 @@ class ImageImportTest extends UserTest {
         assertEquals(3, image3.getFileAnnotations(client).size());
         assertEquals(1, image3.getMapAnnotations(client).size());
         assertEquals(1, image3.getROIs(client).size());
-        assertEquals(1, image3.getFolders(client).size());
+        assertEquals(1, image3.getROIFolders(client).size());
         assertEquals("ReplaceTestTag1", image3.getTags(client).get(0).getName());
         assertEquals("ReplaceTestTag2", image3.getTags(client).get(1).getName());
         assertEquals("ReplaceTest", image3.getValue(client, "Map"));

@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -26,6 +28,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class PlateTest extends UserTest {
+
+
+    @Test
+    void testGetScreens() throws Exception {
+        PlateWrapper        plate   = client.getPlate(PLATE1.id);
+        List<ScreenWrapper> screens = plate.getScreens(client);
+        assertEquals(1, screens.size());
+    }
+
+
+    @Test
+    void testGetWells() throws Exception {
+        PlateWrapper      plate = client.getPlate(PLATE1.id);
+        List<WellWrapper> wells = plate.getWells(client);
+        assertEquals(9, wells.size());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        PlateWrapper       plate  = client.getPlate(PLATE1.id);
+        List<ImageWrapper> images = plate.getImages(client);
+        assertEquals(36, images.size());
+    }
 
 
     @Test
@@ -61,7 +87,7 @@ class PlateTest extends UserTest {
         PlateWrapper plate = client.getPlate(PLATE2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
-        plate.addTag(client, tag);
+        plate.link(client, tag);
         List<TagAnnotationWrapper> tags = plate.getTags(client);
         client.delete(tag);
         List<TagAnnotationWrapper> checkTags = plate.getTags(client);

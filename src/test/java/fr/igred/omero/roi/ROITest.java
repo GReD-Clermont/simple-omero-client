@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -81,7 +83,7 @@ class ROITest extends UserTest {
 
         ROIWrapper roiWrapper = new ROIWrapper(shapes);
         roiWrapper.setImage(image);
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, roiWrapper);
 
         List<ROIWrapper> rois = image.getROIs(client);
 
@@ -114,7 +116,7 @@ class ROITest extends UserTest {
         ROIWrapper roi = new ROIWrapper();
         roi.addShapes(shapes);
         roi.setImage(image);
-        image.saveROI(client, roi);
+        image.saveROIs(client, roi);
 
         List<ROIWrapper> rois = image.getROIs(client);
 
@@ -201,7 +203,7 @@ class ROITest extends UserTest {
         roiWrapper.addShape(line);
         roiWrapper.addShape(polyline);
         roiWrapper.addShape(polygon);
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, roiWrapper);
 
         List<ROIWrapper>       rois       = image.getROIs(client);
         ShapeList              shapes     = rois.get(0).getShapes();

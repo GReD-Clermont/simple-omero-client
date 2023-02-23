@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -28,11 +28,16 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -110,10 +115,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Returns the ScreenData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the ScreenData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public ScreenData asScreenData() {
         return data;
     }
@@ -161,6 +167,75 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
         List<PlateWrapper> plates = getPlates();
         plates.removeIf(plate -> !plate.getName().equals(name));
         return plates;
+    }
+
+
+    /**
+     * Returns the plate acquisitions linked to this object, either directly, or through parents/children.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(client);
+        return getPlates().stream()
+                          .map(PlateWrapper::getPlateAcquisitions)
+                          .flatMap(Collection::stream)
+                          .collect(toMap(GenericRepositoryObjectWrapper::getId, p -> p, (p1, p2) -> p1))
+                          .values()
+                          .stream()
+                          .sorted(Comparator.comparing(GenericRepositoryObjectWrapper::getId))
+                          .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the wells linked to this object, either directly, or through parents/children.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<WellWrapper> getWells(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        List<PlateWrapper>            plates = getPlates();
+        Collection<List<WellWrapper>> wells  = new ArrayList<>(plates.size());
+        for (PlateWrapper p : plates) {
+            wells.add(p.getWells(client));
+        }
+        return flatten(wells);
+    }
+
+
+    /**
+     * Retrieves the images contained in this screen.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImages(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        List<PlateWrapper>             plates = getPlates();
+        Collection<List<ImageWrapper>> images = new ArrayList<>(plates.size());
+        for (PlateWrapper p : plates) {
+            images.add(p.getImages(client));
+        }
+        return flatten(images);
     }
 
 

@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -18,6 +18,8 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.GenericAnnotationWrapper;
+import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -40,8 +42,10 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
@@ -62,6 +66,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.GenericObjectWrapper.distinct;
+import static fr.igred.omero.GenericObjectWrapper.flatten;
 import static fr.igred.omero.GenericObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
@@ -79,7 +84,7 @@ public class Client extends GatewayWrapper {
      * Constructor of the Client class. Initializes the gateway.
      */
     public Client() {
-        super(null);
+        this(null, null, null);
     }
 
 
@@ -160,6 +165,29 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all projects available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ProjectWrapper> getProjects(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ProjectData> projects = new ArrayList<>(0);
+        try {
+            projects = getBrowseFacility().getProjects(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get projects for user " + experimenter);
+        }
+        return wrap(projects, ProjectWrapper::new);
+    }
+
+
+    /**
      * Gets all projects with a certain name from OMERO.
      *
      * @param name Name searched.
@@ -223,6 +251,30 @@ public class Client extends GatewayWrapper {
             handleServiceOrAccess(e, "Cannot get datasets");
         }
         return wrap(datasets, DatasetWrapper::new);
+    }
+
+
+    /**
+     * Gets all datasets available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<DatasetWrapper> getDatasets(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        String query = String.format("select d from Dataset d where d.details.owner.id=%d", experimenter.getId());
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getDatasets(ids);
     }
 
 
@@ -393,11 +445,29 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all images with the specified annotation from OMERO.
+     *
+     * @param annotation TagAnnotation containing the tag researched.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
+    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+        return annotation.getImages(this);
+    }
+
+
+    /**
      * Gets all images with a certain motif in their name from OMERO.
      *
      * @param motif Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -412,35 +482,35 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets all images tagged with a specified tag from OMERO.
-     *
      * @param tag TagAnnotationWrapper containing the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images tagged with a specified tag from OMERO.
      */
+    @Deprecated
     public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        return tag.getImages(this);
+        return getImages(tag);
     }
 
 
     /**
-     * Gets all images tagged with a specified tag from OMERO.
-     *
      * @param tagId Id of the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images tagged with a specified tag from OMERO.
      */
+    @Deprecated
     public List<ImageWrapper> getImagesTagged(Long tagId)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         return getImagesTagged(getTag(tagId));
@@ -448,16 +518,16 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets all images with a certain key
-     *
      * @param key Name of the key researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images with a certain key
      */
+    @Deprecated
     public List<ImageWrapper> getImagesKey(String key)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images   = getImages();
@@ -474,17 +544,42 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets all images with a certain key value pair from OMERO
+     * Gets all images with a certain key.
      *
+     * @param key Name of the key researched.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImagesWithKey(String key)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        List<MapAnnotationWrapper> maps = getMapAnnotations(key);
+
+        Collection<Collection<ImageWrapper>> selected = new ArrayList<>(maps.size());
+        for (MapAnnotationWrapper map : maps) {
+            selected.add(getImages(map));
+        }
+
+        return flatten(selected);
+    }
+
+
+    /**
      * @param key   Name of the key researched.
      * @param value Value associated with the key.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images with a certain key value pair from OMERO
      */
+    @Deprecated
     public List<ImageWrapper> getImagesPairKeyValue(String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         List<ImageWrapper> images   = getImages();
@@ -496,6 +591,32 @@ public class Client extends GatewayWrapper {
             }
         }
         return selected;
+    }
+
+
+    /**
+     * Gets all images with a certain key value pair from OMERO
+     *
+     * @param key   Name of the key researched.
+     * @param value Value associated with the key.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImagesWithKeyValuePair(String key, String value)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        List<MapAnnotationWrapper> maps = getMapAnnotations(key, value);
+
+        Collection<Collection<ImageWrapper>> selected = new ArrayList<>(maps.size());
+        for (MapAnnotationWrapper map : maps) {
+            selected.add(getImages(map));
+        }
+
+        return flatten(selected);
     }
 
 
@@ -564,6 +685,29 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all screens available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ScreenWrapper> getScreens(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ScreenData> screens = new ArrayList<>(0);
+        try {
+            screens = getBrowseFacility().getScreens(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get screens for user " + experimenter);
+        }
+        return wrap(screens, ScreenWrapper::new);
+    }
+
+
+    /**
      * Gets the plate with the specified id from OMERO.
      *
      * @param id ID of the plate.
@@ -622,6 +766,29 @@ public class Client extends GatewayWrapper {
             plates = getBrowseFacility().getPlates(getCtx());
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot get plates");
+        }
+        return wrap(plates, PlateWrapper::new);
+    }
+
+
+    /**
+     * Gets all plates available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getPlates(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<PlateData> plates = new ArrayList<>(0);
+        try {
+            plates = getBrowseFacility().getPlates(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get plates for user " + experimenter);
         }
         return wrap(plates, PlateWrapper::new);
     }
@@ -694,6 +861,123 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets all wells available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<WellWrapper> getWells(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        String query = String.format("select w from Well w where w.details.owner.id=%d", experimenter.getId());
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getWells(ids);
+    }
+
+
+    /**
+     * Gets the folder with the specified ID from OMERO, fully loaded.
+     *
+     * @param id ID of the folder.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException No element with such id.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     */
+    public FolderWrapper getFolder(long id)
+    throws ServiceException, AccessException, ExecutionException {
+        List<FolderWrapper> folders = loadFolders(id);
+        if (folders.isEmpty()) {
+            throw new NoSuchElementException(String.format("Folder %d doesn't exist in this context", id));
+        }
+        return folders.iterator().next();
+    }
+
+
+    /**
+     * Gets all folders available from OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> getFolders()
+    throws ExecutionException, AccessException, ServiceException {
+        Collection<FolderData> folders = new ArrayList<>(0);
+        try {
+            folders = getBrowseFacility().getFolders(getCtx());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get folders");
+        }
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
+     * Gets all the folders owned by a given user from OMERO.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> getFolders(ExperimenterWrapper experimenter)
+    throws ExecutionException, AccessException, ServiceException {
+        String error = String.format("Cannot get folders for user %s", experimenter);
+
+        Collection<FolderData> folders = new ArrayList<>(0);
+        try {
+            folders = getBrowseFacility().getFolders(getCtx(), experimenter.getId());
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, error);
+        }
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
+     * Gets the folders with the specified IDs from OMERO (fully loaded).
+     *
+     * @param ids Project IDs
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<FolderWrapper> loadFolders(Long... ids)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
+
+        Collection<FolderData> folders = new ArrayList<>(0);
+        try {
+            folders = getBrowseFacility().loadFolders(getCtx(), Arrays.asList(ids));
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, error);
+        }
+        return wrap(folders, FolderWrapper::new);
+    }
+
+
+    /**
      * Gets the list of TagAnnotationWrapper available to the user
      *
      * @return list of TagAnnotationWrapper.
@@ -761,6 +1045,98 @@ public class Client extends GatewayWrapper {
 
 
     /**
+     * Gets the list of map annotations available to the user.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    public List<MapAnnotationWrapper> getMapAnnotations() throws OMEROServerError, ServiceException {
+        List<MapAnnotationWrapper> kvs = new ArrayList<>(0);
+        try {
+            kvs = getGateway().getQueryService(getCtx()).findAll(omero.model.MapAnnotation.class.getSimpleName(), null)
+                              .stream()
+                              .map(omero.model.MapAnnotation.class::cast)
+                              .map(MapAnnotationData::new)
+                              .map(MapAnnotationWrapper::new)
+                              .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                              .collect(Collectors.toList());
+        } catch (ServerError | DSOutOfServiceException e) {
+            handleServiceOrServer(e, "Cannot get map annotations");
+        }
+        return kvs;
+    }
+
+
+    /**
+     * Gets the list of map annotations with the specified key available to the user.
+     *
+     * @param key Name of the tag searched.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    public List<MapAnnotationWrapper> getMapAnnotations(String key) throws OMEROServerError, ServiceException {
+        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv where mv.name = '%s'", key);
+        return findByQuery(q).stream()
+                             .map(omero.model.MapAnnotation.class::cast)
+                             .map(MapAnnotationData::new)
+                             .map(MapAnnotationWrapper::new)
+                             .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                             .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Gets the list of map annotations with the specified key and value available to the user.
+     *
+     * @param key   The required key.
+     * @param value The required value.
+     *
+     * @return See above.
+     *
+     * @throws OMEROServerError Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    public List<MapAnnotationWrapper> getMapAnnotations(String key, String value)
+    throws OMEROServerError, ServiceException {
+        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv " +
+                                 "where mv.name = '%s' and mv.value = '%s'", key, value);
+        return findByQuery(q).stream()
+                             .map(omero.model.MapAnnotation.class::cast)
+                             .map(MapAnnotationData::new)
+                             .map(MapAnnotationWrapper::new)
+                             .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                             .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Gets a specific map annotation (key/value pairs) from the OMERO database.
+     *
+     * @param id ID of the map annotation.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public MapAnnotationWrapper getMapAnnotation(Long id) throws ServiceException, ExecutionException, AccessException {
+        MapAnnotationData kv = null;
+        try {
+            kv = getBrowseFacility().findObject(getCtx(), MapAnnotationData.class, id);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, "Cannot get map annotation with ID: " + id);
+        }
+        return new MapAnnotationWrapper(kv);
+    }
+
+
+    /**
      * Deletes multiple objects from OMERO.
      *
      * @param objects The OMERO object.
@@ -775,7 +1151,7 @@ public class Client extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         for (GenericObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
-                ((FolderWrapper) object).unlinkAllROI(this);
+                ((FolderWrapper) object).unlinkAllROIs(this);
             }
         }
         if (!objects.isEmpty()) {
@@ -798,7 +1174,7 @@ public class Client extends GatewayWrapper {
     public void delete(GenericObjectWrapper<?> object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         if (object instanceof FolderWrapper) {
-            ((FolderWrapper) object).unlinkAllROI(this);
+            ((FolderWrapper) object).unlinkAllROIs(this);
         }
         delete(object.asIObject());
     }
@@ -895,11 +1271,10 @@ public class Client extends GatewayWrapper {
         ExperimenterWrapper sudoUser = getUser(username);
 
         SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        context.setExperimenter(sudoUser.asExperimenterData());
+        context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
 
         return new Client(this.getGateway(), context, sudoUser);
     }
 
 }
-

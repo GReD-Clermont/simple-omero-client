@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -16,9 +18,15 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Client;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -96,10 +104,11 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Returns the WellData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the WellData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public WellData asWellData() {
         return data;
     }
@@ -111,7 +120,26 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @return See above.
      */
     public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asImageData().getSeries());
+        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
+    }
+
+
+    /**
+     * Refreshes this well and retrieves the screens containing it.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<ScreenWrapper> getScreens(Client client)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        refresh(client);
+        return getPlate().getScreens(client);
     }
 
 
@@ -122,6 +150,36 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      */
     public PlateWrapper getPlate() {
         return new PlateWrapper(data.getPlate());
+    }
+
+
+    /**
+     * Refreshes this well and returns the plate acquisitions linked to it.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        refresh(client);
+        return client.getPlate(getPlate().getId()).getPlateAcquisitions();
+    }
+
+
+    /**
+     * Retrieves the images contained in this well.
+     *
+     * @return See above.
+     */
+    public List<ImageWrapper> getImages() {
+        return getWellSamples().stream()
+                               .map(WellSampleWrapper::getImage)
+                               .collect(Collectors.toList());
     }
 
 
@@ -262,6 +320,21 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      */
     public void setAlpha(Integer alpha) {
         data.setAlpha(alpha);
+    }
+
+
+    /**
+     * Refreshes the well.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void refresh(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        data = client.getWell(getId()).asDataObject();
     }
 
 }

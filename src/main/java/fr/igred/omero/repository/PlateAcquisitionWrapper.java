@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -19,16 +19,22 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
+import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.PlateAcquisitionData;
-import omero.gateway.model.TagAnnotationData;
-import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
+import omero.model._PlateAcquisitionOperationsNC;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -48,6 +54,8 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      */
     public PlateAcquisitionWrapper(PlateAcquisitionData plateAcquisition) {
         super(plateAcquisition);
+        omero.model.Plate plate = ((_PlateAcquisitionOperationsNC) data.asIObject()).getPlate();
+        if (plate != null) data.setRefPlateId(plate.getId().getValue());
     }
 
 
@@ -86,10 +94,11 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
 
 
     /**
-     * Returns the PlateAcquisitionData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the PlateAcquisitionData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public PlateAcquisitionData asPlateAcquisitionData() {
         return data;
     }
@@ -117,22 +126,100 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
 
 
     /**
-     * Protected function. Adds a tag to the object in OMERO, if possible.
+     * Adds a tag to the object in OMERO, if possible.
      *
-     * @param client  The client handling the connection.
-     * @param tagData Tag to be added.
+     * @param client     The client handling the connection.
+     * @param annotation Tag to be added.
+     * @param <A>        The type of the annotation.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected void addTag(Client client, TagAnnotationData tagData)
+    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(tagData.asAnnotation());
-        link.setParent((PlateAcquisition) data.asIObject());
+        link.setChild(annotation.asDataObject().asAnnotation());
+        link.setParent((omero.model.PlateAcquisition) data.asIObject());
         client.save(link);
+    }
+
+
+    /**
+     * Retrieves the screens containing the parent plates.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError   Server error.
+     */
+    public List<ScreenWrapper> getScreens(Client client)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+        PlateWrapper plate = client.getPlate(getRefPlateId());
+        return plate.getScreens(client);
+    }
+
+
+    /**
+     * Returns the (updated) parent plate as a singleton list.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getPlates(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return client.getPlates(getRefPlateId());
+    }
+
+
+    /**
+     * Retrieves the wells contained in the parent plate.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<WellWrapper> getWells(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return getPlates(client).iterator().next().getWells(client);
+    }
+
+
+    /**
+     * Retrieves the images contained in the wells in the parent plate.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getImages(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return getWells(client).stream()
+                               .map(WellWrapper::getImages)
+                               .flatMap(Collection::stream)
+                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                               .values()
+                               .stream()
+                               .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                               .collect(Collectors.toList());
     }
 
 

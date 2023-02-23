@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -72,7 +74,7 @@ class ImageJTableTest extends UserTest {
             roi.addShape(rectangle);
         }
         if (name != null && !name.trim().isEmpty()) roi.setName(name);
-        image.saveROI(client, roi);
+        image.saveROIs(client, roi);
         return image.getROIs(client);
     }
 
@@ -136,7 +138,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults1() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "ROI_1");
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
+        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null, false);
 
         String label = image.getName();
 
@@ -513,8 +515,8 @@ class ImageJTableTest extends UserTest {
             else roi2.addShape(rectangle);
         }
 
-        image.saveROI(client, roi1);
-        image.saveROI(client, roi2);
+        image.saveROIs(client, roi1);
+        image.saveROIs(client, roi2);
 
         List<ROIWrapper> rois   = image.getROIs(client);
         List<Roi>        ijRois = ROIWrapper.toImageJ(rois);

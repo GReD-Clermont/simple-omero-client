@@ -5,11 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
-
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -107,10 +107,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Returns the DatasetData contained.
-     *
      * @return See above.
+     *
+     * @deprecated Returns the DatasetData contained. Use {@link #asDataObject()} instead.
      */
+    @Deprecated
     public DatasetData asDatasetData() {
         return data;
     }
@@ -173,7 +174,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      *
      * @param client The client handling the connection.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -198,7 +199,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param name   Name searched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -218,7 +219,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param motif  Motif searched in an image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -240,7 +241,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param tag    TagAnnotationWrapper containing the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -259,7 +260,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @param client The client handling the connection.
      * @param tagId  Id of the tag researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -286,18 +287,36 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
+     * @param client The client handling the connection.
+     * @param key    Name of the key researched.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images in the dataset with a certain key
+     */
+    @Deprecated
+    public List<ImageWrapper> getImagesKey(Client client, String key)
+    throws ServiceException, AccessException, ExecutionException {
+        return getImagesWithKey(client, key);
+    }
+
+
+    /**
      * Gets all images in the dataset with a certain key
      *
      * @param client The client handling the connection.
      * @param key    Name of the key researched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesKey(Client client, String key)
+    public List<ImageWrapper> getImagesWithKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = new ArrayList<>(0);
         try {
@@ -324,19 +343,38 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
+     * @param client The client handling the connection.
+     * @param key    Name of the key researched.
+     * @param value  Value associated with the key.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Gets all images in the dataset with a certain key value pair from OMERO
+     */
+    @Deprecated
+    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
+    throws ServiceException, AccessException, ExecutionException {
+        return getImagesWithKeyValuePair(client, key, value);
+    }
+
+
+    /**
      * Gets all images in the dataset with a certain key value pair from OMERO
      *
      * @param client The client handling the connection.
      * @param key    Name of the key researched.
      * @param value  Value associated with the key.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesPairKeyValue(Client client, String key, String value)
+    public List<ImageWrapper> getImagesWithKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = new ArrayList<>(0);
         try {
@@ -393,7 +431,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     public void addImage(Client client, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
-        link.setChild(image.asImageData().asImage());
+        link.setChild(image.asDataObject().asImage());
         link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);
@@ -489,10 +527,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             descriptions.add(oldImage.getDescription());
             newImage.copyAnnotationLinks(client, oldImage);
             List<ROIWrapper> rois = oldImage.getROIs(client);
-            for (ROIWrapper roi : rois) {
-                roi.setImage(newImage);
-                newImage.saveROI(client, roi);
-            }
+            newImage.saveROIs(client, rois);
+            List<FolderWrapper> folders = oldImage.getFolders(client);
+            for (FolderWrapper folder : folders) folder.addImages(client, newImage);
             this.removeImage(client, oldImage);
             if (oldImage.isOrphaned(client)) {
                 orphaned.add(oldImage);
@@ -578,7 +615,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Refreshes the wrapped dataset.
+     * Refreshes the dataset.
      *
      * @param client The client handling the connection.
      *

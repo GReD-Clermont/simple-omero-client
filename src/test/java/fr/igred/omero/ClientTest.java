@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -16,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PlateWrapper;
@@ -99,7 +102,7 @@ class ClientTest extends UserTest {
     @Test
     void testGetAllDatasets() throws Exception {
         Collection<DatasetWrapper> datasets = client.getDatasets();
-        assertEquals(3, datasets.size());
+        assertEquals(4, datasets.size());
     }
 
 
@@ -163,8 +166,10 @@ class ClientTest extends UserTest {
 
     @Test
     void testGetImagesKeyValue() throws Exception {
-        List<ImageWrapper> images = client.getImagesPairKeyValue("testKey1", "testValue1");
+        List<ImageWrapper> images = client.getImagesWithKeyValuePair("testKey1", "testValue1");
         assertEquals(2, images.size());
+        List<ImageWrapper> images2 = client.getImagesPairKeyValue("testKey1", "testValue1");
+        assertEquals(2, images2.size());
     }
 
 
@@ -180,7 +185,7 @@ class ClientTest extends UserTest {
         String key = "testKey2";
 
         /* Load the image with the key */
-        List<ImageWrapper> images = client.getImagesKey(key);
+        List<ImageWrapper> images = client.getImagesWithKey(key);
 
         Collection<ImageWrapper> imagesCond = new ArrayList<>(1);
 
@@ -272,6 +277,97 @@ class ClientTest extends UserTest {
     void testGetSingleWell() throws Exception {
         String plateName = client.getWell(1L).getPlate().getName();
         assertEquals(PLATE1.name, plateName);
+    }
+
+
+    @Test
+    void testGetAllProjectsForUser1() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser");
+
+        Collection<ProjectWrapper> projects = client.getProjects(user);
+        assertEquals(2, projects.size());
+    }
+
+
+    @Test
+    void testGetAllProjectsForUser2() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser2");
+
+        Collection<ProjectWrapper> projects = client.getProjects(user);
+        assertEquals(0, projects.size());
+    }
+
+
+    @Test
+    void testGetAllDatasetsForUser1() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser");
+
+        Collection<DatasetWrapper> datasets = client.getDatasets(user);
+        assertEquals(4, datasets.size());
+    }
+
+
+    @Test
+    void testGetAllDatasetsForUser2() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser2");
+
+        Collection<DatasetWrapper> datasets = client.getDatasets(user);
+        assertEquals(0, datasets.size());
+    }
+
+
+    @Test
+    void testGetAllScreensForUser1() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser");
+
+        Collection<ScreenWrapper> screens = client.getScreens(user);
+        assertEquals(2, screens.size());
+    }
+
+
+    @Test
+    void testGetAllScreensForUser2() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser2");
+
+        Collection<ScreenWrapper> screens = client.getScreens(user);
+        assertEquals(0, screens.size());
+    }
+
+
+    @Test
+    void testGetAllPlatesForUser1() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser");
+
+        Collection<PlateWrapper> plates = client.getPlates(user);
+        assertEquals(3, plates.size());
+    }
+
+
+    @Test
+    void testGetAllPlatesForUser2() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser2");
+
+        Collection<PlateWrapper> plates = client.getPlates(user);
+        assertEquals(0, plates.size());
+    }
+
+
+    @Test
+    void testGetAllWellsForUser1() throws Exception {
+        ExperimenterWrapper user   = client.getUser("testUser");
+        final int           nWells = 17;
+
+        Collection<WellWrapper> wells = client.getWells(user);
+        assertEquals(nWells, wells.size());
+    }
+
+
+    @Test
+    void testGetAllWellsForUser2() throws Exception {
+        ExperimenterWrapper user = client.getUser("testUser2");
+
+        Collection<WellWrapper> wells = client.getWells(user);
+        assertEquals(0, wells.size());
     }
 
 }

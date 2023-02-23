@@ -5,9 +5,11 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -32,6 +34,29 @@ class ScreenTest extends UserTest {
 
 
     @Test
+    void testGetPlateAcquisitions() throws Exception {
+        ScreenWrapper screen = client.getScreen(SCREEN2.id);
+        assertEquals(2, screen.getPlateAcquisitions(client).size());
+    }
+
+
+    @Test
+    void testGetWells() throws Exception {
+        ScreenWrapper     screen = client.getScreen(SCREEN2.id);
+        List<WellWrapper> wells  = screen.getWells(client);
+        assertEquals(8, wells.size());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        ScreenWrapper      screen = client.getScreen(SCREEN2.id);
+        List<ImageWrapper> images = screen.getImages(client);
+        assertEquals(16, images.size());
+    }
+
+
+    @Test
     void testGetPlatesFromScreen() throws Exception {
         ScreenWrapper      screen = client.getScreen(SCREEN2.id);
         List<PlateWrapper> plates = screen.getPlates();
@@ -52,7 +77,7 @@ class ScreenTest extends UserTest {
         ScreenWrapper screen = client.getScreen(SCREEN2.id);
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Screen tag", "tag attached to a screen");
-        screen.addTag(client, tag);
+        screen.link(client, tag);
         List<TagAnnotationWrapper> tags = screen.getTags(client);
         client.delete(tag);
         List<TagAnnotationWrapper> checkTags = screen.getTags(client);
