@@ -21,12 +21,11 @@ package fr.igred.omero.screen;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -320,13 +318,11 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
-        try {
-            data = client.getBrowseFacility()
-                         .getScreens(client.getCtx(), Collections.singletonList(this.getId()))
-                         .iterator().next();
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot refresh " + this);
-        }
+        data = ExceptionHandler.of(client.getBrowseFacility(),
+                                   bf -> bf.getScreens(client.getCtx(), Collections.singletonList(this.getId()))
+                                           .iterator().next())
+                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .get();
     }
 
 
@@ -340,7 +336,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
@@ -362,7 +358,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<Long> importImage(GatewayWrapper client, String path)

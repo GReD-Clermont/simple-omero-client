@@ -21,11 +21,10 @@ package fr.igred.omero.core;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
@@ -38,9 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static ome.formats.model.UnitsFactory.convertLength;
 
 
@@ -139,13 +136,11 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      */
     public void loadPlanesInfo(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = new ArrayList<>(0);
-        try {
-            planes = client.getMetadata().getPlaneInfos(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot retrieve planes info: " + e.getMessage());
-        }
-        planesInfo = planes.stream().map(PlaneInfoWrapper::new).collect(Collectors.toList());
+        List<PlaneInfoData> planes = ExceptionHandler.of(client.getMetadata(),
+                                                         m -> m.getPlaneInfos(client.getCtx(), data))
+                                                     .handleServiceOrAccess("Cannot retrieve planes info.")
+                                                     .get();
+        planesInfo = wrap(planes, PlaneInfoWrapper::new);
     }
 
 
@@ -428,25 +423,45 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
     double[][] getTile(Client client, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
-        Plane2D p;
+        double[][] tile = ExceptionHandler.of(this, t -> t.getTileUnchecked(client, start, width, height))
+                                          .rethrow(DataSourceException.class, AccessException::new, "Cannot read tile")
+                                          .get();
+        if (rdf) {
+            destroyRawDataFacility();
+        }
+        return tile;
+    }
 
+
+    /**
+     * Gets the tile at the specified position, with the defined width and height.
+     * <p>The {@link #rawDataFacility} has to be created first.</p>
+     *
+     * @param client The client handling the connection.
+     * @param start  Start position of the tile.
+     * @param width  Width of the tile.
+     * @param height Height of the tile.
+     *
+     * @return 2D array containing tile pixel values (as double).
+     *
+     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
+     */
+    private double[][] getTileUnchecked(Client client, Coordinates start, int width, int height)
+    throws DataSourceException {
         double[][] tile = new double[height][width];
+
+        int c = start.getC();
+        int z = start.getZ();
+        int t = start.getT();
+
         for (int relX = 0, x = start.getX(); relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.getY(); relY < height; relY += MAX_DIST, y += MAX_DIST) {
-                int sizeY = Math.min(MAX_DIST, height - relY);
-                try {
-                    p = rawDataFacility.getTile(client.getCtx(), data, start.getZ(), start.getT(), start.getC(),
-                                                x, y, sizeX, sizeY);
-                } catch (DataSourceException dse) {
-                    throw new AccessException("Cannot read tile", dse);
-                }
-                Coordinates pos = new Coordinates(relX, relY, start.getC(), start.getZ(), start.getT());
+                int         sizeY = Math.min(MAX_DIST, height - relY);
+                Plane2D     p     = rawDataFacility.getTile(client.getCtx(), data, z, t, c, x, y, sizeX, sizeY);
+                Coordinates pos   = new Coordinates(relX, relY, c, z, t);
                 copy(tile, p, pos, sizeX, sizeY);
             }
-        }
-        if (rdf) {
-            destroyRawDataFacility();
         }
         return tile;
     }
@@ -532,25 +547,46 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
     byte[] getRawTile(Client client, Coordinates start, int width, int height, int bpp)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
-        Plane2D p;
+        byte[] tile = ExceptionHandler.of(this, t -> t.getRawTileUnchecked(client, start, width, height, bpp))
+                                      .rethrow(DataSourceException.class, AccessException::new, "Cannot read raw tile")
+                                      .get();
+        if (rdf) {
+            destroyRawDataFacility();
+        }
+        return tile;
+    }
 
+
+    /**
+     * Gets the tile at the specified position, with the defined width and height.
+     * <p>The {@link #rawDataFacility} has to be created first.</p>
+     *
+     * @param client The client handling the connection.
+     * @param start  Start position of the tile.
+     * @param width  Width of the tile.
+     * @param height Height of the tile.
+     * @param bpp    Bytes per pixels of the image.
+     *
+     * @return Array of bytes containing the pixel values.
+     *
+     * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
+     */
+    private byte[] getRawTileUnchecked(Client client, Coordinates start, int width, int height, int bpp)
+    throws DataSourceException {
         byte[] tile = new byte[height * width * bpp];
+
+        int c = start.getC();
+        int z = start.getZ();
+        int t = start.getT();
+
         for (int relX = 0, x = start.getX(); relX < width; relX += MAX_DIST, x += MAX_DIST) {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.getY(); relY < height; relY += MAX_DIST, y += MAX_DIST) {
-                int sizeY = Math.min(MAX_DIST, height - relY);
-                try {
-                    p = rawDataFacility.getTile(client.getCtx(), data, start.getZ(), start.getT(), start.getC(),
-                                                x, y, sizeX, sizeY);
-                } catch (DataSourceException dse) {
-                    throw new AccessException("Cannot read raw tile", dse);
-                }
-                Coordinates pos = new Coordinates(relX, relY, start.getC(), start.getZ(), start.getT());
+                int         sizeY = Math.min(MAX_DIST, height - relY);
+                Plane2D     p     = rawDataFacility.getTile(client.getCtx(), data, z, t, c, x, y, sizeX, sizeY);
+                Coordinates pos   = new Coordinates(relX, relY, c, z, t);
                 copy(tile, p, pos, sizeX, sizeY, width, bpp);
             }
-        }
-        if (rdf) {
-            destroyRawDataFacility();
         }
         return tile;
     }

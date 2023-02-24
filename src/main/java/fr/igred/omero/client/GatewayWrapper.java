@@ -19,17 +19,15 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
-import omero.LockTimeout;
-import omero.ServerError;
 import omero.gateway.Gateway;
 import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
-import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.AdminFacility;
 import omero.gateway.facility.BrowseFacility;
@@ -42,13 +40,8 @@ import omero.log.SimpleLogger;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleException;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
@@ -141,13 +134,10 @@ public abstract class GatewayWrapper {
      * @throws ServiceException If the connection is broken, or not logged in
      */
     public String getSessionId() throws ServiceException {
-        String sessionId;
-        try {
-            sessionId = gateway.getSessionId(user.asDataObject());
-        } catch (DSOutOfServiceException e) {
-            throw new ServiceException("Could not retrieve session ID", e, e.getConnectionStatus());
-        }
-        return sessionId;
+        return ExceptionHandler.of(gateway, g -> g.getSessionId(user.asDataObject()))
+                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+                                        "Could not retrieve session ID")
+                               .get();
     }
 
 
@@ -347,13 +337,10 @@ public abstract class GatewayWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public OMEROMetadataStoreClient getImportStore() throws ServiceException {
-        OMEROMetadataStoreClient store;
-        try {
-            store = gateway.getImportStore(ctx);
-        } catch (DSOutOfServiceException e) {
-            throw new ServiceException("Could not retrieve import store", e, e.getConnectionStatus());
-        }
-        return store;
+        return ExceptionHandler.of(gateway, g -> g.getImportStore(ctx))
+                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+                                        "Could not retrieve import store")
+                               .get();
     }
 
 
@@ -365,17 +352,12 @@ public abstract class GatewayWrapper {
      * @return A list of OMERO objects.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      */
     public List<IObject> findByQuery(String query) throws ServiceException, ServerException {
-        List<IObject> results = new ArrayList<>(0);
-        try {
-            results = gateway.getQueryService(ctx).findAllByQuery(query, null);
-        } catch (DSOutOfServiceException | ServerError e) {
-            handleServiceOrServer(e, "Query failed: " + query);
-        }
-
-        return results;
+        return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx).findAllByQuery(query, null))
+                               .handleServiceOrServer("Query failed: " + query)
+                               .get();
     }
 
 
@@ -391,13 +373,9 @@ public abstract class GatewayWrapper {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
-        IObject result = object;
-        try {
-            result = getDm().saveAndReturnObject(ctx, object);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot save object");
-        }
-        return result;
+        return ExceptionHandler.of(getDm(), d -> d.saveAndReturnObject(ctx, object))
+                               .handleServiceOrAccess("Cannot save object")
+                               .get();
     }
 
 
@@ -409,17 +387,16 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        final int ms = 500;
-        try {
-            getDm().delete(ctx, object).loop(10, ms);
-        } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
-            handleException(e, "Cannot delete object");
-        }
+        final long wait = 500L;
+        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, object).loop(10, wait))
+                        .rethrow(InterruptedException.class)
+                        .handleException("Cannot delete object")
+                        .rethrow();
     }
 
 
@@ -431,17 +408,16 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(List<IObject> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        final int ms = 500;
-        try {
-            getDm().delete(ctx, objects).loop(10, ms);
-        } catch (DSOutOfServiceException | DSAccessException | LockTimeout e) {
-            handleException(e, "Cannot delete objects");
-        }
+        final long wait = 500L;
+        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, objects).loop(10, wait))
+                        .rethrow(InterruptedException.class)
+                        .handleException("Cannot delete objects")
+                        .rethrow();
     }
 
 
@@ -453,7 +429,7 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteFile(Long id)

@@ -22,12 +22,11 @@ import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectDatasetLink;
@@ -40,8 +39,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -219,7 +216,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void removeDataset(Client client, DatasetWrapper dataset)
@@ -241,14 +238,11 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = new ArrayList<>(0);
-        try {
-            images = client.getBrowseFacility()
-                           .getImagesForProjects(client.getCtx(),
-                                                 Collections.singletonList(data.getId()));
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images from " + this);
-        }
+        List<Long> projectIds = Collections.singletonList(getId());
+        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
+                                                           bf -> bf.getImagesForProjects(client.getCtx(), projectIds))
+                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .get();
         return distinct(wrap(images, ImageWrapper::new));
     }
 
@@ -341,7 +335,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
@@ -366,7 +360,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
@@ -440,13 +434,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
-        try {
-            data = client.getBrowseFacility()
-                         .getProjects(client.getCtx(), Collections.singletonList(this.getId()))
-                         .iterator().next();
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot refresh " + this);
-        }
+        data = ExceptionHandler.of(client.getBrowseFacility(),
+                                   bf -> bf.getProjects(client.getCtx(),
+                                                        Collections.singletonList(this.getId()))
+                                           .iterator().next())
+                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .get();
     }
 
 }

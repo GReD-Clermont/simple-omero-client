@@ -20,6 +20,7 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.ImageWrapper;
@@ -27,8 +28,6 @@ import fr.igred.omero.core.PixelsWrapper.Bounds;
 import fr.igred.omero.core.PixelsWrapper.Coordinates;
 import ij.gui.ShapeRoi;
 import omero.RString;
-import omero.ServerError;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.Roi;
@@ -45,7 +44,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 import static java.util.stream.Collectors.groupingBy;
 
 
@@ -359,15 +357,15 @@ public class ROIWrapper extends ObjectWrapper<ROIData> {
      * @param client The client handling the connection.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      */
     public void saveROI(Client client) throws ServerException, ServiceException {
-        try {
-            Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
-            data = new ROIData(roi);
-        } catch (DSOutOfServiceException | ServerError e) {
-            handleServiceOrServer(e, "Cannot save ROI");
-        }
+        Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
+                                            g -> g.getUpdateService(client.getCtx())
+                                                  .saveAndReturnObject(data.asIObject()))
+                                        .handleServiceOrServer("Cannot save ROI")
+                                        .get();
+        data = new ROIData(roi);
     }
 
 
