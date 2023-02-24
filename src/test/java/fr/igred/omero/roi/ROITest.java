@@ -19,7 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.core.ImageWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;

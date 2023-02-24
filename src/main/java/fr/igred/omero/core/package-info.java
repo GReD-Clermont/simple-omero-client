@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains abstract classes to handle OME Remote Objects.
+ * This package contains classes to handle images and their content, such as pixels, channels or planes.
  */
-package fr.igred.omero;
+package fr.igred.omero.core;

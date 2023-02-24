@@ -19,8 +19,8 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.containers.DatasetWrapper;
+import fr.igred.omero.core.ImageWrapper;
 import omero.gateway.model.ImageData;
 import org.junit.jupiter.api.Test;
 

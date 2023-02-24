@@ -15,6 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains abstract classes to handle OME Remote Objects.
+ * This package contains classes related to the hierarchical organization of images,
+ * <p> e.g. containers (projects, datasets and folders).
  */
-package fr.igred.omero;
+package fr.igred.omero.containers;

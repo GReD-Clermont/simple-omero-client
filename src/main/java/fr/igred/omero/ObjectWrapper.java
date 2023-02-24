@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -71,7 +72,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends ObjectWrapper<U>, W extends Comparable<W>> List<V>
+    public static <U extends DataObject, V extends ObjectWrapper<U>, W extends Comparable<W>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
         return objects.stream()
                       .map(mapper)
@@ -90,7 +91,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends ObjectWrapper<U>> List<V>
+    public static <U extends DataObject, V extends ObjectWrapper<U>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
         return wrap(objects, mapper, ObjectWrapper::getId);
     }
@@ -105,7 +106,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     protected static void delete(Client client, IObject object)
@@ -167,7 +168,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    IObject asIObject() {
+    public IObject asIObject() {
         return data.asIObject();
     }
 
