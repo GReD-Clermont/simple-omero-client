@@ -19,11 +19,12 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.core.ImageWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,7 +51,7 @@ class ROITest extends UserTest {
             roiWrapper.addShape(rectangle);
         }
 
-        image.saveROI(client, roiWrapper);
+        image.saveROIs(client, roiWrapper);
 
         List<ROIWrapper> rois = image.getROIs(client);
 
@@ -69,7 +70,7 @@ class ROITest extends UserTest {
     void testROI2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
+        List<ShapeWrapper<?>> shapes = new ArrayList<>(4);
 
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
@@ -102,7 +103,7 @@ class ROITest extends UserTest {
     void testRoiAddShapeAndDeleteIt() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
+        Collection<ShapeWrapper<?>> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);

@@ -15,7 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains abstract wrapper classes for the OMERO Gateway and the basic OMERO object. It also contains a
- * Client, derived from the GatewayWrapper, which handles the retrieval of wrapped objects from OMERO.
+ * This package contains abstract classes to handle OME Remote Objects.
  */
 package fr.igred.omero;

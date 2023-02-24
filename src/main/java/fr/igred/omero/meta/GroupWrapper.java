@@ -18,7 +18,7 @@
 package fr.igred.omero.meta;
 
 
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import omero.gateway.model.GroupData;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
  * Class containing a GroupData object.
  * <p> Wraps function calls to the GroupData contained.
  */
-public class GroupWrapper extends GenericObjectWrapper<GroupData> {
+public class GroupWrapper extends ObjectWrapper<GroupData> {
 
     /** Indicates that the group is {@code Private} i.e. RW----. */
     public static final int PERMISSIONS_PRIVATE = GroupData.PERMISSIONS_PRIVATE;
@@ -78,17 +78,6 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      */
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * @return See above.
-     *
-     * @deprecated Returns the GroupData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public GroupData asGroupData() {
-        return data;
     }
 
 

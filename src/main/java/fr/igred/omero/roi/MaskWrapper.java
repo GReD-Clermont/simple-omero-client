@@ -29,7 +29,7 @@ import java.awt.geom.Rectangle2D;
  * Class containing an MaskData.
  * <p> Wraps function calls to the MaskData contained.
  */
-public class MaskWrapper extends GenericShapeWrapper<MaskData> {
+public class MaskWrapper extends ShapeWrapper<MaskData> {
 
 
     /**

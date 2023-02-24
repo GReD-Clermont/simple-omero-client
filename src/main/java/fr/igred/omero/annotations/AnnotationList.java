@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-/** List of GenericShapeWrapper objects */
-public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
+/** List of ShapeWrapper objects */
+public class AnnotationList extends ArrayList<AnnotationWrapper<?>> {
 
 
     private static final long serialVersionUID = 8792604507462788823L;
@@ -56,11 +56,11 @@ public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
      * Gets a list of elements from this list whose class is specified.
      *
      * @param clazz Class of the wanted elements.
-     * @param <T>   Subclass of GenericShapeWrapper.
+     * @param <T>   Subclass of ShapeWrapper.
      *
      * @return See above.
      */
-    public <T extends GenericAnnotationWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
+    public <T extends AnnotationWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
     }
 
@@ -76,7 +76,7 @@ public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
         boolean added;
 
         try {
-            GenericAnnotationWrapper<? extends AnnotationData> wrapper = Wrapper.wrap(shape);
+            AnnotationWrapper<? extends AnnotationData> wrapper = Wrapper.wrap(shape);
             added = add(wrapper);
         } catch (IllegalArgumentException e) {
             added = false;

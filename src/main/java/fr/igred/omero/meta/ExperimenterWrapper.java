@@ -18,7 +18,7 @@
 package fr.igred.omero.meta;
 
 
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import omero.gateway.model.ExperimenterData;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
  * Class containing an ExperimenterData object.
  * <p> Wraps function calls to the ExperimenterData contained.
  */
-public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> {
+public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
 
     /**
      * Constructor of the class ExperimenterWrapper.
@@ -37,17 +37,6 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      */
     public ExperimenterWrapper(ExperimenterData experimenter) {
         super(experimenter);
-    }
-
-
-    /**
-     * @return See above.
-     *
-     * @deprecated Returns the ExperimenterData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public ExperimenterData asExperimenterData() {
-        return data;
     }
 
 
