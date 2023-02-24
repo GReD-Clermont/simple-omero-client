@@ -25,11 +25,11 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Map.Entry;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -58,7 +58,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
         super(new MapAnnotationData());
         List<NamedValue> nv = pairs.stream()
                                    .map(e -> new NamedValue(e.getKey(), e.getValue()))
-                                   .collect(toList());
+                                   .collect(Collectors.toList());
         data.setContent(nv);
     }
 
@@ -80,7 +80,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
     public List<Entry<String, String>> getContent() {
         return ((Collection<NamedValue>) data.getContent()).stream()
                                                            .map(kv -> new AbstractMap.SimpleEntry<>(kv.name, kv.value))
-                                                           .collect(toList());
+                                                           .collect(Collectors.toList());
     }
 
 
@@ -93,7 +93,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
         data = new MapAnnotationData();
         List<NamedValue> nv = pairs.stream()
                                    .map(e -> new NamedValue(e.getKey(), e.getValue()))
-                                   .collect(toList());
+                                   .collect(Collectors.toList());
         data.setContent(nv);
     }
 
@@ -104,7 +104,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      * @return See above.
      */
     public Map<String, List<String>> getContentAsMap() {
-        return getContent().stream().collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
+        return getContent().stream().collect(groupingBy(Entry::getKey, mapping(Entry::getValue, Collectors.toList())));
     }
 
 }

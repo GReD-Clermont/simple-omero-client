@@ -199,7 +199,7 @@ class ScreenTest extends UserTest {
         client.delete(wells);
         client.delete(plates);
 
-        screen.refresh(client);
+        screen.reload(client);
         assertTrue(screen.getPlates().isEmpty());
 
         client.delete(screen);
@@ -238,7 +238,7 @@ class ScreenTest extends UserTest {
         client.delete(wells);
         client.delete(plates);
 
-        screen.refresh(client);
+        screen.reload(client);
         List<PlateWrapper> endPlates = screen.getPlates();
 
         client.delete(screen);

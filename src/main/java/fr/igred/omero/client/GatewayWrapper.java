@@ -270,6 +270,18 @@ public abstract class GatewayWrapper {
 
 
     /**
+     * Gets the {@link MetadataFacility} used to retrieve annotations from OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
+     */
+    public MetadataFacility getMetadata() throws ExecutionException {
+        return gateway.getFacility(MetadataFacility.class);
+    }
+
+
+    /**
      * Gets the DataManagerFacility to handle/write data on OMERO. A
      *
      * @return the {@link DataManagerFacility} linked to the gateway.
@@ -278,18 +290,6 @@ public abstract class GatewayWrapper {
      */
     public DataManagerFacility getDm() throws ExecutionException {
         return gateway.getFacility(DataManagerFacility.class);
-    }
-
-
-    /**
-     * Gets the MetadataFacility used to manipulate annotations from OMERO.
-     *
-     * @return the {@link MetadataFacility} linked to the gateway.
-     *
-     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
-     */
-    public MetadataFacility getMetadata() throws ExecutionException {
-        return gateway.getFacility(MetadataFacility.class);
     }
 
 

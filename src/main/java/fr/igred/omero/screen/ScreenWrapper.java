@@ -172,7 +172,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        refresh(client);
+        reload(client);
         return getPlates().stream()
                           .map(PlateWrapper::getPlateAcquisitions)
                           .flatMap(Collection::stream)
@@ -309,7 +309,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Refreshes the wrapped screen.
+     * Reloads the screen from OMERO.
      *
      * @param client The client handling the connection.
      *
@@ -317,12 +317,13 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
+    public void reload(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getScreens(client.getCtx(), Collections.singletonList(this.getId()))
-                                           .iterator().next())
+                                   bf -> bf.getScreens(client.getCtx(), Collections.singletonList(data.getId())))
                                .handleServiceOrAccess("Cannot refresh " + this)
-                               .get();
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 
@@ -343,7 +344,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     public boolean importImages(GatewayWrapper client, String... paths)
     throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
         boolean success = importImages(client, data, paths);
-        refresh(client);
+        reload(client);
         return success;
     }
 
@@ -364,7 +365,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     public List<Long> importImage(GatewayWrapper client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<Long> ids = importImage(client, data, path);
-        refresh(client);
+        reload(client);
         return ids;
     }
 

@@ -389,7 +389,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
         link.setParent(new DatasetI(data.getId(), false));
 
         client.save(link);
-        refresh(client);
+        reload(client);
     }
 
 
@@ -428,7 +428,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
     public boolean importImages(Client client, String... paths)
     throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
         boolean success = importImages(client, data, paths);
-        refresh(client);
+        reload(client);
         return success;
     }
 
@@ -449,7 +449,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
     public List<Long> importImage(Client client, String path)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<Long> ids = importImage(client, data, path);
-        refresh(client);
+        reload(client);
         return ids;
     }
 
@@ -569,7 +569,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
 
 
     /**
-     * Refreshes the dataset.
+     * Reloads the dataset from OMERO.
      *
      * @param client The client handling the connection.
      *
@@ -577,12 +577,13 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
+    public void reload(Client client) throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getDatasets(client.getCtx(), singletonList(this.getId()))
-                                           .iterator().next())
+                                   bf -> bf.getDatasets(client.getCtx(), singletonList(data.getId())))
                                .handleServiceOrAccess("Cannot refresh " + this)
-                               .get();
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

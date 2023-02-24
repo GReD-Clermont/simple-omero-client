@@ -218,7 +218,7 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetTag() {
-        assertThrows(ServiceException.class, () -> sudo.getTag(TAG1.id));
+        assertThrows(AccessException.class, () -> sudo.getTag(TAG1.id));
     }
 
 
