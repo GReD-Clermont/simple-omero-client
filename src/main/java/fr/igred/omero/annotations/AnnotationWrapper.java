@@ -53,7 +53,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     /**
      * Constructor of the AnnotationWrapper class.
      *
-     * @param a Annotation to be contained.
+     * @param a Annotation to wrap.
      */
     protected AnnotationWrapper(T a) {
         super(a);
@@ -119,7 +119,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      */
     public int countAnnotationLinks(Client client) throws ServiceException, ServerException {
         return client.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
@@ -128,15 +128,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all projects with this tag from OMERO.
+     * Gets all projects with this annotation from OMERO.
      *
      * @param client The client handling the connection.
      *
-     * @return ProjectWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ProjectWrapper> getProjects(Client client)
@@ -148,15 +148,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all datasets with this tag from OMERO.
+     * Gets all datasets with this annotation from OMERO.
      *
      * @param client The client handling the connection.
      *
-     * @return DatasetWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets(Client client)
@@ -168,15 +168,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all images with this tag from OMERO.
+     * Gets all images with this annotation from OMERO.
      *
      * @param client The client handling the connection.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(Client client)
@@ -188,15 +188,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all screens with this tag from OMERO.
+     * Gets all screens with this annotation from OMERO.
      *
      * @param client The client handling the connection.
      *
-     * @return ScreenWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ScreenWrapper> getScreens(Client client)
@@ -208,15 +208,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all plates with this tag from OMERO.
+     * Gets all plates with this annotation from OMERO.
      *
      * @param client The client handling the connection.
      *
-     * @return PlateWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<PlateWrapper> getPlates(Client client)
@@ -235,7 +235,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, ServerException {
@@ -247,15 +247,15 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Gets all wells with this tag from OMERO.
+     * Gets all wells with this annotation from OMERO.
      *
      * @param client The client handling the connection.
      *
-     * @return WellWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellWrapper> getWells(Client client)
@@ -275,7 +275,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<FolderWrapper> getFolders(Client client)
@@ -295,7 +295,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @return The list of linked objects.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException Server error.
+     * @throws ServerException  Server error.
      */
     private List<IObject> getLinks(Client client, String linkType)
     throws ServiceException, ServerException {

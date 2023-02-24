@@ -37,7 +37,7 @@ List<DatasetWrapper> datasets = client.getDatasets();
 These objects can then be used to retrieve their children:
 
 ```java
-for (DatasetWrapper dataset:datasets) {
+for (DatasetWrapper dataset : datasets) {
     List<ImageWrapper> images = dataset.getImages(client);
     //...
 }
@@ -51,15 +51,15 @@ For each type of objects (project, dataset or image), annotations can be retriev
 
 ```java
 TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "name", "description");
-dataset.addTag(client, tag);
+dataset.link(client, tag);
 List<TagAnnotationWrapper> tags = dataset.getTags(client);
 ```
 
 * #### Key/Value pairs:
 
 ```java
-dataset.addPairKeyValue(client, "key", "value");
-String value = dataset.getValue(client, "key");
+dataset.addKeyValuePair(client, "key", "value");
+List<String> values = dataset.getValues(client, "key");
 ```
 
 * #### Tables:
@@ -101,7 +101,7 @@ ROIs can be added to images or retrieved from them:
 ROIWrapper roi = new ROIWrapper();
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 roi.setImage(image);
-image.saveROI(client, roi);
+image.saveROIs(client, roi);
 List<ROIWrapper> rois = image.getROIs(client);
 ```
 

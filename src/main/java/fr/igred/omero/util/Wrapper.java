@@ -83,6 +83,9 @@ import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
 
+/**
+ * Utility class to wrap a DataObject dynamically.
+ */
 @SuppressWarnings({"OverlyCoupledClass", "unchecked", "IfStatementWithTooManyBranches"})
 public final class Wrapper {
 

@@ -227,7 +227,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param client The client handling the connection.
-     * @param tag    TagAnnotationWrapper containing the tag researched.
+     * @param tag    The tag annotation.
      *
      * @return See above.
      *
@@ -246,7 +246,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param client The client handling the connection.
-     * @param tagId  Id of the tag researched.
+     * @param tagId  ID of the tag researched.
      *
      * @return See above.
      *

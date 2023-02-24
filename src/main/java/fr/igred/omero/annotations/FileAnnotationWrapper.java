@@ -159,7 +159,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
 
 
     /**
-     * Returns the id of the file.
+     * Returns the ID of the file.
      *
      * @return See above.
      */

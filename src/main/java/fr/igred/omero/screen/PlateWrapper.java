@@ -117,7 +117,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
 
 
     /**
-     * Retrieves the screens containing this dataset.
+     * Retrieves the screens containing this plate.
      *
      * @param client The client handling the connection.
      *

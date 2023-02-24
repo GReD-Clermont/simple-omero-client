@@ -101,7 +101,7 @@ public class Client extends GatewayWrapper {
      *
      * @param id ID of the project.
      *
-     * @return ProjectWrapper containing the project.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -123,7 +123,7 @@ public class Client extends GatewayWrapper {
      *
      * @param ids Project IDs
      *
-     * @return List of ProjectWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -143,7 +143,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets all projects available from OMERO.
      *
-     * @return Collection of ProjectWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -185,7 +185,7 @@ public class Client extends GatewayWrapper {
      *
      * @param name Name searched.
      *
-     * @return Collection of ProjectWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -206,7 +206,7 @@ public class Client extends GatewayWrapper {
      *
      * @param id ID of the dataset.
      *
-     * @return ProjectWrapper containing the project.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -228,7 +228,7 @@ public class Client extends GatewayWrapper {
      *
      * @param ids Dataset IDs
      *
-     * @return List of DatasetWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -295,28 +295,28 @@ public class Client extends GatewayWrapper {
      *
      * @param name Name searched.
      *
-     * @return Collection of DatasetWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets(String name) throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get datasets with name: " + name;
         Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getDatasets(getCtx(), name))
-                                                           .handleServiceOrAccess("Cannot get datasets with name: "
-                                                                                  + name)
+                                                           .handleServiceOrAccess(error)
                                                            .get();
         return wrap(datasets, DatasetWrapper::new);
     }
 
 
     /**
-     * Returns an ImageWrapper that contains the image with the specified id from OMERO.
+     * Returns the image with the specified ID from OMERO.
      *
      * @param id ID of the image.
      *
-     * @return ImageWrapper containing the image.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -325,9 +325,10 @@ public class Client extends GatewayWrapper {
      */
     public ImageWrapper getImage(Long id)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get image with ID: " + id;
         ImageData image = ExceptionHandler.of(getBrowseFacility(),
                                               bf -> bf.getImage(getCtx(), id))
-                                          .handleServiceOrAccess("Cannot get image with ID: " + id)
+                                          .handleServiceOrAccess(error)
                                           .get();
         if (image == null) {
             throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
@@ -341,17 +342,17 @@ public class Client extends GatewayWrapper {
      *
      * @param ids Image IDs
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(Long... ids) throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get images with IDs: " + Arrays.toString(ids);
         Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
                                                            bf -> bf.getImages(getCtx(), Arrays.asList(ids)))
-                                                       .handleServiceOrAccess("Cannot get images with IDs: "
-                                                                              + Arrays.toString(ids))
+                                                       .handleServiceOrAccess(error)
                                                        .get();
         return wrap(images, ImageWrapper::new);
     }
@@ -360,7 +361,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets all images owned by the current user.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -380,7 +381,7 @@ public class Client extends GatewayWrapper {
      *
      * @param name Name searched.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -403,7 +404,7 @@ public class Client extends GatewayWrapper {
      * @param datasetName Expected dataset name.
      * @param imageName   Expected image name.
      *
-     * @return ImageWrapper list.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -520,7 +521,7 @@ public class Client extends GatewayWrapper {
      *
      * @param id ID of the screen.
      *
-     * @return ScreenWrapper containing the screen.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -542,7 +543,7 @@ public class Client extends GatewayWrapper {
      *
      * @param ids A list of screen ids
      *
-     * @return List of ScreenWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -561,7 +562,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets all screens available from OMERO.
      *
-     * @return List of ScreenWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -589,10 +590,10 @@ public class Client extends GatewayWrapper {
      */
     public List<ScreenWrapper> getScreens(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot get screens for user %s", experimenter);
         Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
                                                              bf -> bf.getScreens(getCtx(), experimenter.getId()))
-                                                         .handleServiceOrAccess("Cannot get screens for user "
-                                                                                + experimenter)
+                                                         .handleServiceOrAccess(error)
                                                          .get();
         return wrap(screens, ScreenWrapper::new);
     }
@@ -603,7 +604,7 @@ public class Client extends GatewayWrapper {
      *
      * @param id ID of the plate.
      *
-     * @return PlateWrapper containing the plate.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -625,7 +626,7 @@ public class Client extends GatewayWrapper {
      *
      * @param ids A list of plate ids
      *
-     * @return List of PlateWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -644,7 +645,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets all plates available from OMERO.
      *
-     * @return List of PlateWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -686,7 +687,7 @@ public class Client extends GatewayWrapper {
      *
      * @param id ID of the well.
      *
-     * @return WellWrapper containing the well.
+     * @return See above.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
@@ -708,7 +709,7 @@ public class Client extends GatewayWrapper {
      *
      * @param ids A list of well ids
      *
-     * @return List of WellWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -728,7 +729,7 @@ public class Client extends GatewayWrapper {
     /**
      * Gets all wells available from OMERO.
      *
-     * @return List of WellWrapper.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -856,9 +857,9 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets the list of TagAnnotationWrapper available to the user
+     * Gets the list of tag annotations available to the user.
      *
-     * @return list of TagAnnotationWrapper.
+     * @return See above.
      *
      * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
@@ -878,11 +879,11 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets the list of TagAnnotationWrapper with the specified name available to the user
+     * Gets the list of tag annotations with the specified name available to the user.
      *
      * @param name Name of the tag searched.
      *
-     * @return list of TagAnnotationWrapper.
+     * @return See above.
      *
      * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
@@ -896,11 +897,11 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets a specific tag from the OMERO database
+     * Gets a specific tag from the OMERO database.
      *
-     * @param id Id of the tag.
+     * @param id ID of the tag.
      *
-     * @return TagAnnotationWrapper containing the specified tag.
+     * @return See above.
      *
      * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.

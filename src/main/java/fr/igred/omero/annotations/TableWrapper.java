@@ -363,14 +363,14 @@ public class TableWrapper {
     /**
      * Creates a ROIData column.
      * <p>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
-     * expected. It will look for the ROI OMERO ID in the latter, or for the local ID, the OMERO ID or the shape names
-     * in the former.
+     * expected. It will look for the ROI OMERO ID in the latter, or for the local label/index, the OMERO ID, the names or the
+     * shape names in the former.
      * <p>If neither column is present, it will check the {@value LABEL} column for the ROI names inside.
      *
      * @param results     An ImageJ results table.
      * @param rois        A list of OMERO ROIs (each ROI (ID) should be present only once).
      * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI IDs.
+     * @param roiProperty The Roi property storing the local ROI label/index.
      *
      * @return An ROIData column.
      */
