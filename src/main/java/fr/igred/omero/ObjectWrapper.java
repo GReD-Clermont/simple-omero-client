@@ -20,6 +20,7 @@ package fr.igred.omero;
 
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
@@ -27,8 +28,6 @@ import omero.gateway.model.DataObject;
 
 import java.sql.Timestamp;
 import java.util.concurrent.ExecutionException;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -128,9 +127,10 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
     @Override
     @SuppressWarnings("unchecked")
     public void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException {
-        data = (T) handleServiceAndAccess(dm.getDataManagerFacility(),
-                                          d -> d.saveAndReturnObject(dm.getCtx(), data),
-                                          "Cannot save and update object.");
+        data = (T) ExceptionHandler.of(dm.getDataManagerFacility(),
+                                       d -> d.saveAndReturnObject(dm.getCtx(), data))
+                                   .handleServiceOrAccess("Cannot save and update object.")
+                                   .get();
     }
 
 

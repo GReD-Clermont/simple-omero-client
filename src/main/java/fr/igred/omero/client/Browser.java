@@ -71,7 +71,6 @@ import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.flatten;
 import static fr.igred.omero.util.Wrapper.wrap;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -132,9 +131,8 @@ public interface Browser {
     default List<IObject> findByQuery(String query) throws ServiceException, ServerException {
         String error = "Query failed: " + query;
         return ExceptionHandler.of(getQueryService(),
-                                   qs -> qs.findAllByQuery(query, null),
-                                   error)
-                               .rethrow(ServerError.class, ServerException::new)
+                                   qs -> qs.findAllByQuery(query, null))
+                               .rethrow(ServerError.class, ServerException::new, error)
                                .get();
     }
 
@@ -175,9 +173,10 @@ public interface Browser {
     default List<Project> getProjects(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get projects with IDs: " + Arrays.toString(ids);
-        Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
-                                                                  bf -> bf.getProjects(getCtx(), Arrays.asList(ids)),
-                                                                  error);
+        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
+                                                               bf -> bf.getProjects(getCtx(), Arrays.asList(ids)))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -192,9 +191,10 @@ public interface Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Project> getProjects() throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
-                                                                  bf -> bf.getProjects(getCtx()),
-                                                                  "Cannot get projects");
+        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
+                                                               bf -> bf.getProjects(getCtx()))
+                                                           .handleServiceOrAccess("Cannot get projects")
+                                                           .get();
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -213,9 +213,10 @@ public interface Browser {
     default List<Project> getProjects(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot get projects for user %s", experimenter);
-        Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
-                                                                  bf -> bf.getProjects(getCtx(), experimenter.getId()),
-                                                                  error);
+        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
+                                                               bf -> bf.getProjects(getCtx(), experimenter.getId()))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -233,9 +234,10 @@ public interface Browser {
      */
     default List<Project> getProjects(String name) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get projects with name: " + name;
-        Collection<ProjectData> projects = handleServiceAndAccess(getBrowseFacility(),
-                                                                  bf -> bf.getProjects(getCtx(), name),
-                                                                  error);
+        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
+                                                               bf -> bf.getProjects(getCtx(), name))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -276,9 +278,10 @@ public interface Browser {
     default List<Dataset> getDatasets(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get dataset with ID: " + Arrays.toString(ids);
-        Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
-                                                                  bf -> bf.getDatasets(getCtx(), Arrays.asList(ids)),
-                                                                  error);
+        Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
+                                                               bf -> bf.getDatasets(getCtx(), Arrays.asList(ids)))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
         return wrap(datasets, DatasetWrapper::new);
     }
 
@@ -341,15 +344,16 @@ public interface Browser {
      */
     default List<Dataset> getDatasets(String name) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get datasets with name: " + name;
-        Collection<DatasetData> datasets = handleServiceAndAccess(getBrowseFacility(),
-                                                                  bf -> bf.getDatasets(getCtx(), name),
-                                                                  error);
+        Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
+                                                               bf -> bf.getDatasets(getCtx(), name))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
         return wrap(datasets, DatasetWrapper::new);
     }
 
 
     /**
-     * Returns the image with the specified id from OMERO.
+     * Returns the image with the specified ID from OMERO.
      *
      * @param id ID of the image.
      *
@@ -363,10 +367,10 @@ public interface Browser {
     default Image getImage(Long id)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get image with ID: " + id;
-
-        ImageData image = handleServiceAndAccess(getBrowseFacility(),
-                                                 bf -> bf.getImage(getCtx(), id),
-                                                 error);
+        ImageData image = ExceptionHandler.of(getBrowseFacility(),
+                                              bf -> bf.getImage(getCtx(), id))
+                                          .handleServiceOrAccess(error)
+                                          .get();
         if (image == null) {
             throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
         }
@@ -387,9 +391,10 @@ public interface Browser {
      */
     default List<Image> getImages(Long... ids) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with IDs: " + Arrays.toString(ids);
-        Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
-                                                              bf -> bf.getImages(getCtx(), Arrays.asList(ids)),
-                                                              error);
+        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
+                                                           bf -> bf.getImages(getCtx(), Arrays.asList(ids)))
+                                                       .handleServiceOrAccess(error)
+                                                       .get();
         return wrap(images, ImageWrapper::new);
     }
 
@@ -404,9 +409,10 @@ public interface Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Image> getImages() throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
-                                                              bf -> bf.getUserImages(getCtx()),
-                                                              "Cannot get images");
+        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
+                                                           bf -> bf.getUserImages(getCtx()))
+                                                       .handleServiceOrAccess("Cannot get images")
+                                                       .get();
         return wrap(images, ImageWrapper::new);
     }
 
@@ -424,9 +430,10 @@ public interface Browser {
      */
     default List<Image> getImages(String name) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with name: " + name;
-        Collection<ImageData> images = handleServiceAndAccess(getBrowseFacility(),
-                                                              bf -> bf.getImages(getCtx(), name),
-                                                              error);
+        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
+                                                           bf -> bf.getImages(getCtx(), name))
+                                                       .handleServiceOrAccess(error)
+                                                       .get();
         return wrap(images, ImageWrapper::new);
     }
 
@@ -591,10 +598,11 @@ public interface Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Screen> getScreens(Long... ids) throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get screens with IDs: " + Arrays.toString(ids);
-        Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
-                                                                bf -> bf.getScreens(getCtx(), Arrays.asList(ids)),
-                                                                error);
+        Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
+                                                             bf -> bf.getScreens(getCtx(), Arrays.asList(ids)))
+                                                         .handleServiceOrAccess("Cannot get screens with IDs: "
+                                                                                + Arrays.toString(ids))
+                                                         .get();
         return wrap(screens, ScreenWrapper::new);
     }
 
@@ -609,9 +617,10 @@ public interface Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Screen> getScreens() throws ServiceException, AccessException, ExecutionException {
-        Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
-                                                                bf -> bf.getScreens(getCtx()),
-                                                                "Cannot get screens");
+        Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
+                                                             bf -> bf.getScreens(getCtx()))
+                                                         .handleServiceOrAccess("Cannot get screens")
+                                                         .get();
         return wrap(screens, ScreenWrapper::new);
     }
 
@@ -630,9 +639,10 @@ public interface Browser {
     default List<Screen> getScreens(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot get screens for user %s", experimenter);
-        Collection<ScreenData> screens = handleServiceAndAccess(getBrowseFacility(),
-                                                                bf -> bf.getScreens(getCtx(), experimenter.getId()),
-                                                                error);
+        Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
+                                                             bf -> bf.getScreens(getCtx(), experimenter.getId()))
+                                                         .handleServiceOrAccess(error)
+                                                         .get();
         return wrap(screens, ScreenWrapper::new);
     }
 
@@ -672,9 +682,10 @@ public interface Browser {
      */
     default List<Plate> getPlates(Long... ids) throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get plates with IDs: " + Arrays.toString(ids);
-        Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
-                                                              bf -> bf.getPlates(getCtx(), Arrays.asList(ids)),
-                                                              error);
+        Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
+                                                           bf -> bf.getPlates(getCtx(), Arrays.asList(ids)))
+                                                       .handleServiceOrAccess(error)
+                                                       .get();
         return wrap(plates, PlateWrapper::new);
     }
 
@@ -689,9 +700,10 @@ public interface Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Plate> getPlates() throws ServiceException, AccessException, ExecutionException {
-        Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
-                                                              bf -> bf.getPlates(getCtx()),
-                                                              "Cannot get plates");
+        Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
+                                                           bf -> bf.getPlates(getCtx()))
+                                                       .handleServiceOrAccess("Cannot get plates")
+                                                       .get();
         return wrap(plates, PlateWrapper::new);
     }
 
@@ -710,9 +722,10 @@ public interface Browser {
     default List<Plate> getPlates(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot get plates for user %s", experimenter);
-        Collection<PlateData> plates = handleServiceAndAccess(getBrowseFacility(),
-                                                              bf -> bf.getPlates(getCtx(), experimenter.getId()),
-                                                              error);
+        Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
+                                                           bf -> bf.getPlates(getCtx(), experimenter.getId()))
+                                                       .handleServiceOrAccess(error)
+                                                       .get();
         return wrap(plates, PlateWrapper::new);
     }
 
@@ -753,9 +766,10 @@ public interface Browser {
     default List<Well> getWells(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get wells with IDs: " + Arrays.toString(ids);
-        Collection<WellData> wells = handleServiceAndAccess(getBrowseFacility(),
-                                                            bf -> bf.getWells(getCtx(), Arrays.asList(ids)),
-                                                            error);
+        Collection<WellData> wells = ExceptionHandler.of(getBrowseFacility(),
+                                                         bf -> bf.getWells(getCtx(), Arrays.asList(ids)))
+                                                     .handleServiceOrAccess(error)
+                                                     .get();
         return wrap(wells, WellWrapper::new);
     }
 
@@ -838,9 +852,10 @@ public interface Browser {
      */
     default List<Folder> getFolders()
     throws ExecutionException, AccessException, ServiceException {
-        Collection<FolderData> folders = handleServiceAndAccess(getBrowseFacility(),
-                                                                b -> b.getFolders(getCtx()),
-                                                                "Cannot get folders.");
+        Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
+                                                             b -> b.getFolders(getCtx()))
+                                                         .handleServiceOrAccess("Cannot get folders")
+                                                         .get();
         return wrap(folders, FolderWrapper::new);
     }
 
@@ -859,9 +874,10 @@ public interface Browser {
     default List<Folder> getFolders(Experimenter experimenter)
     throws ExecutionException, AccessException, ServiceException {
         String error = String.format("Cannot get folders for user %s", experimenter);
-        Collection<FolderData> folders = handleServiceAndAccess(getBrowseFacility(),
-                                                                b -> b.getFolders(getCtx(), experimenter.getId()),
-                                                                error);
+        Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
+                                                             b -> b.getFolders(getCtx(), experimenter.getId()))
+                                                         .handleServiceOrAccess(error)
+                                                         .get();
         return wrap(folders, FolderWrapper::new);
     }
 
@@ -880,9 +896,10 @@ public interface Browser {
     default List<Folder> loadFolders(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
-        Collection<FolderData> folders = handleServiceAndAccess(getBrowseFacility(),
-                                                                bf -> bf.loadFolders(getCtx(), Arrays.asList(ids)),
-                                                                error);
+        Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
+                                                             bf -> bf.loadFolders(getCtx(), Arrays.asList(ids)))
+                                                         .handleServiceOrAccess(error)
+                                                         .get();
         return wrap(folders, FolderWrapper::new);
     }
 
@@ -897,10 +914,8 @@ public interface Browser {
      */
     default List<TagAnnotation> getTags() throws ServerException, ServiceException {
         return ExceptionHandler.of(getQueryService(),
-                                   qs -> qs.findAll(omero.model.TagAnnotation.class.getSimpleName(),
-                                                    null),
-                                   "Cannot get tags")
-                               .rethrow(ServerError.class, ServerException::new)
+                                   qs -> qs.findAll(omero.model.TagAnnotation.class.getSimpleName(), null))
+                               .rethrow(ServerError.class, ServerException::new, "Cannot get tags")
                                .get()
                                .stream()
                                .map(omero.model.TagAnnotation.class::cast)
@@ -944,9 +959,10 @@ public interface Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default TagAnnotation getTag(Long id) throws ServiceException, ExecutionException, AccessException {
-        TagAnnotationData tag = handleServiceAndAccess(getBrowseFacility(),
-                                                       b -> b.findObject(getCtx(), TagAnnotationData.class, id),
-                                                       "Cannot get tag with ID: " + id);
+        TagAnnotationData tag = ExceptionHandler.of(getBrowseFacility(),
+                                                    b -> b.findObject(getCtx(), TagAnnotationData.class, id))
+                                                .handleServiceOrAccess("Cannot get tag with ID: " + id)
+                                                .get();
         tag.setNameSpace(tag.getContentAsString());
 
         return new TagAnnotationWrapper(tag);
@@ -963,9 +979,8 @@ public interface Browser {
      */
     default List<MapAnnotation> getMapAnnotations() throws ServerException, ServiceException {
         return ExceptionHandler.of(getQueryService(),
-                                   qs -> qs.findAll(omero.model.MapAnnotation.class.getSimpleName(), null),
-                                   "Cannot get tags")
-                               .rethrow(ServerError.class, ServerException::new)
+                                   qs -> qs.findAll(omero.model.MapAnnotation.class.getSimpleName(), null))
+                               .rethrow(ServerError.class, ServerException::new, "Cannot get tags")
                                .get()
                                .stream()
                                .map(omero.model.MapAnnotation.class::cast)
@@ -1032,9 +1047,11 @@ public interface Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default MapAnnotation getMapAnnotation(Long id) throws ServiceException, ExecutionException, AccessException {
-        MapAnnotationData kv = handleServiceAndAccess(getBrowseFacility(),
-                                                      b -> b.findObject(getCtx(), MapAnnotationData.class, id),
-                                                      "Cannot get map annotation with ID: " + id);
+        MapAnnotationData kv = ExceptionHandler.of(getBrowseFacility(), b -> b.findObject(getCtx(),
+                                                                                          MapAnnotationData.class,
+                                                                                          id))
+                                               .handleServiceOrAccess("Cannot get map annotation with ID: " + id)
+                                               .get();
 
         return new MapAnnotationWrapper(kv);
     }

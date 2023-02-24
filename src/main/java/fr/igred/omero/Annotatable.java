@@ -35,6 +35,7 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
@@ -63,7 +64,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
@@ -108,9 +108,10 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     default <A extends Annotation<?>> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
-        handleServiceAndAccess(dm.getDataManagerFacility(),
-                               d -> d.attachAnnotation(dm.getCtx(), annotation.asDataObject(), asDataObject()),
-                               error);
+        ExceptionHandler.of(dm.getDataManagerFacility(),
+                            d -> d.attachAnnotation(dm.getCtx(), annotation.asDataObject(), asDataObject()))
+                        .handleServiceOrAccess(error)
+                        .rethrow();
     }
 
 
@@ -223,12 +224,13 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = handleServiceAndAccess(browser.getMetadata(),
-                                                                  m -> m.getAnnotations(browser.getCtx(),
-                                                                                        asDataObject(),
-                                                                                        types,
-                                                                                        null),
-                                                                  "Cannot get tags for " + this);
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+                                                               m -> m.getAnnotations(browser.getCtx(),
+                                                                                     asDataObject(),
+                                                                                     types,
+                                                                                     null))
+                                                           .handleServiceOrAccess("Cannot get tags for " + this)
+                                                           .get();
 
         return annotations.stream()
                           .filter(TagAnnotationData.class::isInstance)
@@ -253,12 +255,14 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     default List<MapAnnotation> getMapAnnotations(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-        List<AnnotationData> annotations = handleServiceAndAccess(browser.getMetadata(),
-                                                                  m -> m.getAnnotations(browser.getCtx(),
-                                                                                        asDataObject(),
-                                                                                        types,
-                                                                                        null),
-                                                                  "Cannot get map annotations for " + this);
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+                                                               m -> m.getAnnotations(browser.getCtx(),
+                                                                                     asDataObject(),
+                                                                                     types,
+                                                                                     null))
+                                                           .handleServiceOrAccess("Cannot get map annotations for "
+                                                                                  + this)
+                                                           .get();
 
         return annotations.stream()
                           .filter(MapAnnotationData.class::isInstance)
@@ -354,18 +358,20 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
         List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
         List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
 
-        List<AnnotationData> annotations = handleServiceAndAccess(client.getMetadata(),
-                                                                  m -> m.getAnnotations(client.getCtx(),
-                                                                                        asDataObject(),
-                                                                                        types,
-                                                                                        userIds),
-                                                                  error);
-        List<RatingAnnotation> myRatings = annotations.stream()
-                                                      .filter(RatingAnnotationData.class::isInstance)
-                                                      .map(RatingAnnotationData.class::cast)
-                                                      .map(RatingAnnotationWrapper::new)
-                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                      .collect(Collectors.toList());
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+                                                               m -> m.getAnnotations(client.getCtx(),
+                                                                                     asDataObject(),
+                                                                                     types,
+                                                                                     userIds))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
+        List<RatingAnnotationWrapper> myRatings = annotations.stream()
+                                                             .filter(RatingAnnotationData.class::isInstance)
+                                                             .map(RatingAnnotationData.class::cast)
+                                                             .map(RatingAnnotationWrapper::new)
+                                                             .sorted(Comparator.comparing(
+                                                                     RatingAnnotationWrapper::getId))
+                                                             .collect(Collectors.toList());
 
         if (myRatings.isEmpty()) {
             RatingAnnotation rate = new RatingAnnotationWrapper(rating);
@@ -398,18 +404,20 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
         List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
         List<Long>                            userIds = Collections.singletonList(browser.getCtx().getExperimenter());
 
-        List<AnnotationData> annotations = handleServiceAndAccess(browser.getMetadata(),
-                                                                  m -> m.getAnnotations(browser.getCtx(),
-                                                                                        asDataObject(),
-                                                                                        types,
-                                                                                        userIds),
-                                                                  error);
-        List<RatingAnnotation> myRatings = annotations.stream()
-                                                      .filter(RatingAnnotationData.class::isInstance)
-                                                      .map(RatingAnnotationData.class::cast)
-                                                      .map(RatingAnnotationWrapper::new)
-                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                      .collect(Collectors.toList());
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+                                                               m -> m.getAnnotations(browser.getCtx(),
+                                                                                     asDataObject(),
+                                                                                     types,
+                                                                                     userIds))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
+        List<RatingAnnotationWrapper> myRatings = annotations.stream()
+                                                             .filter(RatingAnnotationData.class::isInstance)
+                                                             .map(RatingAnnotationData.class::cast)
+                                                             .map(RatingAnnotationWrapper::new)
+                                                             .sorted(Comparator.comparing(
+                                                                     RatingAnnotationWrapper::getId))
+                                                             .collect(Collectors.toList());
         int score = 0;
         for (RatingAnnotation rate : myRatings) {
             score += rate.getRating();
@@ -432,17 +440,19 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     throws ServiceException, AccessException, ExecutionException {
         String         error          = "Cannot add table to " + this;
         TablesFacility tablesFacility = dm.getTablesFacility();
-        TableData tableData = handleServiceAndAccess(tablesFacility,
-                                                     tf -> tf.addTable(dm.getCtx(),
-                                                                       asDataObject(),
-                                                                       table.getName(),
-                                                                       table.createTable()),
-                                                     error);
+        TableData tableData = ExceptionHandler.of(tablesFacility,
+                                                  tf -> tf.addTable(dm.getCtx(),
+                                                                    asDataObject(),
+                                                                    table.getName(),
+                                                                    table.createTable()))
+                                              .handleServiceOrAccess(error)
+                                              .get();
 
-        Collection<FileAnnotationData> tables = handleServiceAndAccess(tablesFacility,
-                                                                       tf -> tf.getAvailableTables(dm.getCtx(),
-                                                                                                   asDataObject()),
-                                                                       error);
+        Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
+                                                                    tf -> tf.getAvailableTables(dm.getCtx(),
+                                                                                                asDataObject()))
+                                                                .handleServiceOrAccess(error)
+                                                                .get();
         long fileId = tableData.getOriginalFileId();
 
         long id = tables.stream()
@@ -471,10 +481,11 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         String error = String.format("Cannot get tables from %s", this);
 
-        Collection<FileAnnotation> tables = wrap(handleServiceAndAccess(client.getTablesFacility(),
-                                                                        t -> t.getAvailableTables(
-                                                                                client.getCtx(), asDataObject()),
-                                                                        error),
+        Collection<FileAnnotation> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
+                                                                     t -> t.getAvailableTables(client.getCtx(),
+                                                                                               asDataObject()))
+                                                                 .handleServiceOrAccess(error)
+                                                                 .get(),
                                                  FileAnnotationWrapper::new);
         addTable(client, table);
         tables.removeIf(t -> !t.getDescription().equals(table.getName()));
@@ -521,15 +532,16 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      */
     default Table getTable(DataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
-        TableData table = handleServiceAndAccess(dm.getTablesFacility(),
-                                                 tf -> tf.getTable(dm.getCtx(), fileId),
-                                                 "Cannot get table from " + this);
-        String name = handleServiceAndAccess(dm.getTablesFacility(),
-                                             tf -> tf.getAvailableTables(dm.getCtx(), asDataObject())
-                                                     .stream().filter(t -> t.getFileID() == fileId)
-                                                     .map(FileAnnotationData::getDescription)
-                                                     .findFirst().orElse(null),
-                                             "Cannot get table name from " + this);
+        TableData table = ExceptionHandler.of(dm.getTablesFacility(), tf -> tf.getTable(dm.getCtx(), fileId))
+                                          .handleServiceOrAccess("Cannot get table from " + this)
+                                          .get();
+        String name = ExceptionHandler.of(dm.getTablesFacility(),
+                                          tf -> tf.getAvailableTables(dm.getCtx(), asDataObject())
+                                                  .stream().filter(t -> t.getFileID() == fileId)
+                                                  .map(FileAnnotationData::getDescription)
+                                                  .findFirst().orElse(null))
+                                      .handleServiceOrAccess("Cannot get table name from " + this)
+                                      .get();
         Table result = new TableWrapper(Objects.requireNonNull(table));
         result.setName(name);
         return result;
@@ -549,10 +561,11 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      */
     default List<Table> getTables(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = handleServiceAndAccess(dm.getTablesFacility(),
-                                                                       tf -> tf.getAvailableTables(dm.getCtx(),
-                                                                                                   asDataObject()),
-                                                                       "Cannot get tables from " + this);
+        Collection<FileAnnotationData> tables = ExceptionHandler.of(dm.getTablesFacility(),
+                                                                    tf -> tf.getAvailableTables(dm.getCtx(),
+                                                                                                asDataObject()))
+                                                                .handleServiceOrAccess("Cannot get tables from " + this)
+                                                                .get();
 
         List<Table> tablesWrapper = new ArrayList<>(tables.size());
         for (FileAnnotationData table : tables) {
@@ -663,12 +676,13 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
 
         List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = handleServiceAndAccess(browser.getMetadata(),
-                                                                  m -> m.getAnnotations(browser.getCtx(),
-                                                                                        asDataObject(),
-                                                                                        types,
-                                                                                        null),
-                                                                  error);
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+                                                               m -> m.getAnnotations(browser.getCtx(),
+                                                                                     asDataObject(),
+                                                                                     types,
+                                                                                     null))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
 
         return annotations.stream()
                           .filter(FileAnnotationData.class::isInstance)
@@ -708,9 +722,9 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      */
     default List<AnnotationData> getAnnotationData(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return handleServiceAndAccess(browser.getMetadata(),
-                                      m -> m.getAnnotations(browser.getCtx(), asDataObject()),
-                                      "Cannot get annotations from " + this);
+        return ExceptionHandler.of(browser.getMetadata(), m -> m.getAnnotations(browser.getCtx(), asDataObject()))
+                               .handleServiceOrAccess("Cannot get annotations from " + this)
+                               .get();
     }
 
 
@@ -752,9 +766,10 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
             newAnnotations.removeIf(a -> a.getId() == annotation.getId());
         }
         for (AnnotationData annotation : newAnnotations) {
-            handleServiceAndAccess(client.getDataManagerFacility(),
-                                   dm -> dm.attachAnnotation(client.getCtx(), annotation, asDataObject()),
-                                   "Cannot link annotations to " + this);
+            ExceptionHandler.of(client.getDataManagerFacility(),
+                                dm -> dm.attachAnnotation(client.getCtx(), annotation, asDataObject()))
+                            .handleServiceOrAccess("Cannot link annotations to " + this)
+                            .rethrow();
         }
     }
 

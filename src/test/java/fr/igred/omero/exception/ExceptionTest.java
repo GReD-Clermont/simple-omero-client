@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.exception.ExceptionHandler.ofConsumer;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,8 +82,7 @@ class ExceptionTest extends BasicTest {
         final int         badPort = 5000;
         ConnectionHandler root    = new GatewayWrapper();
         ExceptionHandler<?> eh = ofConsumer(root,
-                                            r -> r.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id),
-                                            "Failure");
+                                            r -> r.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id));
         assertThrows(ServiceException.class, eh::get);
     }
 
@@ -218,37 +216,39 @@ class ExceptionTest extends BasicTest {
     @Test
     void testExceptionHandler1() {
         Exception           e  = new DSAccessException("Test", null);
-        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Test");
-        assertThrows(AccessException.class, () -> eh.rethrow(DSAccessException.class, AccessException::new));
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(AccessException.class, () -> eh.rethrow(DSAccessException.class, AccessException::new, "Great"));
     }
 
 
     @Test
     void testExceptionHandler2() {
         Exception           e  = new ServerError(null);
-        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
-        assertThrows(ServerException.class, () -> eh.rethrow(ServerError.class, ServerException::new));
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServerException.class, () -> eh.handleException("Great"));
     }
 
 
     @Test
     void testExceptionHandler3() {
-        Exception e = new DSOutOfServiceException(null);
-        assertThrows(ServiceException.class, () -> handleServiceAndAccess(e, ExceptionTest::thrower, "Great"));
+        Exception           e  = new DSOutOfServiceException(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServiceException.class, () -> eh.handleServiceOrServer("Great"));
     }
 
 
     @Test
     void testExceptionHandler4() {
-        Exception e = new ServerError(null);
-        assertThrows(ServerError.class, () -> handleServiceAndAccess(e, ExceptionTest::thrower, "Great"));
+        Exception           e  = new ServerError(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServerError.class, eh::rethrow);
     }
 
 
     @Test
     void testExceptionHandler5() {
         Exception           e  = new ServerException(null);
-        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
         assertThrows(ServerException.class, () -> eh.rethrow(ServerException.class));
     }
 
@@ -256,7 +256,7 @@ class ExceptionTest extends BasicTest {
     @Test
     void testExceptionHandler6() {
         Exception           e  = new AccessException(null);
-        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
         assertThrows(AccessException.class, () -> eh.rethrow(AccessException.class));
     }
 
@@ -264,20 +264,19 @@ class ExceptionTest extends BasicTest {
     @Test
     void testExceptionHandler7() {
         Exception           e  = new DSAccessException("Test", null);
-        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
-        assertDoesNotThrow(() -> eh.rethrow(ServerError.class, ServerException::new));
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertDoesNotThrow(() -> eh.rethrow(ServerError.class, ServerException::new, "Great"));
     }
 
 
     @Test
     void testExceptionHandlerToString() {
         Exception           e  = new DSAccessException("Test", null);
-        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower, "Great");
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
 
         String expected = "ExceptionHandler{" +
                           "exception=" + e +
                           ", value=" + null +
-                          ", error='Great'" +
                           "}";
         assertEquals(expected, eh.toString());
     }

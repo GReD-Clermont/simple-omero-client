@@ -19,6 +19,7 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
@@ -31,8 +32,6 @@ import omero.gateway.model.GroupData;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -72,9 +71,10 @@ public interface AdminManager {
      */
     default Experimenter getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData experimenter = handleServiceAndAccess(getAdminFacility(),
-                                                               a -> a.lookupExperimenter(getCtx(), username),
-                                                               "Cannot retrieve user: " + username);
+        ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
+                                                            a -> a.lookupExperimenter(getCtx(), username))
+                                                        .handleServiceOrAccess("Cannot retrieve user: " + username)
+                                                        .get();
         if (experimenter != null) {
             return new ExperimenterWrapper(experimenter);
         } else {
@@ -97,9 +97,10 @@ public interface AdminManager {
      */
     default Group getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
-        GroupData group = handleServiceAndAccess(getAdminFacility(),
-                                                 a -> a.lookupGroup(getCtx(), groupName),
-                                                 "Cannot retrieve group: " + groupName);
+        GroupData group = ExceptionHandler.of(getAdminFacility(),
+                                              a -> a.lookupGroup(getCtx(), groupName))
+                                          .handleServiceOrAccess("Cannot retrieve group: " + groupName)
+                                          .get();
         if (group != null) {
             return new GroupWrapper(group);
         } else {

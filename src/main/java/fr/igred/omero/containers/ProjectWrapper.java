@@ -25,6 +25,7 @@ import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ImageData;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.RemoteObject.distinct;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
@@ -248,10 +248,10 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
     @Override
     public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
         List<Long> projectIds = Collections.singletonList(getId());
-        Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
-                                                              bf -> bf.getImagesForProjects(browser.getCtx(),
-                                                                                            projectIds),
-                                                              "Cannot get images from " + this);
+        Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
+                                                           bf -> bf.getImagesForProjects(browser.getCtx(), projectIds))
+                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .get();
         return distinct(wrap(images, ImageWrapper::new));
     }
 
@@ -267,11 +267,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      */
     @Override
     public void refresh(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        data = handleServiceAndAccess(browser.getBrowseFacility(),
-                                      bf -> bf.getProjects(browser.getCtx(),
-                                                           Collections.singletonList(this.getId()))
-                                              .iterator().next(),
-                                      "Cannot refresh " + this);
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getProjects(browser.getCtx(),
+                                                        Collections.singletonList(this.getId()))
+                                           .iterator().next())
+                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .get();
     }
 
 }

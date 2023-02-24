@@ -20,6 +20,7 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.RepositoryObjectWrapper;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
@@ -164,9 +164,10 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
      */
     @Override
     public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = handleServiceAndAccess(browser.getBrowseFacility(),
-                                                            bf -> bf.getWells(browser.getCtx(), data.getId()),
-                                                            "Cannot get wells from " + this);
+        Collection<WellData> wells = ExceptionHandler.of(browser.getBrowseFacility(),
+                                                         bf -> bf.getWells(browser.getCtx(), data.getId()))
+                                                     .handleServiceOrAccess("Cannot get wells from " + this)
+                                                     .get();
 
         return wells.stream()
                     .map(WellWrapper::new)
@@ -317,11 +318,12 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
     @Override
     public void refresh(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = handleServiceAndAccess(browser.getBrowseFacility(),
-                                      bf -> bf.getPlates(browser.getCtx(),
-                                                         Collections.singletonList(this.getId()))
-                                              .iterator().next(),
-                                      "Cannot refresh " + this);
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getPlates(browser.getCtx(), Collections.singletonList(data.getId())))
+                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

@@ -26,6 +26,7 @@ import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
@@ -41,14 +42,13 @@ import omero.model.IObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -184,11 +184,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      */
     @Override
     public List<Image> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        List<Long> datasetIds = Collections.singletonList(getId());
-        Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(browser.getCtx(),
-                                                                                            datasetIds),
-                                                              "Cannot get images from " + this);
+        Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
+                                                           bf -> bf.getImagesForDatasets(browser.getCtx(),
+                                                                                         singletonList(data.getId())))
+                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .get();
         return wrap(images, ImageWrapper::new);
     }
 
@@ -306,11 +306,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     public List<Image> getImagesWithKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
-        Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(browser.getCtx(),
-                                                                                            Collections.singletonList(
-                                                                                                    data.getId())),
-                                                              error);
+        Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
+                                                           bf -> bf.getImagesForDatasets(browser.getCtx(),
+                                                                                         singletonList(data.getId())))
+                                                       .handleServiceOrAccess(error)
+                                                       .get();
 
         List<Image> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
@@ -347,11 +347,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
     public List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key-value pair from " + this;
-        Collection<ImageData> images = handleServiceAndAccess(browser.getBrowseFacility(),
-                                                              bf -> bf.getImagesForDatasets(browser.getCtx(),
-                                                                                            Collections.singletonList(
-                                                                                                    data.getId())),
-                                                              error);
+        Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
+                                                           bf -> bf.getImagesForDatasets(browser.getCtx(),
+                                                                                         singletonList(data.getId())))
+                                                       .handleServiceOrAccess(error)
+                                                       .get();
 
         List<Image> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
@@ -583,11 +583,11 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      */
     @Override
     public void refresh(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        data = handleServiceAndAccess(browser.getBrowseFacility(),
-                                      bf -> bf.getDatasets(browser.getCtx(),
-                                                           Collections.singletonList(this.getId()))
-                                              .iterator().next(),
-                                      "Cannot refresh " + this);
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getDatasets(browser.getCtx(), singletonList(this.getId()))
+                                           .iterator().next())
+                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .get();
     }
 
 }

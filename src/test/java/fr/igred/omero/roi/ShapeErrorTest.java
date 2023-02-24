@@ -18,12 +18,13 @@
 package fr.igred.omero.roi;
 
 
+import fr.igred.omero.BasicTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-class ShapeErrorTest {
+class ShapeErrorTest extends BasicTest {
 
 
     @Test

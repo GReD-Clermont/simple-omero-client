@@ -94,9 +94,10 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             ExceptionHandler.ofConsumer(store,
-                                        s -> s.logVersionInfo(config.getIniVersionNumber()),
-                                        "Cannot log version information during import.")
-                            .rethrow(ServerError.class, ServerException::new);
+                                        s -> s.logVersionInfo(config.getIniVersionNumber()))
+                            .rethrow(ServerError.class, ServerException::new,
+                                     "Cannot log version information during import.")
+                            .rethrow();
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
 
             ImportLibrary library = new ImportLibrary(store, reader);

@@ -22,6 +22,7 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.RepositoryObjectWrapper;
@@ -32,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
@@ -244,12 +244,12 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implement
     @Override
     public void refresh(Browser browser) throws ServiceException, AccessException, ExecutionException {
         String message = String.format("Cannot refresh %s", this);
-        data = handleServiceAndAccess(browser.getBrowseFacility(),
-                                      bf -> bf.getScreens(browser.getCtx(),
-                                                          Collections.singletonList(this.getId()))
-                                              .iterator()
-                                              .next(),
-                                      message);
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getScreens(browser.getCtx(), Collections.singletonList(data.getId())))
+                               .handleServiceOrAccess(message)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 

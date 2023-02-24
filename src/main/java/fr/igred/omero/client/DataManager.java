@@ -25,10 +25,7 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.containers.Folder;
-import omero.ServerError;
 import omero.gateway.SecurityContext;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TablesFacility;
@@ -39,8 +36,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 
 
 /**
@@ -98,9 +93,10 @@ public interface DataManager {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
-        return handleServiceAndAccess(getDataManagerFacility(),
-                                      d -> d.saveAndReturnObject(getCtx(), object),
-                                      "Cannot save object");
+        return ExceptionHandler.of(getDataManagerFacility(),
+                                   d -> d.saveAndReturnObject(getCtx(), object))
+                               .handleServiceOrAccess("Cannot save object")
+                               .get();
     }
 
 
@@ -119,12 +115,10 @@ public interface DataManager {
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         final long wait = 500L;
         ExceptionHandler.ofConsumer(getDataManagerFacility(),
-                                    d -> d.delete(getCtx(), object).loop(10, wait),
-                                    "Cannot delete object")
+                                    d -> d.delete(getCtx(), object).loop(10, wait))
                         .rethrow(InterruptedException.class)
-                        .rethrow(DSOutOfServiceException.class, ServiceException::new)
-                        .rethrow(DSAccessException.class, AccessException::new)
-                        .rethrow(ServerError.class, ServerException::new);
+                        .handleException("Cannot delete object")
+                        .rethrow();
     }
 
 
@@ -143,12 +137,10 @@ public interface DataManager {
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         final long wait = 5000L;
         ExceptionHandler.ofConsumer(getDataManagerFacility(),
-                                    d -> d.delete(getCtx(), objects).loop(10, wait),
-                                    "Cannot delete object")
+                                    d -> d.delete(getCtx(), objects).loop(10, wait))
                         .rethrow(InterruptedException.class)
-                        .rethrow(DSOutOfServiceException.class, ServiceException::new)
-                        .rethrow(DSAccessException.class, AccessException::new)
-                        .rethrow(ServerError.class, ServerException::new);
+                        .handleException("Cannot delete object")
+                        .rethrow();
     }
 
 

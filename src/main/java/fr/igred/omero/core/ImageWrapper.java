@@ -49,7 +49,6 @@ import omero.RLong;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TransferFacility;
@@ -79,8 +78,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
 import static fr.igred.omero.util.Wrapper.wrap;
 import static omero.rtypes.rint;
 
@@ -366,12 +363,13 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     public List<ROI> saveROIs(DataManager dm, List<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
-        List<ROIData> roisData = rois.stream().map(RemoteObject::asDataObject).collect(Collectors.toList());
-        Collection<ROIData> results = handleServiceAndAccess(dm.getRoiFacility(),
-                                                             rf -> rf.saveROIs(dm.getCtx(),
-                                                                               this.data.getId(),
-                                                                               roisData),
-                                                             "Cannot link ROI to " + this);
+        List<ROIData> roisData = rois.stream()
+                                     .map(RemoteObject::asDataObject)
+                                     .collect(Collectors.toList());
+        Collection<ROIData> results = ExceptionHandler.of(dm.getRoiFacility(),
+                                                          rf -> rf.saveROIs(dm.getCtx(), data.getId(), roisData))
+                                                      .handleServiceOrAccess("Cannot link ROI to " + this)
+                                                      .get();
         return wrap(results, ROIWrapper::new);
     }
 
@@ -390,14 +388,19 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     @Override
     public List<ROI> getROIs(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ROIResult> roiResults = handleServiceAndAccess(dm.getRoiFacility(),
-                                                                  rf -> rf.loadROIs(dm.getCtx(), data.getId()),
-                                                                  "Cannot get ROIs from " + this);
-        Collection<Collection<ROI>> rois = new ArrayList<>(roiResults.size());
-        for (ROIResult r : roiResults) {
-            rois.add(wrap(r.getROIs(), ROIWrapper::new));
-        }
-        return RemoteObject.flatten(rois);
+        List<ROIResult> roiResults = ExceptionHandler.of(dm.getRoiFacility(),
+                                                         rf -> rf.loadROIs(dm.getCtx(), data.getId()))
+                                                     .handleServiceOrAccess("Cannot get ROIs from " + this)
+                                                     .get();
+
+        List<ROIWrapper> roiWrappers = roiResults.stream()
+                                                 .map(ROIResult::getROIs)
+                                                 .flatMap(Collection::stream)
+                                                 .map(ROIWrapper::new)
+                                                 .sorted(Comparator.comparing(RemoteObject::getId))
+                                                 .collect(Collectors.toList());
+
+        return RemoteObject.distinct(roiWrappers);
     }
 
 
@@ -417,10 +420,12 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = dm.getRoiFacility();
 
-        Collection<FolderData> folders = handleServiceAndAccess(roiFacility,
-                                                                rf -> rf.getROIFolders(dm.getCtx(),
-                                                                                       this.data.getId()),
-                                                                "Cannot get folders for " + this);
+        Collection<FolderData> folders = ExceptionHandler.of(roiFacility,
+                                                             rf -> rf.getROIFolders(dm.getCtx(),
+                                                                                    this.data.getId()))
+                                                         .handleServiceOrAccess("Cannot get folders for " + this)
+                                                         .get();
+
         return wrap(folders, FolderWrapper::new);
     }
 
@@ -441,11 +446,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     public List<Folder> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
-        Long[] ids = browser.findByQuery(query)
-                            .stream()
-                            .map(o -> o.getId().getValue())
-                            .sorted().distinct()
-                            .toArray(Long[]::new);
+        Long[] ids   = browser.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
         return browser.loadFolders(ids);
     }
 
@@ -584,9 +585,10 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     @Override
     public List<Channel> getChannels(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData> channels = handleServiceAndAccess(browser.getMetadata(),
-                                                            m -> m.getChannelData(browser.getCtx(), getId()),
-                                                            "Cannot get the channel name for " + this);
+        List<ChannelData> channels = ExceptionHandler.of(browser.getMetadata(),
+                                                         m -> m.getChannelData(browser.getCtx(), getId()))
+                                                     .handleServiceOrAccess("Cannot get the channel name for " + this)
+                                                     .get();
         return channels.stream()
                        .sorted(Comparator.comparing(ChannelData::getIndex))
                        .map(ChannelWrapper::new)
@@ -648,7 +650,9 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     throws ServiceException, ServerException, IOException {
         BufferedImage thumbnail = null;
 
-        byte[] array = handleServiceAndServer(client, c -> getThumbnailBytes(c, size), "Error retrieving thumbnail.");
+        byte[] array = ExceptionHandler.of(client, c -> getThumbnailBytes(c, size))
+                                       .handleServiceOrServer("Error retrieving thumbnail.")
+                                       .get();
         if (array != null) {
             try (ByteArrayInputStream stream = new ByteArrayInputStream(array)) {
                 //Create a buffered image to display
@@ -676,12 +680,8 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     public List<File> download(Client client, String path)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
-        return ExceptionHandler.of(transfer,
-                                   t -> t.downloadImage(client.getCtx(), path, getId()),
-                                   "Could not download image " + getId())
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new)
-                               .rethrow(ServerError.class, ServerException::new)
-                               .rethrow(DSAccessException.class, AccessException::new)
+        return ExceptionHandler.of(transfer, t -> t.downloadImage(client.getCtx(), path, getId()))
+                               .handleException("Could not download image " + getId())
                                .get();
     }
 

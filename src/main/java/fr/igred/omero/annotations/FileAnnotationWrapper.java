@@ -195,16 +195,16 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
 
         RawFileStorePrx store;
         try (FileOutputStream stream = new FileOutputStream(file)) {
-            store = ExceptionHandler.of(client, c -> writeFile(c, stream), "Could not create RawFileService")
-                                    .rethrow(ServerError.class, ServerException::new)
-                                    .rethrow(DSOutOfServiceException.class, ServiceException::new)
+            store = ExceptionHandler.of(client, c -> writeFile(c, stream))
+                                    .handleServiceOrServer("Could not create RawFileService")
                                     .rethrow(IOException.class)
                                     .get();
         }
 
         if (store != null) {
-            ExceptionHandler.ofConsumer(store, RawFileStorePrx::close, "Could not close RawFileService")
-                            .rethrow(ServerError.class, ServerException::new);
+            ExceptionHandler.ofConsumer(store, RawFileStorePrx::close)
+                            .rethrow(ServerError.class, ServerException::new, "Could not close RawFileService")
+                            .rethrow();
         }
 
         return file;

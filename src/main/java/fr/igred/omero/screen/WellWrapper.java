@@ -21,6 +21,7 @@ package fr.igred.omero.screen;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
@@ -29,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
@@ -315,11 +315,12 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
     @Override
     public void refresh(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = handleServiceAndAccess(browser.getBrowseFacility(),
-                                      bf -> bf.getWells(browser.getCtx(),
-                                                        Collections.singletonList(this.getId()))
-                                              .iterator().next(),
-                                      "Cannot refresh " + this);
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getWells(browser.getCtx(), Collections.singletonList(data.getId())))
+                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

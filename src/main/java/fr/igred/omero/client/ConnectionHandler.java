@@ -88,9 +88,9 @@ public interface ConnectionHandler {
      */
     default String getSessionId() throws ServiceException {
         return ExceptionHandler.of(getGateway(),
-                                   g -> g.getSessionId(getUser().asDataObject()),
-                                   "Could not retrieve session ID")
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new)
+                                   g -> g.getSessionId(getUser().asDataObject()))
+                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+                                        "Could not retrieve session ID")
                                .get();
     }
 
@@ -190,9 +190,9 @@ public interface ConnectionHandler {
      */
     default OMEROMetadataStoreClient getImportStore() throws ServiceException {
         return ExceptionHandler.of(getGateway(),
-                                   g -> g.getImportStore(getCtx()),
-                                   "Could not retrieve import store")
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new)
+                                   g -> g.getImportStore(getCtx()))
+                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+                                        "Could not retrieve import store")
                                .get();
     }
 

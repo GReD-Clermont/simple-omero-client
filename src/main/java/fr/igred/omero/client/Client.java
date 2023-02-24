@@ -63,9 +63,9 @@ public interface Client extends ConnectionHandler, Browser, DataManager, AdminMa
     @Override
     default IQueryPrx getQueryService() throws ServiceException {
         return ExceptionHandler.of(getGateway(),
-                                   g -> g.getQueryService(getCtx()),
-                                   "Could not retrieve Query Service")
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new)
+                                   g -> g.getQueryService(getCtx()))
+                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+                                        "Could not retrieve Query Service")
                                .get();
     }
 

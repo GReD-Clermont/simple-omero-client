@@ -32,8 +32,6 @@ import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
@@ -53,8 +51,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndAccess;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceAndServer;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
@@ -103,11 +99,13 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     public FolderWrapper(ConnectionHandler client, String name) throws ServiceException, ServerException {
         super(new FolderData());
         data.setName(name);
-        omero.model.Folder f = (omero.model.Folder) handleServiceAndServer(client.getGateway(),
-                                                                           g -> g.getUpdateService(client.getCtx())
-                                                                                 .saveAndReturnObject(data.asIObject()),
-                                                                           "Could not create Folder with name: " +
-                                                                           name);
+        omero.model.Folder f = (omero.model.Folder) ExceptionHandler.of(client.getGateway(),
+                                                                        g -> g.getUpdateService(client.getCtx())
+                                                                              .saveAndReturnObject(data.asIObject()))
+                                                                    .handleServiceOrServer(
+                                                                            "Could not create Folder with name: " +
+                                                                            name)
+                                                                    .get();
         data.setFolder(f);
     }
 
@@ -285,9 +283,10 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
                 links.add(link);
             }
         }
-        handleServiceAndAccess(dm.getDataManagerFacility(),
-                               d -> d.saveAndReturnObject(dm.getCtx(), links, null, null),
-                               "Cannot save links.");
+        ExceptionHandler.of(dm.getDataManagerFacility(),
+                            d -> d.saveAndReturnObject(dm.getCtx(), links, null, null))
+                        .handleServiceOrAccess("Cannot save links.")
+                        .rethrow();
     }
 
 
@@ -333,14 +332,17 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     @Override
     public void addROIs(DataManager dm, long imageId, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIData> roiData = Arrays.stream(rois).map(RemoteObject::asDataObject).collect(Collectors.toList());
-        ROIFacility   roiFac  = dm.getRoiFacility();
-        handleServiceAndAccess(roiFac,
-                               rf -> rf.addRoisToFolders(dm.getCtx(),
-                                                         imageId,
-                                                         roiData,
-                                                         Collections.singletonList(data)),
-                               "Cannot add ROIs to " + this);
+        List<ROIData> roiData = Arrays.stream(rois)
+                                      .map(RemoteObject::asDataObject)
+                                      .collect(Collectors.toList());
+        ROIFacility roiFac = dm.getRoiFacility();
+        ExceptionHandler.of(roiFac,
+                            rf -> rf.addRoisToFolders(dm.getCtx(),
+                                                      imageId,
+                                                      roiData,
+                                                      Collections.singletonList(data)))
+                        .handleServiceOrAccess("Cannot add ROIs to " + this)
+                        .rethrow();
     }
 
 
@@ -359,11 +361,13 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     @Override
     public List<ROI> getROIs(DataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ROIResult> roiResults = handleServiceAndAccess(dm.getRoiFacility(),
-                                                                  rf -> rf.loadROIsForFolder(dm.getCtx(),
-                                                                                             imageId,
-                                                                                             data.getId()),
-                                                                  "Cannot get ROIs from " + this);
+        ROIFacility roiFac = dm.getRoiFacility();
+
+        Collection<ROIResult> roiResults = ExceptionHandler.of(roiFac,
+                                                               rf -> rf.loadROIsForFolder(dm.getCtx(), imageId,
+                                                                                          data.getId()))
+                                                           .handleServiceOrAccess("Cannot get ROIs from " + this)
+                                                           .get();
         Collection<Collection<ROI>> rois = new ArrayList<>(roiResults.size());
         for (ROIResult r : roiResults) {
             rois.add(wrap(r.getROIs(), ROIWrapper::new));
@@ -422,16 +426,16 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     @Override
     public void unlinkROIs(DataManager dm, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
-        String        error   = "Cannot unlink ROIs from " + this;
-        List<ROIData> roiData = Arrays.stream(rois).map(RemoteObject::asDataObject).collect(Collectors.toList());
+        List<ROIData> roiData = Arrays.stream(rois)
+                                      .map(RemoteObject::asDataObject)
+                                      .collect(Collectors.toList());
         ExceptionHandler.ofConsumer(dm.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(dm.getCtx(),
                                                                    -1L,
                                                                    roiData,
-                                                                   Collections.singletonList(data)),
-                                    error)
-                        .rethrow(DSOutOfServiceException.class, ServiceException::new)
-                        .rethrow(DSAccessException.class, AccessException::new);
+                                                                   Collections.singletonList(data)))
+                        .handleServiceOrAccess("Cannot unlink ROI from " + this)
+                        .rethrow();
     }
 
 }
