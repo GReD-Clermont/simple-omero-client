@@ -161,6 +161,16 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
 
 
     /**
+     * Gets all the images in the dataset (if it was properly loaded from OMERO).
+     *
+     * @return See above.
+     */
+    public List<ImageWrapper> getImages() {
+        return wrap(data.getImages(), ImageWrapper::new);
+    }
+
+
+    /**
      * Gets all images in the dataset available from OMERO.
      *
      * @param client The client handling the connection.

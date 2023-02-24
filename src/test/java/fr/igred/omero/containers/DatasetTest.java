@@ -314,7 +314,7 @@ class DatasetTest extends UserTest {
     void testGetImagesFromDataset() throws Exception {
         DatasetWrapper dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImages(client);
+        List<ImageWrapper> images = dataset.getImages();
         assertEquals(3, images.size());
     }
 
