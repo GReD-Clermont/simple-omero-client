@@ -18,7 +18,7 @@
 package fr.igred.omero.meta;
 
 
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 import static ome.formats.model.UnitsFactory.convertTime;
 
 
-public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
+public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
 
     /**
      * Constructor of the class PlaneInfoWrapper.

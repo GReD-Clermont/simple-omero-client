@@ -25,7 +25,7 @@ import omero.gateway.model.TextualAnnotationData;
  * Class containing a TextualAnnotationData object.
  * <p> Wraps function calls to the TextualAnnotationData contained.
  */
-public class TextualAnnotationWrapper extends GenericAnnotationWrapper<TextualAnnotationData> {
+public class TextualAnnotationWrapper extends AnnotationWrapper<TextualAnnotationData> {
 
     /**
      * Constructor of the TextualAnnotationWrapper class.

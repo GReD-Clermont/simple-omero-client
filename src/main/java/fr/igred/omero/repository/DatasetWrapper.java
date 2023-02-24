@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -54,7 +54,7 @@ import static java.util.stream.Collectors.toList;
  * Class containing a DatasetData object.
  * <p> Wraps function calls to the DatasetData contained.
  */
-public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> {
+public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "DatasetAnnotationLink";
@@ -312,7 +312,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                 selected.add(imageWrapper);
             }
         }
-        selected.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        selected.sort(Comparator.comparing(ObjectWrapper::getId));
 
         return selected;
     }
@@ -355,7 +355,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
                 selected.add(imageWrapper);
             }
         }
-        selected.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        selected.sort(Comparator.comparing(ObjectWrapper::getId));
 
         return selected;
     }
@@ -538,7 +538,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             }
         }
         if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(toList());
+            List<Long> idsToDelete = toDelete.stream().map(ObjectWrapper::getId).collect(toList());
 
             Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
             for (ImageWrapper orphan : orphans) {

@@ -18,7 +18,7 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import omero.gateway.model.ChannelData;
 
 import java.awt.Color;
@@ -28,7 +28,7 @@ import java.awt.Color;
  * Class containing a ChannelData object.
  * <p> Wraps function calls to the ChannelData contained.
  */
-public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
+public class ChannelWrapper extends ObjectWrapper<ChannelData> {
 
 
     /**

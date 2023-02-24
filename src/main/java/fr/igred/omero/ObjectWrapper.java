@@ -43,18 +43,18 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class GenericObjectWrapper<T extends DataObject> {
+public abstract class ObjectWrapper<T extends DataObject> {
 
     /** Wrapped object */
     protected T data;
 
 
     /**
-     * Constructor of the class GenericObjectWrapper.
+     * Constructor of the class ObjectWrapper.
      *
-     * @param o The object contained in the GenericObjectWrapper.
+     * @param o The object contained in the ObjectWrapper.
      */
-    protected GenericObjectWrapper(T o) {
+    protected ObjectWrapper(T o) {
         this.data = o;
     }
 
@@ -71,7 +71,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends GenericObjectWrapper<U>, W extends Comparable<W>> List<V>
+    protected static <U extends DataObject, V extends ObjectWrapper<U>, W extends Comparable<W>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
         return objects.stream()
                       .map(mapper)
@@ -90,9 +90,9 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends GenericObjectWrapper<U>> List<V>
+    protected static <U extends DataObject, V extends ObjectWrapper<U>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
-        return wrap(objects, mapper, GenericObjectWrapper::getId);
+        return wrap(objects, mapper, ObjectWrapper::getId);
     }
 
 
@@ -122,7 +122,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return Distinct objects list, sorted by ID.
      */
-    public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
+    public static <T extends ObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
         return objects.stream()
                       .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
                       .values()
@@ -140,7 +140,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return Distinct objects list, sorted by ID.
      */
-    public static <U extends GenericObjectWrapper<?>>
+    public static <U extends ObjectWrapper<?>>
     List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
         return lists.stream()
                     .flatMap(Collection::stream)

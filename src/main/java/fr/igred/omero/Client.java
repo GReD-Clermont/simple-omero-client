@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
+import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -64,9 +64,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.GenericObjectWrapper.distinct;
-import static fr.igred.omero.GenericObjectWrapper.flatten;
-import static fr.igred.omero.GenericObjectWrapper.wrap;
+import static fr.igred.omero.ObjectWrapper.distinct;
+import static fr.igred.omero.ObjectWrapper.flatten;
+import static fr.igred.omero.ObjectWrapper.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
@@ -436,7 +436,7 @@ public class Client extends GatewayWrapper {
 
         List<ImageWrapper> images = lists.stream()
                                          .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
         return distinct(images);
@@ -455,7 +455,7 @@ public class Client extends GatewayWrapper {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
+    public List<ImageWrapper> getImages(AnnotationWrapper<?> annotation)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         return annotation.getImages(this);
     }
@@ -907,7 +907,7 @@ public class Client extends GatewayWrapper {
                  .map(TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
                  .map(TagAnnotationWrapper::new)
-                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                 .sorted(Comparator.comparing(ObjectWrapper::getId))
                  .collect(Collectors.toList());
     }
 
@@ -925,7 +925,7 @@ public class Client extends GatewayWrapper {
     public List<TagAnnotationWrapper> getTags(String name) throws ServerException, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        tags.sort(Comparator.comparing(ObjectWrapper::getId));
         return tags;
     }
 
@@ -971,7 +971,7 @@ public class Client extends GatewayWrapper {
                               .map(omero.model.MapAnnotation.class::cast)
                               .map(MapAnnotationData::new)
                               .map(MapAnnotationWrapper::new)
-                              .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                              .sorted(Comparator.comparing(ObjectWrapper::getId))
                               .collect(Collectors.toList());
         } catch (ServerError | DSOutOfServiceException e) {
             handleServiceOrServer(e, "Cannot get map annotations");
@@ -996,7 +996,7 @@ public class Client extends GatewayWrapper {
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
                              .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                             .sorted(Comparator.comparing(ObjectWrapper::getId))
                              .collect(Collectors.toList());
     }
 
@@ -1020,7 +1020,7 @@ public class Client extends GatewayWrapper {
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
                              .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                             .sorted(Comparator.comparing(ObjectWrapper::getId))
                              .collect(Collectors.toList());
     }
 
@@ -1058,15 +1058,15 @@ public class Client extends GatewayWrapper {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
+    public void delete(Collection<? extends ObjectWrapper<?>> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        for (GenericObjectWrapper<?> object : objects) {
+        for (ObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
                 ((FolderWrapper) object).unlinkAllROIs(this);
             }
         }
         if (!objects.isEmpty()) {
-            delete(objects.stream().map(GenericObjectWrapper::asIObject).collect(Collectors.toList()));
+            delete(objects.stream().map(ObjectWrapper::asIObject).collect(Collectors.toList()));
         }
     }
 
@@ -1082,7 +1082,7 @@ public class Client extends GatewayWrapper {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(GenericObjectWrapper<?> object)
+    public void delete(ObjectWrapper<?> object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof FolderWrapper) {
             ((FolderWrapper) object).unlinkAllROIs(this);

@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toList;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of Key-Value pairs.
  * <p> Wraps function calls to the MapAnnotationData contained.
  */
-public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotationData> {
+public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
 
 
     /**

@@ -38,10 +38,10 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
  * Class containing a FileAnnotationData object.
  * <p> Wraps function calls to the FileAnnotationData contained.
  */
-public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotationData> {
+public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData> {
 
     /**
-     * Constructor of the GenericAnnotationWrapper class.
+     * Constructor of the AnnotationWrapper class.
      *
      * @param annotation Annotation to be contained.
      */

@@ -18,7 +18,7 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
@@ -46,17 +46,17 @@ import java.util.logging.Logger;
  *
  * @param <T> Subclass of {@link ShapeData}
  */
-public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericObjectWrapper<T> {
+public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T> {
 
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
 
     /**
-     * Constructor of the GenericShapeWrapper class using a ShapeData.
+     * Constructor of the ShapeWrapper class using a ShapeData.
      *
      * @param s The shape.
      */
-    protected GenericShapeWrapper(T s) {
+    protected ShapeWrapper(T s) {
         super(s);
     }
 
@@ -106,7 +106,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
                 rois.forEach(r -> r.setPosition(ijRoi.getCPosition(),
                                                 ijRoi.getZPosition(),
                                                 ijRoi.getTPosition()));
-                rois.stream().map(GenericShapeWrapper::fromImageJ).forEach(list::addAll);
+                rois.stream().map(ShapeWrapper::fromImageJ).forEach(list::addAll);
                 break;
             default:
                 if (ijRoi instanceof TextRoi)
