@@ -128,7 +128,7 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
      *
      * @return See above.
      */
-    static String ijNameProperty(String property) {
+    public static String ijNameProperty(String property) {
         property = checkProperty(property);
         return property + "_NAME";
     }
