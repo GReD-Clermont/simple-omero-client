@@ -72,7 +72,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /**
      * Constructor of the FolderWrapper class.
      *
-     * @param folder FolderData to contain.
+     * @param folder The FolderData to wrap.
      */
     public FolderWrapper(FolderData folder) {
         super(folder);
@@ -113,7 +113,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */

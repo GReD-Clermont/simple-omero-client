@@ -95,10 +95,10 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     /**
      * Constructor of the ROIWrapper class.
      *
-     * @param data ROIData to be contained.
+     * @param roi The ROIData to wrap.
      */
-    public ROIWrapper(ROIData data) {
-        super(data);
+    public ROIWrapper(ROIData roi) {
+        super(roi);
     }
 
 
@@ -363,7 +363,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * Deletes a ShapeData from the ROIData.
+     * Deletes a ShapeData from the ROI.
      *
      * @param shape ShapeData to delete.
      */
@@ -373,7 +373,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * Deletes a ShapeData from the ROIData.
+     * Deletes a shape from the ROI.
      *
      * @param pos Position of the ShapeData in the ShapeData list from the ROIData.
      *
@@ -433,7 +433,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * Convert ROI to ImageJ list of ROIs.
+     * Converts the ROI to a list of ImageJ ROIs.
      *
      * @return A list of ROIs.
      */
@@ -443,7 +443,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * Convert ROI to ImageJ list of ROIs.
+     * Converts the ROI to a list of ImageJ ROIs.
      *
      * @param property The property where the 4D ROI local index will be stored.
      *

@@ -49,7 +49,7 @@ public class RatingAnnotationWrapper extends GenericAnnotationWrapper<RatingAnno
     /**
      * Constructor of the RatingAnnotationWrapper class.
      *
-     * @param object Rating Annotation to be contained.
+     * @param object RatingAnnotationData to wrap.
      */
     public RatingAnnotationWrapper(RatingAnnotationData object) {
         super(object);

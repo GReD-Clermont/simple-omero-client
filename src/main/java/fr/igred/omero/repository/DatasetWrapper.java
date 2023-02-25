@@ -139,7 +139,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */
@@ -239,7 +239,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param client The client handling the connection.
-     * @param tag    TagAnnotationWrapper containing the tag researched.
+     * @param tag    The tag annotation.
      *
      * @return See above.
      *
@@ -258,7 +258,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param client The client handling the connection.
-     * @param tagId  Id of the tag researched.
+     * @param tagId  ID of the tag researched.
      *
      * @return See above.
      *
@@ -615,7 +615,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Refreshes the dataset.
+     * Reloads the dataset from OMERO.
      *
      * @param client The client handling the connection.
      *

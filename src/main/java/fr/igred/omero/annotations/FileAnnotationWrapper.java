@@ -43,7 +43,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
     /**
      * Constructor of the GenericAnnotationWrapper class.
      *
-     * @param annotation Annotation to be contained.
+     * @param annotation FileAnnotationData to wrap.
      */
     public FileAnnotationWrapper(FileAnnotationData annotation) {
         super(annotation);
@@ -160,7 +160,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
 
 
     /**
-     * Returns the id of the file.
+     * Returns the ID of the file.
      *
      * @return See above.
      */

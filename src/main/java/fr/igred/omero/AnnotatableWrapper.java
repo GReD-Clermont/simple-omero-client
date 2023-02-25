@@ -69,7 +69,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     /**
      * Constructor of the class GenericRepositoryObjectWrapper.
      *
-     * @param o The object contained in the GenericRepositoryObjectWrapper.
+     * @param o The annotatable DataObject to wrap in the GenericRepositoryObjectWrapper.
      */
     protected AnnotatableWrapper(T o) {
         super(o);
@@ -236,7 +236,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
     /**
      * @param client The client handling the connection.
-     * @param tags   Array of TagAnnotationWrapper to add.
+     * @param tags   Array of tag annotations to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -274,7 +274,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      *
      * @param client The client handling the connection.
      *
-     * @return List of TagAnnotationWrappers each containing a tag linked to the object.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -305,7 +305,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      *
      * @param client The client handling the connection.
      *
-     * @return List of MapAnnotationWrappers.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -504,13 +504,13 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
     /**
      * @param client        The client handling the connection.
-     * @param mapAnnotation MapAnnotationWrapper containing a list of NamedValue.
+     * @param mapAnnotation The map annotation.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @deprecated Adds a List of Key-Value pair to the object. Use {@link #link} instead.
-     * <p>The list is contained in the MapAnnotationWrapper.
+     * <p>The list is contained in the map annotation.
      */
     @Deprecated
     public void addMapAnnotation(Client client, MapAnnotationWrapper mapAnnotation)
@@ -611,7 +611,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @param client The client handling the connection.
      * @param fileId FileId of the table researched.
      *
-     * @return TableWrapper containing the table information.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -642,7 +642,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      *
      * @param client The client handling the connection.
      *
-     * @return List of TableWrappers containing the tables.
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

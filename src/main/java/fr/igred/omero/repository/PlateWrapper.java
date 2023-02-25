@@ -64,7 +64,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */
@@ -130,7 +130,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
 
 
     /**
-     * Retrieves the screens containing this dataset.
+     * Retrieves the screens containing this plate.
      *
      * @param client The client handling the connection.
      *
@@ -328,7 +328,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
 
 
     /**
-     * Refreshes the plate.
+     * Reloads the plate from OMERO.
      *
      * @param client The client handling the connection.
      *

@@ -81,7 +81,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */
@@ -320,7 +320,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Refreshes the wrapped screen.
+     * Reloads the screen from OMERO.
      *
      * @param client The client handling the connection.
      *

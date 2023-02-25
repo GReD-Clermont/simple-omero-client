@@ -56,7 +56,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Constructor of the class GenericRepositoryObjectWrapper.
      *
-     * @param o The object contained in the GenericRepositoryObjectWrapper.
+     * @param o The DataObject to wrap in the GenericRepositoryObjectWrapper.
      */
     protected GenericRepositoryObjectWrapper(T o) {
         super(o);

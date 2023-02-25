@@ -268,14 +268,26 @@ public abstract class GatewayWrapper {
 
 
     /**
-     * Gets the BrowseFacility used to access the data from OMERO.
+     * Gets the {@link BrowseFacility} used to access the data from OMERO.
      *
-     * @return the {@link BrowseFacility} linked to the gateway.
+     * @return See above.
      *
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public BrowseFacility getBrowseFacility() throws ExecutionException {
         return gateway.getFacility(BrowseFacility.class);
+    }
+
+
+    /**
+     * Gets the {@link MetadataFacility} used to retrieve annotations from OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
+     */
+    public MetadataFacility getMetadata() throws ExecutionException {
+        return gateway.getFacility(MetadataFacility.class);
     }
 
 
@@ -292,21 +304,9 @@ public abstract class GatewayWrapper {
 
 
     /**
-     * Gets the MetadataFacility used to manipulate annotations from OMERO.
+     * Gets the {@link ROIFacility} used to manipulate ROIs from OMERO.
      *
-     * @return the {@link MetadataFacility} linked to the gateway.
-     *
-     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
-     */
-    public MetadataFacility getMetadata() throws ExecutionException {
-        return gateway.getFacility(MetadataFacility.class);
-    }
-
-
-    /**
-     * Gets the ROIFacility used to manipulate ROI from OMERO.
-     *
-     * @return the {@link ROIFacility} linked to the gateway.
+     * @return See above.
      *
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
@@ -316,9 +316,9 @@ public abstract class GatewayWrapper {
 
 
     /**
-     * Gets the TablesFacility used to manipulate table from OMERO.
+     * Gets the {@link TablesFacility} used to manipulate tables on OMERO.
      *
-     * @return the {@link TablesFacility} linked to the gateway.
+     * @return See above.
      *
      * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
      */
@@ -328,9 +328,9 @@ public abstract class GatewayWrapper {
 
 
     /**
-     * Gets the AdminFacility linked to the gateway to use admin specific function.
+     * Gets the {@link AdminFacility} to use admin specific function.
      *
-     * @return the {@link AdminFacility} linked to the gateway.
+     * @return See above.
      *
      * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
      */

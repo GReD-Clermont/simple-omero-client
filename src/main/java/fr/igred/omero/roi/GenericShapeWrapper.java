@@ -77,7 +77,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      *
      * @param ijRoi An ImageJ ROI.
      *
-     * @return A list of ShapeWrappers.
+     * @return A list of shapes.
      */
     static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
         ShapeList list = new ShapeList();

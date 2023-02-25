@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-/** List of GenericShapeWrapper objects */
+/** List of GenericAnnotationWrapper objects */
 public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
 
 
@@ -56,7 +56,7 @@ public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
      * Gets a list of elements from this list whose class is specified.
      *
      * @param clazz Class of the wanted elements.
-     * @param <T>   Subclass of GenericShapeWrapper.
+     * @param <T>   Subclass of GenericAnnotationWrapper.
      *
      * @return See above.
      */

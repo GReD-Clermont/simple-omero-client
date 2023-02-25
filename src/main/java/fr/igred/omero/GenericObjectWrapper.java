@@ -52,7 +52,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     /**
      * Constructor of the class GenericObjectWrapper.
      *
-     * @param o The object contained in the GenericObjectWrapper.
+     * @param o The DataObject to wrap in the GenericObjectWrapper.
      */
     protected GenericObjectWrapper(T o) {
         this.data = o;
@@ -60,7 +60,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Converts a DataObject list to a ObjectWrapper list, sorted by {@code sorter}.
+     * Converts a DataObject list to an ObjectWrapper list, sorted by {@code sorter}.
      *
      * @param objects The DataObject list.
      * @param mapper  The method used to map objects.

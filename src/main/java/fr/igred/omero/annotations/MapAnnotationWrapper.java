@@ -34,7 +34,7 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
     /**
      * Constructor of the MapAnnotationWrapper class.
      *
-     * @param data MapAnnotationData to be contained.
+     * @param data MapAnnotationData to wrap.
      */
     public MapAnnotationWrapper(MapAnnotationData data) {
         super(data);
@@ -61,7 +61,7 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
 
 
     /**
-     * Gets the List of NamedValue contained in the MapAnnotationData.
+     * Gets the List of NamedValue contained in the map annotation.
      *
      * @return MapAnnotationData content.
      */
@@ -72,7 +72,7 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
 
 
     /**
-     * Sets the content of the MapAnnotationData.
+     * Sets the content of the map annotation.
      *
      * @param result List of NamedValue(Key-Value pair).
      */

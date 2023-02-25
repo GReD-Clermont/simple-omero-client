@@ -71,7 +71,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */
@@ -324,7 +324,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Refreshes the well.
+     * Reloads the well from OMERO.
      *
      * @param client The client handling the connection.
      *

@@ -34,10 +34,10 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
     /**
      * Constructor of the PointWrapper class using a PointData.
      *
-     * @param shape the shape
+     * @param point The PointData to wrap.
      */
-    public PointWrapper(PointData shape) {
-        super(shape);
+    public PointWrapper(PointData point) {
+        super(point);
     }
 
 

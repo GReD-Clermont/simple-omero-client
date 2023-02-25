@@ -91,7 +91,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /**
      * Constructor of the class ImageWrapper
      *
-     * @param image The image contained in the ImageWrapper.
+     * @param image The image to wrap in the ImageWrapper.
      */
     public ImageWrapper(ImageData image) {
         super(image);
@@ -241,7 +241,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */
@@ -602,9 +602,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the PixelsWrapper of the image
+     * Gets the Pixels for this image.
      *
-     * @return Contains the PixelsData associated with the image.
+     * @return See above.
      */
     public PixelsWrapper getPixels() {
         return new PixelsWrapper(data.getDefaultPixels());
@@ -764,7 +764,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the image channels
+     * Gets the image channels.
      *
      * @param client The client handling the connection.
      *
@@ -790,7 +790,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the name of the channel
+     * Gets the name of the channel.
      *
      * @param client The client handling the connection.
      * @param index  Channel number.

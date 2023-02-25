@@ -34,10 +34,10 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
     /**
      * Constructor of the TextWrapper class using a TextData.
      *
-     * @param shape the shape
+     * @param text The TextData to wrap.
      */
-    public TextWrapper(TextData shape) {
-        super(shape);
+    public TextWrapper(TextData text) {
+        super(text);
     }
 
 

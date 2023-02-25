@@ -50,7 +50,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorPassword() {
         Client root = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, PORT, "root", "badPassword".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, PORT, ROOT.name, "badPassword".toCharArray(), GROUP1.id));
     }
 
 
@@ -58,7 +58,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorHost() {
         Client root = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect("127.0.0.1", PORT, "root", "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect("127.0.0.1", PORT, ROOT.name, "omero".toCharArray(), GROUP1.id));
     }
 
 
@@ -67,7 +67,7 @@ class ExceptionTest extends BasicTest {
         final int badPort = 5000;
         Client    root    = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id));
     }
 
 

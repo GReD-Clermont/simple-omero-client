@@ -34,7 +34,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
     /**
      * Constructor of the class ChannelWrapper.
      *
-     * @param channel The ChannelData contained in the ChannelWrapper.
+     * @param channel The ChannelData to wrap in the ChannelWrapper.
      */
     public ChannelWrapper(ChannelData channel) {
         super(channel);

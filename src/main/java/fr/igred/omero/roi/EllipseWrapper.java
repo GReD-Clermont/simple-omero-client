@@ -37,10 +37,10 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
     /**
      * Constructor of the EllipseWrapper class using a EllipseData.
      *
-     * @param shape the shape
+     * @param ellipse The EllipseData to wrap.
      */
-    public EllipseWrapper(EllipseData shape) {
-        super(shape);
+    public EllipseWrapper(EllipseData ellipse) {
+        super(ellipse);
     }
 
 

@@ -64,7 +64,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Constructor of the PixelsWrapper class
      *
-     * @param pixels PixelData to be contained.
+     * @param pixels The PixelData to be wrap.
      */
     public PixelsWrapper(PixelsData pixels) {
         super(pixels);

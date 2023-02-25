@@ -40,10 +40,10 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
     /**
      * Constructor of the LineWrapper class using a LineData.
      *
-     * @param shape the shape
+     * @param line The LineData to wrap.
      */
-    public LineWrapper(LineData shape) {
-        super(shape);
+    public LineWrapper(LineData line) {
+        super(line);
     }
 
 

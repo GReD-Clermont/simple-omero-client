@@ -37,7 +37,7 @@ List<DatasetWrapper> datasets = client.getDatasets();
 These objects can then be used to retrieve their children:
 
 ```java
-for (DatasetWrapper dataset:datasets) {
+for (DatasetWrapper dataset : datasets) {
     List<ImageWrapper> images = dataset.getImages(client);
     //...
 }
@@ -51,7 +51,7 @@ For each type of objects (project, dataset or image), annotations can be retriev
 
 ```java
 TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "name", "description");
-dataset.addTag(client, tag);
+dataset.link(client, tag);
 List<TagAnnotationWrapper> tags = dataset.getTags(client);
 ```
 
@@ -101,7 +101,7 @@ ROIs can be added to images or retrieved from them:
 ROIWrapper roi = new ROIWrapper();
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 roi.setImage(image);
-image.saveROI(client, roi);
+image.saveROIs(client, roi);
 List<ROIWrapper> rois = image.getROIs(client);
 ```
 
@@ -118,8 +118,8 @@ ROIWrapper roi = new ROIWrapper();
 roi.setName("ROI name");
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 List<Roi> imagejRois = roi.toImageJ();
-String name = imagejRois.get(0).getProperty(ROI.ijNameProperty(property));
-String ID = imagejRois.get(0).getProperty(ROI.ijIDProperty(property));
+String name = imagejRois.get(0).getProperty(ROIWrapper.ijNameProperty(property));
+String id = imagejRois.get(0).getProperty(ROIWrapper.ijIDProperty(property));
 
 // Conversely ImageJ Rois can be converted to OMERO from ImageJ using "ROIWrapper::fromImageJ"
 Roi ijRoi1 = new Roi(1.0, 2.0, 3.0, 4.0);
