@@ -18,6 +18,7 @@
 package fr.igred.omero.util;
 
 
+import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
@@ -96,7 +97,7 @@ public final class Wrapper {
     /**
      * Converts (wraps) a ShapeData object to a Shape object.
      *
-     * @param object The object to convert
+     * @param object The object to convert.
      * @param <T>    The ShapeData type.
      * @param <U>    The Shape type.
      *
@@ -131,7 +132,7 @@ public final class Wrapper {
     /**
      * Converts (wraps) an AnnotationData object to an Annotation object.
      *
-     * @param object The object to convert
+     * @param object The object to convert.
      * @param <T>    The AnnotationData type.
      * @param <U>    The Annotation type.
      *
@@ -158,9 +159,33 @@ public final class Wrapper {
 
 
     /**
+     * Converts (wraps) a DataObject object to an Annotatable object.
+     *
+     * @param object The object to convert.
+     * @param <T>    The DataObject type.
+     * @param <U>    The Annotatable type.
+     *
+     * @return See above.
+     */
+    public static <T extends DataObject, U extends AnnotatableWrapper<? extends T>>
+    U wrapAnnotatableObject(T object) {
+        U converted;
+
+        if (object instanceof ShapeData) {
+            converted = (U) wrap((ShapeData) object);
+        } else if (object instanceof ROIData) {
+            converted = (U) new ROIWrapper((ROIData) object);
+        } else {
+            converted = (U) wrapRepositoryObject(object);
+        }
+        return converted;
+    }
+
+
+    /**
      * Converts (wraps) a DataObject object to a Repository object.
      *
-     * @param object The object to convert
+     * @param object The object to convert.
      * @param <T>    The DataObject type.
      * @param <U>    The RepositoryObject type.
      *
@@ -196,7 +221,7 @@ public final class Wrapper {
     /**
      * Converts (wraps) a DataObject to a GenericObjectWrapper.
      *
-     * @param object The object to convert
+     * @param object The object to convert.
      * @param <T>    The DataObject type.
      * @param <U>    The RemoteObject type.
      *
@@ -204,14 +229,10 @@ public final class Wrapper {
      */
     public static <T extends DataObject, U extends GenericObjectWrapper<? extends T>> U wrap(T object) {
         U converted;
-        if (object instanceof ShapeData) {
-            converted = (U) wrap((ShapeData) object);
-        } else if (object instanceof AnnotationData) {
+        if (object instanceof AnnotationData) {
             converted = (U) wrap((AnnotationData) object);
         } else if (object instanceof PixelsData) {
             converted = (U) new PixelsWrapper((PixelsData) object);
-        } else if (object instanceof ROIData) {
-            converted = (U) new ROIWrapper((ROIData) object);
         } else if (object instanceof PlaneInfoData) {
             converted = (U) new PlaneInfoWrapper((PlaneInfoData) object);
         } else if (object instanceof WellSampleData) {
@@ -223,7 +244,7 @@ public final class Wrapper {
         } else if (object instanceof ChannelData) {
             converted = (U) new ChannelWrapper((ChannelData) object);
         } else {
-            converted = (U) wrapRepositoryObject(object);
+            converted = (U) wrapAnnotatableObject(object);
         }
         return converted;
     }

@@ -18,8 +18,10 @@
 package fr.igred.omero.roi;
 
 
+import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
@@ -29,9 +31,12 @@ import ij.gui.ShapeRoi;
 import omero.RString;
 import omero.ServerError;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.Roi;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
 import omero.model._RoiOperationsNC;
 
 import java.util.ArrayList;
@@ -41,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -53,7 +59,10 @@ import static java.util.stream.Collectors.groupingBy;
  * Class containing a ROIData object.
  * <p> Wraps function calls to the ROIData contained.
  */
-public class ROIWrapper extends GenericObjectWrapper<ROIData> {
+public class ROIWrapper extends AnnotatableWrapper<ROIData> {
+
+    /** Annotation link name for this type of object */
+    public static final String ANNOTATION_LINK = "RoiAnnotationLink";
 
     /**
      * Default IJ property to store ROI local labels / indices.
@@ -109,8 +118,8 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
     /**
      * Returns the ID property corresponding to the input local index/label property (appends "_ID" to said property).
      *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if null
-     *                 or empty.
+     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
+     *                 null or empty.
      *
      * @return See above.
      */
@@ -121,10 +130,11 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
 
 
     /**
-     * Returns the ID property corresponding to the input local index/label property (appends "_NAME" to said property).
+     * Returns the ID property corresponding to the input local index/label property (appends "_NAME" to said
+     * property).
      *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if null
-     *                 or empty.
+     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
+     *                 null or empty.
      *
      * @return See above.
      */
@@ -474,6 +484,38 @@ public class ROIWrapper extends GenericObjectWrapper<ROIData> {
             rois.add(roi);
         }
         return rois;
+    }
+
+
+    /**
+     * Returns the type of annotation link for this object.
+     *
+     * @return See above.
+     */
+    @Override
+    protected String annotationLinkType() {
+        return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Attach an {@link AnnotationData} to this object.
+     *
+     * @param client     The client handling the connection.
+     * @param annotation The {@link AnnotationData}.
+     * @param <A>        The type of the annotation.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    protected <A extends AnnotationData> void link(Client client, A annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        RoiAnnotationLink link = new RoiAnnotationLinkI();
+        link.setChild(annotation.asAnnotation());
+        link.setParent((Roi) data.asIObject());
+        client.save(link);
     }
 
 }

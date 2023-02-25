@@ -75,8 +75,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         super(o);
     }
 
+
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */
@@ -103,6 +104,28 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
+     * Attach an {@link AnnotationData} to this object.
+     *
+     * @param client     The client handling the connection.
+     * @param annotation The {@link AnnotationData}.
+     * @param <A>        The type of the annotation.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    protected <A extends AnnotationData> void link(Client client, A annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot add %s to %s", annotation, this);
+        try {
+            client.getDm().attachAnnotation(client.getCtx(), annotation, data);
+        } catch (DSOutOfServiceException | DSAccessException e) {
+            handleServiceOrAccess(e, error);
+        }
+    }
+
+
+    /**
      * Adds an annotation to the object in OMERO, if possible.
      *
      * @param client     The client handling the connection.
@@ -115,12 +138,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
-        String error = String.format("Cannot add %s to %s", annotation, this);
-        try {
-            client.getDm().attachAnnotation(client.getCtx(), annotation.asDataObject(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, error);
-        }
+        link(client, annotation.asDataObject());
     }
 
 
@@ -878,12 +896,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         for (AnnotationData annotation : oldAnnotations) {
             newAnnotations.removeIf(a -> a.getId() == annotation.getId());
         }
-        try {
-            for (AnnotationData annotation : newAnnotations) {
-                client.getDm().attachAnnotation(client.getCtx(), annotation, this.data);
-            }
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot link annotations to " + this);
+        for (AnnotationData annotation : newAnnotations) {
+            link(client, annotation);
         }
     }
 

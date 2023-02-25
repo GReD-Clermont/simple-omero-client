@@ -19,17 +19,74 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class ROITest extends UserTest {
+
+
+    @Test
+    void testAddTagToROI() throws Exception {
+        ROIWrapper roiWrapper = new ROIWrapper();
+
+        ImageWrapper image = client.getImage(IMAGE1.id);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(0);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            roiWrapper.addShape(rectangle);
+        }
+
+        roiWrapper = image.saveROIs(client, Collections.singletonList(roiWrapper)).get(0);
+        roiWrapper.addTag(client, "ROI Tag", "ROI tag test");
+
+        List<TagAnnotationWrapper> tags = roiWrapper.getTags(client);
+        roiWrapper.unlink(client, tags.get(0));
+        List<TagAnnotationWrapper> checkTags = roiWrapper.getTags(client);
+        client.delete(tags);
+        client.delete(roiWrapper);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, checkTags.size());
+        assertEquals(0, image.getROIs(client).size());
+    }
+
+
+    @Test
+    void testAddTagToShape() throws Exception {
+        ROIWrapper roiWrapper = new ROIWrapper();
+
+        ImageWrapper           image     = client.getImage(IMAGE1.id);
+        GenericShapeWrapper<?> rectangle = new RectangleWrapper();
+        roiWrapper.addShape(rectangle);
+
+        roiWrapper = image.saveROIs(client, roiWrapper).get(0);
+        GenericShapeWrapper<?> shape = roiWrapper.getShapes().get(0);
+        shape.addTag(client, "Shape tag", "Shape tag test");
+
+        List<TagAnnotationWrapper> tags = shape.getTags(client);
+        shape.unlink(client, tags.get(0));
+        List<TagAnnotationWrapper> checkTags = roiWrapper.getTags(client);
+        client.delete(tags);
+        client.delete(roiWrapper);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, checkTags.size());
+        assertEquals(0, image.getROIs(client).size());
+    }
 
 
     @Test
