@@ -404,18 +404,20 @@ public class TableWrapper {
                                                .collect(toMap(SimpleEntry::getKey,
                                                               p -> id2roi.get(p.getValue()),
                                                               (x1, x2) -> x1));
-
-        String[] headings = results.getHeadings();
-        if (results.columnExists(roiProperty)) {
-            Variable[] roiCol = results.getColumnAsVariables(roiProperty);
-            roiColumn = propertyColumnToROIColumn(roiCol, id2roi, label2roi, name2roi, shape2roi);
-            if (roiColumn.length != 0) results.deleteColumn(roiProperty);
-        }
-        if (roiColumn.length == 0 && results.columnExists(roiIdProperty)) {
+        String colToDelete = "";
+        if (results.columnExists(roiIdProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
             roiColumn = idColumnToROIColumn(roiCol, id2roi);
-            if (roiColumn.length != 0) results.deleteColumn(roiIdProperty);
+            colToDelete = roiIdProperty;
         }
+        if (roiColumn.length == 0 && results.columnExists(roiProperty)) {
+            Variable[] roiCol = results.getColumnAsVariables(roiProperty);
+            roiColumn = propertyColumnToROIColumn(roiCol, id2roi, label2roi, name2roi, shape2roi);
+            colToDelete = roiProperty;
+        }
+        if (roiColumn.length != 0 && !colToDelete.isEmpty()) results.deleteColumn(colToDelete);
+
+        String[] headings = results.getHeadings();
         if (roiColumn.length == 0 && Arrays.asList(headings).contains(LABEL)) {
             Variable[] roiCol = results.getColumnAsVariables(LABEL);
             roiColumn = labelColumnToROIColumn(roiCol, shape2roi, (m, s) -> m.keySet()

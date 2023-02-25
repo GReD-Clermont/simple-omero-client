@@ -140,6 +140,42 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Retrieves the image thumbnail of the specified size as a byte array.
+     * <p>If the image is not square, the size will be the longest side.
+     *
+     * @param client The client handling the connection.
+     * @param size   The thumbnail size.
+     *
+     * @return The thumbnail pixels as a byte array.
+     *
+     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws ServerError             Server error.
+     */
+    private byte[] getThumbnailBytes(Client client, int size) throws DSOutOfServiceException, ServerError {
+        PixelsWrapper pixels = getPixels();
+
+        int   sizeX  = pixels.getSizeX();
+        int   sizeY  = pixels.getSizeY();
+        float ratioX = (float) sizeX / size;
+        float ratioY = (float) sizeY / size;
+        float ratio  = Math.max(ratioX, ratioY);
+        int   width  = (int) (sizeX / ratio);
+        int   height = (int) (sizeY / ratio);
+
+        ThumbnailStorePrx store = null;
+        byte[]            array;
+        try {
+            store = client.getGateway().getThumbnailService(client.getCtx());
+            store.setPixelsId(pixels.getId());
+            array = store.getThumbnail(rint(width), rint(height));
+        } finally {
+            if (store != null) store.close();
+        }
+        return array;
+    }
+
+
+    /**
      * Gets the ImageData name
      *
      * @return name.
@@ -838,24 +874,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws IOException      Cannot read thumbnail from store.
      */
     public BufferedImage getThumbnail(Client client, int size) throws ServiceException, OMEROServerError, IOException {
-        PixelsWrapper pixels = getPixels();
-
-        int   sizeX  = pixels.getSizeX();
-        int   sizeY  = pixels.getSizeY();
-        float ratioX = (float) sizeX / size;
-        float ratioY = (float) sizeY / size;
-        float ratio  = Math.max(ratioX, ratioY);
-        int   width  = (int) (sizeX / ratio);
-        int   height = (int) (sizeY / ratio);
-
         BufferedImage thumbnail = null;
 
         byte[] array = null;
         try {
-            ThumbnailStorePrx store = client.getGateway().getThumbnailService(client.getCtx());
-            store.setPixelsId(pixels.getId());
-            array = store.getThumbnail(rint(width), rint(height));
-            store.close();
+            array = getThumbnailBytes(client, size);
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Error retrieving thumbnail.");
         }

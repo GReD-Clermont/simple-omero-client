@@ -51,6 +51,35 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
 
 
     /**
+     * Writes this file annotation to the specified {@link FileOutputStream}.
+     *
+     * @param client The client handling the connection.
+     * @param stream The {@link FileOutputStream} where the data will be written.
+     *
+     * @return The {@link RawFileStorePrx} used to read the file annotation.
+     *
+     * @throws ServerError             Server error.
+     * @throws DSOutOfServiceException Cannot connect to OMERO.
+     * @throws IOException             Cannot write to the file.
+     */
+    private RawFileStorePrx writeFile(Client client, FileOutputStream stream)
+    throws ServerError, DSOutOfServiceException, IOException {
+        final int inc = 262144;
+
+        RawFileStorePrx store = client.getGateway().getRawFileService(client.getCtx());
+        store.setFileId(this.getFileID());
+
+        long size = getFileSize();
+        long offset;
+        for (offset = 0; offset + inc < size; offset += inc) {
+            stream.write(store.read(offset, inc));
+        }
+        stream.write(store.read(offset, (int) (size - offset)));
+        return store;
+    }
+
+
+    /**
      * Returns the format of the original file.
      *
      * @return See above.
@@ -153,21 +182,11 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      * @throws OMEROServerError Server error.
      */
     public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
-        final int inc = 262144;
-
         File file = new File(path);
 
         RawFileStorePrx store = null;
         try (FileOutputStream stream = new FileOutputStream(file)) {
-            store = client.getGateway().getRawFileService(client.getCtx());
-            store.setFileId(this.getFileID());
-
-            long size = getFileSize();
-            long offset;
-            for (offset = 0; offset + inc < size; offset += inc) {
-                stream.write(store.read(offset, inc));
-            }
-            stream.write(store.read(offset, (int) (size - offset)));
+            store = writeFile(client, stream);
         } catch (DSOutOfServiceException | ServerError e) {
             handleServiceOrServer(e, "Could not create RawFileService");
         }
