@@ -15,12 +15,9 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.repository;
+package fr.igred.omero;
 
 
-import fr.igred.omero.Client;
-import fr.igred.omero.GatewayWrapper;
-import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
@@ -31,17 +28,7 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
-import loci.formats.in.DefaultMetadataOptions;
-import loci.formats.in.MetadataLevel;
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportCandidates;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.cli.ErrorHandler;
-import ome.formats.importer.cli.LoggingImportMonitor;
-import omero.ServerError;
+import fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -52,14 +39,11 @@ import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TagAnnotationData;
-import omero.gateway.util.PojoMapper;
 import omero.model.IObject;
 import omero.model.NamedValue;
-import omero.model.Pixels;
 import omero.model.TagAnnotationI;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,8 +54,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
@@ -82,120 +64,16 @@ import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class GenericRepositoryObjectWrapper<T extends DataObject> extends GenericObjectWrapper<T> {
+public abstract class AnnotatableWrapper<T extends DataObject> extends GenericObjectWrapper<T> {
 
     /**
      * Constructor of the class GenericRepositoryObjectWrapper.
      *
      * @param o The object contained in the GenericRepositoryObjectWrapper.
      */
-    protected GenericRepositoryObjectWrapper(T o) {
+    protected AnnotatableWrapper(T o) {
         super(o);
     }
-
-
-    /**
-     * Imports all images candidates in the paths to the target in OMERO.
-     *
-     * @param client The client handling the connection.
-     * @param target The import target.
-     * @param paths  Paths to the image files on the computer.
-     *
-     * @return If the import did not exit because of an error.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
-     * @throws IOException      Cannot read file.
-     */
-    protected static boolean importImages(GatewayWrapper client, DataObject target, String... paths)
-    throws ServiceException, OMEROServerError, IOException {
-        boolean success;
-
-        ImportConfig config = new ImportConfig();
-        String       type   = PojoMapper.getGraphType(target.getClass());
-        config.target.set(type + ":" + target.getId());
-        config.username.set(client.getUser().getUserName());
-        config.email.set(client.getUser().getEmail());
-
-        OMEROMetadataStoreClient store = client.getImportStore();
-        try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            store.logVersionInfo(config.getIniVersionNumber());
-            reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
-
-            ImportLibrary library = new ImportLibrary(store, reader);
-            library.addObserver(new LoggingImportMonitor());
-
-            ErrorHandler handler = new ErrorHandler(config);
-
-            ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
-            success = library.importCandidates(config, candidates);
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
-        } finally {
-            store.logout();
-        }
-
-        return success;
-    }
-
-
-    /**
-     * Imports one image file to the target in OMERO.
-     *
-     * @param client The client handling the connection.
-     * @param target The import target.
-     * @param path   Path to the image file on the computer.
-     *
-     * @return The list of IDs of the newly imported images.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
-     */
-    protected static List<Long> importImage(GatewayWrapper client, DataObject target, String path)
-    throws ServiceException, OMEROServerError {
-        ImportConfig config = new ImportConfig();
-        String       type   = PojoMapper.getGraphType(target.getClass());
-        config.target.set(type + ":" + target.getId());
-        config.username.set(client.getUser().getUserName());
-        config.email.set(client.getUser().getEmail());
-
-        Collection<Pixels> pixels = new ArrayList<>(1);
-
-        OMEROMetadataStoreClient store = client.getImportStore();
-        try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            store.logVersionInfo(config.getIniVersionNumber());
-            reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
-
-            ImportLibrary library = new ImportLibrary(store, reader);
-            library.addObserver(new LoggingImportMonitor());
-
-            ErrorHandler handler = new ErrorHandler(config);
-
-            ImportCandidates candidates = new ImportCandidates(reader, new String[]{path}, handler);
-
-            ExecutorService uploadThreadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
-
-            List<ImportContainer> containers = candidates.getContainers();
-            if (containers != null) {
-                for (int i = 0; i < containers.size(); i++) {
-                    ImportContainer container = containers.get(i);
-                    container.setTarget(target.asIObject());
-                    List<Pixels> imported = library.importImage(container, uploadThreadPool, i);
-                    pixels.addAll(imported);
-                }
-            }
-            uploadThreadPool.shutdown();
-        } catch (Throwable e) {
-            throw new OMEROServerError(e);
-        } finally {
-            store.logout();
-        }
-
-        List<Long> ids = new ArrayList<>(pixels.size());
-        pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
-        return ids.stream().distinct().collect(Collectors.toList());
-    }
-
 
     /**
      * Returns the type of annotation link for this object
@@ -203,22 +81,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @return See above.
      */
     protected abstract String annotationLinkType();
-
-
-    /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    public abstract String getName();
-
-
-    /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    public abstract String getDescription();
 
 
     /**
@@ -1009,7 +871,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void copyAnnotationLinks(Client client, GenericRepositoryObjectWrapper<?> object)
+    public void copyAnnotationLinks(Client client, AnnotatableWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> newAnnotations = object.getAnnotationData(client);
         List<AnnotationData> oldAnnotations = this.getAnnotationData(client);
@@ -1023,21 +885,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         } catch (DSOutOfServiceException | DSAccessException e) {
             handleServiceOrAccess(e, "Cannot link annotations to " + this);
         }
-    }
-
-
-    /**
-     * Policy to specify how to handle objects when they are replaced.
-     */
-    public enum ReplacePolicy {
-        /** Unlink objects only */
-        UNLINK,
-
-        /** Delete all objects */
-        DELETE,
-
-        /** Delete orphaned objects */
-        DELETE_ORPHANED
     }
 
 }
