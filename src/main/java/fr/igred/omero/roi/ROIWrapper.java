@@ -28,6 +28,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
+import ij.IJ;
 import ij.gui.ShapeRoi;
 import omero.RString;
 import omero.gateway.model.AnnotationData;
@@ -249,7 +250,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois, String property, boolean groupRois) {
         property = checkProperty(property);
         final int maxGroups = 255;
-        groupRois = groupRois && rois.size() < maxGroups;
+        groupRois = groupRois && rois.size() < maxGroups && IJ.getVersion().compareTo("1.52t") >= 0;
 
         int nShapes = rois.stream().map(GenericObjectWrapper::asDataObject).mapToInt(ROIData::getShapeCount).sum();
 

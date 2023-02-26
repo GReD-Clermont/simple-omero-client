@@ -358,6 +358,7 @@ class ImageTest extends UserTest {
         ImageStatistics stats      = difference.getStatistics();
 
         assertEquals(0, (int) stats.max);
+        assertEquals(String.valueOf(IMAGE2.id), imp.getProp("IMAGE_ID"));
     }
 
 
