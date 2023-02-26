@@ -181,21 +181,6 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * Reloads the folder from OMERO, to update all links.
-     *
-     * @param client The client handling the connection.
-     *
-     * @throws AccessException    Cannot access data.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void reload(Client client)
-    throws AccessException, ServiceException, ExecutionException {
-        data = client.getFolder(getId()).asDataObject();
-    }
-
-
-    /**
      * Retrieves the parent folders for this folder.
      *
      * @return See above
@@ -473,6 +458,26 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
                                                                    Collections.singletonList(data)))
                         .handleServiceOrAccess("Cannot unlink ROI from " + this)
                         .rethrow();
+    }
+
+
+    /**
+     * Reloads the folder from OMERO, to update all links.
+     *
+     * @param client The client handling the connection.
+     *
+     * @throws AccessException    Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void reload(Client client)
+    throws AccessException, ServiceException, ExecutionException {
+        data = ExceptionHandler.of(client.getBrowseFacility(),
+                                   bf -> bf.loadFolders(client.getCtx(), Collections.singletonList(data.getId())))
+                               .handleServiceOrAccess("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

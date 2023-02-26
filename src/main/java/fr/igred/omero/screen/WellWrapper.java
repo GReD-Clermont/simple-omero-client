@@ -20,12 +20,14 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
 import omero.gateway.model.WellData;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -129,7 +131,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws ServiceException, AccessException, ExecutionException, ServerException {
-        refresh(client);
+        reload(client);
         return getPlate().getScreens(client);
     }
 
@@ -157,7 +159,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        refresh(client);
+        reload(client);
         return client.getPlate(getPlate().getId()).getPlateAcquisitions();
     }
 
@@ -323,9 +325,14 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client)
+    public void reload(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        data = client.getWell(getId()).asDataObject();
+        data = ExceptionHandler.of(client.getBrowseFacility(),
+                                   bf -> bf.getWells(client.getCtx(), Collections.singletonList(data.getId())))
+                               .handleServiceOrAccess("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

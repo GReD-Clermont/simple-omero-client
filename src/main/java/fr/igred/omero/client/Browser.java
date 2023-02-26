@@ -55,7 +55,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -116,10 +115,10 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ProjectWrapper> getProjects(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get projects with IDs: " + Arrays.toString(ids);
         Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getProjects(getCtx(), Arrays.asList(ids)))
-                                                           .handleServiceOrAccess("Cannot get projects with IDs: "
-                                                                                  + Arrays.toString(ids))
+                                                           .handleServiceOrAccess(error)
                                                            .get();
         return wrap(projects, ProjectWrapper::new);
     }
@@ -156,10 +155,10 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ProjectWrapper> getProjects(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot get projects for user %s", experimenter);
         Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getProjects(getCtx(), experimenter.getId()))
-                                                           .handleServiceOrAccess("Cannot get projects for user "
-                                                                                  + experimenter)
+                                                           .handleServiceOrAccess(error)
                                                            .get();
         return wrap(projects, ProjectWrapper::new);
     }
@@ -177,10 +176,10 @@ public abstract class Browser extends GatewayWrapper {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ProjectWrapper> getProjects(String name) throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get projects with name: " + name;
         Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getProjects(getCtx(), name))
-                                                           .handleServiceOrAccess("Cannot get projects with name: "
-                                                                                  + name)
+                                                           .handleServiceOrAccess(error)
                                                            .get();
         return wrap(projects, ProjectWrapper::new);
     }
@@ -221,10 +220,10 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<DatasetWrapper> getDatasets(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get dataset with ID: " + Arrays.toString(ids);
         Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getDatasets(getCtx(), Arrays.asList(ids)))
-                                                           .handleServiceOrAccess("Cannot get datasets with IDs: "
-                                                                                  + Arrays.toString(ids))
+                                                           .handleServiceOrAccess(error)
                                                            .get();
         return wrap(datasets, DatasetWrapper::new);
     }
@@ -373,11 +372,11 @@ public abstract class Browser extends GatewayWrapper {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(String name) throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get images with name: " + name;
         Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
                                                            bf -> bf.getImages(getCtx(), name))
-                                                       .handleServiceOrAccess("Cannot get images with name: " + name)
+                                                       .handleServiceOrAccess(error)
                                                        .get();
-        images.removeIf(image -> !image.getName().equals(name));
         return wrap(images, ImageWrapper::new);
     }
 
@@ -834,16 +833,16 @@ public abstract class Browser extends GatewayWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<TagAnnotationWrapper> getTags() throws ServerException, ServiceException {
-        List<IObject> os = ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
-                                                                   .findAll(TagAnnotation.class.getSimpleName(), null))
-                                           .handleServiceOrServer("Cannot get tags")
-                                           .get();
-        return os.stream()
-                 .map(TagAnnotation.class::cast)
-                 .map(TagAnnotationData::new)
-                 .map(TagAnnotationWrapper::new)
-                 .sorted(Comparator.comparing(ObjectWrapper::getId))
-                 .collect(Collectors.toList());
+        return ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
+                                                       .findAll(TagAnnotation.class.getSimpleName(), null))
+                               .handleServiceOrServer("Cannot get tags")
+                               .get()
+                               .stream()
+                               .map(TagAnnotation.class::cast)
+                               .map(TagAnnotationData::new)
+                               .map(TagAnnotationWrapper::new)
+                               .sorted(Comparator.comparing(ObjectWrapper::getId))
+                               .collect(Collectors.toList());
     }
 
 
@@ -858,10 +857,13 @@ public abstract class Browser extends GatewayWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<TagAnnotationWrapper> getTags(String name) throws ServerException, ServiceException {
-        List<TagAnnotationWrapper> tags = getTags();
-        tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(Comparator.comparing(ObjectWrapper::getId));
-        return tags;
+        String query = String.format("select t from TagAnnotation as t where t.textValue = '%s'", name);
+        return findByQuery(query).stream()
+                                 .map(omero.model.TagAnnotation.class::cast)
+                                 .map(TagAnnotationData::new)
+                                 .map(TagAnnotationWrapper::new)
+                                 .sorted(Comparator.comparing(ObjectWrapper::getId))
+                                 .collect(Collectors.toList());
     }
 
 
@@ -872,15 +874,15 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws ServerException  Server error.
-     * @throws ServiceException Cannot connect to OMERO.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagAnnotationWrapper getTag(Long id) throws ServerException, ServiceException {
-        IObject o = ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
-                                                            .find(TagAnnotation.class.getSimpleName(), id))
-                                    .handleServiceOrServer("Cannot get tag ID: " + id)
-                                    .get();
-        TagAnnotationData tag = new TagAnnotationData((TagAnnotation) Objects.requireNonNull(o));
+    public TagAnnotationWrapper getTag(Long id) throws ServiceException, ExecutionException, AccessException {
+        TagAnnotationData tag = ExceptionHandler.of(getBrowseFacility(),
+                                                    b -> b.findObject(getCtx(), TagAnnotationData.class, id))
+                                                .handleServiceOrAccess("Cannot get tag with ID: " + id)
+                                                .get();
         tag.setNameSpace(tag.getContentAsString());
 
         return new TagAnnotationWrapper(tag);

@@ -35,6 +35,7 @@ import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -322,9 +323,14 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client)
+    public void reload(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        data = client.getPlate(getId()).asDataObject();
+        data = ExceptionHandler.of(client.getBrowseFacility(),
+                                   bf -> bf.getPlates(client.getCtx(), Collections.singletonList(data.getId())))
+                               .handleServiceOrAccess("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

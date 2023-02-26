@@ -201,8 +201,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
         link.setParent(data.asProject());
 
         client.save(link);
-        refresh(client);
-        dataset.refresh(client);
+        reload(client);
+        dataset.reload(client);
         return dataset;
     }
 
@@ -222,7 +222,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
     public void removeDataset(Client client, DatasetWrapper dataset)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         removeLink(client, "ProjectDatasetLink", dataset.getId());
-        refresh(client);
+        reload(client);
     }
 
 
@@ -433,13 +433,13 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
+    public void reload(Client client) throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getProjects(client.getCtx(),
-                                                        Collections.singletonList(this.getId()))
-                                           .iterator().next())
-                               .handleServiceOrAccess("Cannot refresh " + this)
-                               .get();
+                                   bf -> bf.getProjects(client.getCtx(), Collections.singletonList(data.getId())))
+                               .handleServiceOrAccess("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }
