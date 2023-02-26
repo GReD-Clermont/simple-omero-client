@@ -23,7 +23,7 @@ import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.repository.DatasetWrapper;
@@ -236,11 +236,11 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets()
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ServerException, ExecutionException {
         Long[] ids = this.findByQuery("select d from Dataset d")
                          .stream()
                          .map(IObject::getId)
@@ -259,11 +259,11 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets(ExperimenterWrapper experimenter)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ServerException, ExecutionException {
         String query = String.format("select d from Dataset d where d.details.owner.id=%d", experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
@@ -407,11 +407,11 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public abstract List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException;
+    throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**
@@ -442,11 +442,11 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesWithKey(String key)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         List<MapAnnotationWrapper> maps = getMapAnnotations(key);
 
         Collection<Collection<ImageWrapper>> selected = new ArrayList<>(maps.size());
@@ -468,11 +468,11 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImagesWithKeyValuePair(String key, String value)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         List<MapAnnotationWrapper> maps = getMapAnnotations(key, value);
 
         Collection<Collection<ImageWrapper>> selected = new ArrayList<>(maps.size());
@@ -702,10 +702,10 @@ public abstract class Browser extends GatewayWrapper {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      */
     public List<WellWrapper> getWells()
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         Long[] ids = this.findByQuery("select w from Well w")
                          .stream()
                          .map(IObject::getId)
@@ -725,10 +725,10 @@ public abstract class Browser extends GatewayWrapper {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      */
     public List<WellWrapper> getWells(ExperimenterWrapper experimenter)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         String query = String.format("select w from Well w where w.details.owner.id=%d", experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
@@ -829,10 +829,10 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationWrapper> getTags() throws OMEROServerError, ServiceException {
+    public List<TagAnnotationWrapper> getTags() throws ServerException, ServiceException {
         List<IObject> os = ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
                                                                    .findAll(TagAnnotation.class.getSimpleName(), null))
                                            .handleServiceOrServer("Cannot get tags")
@@ -853,10 +853,10 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<TagAnnotationWrapper> getTags(String name) throws OMEROServerError, ServiceException {
+    public List<TagAnnotationWrapper> getTags(String name) throws ServerException, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
         tags.sort(Comparator.comparing(GenericObjectWrapper::getId));
@@ -871,10 +871,10 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public TagAnnotationWrapper getTag(Long id) throws OMEROServerError, ServiceException {
+    public TagAnnotationWrapper getTag(Long id) throws ServerException, ServiceException {
         IObject o = ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
                                                             .find(TagAnnotation.class.getSimpleName(), id))
                                     .handleServiceOrServer("Cannot get tag ID: " + id)
@@ -891,10 +891,10 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<MapAnnotationWrapper> getMapAnnotations() throws OMEROServerError, ServiceException {
+    public List<MapAnnotationWrapper> getMapAnnotations() throws ServerException, ServiceException {
         return ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
                                                        .findAll(omero.model.MapAnnotation.class.getSimpleName(), null))
                                .handleServiceOrServer("Cannot get map annotations")
@@ -915,10 +915,10 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public List<MapAnnotationWrapper> getMapAnnotations(String key) throws OMEROServerError, ServiceException {
+    public List<MapAnnotationWrapper> getMapAnnotations(String key) throws ServerException, ServiceException {
         String q = String.format("select m from MapAnnotation as m join m.mapValue as mv where mv.name = '%s'", key);
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
@@ -937,11 +937,11 @@ public abstract class Browser extends GatewayWrapper {
      *
      * @return See above.
      *
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
     public List<MapAnnotationWrapper> getMapAnnotations(String key, String value)
-    throws OMEROServerError, ServiceException {
+    throws ServerException, ServiceException {
         String q = String.format("select m from MapAnnotation as m join m.mapValue as mv " +
                                  "where mv.name = '%s' and mv.value = '%s'", key, value);
         return findByQuery(q).stream()

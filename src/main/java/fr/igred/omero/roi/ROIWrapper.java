@@ -23,7 +23,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
@@ -372,9 +372,9 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @param client The client handling the connection.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
-    public void saveROI(Client client) throws OMEROServerError, ServiceException {
+    public void saveROI(Client client) throws ServerException, ServiceException {
         Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
                                             g -> g.getUpdateService(client.getCtx())
                                                   .saveAndReturnObject(data.asIObject()))

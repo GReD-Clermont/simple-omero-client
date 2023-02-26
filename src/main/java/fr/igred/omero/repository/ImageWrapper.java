@@ -22,7 +22,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
@@ -242,13 +242,13 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return See above.
      *
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ProjectWrapper> getProjects(Client client)
-    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+    throws ServerException, ServiceException, AccessException, ExecutionException {
         List<DatasetWrapper>       datasets = getDatasets(client);
         Collection<ProjectWrapper> projects = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
@@ -265,13 +265,13 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return See above.
      *
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<DatasetWrapper> getDatasets(Client client)
-    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+    throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
                                               "where link.child=" + getId());
 
@@ -353,10 +353,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      */
     public List<ScreenWrapper> getScreens(Client client)
-    throws AccessException, ServiceException, ExecutionException, OMEROServerError {
+    throws AccessException, ServiceException, ExecutionException, ServerException {
         List<PlateWrapper> plates = getPlates(client);
 
         Collection<List<ScreenWrapper>> screens = new ArrayList<>(plates.size());
@@ -375,9 +375,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @return {@code true} if the image is orphaned, {@code false} otherwise.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
-    public boolean isOrphaned(Client client) throws ServiceException, OMEROServerError {
+    public boolean isOrphaned(Client client) throws ServiceException, ServerException {
         boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
                                                "where link.child=" + getId()).isEmpty();
         boolean noWell = client.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
@@ -395,10 +395,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      */
     public List<ImageWrapper> getFilesetImages(Client client)
-    throws AccessException, ServiceException, ExecutionException, OMEROServerError {
+    throws AccessException, ServiceException, ExecutionException, ServerException {
         List<ImageWrapper> related = new ArrayList<>(0);
         if (data.isFSImage()) {
             long fsId = this.asDataObject().getFilesetId();
@@ -522,10 +522,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      */
     public List<FolderWrapper> getFolders(Client client)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
         String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
         Long[] ids   = client.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
         return client.loadFolders(ids);
@@ -802,10 +802,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @return The thumbnail as a {@link BufferedImage}.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    public BufferedImage getThumbnail(Client client, int size) throws ServiceException, OMEROServerError, IOException {
+    public BufferedImage getThumbnail(Client client, int size) throws ServiceException, ServerException, IOException {
         BufferedImage thumbnail = null;
 
         byte[] array = ExceptionHandler.of(client, c -> getThumbnailBytes(c, size))
@@ -829,13 +829,13 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return See above.
      *
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<File> download(Client client, String path)
-    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+    throws ServerException, ServiceException, AccessException, ExecutionException {
         TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
         return ExceptionHandler.of(transfer, t -> t.downloadImage(client.getCtx(), path, getId()))
                                .handleException("Could not download image " + getId())

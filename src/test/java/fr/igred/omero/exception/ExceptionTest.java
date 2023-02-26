@@ -212,7 +212,7 @@ class ExceptionTest extends BasicTest {
     void testExceptionHandler2() {
         Exception           e  = new ServerError(null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(OMEROServerError.class, () -> eh.handleException("Great"));
+        assertThrows(ServerException.class, () -> eh.handleException("Great"));
     }
 
 
@@ -234,9 +234,9 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testExceptionHandler5() {
-        Exception           e  = new OMEROServerError(null);
+        Exception           e  = new ServerException(null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(OMEROServerError.class, () -> eh.rethrow(OMEROServerError.class));
+        assertThrows(ServerException.class, () -> eh.rethrow(ServerException.class));
     }
 
 
@@ -252,7 +252,7 @@ class ExceptionTest extends BasicTest {
     void testExceptionHandler7() {
         Exception           e  = new DSAccessException("Test", null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertDoesNotThrow(() -> eh.rethrow(ServerError.class, OMEROServerError::new, "Great"));
+        assertDoesNotThrow(() -> eh.rethrow(ServerError.class, ServerException::new, "Great"));
     }
 
 

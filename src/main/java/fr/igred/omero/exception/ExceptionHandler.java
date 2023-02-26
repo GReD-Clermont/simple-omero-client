@@ -151,19 +151,19 @@ public class ExceptionHandler<T> {
     /**
      * Throws:
      * <ul><li>{@link ServiceException} if {@link DSOutOfServiceException} was caught</li>
-     * <li>{@link OMEROServerError} if {@link ServerError} was caught</li></ul>
+     * <li>{@link ServerException} if {@link ServerError} was caught</li></ul>
      *
      * @param message Error message.
      *
      * @return The same ExceptionHandler.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
     public ExceptionHandler<T> handleServiceOrServer(String message)
-    throws ServiceException, OMEROServerError {
+    throws ServiceException, ServerException {
         return this.rethrow(DSOutOfServiceException.class, ServiceException::new, message)
-                   .rethrow(ServerError.class, OMEROServerError::new, message);
+                   .rethrow(ServerError.class, ServerException::new, message);
     }
 
 
@@ -190,21 +190,21 @@ public class ExceptionHandler<T> {
      * Throws:
      * <ul><li>{@link AccessException} if {@link DSAccessException} was caught</li>
      * <li>{@link ServiceException} if {@link DSOutOfServiceException} was caught</li>
-     * <li>{@link OMEROServerError} if {@link ServerError} was caught</li></ul>
+     * <li>{@link ServerException} if {@link ServerError} was caught</li></ul>
      *
      * @param message Error message.
      *
      * @return The same ExceptionHandler.
      *
      * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
     public ExceptionHandler<T> handleException(String message)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException, ServerException {
         return this.rethrow(DSOutOfServiceException.class, ServiceException::new, message)
                    .rethrow(DSAccessException.class, AccessException::new, message)
-                   .rethrow(ServerError.class, OMEROServerError::new, message);
+                   .rethrow(ServerError.class, ServerException::new, message);
     }
 
 

@@ -21,7 +21,7 @@ package fr.igred.omero.repository;
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
@@ -74,11 +74,11 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @return If the import did not exit because of an error.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      * @throws IOException      Cannot read file.
      */
     protected static boolean importImages(GatewayWrapper client, DataObject target, String... paths)
-    throws ServiceException, OMEROServerError, IOException {
+    throws ServiceException, ServerException, IOException {
         boolean success;
 
         ImportConfig config = new ImportConfig();
@@ -91,7 +91,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             ExceptionHandler.ofConsumer(store,
                                         s -> s.logVersionInfo(config.getIniVersionNumber()))
-                            .rethrow(ServerError.class, OMEROServerError::new,
+                            .rethrow(ServerError.class, ServerException::new,
                                      "Cannot log version information during import.")
                             .rethrow();
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
@@ -121,10 +121,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @return The list of IDs of the newly imported images.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
     protected static List<Long> importImage(GatewayWrapper client, DataObject target, String path)
-    throws ServiceException, OMEROServerError {
+    throws ServiceException, ServerException {
         ImportConfig config = new ImportConfig();
         String       type   = PojoMapper.getGraphType(target.getClass());
         config.target.set(type + ":" + target.getId());
@@ -158,7 +158,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             }
             uploadThreadPool.shutdown();
         } catch (Throwable e) {
-            throw new OMEROServerError(e);
+            throw new ServerException(e);
         } finally {
             store.logout();
         }

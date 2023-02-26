@@ -20,7 +20,7 @@ package fr.igred.omero.annotations;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -178,9 +178,9 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws IOException      Cannot write to the file.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
-    public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
+    public File getFile(Client client, String path) throws IOException, ServiceException, ServerException {
         File file = new File(path);
 
         RawFileStorePrx store;
@@ -193,7 +193,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
 
         if (store != null) {
             ExceptionHandler.ofConsumer(store, RawFileStorePrx::close)
-                            .rethrow(ServerError.class, OMEROServerError::new, "Could not close RawFileService")
+                            .rethrow(ServerError.class, ServerException::new, "Could not close RawFileService")
                             .rethrow();
         }
 

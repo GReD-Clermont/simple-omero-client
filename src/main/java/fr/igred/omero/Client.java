@@ -22,7 +22,7 @@ import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
@@ -108,12 +108,12 @@ public class Client extends Browser {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
+     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ServerException, ExecutionException {
         return annotation.getImages(this);
     }
 
@@ -126,11 +126,11 @@ public class Client extends Browser {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         for (GenericObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
                 ((FolderWrapper) object).unlinkAllROIs(this);
@@ -151,11 +151,11 @@ public class Client extends Browser {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(GenericObjectWrapper<?> object)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof FolderWrapper) {
             ((FolderWrapper) object).unlinkAllROIs(this);
         }
@@ -172,11 +172,11 @@ public class Client extends Browser {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException ID not defined.
-     * @throws OMEROServerError         Server error.
+     * @throws ServerException          Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void delete(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         deleteFile(table.getId());
     }
 

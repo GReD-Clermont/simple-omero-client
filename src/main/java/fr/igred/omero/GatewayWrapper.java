@@ -20,7 +20,7 @@ package fr.igred.omero;
 
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
@@ -368,9 +368,9 @@ public abstract class GatewayWrapper {
      * @return A list of OMERO objects.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServerException  Server error.
      */
-    public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
+    public List<IObject> findByQuery(String query) throws ServiceException, ServerException {
         return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx).findAllByQuery(query, null))
                                .handleServiceOrServer("Query failed: " + query)
                                .get();
@@ -403,11 +403,11 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void delete(IObject object)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         final long wait = 500L;
         ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, object).loop(10, wait))
                         .rethrow(InterruptedException.class)
@@ -424,11 +424,11 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void delete(List<IObject> objects)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         final long wait = 500L;
         ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, objects).loop(10, wait))
                         .rethrow(InterruptedException.class)
@@ -445,11 +445,11 @@ public abstract class GatewayWrapper {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
+     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void deleteFile(Long id)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         FileAnnotationI file = new FileAnnotationI(id, false);
         delete(file);
     }
