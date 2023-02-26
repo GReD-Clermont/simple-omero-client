@@ -19,7 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.core.ImageWrapper;
 import omero.gateway.model.RatingAnnotationData;
 import org.junit.jupiter.api.Test;
 

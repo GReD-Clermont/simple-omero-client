@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;

@@ -14,7 +14,26 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-/**
- * This package contains wrapper classes for users and groups.
- */
-package fr.igred.omero.meta;
+
+package fr.igred.omero.core;
+
+
+import fr.igred.omero.BasicTest;
+import omero.gateway.model.ChannelData;
+import org.junit.jupiter.api.Test;
+
+import java.awt.Color;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
+class ChannelTest extends BasicTest {
+
+
+    @Test
+    void testChannelNoRGBA() {
+        ChannelWrapper channel = new ChannelWrapper(new ChannelData(0));
+        assertEquals(Color.WHITE, channel.getColor());
+    }
+
+}

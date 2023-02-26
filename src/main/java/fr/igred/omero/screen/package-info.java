@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains wrapper classes for users and groups.
+ * This package contains classes related to the HCS organization, e.g. screens, plates or wells.
  */
-package fr.igred.omero.meta;
+package fr.igred.omero.screen;

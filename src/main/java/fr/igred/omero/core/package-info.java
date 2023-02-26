@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains wrapper classes for users and groups.
+ * This package contains classes to handle images and their content, such as pixels, channels or planes.
  */
-package fr.igred.omero.meta;
+package fr.igred.omero.core;

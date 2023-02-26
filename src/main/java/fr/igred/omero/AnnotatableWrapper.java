@@ -25,11 +25,12 @@ import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.RepositoryObjectWrapper.ReplacePolicy;
+import fr.igred.omero.RepositoryObjectWrapper.ReplacePolicy;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
@@ -745,7 +746,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
         List<IObject> os = client.findByQuery("select link from " + linkType +
                                               " link where link.parent = " + getId() +
                                               " and link.child = " + childId);
-        delete(client, os.iterator().next());
+        client.delete(os.iterator().next());
     }
 
 

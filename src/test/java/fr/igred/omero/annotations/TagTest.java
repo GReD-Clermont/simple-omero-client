@@ -19,12 +19,12 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.repository.PlateWrapper;
-import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.repository.ScreenWrapper;
-import fr.igred.omero.repository.WellWrapper;
+import fr.igred.omero.containers.DatasetWrapper;
+import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.screen.PlateWrapper;
+import fr.igred.omero.containers.ProjectWrapper;
+import fr.igred.omero.screen.ScreenWrapper;
+import fr.igred.omero.screen.WellWrapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
