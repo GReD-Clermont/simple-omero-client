@@ -19,8 +19,8 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * Class containing a FolderData object.
  * <p> Wraps function calls to the FolderData contained.
  */
-public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
+public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "FolderAnnotationLink";
@@ -125,7 +125,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asDataObject().asAnnotation());
@@ -230,7 +230,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public void addChildren(Collection<? extends FolderWrapper> folders) {
         data.asFolder().addAllChildFoldersSet(folders.stream()
-                                                     .map(GenericObjectWrapper::asDataObject)
+                                                     .map(ObjectWrapper::asDataObject)
                                                      .map(DataObject::asFolder)
                                                      .collect(Collectors.toList()));
     }
@@ -259,7 +259,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     public void addImages(Client client, ImageWrapper... images)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> links     = new ArrayList<>(images.length);
-        List<Long>    linkedIds = getImages().stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+        List<Long>    linkedIds = getImages().stream().map(ObjectWrapper::getId).collect(Collectors.toList());
         for (ImageWrapper image : images) {
             if (!linkedIds.contains(image.getId())) {
                 FolderImageLink link = new FolderImageLinkI();
@@ -315,7 +315,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     public void addROIs(Client client, long imageId, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(GenericObjectWrapper::asDataObject)
+                                      .map(ObjectWrapper::asDataObject)
                                       .collect(Collectors.toList());
         ROIFacility roiFac = client.getRoiFacility();
         ExceptionHandler.of(roiFac,
@@ -371,7 +371,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                                  .map(ROIResult::getROIs)
                                                  .flatMap(Collection::stream)
                                                  .map(ROIWrapper::new)
-                                                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                                 .sorted(Comparator.comparing(ObjectWrapper::getId))
                                                  .collect(Collectors.toList());
 
         return distinct(roiWrappers);
@@ -462,7 +462,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     public void unlinkROIs(Client client, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(GenericObjectWrapper::asDataObject)
+                                      .map(ObjectWrapper::asDataObject)
                                       .collect(Collectors.toList());
         ExceptionHandler.ofConsumer(client.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(client.getCtx(),

@@ -71,11 +71,11 @@ class ROITest extends UserTest {
         ROIWrapper roiWrapper = new ROIWrapper();
 
         ImageWrapper           image     = client.getImage(IMAGE1.id);
-        GenericShapeWrapper<?> rectangle = new RectangleWrapper();
+        ShapeWrapper<?> rectangle = new RectangleWrapper();
         roiWrapper.addShape(rectangle);
 
         roiWrapper = image.saveROIs(client, roiWrapper).get(0);
-        GenericShapeWrapper<?> shape = roiWrapper.getShapes().get(0);
+        ShapeWrapper<?> shape = roiWrapper.getShapes().get(0);
         shape.addTag(client, "Shape tag", "Shape tag test");
 
         List<TagAnnotationWrapper> tags = shape.getTags(client);
@@ -127,7 +127,7 @@ class ROITest extends UserTest {
     void testROI2() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
+        List<ShapeWrapper<?>> shapes = new ArrayList<>(4);
 
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
@@ -160,7 +160,7 @@ class ROITest extends UserTest {
     void testRoiAddShapeAndDeleteIt() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        Collection<GenericShapeWrapper<?>> shapes = new ArrayList<>(4);
+        Collection<ShapeWrapper<?>> shapes = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
             rectangle.setCoordinates(i * 2, i * 2, 10, 10);

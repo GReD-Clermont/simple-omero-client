@@ -19,8 +19,8 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * Class containing a PlateAcquisitionData object.
  * <p> Wraps function calls to the PlateAcquisitionData contained.
  */
-public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<PlateAcquisitionData> {
+public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
@@ -126,7 +126,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
         link.setChild(annotation.asDataObject().asAnnotation());
@@ -204,10 +204,10 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
         return getWells(client).stream()
                                .map(WellWrapper::getImages)
                                .flatMap(Collection::stream)
-                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                               .collect(Collectors.toMap(ObjectWrapper::getId, i -> i, (i1, i2) -> i1))
                                .values()
                                .stream()
-                               .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                               .sorted(Comparator.comparing(ObjectWrapper::getId))
                                .collect(Collectors.toList());
     }
 

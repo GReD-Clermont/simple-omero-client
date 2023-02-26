@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
+import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -58,8 +58,8 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.GenericObjectWrapper.flatten;
-import static fr.igred.omero.GenericObjectWrapper.wrap;
+import static fr.igred.omero.ObjectWrapper.flatten;
+import static fr.igred.omero.ObjectWrapper.wrap;
 
 
 /**
@@ -410,7 +410,7 @@ public abstract class Browser extends GatewayWrapper {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public abstract List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
+    public abstract List<ImageWrapper> getImages(AnnotationWrapper<?> annotation)
     throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
@@ -841,7 +841,7 @@ public abstract class Browser extends GatewayWrapper {
                  .map(TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
                  .map(TagAnnotationWrapper::new)
-                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                 .sorted(Comparator.comparing(ObjectWrapper::getId))
                  .collect(Collectors.toList());
     }
 
@@ -859,7 +859,7 @@ public abstract class Browser extends GatewayWrapper {
     public List<TagAnnotationWrapper> getTags(String name) throws ServerException, ServiceException {
         List<TagAnnotationWrapper> tags = getTags();
         tags.removeIf(tag -> !tag.getName().equals(name));
-        tags.sort(Comparator.comparing(GenericObjectWrapper::getId));
+        tags.sort(Comparator.comparing(ObjectWrapper::getId));
         return tags;
     }
 
@@ -903,7 +903,7 @@ public abstract class Browser extends GatewayWrapper {
                                .map(omero.model.MapAnnotation.class::cast)
                                .map(MapAnnotationData::new)
                                .map(MapAnnotationWrapper::new)
-                               .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                               .sorted(Comparator.comparing(ObjectWrapper::getId))
                                .collect(Collectors.toList());
     }
 
@@ -924,7 +924,7 @@ public abstract class Browser extends GatewayWrapper {
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
                              .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                             .sorted(Comparator.comparing(ObjectWrapper::getId))
                              .collect(Collectors.toList());
     }
 
@@ -948,7 +948,7 @@ public abstract class Browser extends GatewayWrapper {
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
                              .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                             .sorted(Comparator.comparing(ObjectWrapper::getId))
                              .collect(Collectors.toList());
     }
 

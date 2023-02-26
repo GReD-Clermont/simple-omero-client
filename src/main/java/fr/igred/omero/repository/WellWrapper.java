@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * Class containing a WellData object.
  * <p> Wraps function calls to the WellData contained.
  */
-public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
+public class WellWrapper extends RepositoryObjectWrapper<WellData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";

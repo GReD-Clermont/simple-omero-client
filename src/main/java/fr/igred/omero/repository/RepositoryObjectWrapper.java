@@ -52,14 +52,14 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class GenericRepositoryObjectWrapper<T extends DataObject> extends AnnotatableWrapper<T> {
+public abstract class RepositoryObjectWrapper<T extends DataObject> extends AnnotatableWrapper<T> {
 
     /**
-     * Constructor of the class GenericRepositoryObjectWrapper.
+     * Constructor of the class RepositoryObjectWrapper.
      *
-     * @param o The DataObject to wrap in the GenericRepositoryObjectWrapper.
+     * @param o The DataObject to wrap in the RepositoryObjectWrapper.
      */
-    protected GenericRepositoryObjectWrapper(T o) {
+    protected RepositoryObjectWrapper(T o) {
         super(o);
     }
 

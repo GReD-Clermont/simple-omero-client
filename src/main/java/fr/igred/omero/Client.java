@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
+import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -41,7 +41,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.GenericObjectWrapper.flatten;
+import static fr.igred.omero.ObjectWrapper.flatten;
 
 
 /**
@@ -112,7 +112,7 @@ public class Client extends Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
+    public List<ImageWrapper> getImages(AnnotationWrapper<?> annotation)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         return annotation.getImages(this);
     }
@@ -129,15 +129,15 @@ public class Client extends Browser {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
+    public void delete(Collection<? extends ObjectWrapper<?>> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        for (GenericObjectWrapper<?> object : objects) {
+        for (ObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
                 ((FolderWrapper) object).unlinkAllROIs(this);
             }
         }
         if (!objects.isEmpty()) {
-            delete(objects.stream().map(GenericObjectWrapper::asIObject).collect(Collectors.toList()));
+            delete(objects.stream().map(ObjectWrapper::asIObject).collect(Collectors.toList()));
         }
     }
 
@@ -154,7 +154,7 @@ public class Client extends Browser {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(GenericObjectWrapper<?> object)
+    public void delete(ObjectWrapper<?> object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof FolderWrapper) {
             ((FolderWrapper) object).unlinkAllROIs(this);

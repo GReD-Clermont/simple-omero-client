@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * Class containing a PlateData object.
  * <p> Wraps function calls to the PlateData contained.
  */
-public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
+public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAnnotationLink";
@@ -185,10 +185,10 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
         return getWells(client).stream()
                                .map(WellWrapper::getImages)
                                .flatMap(Collection::stream)
-                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                               .collect(Collectors.toMap(ObjectWrapper::getId, i -> i, (i1, i2) -> i1))
                                .values()
                                .stream()
-                               .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                               .sorted(Comparator.comparing(ObjectWrapper::getId))
                                .collect(Collectors.toList());
     }
 

@@ -19,7 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
@@ -382,10 +382,10 @@ public class TableWrapper {
 
         ROIData[] roiColumn = EMPTY_ROI;
 
-        Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROIWrapper::getId, GenericObjectWrapper::asDataObject));
+        Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROIWrapper::getId, ObjectWrapper::asDataObject));
         Map<String, ROIData> name2roi = rois.stream()
                                             .filter(r -> !r.getName().isEmpty())
-                                            .collect(toMap(ROIWrapper::getName, GenericObjectWrapper::asDataObject));
+                                            .collect(toMap(ROIWrapper::getName, ObjectWrapper::asDataObject));
 
         Map<String, ROIData> label2roi = ijRois.stream()
                                                .map(r -> new SimpleEntry<>(r.getProperty(roiProperty),

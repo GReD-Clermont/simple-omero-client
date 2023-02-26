@@ -33,7 +33,7 @@ import java.util.stream.IntStream;
  * Class containing an PolygonData.
  * <p> Wraps function calls to the PolygonData contained.
  */
-public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
+public class PolygonWrapper extends ShapeWrapper<PolygonData> {
 
 
     /**

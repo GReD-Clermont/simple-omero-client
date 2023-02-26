@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * Class containing a ProjectData object.
  * <p> Wraps function calls to the Project contained
  */
-public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> {
+public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ProjectAnnotationLink";
@@ -292,7 +292,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         }
         List<ImageWrapper> images = lists.stream()
                                          .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
         return distinct(images);

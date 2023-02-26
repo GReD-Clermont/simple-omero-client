@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -77,7 +77,7 @@ import static omero.rtypes.rint;
  * Class containing an ImageData.
  * <p> Wraps function calls to the ImageData contained.
  */
-public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
+public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ImageAnnotationLink";
@@ -429,7 +429,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
         List<ROIData> roisData = rois.stream()
-                                     .map(GenericObjectWrapper::asDataObject)
+                                     .map(ObjectWrapper::asDataObject)
                                      .collect(Collectors.toList());
         Collection<ROIData> results = ExceptionHandler.of(client.getRoiFacility(),
                                                           rf -> rf.saveROIs(client.getCtx(), data.getId(), roisData))
@@ -480,7 +480,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                                                  .map(ROIResult::getROIs)
                                                  .flatMap(Collection::stream)
                                                  .map(ROIWrapper::new)
-                                                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                                 .sorted(Comparator.comparing(ObjectWrapper::getId))
                                                  .collect(Collectors.toList());
 
         return distinct(roiWrappers);
