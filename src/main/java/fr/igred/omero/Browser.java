@@ -73,14 +73,6 @@ public abstract class Browser extends GatewayWrapper {
 
 
     /**
-     * Constructor of the Browser class. Initializes the gateway.
-     */
-    protected Browser() {
-        this(null, null, null);
-    }
-
-
-    /**
      * Constructor of the Browser class.
      *
      * @param gateway The gateway

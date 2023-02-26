@@ -288,7 +288,7 @@ public abstract class GatewayWrapper {
     public IQueryPrx getQueryService() throws ServiceException {
         try {
             return gateway.getQueryService(ctx);
-        } catch(DSOutOfServiceException e) {
+        } catch (DSOutOfServiceException e) {
             throw new ServiceException("Could not retrieve Query Service", e, e.getConnectionStatus());
         }
     }

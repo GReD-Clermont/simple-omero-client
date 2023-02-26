@@ -18,8 +18,8 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.AnnotatableWrapper;
+import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import loci.formats.in.DefaultMetadataOptions;
