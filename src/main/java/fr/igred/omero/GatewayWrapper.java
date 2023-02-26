@@ -25,6 +25,7 @@ import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.LockTimeout;
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
@@ -42,13 +43,11 @@ import omero.log.SimpleLogger;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.handleException;
 import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 
 
 /**
@@ -280,6 +279,22 @@ public abstract class GatewayWrapper {
 
 
     /**
+     * Returns the {@link IQueryPrx} used to find objects on OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    public IQueryPrx getQueryService() throws ServiceException {
+        try {
+            return gateway.getQueryService(ctx);
+        } catch(DSOutOfServiceException e) {
+            throw new ServiceException("Could not retrieve Query Service", e, e.getConnectionStatus());
+        }
+    }
+
+
+    /**
      * Gets the {@link MetadataFacility} used to retrieve annotations from OMERO.
      *
      * @return See above.
@@ -292,9 +307,9 @@ public abstract class GatewayWrapper {
 
 
     /**
-     * Gets the DataManagerFacility to handle/write data on OMERO. A
+     * Gets the {@link DataManagerFacility} to handle/write data on OMERO. A
      *
-     * @return the {@link DataManagerFacility} linked to the gateway.
+     * @return See above.
      *
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
@@ -368,14 +383,11 @@ public abstract class GatewayWrapper {
      * @throws OMEROServerError Server error.
      */
     public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
-        List<IObject> results = new ArrayList<>(0);
         try {
-            results = gateway.getQueryService(ctx).findAllByQuery(query, null);
-        } catch (DSOutOfServiceException | ServerError e) {
-            handleServiceOrServer(e, "Query failed: " + query);
+            return getQueryService().findAllByQuery(query, null);
+        } catch (ServerError e) {
+            throw new OMEROServerError("Query failed: " + query, e);
         }
-
-        return results;
     }
 
 
