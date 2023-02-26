@@ -21,26 +21,22 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.RLong;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.WellData;
 import omero.model.IObject;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -171,12 +167,11 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellWrapper> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = new ArrayList<>(0);
-        try {
-            wells = client.getBrowseFacility().getWells(client.getCtx(), data.getId());
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get wells from " + this);
-        }
+        Collection<WellData> wells = ExceptionHandler.of(client.getBrowseFacility(),
+                                                         bf -> bf.getWells(client.getCtx(), data.getId()))
+                                                     .handleServiceOrAccess("Cannot get wells from " + this)
+                                                     .get();
+
         return wells.stream()
                     .map(WellWrapper::new)
                     .sorted(Comparator.comparing(WellWrapper::getRow)

@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.GatewayWrapper;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import loci.formats.in.DefaultMetadataOptions;
@@ -88,7 +89,11 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            store.logVersionInfo(config.getIniVersionNumber());
+            ExceptionHandler.ofConsumer(store,
+                                        s -> s.logVersionInfo(config.getIniVersionNumber()))
+                            .rethrow(ServerError.class, OMEROServerError::new,
+                                     "Cannot log version information during import.")
+                            .rethrow();
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
 
             ImportLibrary library = new ImportLibrary(store, reader);
@@ -98,8 +103,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
             ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
             success = library.importCandidates(config, candidates);
-        } catch (ServerError se) {
-            throw new OMEROServerError(se);
         } finally {
             store.logout();
         }

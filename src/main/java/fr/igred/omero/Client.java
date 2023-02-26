@@ -21,6 +21,7 @@ package fr.igred.omero;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
@@ -30,8 +31,6 @@ import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
@@ -44,7 +43,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.GenericObjectWrapper.flatten;
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -252,12 +250,10 @@ public class Client extends Browser {
      */
     public ExperimenterWrapper getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData experimenter = null;
-        try {
-            experimenter = getAdminFacility().lookupExperimenter(getCtx(), username);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot retrieve user: " + username);
-        }
+        ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
+                                                            a -> a.lookupExperimenter(getCtx(), username))
+                                                        .handleServiceOrAccess("Cannot retrieve user: " + username)
+                                                        .get();
         if (experimenter != null) {
             return new ExperimenterWrapper(experimenter);
         } else {
@@ -280,12 +276,9 @@ public class Client extends Browser {
      */
     public GroupWrapper getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
-        GroupData group = null;
-        try {
-            group = getAdminFacility().lookupGroup(getCtx(), groupName);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot retrieve group: " + groupName);
-        }
+        GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
+                                          .handleServiceOrAccess("Cannot retrieve group: " + groupName)
+                                          .get();
         if (group != null) {
             return new GroupWrapper(group);
         } else {

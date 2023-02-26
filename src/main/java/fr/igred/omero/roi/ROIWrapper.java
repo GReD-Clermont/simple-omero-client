@@ -22,6 +22,7 @@ import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
@@ -29,8 +30,6 @@ import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import ij.gui.ShapeRoi;
 import omero.RString;
-import omero.ServerError;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
@@ -51,7 +50,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrServer;
 import static java.util.stream.Collectors.groupingBy;
 
 
@@ -393,12 +391,12 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @throws OMEROServerError Server error.
      */
     public void saveROI(Client client) throws OMEROServerError, ServiceException {
-        try {
-            Roi roi = (Roi) client.getGateway().getUpdateService(client.getCtx()).saveAndReturnObject(data.asIObject());
-            data = new ROIData(roi);
-        } catch (DSOutOfServiceException | ServerError e) {
-            handleServiceOrServer(e, "Cannot save ROI");
-        }
+        Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
+                                            g -> g.getUpdateService(client.getCtx())
+                                                  .saveAndReturnObject(data.asIObject()))
+                                        .handleServiceOrServer("Cannot save ROI")
+                                        .get();
+        data = new ROIData(roi);
     }
 
 

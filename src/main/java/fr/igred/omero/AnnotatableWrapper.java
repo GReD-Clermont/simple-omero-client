@@ -26,12 +26,12 @@ import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
@@ -55,8 +55,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
 
 
 /**
@@ -117,11 +115,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     protected <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
-        try {
-            client.getDm().attachAnnotation(client.getCtx(), annotation, data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, error);
-        }
+        ExceptionHandler.of(client.getDm(), d -> d.attachAnnotation(client.getCtx(), annotation, data))
+                        .handleServiceOrAccess(error)
+                        .rethrow();
     }
 
 
@@ -284,12 +280,13 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tags for " + this);
-        }
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+                                                               m -> m.getAnnotations(client.getCtx(),
+                                                                                     data,
+                                                                                     types,
+                                                                                     null))
+                                                           .handleServiceOrAccess("Cannot get tags for " + this)
+                                                           .get();
 
         return annotations.stream()
                           .filter(TagAnnotationData.class::isInstance)
@@ -314,13 +311,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     public List<MapAnnotationWrapper> getMapAnnotations(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get map annotations for " + this);
-        }
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+                                                               m -> m.getAnnotations(client.getCtx(),
+                                                                                     data,
+                                                                                     types,
+                                                                                     null))
+                                                           .handleServiceOrAccess("Cannot get map annotations for "
+                                                                                  + this)
+                                                           .get();
 
         return annotations.stream()
                           .filter(MapAnnotationData.class::isInstance)
@@ -432,32 +430,27 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
         List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
 
-        List<AnnotationData> anns = new ArrayList<>(0);
-        try {
-            anns = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, error);
-        }
-        List<RatingAnnotationWrapper> myRatings = anns.stream()
-                                                      .filter(RatingAnnotationData.class::isInstance)
-                                                      .map(RatingAnnotationData.class::cast)
-                                                      .map(RatingAnnotationWrapper::new)
-                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                      .collect(Collectors.toList());
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+                                                               m -> m.getAnnotations(client.getCtx(),
+                                                                                     data,
+                                                                                     types,
+                                                                                     userIds))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
+        List<RatingAnnotationWrapper> ratings = annotations.stream()
+                                                           .filter(RatingAnnotationData.class::isInstance)
+                                                           .map(RatingAnnotationData.class::cast)
+                                                           .map(RatingAnnotationWrapper::new)
+                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
+                                                           .collect(Collectors.toList());
 
-        if (myRatings.isEmpty()) {
+        if (ratings.isEmpty()) {
             RatingAnnotationWrapper rate = new RatingAnnotationWrapper(rating);
-            try {
-                client.getDm().attachAnnotation(client.getCtx(),
-                                                rate.asDataObject(),
-                                                this.data);
-            } catch (DSOutOfServiceException | DSAccessException e) {
-                handleServiceOrAccess(e, "Cannot add rating to " + this);
-            }
+            link(client, rate);
         } else {
-            int n = myRatings.size();
-            if (n > 1) client.delete(myRatings.subList(1, n));
-            RatingAnnotationWrapper rate = myRatings.get(0);
+            int n = ratings.size();
+            if (n > 1) client.delete(ratings.subList(1, n));
+            RatingAnnotationWrapper rate = ratings.get(0);
             rate.setRating(rating);
             rate.saveAndUpdate(client);
         }
@@ -482,23 +475,24 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
         List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
 
-        List<AnnotationData> anns = new ArrayList<>(0);
-        try {
-            anns = client.getMetadata().getAnnotations(client.getCtx(), data, types, userIds);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, error);
-        }
-        List<RatingAnnotationWrapper> myRatings = anns.stream()
-                                                      .filter(RatingAnnotationData.class::isInstance)
-                                                      .map(RatingAnnotationData.class::cast)
-                                                      .map(RatingAnnotationWrapper::new)
-                                                      .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                      .collect(Collectors.toList());
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+                                                               m -> m.getAnnotations(client.getCtx(),
+                                                                                     data,
+                                                                                     types,
+                                                                                     userIds))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
+        List<RatingAnnotationWrapper> ratings = annotations.stream()
+                                                           .filter(RatingAnnotationData.class::isInstance)
+                                                           .map(RatingAnnotationData.class::cast)
+                                                           .map(RatingAnnotationWrapper::new)
+                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
+                                                           .collect(Collectors.toList());
         int score = 0;
-        for (RatingAnnotationWrapper rate : myRatings) {
+        for (RatingAnnotationWrapper rate : ratings) {
             score += rate.getRating();
         }
-        return score / Math.max(1, myRatings.size());
+        return score / Math.max(1, ratings.size());
     }
 
 
@@ -531,20 +525,25 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void addTable(Client client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException {
-        TableData tableData = table.createTable();
-        try {
-            tableData = client.getTablesFacility().addTable(client.getCtx(), data, table.getName(), tableData);
+        TablesFacility tablesFacility = client.getTablesFacility();
+        TableData tableData = ExceptionHandler.of(tablesFacility,
+                                                  tf -> tf.addTable(client.getCtx(),
+                                                                    data,
+                                                                    table.getName(),
+                                                                    table.createTable()))
+                                              .handleServiceOrAccess("Cannot add table to " + this)
+                                              .get();
 
-            Collection<FileAnnotationData> tables = client.getTablesFacility()
-                                                          .getAvailableTables(client.getCtx(), data);
-            long fileId = tableData.getOriginalFileId();
+        Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
+                                                                    tf -> tf.getAvailableTables(client.getCtx(),
+                                                                                                data))
+                                                                .handleServiceOrAccess("Cannot add table to " + this)
+                                                                .get();
+        long fileId = tableData.getOriginalFileId();
 
-            long id = tables.stream().filter(v -> v.getFileID() == fileId)
-                            .mapToLong(DataObject::getId).max().orElse(-1L);
-            table.setId(id);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot add table to " + this);
-        }
+        long id = tables.stream().filter(v -> v.getFileID() == fileId)
+                        .mapToLong(DataObject::getId).max().orElse(-1L);
+        table.setId(id);
         table.setFileId(tableData.getOriginalFileId());
     }
 
@@ -564,16 +563,13 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        Collection<FileAnnotationWrapper> tables = new ArrayList<>(0);
-        try {
-            tables = client.getTablesFacility()
-                           .getAvailableTables(client.getCtx(), data)
-                           .stream()
-                           .map(FileAnnotationWrapper::new)
-                           .collect(Collectors.toList());
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tables from " + this);
-        }
+        Collection<FileAnnotationWrapper> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
+                                                                            t -> t.getAvailableTables(
+                                                                                    client.getCtx(), data))
+                                                                        .handleServiceOrAccess("Cannot get tables from "
+                                                                                               + this)
+                                                                        .get(),
+                                                        FileAnnotationWrapper::new);
         addTable(client, table);
         tables.removeIf(t -> !t.getDescription().equals(table.getName()));
         for (FileAnnotationWrapper fileAnnotation : tables) {
@@ -619,18 +615,16 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
-        TableData table = null;
-        String    name  = null;
-        try {
-            table = client.getTablesFacility().getTable(client.getCtx(), fileId);
-            name = client.getTablesFacility()
-                         .getAvailableTables(client.getCtx(), data)
-                         .stream().filter(t -> t.getFileID() == fileId)
-                         .map(FileAnnotationData::getDescription)
-                         .findFirst().orElse(null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get table from " + this);
-        }
+        TableData table = ExceptionHandler.of(client.getTablesFacility(), tf -> tf.getTable(client.getCtx(), fileId))
+                                          .handleServiceOrAccess("Cannot get table from " + this)
+                                          .get();
+        String name = ExceptionHandler.of(client.getTablesFacility(),
+                                          tf -> tf.getAvailableTables(client.getCtx(), data)
+                                                  .stream().filter(t -> t.getFileID() == fileId)
+                                                  .map(FileAnnotationData::getDescription)
+                                                  .findFirst().orElse(null))
+                                      .handleServiceOrAccess("Cannot get table name from " + this)
+                                      .get();
         TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
         result.setName(name);
         return result;
@@ -650,12 +644,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = new ArrayList<>(0);
-        try {
-            tables = client.getTablesFacility().getAvailableTables(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get tables from " + this);
-        }
+        Collection<FileAnnotationData> tables = ExceptionHandler.of(client.getTablesFacility(),
+                                                                    tf -> tf.getAvailableTables(client.getCtx(), data))
+                                                                .handleServiceOrAccess("Cannot get tables from " + this)
+                                                                .get();
 
         List<TableWrapper> tablesWrapper = new ArrayList<>(tables.size());
         for (FileAnnotationData table : tables) {
@@ -778,14 +770,17 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public List<FileAnnotationWrapper> getFileAnnotations(Client client)
     throws ExecutionException, ServiceException, AccessException {
+        String error = "Cannot retrieve file annotations from " + this;
+
         List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data, types, null);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot retrieve file annotations from " + this);
-        }
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+                                                               m -> m.getAnnotations(client.getCtx(),
+                                                                                     data,
+                                                                                     types,
+                                                                                     null))
+                                                           .handleServiceOrAccess(error)
+                                                           .get();
 
         return annotations.stream()
                           .filter(FileAnnotationData.class::isInstance)
@@ -849,13 +844,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     private List<AnnotationData> getAnnotationData(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> annotations = new ArrayList<>(0);
-        try {
-            annotations = client.getMetadata().getAnnotations(client.getCtx(), data);
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get annotations from " + this);
-        }
-        return annotations;
+        return ExceptionHandler.of(client.getMetadata(), m -> m.getAnnotations(client.getCtx(), data))
+                               .handleServiceOrAccess("Cannot get annotations from " + this)
+                               .get();
     }
 
 
@@ -880,7 +871,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
-     * Copies annotation links from some other object to this one
+     * Copies annotation links from some other object to this one.
      *
      * @param client The client handling the connection.
      * @param object Other repository object to copy annotations from.
