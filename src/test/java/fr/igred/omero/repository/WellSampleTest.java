@@ -58,6 +58,7 @@ class WellSampleTest extends UserTest {
         assertEquals(1, acqs.size());
     }
 
+
     @Test
     void testGetImage() throws Exception {
         final String name = "screen1.fake [screen1 2]";

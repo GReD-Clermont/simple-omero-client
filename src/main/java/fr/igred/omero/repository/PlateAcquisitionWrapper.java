@@ -50,7 +50,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
     /**
      * Constructor of the class PlateAcquisitionWrapper.
      *
-     * @param plateAcquisition The plate acquisition contained in the PlateAcquisitionWrapper.
+     * @param plateAcquisition The PlateAcquisitionData to wrap in the PlateAcquisitionWrapper.
      */
     public PlateAcquisitionWrapper(PlateAcquisitionData plateAcquisition) {
         super(plateAcquisition);
@@ -60,7 +60,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */

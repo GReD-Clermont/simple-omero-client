@@ -52,7 +52,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
     /**
      * Constructor of the class GroupWrapper.
      *
-     * @param group The object contained in the GroupWrapper.
+     * @param group The GroupData to wrap in the GroupWrapper.
      */
     public GroupWrapper(GroupData group) {
         super(group);

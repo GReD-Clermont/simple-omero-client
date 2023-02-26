@@ -44,7 +44,7 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
     /**
      * Constructor of the class PlaneInfoWrapper.
      *
-     * @param object The object contained in the PlaneInfoWrapper.
+     * @param object The PlaneInfoData to wrap in the PlaneInfoWrapper.
      */
     public PlaneInfoWrapper(PlaneInfoData object) {
         super(object);

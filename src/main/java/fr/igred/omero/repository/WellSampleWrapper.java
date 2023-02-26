@@ -43,7 +43,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
     /**
      * Constructor of the class WellSampleWrapper.
      *
-     * @param wellSample The well sample contained in the WellSampleWrapper.
+     * @param wellSample The WellSampleData to wrap in the WellSampleWrapper.
      */
     public WellSampleWrapper(WellSampleData wellSample) {
         super(wellSample);

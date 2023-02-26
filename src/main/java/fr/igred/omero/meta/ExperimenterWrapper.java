@@ -33,7 +33,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
     /**
      * Constructor of the class ExperimenterWrapper.
      *
-     * @param experimenter The experimenter contained in the ExperimenterWrapper.
+     * @param experimenter The ExperimenterData to wrap in the ExperimenterWrapper.
      */
     public ExperimenterWrapper(ExperimenterData experimenter) {
         super(experimenter);

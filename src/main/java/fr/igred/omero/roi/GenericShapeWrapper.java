@@ -18,16 +18,22 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.AnnotatableWrapper;
+import fr.igred.omero.Client;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
 import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
 import ome.model.units.BigResult;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
 import omero.model.AffineTransformI;
 import omero.model.LengthI;
+import omero.model.ShapeAnnotationLink;
+import omero.model.ShapeAnnotationLinkI;
 import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
@@ -37,6 +43,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,8 +53,12 @@ import java.util.logging.Logger;
  *
  * @param <T> Subclass of {@link ShapeData}
  */
-public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericObjectWrapper<T> {
+public abstract class GenericShapeWrapper<T extends ShapeData> extends AnnotatableWrapper<T> {
 
+    /** Annotation link name for this type of object */
+    public static final String ANNOTATION_LINK = "ShapeAnnotationLink";
+
+    /** Transparent color */
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
 
@@ -66,7 +77,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
      *
      * @param ijRoi An ImageJ ROI.
      *
-     * @return A list of ShapeWrappers.
+     * @return A list of shapes.
      */
     static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
         ShapeList list = new ShapeList();
@@ -442,6 +453,38 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends GenericOb
         Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
         copyToIJRoi(roi);
         return roi;
+    }
+
+
+    /**
+     * Returns the type of annotation link for this object.
+     *
+     * @return See above.
+     */
+    @Override
+    protected String annotationLinkType() {
+        return ANNOTATION_LINK;
+    }
+
+
+    /**
+     * Attach an {@link AnnotationData} to this object.
+     *
+     * @param client     The client handling the connection.
+     * @param annotation The {@link AnnotationData}.
+     * @param <A>        The type of the annotation.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public <A extends AnnotationData> void link(Client client, A annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        ShapeAnnotationLink link = new ShapeAnnotationLinkI();
+        link.setChild(annotation.asAnnotation());
+        link.setParent((omero.model.Shape) data.asIObject());
+        client.save(link);
     }
 
 }

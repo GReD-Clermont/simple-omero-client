@@ -38,10 +38,10 @@ public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
     /**
      * Constructor of the PolylineWrapper class using a PolylineData.
      *
-     * @param shape the shape.
+     * @param polyline The PolylineData to wrap.
      */
-    public PolylineWrapper(PolylineData shape) {
-        super(shape);
+    public PolylineWrapper(PolylineData polyline) {
+        super(polyline);
     }
 
 

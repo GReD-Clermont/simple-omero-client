@@ -35,10 +35,10 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
     /**
      * Constructor of the RectangleWrapper class using a RectangleData.
      *
-     * @param shape the shape
+     * @param rectangle The RectangleData to wrap.
      */
-    public RectangleWrapper(RectangleData shape) {
-        super(shape);
+    public RectangleWrapper(RectangleData rectangle) {
+        super(rectangle);
     }
 
 

@@ -35,10 +35,10 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
     /**
      * Constructor of the MaskWrapper class using a MaskData.
      *
-     * @param shape the shape
+     * @param mask The MaskData to wrap.
      */
-    public MaskWrapper(MaskData shape) {
-        super(shape);
+    public MaskWrapper(MaskData mask) {
+        super(mask);
     }
 
 

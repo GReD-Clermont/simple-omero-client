@@ -15,13 +15,13 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.exception;
 
 
+import fr.igred.omero.BasicTest;
+import fr.igred.omero.Client;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
@@ -58,7 +58,7 @@ class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect(HOST, PORT, "testUser", "password".toCharArray(), GROUP1.id);
+            client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
             assertEquals(USER1.id, client.getId(), "Wrong user");
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudoGetUser("testUser2");
@@ -85,7 +85,7 @@ class AccessExceptionTest extends BasicTest {
     void testAddTagToImageWrongUser() throws Exception {
         boolean exception = false;
         client.disconnect();
-        client.connect(HOST, PORT, "root", "omero".toCharArray(), GROUP1.id);
+        client.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
         assertEquals(0L, client.getId());
 
         ImageWrapper image = client.getImage(IMAGE2.id);
@@ -250,7 +250,7 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFail() {
-        assertThrows(AccessException.class, () -> sudo.sudoGetUser("root"));
+        assertThrows(AccessException.class, () -> sudo.sudoGetUser(ROOT.name));
     }
 
 

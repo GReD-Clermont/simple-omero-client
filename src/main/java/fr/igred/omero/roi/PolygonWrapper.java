@@ -39,10 +39,10 @@ public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
     /**
      * Constructor of the PolygonWrapper class using a PolygonData.
      *
-     * @param shape the shape.
+     * @param polygon The PolygonData to wrap.
      */
-    public PolygonWrapper(PolygonData shape) {
-        super(shape);
+    public PolygonWrapper(PolygonData polygon) {
+        super(polygon);
     }
 
 

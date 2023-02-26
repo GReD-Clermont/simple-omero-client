@@ -22,12 +22,11 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.RLong;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
 import omero.model.DatasetI;
@@ -38,14 +37,13 @@ import omero.model.IObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.exception.ExceptionHandler.handleServiceOrAccess;
+import static java.util.Collections.singletonList;
 
 
 /**
@@ -139,7 +137,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Returns the type of annotation link for this object
+     * Returns the type of annotation link for this object.
      *
      * @return See above.
      */
@@ -181,14 +179,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = new ArrayList<>(0);
-        try {
-            images = client.getBrowseFacility()
-                           .getImagesForDatasets(client.getCtx(),
-                                                 Collections.singletonList(data.getId()));
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images from " + this);
-        }
+        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
+                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                                         singletonList(data.getId())))
+                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .get();
         return wrap(images, ImageWrapper::new);
     }
 
@@ -239,7 +234,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param client The client handling the connection.
-     * @param tag    TagAnnotationWrapper containing the tag researched.
+     * @param tag    The tag annotation.
      *
      * @return See above.
      *
@@ -258,7 +253,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * Gets all images in the dataset tagged with a specified tag from OMERO.
      *
      * @param client The client handling the connection.
-     * @param tagId  Id of the tag researched.
+     * @param tagId  ID of the tag researched.
      *
      * @return See above.
      *
@@ -318,14 +313,12 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesWithKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = new ArrayList<>(0);
-        try {
-            images = client.getBrowseFacility()
-                           .getImagesForDatasets(client.getCtx(),
-                                                 Collections.singletonList(data.getId()));
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images with key \"" + key + "\" from " + this);
-        }
+        String error = "Cannot get images with key \"" + key + "\" from " + this;
+        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
+                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                                         singletonList(data.getId())))
+                                                       .handleServiceOrAccess(error)
+                                                       .get();
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
@@ -376,14 +369,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesWithKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = new ArrayList<>(0);
-        try {
-            images = client.getBrowseFacility()
-                           .getImagesForDatasets(client.getCtx(),
-                                                 Collections.singletonList(data.getId()));
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot get images with key-value pair from " + this);
-        }
+        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
+                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                                         singletonList(data.getId())))
+                                                       .handleServiceOrAccess("Cannot get images with key-value pair from " + this)
+                                                       .get();
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
@@ -615,7 +605,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * Refreshes the dataset.
+     * Reloads the dataset from OMERO.
      *
      * @param client The client handling the connection.
      *
@@ -624,13 +614,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
-        try {
-            data = client.getBrowseFacility()
-                         .getDatasets(client.getCtx(), Collections.singletonList(this.getId()))
-                         .iterator().next();
-        } catch (DSOutOfServiceException | DSAccessException e) {
-            handleServiceOrAccess(e, "Cannot refresh " + this);
-        }
+        data = ExceptionHandler.of(client.getBrowseFacility(),
+                                   bf -> bf.getDatasets(client.getCtx(), singletonList(this.getId()))
+                                           .iterator().next())
+                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .get();
     }
 
 }

@@ -30,7 +30,7 @@ public class TextualAnnotationWrapper extends GenericAnnotationWrapper<TextualAn
     /**
      * Constructor of the TextualAnnotationWrapper class.
      *
-     * @param object Textual Annotation to be contained.
+     * @param object TextualAnnotationData to be wrap.
      */
     public TextualAnnotationWrapper(TextualAnnotationData object) {
         super(object);

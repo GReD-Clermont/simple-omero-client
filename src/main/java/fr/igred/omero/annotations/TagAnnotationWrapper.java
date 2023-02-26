@@ -35,7 +35,7 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
     /**
      * Constructor of the TagAnnotationWrapper class.
      *
-     * @param tag Tag to be contained.
+     * @param tag TagAnnotationData to wrap.
      */
     public TagAnnotationWrapper(TagAnnotationData tag) {
         super(tag);

@@ -15,13 +15,11 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero;
+package fr.igred.omero.exception;
 
 
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
-import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.BasicTest;
+import fr.igred.omero.Client;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -37,6 +35,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExceptionTest extends BasicTest {
 
+    private static <E extends Exception> Exception thrower(E t) throws E {
+        if (t != null) throw t;
+        return new Exception("Exception");
+    }
+
 
     @Test
     void testConnectionErrorUsername() {
@@ -50,7 +53,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorPassword() {
         Client root = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, PORT, "root", "badPassword".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, PORT, ROOT.name, "badPassword".toCharArray(), GROUP1.id));
     }
 
 
@@ -58,7 +61,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorHost() {
         Client root = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect("127.0.0.1", PORT, "root", "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect("127.0.0.1", PORT, ROOT.name, "omero".toCharArray(), GROUP1.id));
     }
 
 
@@ -67,7 +70,7 @@ class ExceptionTest extends BasicTest {
         final int badPort = 5000;
         Client    root    = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, badPort, "root", "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id));
     }
 
 
@@ -243,6 +246,19 @@ class ExceptionTest extends BasicTest {
     void testExceptionHandler7() {
         Throwable t = new DSAccessException("Test", null);
         assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+    }
+
+
+    @Test
+    void testExceptionHandlerToString() {
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+
+        String expected = "ExceptionHandler{" +
+                          "exception=" + e +
+                          ", value=" + null +
+                          "}";
+        assertEquals(expected, eh.toString());
     }
 
 }
