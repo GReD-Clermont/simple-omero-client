@@ -39,8 +39,8 @@ class MapAnnotationTest extends UserTest {
     @Test
     void testGetSingleMapAnnotation() throws Exception {
         MapAnnotationWrapper map = client.getMapAnnotation(4L);
-        assertEquals("testKey1", map.getContent().get(0).name);
-        assertEquals("testValue1", map.getContent().get(0).value);
+        assertEquals("testKey1", map.getContent().get(0).getKey());
+        assertEquals("testValue1", map.getContent().get(0).getValue());
     }
 
 
@@ -48,7 +48,7 @@ class MapAnnotationTest extends UserTest {
     void testGetSingleMapAnnotationByKey() throws Exception {
         List<MapAnnotationWrapper> maps = client.getMapAnnotations("testKey1");
         assertEquals(2, maps.size());
-        assertEquals("testValue1", maps.get(0).getContent().get(0).value);
+        assertEquals("testValue1", maps.get(0).getContent().get(0).getValue());
     }
 
 

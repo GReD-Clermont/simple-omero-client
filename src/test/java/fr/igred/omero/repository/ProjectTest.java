@@ -239,7 +239,7 @@ class ProjectTest extends UserTest {
 
 
     @Test
-    void testGetImagesKeyInProject() throws Exception {
+    void testGetImagesWithKeyInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesWithKey(client, "testKey1");
@@ -249,7 +249,7 @@ class ProjectTest extends UserTest {
 
 
     @Test
-    void testGetImagesPairKeyValueInProject() throws Exception {
+    void testGetImagesWithKeyValuePairInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
         List<ImageWrapper> images = project.getImagesWithKeyValuePair(client, "testKey1", "testValue1");
