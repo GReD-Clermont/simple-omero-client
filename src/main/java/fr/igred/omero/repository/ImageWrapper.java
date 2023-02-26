@@ -719,6 +719,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             pixels.destroyRawDataFacility();
         }
         imp.setPosition(1);
+        if (IJ.getVersion().compareTo("1.53a") >= 0) {
+            imp.setProp("IMAGE_ID", getId());
+        }
         return imp;
     }
 
