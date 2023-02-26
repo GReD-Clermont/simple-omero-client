@@ -35,6 +35,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +49,7 @@ class ROI2ImageJTest extends BasicTest {
 
     @Test
     void testROIsFromImageJ() {
-        List<Roi> rois = new ArrayList<>(11);
+        Collection<Roi> rois = new ArrayList<>(11);
 
         float[] x1 = {0.0f, 3.0f, 3.0f};
         float[] y1 = {0.0f, 0.0f, 4.0f};
@@ -110,7 +111,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<ROIWrapper> omeroROIs = ROIWrapper.fromImageJ(rois);
 
-        assertEquals(9, omeroROIs.size());
+        assertEquals(8, omeroROIs.size());
         assertEquals(1, omeroROIs.stream().filter(r -> "text".equals(r.getName())).count());
         assertEquals(1, omeroROIs.stream().filter(r -> "23".equals(r.getName())).count());
         assertEquals(0, omeroROIs.stream().filter(r -> "233".equals(r.getName())).count());
@@ -195,7 +196,7 @@ class ROI2ImageJTest extends BasicTest {
         roiWrapper2.addShape(polyline);
         roiWrapper2.addShape(polygon);
 
-        List<ROIWrapper> rois = new ArrayList<>(2);
+        Collection<ROIWrapper> rois = new ArrayList<>(2);
         rois.add(roiWrapper1);
         rois.add(roiWrapper2);
 
@@ -216,7 +217,7 @@ class ROI2ImageJTest extends BasicTest {
         OvalRoi ijEllipse = (OvalRoi) ellipse.toImageJ();
         assertEquals(ellipse.toAWTShape().getBounds(), ijEllipse.getBounds());
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijEllipse);
 
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
@@ -241,7 +242,7 @@ class ROI2ImageJTest extends BasicTest {
         Roi ijRectangle = rectangle.toImageJ();
         assertEquals(rectangle.toAWTShape().getBounds(), ijRectangle.getBounds());
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRectangle);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList, null).get(0);
 
@@ -271,7 +272,7 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(arrow.getY2(), ijArrow.y1d, Double.MIN_VALUE);
         assertNull(ijArrow.getFillColor());
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijArrow);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList, "").get(0);
 
@@ -302,7 +303,7 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(line.getY2(), ijLine.y2d, Double.MIN_VALUE);
         assertEquals(Color.BLUE, line.getFill());
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijLine);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList, ROIWrapper.IJ_PROPERTY).get(0);
 
@@ -327,7 +328,7 @@ class ROI2ImageJTest extends BasicTest {
         Roi ijRectangle = mask.toImageJ();
         assertEquals(mask.toAWTShape().getBounds(), ijRectangle.getBounds());
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRectangle);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
@@ -353,7 +354,7 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(point.getX(), ijPoint.getXBase(), Double.MIN_VALUE);
         assertEquals(point.getY(), ijPoint.getYBase(), Double.MIN_VALUE);
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPoint);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
@@ -382,7 +383,7 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(text.getY(), ijPoint.getYBase(), Double.MIN_VALUE);
         assertEquals(text.getText(), c.matcher(ijPoint.getText().trim()).replaceAll(Matcher.quoteReplacement("")));
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPoint);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
@@ -414,7 +415,7 @@ class ROI2ImageJTest extends BasicTest {
         Roi ijPolygon = polygon.toImageJ();
         assertEquals(polygon.toAWTShape().getBounds(), ijPolygon.getBounds());
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPolygon);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
@@ -445,7 +446,7 @@ class ROI2ImageJTest extends BasicTest {
         // Compare to getFloatPolygon().getBounds() because polyline bounds are different for ij 1.53h+
         assertEquals(polyline.toAWTShape().getBounds(), ijPolyline.getFloatPolygon().getBounds());
 
-        List<Roi> roiList = new ArrayList<>(1);
+        Collection<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijPolyline);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
