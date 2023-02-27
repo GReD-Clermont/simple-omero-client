@@ -33,13 +33,13 @@ import java.util.concurrent.ExecutionException;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public class Client extends GatewayWrapper {
+public class GatewayWrapper implements MixClient {
 
 
     /**
      * Constructor of the Client class. Initializes the gateway.
      */
-    public Client() {
+    public GatewayWrapper() {
         this(null, null, null);
     }
 
