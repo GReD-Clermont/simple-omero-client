@@ -30,7 +30,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.RepositoryObjectWrapper.ReplacePolicy;
+import fr.igred.omero.util.ReplacePolicy;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;

@@ -30,8 +30,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.List;
 
-import static fr.igred.omero.RepositoryObjectWrapper.ReplacePolicy.DELETE;
-import static fr.igred.omero.RepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
+import static fr.igred.omero.util.ReplacePolicy.DELETE;
+import static fr.igred.omero.util.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

@@ -14,8 +14,20 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-/**
- * This package contains classes to handle 5D positions and boundaries as well as a utility class to check if the
- * library requirements are available, and another one to convert DataObjects to Wrapper objects.
- */
+
 package fr.igred.omero.util;
+
+
+/**
+ * Policy to specify how to handle objects when they are replaced.
+ */
+public enum ReplacePolicy {
+    /** Unlink objects only */
+    UNLINK,
+
+    /** Delete all objects */
+    DELETE,
+
+    /** Delete orphaned objects */
+    DELETE_ORPHANED
+}
