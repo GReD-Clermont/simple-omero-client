@@ -46,77 +46,46 @@ import static fr.igred.omero.ObjectWrapper.flatten;
 
 
 /**
- * Basic class, contains the gateway, the security context, and multiple facilities.
- * <p>
- * Allows the user to connect to OMERO and browse through all the data accessible to the user.
+ * Interface to add or remove data on an OMERO server in a given {@link SecurityContext}.
  */
-public class Client extends Browser {
-
-
-    /**
-     * Constructor of the Client class. Initializes the gateway.
-     */
-    public Client() {
-        this(null, null, null);
-    }
-
+public interface DataManager {
 
     /**
-     * Constructor of the Client class.
+     * Returns the current {@link SecurityContext}.
      *
-     * @param gateway The gateway
-     * @param ctx     The security context
-     * @param user    The user
+     * @return See above
      */
-    public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
-        super(gateway, ctx, user);
-    }
+    SecurityContext getCtx();
 
 
     /**
-     * Gets all images with the name specified inside projects and datasets with the given names.
-     *
-     * @param projectName Expected project name.
-     * @param datasetName Expected dataset name.
-     * @param imageName   Expected image name.
+     * Gets the {@link DataManagerFacility} to handle/write data on OMERO. A
      *
      * @return See above.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
-    @Override
-    public List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ProjectWrapper> projects = getProjects(projectName);
-
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(projects.size());
-        for (ProjectWrapper project : projects) {
-            lists.add(project.getImages(this, datasetName, imageName));
-        }
-
-        return flatten(lists);
-    }
+    DataManagerFacility getDataManagerFacility() throws ExecutionException;
 
 
     /**
-     * Gets all images with the specified annotation from OMERO.
-     *
-     * @param annotation TagAnnotation containing the tag researched.
+     * Gets the {@link ROIFacility} used to manipulate ROIs from OMERO.
      *
      * @return See above.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    @Override
-    public List<ImageWrapper> getImages(AnnotationWrapper<?> annotation)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
-        return annotation.getImages(this);
-    }
+    ROIFacility getRoiFacility() throws ExecutionException;
+
+
+    /**
+     * Gets the {@link TablesFacility} used to manipulate tables on OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
+     */
+    TablesFacility getTablesFacility() throws ExecutionException;
 
 
     /**
@@ -130,7 +99,7 @@ public class Client extends Browser {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(Collection<? extends ObjectWrapper<?>> objects)
+    default void delete(Collection<? extends ObjectWrapper<?>> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         for (ObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
@@ -155,7 +124,7 @@ public class Client extends Browser {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(ObjectWrapper<?> object)
+    default void delete(ObjectWrapper<?> object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof FolderWrapper) {
             ((FolderWrapper) object).unlinkAllROIs(this);
@@ -176,84 +145,9 @@ public class Client extends Browser {
      * @throws ServerException          Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
-    public void delete(TableWrapper table)
+    default void delete(TableWrapper table)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         deleteFile(table.getId());
-    }
-
-
-    /**
-     * Returns the user which matches the username.
-     *
-     * @param username The name of the user.
-     *
-     * @return The user matching the username, or null if it does not exist.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
-     */
-    public ExperimenterWrapper getUser(String username)
-    throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
-                                                            a -> a.lookupExperimenter(getCtx(), username))
-                                                        .handleServiceOrAccess("Cannot retrieve user: " + username)
-                                                        .get();
-        if (experimenter != null) {
-            return new ExperimenterWrapper(experimenter);
-        } else {
-            throw new NoSuchElementException(String.format("User not found: %s", username));
-        }
-    }
-
-
-    /**
-     * Returns the group which matches the name.
-     *
-     * @param groupName The name of the group.
-     *
-     * @return The group with the appropriate name, if it exists.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested group does not exist.
-     */
-    public GroupWrapper getGroup(String groupName)
-    throws ExecutionException, ServiceException, AccessException {
-        GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
-                                          .handleServiceOrAccess("Cannot retrieve group: " + groupName)
-                                          .get();
-        if (group != null) {
-            return new GroupWrapper(group);
-        } else {
-            throw new NoSuchElementException(String.format("Group not found: %s", groupName));
-        }
-    }
-
-
-    /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
-     *
-     * @param username Username of user.
-     *
-     * @return The client corresponding to the new user.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
-     */
-    public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
-
-        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        context.setExperimenter(sudoUser.asDataObject());
-        context.sudo();
-
-        return new Client(this.getGateway(), context, sudoUser);
     }
 
 }
