@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutionException;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper implements Browser,ConnectionHandler,DataManager {
+public abstract class GatewayWrapper implements AdminManager,Browser,ConnectionHandler,DataManager {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
     private Gateway gateway;
@@ -247,6 +247,7 @@ public abstract class GatewayWrapper implements Browser,ConnectionHandler,DataMa
      *
      * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
      */
+    @Override
     public AdminFacility getAdminFacility() throws ExecutionException {
         return gateway.getFacility(AdminFacility.class);
     }

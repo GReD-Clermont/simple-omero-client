@@ -61,57 +61,6 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Returns the user which matches the username.
-     *
-     * @param username The name of the user.
-     *
-     * @return The user matching the username, or null if it does not exist.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
-     */
-    public ExperimenterWrapper getUser(String username)
-    throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
-                                                            a -> a.lookupExperimenter(getCtx(), username))
-                                                        .handleServiceOrAccess("Cannot retrieve user: " + username)
-                                                        .get();
-        if (experimenter != null) {
-            return new ExperimenterWrapper(experimenter);
-        } else {
-            throw new NoSuchElementException(String.format("User not found: %s", username));
-        }
-    }
-
-
-    /**
-     * Returns the group which matches the name.
-     *
-     * @param groupName The name of the group.
-     *
-     * @return The group with the appropriate name, if it exists.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested group does not exist.
-     */
-    public GroupWrapper getGroup(String groupName)
-    throws ExecutionException, ServiceException, AccessException {
-        GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
-                                          .handleServiceOrAccess("Cannot retrieve group: " + groupName)
-                                          .get();
-        if (group != null) {
-            return new GroupWrapper(group);
-        } else {
-            throw new NoSuchElementException(String.format("Group not found: %s", groupName));
-        }
-    }
-
-
-    /**
      * Returns a Client associated with the given username.
      * <p> All actions realized with the returned Client will be considered as his.
      * <p> The user calling this function needs to have administrator rights.
