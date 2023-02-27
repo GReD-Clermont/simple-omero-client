@@ -32,6 +32,7 @@ import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -68,9 +69,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T>
      *
      * @return A list of ShapeWrappers.
      */
-    static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
-        ShapeList list = new ShapeWrapperList();
-        int       type = ijRoi.getType();
+    static List<Shape> fromImageJ(ij.gui.Roi ijRoi) {
+        List<Shape> list = new ArrayList<>(ijRoi.size());
+        int         type = ijRoi.getType();
         switch (type) {
             case Roi.FREEROI:
             case Roi.TRACED_ROI:

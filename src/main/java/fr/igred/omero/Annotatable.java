@@ -19,8 +19,6 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.Annotation;
-import fr.igred.omero.annotations.AnnotationList;
-import fr.igred.omero.annotations.AnnotationWrapperList;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -737,11 +735,11 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default AnnotationList getAnnotations(Browser browser)
+    default List<Annotation> getAnnotations(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> annotationData = getAnnotationData(browser);
-        AnnotationList       annotations    = new AnnotationWrapperList(annotationData.size());
-        annotationData.forEach(annotations::add);
+        List<Annotation>       annotations    = new ArrayList<>(annotationData.size());
+        annotationData.forEach(a -> annotations.add(wrap(a)));
         return annotations;
     }
 

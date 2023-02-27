@@ -6,7 +6,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.DataObject;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

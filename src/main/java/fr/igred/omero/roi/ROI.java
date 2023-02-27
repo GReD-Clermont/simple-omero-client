@@ -57,15 +57,6 @@ import static java.util.stream.Collectors.groupingBy;
 public interface ROI extends Annotatable {
 
     /**
-     * Returns a ROIData corresponding to the handled object.
-     *
-     * @return See above.
-     */
-    @Override
-    ROIData asDataObject();
-
-
-    /**
      * Default IJ property to store ROI local IDs / indices.
      */
     String IJ_PROPERTY = "ROI";
@@ -238,6 +229,15 @@ public interface ROI extends Annotatable {
 
 
     /**
+     * Returns a ROIData corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    ROIData asDataObject();
+
+
+    /**
      * Gets the ROI name.
      *
      * @return The ROI name (can be null).
@@ -276,7 +276,7 @@ public interface ROI extends Annotatable {
      *
      * @return See above.
      */
-    ShapeList getShapes();
+    List<Shape> getShapes();
 
 
     /**
@@ -365,12 +365,12 @@ public interface ROI extends Annotatable {
      */
     default List<Roi> toImageJ(String property) {
         property = checkProperty(property);
-        ShapeList shapes = getShapes();
+        List<Shape> shapes = getShapes();
 
         Map<String, List<Shape>> sameSlice = shapes.stream()
                                                    .collect(groupingBy(Shape::getCZT,
-                                                                          LinkedHashMap::new,
-                                                                          Collectors.toList()));
+                                                                       LinkedHashMap::new,
+                                                                       Collectors.toList()));
         sameSlice.values().removeIf(List::isEmpty);
         List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
         for (List<Shape> slice : sameSlice.values()) {

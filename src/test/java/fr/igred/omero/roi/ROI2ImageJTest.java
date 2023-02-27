@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static fr.igred.omero.RemoteObject.getElementsOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -150,7 +151,7 @@ class ROI2ImageJTest extends BasicTest {
         ellipse2.setCZT(1, 0, 2);
         ellipse2.setTransform(transform);
 
-        Line line = new LineWrapper(0, 0, 10, 10);
+        Shape line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 3);
         line.asDataObject().getShapeSettings().setMarkerStart(fr.igred.omero.roi.Line.ARROW);
 
@@ -158,7 +159,7 @@ class ROI2ImageJTest extends BasicTest {
         line2.setCZT(1, 0, 4);
         line2.setTransform(transform);
 
-        Line line3 = new LineWrapper(2, 2, 3, 4);
+        Shape line3 = new LineWrapper(2, 2, 3, 4);
         line3.setCZT(1, 0, 5);
         line3.asDataObject().getShapeSettings().setMarkerStart(fr.igred.omero.roi.Line.ARROW);
         line3.asDataObject().getShapeSettings().setMarkerEnd(fr.igred.omero.roi.Line.ARROW);
@@ -221,7 +222,7 @@ class ROI2ImageJTest extends BasicTest {
 
         ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
-        Ellipse newEllipse = roi.getShapes().getElementsOf(EllipseWrapper.class).get(0);
+        Ellipse newEllipse = getElementsOf(roi.getShapes(), EllipseWrapper.class).get(0);
 
         assertEquals(ellipse.getX(), newEllipse.getX(), Double.MIN_VALUE);
         assertEquals(ellipse.getY(), newEllipse.getY(), Double.MIN_VALUE);
@@ -245,7 +246,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijRectangle);
         ROI roi = ROIWrapper.fromImageJ(roiList, null).get(0);
 
-        Rectangle newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
+        Rectangle newRectangle = getElementsOf(roi.getShapes(), RectangleWrapper.class).get(0);
 
         assertEquals(rectangle.getX(), newRectangle.getX(), Double.MIN_VALUE);
         assertEquals(rectangle.getY(), newRectangle.getY(), Double.MIN_VALUE);
@@ -275,7 +276,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijArrow);
         ROI roi = ROIWrapper.fromImageJ(roiList, "").get(0);
 
-        fr.igred.omero.roi.Line newArrow = roi.getShapes().getElementsOf(LineWrapper.class).get(0);
+        fr.igred.omero.roi.Line newArrow = getElementsOf(roi.getShapes(), LineWrapper.class).get(0);
 
         assertEquals(arrow.getX1(), newArrow.getX2(), Double.MIN_VALUE);
         assertEquals(arrow.getY1(), newArrow.getY2(), Double.MIN_VALUE);
@@ -306,7 +307,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijLine);
         ROI roi = ROIWrapper.fromImageJ(roiList, ROI.IJ_PROPERTY).get(0);
 
-        fr.igred.omero.roi.Line newLine = roi.getShapes().getElementsOf(LineWrapper.class).get(0);
+        fr.igred.omero.roi.Line newLine = getElementsOf(roi.getShapes(), LineWrapper.class).get(0);
 
         assertEquals(line.getX1(), newLine.getX1(), Double.MIN_VALUE);
         assertEquals(line.getY1(), newLine.getY1(), Double.MIN_VALUE);
@@ -331,7 +332,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijRectangle);
         ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
-        Rectangle newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
+        Rectangle newRectangle = getElementsOf(roi.getShapes(), RectangleWrapper.class).get(0);
 
         assertEquals(mask.getX(), newRectangle.getX(), Double.MIN_VALUE);
         assertEquals(mask.getY(), newRectangle.getY(), Double.MIN_VALUE);
@@ -357,7 +358,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijPoint);
         ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
-        Point newPoint = roi.getShapes().getElementsOf(PointWrapper.class).get(0);
+        Point newPoint = getElementsOf(roi.getShapes(), PointWrapper.class).get(0);
 
         assertEquals(point.getX(), newPoint.getX(), Double.MIN_VALUE);
         assertEquals(point.getY(), newPoint.getY(), Double.MIN_VALUE);
@@ -386,7 +387,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijPoint);
         ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
-        Text newText = roi.getShapes().getElementsOf(TextWrapper.class).get(0);
+        Text newText = getElementsOf(roi.getShapes(), TextWrapper.class).get(0);
 
         assertEquals(text.getX(), newText.getX(), Double.MIN_VALUE);
         assertEquals(text.getY(), newText.getY(), Double.MIN_VALUE);
@@ -418,7 +419,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijPolygon);
         ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
-        Polygon newPolygon = roi.getShapes().getElementsOf(PolygonWrapper.class).get(0);
+        Polygon newPolygon = getElementsOf(roi.getShapes(), PolygonWrapper.class).get(0);
 
         assertEquals(polygon.getPoints(), newPolygon.getPoints());
         assertEquals(polygon.getC(), newPolygon.getC());
@@ -449,7 +450,7 @@ class ROI2ImageJTest extends BasicTest {
         roiList.add(ijPolyline);
         ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
-        Polyline newPolyline = roi.getShapes().getElementsOf(PolylineWrapper.class).get(0);
+        Polyline newPolyline = getElementsOf(roi.getShapes(), PolylineWrapper.class).get(0);
 
         assertEquals(polyline.getPoints(), newPolyline.getPoints());
         assertEquals(polyline.getC(), newPolyline.getC());

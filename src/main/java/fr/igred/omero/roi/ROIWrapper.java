@@ -30,8 +30,11 @@ import omero.gateway.model.ShapeData;
 import omero.model.Roi;
 import omero.model._RoiOperationsNC;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import static fr.igred.omero.util.Wrapper.wrap;
 
 
 /**
@@ -139,10 +142,10 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      * @return list of shape contained in the ROIData.
      */
     @Override
-    public ShapeList getShapes() {
+    public List<Shape> getShapes() {
         List<ShapeData> shapeData = data.getShapes();
-        ShapeList       shapes    = new ShapeWrapperList(shapeData.size());
-        shapeData.stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
+        List<Shape>       shapes    = new ArrayList<>(shapeData.size());
+        shapeData.stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(s -> shapes.add(wrap(s)));
         return shapes;
     }
 

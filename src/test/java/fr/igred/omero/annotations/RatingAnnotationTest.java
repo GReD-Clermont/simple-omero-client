@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static fr.igred.omero.RemoteObject.getElementsOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -39,7 +40,7 @@ class RatingAnnotationTest extends UserTest {
         RatingAnnotation rating = new RatingAnnotationWrapper(score);
         image.link(client, rating);
 
-        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
+        List<RatingAnnotation> ratings = getElementsOf(image.getAnnotations(client), RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -56,7 +57,7 @@ class RatingAnnotationTest extends UserTest {
         rating.setRating(score);
         image.link(client, rating);
 
-        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
+        List<RatingAnnotation> ratings = getElementsOf(image.getAnnotations(client), RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -75,7 +76,7 @@ class RatingAnnotationTest extends UserTest {
         image.rate(client, score2);
         int rating2 = image.getMyRating(client);
 
-        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
+        List<RatingAnnotation> ratings = getElementsOf(image.getAnnotations(client), RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -101,7 +102,7 @@ class RatingAnnotationTest extends UserTest {
         image.rate(client, score2);
         int myRating2 = image.getMyRating(client);
 
-        List<RatingAnnotation> ratings = image.getAnnotations(client).getElementsOf(RatingAnnotation.class);
+        List<RatingAnnotation> ratings = getElementsOf(image.getAnnotations(client), RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
