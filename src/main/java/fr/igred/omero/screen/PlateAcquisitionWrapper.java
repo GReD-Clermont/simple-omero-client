@@ -19,9 +19,9 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.AnnotationWrapper;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -120,7 +120,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
     /**
      * Adds a tag to the object in OMERO, if possible.
      *
-     * @param client     The client handling the connection.
+     * @param dm         The data manager.
      * @param annotation Tag to be added.
      * @param <A>        The type of the annotation.
      *
@@ -129,12 +129,12 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends AnnotationWrapper<?>> void link(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
         link.setChild(annotation.asDataObject().asAnnotation());
         link.setParent((omero.model.PlateAcquisition) data.asIObject());
-        client.save(link);
+        dm.save(link);
     }
 
 

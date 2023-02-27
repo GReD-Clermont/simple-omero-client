@@ -23,6 +23,7 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -65,7 +66,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
     /**
      * Constructor of the ProjectWrapper class. Creates a new project and save it to OMERO.
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Project name.
      * @param description Project description.
      *
@@ -73,12 +74,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectWrapper(Client client, String name, String description)
+    public ProjectWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ProjectData());
         data.setName(name);
         data.setDescription(description);
-        super.saveAndUpdate(client);
+        super.saveAndUpdate(dm);
     }
 
 

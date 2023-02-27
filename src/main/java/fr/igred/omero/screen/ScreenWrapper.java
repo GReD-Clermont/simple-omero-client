@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -54,7 +54,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     /**
      * Constructor of the ProjectWrapper class. Creates a new project and saves it to OMERO.
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Project name.
      * @param description Project description.
      *
@@ -62,12 +62,12 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ScreenWrapper(Client client, String name, String description)
+    public ScreenWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ScreenData());
         data.setName(name);
         data.setDescription(description);
-        super.saveAndUpdate(client);
+        super.saveAndUpdate(dm);
     }
 
 

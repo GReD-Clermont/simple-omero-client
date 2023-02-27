@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutionException;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper implements Browser {
+public abstract class GatewayWrapper implements Browser,DataManager {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
     private Gateway gateway;

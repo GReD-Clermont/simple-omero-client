@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -193,16 +193,16 @@ public abstract class ObjectWrapper<T extends DataObject> {
     /**
      * Saves and updates object.
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
-        data = (T) ExceptionHandler.of(client.getDm(),
-                                       d -> d.saveAndReturnObject(client.getCtx(), data))
+    public void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException {
+        data = (T) ExceptionHandler.of(dm.getDm(),
+                                       d -> d.saveAndReturnObject(dm.getCtx(), data))
                                    .handleServiceOrAccess("Cannot save and update object.")
                                    .get();
     }
