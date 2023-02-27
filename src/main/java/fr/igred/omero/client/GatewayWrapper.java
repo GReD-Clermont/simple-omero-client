@@ -18,6 +18,7 @@
 package fr.igred.omero.client;
 
 
+import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.Gateway;
@@ -26,6 +27,9 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.log.SimpleLogger;
+
+import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -43,6 +47,14 @@ public class GatewayWrapper implements Client {
 
     /** User */
     private ExperimenterWrapper user;
+
+
+    /**
+     * Constructor of the Client class. Initializes the gateway.
+     */
+    public GatewayWrapper() {
+        this(null, null, null);
+    }
 
 
     /**
@@ -149,6 +161,32 @@ public class GatewayWrapper implements Client {
 
 
     /**
+     * Returns a Client associated with the given username.
+     * <p> All actions realized with the returned Client will be considered as his.
+     * <p> The user calling this function needs to have administrator rights.
+     *
+     * @param username The user name.
+     *
+     * @return The connection and context corresponding to the new user.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException The requested user does not exist.
+     */
+    @Override
+    public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
+        ExperimenterWrapper sudoUser = getUser(username);
+
+        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
+        context.setExperimenter(sudoUser.asDataObject());
+        context.sudo();
+
+        return new GatewayWrapper(this.gateway, context, sudoUser);
+    }
+
+
+    /**
      * Overridden to return the host name, the group ID, the username and the connection status.
      *
      * @return See above.
@@ -165,4 +203,3 @@ public class GatewayWrapper implements Client {
     }
 
 }
-

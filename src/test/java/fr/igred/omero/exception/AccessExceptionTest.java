@@ -22,6 +22,7 @@ import fr.igred.omero.BasicTest;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -57,7 +58,7 @@ class AccessExceptionTest extends BasicTest {
     @BeforeEach
     void setUp() {
         boolean failed = false;
-        client = new Client();
+        client = new GatewayWrapper();
         try {
             client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
             assertEquals(USER1.id, client.getId(), "Wrong user");
