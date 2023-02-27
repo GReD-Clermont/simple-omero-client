@@ -23,6 +23,7 @@ import omero.gateway.model.PlaneInfoData;
 import omero.model.Length;
 import omero.model.Time;
 
+
 public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> implements PlaneInfo {
 
     /**

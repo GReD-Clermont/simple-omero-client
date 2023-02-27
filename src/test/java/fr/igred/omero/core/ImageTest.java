@@ -18,6 +18,7 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotation;
@@ -429,7 +430,7 @@ class ImageTest extends UserTest {
     void testAddTagIdToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotation tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        RemoteObject tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         image.addTag(client, tag.getId());
 

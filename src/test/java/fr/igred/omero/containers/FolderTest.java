@@ -91,7 +91,7 @@ class FolderTest extends UserTest {
 
     @Test
     void testTagFolder() throws Exception {
-        Folder        folder = new FolderWrapper(client, "Test");
+        Annotatable   folder = new FolderWrapper(client, "Test");
         TagAnnotation tag    = new TagAnnotationWrapper(client, "Folder test", "Folder tag");
         folder.link(client, tag);
 

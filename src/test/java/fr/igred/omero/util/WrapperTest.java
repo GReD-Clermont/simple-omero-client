@@ -20,7 +20,6 @@ package fr.igred.omero.util;
 
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
@@ -34,7 +33,7 @@ import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.core.PixelsWrapper;
-import fr.igred.omero.roi.ROI;
+import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -91,8 +90,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Named.named;
@@ -128,7 +125,7 @@ class WrapperTest extends BasicTest {
                 arguments(named("TextData", TextData.class), TextWrapper.class),
                 arguments(named("MaskData", MaskData.class), MaskWrapper.class),
                 arguments(named("PixelsData", PixelsData.class), PixelsWrapper.class),
-                arguments(named("ROIData", ROIData.class), ROI.class),
+                arguments(named("ROIData", ROIData.class), ROIWrapper.class),
                 arguments(named("PlaneInfoData", PlaneInfoData.class), PlaneInfoWrapper.class),
                 arguments(named("WellSampleData", WellSampleData.class), WellSampleWrapper.class),
                 arguments(named("ExperimenterData", ExperimenterData.class), ExperimenterWrapper.class),
@@ -193,16 +190,6 @@ class WrapperTest extends BasicTest {
     void testWrapWrongAnnotationData() {
         AnnotationData object = new WrongAnnotationData();
         assertThrows(IllegalArgumentException.class, () -> Wrapper.wrap(object));
-    }
-
-
-    @Test
-    void testAddWrongAnnotationDataToAnnotationList() {
-        AnnotationList annotations = new AnnotationList();
-
-        boolean added = annotations.add(new WrongAnnotationData());
-        assertFalse(added);
-        assertEquals(0, annotations.size());
     }
 
 

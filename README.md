@@ -7,7 +7,7 @@
 
 A Maven project to easily connect to OMERO.
 
-This library presents a simplified API to put/get objects on an OMERO server. 
+This library presents a simplified API to put/get objects on an OMERO server.
 <p>It can be used from Maven.
 <p>The JAR can be put into the ImageJ plugins folder to use it from scripts.
 
@@ -21,7 +21,7 @@ The main entry point is the Client class, which can be used to retrieve, save or
 <p>To use it, a connection has to be established first:
 
 ```java
-Client client = new Client();
+Client client = new GatewayWrapper();
 client.connect("host", 4064, "username", password, groupId);
 ```
 
@@ -30,15 +30,15 @@ client.connect("host", 4064, "username", password, groupId);
 It can then be used to retrieve all the repository objects the user has access to, like projects or datasets:
 
 ```java
-List<ProjectWrapper> projects = client.getProjects();
-List<DatasetWrapper> datasets = client.getDatasets();
+List<Project> projects = client.getProjects();
+List<Dataset> datasets = client.getDatasets();
 ```
 
 These objects can then be used to retrieve their children:
 
 ```java
-for (DatasetWrapper dataset : datasets) {
-    List<ImageWrapper> images = dataset.getImages(client);
+for (Dataset dataset : datasets) {
+    List<Image> images = dataset.getImages(client);
     //...
 }
 ```
@@ -50,9 +50,9 @@ For each type of objects (project, dataset or image), annotations can be retriev
 * #### Tags:
 
 ```java
-TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "name", "description");
+TagAnnotation tag = new TagAnnotationWrapper(client, "name", "description");
 dataset.link(client, tag);
-List<TagAnnotationWrapper> tags = dataset.getTags(client);
+List<TagAnnotation> tags = dataset.getTags(client);
 ```
 
 * #### Key/Value pairs:
@@ -65,9 +65,9 @@ List<String> values = dataset.getValues(client, "key");
 * #### Tables:
 
 ```java
-TableWrapper table = new TableWrapper(columnCount, "name");
+Table table = new TableWrapper(columnCount, "name");
 dataset.addTable(client, table);
-List<TableWrapper> tables = dataset.getTables(client);
+List<Table> tables = dataset.getTables(client);
 ```
 
 * #### Files:
@@ -98,11 +98,11 @@ BufferedImage thumbnail = image.getThumbnail(client, size);
 ROIs can be added to images or retrieved from them:
 
 ```java
-ROIWrapper roi = new ROIWrapper();
+ROI roi = new ROIWrapper();
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 roi.setImage(image);
 image.saveROIs(client, roi);
-List<ROIWrapper> rois = image.getROIs(client);
+List<ROI> rois = image.getROIs(client);
 ```
 
 They can also be converted from or to ImageJ Rois:
@@ -114,24 +114,24 @@ They can also be converted from or to ImageJ Rois:
 // The OMERO IDs are available through the property ROI.ijIDProperty(property).
 // The ijNameProperty() and ijIDProperty() methods append "_NAME" and "_ID" to the property (respectively).
 // By default, the property is "ROI", and thus, the name property is "ROI_NAME" and the ID property, "ROI_ID".
-ROIWrapper roi = new ROIWrapper();
+ROI roi = new ROIWrapper();
 roi.setName("ROI name");
 roi.addShape(new RectangleWrapper(0, 0, 5, 5));
 List<Roi> imagejRois = roi.toImageJ();
-String name = imagejRois.get(0).getProperty(ROIWrapper.ijNameProperty(property));
-String id = imagejRois.get(0).getProperty(ROIWrapper.ijIDProperty(property));
+String name = imagejRois.get(0).getProperty(ROI.ijNameProperty(property));
+String id = imagejRois.get(0).getProperty(ROI.ijIDProperty(property));
 
 // Conversely ImageJ Rois can be converted to OMERO from ImageJ using "ROIWrapper::fromImageJ"
 Roi ijRoi1 = new Roi(1.0, 2.0, 3.0, 4.0);
 ijRoi1.setProperty(property, 0);
-ijRoi1.setProperty(ROIWrapper.ijNameProperty(property), "Name 1");
+ijRoi1.setProperty(ROI.ijNameProperty(property), "Name 1");
 Roi ijRoi2 = new Roi(2.0, 3.0, 4.0, 5.0);
 ijRoi2.setProperty(property, 1);
-ijRoi2.setProperty(ROIWrapper.ijNameProperty(property), "Name 2");
+ijRoi2.setProperty(ROI.ijNameProperty(property), "Name 2");
 List<Roi> ijRois = new ArrayList(2);
 ijRois.add(ijRoi1);
 ijRois.add(ijRoi2);
-List<ROIWrapper> rois = ROIWrapper.fromImageJ(ijRois);
+List<ROI> rois = ROIWrapper.fromImageJ(ijRois);
 ```
 
 ## License

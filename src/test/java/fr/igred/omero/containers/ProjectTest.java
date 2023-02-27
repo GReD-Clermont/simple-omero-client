@@ -19,6 +19,7 @@ package fr.igred.omero.containers;
 
 
 import fr.igred.omero.Annotatable;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -119,7 +120,7 @@ class ProjectTest extends UserTest {
     void testAddTagIdToProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotation tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        RemoteObject tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag.getId());
         List<TagAnnotation> tags = project.getTags(client);

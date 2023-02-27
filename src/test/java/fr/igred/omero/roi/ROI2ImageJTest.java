@@ -151,7 +151,7 @@ class ROI2ImageJTest extends BasicTest {
         ellipse2.setCZT(1, 0, 2);
         ellipse2.setTransform(transform);
 
-        Line line = new LineWrapper(0, 0, 10, 10);
+        Shape line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 3);
         line.asDataObject().getShapeSettings().setMarkerStart(Line.ARROW);
 
@@ -179,7 +179,7 @@ class ROI2ImageJTest extends BasicTest {
         Shape polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
-        ROIWrapper roiWrapper1 = new ROIWrapper();
+        ROI roiWrapper1 = new ROIWrapper();
         roiWrapper1.addShape(point);
         roiWrapper1.addShape(text);
         roiWrapper1.addShape(rectangle);
@@ -188,7 +188,7 @@ class ROI2ImageJTest extends BasicTest {
         roiWrapper1.addShape(ellipse);
         roiWrapper1.setName("2");
 
-        ROIWrapper roiWrapper2 = new ROIWrapper();
+        ROI roiWrapper2 = new ROIWrapper();
         roiWrapper2.addShape(ellipse2);
         roiWrapper2.addShape(line);
         roiWrapper2.addShape(line2);
@@ -262,7 +262,7 @@ class ROI2ImageJTest extends BasicTest {
     void convertArrow() {
         Line arrow = new LineWrapper(3, 3, 10, 10);
         arrow.setCZT(0, 0, 2);
-        arrow.asDataObject().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        arrow.asDataObject().getShapeSettings().setMarkerStart(Line.ARROW);
         arrow.setFill(new Color(0, 0, 0, 0));
 
         Arrow ijArrow = (Arrow) arrow.toImageJ();
