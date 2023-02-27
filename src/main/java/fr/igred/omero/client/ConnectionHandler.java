@@ -18,6 +18,7 @@
 package fr.igred.omero.client;
 
 
+import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
@@ -28,6 +29,7 @@ import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 
@@ -198,5 +200,22 @@ public interface ConnectionHandler {
                                .get();
     }
 
-}
 
+    /**
+     * Returns a ConnectionHandler associated with the given username.
+     * <p> All actions realized with the returned ConnectionHandler will be considered as his.
+     * <p> The user calling this function needs to have administrator rights.
+     *
+     * @param username The user name.
+     *
+     * @return The connection and context corresponding to the new user.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException The requested user does not exist.
+     */
+    ConnectionHandler sudo(String username)
+    throws ServiceException, AccessException, ExecutionException;
+
+}
