@@ -18,24 +18,18 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
-import fr.igred.omero.containers.FolderWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
-import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 
 /**
@@ -63,69 +57,6 @@ public class Client extends GatewayWrapper {
      */
     public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
-    }
-
-
-    /**
-     * Deletes multiple objects from OMERO.
-     *
-     * @param objects The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void delete(Collection<? extends ObjectWrapper<?>> objects)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        for (ObjectWrapper<?> object : objects) {
-            if (object instanceof FolderWrapper) {
-                ((FolderWrapper) object).unlinkAllROIs(this);
-            }
-        }
-        if (!objects.isEmpty()) {
-            delete(objects.stream().map(o -> o.asDataObject().asIObject()).collect(Collectors.toList()));
-        }
-    }
-
-
-    /**
-     * Deletes an object from OMERO.
-     * <p> Make sure a folder is loaded before deleting it.
-     *
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void delete(ObjectWrapper<?> object)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        if (object instanceof FolderWrapper) {
-            ((FolderWrapper) object).unlinkAllROIs(this);
-        }
-        delete(object.asDataObject().asIObject());
-    }
-
-
-    /**
-     * Deletes a table from OMERO.
-     *
-     * @param table Table to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException ID not defined.
-     * @throws ServerException          Server error.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void delete(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        deleteFile(table.getId());
     }
 
 

@@ -18,9 +18,7 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
@@ -38,10 +36,7 @@ import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.ExperimenterData;
 import omero.log.SimpleLogger;
-import omero.model.FileAnnotationI;
-import omero.model.IObject;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -357,84 +352,6 @@ public abstract class GatewayWrapper implements Browser {
                                .rethrow(DSOutOfServiceException.class, ServiceException::new,
                                         "Could not retrieve import store")
                                .get();
-    }
-
-
-    /**
-     * Saves an object on OMERO.
-     *
-     * @param object The OMERO object.
-     *
-     * @return The saved OMERO object
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
-        return ExceptionHandler.of(getDm(), d -> d.saveAndReturnObject(ctx, object))
-                               .handleServiceOrAccess("Cannot save object")
-                               .get();
-    }
-
-
-    /**
-     * Deletes an object from OMERO.
-     *
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void delete(IObject object)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, object).loop(10, wait))
-                        .rethrow(InterruptedException.class)
-                        .handleException("Cannot delete object")
-                        .rethrow();
-    }
-
-
-    /**
-     * Deletes multiple objects from OMERO.
-     *
-     * @param objects The OMERO objects.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void delete(List<IObject> objects)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, objects).loop(10, wait))
-                        .rethrow(InterruptedException.class)
-                        .handleException("Cannot delete objects")
-                        .rethrow();
-    }
-
-
-    /**
-     * Deletes a file from OMERO
-     *
-     * @param id ID of the file to delete.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    public void deleteFile(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        FileAnnotationI file = new FileAnnotationI(id, false);
-        delete(file);
     }
 
 
