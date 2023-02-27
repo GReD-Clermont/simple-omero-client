@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Client interface to connect to OMERO, browse through all the data accessible to the user and modify it.
  */
-public interface MixClient extends ConnectionHandler, Browser, DataManager, AdminManager {
+public interface Client extends ConnectionHandler, Browser, DataManager, AdminManager {
 
 
     /**
