@@ -68,6 +68,8 @@ import static fr.igred.omero.ObjectWrapper.wrap;
 /**
  * Interface to browse data on an OMERO server in a given {@link SecurityContext}.
  */
+@SuppressWarnings("ClassWithTooManyMethods")
+//Fewer methods than counted because of polymorphism.
 public interface Browser {
 
     /**
@@ -743,10 +745,10 @@ public interface Browser {
      */
     default List<WellWrapper> getWells(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get wells with IDs: " + Arrays.toString(ids);
         Collection<WellData> wells = ExceptionHandler.of(getBrowseFacility(),
                                                          bf -> bf.getWells(getCtx(), Arrays.asList(ids)))
-                                                     .handleServiceOrAccess("Cannot get wells with IDs: "
-                                                                            + Arrays.toString(ids))
+                                                     .handleServiceOrAccess(error)
                                                      .get();
         return wrap(wells, WellWrapper::new);
     }

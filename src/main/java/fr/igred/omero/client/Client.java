@@ -90,7 +90,7 @@ public interface Client extends ConnectionHandler, Browser, DataManager, AdminMa
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
     @Override
-    default DataManagerFacility getDm() throws ExecutionException {
+    default DataManagerFacility getDMFacility() throws ExecutionException {
         return getGateway().getFacility(DataManagerFacility.class);
     }
 

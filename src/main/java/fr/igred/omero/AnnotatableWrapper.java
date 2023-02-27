@@ -118,7 +118,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     protected <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
-        ExceptionHandler.of(dm.getDm(), d -> d.attachAnnotation(dm.getCtx(), annotation, data))
+        ExceptionHandler.of(dm.getDMFacility(), d -> d.attachAnnotation(dm.getCtx(), annotation, data))
                         .handleServiceOrAccess(error)
                         .rethrow();
     }
@@ -609,12 +609,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      */
     public long addFile(DataManager dm, File file) throws ExecutionException, InterruptedException {
-        return dm.getDm().attachFile(dm.getCtx(),
-                                     file,
-                                     null,
-                                     "",
-                                     file.getName(),
-                                     data).get().getId();
+        return dm.getDMFacility().attachFile(dm.getCtx(),
+                                             file,
+                                             null,
+                                             "",
+                                             file.getName(),
+                                             data).get().getId();
     }
 
 
@@ -637,12 +637,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException {
         List<FileAnnotationWrapper> files = getFileAnnotations(client);
 
-        FileAnnotationData uploaded = client.getDm().attachFile(client.getCtx(),
-                                                                file,
-                                                                null,
-                                                                "",
-                                                                file.getName(),
-                                                                data).get();
+        FileAnnotationData uploaded = client.getDMFacility().attachFile(client.getCtx(),
+                                                                        file,
+                                                                        null,
+                                                                        "",
+                                                                        file.getName(),
+                                                                        data).get();
         FileAnnotationWrapper annotation = new FileAnnotationWrapper(uploaded);
 
         files.removeIf(fileAnnotation -> !fileAnnotation.getFileName().equals(annotation.getFileName()));

@@ -25,7 +25,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import ome.formats.OMEROMetadataStoreClient;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
@@ -59,7 +58,7 @@ public interface DataManager {
      *
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
-    DataManagerFacility getDm() throws ExecutionException;
+    DataManagerFacility getDMFacility() throws ExecutionException;
 
 
     /**
@@ -94,7 +93,7 @@ public interface DataManager {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
-        return ExceptionHandler.of(getDm(), d -> d.saveAndReturnObject(getCtx(), object))
+        return ExceptionHandler.of(getDMFacility(), d -> d.saveAndReturnObject(getCtx(), object))
                                .handleServiceOrAccess("Cannot save object")
                                .get();
     }
@@ -114,7 +113,7 @@ public interface DataManager {
     default void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(getCtx(), object).loop(10, wait))
+        ExceptionHandler.ofConsumer(getDMFacility(), d -> d.delete(getCtx(), object).loop(10, wait))
                         .rethrow(InterruptedException.class)
                         .handleException("Cannot delete object")
                         .rethrow();
@@ -135,7 +134,7 @@ public interface DataManager {
     default void delete(List<IObject> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(getCtx(), objects).loop(10, wait))
+        ExceptionHandler.ofConsumer(getDMFacility(), d -> d.delete(getCtx(), objects).loop(10, wait))
                         .rethrow(InterruptedException.class)
                         .handleException("Cannot delete objects")
                         .rethrow();
