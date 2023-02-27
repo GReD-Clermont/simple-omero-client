@@ -24,6 +24,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
 import omero.gateway.SecurityContext;
+import omero.gateway.facility.AdminFacility;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
@@ -35,6 +36,23 @@ import java.util.concurrent.ExecutionException;
  * Interface to handle admin functions on an OMERO server in a given {@link SecurityContext}.
  */
 public interface AdminManager {
+
+    /**
+     * Returns the current {@link SecurityContext}.
+     *
+     * @return See above
+     */
+    SecurityContext getCtx();
+
+
+    /**
+     * Gets the {@link AdminFacility} to use admin specific function.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
+     */
+    AdminFacility getAdminFacility() throws ExecutionException;
 
 
     /**
