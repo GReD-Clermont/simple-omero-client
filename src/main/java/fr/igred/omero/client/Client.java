@@ -112,18 +112,20 @@ public class Client extends GatewayWrapper {
 
 
     /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
+     * Returns a Client associated with the given username.
+     * <p> All actions realized with the returned Client will be considered as his.
+     * <p> The user calling this function needs to have administrator rights.
      *
-     * @param username Username of user.
+     * @param username The user name.
      *
-     * @return The client corresponding to the new user.
+     * @return The connection and context corresponding to the new user.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
+    @Override
     public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
         ExperimenterWrapper sudoUser = getUser(username);
 

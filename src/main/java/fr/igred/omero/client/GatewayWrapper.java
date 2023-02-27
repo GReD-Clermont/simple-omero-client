@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutionException;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper implements Browser,DataManager {
+public abstract class GatewayWrapper implements Browser,ConnectionHandler,DataManager {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
     private Gateway gateway;
@@ -77,6 +77,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @return The Gateway.
      */
+    @Override
     public Gateway getGateway() {
         return gateway;
     }
@@ -87,6 +88,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @return The current user.
      */
+    @Override
     public ExperimenterWrapper getUser() {
         return user;
     }
@@ -97,107 +99,9 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @return the {@link SecurityContext} of the user.
      */
+    @Override
     public SecurityContext getCtx() {
         return ctx;
-    }
-
-
-    /**
-     * Gets the user id.
-     *
-     * @return The user ID.
-     */
-    public long getId() {
-        return user.getId();
-    }
-
-
-    /**
-     * Gets the current group ID.
-     *
-     * @return The group ID.
-     */
-    public long getCurrentGroupId() {
-        return ctx.getGroupID();
-    }
-
-
-    /**
-     * Get the ID of the current session
-     *
-     * @return See above
-     *
-     * @throws ServiceException If the connection is broken, or not logged in
-     */
-    public String getSessionId() throws ServiceException {
-        return ExceptionHandler.of(gateway, g -> g.getSessionId(user.asDataObject()))
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
-                                        "Could not retrieve session ID")
-                               .get();
-    }
-
-
-    /**
-     * Check if the client is still connected to the server
-     *
-     * @return See above.
-     */
-    public boolean isConnected() {
-        return gateway.isConnected();
-    }
-
-
-    /**
-     * Connects to OMERO using a session ID.
-     *
-     * @param hostname  Name of the host.
-     * @param port      Port used by OMERO.
-     * @param sessionId The session ID.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    public void connect(String hostname, int port, String sessionId)
-    throws ServiceException {
-        connect(new JoinSessionCredentials(sessionId, hostname, port));
-    }
-
-
-    /**
-     * Connects the user to OMERO.
-     * <p> Uses the argument to connect to the gateway.
-     * <p> Connects to the group specified in the argument.
-     *
-     * @param hostname Name of the host.
-     * @param port     Port used by OMERO.
-     * @param username Username of the user.
-     * @param password Password of the user.
-     * @param groupID  ID of the group to connect.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    public void connect(String hostname, int port, String username, char[] password, Long groupID)
-    throws ServiceException {
-        LoginCredentials cred = new LoginCredentials(username, String.valueOf(password), hostname, port);
-        cred.setGroupID(groupID);
-        connect(cred);
-    }
-
-
-    /**
-     * Connects the user to OMERO.
-     * <p> Uses the argument to connect to the gateway.
-     * <p> Connects to the default group of the user.
-     *
-     * @param hostname Name of the host.
-     * @param port     Port used by OMERO.
-     * @param username Username of the user.
-     * @param password Password of the user.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    public void connect(String hostname, int port, String username, char[] password)
-    throws ServiceException {
-        connect(new LoginCredentials(username, String.valueOf(password), hostname, port));
     }
 
 
@@ -208,6 +112,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
+    @Override
     public void connect(LoginCredentials cred) throws ServiceException {
         disconnect();
 
@@ -225,6 +130,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
     /**
      * Disconnects the user
      */
+    @Override
     public void disconnect() {
         if (isConnected()) {
             boolean sudo = ctx.isSudo();
@@ -245,6 +151,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @param groupId The group ID.
      */
+    @Override
     public void switchGroup(long groupId) {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
@@ -260,6 +167,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public BrowseFacility getBrowseFacility() throws ExecutionException {
         return gateway.getFacility(BrowseFacility.class);
     }
@@ -272,6 +180,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
+    @Override
     public IQueryPrx getQueryService() throws ServiceException {
         return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx))
                                .rethrow(DSOutOfServiceException.class, ServiceException::new,
@@ -287,6 +196,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
      */
+    @Override
     public MetadataFacility getMetadata() throws ExecutionException {
         return gateway.getFacility(MetadataFacility.class);
     }
@@ -299,6 +209,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
+    @Override
     public DataManagerFacility getDm() throws ExecutionException {
         return gateway.getFacility(DataManagerFacility.class);
     }
@@ -311,6 +222,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
+    @Override
     public ROIFacility getRoiFacility() throws ExecutionException {
         return gateway.getFacility(ROIFacility.class);
     }
@@ -323,6 +235,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
      */
+    @Override
     public TablesFacility getTablesFacility() throws ExecutionException {
         return gateway.getFacility(TablesFacility.class);
     }
@@ -347,6 +260,7 @@ public abstract class GatewayWrapper implements Browser,DataManager {
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
+    @Override
     public OMEROMetadataStoreClient getImportStore() throws ServiceException {
         return ExceptionHandler.of(gateway, g -> g.getImportStore(ctx))
                                .rethrow(DSOutOfServiceException.class, ServiceException::new,
