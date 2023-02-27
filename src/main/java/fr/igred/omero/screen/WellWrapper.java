@@ -18,26 +18,23 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import omero.gateway.model.WellData;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 
 /**
  * Class containing a WellData object.
  * <p> Wraps function calls to the WellData contained.
  */
-public class WellWrapper extends RepositoryObjectWrapper<WellData> {
+public class WellWrapper extends RepositoryObjectWrapper<WellData> implements Well {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";
@@ -112,27 +109,9 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public List<WellSampleWrapper> getWellSamples() {
+    @Override
+    public List<WellSample> getWellSamples() {
         return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
-    }
-
-
-    /**
-     * Refreshes this well and retrieves the screens containing it.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
-     */
-    public List<ScreenWrapper> getScreens(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
-        reload(browser);
-        return getPlate().getScreens(browser);
     }
 
 
@@ -141,38 +120,9 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public PlateWrapper getPlate() {
+    @Override
+    public Plate getPlate() {
         return new PlateWrapper(data.getPlate());
-    }
-
-
-    /**
-     * Refreshes this well and returns the plate acquisitions linked to it.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        reload(browser);
-        return browser.getPlate(getPlate().getId()).getPlateAcquisitions();
-    }
-
-
-    /**
-     * Retrieves the images contained in this well.
-     *
-     * @return See above.
-     */
-    public List<ImageWrapper> getImages() {
-        return getWellSamples().stream()
-                               .map(WellSampleWrapper::getImage)
-                               .collect(Collectors.toList());
     }
 
 
@@ -181,6 +131,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public Integer getColumn() {
         return data.getColumn();
     }
@@ -191,6 +142,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public Integer getRow() {
         return data.getRow();
     }
@@ -201,6 +153,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public String getStatus() {
         return data.getStatus();
     }
@@ -211,6 +164,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param status The status of the well.
      */
+    @Override
     public void setStatus(String status) {
         data.setStatus(status);
     }
@@ -221,6 +175,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public String getWellType() {
         return data.getWellType();
     }
@@ -231,6 +186,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param type The value to set.
      */
+    @Override
     public void setWellType(String type) {
         data.setWellType(type);
     }
@@ -241,6 +197,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getRed() {
         return data.getRed();
     }
@@ -251,6 +208,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param red The value to set.
      */
+    @Override
     public void setRed(Integer red) {
         data.setRed(red);
     }
@@ -261,6 +219,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getGreen() {
         return data.getGreen();
     }
@@ -271,6 +230,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param green The value to set.
      */
+    @Override
     public void setGreen(Integer green) {
         data.setGreen(green);
     }
@@ -281,6 +241,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getBlue() {
         return data.getBlue();
     }
@@ -291,6 +252,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param blue The value to set.
      */
+    @Override
     public void setBlue(Integer blue) {
         data.setBlue(blue);
     }
@@ -301,6 +263,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getAlpha() {
         return data.getAlpha();
     }
@@ -311,6 +274,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param alpha The value to set.
      */
+    @Override
     public void setAlpha(Integer alpha) {
         data.setAlpha(alpha);
     }

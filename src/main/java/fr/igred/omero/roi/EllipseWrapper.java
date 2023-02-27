@@ -23,7 +23,6 @@ import ij.gui.OvalRoi;
 import ij.gui.Roi;
 import omero.gateway.model.EllipseData;
 
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.RectangularShape;
 
 
@@ -31,7 +30,7 @@ import java.awt.geom.RectangularShape;
  * Class containing an EllipseData.
  * <p> Wraps function calls to the EllipseData contained.
  */
-public class EllipseWrapper extends ShapeWrapper<EllipseData> {
+public class EllipseWrapper extends ShapeWrapper<EllipseData> implements Ellipse {
 
 
     /**
@@ -103,21 +102,11 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
 
 
     /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        return new Ellipse2D.Double(getX() - getRadiusX(), getY() - getRadiusY(), 2 * getRadiusX(), 2 * getRadiusY());
-    }
-
-
-    /**
      * Returns the x-coordinate of the center of the ellipse.
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -128,6 +117,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -138,6 +128,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -148,6 +139,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
     }
@@ -158,6 +150,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
+    @Override
     public double getRadiusX() {
         return data.getRadiusX();
     }
@@ -168,6 +161,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param x the value to set.
      */
+    @Override
     public void setRadiusX(double x) {
         data.setRadiusX(x);
     }
@@ -178,6 +172,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
+    @Override
     public double getRadiusY() {
         return data.getRadiusY();
     }
@@ -188,58 +183,9 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param y The value to set.
      */
+    @Override
     public void setRadiusY(double y) {
         data.setRadiusY(y);
-    }
-
-
-    /**
-     * Sets the coordinates of the EllipseData shape.
-     *
-     * @param x       The x-coordinate of the center of the ellipse.
-     * @param y       The y-coordinate of the center of the ellipse.
-     * @param radiusX The radius along the X-axis.
-     * @param radiusY The radius along the Y-axis.
-     */
-    public void setCoordinates(double x, double y, double radiusX, double radiusY) {
-        setX(x);
-        setY(y);
-        setRadiusX(radiusX);
-        setRadiusY(radiusY);
-    }
-
-
-    /**
-     * Gets the coordinates of the MaskData shape.
-     *
-     * @return Array of coordinates containing {X,Y,RadiusX,RadiusY}.
-     */
-    public double[] getCoordinates() {
-        double[] coordinates = new double[4];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        coordinates[2] = getRadiusX();
-        coordinates[3] = getRadiusY();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the EllipseData shape.
-     *
-     * @param coordinates Array of coordinates containing {X,Y,RadiusX,RadiusY}.
-     */
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            throw new IllegalArgumentException("EllipseData cannot set null coordinates.");
-        } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setRadiusX(coordinates[2]);
-            data.setRadiusY(coordinates[3]);
-        } else {
-            throw new IllegalArgumentException("4 coordinates required for EllipseData.");
-        }
     }
 
 
@@ -266,8 +212,8 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
             double ry = getRadiusY();
             double ratio;
 
-            ShapeWrapper<?> p1;
-            ShapeWrapper<?> p2;
+            Shape p1;
+            Shape p2;
             if (ry <= rx) {
                 p1 = new PointWrapper(x - rx, y);
                 p2 = new PointWrapper(x + rx, y);

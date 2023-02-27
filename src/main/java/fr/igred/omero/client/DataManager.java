@@ -18,9 +18,9 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.TableWrapper;
-import fr.igred.omero.containers.FolderWrapper;
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.annotations.Table;
+import fr.igred.omero.containers.Folder;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -170,11 +170,11 @@ public interface DataManager {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    default void delete(Collection<? extends ObjectWrapper<?>> objects)
+    default void delete(Collection<? extends RemoteObject> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        for (ObjectWrapper<?> object : objects) {
-            if (object instanceof FolderWrapper) {
-                ((FolderWrapper) object).unlinkAllROIs(this);
+        for (RemoteObject object : objects) {
+            if (object instanceof Folder) {
+                ((Folder) object).unlinkAllROIs(this);
             }
         }
         if (!objects.isEmpty()) {
@@ -195,10 +195,10 @@ public interface DataManager {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    default void delete(ObjectWrapper<?> object)
+    default void delete(RemoteObject object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        if (object instanceof FolderWrapper) {
-            ((FolderWrapper) object).unlinkAllROIs(this);
+        if (object instanceof Folder) {
+            ((Folder) object).unlinkAllROIs(this);
         }
         delete(object.asDataObject().asIObject());
     }
@@ -216,7 +216,7 @@ public interface DataManager {
      * @throws ServerException          Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
-    default void delete(TableWrapper table)
+    default void delete(Table table)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         deleteFile(table.getId());
     }

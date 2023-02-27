@@ -24,11 +24,8 @@ import omero.model.NamedValue;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 
@@ -36,7 +33,7 @@ import static java.util.stream.Collectors.toList;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
  * <p> Wraps function calls to the MapAnnotationData contained.
  */
-public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
+public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> implements MapAnnotation {
 
 
     /**
@@ -76,6 +73,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      *
      * @return MapAnnotationData content.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public List<Entry<String, String>> getContent() {
         return ((Collection<NamedValue>) data.getContent()).stream()
@@ -89,22 +87,13 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      *
      * @param pairs Collection of Key-Value pairs.
      */
+    @Override
     public void setContent(Collection<? extends Entry<String, String>> pairs) {
         data = new MapAnnotationData();
         List<NamedValue> nv = pairs.stream()
                                    .map(e -> new NamedValue(e.getKey(), e.getValue()))
                                    .collect(toList());
         data.setContent(nv);
-    }
-
-
-    /**
-     * Gets the List of Key-Value pairs contained in the map annotation as a map.
-     *
-     * @return See above.
-     */
-    public Map<String, List<String>> getContentAsMap() {
-        return getContent().stream().collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
     }
 
 }

@@ -20,16 +20,24 @@ package fr.igred.omero.annotations;
 
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.Project;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.screen.Plate;
+import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
+import fr.igred.omero.screen.Screen;
 import fr.igred.omero.screen.ScreenWrapper;
+import fr.igred.omero.screen.Well;
 import fr.igred.omero.screen.WellWrapper;
 import omero.RLong;
 import omero.gateway.model.AnnotationData;
@@ -47,7 +55,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link AnnotationData}
  */
-public abstract class AnnotationWrapper<T extends AnnotationData> extends ObjectWrapper<T> {
+public abstract class AnnotationWrapper<T extends AnnotationData> extends ObjectWrapper<T> implements Annotation {
 
 
     /**
@@ -61,20 +69,22 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
 
 
     /**
-     * Retrieves the {@link AnnotationData} namespace of the underlying {@link AnnotationData} instance.
+     * Retrieves the annotation namespace.
      *
      * @return See above.
      */
+    @Override
     public String getNameSpace() {
         return data.getNameSpace();
     }
 
 
     /**
-     * Sets the name space of the underlying {@link AnnotationData} instance.
+     * Sets the annotation namespace.
      *
      * @param name The value to set.
      */
+    @Override
     public void setNameSpace(String name) {
         data.setNameSpace(name);
     }
@@ -85,17 +95,18 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @return See above.
      */
+    @Override
     public Timestamp getLastModified() {
         return data.getLastModified();
     }
 
 
     /**
-     * Retrieves the {@link AnnotationData#getDescription() description} of the underlying {@link AnnotationData}
-     * instance.
+     * Gets the annotation description.
      *
      * @return See above
      */
+    @Override
     public String getDescription() {
         return data.getDescription();
     }
@@ -106,24 +117,9 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @param description The description
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
-    }
-
-
-    /**
-     * Returns the number of annotations links for this object.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
-     */
-    public int countAnnotationLinks(Browser browser) throws ServiceException, ServerException {
-        return browser.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
-                                  "where link.child.id=" + getId()).size();
     }
 
 
@@ -139,7 +135,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(Browser browser)
+    @Override
+    public List<Project> getProjects(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(browser, ProjectWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -159,7 +156,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(Browser browser)
+    @Override
+    public List<Dataset> getDatasets(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(browser, DatasetWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -179,7 +177,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser browser)
+    @Override
+    public List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(browser, ImageWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -199,7 +198,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Browser browser)
+    @Override
+    public List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(browser, ScreenWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -219,7 +219,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Browser browser)
+    @Override
+    public List<Plate> getPlates(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(browser, PlateWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -237,7 +238,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
+    @Override
+    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
     throws ServiceException, ServerException {
         List<IObject> os = getLinks(browser, PlateAcquisitionWrapper.ANNOTATION_LINK);
         return os.stream()
@@ -258,7 +260,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Browser browser)
+    @Override
+    public List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(browser, WellWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -278,7 +281,8 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FolderWrapper> getFolders(Browser browser)
+    @Override
+    public List<Folder> getFolders(Browser browser)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         List<IObject> os  = getLinks(browser, FolderWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
@@ -300,7 +304,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     private List<IObject> getLinks(Browser browser, String linkType)
     throws ServiceException, ServerException {
         return browser.findByQuery("select link.parent from " + linkType +
-                                  " link where link.child = " + getId());
+                                   " link where link.child = " + getId());
     }
 
 }

@@ -22,6 +22,7 @@ import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.model.DataObject;
 
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class ObjectWrapper<T extends DataObject> {
+public abstract class ObjectWrapper<T extends DataObject> implements RemoteObject {
 
     /** Wrapped object */
     protected T data;
@@ -67,7 +68,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    public static <U extends DataObject, V extends ObjectWrapper<U>, W extends Comparable<W>> List<V>
+    public static <U extends DataObject, V extends RemoteObject, W extends Comparable<W>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
         return objects.stream()
                       .map(mapper)
@@ -86,47 +87,9 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    public static <U extends DataObject, V extends ObjectWrapper<U>> List<V>
+    public static <U extends DataObject, V extends RemoteObject> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
-        return wrap(objects, mapper, ObjectWrapper::getId);
-    }
-
-
-    /**
-     * Only keeps objects with different IDs in a collection.
-     *
-     * @param objects A collection of objects.
-     * @param <T>     The objects type.
-     *
-     * @return Distinct objects list, sorted by ID.
-     */
-    public static <T extends ObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
-        return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
-                      .values()
-                      .stream()
-                      .sorted(Comparator.comparing(T::getId))
-                      .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Flattens a collection of collections and only keeps objects with different IDs.
-     *
-     * @param lists A collection of objects collections.
-     * @param <U>   The objects type.
-     *
-     * @return Distinct objects list, sorted by ID.
-     */
-    public static <U extends ObjectWrapper<?>>
-    List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
-        return lists.stream()
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toMap(U::getId, o -> o, (o1, o2) -> o1))
-                    .values()
-                    .stream()
-                    .sorted(Comparator.comparing(U::getId))
-                    .collect(Collectors.toList());
+        return wrap(objects, mapper, RemoteObject::getId);
     }
 
 
@@ -135,6 +98,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return An object of type {@link T}.
      */
+    @Override
     public T asDataObject() {
         return data;
     }
@@ -145,6 +109,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return id.
      */
+    @Override
     public long getId() {
         return data.getId();
     }
@@ -155,6 +120,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return creation date.
      */
+    @Override
     public Timestamp getCreated() {
         return data.getCreated();
     }
@@ -165,8 +131,8 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return owner id.
      */
-    @SuppressWarnings("ClassReferencesSubclass")
-    public ExperimenterWrapper getOwner() {
+    @Override
+    public Experimenter getOwner() {
         return new ExperimenterWrapper(data.getOwner());
     }
 
@@ -176,6 +142,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return group id.
      */
+    @Override
     public Long getGroupId() {
         return data.getGroupId();
     }
@@ -199,6 +166,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException {
         data = (T) ExceptionHandler.of(dm.getDMFacility(),
@@ -213,6 +181,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canAnnotate() {
         return data.canAnnotate();
     }
@@ -224,6 +193,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canEdit() {
         return data.canEdit();
     }
@@ -235,6 +205,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canLink() {
         return data.canLink();
     }
@@ -246,6 +217,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canDelete() {
         return data.canDelete();
     }
@@ -257,6 +229,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canChgrp() {
         data.getPermissions().getPermissionsLevel();
         return data.canChgrp();
@@ -269,6 +242,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canChown() {
         return data.canChown();
     }

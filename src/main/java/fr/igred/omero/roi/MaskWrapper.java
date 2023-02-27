@@ -22,14 +22,13 @@ import ij.gui.Roi;
 import omero.gateway.model.MaskData;
 
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 
 
 /**
  * Class containing an MaskData.
  * <p> Wraps function calls to the MaskData contained.
  */
-public class MaskWrapper extends ShapeWrapper<MaskData> {
+public class MaskWrapper extends ShapeWrapper<MaskData> implements Mask {
 
 
     /**
@@ -87,91 +86,88 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
 
 
     /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
-    }
-
-
-    /**
-     * Returns the x-coordinate of the top-left corner of the mask.
+     * Returns the x-coordinate of the rectangular shape.
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
 
 
     /**
-     * Sets the x-coordinate top-left corner of an untransformed mask.
+     * Sets the x-coordinate of the rectangular shape.
      *
-     * @param x The value to set.
+     * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
 
 
     /**
-     * Returns the y-coordinate of the top-left corner of the mask.
+     * Returns the y coordinate of the rectangular shape.
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
 
 
     /**
-     * Sets the y-coordinate top-left corner of an untransformed mask.
+     * Sets the y-coordinate of the rectangular shape.
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
     }
 
 
     /**
-     * Returns the width of the mask.
+     * Returns the width of the rectangular shape.
      *
      * @return See above.
      */
+    @Override
     public double getWidth() {
         return data.getWidth();
     }
 
 
     /**
-     * Sets the width of an untransformed mask.
+     * Sets width of the rectangular shape.
      *
      * @param width See above.
      */
+    @Override
     public void setWidth(double width) {
         data.setWidth(width);
     }
 
 
     /**
-     * Returns the height of the mask.
+     * Returns the height of the rectangular shape.
      *
      * @return See above.
      */
+    @Override
     public double getHeight() {
         return data.getHeight();
     }
 
 
     /**
-     * Sets the height of an untransformed mask.
+     * Sets the height of the rectangular shape.
      *
      * @param height See above.
      */
+    @Override
     public void setHeight(double height) {
         data.setHeight(height);
     }
@@ -182,6 +178,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public int[][] getMaskAsBinaryArray() {
         return data.getMaskAsBinaryArray();
     }
@@ -192,6 +189,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
+    @Override
     public byte[] getMask() {
         return data.getMask();
     }
@@ -202,6 +200,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask See above.
      */
+    @Override
     public void setMask(byte[] mask) {
         data.setMask(mask);
     }
@@ -212,6 +211,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask The binary mask (int[width][height])
      */
+    @Override
     public void setMask(int[][] mask) {
         data.setMask(mask);
     }
@@ -222,58 +222,9 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask The binary mask (boolean[width][height])
      */
+    @Override
     public void setMask(boolean[][] mask) {
         data.setMask(mask);
-    }
-
-
-    /**
-     * Sets the coordinates of the MaskData shape.
-     *
-     * @param x      The x-coordinate of the top-left corner.
-     * @param y      The y-coordinate of the top-left corner.
-     * @param width  The width of the rectangle.
-     * @param height The height of the rectangle.
-     */
-    public void setCoordinates(double x, double y, double width, double height) {
-        setX(x);
-        setY(y);
-        setWidth(width);
-        setHeight(height);
-    }
-
-
-    /**
-     * Gets the coordinates of the MaskData shape.
-     *
-     * @return Array of coordinates containing {X,Y,Width,Height}.
-     */
-    public double[] getCoordinates() {
-        double[] coordinates = new double[4];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        coordinates[2] = getWidth();
-        coordinates[3] = getHeight();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the MaskData shape.
-     *
-     * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
-     */
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            throw new IllegalArgumentException("MaskData cannot set null coordinates.");
-        } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setWidth(coordinates[2]);
-            data.setHeight(coordinates[3]);
-        } else {
-            throw new IllegalArgumentException("4 coordinates required for MaskData.");
-        }
     }
 
 
@@ -290,8 +241,8 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 

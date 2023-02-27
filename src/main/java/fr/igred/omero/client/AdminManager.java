@@ -21,7 +21,9 @@ package fr.igred.omero.client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.Group;
 import fr.igred.omero.meta.GroupWrapper;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.AdminFacility;
@@ -67,7 +69,7 @@ public interface AdminManager {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    default ExperimenterWrapper getUser(String username)
+    default Experimenter getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
         ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
                                                             a -> a.lookupExperimenter(getCtx(), username))
@@ -93,7 +95,7 @@ public interface AdminManager {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested group does not exist.
      */
-    default GroupWrapper getGroup(String groupName)
+    default Group getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
         GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
                                           .handleServiceOrAccess("Cannot retrieve group: " + groupName)

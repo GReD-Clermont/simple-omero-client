@@ -19,21 +19,14 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.client.DataManager;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
-import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
 import ome.model.units.BigResult;
-import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
 import omero.model.AffineTransformI;
 import omero.model.LengthI;
-import omero.model.ShapeAnnotationLink;
-import omero.model.ShapeAnnotationLinkI;
 import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
@@ -43,7 +36,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +45,7 @@ import java.util.logging.Logger;
  *
  * @param <T> Subclass of {@link ShapeData}
  */
-public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapper<T> {
+public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapper<T> implements Shape {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ShapeAnnotationLink";
@@ -94,7 +86,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
                 list.add(new PolylineWrapper(ijRoi));
                 break;
             case Roi.LINE:
-                list.add(new LineWrapper((Line) ijRoi));
+                list.add(new LineWrapper((ij.gui.Line) ijRoi));
                 break;
             case Roi.OVAL:
                 list.add(new EllipseWrapper(ijRoi));
@@ -112,7 +104,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
                 list.addAll(points);
                 break;
             case Roi.COMPOSITE:
-                List<ij.gui.Roi> rois = Arrays.asList(((ShapeRoi) ijRoi).getRois());
+                List<Roi> rois = Arrays.asList(((ShapeRoi) ijRoi).getRois());
                 rois.forEach(r -> r.setName(ijRoi.getName()));
                 rois.forEach(r -> r.setPosition(ijRoi.getCPosition(),
                                                 ijRoi.getZPosition(),
@@ -172,6 +164,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return the channel. -1 if the shape applies to all channels of the image.
      */
+    @Override
     public int getC() {
         return this.data.getC();
     }
@@ -182,6 +175,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
      */
+    @Override
     public void setC(int c) {
         this.data.setC(c);
     }
@@ -192,6 +186,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return the z-section. -1 if the shape applies to all z-sections of the image.
      */
+    @Override
     public int getZ() {
         return this.data.getZ();
     }
@@ -202,6 +197,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      */
+    @Override
     public void setZ(int z) {
         this.data.setZ(z);
     }
@@ -212,6 +208,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return the time-point. -1 if the shape applies to all time-points of the image.
      */
+    @Override
     public int getT() {
         return this.data.getT();
     }
@@ -222,32 +219,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
+    @Override
     public void setT(int t) {
         this.data.setT(t);
-    }
-
-
-    /**
-     * Sets the channel, z-section and time-point at once.
-     *
-     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
-     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
-     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
-     */
-    public void setCZT(int c, int z, int t) {
-        setC(c);
-        setZ(z);
-        setT(t);
-    }
-
-
-    /**
-     * Returns the C,Z,T positions as a comma-delimited String.
-     *
-     * @return See above.
-     */
-    String getCZT() {
-        return String.format("%d,%d,%d", getC(), getZ(), getT());
     }
 
 
@@ -256,6 +230,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return The font size (in typography points)
      */
+    @Override
     public double getFontSize() {
         double fontSize = Double.NaN;
         try {
@@ -273,6 +248,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @param value The font size (in typography points)
      */
+    @Override
     public void setFontSize(double value) {
         LengthI size = new LengthI(value, UnitsLength.POINT);
         data.getShapeSettings().setFontSize(size);
@@ -284,6 +260,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return The stroke color
      */
+    @Override
     public Color getStroke() {
         return data.getShapeSettings().getStroke();
     }
@@ -294,6 +271,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @param strokeColour The stroke color
      */
+    @Override
     public void setStroke(Color strokeColour) {
         data.getShapeSettings().setStroke(strokeColour);
     }
@@ -304,6 +282,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return The fill color
      */
+    @Override
     public Color getFill() {
         return data.getShapeSettings().getFill();
     }
@@ -314,33 +293,10 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @param fillColour The fill color
      */
+    @Override
     public void setFill(Color fillColour) {
         data.getShapeSettings().setFill(fillColour);
     }
-
-
-    /**
-     * Gets the text on the ShapeData.
-     *
-     * @return the text
-     */
-    public abstract String getText();
-
-
-    /**
-     * Sets the text on the ShapeData.
-     *
-     * @param text the text
-     */
-    public abstract void setText(String text);
-
-
-    /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    public abstract java.awt.Shape toAWTShape();
 
 
     /**
@@ -353,6 +309,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      * @param a02 the X coordinate translation element of the 3x3 matrix
      * @param a12 the Y coordinate translation element of the 3x3 matrix
      */
+    @Override
     public void setTransform(double a00, double a10, double a01, double a11, double a02, double a12) {
         AffineTransform transform = new AffineTransformI();
         transform.setA00(omero.rtypes.rdouble(a00));
@@ -366,22 +323,11 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Sets the transform from a {@link java.awt.geom.AffineTransform}.
-     *
-     * @param transform A Java AffineTransform.
-     */
-    public void setTransform(java.awt.geom.AffineTransform transform) {
-        double[] a = new double[6];
-        transform.getMatrix(a);
-        setTransform(a[0], a[1], a[2], a[3], a[4], a[5]);
-    }
-
-
-    /**
-     * Converts {@link omero.model.AffineTransform} to {@link java.awt.geom.AffineTransform}.
+     * Converts {@link AffineTransform} to {@link java.awt.geom.AffineTransform}.
      *
      * @return The converted affine transform.
      */
+    @Override
     public java.awt.geom.AffineTransform toAWTTransform() {
         if (data.getTransform() == null) return new java.awt.geom.AffineTransform();
         else {
@@ -397,25 +343,13 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Returns a new {@link java.awt.Shape} defined by the geometry of the specified Shape after it has been transformed
-     * by the transform.
-     *
-     * @return A new transformed {@link java.awt.Shape}.
-     */
-    public java.awt.Shape createTransformedAWTShape() {
-        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) return toAWTShape();
-        else return toAWTTransform().createTransformedShape(toAWTShape());
-    }
-
-
-    /**
-     * Returns a new {@link RectangleWrapper} corresponding to the bounding box of the shape, once the related
+     * Returns a new {@link Rectangle} corresponding to the bounding box of the shape, once the related
      * {@link AffineTransform} has been applied.
      *
      * @return The bounding box.
      */
-    @SuppressWarnings("ClassReferencesSubclass")
-    public RectangleWrapper getBoundingBox() {
+    @Override
+    public Rectangle getBoundingBox() {
         Rectangle2D rectangle = createTransformedAWTShape().getBounds2D();
 
         double x      = rectangle.getX();
@@ -423,7 +357,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
         double width  = rectangle.getWidth();
         double height = rectangle.getHeight();
 
-        RectangleWrapper boundingBox = new RectangleWrapper(x, y, width, height);
+        Rectangle boundingBox = new RectangleWrapper(x, y, width, height);
         boundingBox.setCZT(getC(), getZ(), getT());
         boundingBox.setText(getText() + " (Bounding Box)");
         boundingBox.setStroke(getStroke());
@@ -438,6 +372,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return An ImageJ ROI.
      */
+    @Override
     public Roi toImageJ() {
         Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
         copyToIJRoi(roi);
@@ -453,27 +388,6 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
     @Override
     protected String annotationLinkType() {
         return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Attach an {@link AnnotationData} to this object.
-     *
-     * @param <A>        The type of the annotation.
-     * @param dm         The data manager.
-     * @param annotation The {@link AnnotationData}.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public <A extends AnnotationData> void link(DataManager dm, A annotation)
-    throws ServiceException, AccessException, ExecutionException {
-        ShapeAnnotationLink link = new ShapeAnnotationLinkI();
-        link.setChild(annotation.asAnnotation());
-        link.setParent((omero.model.Shape) data.asIObject());
-        dm.save(link);
     }
 
 }

@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains the client classes used to interact with an OMERO server.
+ * This package contains the client interfaces and class used to interact with an OMERO server.
  */
 package fr.igred.omero.client;

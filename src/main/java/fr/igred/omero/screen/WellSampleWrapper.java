@@ -18,27 +18,20 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.client.Browser;
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
-import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import ome.model.units.BigResult;
 import omero.gateway.model.WellSampleData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 
 /**
  * Class containing a WellSampleData object.
  * <p> Wraps function calls to the WellSampleData contained.
  */
-public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
+public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements WellSample {
 
 
     /**
@@ -52,78 +45,12 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
 
 
     /**
-     * Returns the screens containing the parent Well.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
-     */
-    public List<ScreenWrapper> getScreens(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
-        return getWell(browser).getScreens(browser);
-    }
-
-
-    /**
-     * Returns the plates containing the parent Well.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<PlateWrapper> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        return Collections.singletonList(getWell(browser).getPlate());
-    }
-
-
-    /**
-     * Returns the plate acquisitions linked to the parent Well.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return getWell(browser).getPlateAcquisitions(browser);
-    }
-
-
-    /**
-     * Retrieves the well containing this well sample
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public WellWrapper getWell(Browser browser) throws AccessException, ServiceException, ExecutionException {
-        return browser.getWell(asDataObject().asWellSample().getWell().getId().getValue());
-    }
-
-
-    /**
      * Returns the image related to that sample if any.
      *
      * @return See above.
      */
-    public ImageWrapper getImage() {
+    @Override
+    public Image getImage() {
         return new ImageWrapper(data.getImage());
     }
 
@@ -133,7 +60,8 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @param image The image to set.
      */
-    public void setImage(ImageWrapper image) {
+    @Override
+    public void setImage(Image image) {
         data.setImage(image.asDataObject());
     }
 
@@ -147,6 +75,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getPositionX(UnitsLength unit) throws BigResult {
         return data.getPositionX(unit);
     }
@@ -161,6 +90,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getPositionY(UnitsLength unit) throws BigResult {
         return data.getPositionY(unit);
     }
@@ -171,6 +101,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @return See above.
      */
+    @Override
     public long getStartTime() {
         return data.getStartTime();
     }

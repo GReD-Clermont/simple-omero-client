@@ -25,26 +25,7 @@ import omero.gateway.model.RatingAnnotationData;
  * Class containing a RatingAnnotationData object.
  * <p> Wraps function calls to the RatingAnnotationData contained.
  */
-public class RatingAnnotationWrapper extends AnnotationWrapper<RatingAnnotationData> {
-
-    /** Indicates the object is not rated. */
-    public static final int LEVEL_ZERO = RatingAnnotationData.LEVEL_ZERO;
-
-    /** Indicates the object is rated with one star. */
-    public static final int LEVEL_ONE = RatingAnnotationData.LEVEL_ONE;
-
-    /** Indicates the object is rated with two stars. */
-    public static final int LEVEL_TWO = RatingAnnotationData.LEVEL_TWO;
-
-    /** Indicates the object is rated with three stars. */
-    public static final int LEVEL_THREE = RatingAnnotationData.LEVEL_THREE;
-
-    /** Indicates the object is rated with four stars. */
-    public static final int LEVEL_FOUR = RatingAnnotationData.LEVEL_FOUR;
-
-    /** Indicates the object is rated with five stars. */
-    public static final int LEVEL_FIVE = RatingAnnotationData.LEVEL_FIVE;
-
+public class RatingAnnotationWrapper extends AnnotationWrapper<RatingAnnotationData> implements RatingAnnotation {
 
     /**
      * Constructor of the RatingAnnotationWrapper class.
@@ -71,6 +52,7 @@ public class RatingAnnotationWrapper extends AnnotationWrapper<RatingAnnotationD
      *
      * @return See above.
      */
+    @Override
     public int getRating() {
         return data.getRating();
     }
@@ -81,6 +63,7 @@ public class RatingAnnotationWrapper extends AnnotationWrapper<RatingAnnotationD
      *
      * @param value The value to set. Must be one of the constants defined by this class.
      */
+    @Override
     public void setRating(int value) {
         data.setRating(value);
     }

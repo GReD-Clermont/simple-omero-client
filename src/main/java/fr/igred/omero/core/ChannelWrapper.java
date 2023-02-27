@@ -21,14 +21,12 @@ package fr.igred.omero.core;
 import fr.igred.omero.ObjectWrapper;
 import omero.gateway.model.ChannelData;
 
-import java.awt.Color;
-
 
 /**
  * Class containing a ChannelData object.
  * <p> Wraps function calls to the ChannelData contained.
  */
-public class ChannelWrapper extends ObjectWrapper<ChannelData> {
+public class ChannelWrapper extends ObjectWrapper<ChannelData> implements Channel {
 
 
     /**
@@ -46,6 +44,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public boolean hasRGBA() {
         return data.asChannel().getRed() != null &&
                data.asChannel().getGreen() != null &&
@@ -59,6 +58,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getIndex() {
         return data.getIndex();
     }
@@ -70,6 +70,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public String getChannelLabeling() {
         return data.getChannelLabeling();
     }
@@ -80,8 +81,9 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public String getName() {
-        return asDataObject().getName();
+        return data.getName();
     }
 
 
@@ -90,20 +92,9 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @param name The name of the channel.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
-    }
-
-
-    /**
-     * Gets the original channel color. Defaults to {@link Color#WHITE} if RGBA values are missing.
-     *
-     * @return The original channel color.
-     */
-    public Color getColor() {
-        Color color = Color.WHITE;
-        if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
-        return color;
     }
 
 
@@ -112,6 +103,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getAlpha() {
         return data.asChannel().getAlpha().getValue();
     }
@@ -122,6 +114,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getRed() {
         return data.asChannel().getRed().getValue();
     }
@@ -132,6 +125,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getGreen() {
         return data.asChannel().getGreen().getValue();
     }
@@ -142,6 +136,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getBlue() {
         return data.asChannel().getBlue().getValue();
     }

@@ -34,6 +34,7 @@ import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.core.PixelsWrapper;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -46,7 +47,6 @@ import fr.igred.omero.roi.MaskWrapper;
 import fr.igred.omero.roi.PointWrapper;
 import fr.igred.omero.roi.PolygonWrapper;
 import fr.igred.omero.roi.PolylineWrapper;
-import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import fr.igred.omero.roi.TextWrapper;
 import omero.gateway.model.AnnotationData;
@@ -128,7 +128,7 @@ class WrapperTest extends BasicTest {
                 arguments(named("TextData", TextData.class), TextWrapper.class),
                 arguments(named("MaskData", MaskData.class), MaskWrapper.class),
                 arguments(named("PixelsData", PixelsData.class), PixelsWrapper.class),
-                arguments(named("ROIData", ROIData.class), ROIWrapper.class),
+                arguments(named("ROIData", ROIData.class), ROI.class),
                 arguments(named("PlaneInfoData", PlaneInfoData.class), PlaneInfoWrapper.class),
                 arguments(named("WellSampleData", WellSampleData.class), WellSampleWrapper.class),
                 arguments(named("ExperimenterData", ExperimenterData.class), ExperimenterWrapper.class),

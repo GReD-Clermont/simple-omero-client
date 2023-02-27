@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData object.
  * <p> Wraps function calls to the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
+public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> implements TagAnnotation {
 
     /**
      * Constructor of the TagAnnotationWrapper class.
@@ -65,6 +65,7 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
      *
      * @return TagData name.
      */
+    @Override
     public String getName() {
         return data.getTagValue();
     }
@@ -77,6 +78,7 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setTagValue(name);
     }

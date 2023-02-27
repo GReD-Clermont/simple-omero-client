@@ -19,9 +19,11 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.BasicTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.DatasetWrapper;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -56,16 +58,16 @@ class SudoTest extends BasicTest {
 
         Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
+        TagAnnotation tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
-        DatasetWrapper     dataset = test.getDataset(DATASET1.id);
-        List<ImageWrapper> images  = dataset.getImages(test);
+        Dataset     dataset = test.getDataset(DATASET1.id);
+        List<Image> images  = dataset.getImages(test);
 
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             image.link(test, tag);
         }
 
-        List<ImageWrapper> tagged = dataset.getImagesTagged(test, tag);
+        List<Image> tagged = dataset.getImagesTagged(test, tag);
 
         int differences = 0;
         for (int i = 0; i < images.size(); i++) {
@@ -100,7 +102,7 @@ class SudoTest extends BasicTest {
 
         File file = createFile(filename);
 
-        DatasetWrapper dataset = new DatasetWrapper("sudoTest", "");
+        Dataset dataset = new DatasetWrapper("sudoTest", "");
         dataset.saveAndUpdate(client3);
 
         assertTrue(dataset.canLink());
@@ -108,7 +110,7 @@ class SudoTest extends BasicTest {
 
         removeFile(file);
 
-        List<ImageWrapper> images = dataset.getImages(client3);
+        List<Image> images = dataset.getImages(client3);
         assertEquals(1, images.size());
 
         client4.delete(images.get(0));

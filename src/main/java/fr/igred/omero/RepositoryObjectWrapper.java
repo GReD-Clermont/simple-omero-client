@@ -51,7 +51,9 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class RepositoryObjectWrapper<T extends DataObject> extends AnnotatableWrapper<T> {
+public abstract class RepositoryObjectWrapper<T extends DataObject>
+        extends AnnotatableWrapper<T>
+        implements RepositoryObject {
 
     /**
      * Constructor of the class RepositoryObjectWrapper.
@@ -157,7 +159,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
             }
             uploadThreadPool.shutdown();
         } catch (Throwable e) {
-            throw new ServerException(e);
+            throw new ServerException("Error during image import.", e);
         } finally {
             store.logout();
         }
@@ -166,21 +168,5 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
         pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
         return ids.stream().distinct().collect(Collectors.toList());
     }
-
-
-    /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    public abstract String getName();
-
-
-    /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    public abstract String getDescription();
 
 }

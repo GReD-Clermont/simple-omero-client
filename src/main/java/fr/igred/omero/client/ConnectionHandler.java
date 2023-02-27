@@ -21,7 +21,7 @@ package fr.igred.omero.client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.Experimenter;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.gateway.Gateway;
 import omero.gateway.JoinSessionCredentials;
@@ -52,7 +52,7 @@ public interface ConnectionHandler {
      *
      * @return See above.
      */
-    ExperimenterWrapper getUser();
+    Experimenter getUser();
 
 
     /**

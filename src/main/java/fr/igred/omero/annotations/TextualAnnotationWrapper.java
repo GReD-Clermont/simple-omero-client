@@ -25,7 +25,7 @@ import omero.gateway.model.TextualAnnotationData;
  * Class containing a TextualAnnotationData object.
  * <p> Wraps function calls to the TextualAnnotationData contained.
  */
-public class TextualAnnotationWrapper extends AnnotationWrapper<TextualAnnotationData> {
+public class TextualAnnotationWrapper extends AnnotationWrapper<TextualAnnotationData> implements TextualAnnotation {
 
     /**
      * Constructor of the TextualAnnotationWrapper class.
@@ -52,6 +52,7 @@ public class TextualAnnotationWrapper extends AnnotationWrapper<TextualAnnotatio
      *
      * @return See above.
      */
+    @Override
     public String getText() {
         return data.getText();
     }
@@ -62,6 +63,7 @@ public class TextualAnnotationWrapper extends AnnotationWrapper<TextualAnnotatio
      *
      * @param text The value to set.
      */
+    @Override
     public void setText(String text) {
         data.setText(text);
     }

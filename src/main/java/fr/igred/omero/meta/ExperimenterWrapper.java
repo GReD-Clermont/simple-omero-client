@@ -28,7 +28,7 @@ import java.util.List;
  * Class containing an ExperimenterData object.
  * <p> Wraps function calls to the ExperimenterData contained.
  */
-public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
+public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> implements Experimenter {
 
     /**
      * Constructor of the class ExperimenterWrapper.
@@ -45,6 +45,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return see above.
      */
+    @Override
     public String getFirstName() {
         return data.getFirstName();
     }
@@ -55,6 +56,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @param firstName The value to set.
      */
+    @Override
     public void setFirstName(String firstName) {
         data.setFirstName(firstName);
     }
@@ -65,6 +67,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return see above.
      */
+    @Override
     public String getLastName() {
         return data.getLastName();
     }
@@ -75,6 +78,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @param lastName The value to set.
      */
+    @Override
     public void setLastName(String lastName) {
         data.setLastName(lastName);
     }
@@ -85,6 +89,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return see above.
      */
+    @Override
     public String getUserName() {
         return data.getUserName();
     }
@@ -95,6 +100,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return see above.
      */
+    @Override
     public String getEmail() {
         return data.getEmail();
     }
@@ -105,6 +111,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @param email The value to set.
      */
+    @Override
     public void setEmail(String email) {
         data.setEmail(email);
     }
@@ -115,6 +122,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return see above.
      */
+    @Override
     public String getInstitution() {
         return data.getInstitution();
     }
@@ -125,6 +133,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @param institution The value to set.
      */
+    @Override
     public void setInstitution(String institution) {
         data.setInstitution(institution);
     }
@@ -135,8 +144,9 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return See above.
      */
-    public List<GroupWrapper> getGroups() {
-        return wrap(data.getGroups(), GroupWrapper::new, GroupWrapper::getName);
+    @Override
+    public List<Group> getGroups() {
+        return wrap(data.getGroups(), GroupWrapper::new, Group::getName);
     }
 
 
@@ -145,7 +155,8 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return See above.
      */
-    public GroupWrapper getDefaultGroup() {
+    @Override
+    public Group getDefaultGroup() {
         return new GroupWrapper(data.getDefaultGroup());
     }
 
@@ -155,6 +166,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return see above.
      */
+    @Override
     public String getMiddleName() {
         return data.getMiddleName();
     }
@@ -165,6 +177,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @param middleName The value to set.
      */
+    @Override
     public void setMiddleName(String middleName) {
         data.setMiddleName(middleName);
     }
@@ -175,6 +188,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return See above.
      */
+    @Override
     public boolean isActive() {
         return data.isActive();
     }
@@ -183,10 +197,11 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
     /**
      * Checks if supplied group id matches any group to which the current experimenter belongs to.
      *
-     * @param groupId The id of the group.
+     * @param groupId The ID of the group.
      *
      * @return boolean {@code true}/{@code false} depending on the matching id found
      */
+    @Override
     public boolean isMemberOfGroup(long groupId) {
         return data.isMemberOfGroup(groupId);
     }
@@ -197,6 +212,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      *
      * @return See above.
      */
+    @Override
     public boolean isLDAP() {
         return data.isLDAP();
     }

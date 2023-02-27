@@ -26,9 +26,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static fr.igred.omero.core.PlaneInfoWrapper.computeMeanExposureTime;
-import static fr.igred.omero.core.PlaneInfoWrapper.computeMeanTimeInterval;
-import static fr.igred.omero.core.PlaneInfoWrapper.getMinPosition;
+import static fr.igred.omero.core.PlaneInfo.computeMeanExposureTime;
+import static fr.igred.omero.core.PlaneInfo.computeMeanTimeInterval;
+import static fr.igred.omero.core.PlaneInfo.getMinPosition;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -36,9 +36,9 @@ class PlaneInfoWrapperTest extends UserTest {
 
     @Test
     void testComputeMeanTimeInterval() throws Exception {
-        PixelsWrapper pixels = client.getImage(IMAGE1.id).getPixels();
+        Pixels pixels = client.getImage(IMAGE1.id).getPixels();
         pixels.loadPlanesInfo(client);
-        List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
+        List<PlaneInfo> planes = pixels.getPlanesInfo();
 
         Time time = computeMeanTimeInterval(planes, pixels.getSizeT());
         assertEquals(150, time.getValue());
@@ -49,9 +49,9 @@ class PlaneInfoWrapperTest extends UserTest {
 
     @Test
     void testComputeMeanExposureTime() throws Exception {
-        PixelsWrapper pixels = client.getImage(IMAGE1.id).getPixels();
+        Pixels pixels = client.getImage(IMAGE1.id).getPixels();
         pixels.loadPlanesInfo(client);
-        List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
+        List<PlaneInfo> planes = pixels.getPlanesInfo();
 
         Time time = computeMeanExposureTime(planes, 0);
         assertEquals(25, time.getValue());
@@ -62,11 +62,11 @@ class PlaneInfoWrapperTest extends UserTest {
 
     @Test
     void testGetMinPosition() throws Exception {
-        PixelsWrapper pixels = client.getImage(IMAGE1.id).getPixels();
+        Pixels pixels = client.getImage(IMAGE1.id).getPixels();
         pixels.loadPlanesInfo(client);
-        List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
+        List<PlaneInfo> planes = pixels.getPlanesInfo();
 
-        Length positionX = getMinPosition(planes, PlaneInfoWrapper::getPositionX, UNITS.NANOMETER);
+        Length positionX = getMinPosition(planes, PlaneInfo::getPositionX, UNITS.NANOMETER);
         assertEquals(100000, positionX.getValue());
         assertEquals("nm", positionX.getSymbol());
     }

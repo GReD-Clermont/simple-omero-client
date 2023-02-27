@@ -22,14 +22,13 @@ import ij.gui.Roi;
 import omero.gateway.model.RectangleData;
 
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 
 
 /**
  * Class containing an RectangleData.
  * <p> Wraps function calls to the RectangleData contained.
  */
-public class RectangleWrapper extends ShapeWrapper<RectangleData> {
+public class RectangleWrapper extends ShapeWrapper<RectangleData> implements Rectangle {
 
 
     /**
@@ -102,21 +101,11 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
 
 
     /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
-    }
-
-
-    /**
      * Returns the x-coordinate of the shape.
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -127,6 +116,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -137,6 +127,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -147,6 +138,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
     }
@@ -157,6 +149,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return See above.
      */
+    @Override
     public double getWidth() {
         return data.getWidth();
     }
@@ -167,6 +160,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param width See above.
      */
+    @Override
     public void setWidth(double width) {
         data.setWidth(width);
     }
@@ -177,6 +171,7 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @return See above.
      */
+    @Override
     public double getHeight() {
         return data.getHeight();
     }
@@ -187,58 +182,9 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
      *
      * @param height See above.
      */
+    @Override
     public void setHeight(double height) {
         data.setHeight(height);
-    }
-
-
-    /**
-     * Sets the coordinates of the RectangleData shape.
-     *
-     * @param x      The x-coordinate of the top-left corner.
-     * @param y      The y-coordinate of the top-left corner.
-     * @param width  The width of the rectangle.
-     * @param height The height of the rectangle.
-     */
-    public void setCoordinates(double x, double y, double width, double height) {
-        setX(x);
-        setY(y);
-        setWidth(width);
-        setHeight(height);
-    }
-
-
-    /**
-     * Gets the coordinates of the RectangleData shape.
-     *
-     * @return Array of coordinates containing {X,Y,Width,Height}.
-     */
-    public double[] getCoordinates() {
-        double[] coordinates = new double[4];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        coordinates[2] = getWidth();
-        coordinates[3] = getHeight();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the RectangleData shape.
-     *
-     * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
-     */
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            throw new IllegalArgumentException("RectangleData cannot set null coordinates.");
-        } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setWidth(coordinates[2]);
-            data.setHeight(coordinates[3]);
-        } else {
-            throw new IllegalArgumentException("4 coordinates required for RectangleData.");
-        }
     }
 
 
@@ -255,8 +201,8 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> {
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 

@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains abstract classes to handle OME Remote Objects.
+ * This package contains the main interfaces and abstract classes to handle OME Remote Objects.
  */
 package fr.igred.omero;
