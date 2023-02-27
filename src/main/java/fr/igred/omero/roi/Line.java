@@ -18,13 +18,10 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.LineData;
-
-
 /**
  * Interface to handle Line shapes on OMERO.
  */
-public interface Line extends Shape<LineData> {
+public interface Line extends Shape {
 
     /** String to use arrows as markers */
     String ARROW = "Arrow";

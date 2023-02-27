@@ -18,12 +18,9 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.RectangleData;
-
-
 /**
  * Interface to handle Rectangle shapes on OMERO.
  */
-public interface Rectangle extends Shape<RectangleData>, Rectangular {
+public interface Rectangle extends Shape, Rectangular {
 
 }

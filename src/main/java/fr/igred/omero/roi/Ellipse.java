@@ -18,13 +18,10 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.EllipseData;
-
-
 /**
  * Interface to handle Ellipse shapes on OMERO.
  */
-public interface Ellipse extends Shape<EllipseData> {
+public interface Ellipse extends Shape {
 
     /**
      * Returns the x-coordinate of the center of the ellipse.

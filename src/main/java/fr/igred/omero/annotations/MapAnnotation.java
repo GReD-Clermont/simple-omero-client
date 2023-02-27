@@ -18,8 +18,6 @@
 package fr.igred.omero.annotations;
 
 
-import omero.gateway.model.MapAnnotationData;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +31,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Interface to handle Map Annotations on OMERO.
  */
-public interface MapAnnotation extends Annotation<MapAnnotationData> {
+public interface MapAnnotation extends Annotation {
 
     /**
      * Gets the List of Key-Value pairs contained in the map annotation.

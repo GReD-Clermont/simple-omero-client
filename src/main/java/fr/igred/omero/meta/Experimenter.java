@@ -27,7 +27,16 @@ import java.util.List;
 /**
  * Interface to handle Experimenters on OMERO.
  */
-public interface Experimenter extends RemoteObject<ExperimenterData> {
+public interface Experimenter extends RemoteObject {
+
+    /**
+     * Returns an ExperimenterData corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    ExperimenterData asDataObject();
+
 
     /**
      * Returns the first name of the experimenter.

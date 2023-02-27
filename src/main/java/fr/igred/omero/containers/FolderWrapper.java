@@ -132,7 +132,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends Annotation<?>> void link(DataManager dm, A annotation)
+    public <A extends Annotation> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asDataObject().asAnnotation());
@@ -333,7 +333,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     public void addROIs(DataManager dm, long imageId, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(RemoteObject::asDataObject)
+                                      .map(ROI::asDataObject)
                                       .collect(Collectors.toList());
         ROIFacility roiFac = dm.getRoiFacility();
         ExceptionHandler.of(roiFac,
@@ -427,7 +427,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     public void unlinkROIs(DataManager dm, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(RemoteObject::asDataObject)
+                                      .map(ROI::asDataObject)
                                       .collect(Collectors.toList());
         ExceptionHandler.ofConsumer(dm.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(dm.getCtx(),

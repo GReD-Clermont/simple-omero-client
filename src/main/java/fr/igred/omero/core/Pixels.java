@@ -23,7 +23,6 @@ import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.PixelsData;
 import omero.model.Length;
 import omero.model.Time;
 
@@ -34,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Pixels on OMERO.
  */
-public interface Pixels extends RemoteObject<PixelsData> {
+public interface Pixels extends RemoteObject {
 
     /**
      * Loads the planes information.

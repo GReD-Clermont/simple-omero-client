@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link AnnotationData}
  */
-public abstract class AnnotationWrapper<T extends AnnotationData> extends ObjectWrapper<T> implements Annotation<T> {
+public abstract class AnnotationWrapper<T extends AnnotationData> extends ObjectWrapper<T> implements Annotation {
 
 
     /**

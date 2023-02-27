@@ -18,13 +18,10 @@
 package fr.igred.omero.annotations;
 
 
-import omero.gateway.model.TextualAnnotationData;
-
-
 /**
  * Interface to handle Textual Annotations on OMERO.
  */
-public interface TextualAnnotation extends Annotation<TextualAnnotationData> {
+public interface TextualAnnotation extends Annotation {
 
 
     /**

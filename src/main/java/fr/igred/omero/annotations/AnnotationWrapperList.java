@@ -23,7 +23,7 @@ import omero.gateway.model.AnnotationData;
 
 
 /** ArrayList of Annotation Objects implementing the AnnotationList interface */
-public class AnnotationWrapperList extends WrapperList<AnnotationData, Annotation<?>> implements AnnotationList {
+public class AnnotationWrapperList extends WrapperList<AnnotationData, Annotation> implements AnnotationList {
 
 
     private static final long serialVersionUID = -7103737611318554645L;

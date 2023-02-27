@@ -54,10 +54,10 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIWrapper(Iterable<? extends Shape<?>> shapes) {
+    public ROIWrapper(Iterable<? extends Shape> shapes) {
         super(new ROIData());
 
-        for (Shape<?> shape : shapes) {
+        for (Shape shape : shapes) {
             data.addShapeData(shape.asDataObject());
         }
     }
@@ -128,7 +128,7 @@ public class ROIWrapper extends ObjectWrapper<ROIData> implements ROI {
      * @param shape Shape to add.
      */
     @Override
-    public void addShape(Shape<?> shape) {
+    public void addShape(Shape shape) {
         data.addShapeData(shape.asDataObject());
     }
 

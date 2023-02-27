@@ -277,8 +277,8 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> implements Ellipse
             double ry = getRadiusY();
             double ratio;
 
-            Shape<?> p1;
-            Shape<?> p2;
+            Shape p1;
+            Shape p2;
             if (ry <= rx) {
                 p1 = new PointWrapper(x - rx, y);
                 p2 = new PointWrapper(x + rx, y);

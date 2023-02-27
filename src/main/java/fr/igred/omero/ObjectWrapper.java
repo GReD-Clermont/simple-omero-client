@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class ObjectWrapper<T extends DataObject> implements RemoteObject<T> {
+public abstract class ObjectWrapper<T extends DataObject> implements RemoteObject {
 
     /** Wrapped object */
     protected T data;

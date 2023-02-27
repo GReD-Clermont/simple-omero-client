@@ -364,7 +364,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
         List<ROIData> roisData = rois.stream()
-                                     .map(RemoteObject::asDataObject)
+                                     .map(ROI::asDataObject)
                                      .collect(Collectors.toList());
         Collection<ROIData> results = ExceptionHandler.of(dm.getRoiFacility(),
                                                           rf -> rf.saveROIs(dm.getCtx(), data.getId(), roisData))

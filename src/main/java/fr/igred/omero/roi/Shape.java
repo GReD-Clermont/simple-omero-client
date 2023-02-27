@@ -39,10 +39,17 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Generic interface to handle Shape objects.
- *
- * @param <T> Subclass of {@link ShapeData}
  */
-public interface Shape<T extends ShapeData> extends Annotatable<T> {
+public interface Shape extends Annotatable {
+
+    /**
+     * Returns a ShapeData corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    ShapeData asDataObject();
+
 
     /**
      * Gets the channel.
@@ -249,7 +256,7 @@ public interface Shape<T extends ShapeData> extends Annotatable<T> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    default <A extends Annotation<?>> void link(DataManager dm, A annotation)
+    default <A extends Annotation> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         ShapeAnnotationLink link = new ShapeAnnotationLinkI();
         link.setChild(annotation.asDataObject().asAnnotation());
@@ -271,7 +278,7 @@ public interface Shape<T extends ShapeData> extends Annotatable<T> {
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    default <A extends Annotation<?>> void unlink(Client client, A annotation)
+    default <A extends Annotation> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         List<IObject> os = client.findByQuery("select link from ShapeAnnotationLink as link" +
                                               " where link.parent = " + getId() +

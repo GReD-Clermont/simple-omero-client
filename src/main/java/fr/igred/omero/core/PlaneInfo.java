@@ -22,7 +22,6 @@ import fr.igred.omero.RemoteObject;
 import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
-import omero.gateway.model.PlaneInfoData;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Time;
@@ -42,7 +41,7 @@ import static ome.formats.model.UnitsFactory.convertTime;
 /**
  * Interface to handle PlaneInfo on OMERO.
  */
-public interface PlaneInfo extends RemoteObject<PlaneInfoData> {
+public interface PlaneInfo extends RemoteObject {
 
     /**
      * Computes the mean time interval from the deltaT in a PlaneInfoWrapper collection.

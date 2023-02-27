@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Interface to handle Groups on OMERO.
  */
-public interface Group extends RemoteObject<GroupData> {
+public interface Group extends RemoteObject {
 
     /** Indicates that the group is {@code Private} i.e. RW----. */
     int PERMISSIONS_PRIVATE           = GroupData.PERMISSIONS_PRIVATE;

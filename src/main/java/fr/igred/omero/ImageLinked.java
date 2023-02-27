@@ -14,10 +14,8 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Interface to handle objects that can be linked to images (tags, containers, HCS, folders).
- *
- * @param <T> Subclass of {@link DataObject}
  */
-public interface ImageLinked<T extends DataObject> extends RemoteObject<T> {
+public interface ImageLinked extends RemoteObject {
 
 
     /**

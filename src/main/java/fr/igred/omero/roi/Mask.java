@@ -18,13 +18,10 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.MaskData;
-
-
 /**
  * Interface to handle Mask shapes on OMERO.
  */
-public interface Mask extends Shape<MaskData>, Rectangular {
+public interface Mask extends Shape, Rectangular {
 
     /**
      * Returns the mask image.

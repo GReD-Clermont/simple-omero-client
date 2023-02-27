@@ -27,7 +27,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Screens on OMERO.
  */
-public interface Screen extends RepositoryObject<ScreenData>, HCSLinked<ScreenData> {
+public interface Screen extends RepositoryObject, HCSLinked {
 
 
     /**

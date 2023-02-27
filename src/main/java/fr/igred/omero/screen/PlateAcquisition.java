@@ -26,7 +26,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.PlateAcquisitionData;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Plate Acquisitions on OMERO.
  */
-public interface PlateAcquisition extends RepositoryObject<PlateAcquisitionData>, HCSLinked<PlateAcquisitionData> {
+public interface PlateAcquisition extends RepositoryObject, HCSLinked {
 
 
     /**

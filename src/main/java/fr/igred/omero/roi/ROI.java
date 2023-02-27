@@ -54,7 +54,16 @@ import static java.util.stream.Collectors.groupingBy;
 /**
  * Interface to handle ROIs on OMERO.
  */
-public interface ROI extends Annotatable<ROIData> {
+public interface ROI extends Annotatable {
+
+    /**
+     * Returns a ROIData corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    ROIData asDataObject();
+
 
     /**
      * Default IJ property to store ROI local IDs / indices.
@@ -115,7 +124,7 @@ public interface ROI extends Annotatable<ROIData> {
      */
     static List<ROI> fromImageJ(List<? extends Roi> ijRois,
                                 Supplier<? extends ROI> constructor,
-                                Function<? super Roi, Iterable<? extends Shape<?>>> converter) {
+                                Function<? super Roi, Iterable<? extends Shape>> converter) {
         return fromImageJ(ijRois, IJ_PROPERTY, constructor, converter);
     }
 
@@ -134,7 +143,7 @@ public interface ROI extends Annotatable<ROIData> {
     static List<ROI> fromImageJ(List<? extends Roi> ijRois,
                                 String property,
                                 Supplier<? extends ROI> constructor,
-                                Function<? super Roi, Iterable<? extends Shape<?>>> converter) {
+                                Function<? super Roi, Iterable<? extends Shape>> converter) {
         property = checkProperty(property);
 
         Map<String, ROI>    rois4D = new TreeMap<>();
@@ -249,7 +258,7 @@ public interface ROI extends Annotatable<ROIData> {
      *
      * @param shapes List of Shapes.
      */
-    default void addShapes(Iterable<? extends Shape<?>> shapes) {
+    default void addShapes(Iterable<? extends Shape> shapes) {
         shapes.forEach(this::addShape);
     }
 
@@ -259,7 +268,7 @@ public interface ROI extends Annotatable<ROIData> {
      *
      * @param shape Shape to add.
      */
-    void addShape(Shape<?> shape);
+    void addShape(Shape shape);
 
 
     /**
@@ -318,7 +327,7 @@ public interface ROI extends Annotatable<ROIData> {
         int[] c = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] z = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] t = {Integer.MAX_VALUE, Integer.MIN_VALUE};
-        for (Shape<?> shape : getShapes()) {
+        for (Shape shape : getShapes()) {
             Rectangle box = shape.getBoundingBox();
             x[0] = Math.min(x[0], (int) box.getX());
             y[0] = Math.min(y[0], (int) box.getY());
@@ -358,14 +367,14 @@ public interface ROI extends Annotatable<ROIData> {
         property = checkProperty(property);
         ShapeList shapes = getShapes();
 
-        Map<String, List<Shape<?>>> sameSlice = shapes.stream()
-                                                      .collect(groupingBy(Shape::getCZT,
+        Map<String, List<Shape>> sameSlice = shapes.stream()
+                                                   .collect(groupingBy(Shape::getCZT,
                                                                           LinkedHashMap::new,
                                                                           Collectors.toList()));
         sameSlice.values().removeIf(List::isEmpty);
         List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
-        for (List<Shape<?>> slice : sameSlice.values()) {
-            Shape<?> shape = slice.iterator().next();
+        for (List<Shape> slice : sameSlice.values()) {
+            Shape shape = slice.iterator().next();
 
             ij.gui.Roi roi = shape.toImageJ();
             String     txt = shape.getText();
@@ -403,7 +412,7 @@ public interface ROI extends Annotatable<ROIData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    default <A extends Annotation<?>> void link(DataManager dm, A annotation)
+    default <A extends Annotation> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         RoiAnnotationLink link = new RoiAnnotationLinkI();
         link.setChild(annotation.asDataObject().asAnnotation());
@@ -426,7 +435,7 @@ public interface ROI extends Annotatable<ROIData> {
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    default <A extends Annotation<?>> void unlink(Client client, A annotation)
+    default <A extends Annotation> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         List<IObject> os = client.findByQuery("select link from RoiAnnotationLink as link" +
                                               " where link.parent = " + getId() +

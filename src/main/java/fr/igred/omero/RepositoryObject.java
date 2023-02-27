@@ -18,15 +18,10 @@
 package fr.igred.omero;
 
 
-import omero.gateway.model.DataObject;
-
-
 /**
  * Interface to handle Repository Objects on OMERO.
- *
- * @param <T> Subclass of {@link DataObject}
  */
-public interface RepositoryObject<T extends DataObject> extends Annotatable<T> {
+public interface RepositoryObject extends Annotatable {
 
     /**
      * Gets the object name.

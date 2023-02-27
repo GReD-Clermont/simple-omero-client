@@ -34,10 +34,17 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Interface to handle Annotations on OMERO.
- *
- * @param <T> Subclass of {@link AnnotationData}
  */
-public interface Annotation<T extends AnnotationData> extends ContainerLinked<T>, HCSLinked<T> {
+public interface Annotation extends ContainerLinked, HCSLinked {
+
+    /**
+     * Returns an AnnotationData corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    AnnotationData asDataObject();
+
 
     /**
      * Retrieves the {@link AnnotationData} namespace of the underlying {@link AnnotationData} instance.

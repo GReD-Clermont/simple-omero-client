@@ -27,7 +27,7 @@ import java.util.List;
 
 /** ArrayList of Remote Objects implementing the OMEROList interface */
 @SuppressWarnings("ClassExtendsConcreteCollection")
-public class WrapperList<T extends DataObject, U extends RemoteObject<? extends T>>
+public class WrapperList<T extends DataObject, U extends RemoteObject>
         extends ArrayList<U>
         implements OMEROList<T, U> {
 

@@ -35,10 +35,8 @@ import java.util.stream.Collectors;
 
 /**
  * Generic interface to handle OMERO objects.
- *
- * @param <T> Subclass of {@link DataObject}
  */
-public interface RemoteObject<T extends DataObject> {
+public interface RemoteObject {
 
     /**
      * Only keeps objects with different IDs in a collection.
@@ -48,7 +46,7 @@ public interface RemoteObject<T extends DataObject> {
      *
      * @return Distinct objects list, sorted by ID.
      */
-    static <U extends RemoteObject<?>> List<U> distinct(Collection<? extends U> objects) {
+    static <U extends RemoteObject> List<U> distinct(Collection<? extends U> objects) {
         return objects.stream()
                       .collect(Collectors.toMap(U::getId, o -> o, (o1, o2) -> o1))
                       .values()
@@ -66,7 +64,7 @@ public interface RemoteObject<T extends DataObject> {
      *
      * @return Distinct objects list, sorted by ID.
      */
-    static <U extends RemoteObject<?>> List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
+    static <U extends RemoteObject> List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
         return lists.stream()
                     .flatMap(Collection::stream)
                     .collect(Collectors.toMap(U::getId, o -> o, (o1, o2) -> o1))
@@ -80,9 +78,9 @@ public interface RemoteObject<T extends DataObject> {
     /**
      * Returns a DataObject (or a subclass) corresponding to the handled object.
      *
-     * @return An object of type {@link T}.
+     * @return See above.
      */
-    T asDataObject();
+    DataObject asDataObject();
 
 
     /**

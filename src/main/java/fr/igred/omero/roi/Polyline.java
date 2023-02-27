@@ -18,12 +18,9 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.PolylineData;
-
-
 /**
  * Interface to handle Polyline shapes on OMERO.
  */
-public interface Polyline extends Shape<PolylineData>, Polygonal {
+public interface Polyline extends Shape, Polygonal {
 
 }

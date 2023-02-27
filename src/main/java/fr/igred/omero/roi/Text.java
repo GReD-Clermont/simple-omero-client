@@ -18,12 +18,9 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.TextData;
-
-
 /**
  * Interface to handle Text shapes on OMERO.
  */
-public interface Text extends Shape<TextData>, Punctual {
+public interface Text extends Shape, Punctual {
 
 }

@@ -112,7 +112,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <U extends DataObject, V extends RemoteObject<U>, W extends Comparable<W>> List<V>
+    public static <U extends DataObject, V extends RemoteObject, W extends Comparable<W>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
         return objects.stream()
                       .map(mapper)
@@ -131,7 +131,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <U extends DataObject, V extends RemoteObject<U>> List<V>
+    public static <U extends DataObject, V extends RemoteObject> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
         return wrap(objects, mapper, RemoteObject::getId);
     }
@@ -146,7 +146,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends ShapeData, U extends Shape<? extends T>> U wrap(T object) {
+    public static <T extends ShapeData, U extends Shape> U wrap(T object) {
         U converted;
 
         if (object instanceof RectangleData) {
@@ -181,7 +181,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends AnnotationData, U extends Annotation<? extends T>> U wrap(T object) {
+    public static <T extends AnnotationData, U extends Annotation> U wrap(T object) {
         U converted;
 
         if (object instanceof FileAnnotationData) {
@@ -210,7 +210,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends Annotatable<? extends T>>
+    public static <T extends DataObject, U extends Annotatable>
     U wrapAnnotatableObject(T object) {
         U converted;
 
@@ -235,7 +235,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends RepositoryObject<? extends T>>
+    public static <T extends DataObject, U extends RepositoryObject>
     U wrapRepositoryObject(T object) {
         U converted;
 
@@ -271,7 +271,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends RemoteObject<? extends T>> U wrap(T object) {
+    public static <T extends DataObject, U extends RemoteObject> U wrap(T object) {
         U converted;
         if (object instanceof AnnotationData) {
             converted = (U) wrap((AnnotationData) object);

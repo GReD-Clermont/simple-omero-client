@@ -19,7 +19,6 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.RemoteObject;
-import omero.gateway.model.ChannelData;
 
 import java.awt.Color;
 
@@ -27,7 +26,7 @@ import java.awt.Color;
 /**
  * Interface to handle Channel information on OMERO.
  */
-public interface Channel extends RemoteObject<ChannelData> {
+public interface Channel extends RemoteObject {
 
     /**
      * Returns whether the channel contains all the RGBA values or not.

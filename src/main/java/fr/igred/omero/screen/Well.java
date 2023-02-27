@@ -35,7 +35,15 @@ import java.util.stream.Collectors;
 /**
  * Interface to handle Wells on OMERO.
  */
-public interface Well extends RepositoryObject<WellData>, HCSLinked<WellData> {
+public interface Well extends RepositoryObject, HCSLinked {
+
+    /**
+     * Returns a WellData corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    WellData asDataObject();
 
 
     /**

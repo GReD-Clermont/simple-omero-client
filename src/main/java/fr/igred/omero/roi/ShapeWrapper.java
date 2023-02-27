@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  *
  * @param <T> Subclass of {@link ShapeData}
  */
-public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T> implements Shape<T> {
+public abstract class ShapeWrapper<T extends ShapeData> extends ObjectWrapper<T> implements Shape {
 
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 

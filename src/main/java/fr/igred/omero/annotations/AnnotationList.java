@@ -23,6 +23,6 @@ import omero.gateway.model.AnnotationData;
 
 
 /** List of Annotation objects */
-public interface AnnotationList extends OMEROList<AnnotationData, Annotation<?>> {
+public interface AnnotationList extends OMEROList<AnnotationData, Annotation> {
 
 }

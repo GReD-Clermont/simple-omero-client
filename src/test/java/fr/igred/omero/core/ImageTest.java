@@ -38,9 +38,7 @@ import ij.plugin.ImageCalculator;
 import ij.process.ImageStatistics;
 import loci.plugins.BF;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
-import omero.gateway.model.EllipseData;
 import omero.gateway.model.MapAnnotationData;
-import omero.gateway.model.RectangleData;
 import omero.model.NamedValue;
 import org.junit.jupiter.api.Test;
 
@@ -438,7 +436,7 @@ class ImageTest extends UserTest {
     void testAddTagIdToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        RemoteObject<?> tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        RemoteObject tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
 
         image.addTag(client, tag.getId());
 
@@ -455,10 +453,10 @@ class ImageTest extends UserTest {
     void testAddTagsToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
-        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
-        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
+        RemoteObject tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        RemoteObject tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        RemoteObject tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        RemoteObject tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = image.getTags(client);
@@ -643,10 +641,10 @@ class ImageTest extends UserTest {
     void testGetCropFromROI() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        Shape<RectangleData> rectangle = new RectangleWrapper(30, 30, 20, 20);
+        Shape rectangle = new RectangleWrapper(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        Shape<EllipseData> ellipse = new EllipseWrapper(50, 50, 20, 40);
+        Shape ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
         int[] xBounds = {30, 69};

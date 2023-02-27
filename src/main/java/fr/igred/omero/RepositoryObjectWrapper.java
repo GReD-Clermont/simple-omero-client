@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class RepositoryObjectWrapper<T extends DataObject> extends ObjectWrapper<T> implements RepositoryObject<T> {
+public abstract class RepositoryObjectWrapper<T extends DataObject> extends ObjectWrapper<T> implements RepositoryObject {
 
     /**
      * Constructor of the class RepositoryObjectWrapper.
@@ -195,7 +195,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Obje
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    public <A extends Annotation<?>> void unlink(Client client, A annotation)
+    public <A extends Annotation> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         removeLink(client, annotationLinkType(), annotation.getId());
     }

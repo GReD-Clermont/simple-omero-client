@@ -29,7 +29,6 @@ import fr.igred.omero.containers.Project;
 import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.screen.Screen;
 import fr.igred.omero.screen.Well;
-import omero.gateway.model.ProjectData;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -89,7 +88,7 @@ class ClientTest extends UserTest {
     void testCreateAndDeleteProject() throws Exception {
         String name = "Foo project";
 
-        RemoteObject<ProjectData> project = new ProjectWrapper(client, name, "");
+        RemoteObject project = new ProjectWrapper(client, name, "");
 
         long newId = project.getId();
         assertEquals(name, client.getProject(newId).getName());

@@ -27,13 +27,6 @@ import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
-import omero.gateway.model.EllipseData;
-import omero.gateway.model.LineData;
-import omero.gateway.model.PointData;
-import omero.gateway.model.PolygonData;
-import omero.gateway.model.PolylineData;
-import omero.gateway.model.RectangleData;
-import omero.gateway.model.TextData;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -132,16 +125,16 @@ class ROI2ImageJTest extends BasicTest {
         AffineTransform transform = new AffineTransform();
         transform.rotate(Math.PI / 4);
 
-        Shape<PointData> point = new PointWrapper(1, 1);
+        Shape point = new PointWrapper(1, 1);
         point.setCZT(0, 0, 0);
 
-        Shape<TextData> text = new TextWrapper("Text", 2, 2);
+        Shape text = new TextWrapper("Text", 2, 2);
         text.setCZT(0, 0, 1);
 
-        Shape<RectangleData> rectangle = new RectangleWrapper(3, 3, 10, 10);
+        Shape rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
-        Shape<RectangleData> rectangle2 = new RectangleWrapper(3, 3, 10, 10);
+        Shape rectangle2 = new RectangleWrapper(3, 3, 10, 10);
         rectangle2.setCZT(0, 0, 2);
         rectangle.setTransform(transform);
 
@@ -150,10 +143,10 @@ class ROI2ImageJTest extends BasicTest {
         mask.setCZT(1, 0, 0);
         mask.setTransform(transform);
 
-        Shape<EllipseData> ellipse = new EllipseWrapper(5, 5, 4, 4);
+        Shape ellipse = new EllipseWrapper(5, 5, 4, 4);
         ellipse.setCZT(1, 0, 1);
 
-        Shape<EllipseData> ellipse2 = new EllipseWrapper(5, 5, 4, 4);
+        Shape ellipse2 = new EllipseWrapper(5, 5, 4, 4);
         ellipse2.setCZT(1, 0, 2);
         ellipse2.setTransform(transform);
 
@@ -161,7 +154,7 @@ class ROI2ImageJTest extends BasicTest {
         line.setCZT(1, 0, 3);
         line.asDataObject().getShapeSettings().setMarkerStart(fr.igred.omero.roi.Line.ARROW);
 
-        Shape<LineData> line2 = new LineWrapper(0, 0, 10, 10);
+        Shape line2 = new LineWrapper(0, 0, 10, 10);
         line2.setCZT(1, 0, 4);
         line2.setTransform(transform);
 
@@ -179,10 +172,10 @@ class ROI2ImageJTest extends BasicTest {
         points2D.add(p2);
         points2D.add(p3);
 
-        Shape<PolylineData> polyline = new PolylineWrapper(points2D);
+        Shape polyline = new PolylineWrapper(points2D);
         polyline.setCZT(1, 1, 0);
 
-        Shape<PolygonData> polygon = new PolygonWrapper(points2D);
+        Shape polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
         ROI roiWrapper1 = new ROIWrapper();

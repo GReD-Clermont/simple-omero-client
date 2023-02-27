@@ -26,7 +26,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
-import omero.gateway.model.PlateData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * Interface to handle Plates on OMERO.
  */
-public interface Plate extends RepositoryObject<PlateData>, HCSLinked<PlateData> {
+public interface Plate extends RepositoryObject, HCSLinked {
 
 
     /**

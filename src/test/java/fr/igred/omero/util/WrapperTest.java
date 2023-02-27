@@ -141,7 +141,7 @@ class WrapperTest extends BasicTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("classes")
-    <T extends DataObject, U extends RemoteObject<? extends T>> void testWrap(Class<T> input, Class<U> output)
+    <T extends DataObject, U extends RemoteObject> void testWrap(Class<T> input, Class<U> output)
     throws Exception {
         T object = input.getConstructor().newInstance();
         U result = Wrapper.wrap(object);
@@ -200,7 +200,7 @@ class WrapperTest extends BasicTest {
 
     @Test
     void testAddWrongAnnotationDataToAnnotationList() {
-        OMEROList<AnnotationData, Annotation<?>> annotations = new AnnotationWrapperList();
+        OMEROList<AnnotationData, Annotation> annotations = new AnnotationWrapperList();
 
         boolean added = annotations.add(new WrongAnnotationData());
         assertFalse(added);

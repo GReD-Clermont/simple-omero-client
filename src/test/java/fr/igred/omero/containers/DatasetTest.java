@@ -23,7 +23,6 @@ import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.core.Image;
-import omero.gateway.model.TagAnnotationData;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -160,7 +159,7 @@ class DatasetTest extends UserTest {
     void testAddTagIdToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        RemoteObject<TagAnnotationData>
+        RemoteObject
                 tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         long tagId = tag.getId();
@@ -176,10 +175,10 @@ class DatasetTest extends UserTest {
     void testAddTagsToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 

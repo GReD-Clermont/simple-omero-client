@@ -134,7 +134,7 @@ class ProjectTest extends UserTest {
     void testAddTagIdToProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        RemoteObject<?> tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        RemoteObject tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.addTag(client, tag.getId());
         List<TagAnnotation> tags = project.getTags(client);
@@ -150,10 +150,10 @@ class ProjectTest extends UserTest {
     void testAddTagsToProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        RemoteObject<?> tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
-        RemoteObject<?> tag2 = new TagAnnotationWrapper(client, "Project tag 2", "tag attached to a project");
-        RemoteObject<?> tag3 = new TagAnnotationWrapper(client, "Project tag 3", "tag attached to a project");
-        RemoteObject<?> tag4 = new TagAnnotationWrapper(client, "Project tag 4", "tag attached to a project");
+        RemoteObject tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
+        RemoteObject tag2 = new TagAnnotationWrapper(client, "Project tag 2", "tag attached to a project");
+        RemoteObject tag3 = new TagAnnotationWrapper(client, "Project tag 3", "tag attached to a project");
+        RemoteObject tag4 = new TagAnnotationWrapper(client, "Project tag 4", "tag attached to a project");
 
         project.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = project.getTags(client);
@@ -312,8 +312,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testCopyAnnotations() throws Exception {
-        Project        project1 = client.getProject(PROJECT1.id);
-        Annotatable<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
+        Project     project1 = client.getProject(PROJECT1.id);
+        Annotatable project2 = new ProjectWrapper(client, "CopyTest", "Copy annotations");
 
         File file = createRandomFile("test_project.txt");
 
@@ -357,8 +357,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testCopyFileAnnotation() throws Exception {
-        Project        project1 = client.getProject(PROJECT1.id);
-        Annotatable<?> project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
+        Project     project1 = client.getProject(PROJECT1.id);
+        Annotatable project2 = new ProjectWrapper(client, "CopyTest", "Copy file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -383,8 +383,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndUnlinkFile() throws Exception {
-        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        Annotatable<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        Annotatable project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -406,8 +406,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteFile() throws Exception {
-        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        Annotatable<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        Annotatable project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -428,8 +428,8 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile1() throws Exception {
-        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
-        Annotatable<?> project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
+        Annotatable project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable project2 = new ProjectWrapper(client, "ReplaceTest2", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 
@@ -451,7 +451,7 @@ class ProjectTest extends UserTest {
 
     @Test
     void testReplaceAndDeleteOrphanedFile2() throws Exception {
-        Annotatable<?> project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
+        Annotatable project1 = new ProjectWrapper(client, "ReplaceTest1", "Replace file annotation");
 
         File file = createRandomFile("test_project.txt");
 

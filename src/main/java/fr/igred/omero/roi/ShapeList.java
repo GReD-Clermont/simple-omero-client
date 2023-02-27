@@ -23,6 +23,6 @@ import omero.gateway.model.ShapeData;
 
 
 /** List of Shape objects */
-public interface ShapeList extends OMEROList<ShapeData, Shape<?>> {
+public interface ShapeList extends OMEROList<ShapeData, Shape> {
 
 }

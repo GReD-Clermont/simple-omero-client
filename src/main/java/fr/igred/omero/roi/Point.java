@@ -18,12 +18,9 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.PointData;
-
-
 /**
  * Interface to handle Point shapes on OMERO.
  */
-public interface Point extends Shape<PointData>, Punctual {
+public interface Point extends Shape, Punctual {
 
 }

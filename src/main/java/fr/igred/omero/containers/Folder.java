@@ -36,7 +36,16 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Folders on OMERO.
  */
-public interface Folder extends RepositoryObject<FolderData>, ImageLinked<FolderData> {
+public interface Folder extends RepositoryObject, ImageLinked {
+
+    /**
+     * Returns a DataObject (or a subclass) corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    FolderData asDataObject();
+
 
     /**
      * Sets the name of the folder.

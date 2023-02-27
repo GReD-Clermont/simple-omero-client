@@ -253,8 +253,8 @@ public class MaskWrapper extends ShapeWrapper<MaskData> implements Mask {
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            Shape<?> p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            Shape<?> p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 

@@ -60,7 +60,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Images on OMERO.
  */
-public interface Image extends RepositoryObject<ImageData>, ContainerLinked<ImageData>, HCSLinked<ImageData> {
+public interface Image extends RepositoryObject, ContainerLinked, HCSLinked {
 
     /**
      * Sets the name of the image.
@@ -491,5 +491,14 @@ public interface Image extends RepositoryObject<ImageData>, ContainerLinked<Imag
      */
     List<File> download(Client client, String path)
     throws ServerException, ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Returns an ImageData corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    ImageData asDataObject();
 
 }

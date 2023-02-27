@@ -28,7 +28,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
-import omero.gateway.model.DatasetData;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -40,7 +39,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Datasets on OMERO.
  */
-public interface Dataset extends RepositoryObject<DatasetData>, ContainerLinked<DatasetData> {
+public interface Dataset extends RepositoryObject, ContainerLinked {
 
     /**
      * Sets the name of the dataset.

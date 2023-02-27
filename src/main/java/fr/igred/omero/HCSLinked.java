@@ -9,7 +9,6 @@ import fr.igred.omero.screen.Plate;
 import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.Screen;
 import fr.igred.omero.screen.Well;
-import omero.gateway.model.DataObject;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -17,10 +16,8 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Interface to handle objects that can be linked to HCS objects (screens, plates, wells) on OMERO.
- *
- * @param <T> Subclass of {@link DataObject}
  */
-public interface HCSLinked<T extends DataObject> extends ImageLinked<T> {
+public interface HCSLinked extends ImageLinked {
 
 
     /**

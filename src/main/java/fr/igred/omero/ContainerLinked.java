@@ -7,7 +7,6 @@ import fr.igred.omero.containers.Project;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.DataObject;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -15,10 +14,8 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Interface to handle objects that can be linked to containers (projects, datasets) on OMERO.
- *
- * @param <T> Subclass of {@link DataObject}
  */
-public interface ContainerLinked<T extends DataObject> extends ImageLinked<T> {
+public interface ContainerLinked extends ImageLinked {
 
 
     /**

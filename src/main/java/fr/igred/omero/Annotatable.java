@@ -69,10 +69,8 @@ import static fr.igred.omero.util.Wrapper.wrap;
 
 /**
  * Interface to handle Annotatable Objects on OMERO.
- *
- * @param <T> Subclass of {@link DataObject}
  */
-public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
+public interface Annotatable extends RemoteObject {
 
 
     /**
@@ -88,7 +86,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default <A extends Annotation<?>> boolean isLinked(Browser browser, A annotation)
+    default <A extends Annotation> boolean isLinked(Browser browser, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         return getAnnotationData(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
@@ -105,7 +103,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default <A extends Annotation<?>> void link(DataManager dm, A annotation)
+    default <A extends Annotation> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
         ExceptionHandler.of(dm.getDataManagerFacility(),
@@ -125,9 +123,9 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void link(DataManager dm, Annotation<?>... annotations)
+    default void link(DataManager dm, Annotation... annotations)
     throws ServiceException, AccessException, ExecutionException {
-        for (Annotation<?> annotation : annotations) {
+        for (Annotation annotation : annotations) {
             link(dm, annotation);
         }
     }
@@ -143,14 +141,14 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void linkIfNotLinked(Client client, Annotation<?>... annotations)
+    default void linkIfNotLinked(Client client, Annotation... annotations)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> annotationIds = getAnnotationData(client).stream()
                                                             .map(DataObject::getId)
                                                             .collect(Collectors.toList());
         link(client, Arrays.stream(annotations)
                            .filter(a -> !annotationIds.contains(a.getId()))
-                           .toArray(Annotation<?>[]::new));
+                           .toArray(Annotation[]::new));
     }
 
 
@@ -705,7 +703,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    <A extends Annotation<?>> void unlink(Client client, A annotation)
+    <A extends Annotation> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
@@ -758,7 +756,7 @@ public interface Annotatable<T extends DataObject> extends RemoteObject<T> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void copyAnnotationLinks(Client client, Annotatable<?> object)
+    default void copyAnnotationLinks(Client client, Annotatable object)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> newAnnotations = object.getAnnotationData(client);
         List<AnnotationData> oldAnnotations = this.getAnnotationData(client);

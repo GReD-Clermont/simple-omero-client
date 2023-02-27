@@ -174,9 +174,9 @@ public interface DataManager {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    default void delete(Collection<? extends RemoteObject<?>> objects)
+    default void delete(Collection<? extends RemoteObject> objects)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        for (RemoteObject<?> object : objects) {
+        for (RemoteObject object : objects) {
             if (object instanceof Folder) {
                 ((Folder) object).unlinkAllROIs(this);
             }
@@ -199,7 +199,7 @@ public interface DataManager {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    default void delete(RemoteObject<?> object)
+    default void delete(RemoteObject object)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         if (object instanceof Folder) {
             ((Folder) object).unlinkAllROIs(this);

@@ -22,7 +22,6 @@ import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
-import omero.gateway.model.FileAnnotationData;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +30,7 @@ import java.io.IOException;
 /**
  * Interface to handle File Annotations on OMERO.
  */
-public interface FileAnnotation extends Annotation<FileAnnotationData> {
+public interface FileAnnotation extends Annotation {
 
     /**
      * Returns the format of the original file.

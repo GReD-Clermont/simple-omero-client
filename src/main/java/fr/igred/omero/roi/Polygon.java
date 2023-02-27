@@ -18,15 +18,13 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.PolygonData;
-
 import java.util.List;
 
 
 /**
  * Interface to handle Polygon shapes on OMERO.
  */
-public interface Polygon extends Shape<PolygonData>, Polygonal {
+public interface Polygon extends Shape, Polygonal {
 
     /**
      * Returns the points in the polygon.

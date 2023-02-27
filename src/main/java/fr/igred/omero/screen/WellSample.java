@@ -25,7 +25,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
-import omero.gateway.model.WellSampleData;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
@@ -37,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Well Samples on OMERO.
  */
-public interface WellSample extends HCSLinked<WellSampleData> {
+public interface WellSample extends HCSLinked {
 
     /**
      * Retrieves the well containing this well sample

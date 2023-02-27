@@ -18,13 +18,10 @@
 package fr.igred.omero.annotations;
 
 
-import omero.gateway.model.TagAnnotationData;
-
-
 /**
  * Interface to handle Tag Annotations on OMERO.
  */
-public interface TagAnnotation extends Annotation<TagAnnotationData> {
+public interface TagAnnotation extends Annotation {
 
     /**
      * Gets the name of the tag.

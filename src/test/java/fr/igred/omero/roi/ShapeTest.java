@@ -23,8 +23,6 @@ import omero.gateway.model.EllipseData;
 import omero.gateway.model.LineData;
 import omero.gateway.model.MaskData;
 import omero.gateway.model.PointData;
-import omero.gateway.model.PolygonData;
-import omero.gateway.model.PolylineData;
 import omero.gateway.model.RectangleData;
 import omero.gateway.model.TextData;
 import org.junit.jupiter.api.Test;
@@ -467,7 +465,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testAWTRectangle() {
-        Shape<RectangleData> shape     = new RectangleWrapper(25, 26, 27, 28);
+        Shape shape     = new RectangleWrapper(25, 26, 27, 28);
         Rectangle2D          awtShape  = new Rectangle2D.Double(25, 26, 27, 28);
         java.awt.Shape       awtShape2 = shape.toAWTShape();
         assertEquals(awtShape, awtShape2);
@@ -480,7 +478,7 @@ class ShapeTest extends BasicTest {
         for (int i = 0; i < maskValues.length; i++) {
             maskValues[i] = (byte) (i >= maskValues.length / 2 ? 1 : 0);
         }
-        Shape<MaskData> shape    = new MaskWrapper(25, 26, 27, 28, maskValues);
+        Shape shape    = new MaskWrapper(25, 26, 27, 28, maskValues);
         Rectangle2D     awtShape = new Rectangle2D.Double(25, 26, 27, 28);
 
         java.awt.Shape awtShape2 = shape.toAWTShape();
@@ -490,7 +488,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testAWTEllipse() {
-        Shape<EllipseData> shape     = new EllipseWrapper(28, 27, 26, 25);
+        Shape shape     = new EllipseWrapper(28, 27, 26, 25);
         Ellipse2D          awtShape  = new Ellipse2D.Double(2, 2, 52, 50);
         java.awt.Shape     awtShape2 = shape.toAWTShape();
         assertEquals(awtShape, awtShape2);
@@ -518,7 +516,7 @@ class ShapeTest extends BasicTest {
         points.add(p2);
         points.add(p3);
 
-        Shape<PolygonData> shape = new PolygonWrapper(points);
+        Shape shape = new PolygonWrapper(points);
 
         Path2D awtShape = new Path2D.Double();
         awtShape.moveTo(p1.x, p1.y);
@@ -554,7 +552,7 @@ class ShapeTest extends BasicTest {
         points.add(p2);
         points.add(p3);
 
-        Shape<PolylineData> shape = new PolylineWrapper(points);
+        Shape shape = new PolylineWrapper(points);
 
         Path2D awtShape = new Path2D.Double();
         awtShape.moveTo(p1.x, p1.y);
@@ -581,7 +579,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testAWTPoint() {
-        Shape<PointData> shape = new PointWrapper(1, 2);
+        Shape shape = new PointWrapper(1, 2);
 
         Path2D awtShape = new Path2D.Double();
         awtShape.moveTo(1, 2);
@@ -605,7 +603,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testAWTText() {
-        Shape<TextData> shape = new TextWrapper("Text", 1, 2);
+        Shape shape = new TextWrapper("Text", 1, 2);
 
         Path2D awtShape = new Path2D.Double();
         awtShape.moveTo(1, 2);
@@ -629,7 +627,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testAffineTransform() {
-        Shape<RectangleData> shape = new RectangleWrapper(1, 2, 3, 4);
+        Shape shape = new RectangleWrapper(1, 2, 3, 4);
         shape.setTransform(1, 2, 3, 4, 5, 6);
 
         AffineTransform transform = new AffineTransform(1, 2, 3, 4, 5, 6);
@@ -639,7 +637,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testNoAffineTransform() {
-        Shape<RectangleData> shape = new RectangleWrapper(1, 2, 3, 4);
+        Shape shape = new RectangleWrapper(1, 2, 3, 4);
 
         java.awt.Shape awtShape = new Rectangle2D.Double(1, 2, 3, 4);
         assertEquals(awtShape, shape.createTransformedAWTShape());
@@ -648,7 +646,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testBoundingBox() {
-        Shape<RectangleData> shape = new RectangleWrapper(1, 2, 3, 4);
+        Shape shape = new RectangleWrapper(1, 2, 3, 4);
         Rectangular          box   = new RectangleWrapper(-6, 1, 4, 3);
 
         AffineTransform transform = new AffineTransform();
@@ -668,7 +666,7 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testBoundingBox2() {
-        Shape<EllipseData> shape = new EllipseWrapper(50, 50, 20, 40);
+        Shape shape = new EllipseWrapper(50, 50, 20, 40);
         Rectangular        box   = new RectangleWrapper(30, 10, 40, 80);
 
         double[] coordinates1 = box.getCoordinates();

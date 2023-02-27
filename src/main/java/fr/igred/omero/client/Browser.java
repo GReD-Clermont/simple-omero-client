@@ -476,7 +476,7 @@ public interface Browser {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Annotation<?> annotation)
+    default List<Image> getImages(Annotation annotation)
     throws ServiceException, AccessException, ServerException, ExecutionException {
         return annotation.getImages(this);
     }

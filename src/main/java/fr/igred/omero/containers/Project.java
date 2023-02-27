@@ -27,7 +27,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.ProjectData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +40,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Projects on OMERO.
  */
-public interface Project extends RepositoryObject<ProjectData>, ContainerLinked<ProjectData> {
+public interface Project extends RepositoryObject, ContainerLinked {
 
     /**
      * Sets the name of the project.

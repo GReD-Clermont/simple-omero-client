@@ -24,7 +24,7 @@ import omero.gateway.model.RatingAnnotationData;
 /**
  * Interface to handle Rating Annotations on OMERO.
  */
-public interface RatingAnnotation extends Annotation<RatingAnnotationData> {
+public interface RatingAnnotation extends Annotation {
 
     /** Indicates the object is not rated. */
     int LEVEL_ZERO = RatingAnnotationData.LEVEL_ZERO;

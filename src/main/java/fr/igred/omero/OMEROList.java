@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 
 /** Generic list of Remote Objects */
-public interface OMEROList<T extends DataObject, U extends RemoteObject<? extends T>> extends List<U> {
+public interface OMEROList<T extends DataObject, U extends RemoteObject> extends List<U> {
 
 
     /**
