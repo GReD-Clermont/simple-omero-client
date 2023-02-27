@@ -18,33 +18,22 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
-import ome.formats.OMEROMetadataStoreClient;
-import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.facility.AdminFacility;
-import omero.gateway.facility.BrowseFacility;
-import omero.gateway.facility.DataManagerFacility;
-import omero.gateway.facility.MetadataFacility;
-import omero.gateway.facility.ROIFacility;
-import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.ExperimenterData;
 import omero.log.SimpleLogger;
 
-import java.util.concurrent.ExecutionException;
-
 
 /**
- * Basic class, contains the gateway, the security context, and multiple facilities.
- * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
+ * <p>
+ * Contains the gateway, the security context, and the current user.
  */
-public abstract class GatewayWrapper implements AdminManager,Browser,ConnectionHandler,DataManager {
+public class GatewayWrapper implements Client {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
     private Gateway gateway;
@@ -57,12 +46,12 @@ public abstract class GatewayWrapper implements AdminManager,Browser,ConnectionH
 
 
     /**
-     * Abstract constructor of the GatewayWrapper class.
+     * Constructor of the GatewayWrapper class.
      * <p> Null arguments will be replaced with default empty objects.
      *
-     * @param gateway The Gateway.
-     * @param ctx     The Security Context.
-     * @param user    The connected user.
+     * @param gateway The {@link Gateway}.
+     * @param ctx     The security context.
+     * @param user    The user.
      */
     protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
@@ -107,22 +96,22 @@ public abstract class GatewayWrapper implements AdminManager,Browser,ConnectionH
     /**
      * Connects the user to OMERO. Gets the SecurityContext and the BrowseFacility.
      *
-     * @param cred User credential.
+     * @param credentials User credentials.
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Override
-    public void connect(LoginCredentials cred) throws ServiceException {
+    public void connect(LoginCredentials credentials) throws ServiceException {
         disconnect();
 
         try {
-            this.user = new ExperimenterWrapper(gateway.connect(cred));
+            this.user = new ExperimenterWrapper(gateway.connect(credentials));
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
         this.ctx = new SecurityContext(user.getGroupId());
         this.ctx.setExperimenter(this.user.asDataObject());
-        this.ctx.setServerInformation(cred.getServer());
+        this.ctx.setServerInformation(credentials.getServer());
     }
 
 
@@ -156,116 +145,6 @@ public abstract class GatewayWrapper implements AdminManager,Browser,ConnectionH
         ctx = new SecurityContext(groupId);
         ctx.setExperimenter(user.asDataObject());
         if (sudo) ctx.sudo();
-    }
-
-
-    /**
-     * Gets the {@link BrowseFacility} used to access the data from OMERO.
-     *
-     * @return See above.
-     *
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public BrowseFacility getBrowseFacility() throws ExecutionException {
-        return gateway.getFacility(BrowseFacility.class);
-    }
-
-
-    /**
-     * Returns the {@link IQueryPrx} used to find objects on OMERO.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    @Override
-    public IQueryPrx getQueryService() throws ServiceException {
-        return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx))
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
-                                        "Could not retrieve Query Service")
-                               .get();
-    }
-
-
-    /**
-     * Gets the {@link MetadataFacility} used to retrieve annotations from OMERO.
-     *
-     * @return See above.
-     *
-     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
-     */
-    @Override
-    public MetadataFacility getMetadata() throws ExecutionException {
-        return gateway.getFacility(MetadataFacility.class);
-    }
-
-
-    /**
-     * Gets the {@link DataManagerFacility} to handle/write data on OMERO. A
-     *
-     * @return See above.
-     *
-     * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
-     */
-    @Override
-    public DataManagerFacility getDm() throws ExecutionException {
-        return gateway.getFacility(DataManagerFacility.class);
-    }
-
-
-    /**
-     * Gets the {@link ROIFacility} used to manipulate ROIs from OMERO.
-     *
-     * @return See above.
-     *
-     * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
-     */
-    @Override
-    public ROIFacility getRoiFacility() throws ExecutionException {
-        return gateway.getFacility(ROIFacility.class);
-    }
-
-
-    /**
-     * Gets the {@link TablesFacility} used to manipulate tables on OMERO.
-     *
-     * @return See above.
-     *
-     * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
-     */
-    @Override
-    public TablesFacility getTablesFacility() throws ExecutionException {
-        return gateway.getFacility(TablesFacility.class);
-    }
-
-
-    /**
-     * Gets the {@link AdminFacility} to use admin specific function.
-     *
-     * @return See above.
-     *
-     * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
-     */
-    @Override
-    public AdminFacility getAdminFacility() throws ExecutionException {
-        return gateway.getFacility(AdminFacility.class);
-    }
-
-
-    /**
-     * Creates or recycles the import store.
-     *
-     * @return config.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    @Override
-    public OMEROMetadataStoreClient getImportStore() throws ServiceException {
-        return ExceptionHandler.of(gateway, g -> g.getImportStore(ctx))
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
-                                        "Could not retrieve import store")
-                               .get();
     }
 
 
