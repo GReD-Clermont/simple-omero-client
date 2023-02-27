@@ -43,7 +43,8 @@ public interface RemoteObject {
      *
      * @param clazz      Class of the wanted elements.
      * @param collection The collection of RemoteObjects
-     * @param <V>        Subclass of RemoteObject.
+     * @param <U>        Subclass of RemoteObject.
+     * @param <V>        Subclass of U.
      *
      * @return See above.
      */

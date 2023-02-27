@@ -104,7 +104,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
 
 
     /**
-     * Gets the project description
+     * Gets the project description.
      *
      * @return See above.
      */

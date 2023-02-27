@@ -479,6 +479,7 @@ public class TableWrapper implements Table {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
@@ -532,6 +533,7 @@ public class TableWrapper implements Table {
      *
      * @return the {@link TableDataColumn} which contains information on each column of the table.
      */
+    @Override
     public TableDataColumn[] getColumns() {
         return columns.clone();
     }
@@ -542,6 +544,7 @@ public class TableWrapper implements Table {
      *
      * @return the value contained in the table.
      */
+    @Override
     public Object[][] getData() {
         return data.clone();
     }
@@ -555,6 +558,7 @@ public class TableWrapper implements Table {
      *
      * @return the value at position data[y][x].
      */
+    @Override
     public Object getData(int x, int y) {
         return data[y][x];
     }
@@ -565,6 +569,7 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public Long getFileId() {
         return fileId;
     }
@@ -575,6 +580,7 @@ public class TableWrapper implements Table {
      *
      * @param fileId New fileId.
      */
+    @Override
     public void setFileId(Long fileId) {
         this.fileId = fileId;
     }
@@ -585,16 +591,18 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public Long getId() {
         return id;
     }
 
 
     /**
-     * Sets the id of the table.
+     * Sets the ID of the table.
      *
      * @param id New id.
      */
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -605,6 +613,7 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -615,6 +624,7 @@ public class TableWrapper implements Table {
      *
      * @param name New name.
      */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -625,6 +635,7 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public int getColumnCount() {
         return columnCount;
     }
@@ -637,6 +648,7 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public String getColumnName(int column) {
         return columns[column].getName();
     }
@@ -649,6 +661,7 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public Class<?> getColumnType(int column) {
         return columns[column].getType();
     }
@@ -659,6 +672,7 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public int getRowCount() {
         return rowCount;
     }
@@ -669,6 +683,7 @@ public class TableWrapper implements Table {
      *
      * @param rowCount New rowCount.
      */
+    @Override
     public void setRowCount(int rowCount) {
         if (rowCount != this.rowCount) {
             Object[][] temp = new Object[columnCount][rowCount];
@@ -688,6 +703,7 @@ public class TableWrapper implements Table {
      *
      * @return true if the table is completed, false if some rows are still empty.
      */
+    @Override
     public boolean isComplete() {
         return row == rowCount;
     }
@@ -702,6 +718,7 @@ public class TableWrapper implements Table {
      *
      * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
      */
+    @Override
     public void setColumn(int column, String columnName, Class<?> type) {
         createColumn(column, columnName, type);
     }
@@ -715,6 +732,7 @@ public class TableWrapper implements Table {
      * @throws IndexOutOfBoundsException Table is not initialized or already full.
      * @throws IllegalArgumentException  Incorrect argument number.
      */
+    @Override
     public void addRow(Object... os) {
         if (row < rowCount && os.length == columnCount) {
             for (int i = 0; i < os.length; i++) {
@@ -737,6 +755,7 @@ public class TableWrapper implements Table {
     /**
      * Deletes all unused row in the table
      */
+    @Override
     public void truncateRow() {
         setRowCount(row);
     }
@@ -747,6 +766,7 @@ public class TableWrapper implements Table {
      *
      * @return See above.
      */
+    @Override
     public TableData createTable() {
         if (!isComplete()) truncateRow();
 
@@ -763,6 +783,7 @@ public class TableWrapper implements Table {
      * @throws FileNotFoundException        The requested file cannot be written.
      * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
      */
+    @Override
     public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);
