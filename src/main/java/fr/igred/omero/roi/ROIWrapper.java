@@ -20,11 +20,8 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.util.Bounds;
@@ -370,17 +367,14 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     /**
      * Saves the ROI.
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void saveROI(ConnectionHandler client) throws ServerException, ServiceException {
-        Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
-                                            g -> g.getUpdateService(client.getCtx())
-                                                  .saveAndReturnObject(data.asIObject()))
-                                        .handleServiceOrServer("Cannot save ROI")
-                                        .get();
+    public void saveROI(DataManager dm) throws ServiceException, AccessException, ExecutionException {
+        Roi roi = (Roi) dm.save(data.asIObject());
         data = new ROIData(roi);
     }
 

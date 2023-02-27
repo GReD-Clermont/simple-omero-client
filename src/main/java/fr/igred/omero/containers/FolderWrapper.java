@@ -22,12 +22,10 @@ import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.AnnotationWrapper;
-import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.gateway.facility.ROIFacility;
@@ -88,20 +86,18 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Constructor of the FolderWrapper class. Save the folder in OMERO
      *
-     * @param client The client handling the connection.
-     * @param name   Name of the folder.
+     * @param dm   The data manager.
+     * @param name Name of the folder.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public FolderWrapper(ConnectionHandler client, String name) throws ServiceException, ServerException {
+    public FolderWrapper(DataManager dm, String name)
+    throws ServiceException, AccessException, ExecutionException {
         super(new FolderData());
         data.setName(name);
-        Folder f = (Folder) ExceptionHandler.of(client.getGateway(),
-                                                g -> g.getUpdateService(client.getCtx())
-                                                      .saveAndReturnObject(data.asIObject()))
-                                            .handleServiceOrServer("Could not create Folder with name: " + name)
-                                            .get();
+        Folder f = (Folder) dm.save(data.asFolder());
         data.setFolder(f);
     }
 
