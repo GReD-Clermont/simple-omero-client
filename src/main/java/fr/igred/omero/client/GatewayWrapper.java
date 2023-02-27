@@ -24,7 +24,6 @@ import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
-import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;

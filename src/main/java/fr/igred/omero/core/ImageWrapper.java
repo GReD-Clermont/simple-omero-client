@@ -22,6 +22,7 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
@@ -156,7 +157,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server error.
      */
-    private byte[] getThumbnailBytes(Client client, int size) throws DSOutOfServiceException, ServerError {
+    private byte[] getThumbnailBytes(ConnectionHandler client, int size) throws DSOutOfServiceException, ServerError {
         PixelsWrapper pixels = getPixels();
 
         int   sizeX  = pixels.getSizeX();
@@ -501,7 +502,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Gets the list of folders linked to the ROIs in this image.
      *
-     * @param dm      The data manager.
+     * @param dm The data manager.
      *
      * @return See above.
      *
@@ -845,7 +846,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<File> download(Client client, String path)
+    public List<File> download(ConnectionHandler client, String path)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
         return ExceptionHandler.of(transfer, t -> t.downloadImage(client.getCtx(), path, getId()))

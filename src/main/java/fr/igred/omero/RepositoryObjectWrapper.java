@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.GatewayWrapper;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
@@ -76,7 +76,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws ServerException  Server error.
      * @throws IOException      Cannot read file.
      */
-    protected static boolean importImages(GatewayWrapper client, DataObject target, String... paths)
+    protected static boolean importImages(ConnectionHandler client, DataObject target, String... paths)
     throws ServiceException, ServerException, IOException {
         boolean success;
 
@@ -122,7 +122,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    protected static List<Long> importImage(GatewayWrapper client, DataObject target, String path)
+    protected static List<Long> importImage(ConnectionHandler client, DataObject target, String path)
     throws ServiceException, ServerException {
         ImportConfig config = new ImportConfig();
         String       type   = PojoMapper.getGraphType(target.getClass());

@@ -19,8 +19,8 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -375,7 +375,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    public void saveROI(Client client) throws ServerException, ServiceException {
+    public void saveROI(ConnectionHandler client) throws ServerException, ServiceException {
         Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
                                             g -> g.getUpdateService(client.getCtx())
                                                   .saveAndReturnObject(data.asIObject()))

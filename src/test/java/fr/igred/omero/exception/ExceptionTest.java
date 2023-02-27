@@ -20,6 +20,7 @@ package fr.igred.omero.exception;
 
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -43,7 +44,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorUsername() {
-        Client client = new Client();
+        ConnectionHandler client = new Client();
         assertThrows(ServiceException.class,
                      () -> client.connect(HOST, PORT, "badUser", "omero".toCharArray(), GROUP1.id));
     }
@@ -51,7 +52,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorPassword() {
-        Client root = new Client();
+        ConnectionHandler root = new Client();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, PORT, ROOT.name, "badPassword".toCharArray(), GROUP1.id));
     }
@@ -59,7 +60,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorHost() {
-        Client root = new Client();
+        ConnectionHandler root = new Client();
         assertThrows(ServiceException.class,
                      () -> root.connect("127.0.0.1", PORT, ROOT.name, "omero".toCharArray(), GROUP1.id));
     }
@@ -68,7 +69,8 @@ class ExceptionTest extends BasicTest {
     @Test
     void testConnectionErrorPort() {
         final int badPort = 5000;
-        Client    root    = new Client();
+
+        ConnectionHandler root = new Client();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id));
     }
@@ -78,7 +80,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorGroupNotExist() throws ServiceException {
         final long badGroup = 200L;
 
-        Client clientNoSuchGroup = new Client();
+        ConnectionHandler clientNoSuchGroup = new Client();
         clientNoSuchGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), badGroup);
         assertEquals(USER1.id, clientNoSuchGroup.getId());
         assertEquals(GROUP1.id, clientNoSuchGroup.getCurrentGroupId());
@@ -87,7 +89,7 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorNotInGroup() throws ServiceException {
-        Client clientWrongGroup = new Client();
+        ConnectionHandler clientWrongGroup = new Client();
         clientWrongGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), 0L);
         assertEquals(USER1.id, clientWrongGroup.getId());
         assertEquals(GROUP1.id, clientWrongGroup.getCurrentGroupId());

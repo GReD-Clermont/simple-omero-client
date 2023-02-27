@@ -83,16 +83,6 @@ public interface DataManager {
 
 
     /**
-     * Creates or recycles the import store.
-     *
-     * @return config.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    OMEROMetadataStoreClient getImportStore() throws ServiceException;
-
-
-    /**
      * Saves an object on OMERO.
      *
      * @param object The OMERO object.
