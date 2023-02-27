@@ -23,6 +23,8 @@ import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.util.Bounds;
+import fr.igred.omero.util.Coordinates;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
 import omero.gateway.exception.DataSourceException;
