@@ -18,6 +18,7 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
@@ -246,7 +247,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Retrieves the projects containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -255,12 +256,12 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(Client client)
+    public List<ProjectWrapper> getProjects(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
-        List<DatasetWrapper>       datasets = getDatasets(client);
+        List<DatasetWrapper>       datasets = getDatasets(browser);
         Collection<ProjectWrapper> projects = new ArrayList<>(datasets.size());
         for (DatasetWrapper dataset : datasets) {
-            projects.addAll(dataset.getProjects(client));
+            projects.addAll(dataset.getProjects(browser));
         }
         return distinct(projects);
     }
@@ -269,7 +270,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Retrieves the datasets containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -278,19 +279,20 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(Client client)
+    public List<DatasetWrapper> getDatasets(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
-                                              "where link.child=" + getId());
+        List<IObject> os = browser.findByQuery("select link.parent from DatasetImageLink as link " +
+                                               "where link.child=" + getId());
 
-        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        return browser.getDatasets(
+                os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
     }
 
 
     /**
      * Retrieves the wells containing this image.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -298,7 +300,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
+    public List<WellWrapper> getWells(Browser browser) throws AccessException, ServiceException, ExecutionException {
         Long[] ids = this.asDataObject()
                          .asImage()
                          .copyWellSamples()
@@ -308,14 +310,14 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
                          .map(RLong::getValue)
                          .sorted().distinct()
                          .toArray(Long[]::new);
-        return client.getWells(ids);
+        return browser.getWells(ids);
     }
 
 
     /**
      * Returns the plate acquisitions linked to this image.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -323,13 +325,13 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        List<WellWrapper> wells = getWells(client);
+        List<WellWrapper> wells = getWells(browser);
 
         Collection<List<PlateAcquisitionWrapper>> acqs = new ArrayList<>(wells.size());
         for (WellWrapper w : wells) {
-            acqs.add(w.getPlateAcquisitions(client));
+            acqs.add(w.getPlateAcquisitions(browser));
         }
         return flatten(acqs);
     }
@@ -338,7 +340,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Retrieves the plates containing this image.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -346,15 +348,15 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client) throws AccessException, ServiceException, ExecutionException {
-        return distinct(getWells(client).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
+    public List<PlateWrapper> getPlates(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        return distinct(getWells(browser).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
     }
 
 
     /**
      * Retrieves the screens containing this image
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -363,13 +365,13 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws AccessException, ServiceException, ExecutionException, ServerException {
-        List<PlateWrapper> plates = getPlates(client);
+        List<PlateWrapper> plates = getPlates(browser);
 
         Collection<List<ScreenWrapper>> screens = new ArrayList<>(plates.size());
         for (PlateWrapper plate : plates) {
-            screens.add(plate.getScreens(client));
+            screens.add(plate.getScreens(browser));
         }
         return flatten(screens);
     }
@@ -378,17 +380,17 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Checks if image is orphaned (not in a WellSample nor linked to a dataset).
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return {@code true} if the image is orphaned, {@code false} otherwise.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    public boolean isOrphaned(Client client) throws ServiceException, ServerException {
-        boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
-                                               "where link.child=" + getId()).isEmpty();
-        boolean noWell = client.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
+    public boolean isOrphaned(Browser browser) throws ServiceException, ServerException {
+        boolean noDataset = browser.findByQuery("select link.parent from DatasetImageLink link " +
+                                                "where link.child=" + getId()).isEmpty();
+        boolean noWell = browser.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
         return noDataset && noWell;
     }
 
@@ -396,7 +398,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Returns the list of images sharing the same fileset as the current image.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -405,16 +407,16 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ImageWrapper> getFilesetImages(Client client)
+    public List<ImageWrapper> getFilesetImages(Browser browser)
     throws AccessException, ServiceException, ExecutionException, ServerException {
         List<ImageWrapper> related = new ArrayList<>(0);
         if (data.isFSImage()) {
             long fsId = this.asDataObject().getFilesetId();
 
-            List<IObject> objects = client.findByQuery("select i from Image i where fileset=" + fsId);
+            List<IObject> objects = browser.findByQuery("select i from Image i where fileset=" + fsId);
 
             Long[] ids = objects.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
-            related = client.getImages(ids);
+            related = browser.getImages(ids);
         }
         return related;
     }
@@ -523,7 +525,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Gets the list of folders linked to this image.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -532,11 +534,11 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<FolderWrapper> getFolders(Client client)
+    public List<FolderWrapper> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
-        Long[] ids   = client.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
-        return client.loadFolders(ids);
+        Long[] ids   = browser.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
+        return browser.loadFolders(ids);
     }
 
 
@@ -708,7 +710,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Gets the image channels.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return the channels.
      *
@@ -716,10 +718,10 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ChannelWrapper> getChannels(Client client)
+    public List<ChannelWrapper> getChannels(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData> channels = ExceptionHandler.of(client.getMetadata(),
-                                                         m -> m.getChannelData(client.getCtx(), getId()))
+        List<ChannelData> channels = ExceptionHandler.of(browser.getMetadata(),
+                                                         m -> m.getChannelData(browser.getCtx(), getId()))
                                                      .handleServiceOrAccess("Cannot get the channel name for " + this)
                                                      .get();
         return channels.stream()
@@ -732,8 +734,8 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     /**
      * Gets the name of the channel.
      *
-     * @param client The client handling the connection.
-     * @param index  Channel number.
+     * @param browser The data browser.
+     * @param index   Channel number.
      *
      * @return name of the channel.
      *
@@ -741,17 +743,17 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public String getChannelName(Client client, int index)
+    public String getChannelName(Browser browser, int index)
     throws ServiceException, AccessException, ExecutionException {
-        return getChannels(client).get(index).getChannelLabeling();
+        return getChannels(browser).get(index).getChannelLabeling();
     }
 
 
     /**
      * Gets the original color of the channel
      *
-     * @param client The client handling the connection.
-     * @param index  Channel number.
+     * @param browser The data browser.
+     * @param index   Channel number.
      *
      * @return Original color of the channel.
      *
@@ -759,9 +761,9 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Color getChannelImportedColor(Client client, int index)
+    public Color getChannelImportedColor(Browser browser, int index)
     throws ServiceException, AccessException, ExecutionException {
-        return getChannels(client).get(index).getColor();
+        return getChannels(browser).get(index).getColor();
     }
 
 

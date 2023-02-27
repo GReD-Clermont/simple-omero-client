@@ -18,7 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
@@ -120,7 +120,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
     /**
      * Refreshes this well and retrieves the screens containing it.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -129,10 +129,10 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
-        reload(client);
-        return getPlate().getScreens(client);
+        reload(browser);
+        return getPlate().getScreens(browser);
     }
 
 
@@ -149,7 +149,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
     /**
      * Refreshes this well and returns the plate acquisitions linked to it.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -157,10 +157,10 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        reload(client);
-        return client.getPlate(getPlate().getId()).getPlateAcquisitions();
+        reload(browser);
+        return browser.getPlate(getPlate().getId()).getPlateAcquisitions();
     }
 
 
@@ -319,16 +319,16 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
     /**
      * Reloads the well from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(Client client)
+    public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getWells(client.getCtx(), Collections.singletonList(data.getId())))
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getWells(browser.getCtx(), Collections.singletonList(data.getId())))
                                .handleServiceOrAccess("Cannot reload " + this)
                                .get()
                                .iterator()

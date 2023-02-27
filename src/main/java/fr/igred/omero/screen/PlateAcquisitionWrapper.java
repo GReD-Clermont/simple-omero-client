@@ -18,6 +18,7 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.AnnotationWrapper;
@@ -140,7 +141,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
     /**
      * Retrieves the screens containing the parent plates.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -149,17 +150,17 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
-        PlateWrapper plate = client.getPlate(getRefPlateId());
-        return plate.getScreens(client);
+        PlateWrapper plate = browser.getPlate(getRefPlateId());
+        return plate.getScreens(browser);
     }
 
 
     /**
      * Returns the (updated) parent plate as a singleton list.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -167,16 +168,16 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client)
+    public List<PlateWrapper> getPlates(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return client.getPlates(getRefPlateId());
+        return browser.getPlates(getRefPlateId());
     }
 
 
     /**
      * Retrieves the wells contained in the parent plate.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -184,16 +185,16 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client)
+    public List<WellWrapper> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getPlates(client).iterator().next().getWells(client);
+        return getPlates(browser).iterator().next().getWells(browser);
     }
 
 
     /**
      * Retrieves the images contained in the wells in the parent plate.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -201,16 +202,16 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getWells(client).stream()
-                               .map(WellWrapper::getImages)
-                               .flatMap(Collection::stream)
-                               .collect(Collectors.toMap(ObjectWrapper::getId, i -> i, (i1, i2) -> i1))
-                               .values()
-                               .stream()
-                               .sorted(Comparator.comparing(ObjectWrapper::getId))
-                               .collect(Collectors.toList());
+        return getWells(browser).stream()
+                                .map(WellWrapper::getImages)
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toMap(ObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                                .values()
+                                .stream()
+                                .sorted(Comparator.comparing(ObjectWrapper::getId))
+                                .collect(Collectors.toList());
     }
 
 

@@ -18,7 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -54,7 +54,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
     /**
      * Returns the screens containing the parent Well.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -63,16 +63,16 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
-        return getWell(client).getScreens(client);
+        return getWell(browser).getScreens(browser);
     }
 
 
     /**
      * Returns the plates containing the parent Well.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -80,15 +80,15 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client) throws ServiceException, AccessException, ExecutionException {
-        return Collections.singletonList(getWell(client).getPlate());
+    public List<PlateWrapper> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        return Collections.singletonList(getWell(browser).getPlate());
     }
 
 
     /**
      * Returns the plate acquisitions linked to the parent Well.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -96,16 +96,16 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getWell(client).getPlateAcquisitions(client);
+        return getWell(browser).getPlateAcquisitions(browser);
     }
 
 
     /**
      * Retrieves the well containing this well sample
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -113,8 +113,8 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public WellWrapper getWell(Client client) throws AccessException, ServiceException, ExecutionException {
-        return client.getWell(asDataObject().asWellSample().getWell().getId().getValue());
+    public WellWrapper getWell(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        return browser.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }
 
 

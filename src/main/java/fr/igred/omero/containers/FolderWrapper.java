@@ -19,6 +19,7 @@ package fr.igred.omero.containers;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.AnnotationWrapper;
@@ -274,7 +275,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Retrieves the images contained in this folder.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -282,8 +283,8 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws AccessException, ServiceException, ExecutionException {
-        reload(client);
+    public List<ImageWrapper> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
         return getImages();
     }
 
@@ -464,16 +465,16 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Reloads the folder from OMERO, to update all links.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws AccessException    Cannot access data.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(Client client)
+    public void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.loadFolders(client.getCtx(), Collections.singletonList(data.getId())))
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.loadFolders(browser.getCtx(), Collections.singletonList(data.getId())))
                                .handleServiceOrAccess("Cannot reload " + this)
                                .get()
                                .iterator()

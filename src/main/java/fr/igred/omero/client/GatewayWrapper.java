@@ -50,7 +50,7 @@ import java.util.concurrent.ExecutionException;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper {
+public abstract class GatewayWrapper implements Browser {
 
     /** Gateway linking the code to OMERO, only linked to one group. */
     private Gateway gateway;
@@ -356,23 +356,6 @@ public abstract class GatewayWrapper {
         return ExceptionHandler.of(gateway, g -> g.getImportStore(ctx))
                                .rethrow(DSOutOfServiceException.class, ServiceException::new,
                                         "Could not retrieve import store")
-                               .get();
-    }
-
-
-    /**
-     * Finds objects on OMERO through a database query.
-     *
-     * @param query The database query.
-     *
-     * @return A list of OMERO objects.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
-     */
-    public List<IObject> findByQuery(String query) throws ServiceException, ServerException {
-        return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx).findAllByQuery(query, null))
-                               .handleServiceOrServer("Query failed: " + query)
                                .get();
     }
 

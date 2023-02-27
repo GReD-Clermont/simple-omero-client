@@ -18,6 +18,7 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -162,7 +163,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     /**
      * Returns the plate acquisitions linked to this object, either directly, or through parents/children.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -170,9 +171,9 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        reload(client);
+        reload(browser);
         return getPlates().stream()
                           .map(PlateWrapper::getPlateAcquisitions)
                           .flatMap(Collection::stream)
@@ -187,7 +188,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     /**
      * Retrieves the wells linked to this object, either directly, or through parents/children.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -195,12 +196,12 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client)
+    public List<WellWrapper> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<PlateWrapper>            plates = getPlates();
         Collection<List<WellWrapper>> wells  = new ArrayList<>(plates.size());
         for (PlateWrapper p : plates) {
-            wells.add(p.getWells(client));
+            wells.add(p.getWells(browser));
         }
         return flatten(wells);
     }
@@ -209,7 +210,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     /**
      * Retrieves the images contained in this screen.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -217,12 +218,12 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<PlateWrapper>             plates = getPlates();
         Collection<List<ImageWrapper>> images = new ArrayList<>(plates.size());
         for (PlateWrapper p : plates) {
-            images.add(p.getImages(client));
+            images.add(p.getImages(browser));
         }
         return flatten(images);
     }
@@ -311,15 +312,15 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     /**
      * Reloads the screen from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getScreens(client.getCtx(), Collections.singletonList(data.getId())))
+    public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getScreens(browser.getCtx(), Collections.singletonList(data.getId())))
                                .handleServiceOrAccess("Cannot reload " + this)
                                .get()
                                .iterator()

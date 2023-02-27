@@ -19,7 +19,6 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -28,21 +27,15 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.containers.FolderWrapper;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.containers.ProjectWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static fr.igred.omero.ObjectWrapper.flatten;
 
 
 /**
@@ -50,7 +43,7 @@ import static fr.igred.omero.ObjectWrapper.flatten;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public class Client extends Browser {
+public class Client extends GatewayWrapper {
 
 
     /**
@@ -70,52 +63,6 @@ public class Client extends Browser {
      */
     public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
-    }
-
-
-    /**
-     * Gets all images with the name specified inside projects and datasets with the given names.
-     *
-     * @param projectName Expected project name.
-     * @param datasetName Expected dataset name.
-     * @param imageName   Expected image name.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
-    throws ServiceException, AccessException, ExecutionException {
-        List<ProjectWrapper> projects = getProjects(projectName);
-
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(projects.size());
-        for (ProjectWrapper project : projects) {
-            lists.add(project.getImages(this, datasetName, imageName));
-        }
-
-        return flatten(lists);
-    }
-
-
-    /**
-     * Gets all images with the specified annotation from OMERO.
-     *
-     * @param annotation TagAnnotation containing the tag researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public List<ImageWrapper> getImages(AnnotationWrapper<?> annotation)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
-        return annotation.getImages(this);
     }
 
 
