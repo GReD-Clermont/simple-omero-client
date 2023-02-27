@@ -19,119 +19,36 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.meta.ExperimenterWrapper;
-import fr.igred.omero.meta.GroupWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.GroupData;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 
 /**
- * Basic class, contains the gateway, the security context, and multiple facilities.
- * <p>
- * Allows the user to connect to OMERO and browse through all the data accessible to the user.
+ * Interface to handle the connection to an OMERO server through a {@link Gateway} for a given user and in a specific
+ * {@link SecurityContext}.
  */
-public class Client extends GatewayWrapper {
+public interface ConnectionHandler {
 
 
     /**
-     * Constructor of the Client class. Initializes the gateway.
-     */
-    public Client() {
-        this(null, null, null);
-    }
-
-
-    /**
-     * Constructor of the Client class.
+     * Returns a ConnectionHandler associated with the given username.
+     * <p> All actions realized with the returned ConnectionHandler will be considered as his.
+     * <p> The user calling this function needs to have administrator rights.
      *
-     * @param gateway The gateway
-     * @param ctx     The security context
-     * @param user    The user
-     */
-    public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
-        super(gateway, ctx, user);
-    }
-
-
-    /**
-     * Returns the user which matches the username.
+     * @param username The user name.
      *
-     * @param username The name of the user.
-     *
-     * @return The user matching the username, or null if it does not exist.
+     * @return The connection and context corresponding to the new user.
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public ExperimenterWrapper getUser(String username)
-    throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
-                                                            a -> a.lookupExperimenter(getCtx(), username))
-                                                        .handleServiceOrAccess("Cannot retrieve user: " + username)
-                                                        .get();
-        if (experimenter != null) {
-            return new ExperimenterWrapper(experimenter);
-        } else {
-            throw new NoSuchElementException(String.format("User not found: %s", username));
-        }
-    }
-
-
-    /**
-     * Returns the group which matches the name.
-     *
-     * @param groupName The name of the group.
-     *
-     * @return The group with the appropriate name, if it exists.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested group does not exist.
-     */
-    public GroupWrapper getGroup(String groupName)
-    throws ExecutionException, ServiceException, AccessException {
-        GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
-                                          .handleServiceOrAccess("Cannot retrieve group: " + groupName)
-                                          .get();
-        if (group != null) {
-            return new GroupWrapper(group);
-        } else {
-            throw new NoSuchElementException(String.format("Group not found: %s", groupName));
-        }
-    }
-
-
-    /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
-     *
-     * @param username Username of user.
-     *
-     * @return The client corresponding to the new user.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
-     */
-    public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
-
-        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
-        context.setExperimenter(sudoUser.asDataObject());
-        context.sudo();
-
-        return new Client(this.getGateway(), context, sudoUser);
-    }
+    ConnectionHandler sudo(String username)
+    throws ServiceException, AccessException, ExecutionException;
 
 }
