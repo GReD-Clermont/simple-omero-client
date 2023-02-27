@@ -19,14 +19,10 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
-import fr.igred.omero.meta.GroupWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.GroupData;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
