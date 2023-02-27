@@ -18,93 +18,31 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import omero.gateway.model.WellData;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 
 /**
- * Class containing a WellData object.
- * <p> Wraps function calls to the WellData contained.
+ * Interface to handle Wells on OMERO.
  */
-public class WellWrapper extends RepositoryObjectWrapper<WellData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "WellAnnotationLink";
-
+public interface Well extends RepositoryObject {
 
     /**
-     * Constructor of the class WellWrapper.
-     *
-     * @param well The WellData contained in the WellWrapper.
-     */
-    public WellWrapper(WellData well) {
-        super(well);
-    }
-
-
-    /**
-     * Converts a number to a suit of letters (e.g. 1 to A or 28 to AB).
-     *
-     * @param number The number.
-     *
-     * @return The corresponding identifier
-     */
-    private static String identifier(int number) {
-        final int     alphabetSize = 26;
-        final int     charOffset   = 64; // 'A' - 1
-        int           temp;
-        StringBuilder letters      = new StringBuilder(3);
-        while (number > 0) {
-            temp = number % alphabetSize;
-            letters.append((char) (temp + charOffset));
-            number = (number - temp) / alphabetSize;
-        }
-        return letters.toString();
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object.
+     * Returns a WellData corresponding to the handled object.
      *
      * @return See above.
      */
     @Override
-    protected String annotationLinkType() {
-        return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    @Override
-    public String getName() {
-        return String.format("Well %s-%d", identifier(getRow() + 1), getColumn() + 1);
-    }
-
-
-    /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    @Override
-    public String getDescription() {
-        return data.getExternalDescription();
-    }
+    WellData asDataObject();
 
 
     /**
@@ -112,9 +50,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
-    }
+    List<WellSample> getWellSamples();
 
 
     /**
@@ -129,7 +65,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ScreenWrapper> getScreens(Browser browser)
+    default List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         reload(browser);
         return getPlate().getScreens(browser);
@@ -141,9 +77,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public PlateWrapper getPlate() {
-        return new PlateWrapper(data.getPlate());
-    }
+    Plate getPlate();
 
 
     /**
@@ -157,7 +91,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         reload(browser);
         return browser.getPlate(getPlate().getId()).getPlateAcquisitions();
@@ -169,9 +103,9 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public List<ImageWrapper> getImages() {
+    default List<Image> getImages() {
         return getWellSamples().stream()
-                               .map(WellSampleWrapper::getImage)
+                               .map(WellSample::getImage)
                                .collect(Collectors.toList());
     }
 
@@ -181,9 +115,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public Integer getColumn() {
-        return data.getColumn();
-    }
+    Integer getColumn();
 
 
     /**
@@ -191,9 +123,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public Integer getRow() {
-        return data.getRow();
-    }
+    Integer getRow();
 
 
     /**
@@ -201,9 +131,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public String getStatus() {
-        return data.getStatus();
-    }
+    String getStatus();
 
 
     /**
@@ -211,9 +139,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param status The status of the well.
      */
-    public void setStatus(String status) {
-        data.setStatus(status);
-    }
+    void setStatus(String status);
 
 
     /**
@@ -221,9 +147,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public String getWellType() {
-        return data.getWellType();
-    }
+    String getWellType();
 
 
     /**
@@ -231,9 +155,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param type The value to set.
      */
-    public void setWellType(String type) {
-        data.setWellType(type);
-    }
+    void setWellType(String type);
 
 
     /**
@@ -241,9 +163,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getRed() {
-        return data.getRed();
-    }
+    int getRed();
 
 
     /**
@@ -251,9 +171,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param red The value to set.
      */
-    public void setRed(Integer red) {
-        data.setRed(red);
-    }
+    void setRed(Integer red);
 
 
     /**
@@ -261,9 +179,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getGreen() {
-        return data.getGreen();
-    }
+    int getGreen();
 
 
     /**
@@ -271,9 +187,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param green The value to set.
      */
-    public void setGreen(Integer green) {
-        data.setGreen(green);
-    }
+    void setGreen(Integer green);
 
 
     /**
@@ -281,9 +195,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getBlue() {
-        return data.getBlue();
-    }
+    int getBlue();
 
 
     /**
@@ -291,9 +203,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param blue The value to set.
      */
-    public void setBlue(Integer blue) {
-        data.setBlue(blue);
-    }
+    void setBlue(Integer blue);
 
 
     /**
@@ -301,9 +211,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
-    public int getAlpha() {
-        return data.getAlpha();
-    }
+    int getAlpha();
 
 
     /**
@@ -311,9 +219,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      *
      * @param alpha The value to set.
      */
-    public void setAlpha(Integer alpha) {
-        data.setAlpha(alpha);
-    }
+    void setAlpha(Integer alpha);
 
 
     /**
@@ -325,14 +231,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getWells(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
-    }
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

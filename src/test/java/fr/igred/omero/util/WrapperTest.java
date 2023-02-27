@@ -19,36 +19,35 @@ package fr.igred.omero.util;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.AnnotationList;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
-import fr.igred.omero.annotations.RatingAnnotationWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.annotations.TextualAnnotationWrapper;
-import fr.igred.omero.meta.ExperimenterWrapper;
-import fr.igred.omero.meta.GroupWrapper;
-import fr.igred.omero.core.PlaneInfoWrapper;
-import fr.igred.omero.core.ChannelWrapper;
-import fr.igred.omero.containers.DatasetWrapper;
-import fr.igred.omero.containers.FolderWrapper;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.core.PixelsWrapper;
-import fr.igred.omero.screen.PlateAcquisitionWrapper;
-import fr.igred.omero.screen.PlateWrapper;
-import fr.igred.omero.containers.ProjectWrapper;
-import fr.igred.omero.screen.ScreenWrapper;
-import fr.igred.omero.screen.WellSampleWrapper;
-import fr.igred.omero.screen.WellWrapper;
-import fr.igred.omero.roi.EllipseWrapper;
-import fr.igred.omero.roi.LineWrapper;
-import fr.igred.omero.roi.MaskWrapper;
-import fr.igred.omero.roi.PointWrapper;
-import fr.igred.omero.roi.PolygonWrapper;
-import fr.igred.omero.roi.PolylineWrapper;
-import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.roi.RectangleWrapper;
-import fr.igred.omero.roi.TextWrapper;
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.annotations.FileAnnotation;
+import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.RatingAnnotation;
+import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TextualAnnotation;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.Project;
+import fr.igred.omero.core.Channel;
+import fr.igred.omero.core.Image;
+import fr.igred.omero.core.PlaneInfo;
+import fr.igred.omero.meta.Experimenter;
+import fr.igred.omero.meta.Group;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.core.Pixels;
+import fr.igred.omero.roi.Line;
+import fr.igred.omero.roi.Mask;
+import fr.igred.omero.roi.Polygon;
+import fr.igred.omero.roi.ROI;
+import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.roi.Text;
+import fr.igred.omero.screen.PlateAcquisition;
+import fr.igred.omero.screen.Plate;
+import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.WellSample;
+import fr.igred.omero.screen.Well;
+import fr.igred.omero.roi.Ellipse;
+import fr.igred.omero.roi.Point;
+import fr.igred.omero.roi.Polyline;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
@@ -91,8 +90,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Named.named;
@@ -105,41 +102,41 @@ class WrapperTest extends BasicTest {
     private static Stream<Arguments> classes() {
         return Stream.of(
                 /* These first classes do not have a default constructor. */
-                //arguments(named("ChannelData", ChannelData.class, ChannelWrapper.class),
-                //arguments(named("FileAnnotationData", FileAnnotationData.class, FileAnnotationWrapper.class),
-                //arguments(named("TagAnnotationData", TagAnnotationData.class, TagAnnotationWrapper.class),
-                //arguments(named("TextualAnnotationData", TextualAnnotationData.class), TextualAnnotationWrapper.class),
-                arguments(named("RatingAnnotationData", RatingAnnotationData.class), RatingAnnotationWrapper.class),
-                arguments(named("MapAnnotationData", MapAnnotationData.class), MapAnnotationWrapper.class),
-                arguments(named("ProjectData", ProjectData.class), ProjectWrapper.class),
-                arguments(named("DatasetData", DatasetData.class), DatasetWrapper.class),
-                arguments(named("ImageData", ImageData.class), ImageWrapper.class),
-                arguments(named("ScreenData", ScreenData.class), ScreenWrapper.class),
-                arguments(named("PlateData", PlateData.class), PlateWrapper.class),
-                arguments(named("PlateAcquisitionData", PlateAcquisitionData.class), PlateAcquisitionWrapper.class),
-                arguments(named("WellData", WellData.class), WellWrapper.class),
-                arguments(named("FolderData", FolderData.class), FolderWrapper.class),
-                arguments(named("RectangleData", RectangleData.class), RectangleWrapper.class),
-                arguments(named("PolygonData", PolygonData.class), PolygonWrapper.class),
-                arguments(named("PolylineData", PolylineData.class), PolylineWrapper.class),
-                arguments(named("EllipseData", EllipseData.class), EllipseWrapper.class),
-                arguments(named("PointData", PointData.class), PointWrapper.class),
-                arguments(named("LineData", LineData.class), LineWrapper.class),
-                arguments(named("TextData", TextData.class), TextWrapper.class),
-                arguments(named("MaskData", MaskData.class), MaskWrapper.class),
-                arguments(named("PixelsData", PixelsData.class), PixelsWrapper.class),
-                arguments(named("ROIData", ROIData.class), ROIWrapper.class),
-                arguments(named("PlaneInfoData", PlaneInfoData.class), PlaneInfoWrapper.class),
-                arguments(named("WellSampleData", WellSampleData.class), WellSampleWrapper.class),
-                arguments(named("ExperimenterData", ExperimenterData.class), ExperimenterWrapper.class),
-                arguments(named("GroupData", GroupData.class), GroupWrapper.class)
+                //arguments(named("ChannelData", ChannelData.class, Channel.class),
+                //arguments(named("FileAnnotationData", FileAnnotationData.class, FileAnnotation.class),
+                //arguments(named("TagAnnotationData", TagAnnotationData.class, TagAnnotation.class),
+                //arguments(named("TextualAnnotationData", TextualAnnotationData.class), TextualAnnotation.class),
+                arguments(named("RatingAnnotationData", RatingAnnotationData.class), RatingAnnotation.class),
+                arguments(named("MapAnnotationData", MapAnnotationData.class), MapAnnotation.class),
+                arguments(named("ProjectData", ProjectData.class), Project.class),
+                arguments(named("DatasetData", DatasetData.class), Dataset.class),
+                arguments(named("ImageData", ImageData.class), Image.class),
+                arguments(named("ScreenData", ScreenData.class), Screen.class),
+                arguments(named("PlateData", PlateData.class), Plate.class),
+                arguments(named("PlateAcquisitionData", PlateAcquisitionData.class), PlateAcquisition.class),
+                arguments(named("WellData", WellData.class), Well.class),
+                arguments(named("FolderData", FolderData.class), Folder.class),
+                arguments(named("RectangleData", RectangleData.class), Rectangle.class),
+                arguments(named("PolygonData", PolygonData.class), Polygon.class),
+                arguments(named("PolylineData", PolylineData.class), Polyline.class),
+                arguments(named("EllipseData", EllipseData.class), Ellipse.class),
+                arguments(named("PointData", PointData.class), Point.class),
+                arguments(named("LineData", LineData.class), Line.class),
+                arguments(named("TextData", TextData.class), Text.class),
+                arguments(named("MaskData", MaskData.class), Mask.class),
+                arguments(named("PixelsData", PixelsData.class), Pixels.class),
+                arguments(named("ROIData", ROIData.class), ROI.class),
+                arguments(named("PlaneInfoData", PlaneInfoData.class), PlaneInfo.class),
+                arguments(named("WellSampleData", WellSampleData.class), WellSample.class),
+                arguments(named("ExperimenterData", ExperimenterData.class), Experimenter.class),
+                arguments(named("GroupData", GroupData.class), Group.class)
         );
     }
 
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("classes")
-    <T extends DataObject, U extends ObjectWrapper<? extends T>> void testWrap(Class<T> input, Class<U> output)
+    <T extends DataObject, U extends RemoteObject> void testWrap(Class<T> input, Class<U> output)
     throws Exception {
         T object = input.getConstructor().newInstance();
         U result = Wrapper.wrap(object);
@@ -150,28 +147,28 @@ class WrapperTest extends BasicTest {
     @Test
     void testWrapChannelData() {
         ChannelData object = new ChannelData(0);
-        assertSame(ChannelWrapper.class, Wrapper.wrap(object).getClass());
+        assertSame(Channel.class, Wrapper.wrap(object).getClass());
     }
 
 
     @Test
     void testWrapFileAnnotationData() {
         FileAnnotationData object = new FileAnnotationData(new FileAnnotationI());
-        assertSame(FileAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+        assertSame(FileAnnotation.class, Wrapper.wrap(object).getClass());
     }
 
 
     @Test
     void testWrapTagAnnotationData() {
         TagAnnotationData object = new TagAnnotationData(new TagAnnotationI());
-        assertSame(TagAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+        assertSame(TagAnnotation.class, Wrapper.wrap(object).getClass());
     }
 
 
     @Test
     void testWrapTextualAnnotationData() {
         TextualAnnotationData object = new TextualAnnotationData(new CommentAnnotationI());
-        assertSame(TextualAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+        assertSame(TextualAnnotation.class, Wrapper.wrap(object).getClass());
     }
 
 
@@ -193,16 +190,6 @@ class WrapperTest extends BasicTest {
     void testWrapWrongAnnotationData() {
         AnnotationData object = new WrongAnnotationData();
         assertThrows(IllegalArgumentException.class, () -> Wrapper.wrap(object));
-    }
-
-
-    @Test
-    void testAddWrongAnnotationDataToAnnotationList() {
-        AnnotationList annotations = new AnnotationList();
-
-        boolean added = annotations.add(new WrongAnnotationData());
-        assertFalse(added);
-        assertEquals(0, annotations.size());
     }
 
 

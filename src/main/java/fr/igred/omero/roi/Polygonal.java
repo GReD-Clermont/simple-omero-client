@@ -15,39 +15,31 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.annotations;
+package fr.igred.omero.roi;
 
 
-import omero.gateway.model.TextualAnnotationData;
+import java.awt.geom.Point2D;
+import java.util.List;
 
 
 /**
- * Interface to handle Textual Annotations on OMERO.
+ * Interface for polygonal shapes.
  */
-public interface TextualAnnotation extends Annotation {
+public interface Polygonal {
 
     /**
-     * Returns a {@link TextualAnnotationData} corresponding to the handled object.
+     * Returns the points in the polygonal shape.
      *
      * @return See above.
      */
-    @Override
-    TextualAnnotationData asDataObject();
+    List<Point2D.Double> getPoints();
 
 
     /**
-     * Returns the text of this annotation.
+     * Sets the points in the polygonal shape.
      *
-     * @return See above.
+     * @param points The points to set.
      */
-    String getText();
-
-
-    /**
-     * Sets the text.
-     *
-     * @param text The value to set.
-     */
-    void setText(String text);
+    void setPoints(List<Point2D.Double> points);
 
 }

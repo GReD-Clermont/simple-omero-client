@@ -18,72 +18,23 @@
 package fr.igred.omero.roi;
 
 
-import ij.gui.Roi;
 import omero.gateway.model.MaskData;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
 
 /**
- * Class containing an MaskData.
- * <p> Wraps function calls to the MaskData contained.
+ * Interface to handle Mask shapes on OMERO.
  */
-public class MaskWrapper extends ShapeWrapper<MaskData> {
-
+public interface Mask extends Shape, Rectangular {
 
     /**
-     * Constructor of the MaskWrapper class using a MaskData.
+     * Returns an {@link MaskData} corresponding to the handled object.
      *
-     * @param mask The MaskData to wrap.
-     */
-    public MaskWrapper(MaskData mask) {
-        super(mask);
-    }
-
-
-    /**
-     * Constructor of the MaskWrapper class using a new empty MaskData.
-     */
-    public MaskWrapper() {
-        this(new MaskData());
-    }
-
-
-    /**
-     * Constructor of the MaskWrapper class using a new MaskData.
-     *
-     * @param x      The x-coordinate of the top-left corner of the image.
-     * @param y      The y-coordinate of the top-left corner of the image.
-     * @param width  The width of the image.
-     * @param height The height of the image.
-     * @param mask   The mask image.
-     */
-    public MaskWrapper(double x, double y, double width, double height, byte[] mask) {
-        this(new MaskData(x, y, width, height, mask));
-    }
-
-
-    /**
-     * Gets the text on the ShapeData.
-     *
-     * @return the text
+     * @return See above.
      */
     @Override
-    public String getText() {
-        return data.getText();
-    }
-
-
-    /**
-     * Sets the text on the ShapeData.
-     *
-     * @param text the text
-     */
-    @Override
-    public void setText(String text) {
-        data.setText(text);
-    }
+    MaskData asDataObject();
 
 
     /**
@@ -92,88 +43,8 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
-    }
-
-
-    /**
-     * Returns the x-coordinate of the top-left corner of the mask.
-     *
-     * @return See above.
-     */
-    public double getX() {
-        return data.getX();
-    }
-
-
-    /**
-     * Sets the x-coordinate top-left corner of an untransformed mask.
-     *
-     * @param x The value to set.
-     */
-    public void setX(double x) {
-        data.setX(x);
-    }
-
-
-    /**
-     * Returns the y-coordinate of the top-left corner of the mask.
-     *
-     * @return See above.
-     */
-    public double getY() {
-        return data.getY();
-    }
-
-
-    /**
-     * Sets the y-coordinate top-left corner of an untransformed mask.
-     *
-     * @param y See above.
-     */
-    public void setY(double y) {
-        data.setY(y);
-    }
-
-
-    /**
-     * Returns the width of the mask.
-     *
-     * @return See above.
-     */
-    public double getWidth() {
-        return data.getWidth();
-    }
-
-
-    /**
-     * Sets the width of an untransformed mask.
-     *
-     * @param width See above.
-     */
-    public void setWidth(double width) {
-        data.setWidth(width);
-    }
-
-
-    /**
-     * Returns the height of the mask.
-     *
-     * @return See above.
-     */
-    public double getHeight() {
-        return data.getHeight();
-    }
-
-
-    /**
-     * Sets the height of an untransformed mask.
-     *
-     * @param height See above.
-     */
-    public void setHeight(double height) {
-        data.setHeight(height);
     }
 
 
@@ -182,9 +53,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
-    public int[][] getMaskAsBinaryArray() {
-        return data.getMaskAsBinaryArray();
-    }
+    int[][] getMaskAsBinaryArray();
 
 
     /**
@@ -192,9 +61,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @return See above.
      */
-    public byte[] getMask() {
-        return data.getMask();
-    }
+    byte[] getMask();
 
 
     /**
@@ -202,9 +69,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask See above.
      */
-    public void setMask(byte[] mask) {
-        data.setMask(mask);
-    }
+    void setMask(byte[] mask);
 
 
     /**
@@ -212,9 +77,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask The binary mask (int[width][height])
      */
-    public void setMask(int[][] mask) {
-        data.setMask(mask);
-    }
+    void setMask(int[][] mask);
 
 
     /**
@@ -222,91 +85,6 @@ public class MaskWrapper extends ShapeWrapper<MaskData> {
      *
      * @param mask The binary mask (boolean[width][height])
      */
-    public void setMask(boolean[][] mask) {
-        data.setMask(mask);
-    }
-
-
-    /**
-     * Sets the coordinates of the MaskData shape.
-     *
-     * @param x      The x-coordinate of the top-left corner.
-     * @param y      The y-coordinate of the top-left corner.
-     * @param width  The width of the rectangle.
-     * @param height The height of the rectangle.
-     */
-    public void setCoordinates(double x, double y, double width, double height) {
-        setX(x);
-        setY(y);
-        setWidth(width);
-        setHeight(height);
-    }
-
-
-    /**
-     * Gets the coordinates of the MaskData shape.
-     *
-     * @return Array of coordinates containing {X,Y,Width,Height}.
-     */
-    public double[] getCoordinates() {
-        double[] coordinates = new double[4];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        coordinates[2] = getWidth();
-        coordinates[3] = getHeight();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the MaskData shape.
-     *
-     * @param coordinates Array of coordinates containing {X,Y,Width,Height}.
-     */
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            throw new IllegalArgumentException("MaskData cannot set null coordinates.");
-        } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setWidth(coordinates[2]);
-            data.setHeight(coordinates[3]);
-        } else {
-            throw new IllegalArgumentException("4 coordinates required for MaskData.");
-        }
-    }
-
-
-    /**
-     * Converts shape to ImageJ ROI.
-     *
-     * @return An ImageJ ROI.
-     */
-    @Override
-    public Roi toImageJ() {
-        AffineTransform transform = toAWTTransform();
-
-        Roi roi;
-        if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
-            roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
-        } else {
-            PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
-            p1.setTransform(transform);
-            p2.setTransform(transform);
-
-            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
-
-            double x1 = shape1.getX();
-            double y1 = shape1.getY();
-            double x2 = shape2.getX();
-            double y2 = shape2.getY();
-
-            roi = new ij.gui.RotatedRectRoi(x1, y1, x2, y2, getWidth());
-        }
-        copyToIJRoi(roi);
-        return roi;
-    }
+    void setMask(boolean[][] mask);
 
 }

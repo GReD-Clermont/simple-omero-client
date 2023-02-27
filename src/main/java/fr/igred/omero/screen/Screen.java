@@ -18,89 +18,39 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.RemoteObject.flatten;
 import static java.util.stream.Collectors.toMap;
 
 
 /**
- * Class containing a ScreenData object.
- * <p> Wraps function calls to the ScreenData contained.
+ * Interface to handle Screens on OMERO.
  */
-public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "ScreenAnnotationLink";
-
+public interface Screen extends RepositoryObject {
 
     /**
-     * Constructor of the ProjectWrapper class. Creates a new project and saves it to OMERO.
-     *
-     * @param dm          The data manager.
-     * @param name        Project name.
-     * @param description Project description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public ScreenWrapper(DataManager dm, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        super(new ScreenData());
-        data.setName(name);
-        data.setDescription(description);
-        super.saveAndUpdate(dm);
-    }
-
-
-    /**
-     * Constructor of the class ScreenWrapper.
-     *
-     * @param screen The ScreenData contained in the ScreenWrapper.
-     */
-    public ScreenWrapper(ScreenData screen) {
-        super(screen);
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object.
+     * Returns an {@link ScreenData} corresponding to the handled object.
      *
      * @return See above.
      */
     @Override
-    protected String annotationLinkType() {
-        return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Gets the screen name.
-     *
-     * @return See above.
-     */
-    @Override
-    public String getName() {
-        return data.getName();
-    }
+    ScreenData asDataObject();
 
 
     /**
@@ -110,9 +60,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
-    }
+    void setName(String name);
 
 
     /**
@@ -121,9 +69,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @return See above.
      */
     @Override
-    public String getDescription() {
-        return data.getDescription();
-    }
+    String getDescription();
 
 
     /**
@@ -131,9 +77,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param description The description of the screen.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
-    }
+    void setDescription(String description);
 
 
     /**
@@ -141,9 +85,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public List<PlateWrapper> getPlates() {
-        return wrap(data.getPlates(), PlateWrapper::new);
-    }
+    List<Plate> getPlates();
 
 
     /**
@@ -153,8 +95,8 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public List<PlateWrapper> getPlates(String name) {
-        List<PlateWrapper> plates = getPlates();
+    default List<Plate> getPlates(String name) {
+        List<Plate> plates = getPlates();
         plates.removeIf(plate -> !plate.getName().equals(name));
         return plates;
     }
@@ -171,16 +113,16 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         reload(browser);
         return getPlates().stream()
-                          .map(PlateWrapper::getPlateAcquisitions)
+                          .map(Plate::getPlateAcquisitions)
                           .flatMap(Collection::stream)
-                          .collect(toMap(RepositoryObjectWrapper::getId, p -> p, (p1, p2) -> p1))
+                          .collect(toMap(RepositoryObject::getId, p -> p, (p1, p2) -> p1))
                           .values()
                           .stream()
-                          .sorted(Comparator.comparing(RepositoryObjectWrapper::getId))
+                          .sorted(Comparator.comparing(RepositoryObject::getId))
                           .collect(Collectors.toList());
     }
 
@@ -196,11 +138,11 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Browser browser)
+    default List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlateWrapper>            plates = getPlates();
-        Collection<List<WellWrapper>> wells  = new ArrayList<>(plates.size());
-        for (PlateWrapper p : plates) {
+        List<Plate>            plates = getPlates();
+        Collection<List<Well>> wells  = new ArrayList<>(plates.size());
+        for (Plate p : plates) {
             wells.add(p.getWells(browser));
         }
         return flatten(wells);
@@ -218,11 +160,11 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser browser)
+    default List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlateWrapper>             plates = getPlates();
-        Collection<List<ImageWrapper>> images = new ArrayList<>(plates.size());
-        for (PlateWrapper p : plates) {
+        List<Plate>             plates = getPlates();
+        Collection<List<Image>> images = new ArrayList<>(plates.size());
+        for (Plate p : plates) {
             images.add(p.getImages(browser));
         }
         return flatten(images);
@@ -234,9 +176,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public String getProtocolDescription() {
-        return data.getProtocolDescription();
-    }
+    String getProtocolDescription();
 
 
     /**
@@ -244,9 +184,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setProtocolDescription(String value) {
-        data.setProtocolDescription(value);
-    }
+    void setProtocolDescription(String value);
 
 
     /**
@@ -254,9 +192,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public String getProtocolIdentifier() {
-        return data.getProtocolIdentifier();
-    }
+    String getProtocolIdentifier();
 
 
     /**
@@ -264,9 +200,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setProtocolIdentifier(String value) {
-        data.setProtocolIdentifier(value);
-    }
+    void setProtocolIdentifier(String value);
 
 
     /**
@@ -274,9 +208,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public String getReagentSetDescription() {
-        return data.getReagentSetDescripion();
-    }
+    String getReagentSetDescription();
 
 
     /**
@@ -284,9 +216,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setReagentSetDescription(String value) {
-        data.setReagentSetDescripion(value);
-    }
+    void setReagentSetDescription(String value);
 
 
     /**
@@ -294,9 +224,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
-    public String getReagentSetIdentifier() {
-        return data.getReagentSetIdentifier();
-    }
+    String getReagentSetIdentifier();
 
 
     /**
@@ -304,9 +232,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
-    public void setReagentSetIdentifier(String value) {
-        data.setReagentSetIdentifier(value);
-    }
+    void setReagentSetIdentifier(String value);
 
 
     /**
@@ -318,14 +244,8 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getScreens(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
-    }
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -342,12 +262,8 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public boolean importImages(Client client, String... paths)
-    throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, paths);
-        reload(client);
-        return success;
-    }
+    boolean importImages(Client client, String... paths)
+    throws ServiceException, ServerException, AccessException, IOException, ExecutionException;
 
 
     /**
@@ -363,11 +279,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Long> importImage(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        reload(client);
-        return ids;
-    }
+    List<Long> importImage(Client client, String path)
+    throws ServiceException, AccessException, ServerException, ExecutionException;
 
 }

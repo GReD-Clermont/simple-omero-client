@@ -19,14 +19,14 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.annotations.AnnotationList;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.roi.EllipseWrapper;
-import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.roi.RectangleWrapper;
-import fr.igred.omero.screen.WellWrapper;
+import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.FileAnnotation;
+import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.roi.Ellipse;
+import fr.igred.omero.roi.ROI;
+import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.screen.Well;
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
@@ -103,8 +103,8 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetWells() throws Exception {
-        final long  wellId = 1L;
-        WellWrapper well   = client.getWell(wellId);
+        final long wellId = 1L;
+        Well       well   = client.getWell(wellId);
 
         long imageId = well.getWellSamples().get(0).getImage().getId();
         assertEquals(wellId, client.getImage(imageId).getWells(client).get(0).getId());
@@ -113,14 +113,14 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetAnnotations() throws Exception {
-        AnnotationList annotations = client.getImage(IMAGE1.id).getAnnotations(client);
+        List<Annotation> annotations = client.getImage(IMAGE1.id).getAnnotations(client);
         assertEquals(3, annotations.size());
     }
 
 
     @Test
     void testGetKeyValuePair1() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         Map<String, List<String>> pairs = image.getKeyValuePairs(client)
                                                .stream()
                                                .collect(groupingBy(Map.Entry::getKey,
@@ -131,15 +131,15 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetKeyValuePair2() throws Exception {
-        ImageWrapper               image       = client.getImage(IMAGE1.id);
-        List<MapAnnotationWrapper> annotations = image.getMapAnnotations(client);
+        Image               image       = client.getImage(IMAGE1.id);
+        List<MapAnnotation> annotations = image.getMapAnnotations(client);
         assertEquals(1, annotations.size());
     }
 
 
     @Test
     void testGetValues() throws Exception {
-        ImageWrapper image  = client.getImage(IMAGE1.id);
+        Image        image  = client.getImage(IMAGE1.id);
         List<String> values = image.getValues(client, "testKey1");
         assertEquals("testValue1", values.get(0));
     }
@@ -147,15 +147,15 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetValuesWrongKey() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertEquals(0, image.getValues(client, "testKey").size());
     }
 
 
     @Test
     void testAddKeyValuePair1() throws Exception {
-        final long   imageId = 4L;
-        ImageWrapper image   = client.getImage(imageId);
+        final long imageId = 4L;
+        Image      image   = client.getImage(imageId);
 
         String name1  = "Test result1";
         String name2  = "Test2 result1";
@@ -166,7 +166,7 @@ class ImageTest extends UserTest {
         values.add(new AbstractMap.SimpleEntry<>(name1, value1));
         values.add(new AbstractMap.SimpleEntry<>(name2, value2));
 
-        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(values);
+        MapAnnotation mapAnnotation = new MapAnnotation(values);
         image.link(client, mapAnnotation);
 
         Map<String, List<String>> pairs = image.getKeyValuePairs(client)
@@ -186,8 +186,8 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddKeyValuePair2() throws Exception {
-        final long   imageId = 4L;
-        ImageWrapper image   = client.getImage(imageId);
+        final long imageId = 4L;
+        Image      image   = client.getImage(imageId);
 
         String name1  = "Test result2";
         String name2  = "Test2 result2";
@@ -201,7 +201,7 @@ class ImageTest extends UserTest {
         MapAnnotationData mapData = new MapAnnotationData();
         mapData.setContent(values);
 
-        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(mapData);
+        MapAnnotation mapAnnotation = new MapAnnotation(mapData);
         image.link(client, mapAnnotation);
 
         Map<String, List<String>> pairs = image.getKeyValuePairs(client)
@@ -221,8 +221,8 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddKeyValuePair3() throws Exception {
-        final long   imageId = 4L;
-        ImageWrapper image   = client.getImage(imageId);
+        final long imageId = 4L;
+        Image      image   = client.getImage(imageId);
 
         String name1  = "Test result3";
         String name2  = "Test2 result3";
@@ -233,11 +233,11 @@ class ImageTest extends UserTest {
         values.add(new AbstractMap.SimpleEntry<>(name1, value1));
         values.add(new AbstractMap.SimpleEntry<>(name2, value2));
 
-        MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper();
+        MapAnnotation mapAnnotation = new MapAnnotation();
         mapAnnotation.setContent(values);
         image.link(client, mapAnnotation);
 
-        List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
+        List<MapAnnotation> maps = image.getMapAnnotations(client);
 
         List<String> value = image.getValues(client, name1);
 
@@ -251,8 +251,8 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddKeyValuePair4() throws Exception {
-        final long   imageId = 4L;
-        ImageWrapper image   = client.getImage(imageId);
+        final long imageId = 4L;
+        Image      image   = client.getImage(imageId);
 
         String key1   = "Test result4";
         String key2   = "Test2 result4";
@@ -263,7 +263,7 @@ class ImageTest extends UserTest {
         image.addKeyValuePair(client, key1, value1);
         image.addKeyValuePair(client, key2, value2);
 
-        List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
+        List<MapAnnotation> maps = image.getMapAnnotations(client);
 
         List<String> value = image.getValues(client, key1);
         client.delete(maps);
@@ -277,7 +277,7 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetImageInfo() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertEquals(IMAGE1.name, image.getName());
         assertNull(image.getDescription());
         assertEquals(1L, image.getId());
@@ -286,9 +286,9 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetImageTags() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         assertEquals(2, tags.size());
     }
 
@@ -331,7 +331,7 @@ class ImageTest extends UserTest {
                                         zBounds[0] + 1, zBounds[1] + 1,
                                         tBounds[0] + 1, tBounds[1] + 1);
 
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         ImagePlus imp = image.toImagePlus(client, xBounds, yBounds, cBounds, zBounds, tBounds);
 
@@ -362,7 +362,7 @@ class ImageTest extends UserTest {
         ImagePlus reference = BF.openImagePlus(fake)[0];
         removeFile(fakeFile);
 
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
         ImagePlus imp = image.toImagePlus(client);
 
@@ -377,29 +377,29 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetImageChannel() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertEquals("0", image.getChannelName(client, 0));
     }
 
 
     @Test
     void testGetImageChannelError() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertThrows(IndexOutOfBoundsException.class, () -> image.getChannelName(client, 6));
     }
 
 
     @Test
     void testAddTagToImage() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotation(client, "image tag", "tag attached to an image");
 
         image.link(client, tag);
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -408,13 +408,13 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddTagToImage2() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
         image.addTag(client, "image tag", "tag attached to an image");
 
-        List<TagAnnotationWrapper> tags = client.getTags("image tag");
+        List<TagAnnotation> tags = client.getTags("image tag");
         client.delete(tags.get(0));
-        List<TagAnnotationWrapper> endTags = client.getTags("image tag");
+        List<TagAnnotation> endTags = client.getTags("image tag");
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -423,15 +423,15 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddTagIdToImage() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotation(client, "image tag", "tag attached to an image");
 
         image.addTag(client, tag.getId());
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, endTags.size());
@@ -440,20 +440,20 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddTagsToImage() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
+        TagAnnotation tag1 = new TagAnnotation(client, "Image tag 1", "tag attached to an image");
+        TagAnnotation tag2 = new TagAnnotation(client, "Image tag 2", "tag attached to an image");
+        TagAnnotation tag3 = new TagAnnotation(client, "Image tag 3", "tag attached to an image");
+        TagAnnotation tag4 = new TagAnnotation(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -462,20 +462,20 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddTagsToImage2() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
+        TagAnnotation tag1 = new TagAnnotation(client, "Image tag 1", "tag attached to an image");
+        TagAnnotation tag2 = new TagAnnotation(client, "Image tag 2", "tag attached to an image");
+        TagAnnotation tag3 = new TagAnnotation(client, "Image tag 3", "tag attached to an image");
+        TagAnnotation tag4 = new TagAnnotation(client, "Image tag 4", "tag attached to an image");
 
         image.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertEquals(4, tags.size());
         assertEquals(0, endTags.size());
@@ -484,18 +484,18 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddNewTagsToImage() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
-        TagAnnotationWrapper tag1 = client.getTag(TAG1.id);
-        TagAnnotationWrapper tag2 = client.getTag(TAG2.id);
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        TagAnnotation tag1 = client.getTag(TAG1.id);
+        TagAnnotation tag2 = client.getTag(TAG2.id);
+        TagAnnotation tag3 = new TagAnnotation(client, "Image tag 1", "tag attached to an image");
+        TagAnnotation tag4 = new TagAnnotation(client, "Image tag 2", "tag attached to an image");
 
         image.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         client.delete(tag3);
         client.delete(tag4);
-        List<TagAnnotationWrapper> endTags = image.getTags(client);
+        List<TagAnnotation> endTags = image.getTags(client);
 
         assertTrue(image.isLinked(client, tag1));
         assertEquals(4, tags.size());
@@ -505,15 +505,15 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromImage() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to an image");
+        TagAnnotation tag = new TagAnnotation(client, "Dataset tag", "tag attached to an image");
 
         image.link(client, tag);
 
-        List<TagAnnotationWrapper> tags = image.getTags(client);
+        List<TagAnnotation> tags = image.getTags(client);
         image.unlink(client, tag);
-        List<TagAnnotationWrapper> removed = image.getTags(client);
+        List<TagAnnotation> removed = image.getTags(client);
         client.delete(tag);
 
         assertEquals(1, tags.size());
@@ -523,7 +523,7 @@ class ImageTest extends UserTest {
 
     @Test
     void testImageOrder() throws Exception {
-        List<ImageWrapper> images = client.getImages();
+        List<Image> images = client.getImages();
         for (int i = 1; i < images.size(); i++) {
             assertTrue(images.get(i - 1).getId() <= images.get(i).getId());
         }
@@ -532,13 +532,13 @@ class ImageTest extends UserTest {
 
     @Test
     void testAddFileImage() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         File file = createRandomFile("test_image.txt");
         long id   = image.addFile(client, file);
 
-        List<FileAnnotationWrapper> files = image.getFileAnnotations(client);
-        for (FileAnnotationWrapper fileAnn : files) {
+        List<FileAnnotation> files = image.getFileAnnotations(client);
+        for (FileAnnotation fileAnn : files) {
             if (fileAnn.getId() == id) {
                 assertEquals(file.getName(), fileAnn.getFileName());
                 assertEquals("txt", fileAnn.getFileFormat());
@@ -589,7 +589,7 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetChannel() throws Exception {
-        ChannelWrapper channel = client.getImage(IMAGE1.id).getChannels(client).get(0);
+        Channel channel = client.getImage(IMAGE1.id).getChannels(client).get(0);
         assertEquals(0, channel.getIndex());
         channel.setName("Foo channel");
         assertEquals("Foo channel", channel.getName());
@@ -598,7 +598,7 @@ class ImageTest extends UserTest {
 
     @Test
     void testSetDescription() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         String description  = image.getDescription();
         String description2 = "Foo";
@@ -613,7 +613,7 @@ class ImageTest extends UserTest {
 
     @Test
     void testSetName() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         String name  = image.getName();
         String name2 = "Foo image";
@@ -628,12 +628,12 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetCropFromROI() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
-        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        Rectangle rectangle = new Rectangle(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
+        Ellipse ellipse = new Ellipse(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
         int[] xBounds = {30, 69};
@@ -642,7 +642,7 @@ class ImageTest extends UserTest {
         int[] zBounds = {0, 1};
         int[] tBounds = {1, 2};
 
-        ROIWrapper roiWrapper = new ROIWrapper();
+        ROI roiWrapper = new ROI();
         roiWrapper.setImage(image);
         roiWrapper.addShape(rectangle);
         roiWrapper.addShape(ellipse);
@@ -667,7 +667,7 @@ class ImageTest extends UserTest {
     void testGetThumbnail() throws Exception {
         final int size = 96;
 
-        ImageWrapper  image     = client.getImage(IMAGE1.id);
+        Image         image     = client.getImage(IMAGE1.id);
         BufferedImage thumbnail = image.getThumbnail(client, size);
         assertNotNull(thumbnail);
         assertEquals(size, thumbnail.getWidth());
@@ -677,8 +677,8 @@ class ImageTest extends UserTest {
 
     @Test
     void testDownload() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
-        List<File>   files = image.download(client, ".");
+        Image      image = client.getImage(IMAGE1.id);
+        List<File> files = image.download(client, ".");
         assertEquals(2, files.size());
         assertTrue(files.get(0).exists());
         Files.deleteIfExists(files.get(0).toPath());

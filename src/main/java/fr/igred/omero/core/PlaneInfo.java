@@ -18,7 +18,7 @@
 package fr.igred.omero.core;
 
 
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import ome.formats.model.UnitsFactory;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
@@ -39,31 +39,24 @@ import java.util.stream.Collectors;
 import static ome.formats.model.UnitsFactory.convertTime;
 
 
-public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
+/**
+ * Interface to handle PlaneInfo on OMERO.
+ */
+public interface PlaneInfo extends RemoteObject {
 
     /**
-     * Constructor of the class PlaneInfoWrapper.
-     *
-     * @param object The PlaneInfoData to wrap in the PlaneInfoWrapper.
-     */
-    public PlaneInfoWrapper(PlaneInfoData object) {
-        super(object);
-    }
-
-
-    /**
-     * Computes the mean time interval from the deltaT in a PlaneInfoWrapper collection.
+     * Computes the mean time interval from the deltaT in a PlaneInfo collection.
      *
      * @param planesInfo A collection of PlaneInfoWrappers.
      * @param sizeT      The number of time points for these planes.
      *
      * @return See above.
      */
-    public static Time computeMeanTimeInterval(Collection<? extends PlaneInfoWrapper> planesInfo, int sizeT) {
+    static Time computeMeanTimeInterval(Collection<? extends PlaneInfo> planesInfo, int sizeT) {
         // planesInfo should be larger than sizeT, unless it is empty
         ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[Math.min(sizeT, planesInfo.size())];
 
-        for (PlaneInfoWrapper plane : planesInfo) {
+        for (PlaneInfo plane : planesInfo) {
             int t = plane.getTheT();
             int z = plane.getTheZ();
             int c = plane.getTheC();
@@ -94,17 +87,17 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
 
 
     /**
-     * Computes the mean exposure time for a given channel in a PlaneInfoWrapper collection.
+     * Computes the mean exposure time for a given channel in a PlaneInfo collection.
      *
      * @param planesInfo A collection of PlaneInfoWrappers.
      * @param channel    The channel index.
      *
      * @return See above.
      */
-    public static Time computeMeanExposureTime(Iterable<? extends PlaneInfoWrapper> planesInfo, int channel) {
+    static Time computeMeanExposureTime(Iterable<? extends PlaneInfo> planesInfo, int channel) {
         ome.units.quantity.Time t = null;
 
-        Iterator<? extends PlaneInfoWrapper> iterator = planesInfo.iterator();
+        Iterator<? extends PlaneInfo> iterator = planesInfo.iterator();
         while (t == null && iterator.hasNext()) {
             t = convertTime(planesInfo.iterator().next().getExposureTime());
             iterator.next();
@@ -114,7 +107,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
 
         double mean  = 0;
         int    count = 0;
-        for (PlaneInfoWrapper plane : planesInfo) {
+        for (PlaneInfo plane : planesInfo) {
             if (channel == plane.getTheC()) {
                 ome.units.quantity.Time time = convertTime(plane.getExposureTime());
                 if (time != null) {
@@ -129,7 +122,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
 
 
     /**
-     * Retrieves the min value for the specified getter in a PlaneInfoWrapper collection.
+     * Retrieves the min value for the specified getter in a PlaneInfo collection.
      *
      * @param planesInfo A collection of PlaneInfoWrappers.
      * @param getter     The getter function to use.
@@ -137,9 +130,9 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public static Length getMinPosition(Collection<? extends PlaneInfoWrapper> planesInfo,
-                                        Function<? super PlaneInfoWrapper, ? extends Length> getter,
-                                        Unit<ome.units.quantity.Length> unit) {
+    static Length getMinPosition(Collection<? extends PlaneInfo> planesInfo,
+                                 Function<? super PlaneInfo, ? extends Length> getter,
+                                 Unit<ome.units.quantity.Length> unit) {
         List<Double> positions = planesInfo.stream()
                                            .map(getter)
                                            .map(UnitsFactory::convertLength)
@@ -151,13 +144,20 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
 
 
     /**
+     * Returns a {@link PlaneInfoData} corresponding to the handled object.
+     *
+     * @return See above.
+     */
+    @Override
+    PlaneInfoData asDataObject();
+
+
+    /**
      * Retrieves the plane deltaT.
      *
      * @return See above.
      */
-    public Time getDeltaT() {
-        return data.getDeltaT();
-    }
+    Time getDeltaT();
 
 
     /**
@@ -165,9 +165,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Time getExposureTime() {
-        return data.getExposureTime();
-    }
+    Time getExposureTime();
 
 
     /**
@@ -175,9 +173,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Length getPositionX() {
-        return data.getPositionX();
-    }
+    Length getPositionX();
 
 
     /**
@@ -185,9 +181,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Length getPositionY() {
-        return data.getPositionY();
-    }
+    Length getPositionY();
 
 
     /**
@@ -195,9 +189,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public Length getPositionZ() {
-        return data.getPositionZ();
-    }
+    Length getPositionZ();
 
 
     /**
@@ -205,9 +197,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public int getTheC() {
-        return data.getTheC();
-    }
+    int getTheC();
 
 
     /**
@@ -215,9 +205,7 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public int getTheT() {
-        return data.getTheT();
-    }
+    int getTheT();
 
 
     /**
@@ -225,8 +213,6 @@ public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
      *
      * @return See above.
      */
-    public int getTheZ() {
-        return data.getTheZ();
-    }
+    int getTheZ();
 
 }

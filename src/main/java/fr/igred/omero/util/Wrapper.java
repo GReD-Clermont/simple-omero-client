@@ -18,39 +18,11 @@
 package fr.igred.omero.util;
 
 
-import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.AnnotationWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
-import fr.igred.omero.annotations.RatingAnnotationWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.annotations.TextualAnnotationWrapper;
-import fr.igred.omero.meta.ExperimenterWrapper;
-import fr.igred.omero.meta.GroupWrapper;
-import fr.igred.omero.core.PlaneInfoWrapper;
-import fr.igred.omero.core.ChannelWrapper;
-import fr.igred.omero.containers.DatasetWrapper;
-import fr.igred.omero.containers.FolderWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.core.PixelsWrapper;
-import fr.igred.omero.screen.PlateAcquisitionWrapper;
-import fr.igred.omero.screen.PlateWrapper;
-import fr.igred.omero.containers.ProjectWrapper;
-import fr.igred.omero.screen.ScreenWrapper;
-import fr.igred.omero.screen.WellSampleWrapper;
-import fr.igred.omero.screen.WellWrapper;
-import fr.igred.omero.roi.EllipseWrapper;
-import fr.igred.omero.roi.ShapeWrapper;
-import fr.igred.omero.roi.LineWrapper;
-import fr.igred.omero.roi.MaskWrapper;
-import fr.igred.omero.roi.PointWrapper;
-import fr.igred.omero.roi.PolygonWrapper;
-import fr.igred.omero.roi.PolylineWrapper;
-import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.roi.RectangleWrapper;
-import fr.igred.omero.roi.TextWrapper;
+import fr.igred.omero.Annotatable;
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
+import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.roi.Shape;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
@@ -106,7 +78,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends ShapeData, U extends ShapeWrapper<? extends T>> U wrap(T object) {
+    public static <T extends ShapeData, U extends Shape> U wrap(T object) {
         U converted;
 
         if (object instanceof RectangleData) {
@@ -141,7 +113,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends AnnotationData, U extends AnnotationWrapper<? extends T>> U wrap(T object) {
+    public static <T extends AnnotationData, U extends Annotation> U wrap(T object) {
         U converted;
 
         if (object instanceof FileAnnotationData) {
@@ -170,7 +142,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends AnnotatableWrapper<? extends T>>
+    public static <T extends DataObject, U extends Annotatable>
     U wrapAnnotatableObject(T object) {
         U converted;
 
@@ -179,7 +151,7 @@ public final class Wrapper {
         } else if (object instanceof ROIData) {
             converted = (U) new ROIWrapper((ROIData) object);
         } else {
-            converted = (U) wrapRepositoryObject(object);
+            converted = wrapRepositoryObject(object);
         }
         return converted;
     }
@@ -194,7 +166,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends RepositoryObjectWrapper<? extends T>>
+    public static <T extends DataObject, U extends RepositoryObject>
     U wrapRepositoryObject(T object) {
         U converted;
 
@@ -222,7 +194,7 @@ public final class Wrapper {
 
 
     /**
-     * Converts (wraps) a DataObject to a ObjectWrapper.
+     * Converts (wraps) a DataObject to a RemoteObject.
      *
      * @param object The object to convert.
      * @param <T>    The DataObject type.
@@ -230,7 +202,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends ObjectWrapper<? extends T>> U wrap(T object) {
+    public static <T extends DataObject, U extends RemoteObject> U wrap(T object) {
         U converted;
         if (object instanceof AnnotationData) {
             converted = (U) wrap((AnnotationData) object);
@@ -247,7 +219,7 @@ public final class Wrapper {
         } else if (object instanceof ChannelData) {
             converted = (U) new ChannelWrapper((ChannelData) object);
         } else {
-            converted = (U) wrapAnnotatableObject(object);
+            converted = wrapAnnotatableObject(object);
         }
         return converted;
     }

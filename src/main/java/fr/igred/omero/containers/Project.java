@@ -18,80 +18,38 @@
 package fr.igred.omero.containers;
 
 
-import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.client.DataManager;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.ImageData;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static fr.igred.omero.RemoteObject.flatten;
 
 
 /**
- * Class containing a ProjectData object.
- * <p> Wraps function calls to the Project contained
+ * Interface to handle Projects on OMERO.
  */
-public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "ProjectAnnotationLink";
-
+public interface Project extends RepositoryObject {
 
     /**
-     * Constructor of the ProjectWrapper class.
+     * Returns a {@link ProjectData} corresponding to the handled object.
      *
-     * @param project ProjectData to be contained.
-     */
-    public ProjectWrapper(ProjectData project) {
-        super(project);
-    }
-
-
-    /**
-     * Constructor of the ProjectWrapper class. Creates a new project and save it to OMERO.
-     *
-     * @param dm          The data manager.
-     * @param name        Project name.
-     * @param description Project description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public ProjectWrapper(DataManager dm, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        super(new ProjectData());
-        data.setName(name);
-        data.setDescription(description);
-        super.saveAndUpdate(dm);
-    }
-
-
-    /**
-     * Gets the ProjectData name
-     *
-     * @return ProjectData name.
+     * @return See above.
      */
     @Override
-    public String getName() {
-        return data.getName();
-    }
+    ProjectData asDataObject();
 
 
     /**
@@ -101,20 +59,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
-    }
-
-
-    /**
-     * Gets the project description
-     *
-     * @return The project description.
-     */
-    @Override
-    public String getDescription() {
-        return data.getDescription();
-    }
+    void setName(String name);
 
 
     /**
@@ -122,30 +67,15 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @param description The description of the project.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object.
-     *
-     * @return See above.
-     */
-    @Override
-    protected String annotationLinkType() {
-        return ANNOTATION_LINK;
-    }
+    void setDescription(String description);
 
 
     /**
      * Gets all the datasets in the project available from OMERO.
      *
-     * @return Collection of DatasetWrapper.
+     * @return Collection of Dataset.
      */
-    public List<DatasetWrapper> getDatasets() {
-        return wrap(data.getDatasets(), DatasetWrapper::new);
-    }
+    List<Dataset> getDatasets();
 
 
     /**
@@ -155,8 +85,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      *
      * @return List of dataset with the given name.
      */
-    public List<DatasetWrapper> getDatasets(String name) {
-        List<DatasetWrapper> datasets = getDatasets();
+    default List<Dataset> getDatasets(String name) {
+        List<Dataset> datasets = getDatasets();
         datasets.removeIf(dataset -> !dataset.getName().equals(name));
         return datasets;
     }
@@ -175,12 +105,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(Client client, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        DatasetWrapper dataset = new DatasetWrapper(name, description);
-        dataset.saveAndUpdate(client);
-        return addDataset(client, dataset);
-    }
+    Dataset addDataset(Client client, String name, String description)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -195,12 +121,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(Client client, DatasetWrapper dataset)
+    default Dataset addDataset(Client client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException {
         dataset.saveAndUpdate(client);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.setChild(dataset.asDataObject().asDataset());
-        link.setParent(data.asProject());
+        link.setParent(asDataObject().asProject());
 
         client.save(link);
         reload(client);
@@ -221,11 +147,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void removeDataset(Client client, DatasetWrapper dataset)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        removeLink(client, "ProjectDatasetLink", dataset.getId());
-        reload(client);
-    }
+    void removeDataset(Client client, Dataset dataset)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
     /**
@@ -239,14 +162,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        List<Long> projectIds = Collections.singletonList(getId());
-        Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
-                                                           bf -> bf.getImagesForProjects(browser.getCtx(), projectIds))
-                                                       .handleServiceOrAccess("Cannot get images from " + this)
-                                                       .get();
-        return distinct(wrap(images, ImageWrapper::new));
-    }
+    List<Image> getImages(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -261,12 +178,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser browser, String name)
+    default List<Image> getImages(Browser browser, String name)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(browser, name));
         }
         return flatten(lists);
@@ -286,20 +203,16 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser browser, String datasetName, String imageName)
+    default List<Image> getImages(Browser browser, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets(datasetName);
+        Collection<Dataset> datasets = getDatasets(datasetName);
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImages(browser, imageName));
         }
-        List<ImageWrapper> images = lists.stream()
-                                         .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(ObjectWrapper::getId))
-                                         .collect(Collectors.toList());
 
-        return distinct(images);
+        return flatten(lists);
     }
 
 
@@ -315,12 +228,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesLike(Browser browser, String motif)
+    default List<Image> getImagesLike(Browser browser, String motif)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesLike(browser, motif));
         }
         return flatten(lists);
@@ -331,7 +244,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * Gets all images in the project tagged with a specified tag from OMERO.
      *
      * @param browser The data browser.
-     * @param tag     TagAnnotationWrapper containing the tag researched.
+     * @param tag     TagAnnotation containing the tag researched.
      *
      * @return See above.
      *
@@ -340,12 +253,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Browser browser, TagAnnotationWrapper tag)
+    default List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesTagged(browser, tag));
         }
         return flatten(lists);
@@ -365,12 +278,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Browser browser, Long tagId)
+    default List<Image> getImagesTagged(Browser browser, Long tagId)
     throws ServiceException, AccessException, ServerException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesTagged(browser, tagId));
         }
         return flatten(lists);
@@ -389,12 +302,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesWithKey(Browser browser, String key)
+    default List<Image> getImagesWithKey(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesWithKey(browser, key));
         }
         return flatten(lists);
@@ -414,12 +327,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesWithKeyValuePair(Browser browser, String key, String value)
+    default List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetWrapper> datasets = getDatasets();
+        Collection<Dataset> datasets = getDatasets();
 
-        Collection<List<ImageWrapper>> lists = new ArrayList<>(datasets.size());
-        for (DatasetWrapper dataset : datasets) {
+        Collection<List<Image>> lists = new ArrayList<>(datasets.size());
+        for (Dataset dataset : datasets) {
             lists.add(dataset.getImagesWithKeyValuePair(browser, key, value));
         }
         return flatten(lists);
@@ -435,13 +348,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getProjects(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
-    }
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

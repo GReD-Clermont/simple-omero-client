@@ -19,11 +19,12 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static fr.igred.omero.RemoteObject.getElementsOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -32,16 +33,16 @@ class TextualAnnotationTest extends UserTest {
 
     @Test
     void testAddTextualAnnotation1() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         String test = "Test !";
 
-        TextualAnnotationWrapper text = new TextualAnnotationWrapper(test);
+        TextualAnnotation text = new TextualAnnotation(test);
         image.link(client, text);
 
-        AnnotationList annotations = image.getAnnotations(client);
+        List<Annotation> annotations = image.getAnnotations(client);
 
-        List<TextualAnnotationWrapper> texts = annotations.getElementsOf(TextualAnnotationWrapper.class);
+        List<TextualAnnotation> texts = getElementsOf(annotations, TextualAnnotation.class);
         client.delete(texts);
 
         assertEquals(1, texts.size());
@@ -51,16 +52,16 @@ class TextualAnnotationTest extends UserTest {
 
     @Test
     void testAddTextualAnnotation2() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         String test = "Test !";
 
-        TextualAnnotationWrapper text = new TextualAnnotationWrapper("New");
+        TextualAnnotation text = new TextualAnnotation("New");
         text.setText(test);
         image.link(client, text);
-        AnnotationList annotations = image.getAnnotations(client);
+        List<Annotation> annotations = image.getAnnotations(client);
 
-        List<TextualAnnotationWrapper> texts = annotations.getElementsOf(TextualAnnotationWrapper.class);
+        List<TextualAnnotation> texts = getElementsOf(annotations, TextualAnnotation.class);
         client.delete(texts);
 
         assertEquals(1, texts.size());

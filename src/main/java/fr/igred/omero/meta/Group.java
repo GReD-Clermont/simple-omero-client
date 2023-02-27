@@ -18,45 +18,43 @@
 package fr.igred.omero.meta;
 
 
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import omero.gateway.model.GroupData;
 
 import java.util.List;
 
 
 /**
- * Class containing a GroupData object.
- * <p> Wraps function calls to the GroupData contained.
+ * Interface to handle Groups on OMERO.
  */
-public class GroupWrapper extends ObjectWrapper<GroupData> {
+public interface Group extends RemoteObject {
 
     /** Indicates that the group is {@code Private} i.e. RW----. */
-    public static final int PERMISSIONS_PRIVATE = GroupData.PERMISSIONS_PRIVATE;
+    int PERMISSIONS_PRIVATE = GroupData.PERMISSIONS_PRIVATE;
 
     /** Indicates that the group is {@code Group} i.e. RWR---. */
-    public static final int PERMISSIONS_GROUP_READ = GroupData.PERMISSIONS_GROUP_READ;
+    int PERMISSIONS_GROUP_READ = GroupData.PERMISSIONS_GROUP_READ;
 
     /** Indicates that the group is {@code Group} i.e. RWRA--. */
-    public static final int PERMISSIONS_GROUP_READ_LINK = GroupData.PERMISSIONS_GROUP_READ_LINK;
+    int PERMISSIONS_GROUP_READ_LINK = GroupData.PERMISSIONS_GROUP_READ_LINK;
 
     /** Indicates that the group is {@code Group} i.e. RWRW--. */
-    public static final int PERMISSIONS_GROUP_READ_WRITE = GroupData.PERMISSIONS_GROUP_READ_WRITE;
+    int PERMISSIONS_GROUP_READ_WRITE = GroupData.PERMISSIONS_GROUP_READ_WRITE;
 
     /** Indicates that the group is {@code Public} i.e. RWRWR-. */
-    public static final int PERMISSIONS_PUBLIC_READ = GroupData.PERMISSIONS_PUBLIC_READ;
+    int PERMISSIONS_PUBLIC_READ = GroupData.PERMISSIONS_PUBLIC_READ;
 
     /** Indicates that the group is {@code Public} i.e. RWRWRW. */
-    public static final int PERMISSIONS_PUBLIC_READ_WRITE = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+    int PERMISSIONS_PUBLIC_READ_WRITE = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
 
 
     /**
-     * Constructor of the class GroupWrapper.
+     * Returns a {@link GroupData} corresponding to the handled object.
      *
-     * @param group The GroupData to wrap in the GroupWrapper.
+     * @return See above.
      */
-    public GroupWrapper(GroupData group) {
-        super(group);
-    }
+    @Override
+    GroupData asDataObject();
 
 
     /**
@@ -64,9 +62,7 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @return See above.
      */
-    public String getName() {
-        return data.getName();
-    }
+    String getName();
 
 
     /**
@@ -76,9 +72,7 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
-    }
+    void setName(String name);
 
 
     /**
@@ -86,9 +80,7 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @return See above.
      */
-    public String getDescription() {
-        return data.getDescription();
-    }
+    String getDescription();
 
 
     /**
@@ -98,9 +90,7 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
-    }
+    void setDescription(String description);
 
 
     /**
@@ -108,9 +98,7 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @return See above.
      */
-    public List<ExperimenterWrapper> getLeaders() {
-        return wrap(data.getLeaders(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
-    }
+    List<Experimenter> getLeaders();
 
 
     /**
@@ -118,9 +106,7 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @return See above.
      */
-    public List<ExperimenterWrapper> getExperimenters() {
-        return wrap(data.getExperimenters(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
-    }
+    List<Experimenter> getExperimenters();
 
 
     /**
@@ -128,9 +114,7 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @return See above.
      */
-    public List<ExperimenterWrapper> getMembersOnly() {
-        return wrap(data.getMembersOnly(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
-    }
+    List<Experimenter> getMembersOnly();
 
 
     /**
@@ -138,8 +122,6 @@ public class GroupWrapper extends ObjectWrapper<GroupData> {
      *
      * @return See above.
      */
-    public int getPermissionsLevel() {
-        return data.getPermissions().getPermissionsLevel();
-    }
+    int getPermissionsLevel();
 
 }

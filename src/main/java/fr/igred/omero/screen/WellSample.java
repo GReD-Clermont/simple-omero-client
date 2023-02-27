@@ -18,12 +18,12 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.ImageWrapper;
 import ome.model.units.BigResult;
 import omero.gateway.model.WellSampleData;
 import omero.model.Length;
@@ -35,20 +35,17 @@ import java.util.concurrent.ExecutionException;
 
 
 /**
- * Class containing a WellSampleData object.
- * <p> Wraps function calls to the WellSampleData contained.
+ * Interface to handle Well Samples on OMERO.
  */
-public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
-
+public interface WellSample extends RemoteObject {
 
     /**
-     * Constructor of the class WellSampleWrapper.
+     * Returns an {@link WellSampleData} corresponding to the handled object.
      *
-     * @param wellSample The WellSampleData to wrap in the WellSampleWrapper.
+     * @return See above.
      */
-    public WellSampleWrapper(WellSampleData wellSample) {
-        super(wellSample);
-    }
+    @Override
+    WellSampleData asDataObject();
 
 
     /**
@@ -63,7 +60,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ScreenWrapper> getScreens(Browser browser)
+    default List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         return getWell(browser).getScreens(browser);
     }
@@ -80,7 +77,8 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
+    default List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(browser).getPlate());
     }
 
@@ -96,14 +94,14 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWell(browser).getPlateAcquisitions(browser);
     }
 
 
     /**
-     * Retrieves the well containing this well sample
+     * Retrieves the well containing this well sample.
      *
      * @param browser The data browser.
      *
@@ -113,7 +111,8 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public WellWrapper getWell(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    default Well getWell(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
         return browser.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }
 
@@ -123,9 +122,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @return See above.
      */
-    public ImageWrapper getImage() {
-        return new ImageWrapper(data.getImage());
-    }
+    Image getImage();
 
 
     /**
@@ -133,9 +130,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @param image The image to set.
      */
-    public void setImage(ImageWrapper image) {
-        data.setImage(image.asDataObject());
-    }
+    void setImage(Image image);
 
 
     /**
@@ -147,9 +142,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getPositionX(UnitsLength unit) throws BigResult {
-        return data.getPositionX(unit);
-    }
+    Length getPositionX(UnitsLength unit) throws BigResult;
 
 
     /**
@@ -161,9 +154,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getPositionY(UnitsLength unit) throws BigResult {
-        return data.getPositionY(unit);
-    }
+    Length getPositionY(UnitsLength unit) throws BigResult;
 
 
     /**
@@ -171,8 +162,6 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      *
      * @return See above.
      */
-    public long getStartTime() {
-        return data.getStartTime();
-    }
+    long getStartTime();
 
 }

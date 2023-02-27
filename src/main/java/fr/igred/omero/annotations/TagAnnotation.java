@@ -18,67 +18,38 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.DataManager;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
-
-import java.util.concurrent.ExecutionException;
 
 
 /**
- * Class containing a TagAnnotationData object.
- * <p> Wraps function calls to the TagAnnotationData contained.
+ * Interface to handle Tag Annotations on OMERO.
  */
-public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
+public interface TagAnnotation extends Annotation {
 
     /**
-     * Constructor of the TagAnnotationWrapper class.
+     * Returns a {@link TagAnnotationData} corresponding to the handled object.
      *
-     * @param tag TagAnnotationData to wrap.
+     * @return See above.
      */
-    public TagAnnotationWrapper(TagAnnotationData tag) {
-        super(tag);
-    }
+    @Override
+    TagAnnotationData asDataObject();
 
 
     /**
-     * Constructor of the TagAnnotationWrapper class. Creates the tag and save it in OMERO.
+     * Gets the name of the tag.
      *
-     * @param dm          The data manager.
-     * @param name        Annotation name.
-     * @param description Tag description.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @return Tag name.
      */
-    public TagAnnotationWrapper(DataManager dm, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        super(new TagAnnotationData(name, description));
-        super.saveAndUpdate(dm);
-    }
+    String getName();
 
 
     /**
-     * Gets the name of the TagData.
+     * Sets the name of the tag.
      *
-     * @return TagData name.
-     */
-    public String getName() {
-        return data.getTagValue();
-    }
-
-
-    /**
-     * Sets the name of the TagData.
-     *
-     * @param name The name of the TagData. Mustn't be {@code null}.
+     * @param name The name of the tag. Mustn't be {@code null}.
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setTagValue(name);
-    }
+    void setName(String name);
 
 }

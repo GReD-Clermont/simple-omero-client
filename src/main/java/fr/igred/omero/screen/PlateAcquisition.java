@@ -18,19 +18,18 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.client.DataManager;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
-import omero.model._PlateAcquisitionOperationsNC;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -41,47 +40,17 @@ import java.util.stream.Collectors;
 
 
 /**
- * Class containing a PlateAcquisitionData object.
- * <p> Wraps function calls to the PlateAcquisitionData contained.
+ * Interface to handle Plate Acquisitions on OMERO.
  */
-public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
-
+public interface PlateAcquisition extends RepositoryObject {
 
     /**
-     * Constructor of the class PlateAcquisitionWrapper.
-     *
-     * @param plateAcquisition The PlateAcquisitionData to wrap in the PlateAcquisitionWrapper.
-     */
-    public PlateAcquisitionWrapper(PlateAcquisitionData plateAcquisition) {
-        super(plateAcquisition);
-        omero.model.Plate plate = ((_PlateAcquisitionOperationsNC) data.asIObject()).getPlate();
-        if (plate != null) data.setRefPlateId(plate.getId().getValue());
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object.
+     * Returns an {@link PlateAcquisitionData} corresponding to the handled object.
      *
      * @return See above.
      */
     @Override
-    protected String annotationLinkType() {
-        return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Gets the plate acquisition name.
-     *
-     * @return See above.
-     */
-    @Override
-    public String getName() {
-        return data.getName();
-    }
+    PlateAcquisitionData asDataObject();
 
 
     /**
@@ -91,20 +60,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
-    }
-
-
-    /**
-     * Gets the plate acquisition description
-     *
-     * @return See above.
-     */
-    @Override
-    public String getDescription() {
-        return data.getDescription();
-    }
+    void setName(String name);
 
 
     /**
@@ -112,28 +68,26 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param description The description of the plate acquisition.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
-    }
+    void setDescription(String description);
 
 
     /**
-     * Adds a tag to the object in OMERO, if possible.
+     * Attach an {@link AnnotationData} to this object.
      *
-     * @param dm         The data manager.
-     * @param annotation Tag to be added.
      * @param <A>        The type of the annotation.
+     * @param dm         The data manager.
+     * @param annotation The {@link AnnotationData}.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends AnnotationWrapper<?>> void link(DataManager dm, A annotation)
+    default <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(annotation.asDataObject().asAnnotation());
-        link.setParent((omero.model.PlateAcquisition) data.asIObject());
+        link.setChild(annotation.asAnnotation());
+        link.setParent((omero.model.PlateAcquisition) asDataObject().asIObject());
         dm.save(link);
     }
 
@@ -150,9 +104,9 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
-    public List<ScreenWrapper> getScreens(Browser browser)
+    default List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
-        PlateWrapper plate = browser.getPlate(getRefPlateId());
+        Plate plate = browser.getPlate(getRefPlateId());
         return plate.getScreens(browser);
     }
 
@@ -168,7 +122,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Browser browser)
+    default List<Plate> getPlates(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return browser.getPlates(getRefPlateId());
     }
@@ -185,7 +139,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Browser browser)
+    default List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getPlates(browser).iterator().next().getWells(browser);
     }
@@ -202,15 +156,15 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser browser)
+    default List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWells(browser).stream()
-                                .map(WellWrapper::getImages)
+                                .map(Well::getImages)
                                 .flatMap(Collection::stream)
-                                .collect(Collectors.toMap(ObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                                .collect(Collectors.toMap(RemoteObject::getId, i -> i, (i1, i2) -> i1))
                                 .values()
                                 .stream()
-                                .sorted(Comparator.comparing(ObjectWrapper::getId))
+                                .sorted(Comparator.comparing(RemoteObject::getId))
                                 .collect(Collectors.toList());
     }
 
@@ -220,9 +174,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public String getLabel() {
-        return data.getLabel();
-    }
+    String getLabel();
 
 
     /**
@@ -230,9 +182,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public long getRefPlateId() {
-        return data.getRefPlateId();
-    }
+    long getRefPlateId();
 
 
     /**
@@ -240,9 +190,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param refPlateId The value to set.
      */
-    public void setRefPlateId(long refPlateId) {
-        data.setRefPlateId(refPlateId);
-    }
+    void setRefPlateId(long refPlateId);
 
 
     /**
@@ -250,9 +198,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public Timestamp getStartTime() {
-        return data.getStartTime();
-    }
+    Timestamp getStartTime();
 
 
     /**
@@ -260,9 +206,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public Timestamp getEndTime() {
-        return data.getEndTime();
-    }
+    Timestamp getEndTime();
 
 
     /**
@@ -270,8 +214,6 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public int getMaximumFieldCount() {
-        return data.getMaximumFieldCount();
-    }
+    int getMaximumFieldCount();
 
 }

@@ -19,9 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import omero.gateway.model.MapAnnotationData;
-import omero.model.NamedValue;
 
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,42 +31,17 @@ import static java.util.stream.Collectors.toList;
 
 
 /**
- * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
- * <p> Wraps function calls to the MapAnnotationData contained.
+ * Interface to handle Map Annotations on OMERO.
  */
-public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
-
+public interface MapAnnotation extends Annotation {
 
     /**
-     * Constructor of the MapAnnotationWrapper class.
+     * Returns a {@link MapAnnotationData} corresponding to the handled object.
      *
-     * @param data MapAnnotationData to wrap.
+     * @return See above.
      */
-    public MapAnnotationWrapper(MapAnnotationData data) {
-        super(data);
-    }
-
-
-    /**
-     * Constructor of the MapAnnotationWrapper class. Sets the content of the map annotation.
-     *
-     * @param pairs List of Key-Value pairs.
-     */
-    public MapAnnotationWrapper(Collection<? extends Entry<String, String>> pairs) {
-        super(new MapAnnotationData());
-        List<NamedValue> nv = pairs.stream()
-                                   .map(e -> new NamedValue(e.getKey(), e.getValue()))
-                                   .collect(toList());
-        data.setContent(nv);
-    }
-
-
-    /**
-     * Constructor of the MapAnnotationWrapper class.
-     */
-    public MapAnnotationWrapper() {
-        super(new MapAnnotationData());
-    }
+    @Override
+    MapAnnotationData asDataObject();
 
 
     /**
@@ -76,12 +49,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      *
      * @return MapAnnotationData content.
      */
-    @SuppressWarnings("unchecked")
-    public List<Entry<String, String>> getContent() {
-        return ((Collection<NamedValue>) data.getContent()).stream()
-                                                           .map(kv -> new AbstractMap.SimpleEntry<>(kv.name, kv.value))
-                                                           .collect(toList());
-    }
+    List<Entry<String, String>> getContent();
 
 
     /**
@@ -89,13 +57,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      *
      * @param pairs Collection of Key-Value pairs.
      */
-    public void setContent(Collection<? extends Entry<String, String>> pairs) {
-        data = new MapAnnotationData();
-        List<NamedValue> nv = pairs.stream()
-                                   .map(e -> new NamedValue(e.getKey(), e.getValue()))
-                                   .collect(toList());
-        data.setContent(nv);
-    }
+    void setContent(Collection<? extends Entry<String, String>> pairs);
 
 
     /**
@@ -103,7 +65,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      *
      * @return See above.
      */
-    public Map<String, List<String>> getContentAsMap() {
+    default Map<String, List<String>> getContentAsMap() {
         return getContent().stream().collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
     }
 

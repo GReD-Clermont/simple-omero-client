@@ -121,7 +121,7 @@ List<Roi> imagejRois = roi.toImageJ();
 String name = imagejRois.get(0).getProperty(ROIWrapper.ijNameProperty(property));
 String id = imagejRois.get(0).getProperty(ROIWrapper.ijIDProperty(property));
 
-// Conversely ImageJ Rois can be converted to OMERO from ImageJ using "ROIWrapper::fromImageJ"
+// Conversely ImageJ Rois can be converted to OMERO from ImageJ using "ROI::fromImageJ"
 Roi ijRoi1 = new Roi(1.0, 2.0, 3.0, 4.0);
 ijRoi1.setProperty(property, 0);
 ijRoi1.setProperty(ROIWrapper.ijNameProperty(property), "Name 1");

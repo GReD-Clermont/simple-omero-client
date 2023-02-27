@@ -18,27 +18,24 @@
 package fr.igred.omero.core;
 
 
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import omero.gateway.model.ChannelData;
 
 import java.awt.Color;
 
 
 /**
- * Class containing a ChannelData object.
- * <p> Wraps function calls to the ChannelData contained.
+ * Interface to handle Channel information on OMERO.
  */
-public class ChannelWrapper extends ObjectWrapper<ChannelData> {
-
+public interface Channel extends RemoteObject {
 
     /**
-     * Constructor of the class ChannelWrapper.
+     * Returns a {@link ChannelData} corresponding to the handled object.
      *
-     * @param channel The ChannelData to wrap in the ChannelWrapper.
+     * @return See above.
      */
-    public ChannelWrapper(ChannelData channel) {
-        super(channel);
-    }
+    @Override
+    ChannelData asDataObject();
 
 
     /**
@@ -46,12 +43,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public boolean hasRGBA() {
-        return data.asChannel().getRed() != null &&
-               data.asChannel().getGreen() != null &&
-               data.asChannel().getBlue() != null &&
-               data.asChannel().getAlpha() != null;
-    }
+    boolean hasRGBA();
 
 
     /**
@@ -59,9 +51,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public int getIndex() {
-        return data.getIndex();
-    }
+    int getIndex();
 
 
     /**
@@ -70,9 +60,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public String getChannelLabeling() {
-        return data.getChannelLabeling();
-    }
+    String getChannelLabeling();
 
 
     /**
@@ -80,9 +68,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public String getName() {
-        return asDataObject().getName();
-    }
+    String getName();
 
 
     /**
@@ -90,9 +76,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @param name The name of the channel.
      */
-    public void setName(String name) {
-        data.setName(name);
-    }
+    void setName(String name);
 
 
     /**
@@ -100,7 +84,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return The original channel color.
      */
-    public Color getColor() {
+    default Color getColor() {
         Color color = Color.WHITE;
         if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
         return color;
@@ -112,9 +96,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public int getAlpha() {
-        return data.asChannel().getAlpha().getValue();
-    }
+    int getAlpha();
 
 
     /**
@@ -122,9 +104,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public int getRed() {
-        return data.asChannel().getRed().getValue();
-    }
+    int getRed();
 
 
     /**
@@ -132,9 +112,7 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public int getGreen() {
-        return data.asChannel().getGreen().getValue();
-    }
+    int getGreen();
 
 
     /**
@@ -142,8 +120,6 @@ public class ChannelWrapper extends ObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
-    public int getBlue() {
-        return data.asChannel().getBlue().getValue();
-    }
+    int getBlue();
 
 }

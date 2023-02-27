@@ -18,24 +18,21 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import ome.model.units.BigResult;
 import omero.RLong;
 import omero.gateway.model.PlateData;
-import omero.gateway.model.WellData;
 import omero.model.IObject;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -43,45 +40,17 @@ import java.util.stream.Collectors;
 
 
 /**
- * Class containing a PlateData object.
- * <p> Wraps function calls to the PlateData contained.
+ * Interface to handle Plates on OMERO.
  */
-public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "PlateAnnotationLink";
-
+public interface Plate extends RepositoryObject {
 
     /**
-     * Constructor of the class PlateWrapper.
-     *
-     * @param plate The plate contained in the PlateWrapper.
-     */
-    public PlateWrapper(PlateData plate) {
-        super(plate);
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object.
+     * Returns an {@link PlateData} corresponding to the handled object.
      *
      * @return See above.
      */
     @Override
-    protected String annotationLinkType() {
-        return ANNOTATION_LINK;
-    }
-
-
-    /**
-     * Gets the plate name.
-     *
-     * @return See above.
-     */
-    @Override
-    public String getName() {
-        return data.getName();
-    }
+    PlateData asDataObject();
 
 
     /**
@@ -91,20 +60,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
-    public void setName(String name) {
-        data.setName(name);
-    }
-
-
-    /**
-     * Gets the plate description
-     *
-     * @return See above.
-     */
-    @Override
-    public String getDescription() {
-        return data.getDescription();
-    }
+    void setName(String name);
 
 
     /**
@@ -112,9 +68,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param description The description of the plate.
      */
-    public void setDescription(String description) {
-        data.setDescription(description);
-    }
+    void setDescription(String description);
 
 
     /**
@@ -129,7 +83,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Browser browser)
+    default List<Screen> getScreens(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from ScreenPlateLink as link " +
                                                "where link.child=" + getId());
@@ -142,9 +96,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions() {
-        return wrap(data.getPlateAcquisitions(), PlateAcquisitionWrapper::new);
-    }
+    List<PlateAcquisition> getPlateAcquisitions();
 
 
     /**
@@ -158,18 +110,8 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = ExceptionHandler.of(browser.getBrowseFacility(),
-                                                         bf -> bf.getWells(browser.getCtx(), data.getId()))
-                                                     .handleServiceOrAccess("Cannot get wells from " + this)
-                                                     .get();
-
-        return wells.stream()
-                    .map(WellWrapper::new)
-                    .sorted(Comparator.comparing(WellWrapper::getRow)
-                                      .thenComparing(WellWrapper::getColumn))
-                    .collect(Collectors.toList());
-    }
+    List<Well> getWells(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -183,15 +125,15 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser browser)
+    default List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWells(browser).stream()
-                                .map(WellWrapper::getImages)
+                                .map(Well::getImages)
                                 .flatMap(Collection::stream)
-                                .collect(Collectors.toMap(ObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                                .collect(Collectors.toMap(RemoteObject::getId, i -> i, (i1, i2) -> i1))
                                 .values()
                                 .stream()
-                                .sorted(Comparator.comparing(ObjectWrapper::getId))
+                                .sorted(Comparator.comparing(RemoteObject::getId))
                                 .collect(Collectors.toList());
     }
 
@@ -201,9 +143,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public int getColumnSequenceIndex() {
-        return data.getColumnSequenceIndex();
-    }
+    int getColumnSequenceIndex();
 
 
     /**
@@ -211,9 +151,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public int getRowSequenceIndex() {
-        return data.getRowSequenceIndex();
-    }
+    int getRowSequenceIndex();
 
 
     /**
@@ -221,9 +159,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public int getDefaultSample() {
-        return data.getDefaultSample();
-    }
+    int getDefaultSample();
 
 
     /**
@@ -231,9 +167,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
-    public void setDefaultSample(int value) {
-        data.setDefaultSample(value);
-    }
+    void setDefaultSample(int value);
 
 
     /**
@@ -241,9 +175,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public String getStatus() {
-        return data.getStatus();
-    }
+    String getStatus();
 
 
     /**
@@ -251,9 +183,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
-    public void setStatus(String value) {
-        data.setStatus(value);
-    }
+    void setStatus(String value);
 
 
     /**
@@ -261,9 +191,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public String getExternalIdentifier() {
-        return data.getExternalIdentifier();
-    }
+    String getExternalIdentifier();
 
 
     /**
@@ -271,9 +199,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
-    public void setExternalIdentifier(String value) {
-        data.setExternalIdentifier(value);
-    }
+    void setExternalIdentifier(String value);
 
 
     /**
@@ -281,9 +207,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
-    public String getPlateType() {
-        return data.getPlateType();
-    }
+    String getPlateType();
 
 
     /**
@@ -295,9 +219,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getWellOriginX(UnitsLength unit) throws BigResult {
-        return data.getWellOriginX(unit);
-    }
+    Length getWellOriginX(UnitsLength unit) throws BigResult;
 
 
     /**
@@ -309,9 +231,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getWellOriginY(UnitsLength unit) throws BigResult {
-        return data.getWellOriginY(unit);
-    }
+    Length getWellOriginY(UnitsLength unit) throws BigResult;
 
 
     /**
@@ -323,14 +243,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getPlates(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
-    }
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

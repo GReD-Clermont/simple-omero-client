@@ -20,6 +20,7 @@ package fr.igred.omero.client;
 
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
@@ -46,11 +47,11 @@ public class GatewayWrapper implements Client {
     private SecurityContext ctx;
 
     /** User */
-    private ExperimenterWrapper user;
+    private Experimenter user;
 
 
     /**
-     * Constructor of the Client class. Initializes the gateway.
+     * Constructor of the GatewayWrapper class. Initializes the gateway.
      */
     public GatewayWrapper() {
         this(null, null, null);
@@ -65,7 +66,7 @@ public class GatewayWrapper implements Client {
      * @param ctx     The security context.
      * @param user    The user.
      */
-    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, Experimenter user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
         this.user = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
         this.ctx = ctx != null ? ctx : new SecurityContext(-1);
@@ -89,7 +90,7 @@ public class GatewayWrapper implements Client {
      * @return The current user.
      */
     @Override
-    public ExperimenterWrapper getUser() {
+    public Experimenter getUser() {
         return user;
     }
 
@@ -176,7 +177,7 @@ public class GatewayWrapper implements Client {
      */
     @Override
     public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
+        Experimenter sudoUser = getUser(username);
 
         SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
         context.setExperimenter(sudoUser.asDataObject());

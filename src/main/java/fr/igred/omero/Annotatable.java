@@ -18,13 +18,11 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.AnnotationList;
-import fr.igred.omero.annotations.AnnotationWrapper;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
-import fr.igred.omero.annotations.RatingAnnotationWrapper;
-import fr.igred.omero.annotations.TableWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.FileAnnotation;
+import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.Table;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.DataManager;
@@ -33,25 +31,16 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
-import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.MapAnnotationData;
-import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TableData;
-import omero.gateway.model.TagAnnotationData;
-import omero.model.IObject;
-import omero.model.TagAnnotationI;
 
 import java.io.File;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -61,28 +50,9 @@ import java.util.stream.Collectors;
 
 
 /**
- * Generic class containing a DataObject (or a subclass) object.
- *
- * @param <T> Subclass of {@link DataObject}
+ * Interface to handle Annotatable Objects on OMERO.
  */
-public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWrapper<T> {
-
-    /**
-     * Constructor of the class RepositoryObjectWrapper.
-     *
-     * @param o The annotatable DataObject to wrap in the RepositoryObjectWrapper.
-     */
-    protected AnnotatableWrapper(T o) {
-        super(o);
-    }
-
-
-    /**
-     * Returns the type of annotation link for this object.
-     *
-     * @return See above.
-     */
-    protected abstract String annotationLinkType();
+public interface Annotatable extends RemoteObject {
 
 
     /**
@@ -98,7 +68,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends AnnotationWrapper<?>> boolean isLinked(Browser browser, A annotation)
+    default <A extends Annotation> boolean isLinked(Browser browser, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
@@ -115,10 +85,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    protected <A extends AnnotationData> void link(DataManager dm, A annotation)
+    default <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
-        ExceptionHandler.of(dm.getDMFacility(), d -> d.attachAnnotation(dm.getCtx(), annotation, data))
+        ExceptionHandler.of(dm.getDMFacility(), d -> d.attachAnnotation(dm.getCtx(), annotation, asDataObject()))
                         .handleServiceOrAccess(error)
                         .rethrow();
     }
@@ -135,7 +105,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends AnnotationWrapper<?>> void link(DataManager dm, A annotation)
+    default <A extends Annotation> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         link(dm, annotation.asDataObject());
     }
@@ -151,9 +121,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void link(DataManager dm, AnnotationWrapper<?>... annotations)
+    default void link(DataManager dm, Annotation... annotations)
     throws ServiceException, AccessException, ExecutionException {
-        for (AnnotationWrapper<?> annotation : annotations) {
+        for (Annotation annotation : annotations) {
             link(dm, annotation);
         }
     }
@@ -169,14 +139,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void linkIfNotLinked(Client client, AnnotationWrapper<?>... annotations)
+    default void linkIfNotLinked(Client client, Annotation... annotations)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> annotationIds = getAnnotationData(client).stream()
                                                             .map(DataObject::getId)
                                                             .collect(Collectors.toList());
         link(client, Arrays.stream(annotations)
                            .filter(a -> !annotationIds.contains(a.getId()))
-                           .toArray(AnnotationWrapper<?>[]::new));
+                           .toArray(Annotation[]::new));
     }
 
 
@@ -191,12 +161,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTag(DataManager dm, String name, String description)
-    throws ServiceException, AccessException, ExecutionException {
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(new TagAnnotationData(name));
-        tag.setDescription(description);
-        link(dm, tag);
-    }
+    void addTag(DataManager dm, String name, String description)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -209,12 +175,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTag(DataManager dm, Long id)
-    throws ServiceException, AccessException, ExecutionException {
-        TagAnnotationI    tag     = new TagAnnotationI(id, false);
-        TagAnnotationData tagData = new TagAnnotationData(tag);
-        link(dm, new TagAnnotationWrapper(tagData));
-    }
+    void addTag(DataManager dm, Long id)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -227,7 +189,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTags(DataManager dm, Long... ids)
+    default void addTags(DataManager dm, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         for (Long id : ids) {
             addTag(dm, id);
@@ -246,25 +208,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TagAnnotationWrapper> getTags(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
-
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleServiceOrAccess("Cannot get tags for " + this)
-                                                           .get();
-
-        return annotations.stream()
-                          .filter(TagAnnotationData.class::isInstance)
-                          .map(TagAnnotationData.class::cast)
-                          .map(TagAnnotationWrapper::new)
-                          .sorted(Comparator.comparing(TagAnnotationWrapper::getId))
-                          .collect(Collectors.toList());
-    }
+    List<TagAnnotation> getTags(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -278,25 +223,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<MapAnnotationWrapper> getMapAnnotations(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     asDataObject(),
-                                                                                     types,
-                                                                                     null))
-                                                           .handleServiceOrAccess("Cannot get map annotations for "
-                                                                                  + this)
-                                                           .get();
-
-        return annotations.stream()
-                          .filter(MapAnnotationData.class::isInstance)
-                          .map(MapAnnotationData.class::cast)
-                          .map(MapAnnotationWrapper::new)
-                          .sorted(Comparator.comparing(MapAnnotationWrapper::getId))
-                          .collect(Collectors.toList());
-    }
+    List<MapAnnotation> getMapAnnotations(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -310,14 +238,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addKeyValuePair(DataManager dm, String key, String value)
-    throws ServiceException, AccessException, ExecutionException {
-        List<Map.Entry<String, String>> kv = Collections.singletonList(new AbstractMap.SimpleEntry<>(key, value));
-
-        MapAnnotationWrapper pkv = new MapAnnotationWrapper(kv);
-        pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
-        link(dm, pkv);
-    }
+    void addKeyValuePair(DataManager dm, String key, String value)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -331,10 +253,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Map.Entry<String, String>> getKeyValuePairs(Browser browser)
+    default List<Map.Entry<String, String>> getKeyValuePairs(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(browser).stream()
-                                         .map(MapAnnotationWrapper::getContent)
+                                         .map(MapAnnotation::getContent)
                                          .flatMap(List::stream)
                                          .collect(Collectors.toList());
     }
@@ -353,10 +275,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public List<String> getValues(Browser browser, String key)
+    default List<String> getValues(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(browser).stream()
-                                         .map(MapAnnotationWrapper::getContentAsMap)
+                                         .map(MapAnnotation::getContentAsMap)
                                          .map(kv -> kv.get(key))
                                          .filter(Objects::nonNull)
                                          .flatMap(List::stream)
@@ -377,38 +299,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ServerException      Server error.
      * @throws InterruptedException The thread was interrupted.
      */
-    public void rate(Client client, int rating)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        String error = "Cannot retrieve rating annotations from " + this;
-
-        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
-        List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
-
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     userIds))
-                                                           .handleServiceOrAccess(error)
-                                                           .get();
-        List<RatingAnnotationWrapper> ratings = annotations.stream()
-                                                           .filter(RatingAnnotationData.class::isInstance)
-                                                           .map(RatingAnnotationData.class::cast)
-                                                           .map(RatingAnnotationWrapper::new)
-                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                           .collect(Collectors.toList());
-
-        if (ratings.isEmpty()) {
-            RatingAnnotationWrapper rate = new RatingAnnotationWrapper(rating);
-            link(client, rate);
-        } else {
-            int n = ratings.size();
-            if (n > 1) client.delete(ratings.subList(1, n));
-            RatingAnnotationWrapper rate = ratings.get(0);
-            rate.setRating(rating);
-            rate.saveAndUpdate(client);
-        }
-    }
+    void rate(Client client, int rating)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
     /**
@@ -422,32 +314,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public int getMyRating(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot retrieve rating annotations from " + this;
-
-        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
-        List<Long>                            userIds = Collections.singletonList(browser.getCtx().getExperimenter());
-
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     userIds))
-                                                           .handleServiceOrAccess(error)
-                                                           .get();
-        List<RatingAnnotationWrapper> ratings = annotations.stream()
-                                                           .filter(RatingAnnotationData.class::isInstance)
-                                                           .map(RatingAnnotationData.class::cast)
-                                                           .map(RatingAnnotationWrapper::new)
-                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                           .collect(Collectors.toList());
-        int score = 0;
-        for (RatingAnnotationWrapper rate : ratings) {
-            score += rate.getRating();
-        }
-        return score / Math.max(1, ratings.size());
-    }
+    int getMyRating(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -460,12 +328,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTable(DataManager dm, TableWrapper table)
+    default void addTable(DataManager dm, Table table)
     throws ServiceException, AccessException, ExecutionException {
         TablesFacility tablesFacility = dm.getTablesFacility();
         TableData tableData = ExceptionHandler.of(tablesFacility,
                                                   tf -> tf.addTable(dm.getCtx(),
-                                                                    data,
+                                                                    asDataObject(),
                                                                     table.getName(),
                                                                     table.createTable()))
                                               .handleServiceOrAccess("Cannot add table to " + this)
@@ -473,13 +341,15 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
 
         Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
                                                                     tf -> tf.getAvailableTables(dm.getCtx(),
-                                                                                                data))
+                                                                                                asDataObject()))
                                                                 .handleServiceOrAccess("Cannot add table to " + this)
                                                                 .get();
         long fileId = tableData.getOriginalFileId();
 
-        long id = tables.stream().filter(v -> v.getFileID() == fileId)
-                        .mapToLong(DataObject::getId).max().orElse(-1L);
+        long id = tables.stream()
+                        .filter(v -> v.getFileID() == fileId)
+                        .mapToLong(DataObject::getId)
+                        .max().orElse(-1L);
         table.setId(id);
         table.setFileId(tableData.getOriginalFileId());
     }
@@ -498,25 +368,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
-    public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        Collection<FileAnnotationWrapper> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
-                                                                            t -> t.getAvailableTables(
-                                                                                    client.getCtx(), data))
-                                                                        .handleServiceOrAccess("Cannot get tables from "
-                                                                                               + this)
-                                                                        .get(),
-                                                        FileAnnotationWrapper::new);
-        addTable(client, table);
-        tables.removeIf(t -> !t.getDescription().equals(table.getName()));
-        for (FileAnnotationWrapper fileAnnotation : tables) {
-            this.unlink(client, fileAnnotation);
-            if (policy == ReplacePolicy.DELETE ||
-                policy == ReplacePolicy.DELETE_ORPHANED && fileAnnotation.countAnnotationLinks(client) == 0) {
-                client.deleteFile(fileAnnotation.getId());
-            }
-        }
-    }
+    void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
     /**
@@ -532,7 +385,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
-    public void addAndReplaceTable(Client client, TableWrapper table)
+    default void addAndReplaceTable(Client client, Table table)
     throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
         addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
     }
@@ -550,22 +403,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper getTable(DataManager dm, Long fileId)
-    throws ServiceException, AccessException, ExecutionException {
-        TableData table = ExceptionHandler.of(dm.getTablesFacility(), tf -> tf.getTable(dm.getCtx(), fileId))
-                                          .handleServiceOrAccess("Cannot get table from " + this)
-                                          .get();
-        String name = ExceptionHandler.of(dm.getTablesFacility(),
-                                          tf -> tf.getAvailableTables(dm.getCtx(), data)
-                                                  .stream().filter(t -> t.getFileID() == fileId)
-                                                  .map(FileAnnotationData::getDescription)
-                                                  .findFirst().orElse(null))
-                                      .handleServiceOrAccess("Cannot get table name from " + this)
-                                      .get();
-        TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
-        result.setName(name);
-        return result;
-    }
+    Table getTable(DataManager dm, Long fileId)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -579,18 +418,19 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TableWrapper> getTables(DataManager dm)
+    default List<Table> getTables(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = ExceptionHandler.of(dm.getTablesFacility(),
-                                                                    tf -> tf.getAvailableTables(dm.getCtx(), data))
-                                                                .handleServiceOrAccess("Cannot get tables from " + this)
-                                                                .get();
+        Collection<FileAnnotationData> files = ExceptionHandler.of(dm.getTablesFacility(),
+                                                                   tf -> tf.getAvailableTables(dm.getCtx(),
+                                                                                               asDataObject()))
+                                                               .handleServiceOrAccess("Cannot get tables from " + this)
+                                                               .get();
 
-        List<TableWrapper> tablesWrapper = new ArrayList<>(tables.size());
-        for (FileAnnotationData table : tables) {
-            TableWrapper tableWrapper = getTable(dm, table.getFileID());
-            tableWrapper.setId(table.getId());
-            tablesWrapper.add(tableWrapper);
+        List<Table> tablesWrapper = new ArrayList<>(files.size());
+        for (FileAnnotationData file : files) {
+            Table table = getTable(dm, file.getFileID());
+            table.setId(file.getId());
+            tablesWrapper.add(table);
         }
 
         return tablesWrapper;
@@ -608,13 +448,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    public long addFile(DataManager dm, File file) throws ExecutionException, InterruptedException {
+    default long addFile(DataManager dm, File file)
+    throws ExecutionException, InterruptedException {
         return dm.getDMFacility().attachFile(dm.getCtx(),
                                              file,
                                              null,
                                              "",
                                              file.getName(),
-                                             data).get().getId();
+                                             asDataObject()).get().getId();
     }
 
 
@@ -633,28 +474,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
-    public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
-    throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException {
-        List<FileAnnotationWrapper> files = getFileAnnotations(client);
-
-        FileAnnotationData uploaded = client.getDMFacility().attachFile(client.getCtx(),
-                                                                        file,
-                                                                        null,
-                                                                        "",
-                                                                        file.getName(),
-                                                                        data).get();
-        FileAnnotationWrapper annotation = new FileAnnotationWrapper(uploaded);
-
-        files.removeIf(fileAnnotation -> !fileAnnotation.getFileName().equals(annotation.getFileName()));
-        for (FileAnnotationWrapper fileAnnotation : files) {
-            this.unlink(client, fileAnnotation);
-            if (policy == ReplacePolicy.DELETE ||
-                policy == ReplacePolicy.DELETE_ORPHANED && fileAnnotation.countAnnotationLinks(client) == 0) {
-                client.deleteFile(fileAnnotation.getId());
-            }
-        }
-        return annotation.getFileID();
-    }
+    long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
+    throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException;
 
 
     /**
@@ -672,7 +493,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      * @throws ServerException      Server error.
      */
-    public long addAndReplaceFile(Client client, File file)
+    default long addAndReplaceFile(Client client, File file)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
     }
@@ -689,26 +510,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FileAnnotationWrapper> getFileAnnotations(Browser browser)
-    throws ExecutionException, ServiceException, AccessException {
-        String error = "Cannot retrieve file annotations from " + this;
-
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
-
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleServiceOrAccess(error)
-                                                           .get();
-
-        return annotations.stream()
-                          .filter(FileAnnotationData.class::isInstance)
-                          .map(FileAnnotationData.class::cast)
-                          .map(FileAnnotationWrapper::new)
-                          .collect(Collectors.toList());
-    }
+    List<FileAnnotation> getFileAnnotations(Browser browser)
+    throws ExecutionException, ServiceException, AccessException;
 
 
     /**
@@ -724,32 +527,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public <A extends AnnotationWrapper<?>> void unlink(Client client, A annotation)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
-        removeLink(client, annotationLinkType(), annotation.getId());
-    }
-
-
-    /**
-     * Removes the link of the given type with the given child ID.
-     *
-     * @param client   The client handling the connection.
-     * @param linkType The link type.
-     * @param childId  Link child ID.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    protected void removeLink(Client client, String linkType, long childId)
-    throws ServiceException, ServerException, AccessException, ExecutionException, InterruptedException {
-        List<IObject> os = client.findByQuery("select link from " + linkType +
-                                              " link where link.parent = " + getId() +
-                                              " and link.child = " + childId);
-        client.delete(os.iterator().next());
-    }
+    <A extends Annotation> void unlink(Client client, A annotation)
+    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
 
 
     /**
@@ -763,9 +542,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<AnnotationData> getAnnotationData(Browser browser)
+    default List<AnnotationData> getAnnotationData(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return ExceptionHandler.of(browser.getMetadata(), m -> m.getAnnotations(browser.getCtx(), data))
+        return ExceptionHandler.of(browser.getMetadata(), m -> m.getAnnotations(browser.getCtx(), asDataObject()))
                                .handleServiceOrAccess("Cannot get annotations from " + this)
                                .get();
     }
@@ -782,13 +561,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public AnnotationList getAnnotations(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> annotationData = getAnnotationData(browser);
-        AnnotationList       annotations    = new AnnotationList(annotationData.size());
-        annotationData.forEach(annotations::add);
-        return annotations;
-    }
+    List<Annotation> getAnnotations(Browser browser)
+    throws AccessException, ServiceException, ExecutionException;
 
 
     /**
@@ -801,7 +575,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void copyAnnotationLinks(Client client, AnnotatableWrapper<?> object)
+    default void copyAnnotationLinks(Client client, Annotatable object)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> newAnnotations = object.getAnnotationData(client);
         List<AnnotationData> oldAnnotations = this.getAnnotationData(client);

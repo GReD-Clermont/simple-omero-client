@@ -35,8 +35,8 @@ class PixelsTest extends UserTest {
         final int sizeZ  = 3;
         final int sizeT  = 7;
 
-        ImageWrapper  image  = client.getImage(IMAGE1.id);
-        PixelsWrapper pixels = image.getPixels();
+        Image image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
 
         assertEquals(sizeXY, pixels.getSizeX());
         assertEquals(sizeXY, pixels.getSizeY());
@@ -48,8 +48,8 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawData() throws Exception {
-        ImageWrapper     image  = client.getImage(IMAGE1.id);
-        PixelsWrapper    pixels = image.getPixels();
+        Image image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
         double[][][][][] value  = pixels.getAllPixels(client);
 
         assertEquals(pixels.getSizeX(), value[0][0][0][0].length);
@@ -62,8 +62,8 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawData2() throws Exception {
-        ImageWrapper  image  = client.getImage(IMAGE1.id);
-        PixelsWrapper pixels = image.getPixels();
+        Image image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
         byte[][][][]  value  = pixels.getRawPixels(client, 1);
 
         int sizeX = pixels.getSizeX();
@@ -81,8 +81,8 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawDataBound() throws Exception {
-        ImageWrapper  image  = client.getImage(IMAGE1.id);
-        PixelsWrapper pixels = image.getPixels();
+        Image image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
 
         int[] xBounds = {0, 2};
         int[] yBounds = {0, 2};
@@ -102,8 +102,8 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawDataBoundError() throws Exception {
-        ImageWrapper  image  = client.getImage(IMAGE1.id);
-        PixelsWrapper pixels = image.getPixels();
+        Image image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
 
         int[] xBounds = {511, 513};
         int[] yBounds = {0, 2};
@@ -118,8 +118,8 @@ class PixelsTest extends UserTest {
 
     @Test
     void testGetRawDataBoundErrorNegative() throws Exception {
-        ImageWrapper  image  = client.getImage(IMAGE1.id);
-        PixelsWrapper pixels = image.getPixels();
+        Image image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
 
         int[] xBounds = {-1, 1};
         int[] yBounds = {0, 2};

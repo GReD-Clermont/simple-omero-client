@@ -18,65 +18,27 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
-import omero.ServerError;
-import omero.api.RawFileStorePrx;
-import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.model.AnnotationData;
 import omero.gateway.model.FileAnnotationData;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 
 /**
- * Class containing a FileAnnotationData object.
- * <p> Wraps function calls to the FileAnnotationData contained.
+ * Interface to handle File Annotations on OMERO.
  */
-public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData> {
+public interface FileAnnotation extends Annotation {
 
     /**
-     * Constructor of the AnnotationWrapper class.
+     * Returns an {@link FileAnnotationData} corresponding to the handled object.
      *
-     * @param annotation FileAnnotationData to wrap.
+     * @return See above.
      */
-    public FileAnnotationWrapper(FileAnnotationData annotation) {
-        super(annotation);
-    }
-
-
-    /**
-     * Writes this file annotation to the specified {@link FileOutputStream}.
-     *
-     * @param client The client handling the connection.
-     * @param stream The {@link FileOutputStream} where the data will be written.
-     *
-     * @return The {@link RawFileStorePrx} used to read the file annotation.
-     *
-     * @throws ServerError             Server error.
-     * @throws DSOutOfServiceException Cannot connect to OMERO.
-     * @throws IOException             Cannot write to the file.
-     */
-    private RawFileStorePrx writeFile(ConnectionHandler client, FileOutputStream stream)
-    throws ServerError, DSOutOfServiceException, IOException {
-        final int inc = 262144;
-
-        RawFileStorePrx store = client.getGateway().getRawFileService(client.getCtx());
-        store.setFileId(this.getFileID());
-
-        long size = getFileSize();
-        long offset;
-        for (offset = 0; offset + inc < size; offset += inc) {
-            stream.write(store.read(offset, inc));
-        }
-        stream.write(store.read(offset, (int) (size - offset)));
-        return store;
-    }
+    @Override
+    FileAnnotationData asDataObject();
 
 
     /**
@@ -84,9 +46,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public String getOriginalMimetype() {
-        return data.getOriginalMimetype();
-    }
+    String getOriginalMimetype();
 
 
     /**
@@ -94,9 +54,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public String getServerFileMimetype() {
-        return data.getServerFileMimetype();
-    }
+    String getServerFileMimetype();
 
 
     /**
@@ -104,9 +62,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public String getFileFormat() {
-        return data.getFileFormat();
-    }
+    String getFileFormat();
 
 
     /**
@@ -114,9 +70,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public String getFileKind() {
-        return data.getFileKind();
-    }
+    String getFileKind();
 
 
     /**
@@ -124,9 +78,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public File getAttachedFile() {
-        return data.getAttachedFile();
-    }
+    File getAttachedFile();
 
 
     /**
@@ -134,9 +86,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public String getFileName() {
-        return data.getFileName();
-    }
+    String getFileName();
 
 
     /**
@@ -144,9 +94,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public String getFilePath() {
-        return data.getFilePath();
-    }
+    String getFilePath();
 
 
     /**
@@ -154,9 +102,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public long getFileSize() {
-        return data.getFileSize();
-    }
+    long getFileSize();
 
 
     /**
@@ -164,9 +110,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public long getFileID() {
-        return data.getFileID();
-    }
+    long getFileID();
 
 
     /**
@@ -181,25 +125,8 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      * @throws IOException      Cannot write to the file.
      * @throws ServerException  Server error.
      */
-    public File getFile(Client client, String path) throws IOException, ServiceException, ServerException {
-        File file = new File(path);
-
-        RawFileStorePrx store;
-        try (FileOutputStream stream = new FileOutputStream(file)) {
-            store = ExceptionHandler.of(client, c -> writeFile(c, stream))
-                                    .handleServiceOrServer("Could not create RawFileService")
-                                    .rethrow(IOException.class)
-                                    .get();
-        }
-
-        if (store != null) {
-            ExceptionHandler.ofConsumer(store, RawFileStorePrx::close)
-                            .rethrow(ServerError.class, ServerException::new, "Could not close RawFileService")
-                            .rethrow();
-        }
-
-        return file;
-    }
+    File getFile(ConnectionHandler client, String path)
+    throws IOException, ServiceException, ServerException;
 
 
     /**
@@ -207,11 +134,9 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      *
-     * @see AnnotationData#getContentAsString()
+     * @see FileAnnotationData#getContentAsString()
      */
-    public String getContentAsString() {
-        return data.getContentAsString();
-    }
+    String getContentAsString();
 
 
     /**
@@ -219,8 +144,6 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      *
      * @return See above.
      */
-    public boolean isMovieFile() {
-        return data.isMovieFile();
-    }
+    boolean isMovieFile();
 
 }

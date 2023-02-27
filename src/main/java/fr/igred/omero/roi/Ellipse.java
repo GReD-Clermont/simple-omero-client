@@ -18,88 +18,23 @@
 package fr.igred.omero.roi;
 
 
-import ij.gui.EllipseRoi;
-import ij.gui.OvalRoi;
-import ij.gui.Roi;
 import omero.gateway.model.EllipseData;
 
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.RectangularShape;
 
 
 /**
- * Class containing an EllipseData.
- * <p> Wraps function calls to the EllipseData contained.
+ * Interface to handle Ellipse shapes on OMERO.
  */
-public class EllipseWrapper extends ShapeWrapper<EllipseData> {
-
+public interface Ellipse extends Shape {
 
     /**
-     * Constructor of the EllipseWrapper class using a EllipseData.
+     * Returns an {@link EllipseData} corresponding to the handled object.
      *
-     * @param ellipse The EllipseData to wrap.
-     */
-    public EllipseWrapper(EllipseData ellipse) {
-        super(ellipse);
-    }
-
-
-    /**
-     * Constructor of the EllipseWrapper class using a new empty EllipseData.
-     */
-    public EllipseWrapper() {
-        this(new EllipseData());
-    }
-
-
-    /**
-     * Constructor of the EllipseWrapper class using bounds from an ImageJ ROI.
-     *
-     * @param ijRoi An ImageJ ROI.
-     */
-    public EllipseWrapper(ij.gui.Roi ijRoi) {
-        this(ijRoi.getBounds().getX() + ijRoi.getBounds().getWidth() / 2,
-             ijRoi.getBounds().getY() + ijRoi.getBounds().getHeight() / 2,
-             ijRoi.getBounds().getWidth() / 2,
-             ijRoi.getBounds().getHeight() / 2);
-        data.setText(ijRoi.getName());
-        super.copyFromIJRoi(ijRoi);
-    }
-
-
-    /**
-     * Constructor of the EllipseWrapper class using a new EllipseData.
-     *
-     * @param x       The x-coordinate of the center of the ellipse.
-     * @param y       The y-coordinate of the center of the ellipse.
-     * @param radiusX The radius along the X-axis.
-     * @param radiusY The radius along the Y-axis.
-     */
-    public EllipseWrapper(double x, double y, double radiusX, double radiusY) {
-        this(new EllipseData(x, y, radiusX, radiusY));
-    }
-
-
-    /**
-     * Gets the text on the ShapeData.
-     *
-     * @return the text
+     * @return See above.
      */
     @Override
-    public String getText() {
-        return data.getText();
-    }
-
-
-    /**
-     * Sets the text on the ShapeData.
-     *
-     * @param text the text
-     */
-    @Override
-    public void setText(String text) {
-        data.setText(text);
-    }
+    EllipseData asDataObject();
 
 
     /**
@@ -108,7 +43,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      * @return The converted AWT Shape.
      */
     @Override
-    public java.awt.Shape toAWTShape() {
+    default java.awt.Shape toAWTShape() {
         return new Ellipse2D.Double(getX() - getRadiusX(), getY() - getRadiusY(), 2 * getRadiusX(), 2 * getRadiusY());
     }
 
@@ -118,9 +53,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
-    public double getX() {
-        return data.getX();
-    }
+    double getX();
 
 
     /**
@@ -128,9 +61,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param x See above.
      */
-    public void setX(double x) {
-        data.setX(x);
-    }
+    void setX(double x);
 
 
     /**
@@ -138,9 +69,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
-    public double getY() {
-        return data.getY();
-    }
+    double getY();
 
 
     /**
@@ -148,9 +77,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param y See above.
      */
-    public void setY(double y) {
-        data.setY(y);
-    }
+    void setY(double y);
 
 
     /**
@@ -158,9 +85,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
-    public double getRadiusX() {
-        return data.getRadiusX();
-    }
+    double getRadiusX();
 
 
     /**
@@ -168,9 +93,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param x the value to set.
      */
-    public void setRadiusX(double x) {
-        data.setRadiusX(x);
-    }
+    void setRadiusX(double x);
 
 
     /**
@@ -178,9 +101,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return See above.
      */
-    public double getRadiusY() {
-        return data.getRadiusY();
-    }
+    double getRadiusY();
 
 
     /**
@@ -188,9 +109,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param y The value to set.
      */
-    public void setRadiusY(double y) {
-        data.setRadiusY(y);
-    }
+    void setRadiusY(double y);
 
 
     /**
@@ -201,7 +120,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      * @param radiusX The radius along the X-axis.
      * @param radiusY The radius along the Y-axis.
      */
-    public void setCoordinates(double x, double y, double radiusX, double radiusY) {
+    default void setCoordinates(double x, double y, double radiusX, double radiusY) {
         setX(x);
         setY(y);
         setRadiusX(radiusX);
@@ -214,7 +133,7 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @return Array of coordinates containing {X,Y,RadiusX,RadiusY}.
      */
-    public double[] getCoordinates() {
+    default double[] getCoordinates() {
         double[] coordinates = new double[4];
         coordinates[0] = getX();
         coordinates[1] = getY();
@@ -229,67 +148,17 @@ public class EllipseWrapper extends ShapeWrapper<EllipseData> {
      *
      * @param coordinates Array of coordinates containing {X,Y,RadiusX,RadiusY}.
      */
-    public void setCoordinates(double[] coordinates) {
+    default void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
             throw new IllegalArgumentException("EllipseData cannot set null coordinates.");
         } else if (coordinates.length == 4) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-            data.setRadiusX(coordinates[2]);
-            data.setRadiusY(coordinates[3]);
+            setX(coordinates[0]);
+            setY(coordinates[1]);
+            setRadiusX(coordinates[2]);
+            setRadiusY(coordinates[3]);
         } else {
             throw new IllegalArgumentException("4 coordinates required for EllipseData.");
         }
-    }
-
-
-    /**
-     * Converts shape to ImageJ ROI.
-     *
-     * @return An ImageJ ROI.
-     */
-    @Override
-    public Roi toImageJ() {
-        java.awt.Shape awtShape = createTransformedAWTShape();
-
-        Roi roi;
-        if (awtShape instanceof RectangularShape) {
-            double x = ((RectangularShape) awtShape).getX();
-            double y = ((RectangularShape) awtShape).getY();
-            double w = ((RectangularShape) awtShape).getWidth();
-            double h = ((RectangularShape) awtShape).getHeight();
-            roi = new OvalRoi(x, y, w, h);
-        } else {
-            double x  = getX();
-            double y  = getY();
-            double rx = getRadiusX();
-            double ry = getRadiusY();
-            double ratio;
-
-            ShapeWrapper<?> p1;
-            ShapeWrapper<?> p2;
-            if (ry <= rx) {
-                p1 = new PointWrapper(x - rx, y);
-                p2 = new PointWrapper(x + rx, y);
-                ratio = ry / rx;
-            } else {
-                p1 = new PointWrapper(x, y - ry);
-                p2 = new PointWrapper(x, y + ry);
-                ratio = rx / ry;
-            }
-            p1.setTransform(toAWTTransform());
-            p2.setTransform(toAWTTransform());
-            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
-
-            double x1 = shape1.getX();
-            double y1 = shape1.getY();
-            double x2 = shape2.getX();
-            double y2 = shape2.getY();
-            roi = new EllipseRoi(x1, y1, x2, y2, ratio);
-        }
-        copyToIJRoi(roi);
-        return roi;
     }
 
 }
