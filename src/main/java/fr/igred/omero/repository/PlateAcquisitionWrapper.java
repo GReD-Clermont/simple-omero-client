@@ -137,7 +137,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends AnnotationData> void link(Client client, A annotation)
+    protected <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
