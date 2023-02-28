@@ -20,10 +20,10 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
@@ -137,10 +137,10 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
+    public <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(annotation.asDataObject().asAnnotation());
+        link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.PlateAcquisition) data.asIObject());
         client.save(link);
     }
