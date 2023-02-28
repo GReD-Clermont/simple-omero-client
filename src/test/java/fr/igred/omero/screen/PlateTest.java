@@ -41,6 +41,20 @@ class PlateTest extends UserTest {
 
 
     @Test
+    void testGetPlates() throws Exception {
+        Plate plate = client.getPlate(PLATE1.id);
+        assertEquals(plate.getId(), plate.getPlates(client).get(0).getId());
+    }
+
+
+    @Test
+    void testGetPlateAcquisitions() throws Exception {
+        Plate plate = client.getPlate(PLATE1.id);
+        assertEquals(1, plate.getPlateAcquisitions(client).size());
+    }
+
+
+    @Test
     void testGetWells() throws Exception {
         Plate      plate = client.getPlate(PLATE1.id);
         List<Well> wells = plate.getWells(client);

@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.ImageLinked;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
 /**
  * Interface to handle Folders on OMERO.
  */
-public interface Folder extends RepositoryObject {
+public interface Folder extends RepositoryObject, ImageLinked {
 
     /**
      * Returns a DataObject (or a subclass) corresponding to the handled object.

@@ -61,6 +61,26 @@ class WellSampleTest extends UserTest {
 
 
     @Test
+    void testGetWells() throws Exception {
+        Well       well   = client.getWell(1L);
+        WellSample sample = well.getWellSamples().get(0);
+        List<Well> wells  = sample.getWells(client);
+        assertEquals(1, wells.size());
+        assertEquals(well.getId(), wells.get(0).getId());
+    }
+
+
+    @Test
+    void testGetImages() throws Exception {
+        Well        well   = client.getWell(1L);
+        WellSample  sample = well.getWellSamples().get(0);
+        List<Image> images = sample.getImages(client);
+        assertEquals(1, images.size());
+        assertEquals(sample.getImage().getId(), images.get(0).getId());
+    }
+
+
+    @Test
     void testGetImage() throws Exception {
         final String name = "screen1.fake [screen1 2]";
 

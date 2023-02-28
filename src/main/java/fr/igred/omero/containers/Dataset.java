@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.ContainerLinked;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
@@ -39,6 +40,7 @@ import omero.model.IObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +54,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Interface to handle Datasets on OMERO.
  */
-public interface Dataset extends RepositoryObject {
+public interface Dataset extends RepositoryObject, ContainerLinked {
 
     /**
      * Returns a {@link DatasetData} corresponding to the handled object.
@@ -93,6 +95,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Project> getProjects(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from ProjectDatasetLink as link " +
@@ -102,6 +105,25 @@ public interface Dataset extends RepositoryObject {
                                      .map(RLong::getValue)
                                      .distinct()
                                      .toArray(Long[]::new));
+    }
+
+
+    /**
+     * Reloads and returns this dataset (updated from OMERO) as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Dataset> getDatasets(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        return Collections.singletonList(this);
     }
 
 
@@ -124,6 +146,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException;
 

@@ -50,6 +50,14 @@ class PlateAcquisitionTest extends UserTest {
 
 
     @Test
+    void testGetPlateAcquisitions() throws Exception {
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+        assertEquals(acq, acq.getPlateAcquisitions(client).get(0));
+    }
+
+
+    @Test
     void testGetWells() throws Exception {
         Plate            plate = client.getPlate(PLATE1.id);
         PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
@@ -140,7 +148,7 @@ class PlateAcquisitionTest extends UserTest {
         PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
         assertEquals(1, acq.getRefPlateId());
         acq.setRefPlateId(-1L);
-        // Saving does not work: acq.saveAndUpdate(client);
+        // Saving does nothing: acq.saveAndUpdate(client);
         assertEquals(-1L, acq.getRefPlateId());
     }
 

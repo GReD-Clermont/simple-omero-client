@@ -18,6 +18,8 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.ContainerLinked;
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -52,6 +54,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -65,7 +68,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Images on OMERO.
  */
-public interface Image extends RepositoryObject {
+public interface Image extends RepositoryObject, ContainerLinked, HCSLinked {
 
     /**
      * Returns a {@link ImageData} corresponding to the handled object.
@@ -103,7 +106,7 @@ public interface Image extends RepositoryObject {
 
 
     /**
-     * Retrieves the projects containing this image
+     * Retrieves the projects containing this image.
      *
      * @param browser The data browser.
      *
@@ -114,6 +117,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Project> getProjects(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<Dataset> datasets = getDatasets(browser);
@@ -138,6 +142,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Dataset> getDatasets(Browser browser)
     throws ServerException, ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from DatasetImageLink as link " +
@@ -152,6 +157,20 @@ public interface Image extends RepositoryObject {
 
 
     /**
+     * Returns this image, updated from OMERO, as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above
+     */
+    @Override
+    default List<Image> getImages(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return Collections.singletonList(browser.getImage(getId()));
+    }
+
+
+    /**
      * Retrieves the wells containing this image.
      *
      * @param browser The data browser.
@@ -162,6 +181,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Well> getWells(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         Long[] ids = this.asDataObject()
@@ -188,6 +208,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         List<Well> wells = getWells(browser);

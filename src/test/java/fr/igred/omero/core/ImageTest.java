@@ -117,6 +117,13 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetImages() throws Exception {
+        Image image = client.getImage(IMAGE1.id);
+        assertEquals(image.getId(), image.getImages(client).get(0).getId());
+    }
+
+
+    @Test
     void testGetAnnotations() throws Exception {
         List<Annotation> annotations = client.getImage(IMAGE1.id).getAnnotations(client);
         assertEquals(3, annotations.size());

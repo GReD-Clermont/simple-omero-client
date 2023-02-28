@@ -18,19 +18,13 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.RemoteObject;
+import fr.igred.omero.ContainerLinked;
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.containers.Dataset;
-import fr.igred.omero.containers.Project;
-import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.containers.Folder;
-import fr.igred.omero.screen.Plate;
-import fr.igred.omero.screen.PlateAcquisition;
-import fr.igred.omero.screen.Screen;
-import fr.igred.omero.screen.Well;
 import omero.gateway.model.AnnotationData;
 
 import java.sql.Timestamp;
@@ -41,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Annotations on OMERO.
  */
-public interface Annotation extends RemoteObject {
+public interface Annotation extends ContainerLinked, HCSLinked {
 
     /**
      * Returns an {@link AnnotationData} corresponding to the handled object.
@@ -106,116 +100,6 @@ public interface Annotation extends RemoteObject {
         return browser.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
                                    "where link.child.id=" + getId()).size();
     }
-
-
-    /**
-     * Gets all projects with this annotation from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Project> getProjects(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
-
-
-    /**
-     * Gets all datasets with this annotation from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Dataset> getDatasets(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
-
-
-    /**
-     * Gets all images with this annotation from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Image> getImages(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
-
-
-    /**
-     * Gets all screens with this annotation from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Screen> getScreens(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
-
-
-    /**
-     * Gets all plates with this annotation from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
-
-
-    /**
-     * Gets all plate acquisitions with this annotation from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
-     */
-    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, ServerException;
-
-
-    /**
-     * Gets all wells with this annotation from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    List<Well> getWells(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
 
 
     /**

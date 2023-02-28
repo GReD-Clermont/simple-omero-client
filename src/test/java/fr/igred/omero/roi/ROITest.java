@@ -109,11 +109,13 @@ class ROITest extends UserTest {
             roiWrapper.addShape(rectangle);
         }
 
-        image.saveROIs(client, roiWrapper);
+        List<ROI> updated = image.saveROIs(client, roiWrapper);
 
         List<ROI> rois = image.getROIs(client);
 
+        assertEquals(1, updated.size());
         assertEquals(1, rois.size());
+        assertEquals(4, updated.get(0).getShapes().size());
         assertEquals(4, rois.get(0).getShapes().size());
 
         for (ROI roi : rois) {
@@ -141,8 +143,7 @@ class ROITest extends UserTest {
         }
 
         ROI roiWrapper = new ROIWrapper(shapes);
-        roiWrapper.setImage(image);
-        image.saveROIs(client, roiWrapper);
+        image.saveROIs(client, Collections.singletonList(roiWrapper));
 
         List<ROI> rois = image.getROIs(client);
 
@@ -252,28 +253,28 @@ class ROITest extends UserTest {
         Shape polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
-        ROI roiWrapper = new ROIWrapper();
-        roiWrapper.setImage(image);
-        roiWrapper.addShape(point);
-        roiWrapper.addShape(text);
-        roiWrapper.addShape(rectangle);
-        roiWrapper.addShape(mask);
-        roiWrapper.addShape(ellipse);
-        roiWrapper.addShape(line);
-        roiWrapper.addShape(polyline);
-        roiWrapper.addShape(polygon);
-        image.saveROIs(client, roiWrapper);
+        ROI roi = new ROIWrapper();
+        roi.setImage(image);
+        roi.addShape(point);
+        roi.addShape(text);
+        roi.addShape(rectangle);
+        roi.addShape(mask);
+        roi.addShape(ellipse);
+        roi.addShape(line);
+        roi.addShape(polyline);
+        roi.addShape(polygon);
+        image.saveROIs(client, roi);
 
         List<ROI>       rois       = image.getROIs(client);
         List<Shape>     shapes     = rois.get(0).getShapes();
-        List<Point>     points     = getElementsOf(shapes, PointWrapper.class);
-        List<Text>      texts      = getElementsOf(shapes, TextWrapper.class);
-        List<Rectangle> rectangles = getElementsOf(shapes, RectangleWrapper.class);
-        List<Mask>      masks      = getElementsOf(shapes, MaskWrapper.class);
-        List<Ellipse>   ellipses   = getElementsOf(shapes, EllipseWrapper.class);
-        List<Line>      lines      = getElementsOf(shapes, LineWrapper.class);
-        List<Polyline>  polylines  = getElementsOf(shapes, PolylineWrapper.class);
-        List<Polygon>   polygons   = getElementsOf(shapes, PolygonWrapper.class);
+        List<Point>     points     = getElementsOf(shapes, Point.class);
+        List<Text>      texts      = getElementsOf(shapes, Text.class);
+        List<Rectangle> rectangles = getElementsOf(shapes, Rectangle.class);
+        List<Mask>      masks      = getElementsOf(shapes, Mask.class);
+        List<Ellipse>   ellipses   = getElementsOf(shapes, Ellipse.class);
+        List<Line>      lines      = getElementsOf(shapes, Line.class);
+        List<Polyline>  polylines  = getElementsOf(shapes, Polyline.class);
+        List<Polygon>   polygons   = getElementsOf(shapes, Polygon.class);
 
         assertEquals(1, rois.size());
         assertEquals(8, shapes.size());
@@ -286,9 +287,7 @@ class ROITest extends UserTest {
         assertEquals(1, polylines.size());
         assertEquals(1, polygons.size());
 
-        for (ROI roi : rois) {
-            client.delete(roi);
-        }
+        client.delete(rois);
         assertEquals(0, image.getROIs(client).size());
     }
 

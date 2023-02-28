@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.ContainerLinked;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -32,6 +33,7 @@ import omero.model.ProjectDatasetLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -41,7 +43,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Projects on OMERO.
  */
-public interface Project extends RepositoryObject {
+public interface Project extends RepositoryObject, ContainerLinked {
 
     /**
      * Returns a {@link ProjectData} corresponding to the handled object.
@@ -68,6 +70,44 @@ public interface Project extends RepositoryObject {
      * @param description The description of the project.
      */
     void setDescription(String description);
+
+
+    /**
+     * Reloads and returns this project as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Project> getProjects(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        return Collections.singletonList(this);
+    }
+
+
+    /**
+     * Reloads this project and retrieves the updated list of datasets contained in this project.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Dataset> getDatasets(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        return getDatasets();
+    }
 
 
     /**

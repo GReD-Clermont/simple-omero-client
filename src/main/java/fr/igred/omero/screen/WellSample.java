@@ -18,7 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RemoteObject;
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Well Samples on OMERO.
  */
-public interface WellSample extends RemoteObject {
+public interface WellSample extends HCSLinked {
 
     /**
      * Returns an {@link WellSampleData} corresponding to the handled object.
@@ -60,6 +60,7 @@ public interface WellSample extends RemoteObject {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
+    @Override
     default List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         return getWell(browser).getScreens(browser);
@@ -77,6 +78,7 @@ public interface WellSample extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Plate> getPlates(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(browser).getPlate());
@@ -94,9 +96,27 @@ public interface WellSample extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWell(browser).getPlateAcquisitions(browser);
+    }
+
+
+    /**
+     * Retrieves the well containing this Well Sample as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        return Collections.singletonList(getWell(browser));
     }
 
 
@@ -114,6 +134,19 @@ public interface WellSample extends RemoteObject {
     default Well getWell(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         return browser.getWell(asDataObject().asWellSample().getWell().getId().getValue());
+    }
+
+
+    /**
+     * Retrieves the image contained in this Well Sample as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above
+     */
+    @Override
+    default List<Image> getImages(Browser browser) {
+        return Collections.singletonList(getImage());
     }
 
 

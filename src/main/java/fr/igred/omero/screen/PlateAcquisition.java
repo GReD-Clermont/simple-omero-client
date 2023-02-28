@@ -18,6 +18,7 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.HCSLinked;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
@@ -33,6 +34,7 @@ import omero.model.PlateAcquisitionAnnotationLinkI;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -42,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * Interface to handle Plate Acquisitions on OMERO.
  */
-public interface PlateAcquisition extends RepositoryObject {
+public interface PlateAcquisition extends RepositoryObject, HCSLinked {
 
     /**
      * Returns an {@link PlateAcquisitionData} corresponding to the handled object.
@@ -104,6 +106,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
+    @Override
     default List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException {
         Plate plate = browser.getPlate(getRefPlateId());
@@ -122,9 +125,23 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Plate> getPlates(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return browser.getPlates(getRefPlateId());
+    }
+
+
+    /**
+     * Returns this plate acquisitions as a singleton list.
+     *
+     * @param browser The data browser (unused).
+     *
+     * @return See above.
+     */
+    @Override
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser) {
+        return Collections.singletonList(this);
     }
 
 
@@ -139,6 +156,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getPlates(browser).iterator().next().getWells(browser);
@@ -156,6 +174,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     default List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWells(browser).stream()

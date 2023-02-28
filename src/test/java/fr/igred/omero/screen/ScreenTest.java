@@ -36,6 +36,21 @@ class ScreenTest extends UserTest {
 
 
     @Test
+    void testGetScreens() throws Exception {
+        Screen screen = client.getScreen(SCREEN1.id);
+        assertEquals(screen.getId(), screen.getScreens(client).get(0).getId());
+    }
+
+
+    @Test
+    void testGetPlates() throws Exception {
+        Screen      screen = client.getScreen(SCREEN2.id);
+        List<Plate> plates = screen.getPlates(client);
+        assertEquals(2, plates.size());
+    }
+
+
+    @Test
     void testGetPlateAcquisitions() throws Exception {
         Screen screen = client.getScreen(SCREEN2.id);
         assertEquals(2, screen.getPlateAcquisitions(client).size());
