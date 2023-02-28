@@ -20,13 +20,13 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.gateway.facility.ROIFacility;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
@@ -128,10 +128,10 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
+    protected  <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
-        link.setChild(annotation.asDataObject().asAnnotation());
+        link.setChild(annotation.asAnnotation());
         link.setParent(data.asFolder());
         client.save(link);
     }
