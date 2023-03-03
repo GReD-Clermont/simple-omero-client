@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * Class containing a PlateData object.
  * <p> Wraps function calls to the PlateData contained.
  */
-public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
+public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> implements Plate {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAnnotationLink";
@@ -88,6 +88,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -120,6 +121,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @param description The description of the plate.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -137,6 +139,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ScreenWrapper> getScreens(Client client)
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ScreenPlateLink as link " +
@@ -150,6 +153,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public List<PlateAcquisitionWrapper> getPlateAcquisitions() {
         return wrap(data.getPlateAcquisitions(), PlateAcquisitionWrapper::new);
     }
@@ -166,6 +170,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<WellWrapper> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = ExceptionHandler.of(client.getBrowseFacility(),
                                                          bf -> bf.getWells(client.getCtx(), data.getId()))
@@ -191,6 +196,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return getWells(client).stream()
@@ -209,6 +215,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public int getColumnSequenceIndex() {
         return data.getColumnSequenceIndex();
     }
@@ -219,6 +226,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public int getRowSequenceIndex() {
         return data.getRowSequenceIndex();
     }
@@ -229,6 +237,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public int getDefaultSample() {
         return data.getDefaultSample();
     }
@@ -239,6 +248,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setDefaultSample(int value) {
         data.setDefaultSample(value);
     }
@@ -249,6 +259,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public String getStatus() {
         return data.getStatus();
     }
@@ -259,6 +270,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setStatus(String value) {
         data.setStatus(value);
     }
@@ -269,6 +281,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public String getExternalIdentifier() {
         return data.getExternalIdentifier();
     }
@@ -279,6 +292,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setExternalIdentifier(String value) {
         data.setExternalIdentifier(value);
     }
@@ -289,6 +303,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      */
+    @Override
     public String getPlateType() {
         return data.getPlateType();
     }
@@ -303,6 +318,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getWellOriginX(UnitsLength unit) throws BigResult {
         return data.getWellOriginX(unit);
     }
@@ -317,6 +333,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getWellOriginY(UnitsLength unit) throws BigResult {
         return data.getWellOriginY(unit);
     }
@@ -331,6 +348,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void refresh(Client client)
     throws ServiceException, AccessException, ExecutionException {
         data = client.getPlate(getId()).asDataObject();

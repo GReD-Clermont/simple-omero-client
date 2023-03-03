@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  *
  * @param <T> Subclass of {@link ShapeData}
  */
-public abstract class GenericShapeWrapper<T extends ShapeData> extends AnnotatableWrapper<T> {
+public abstract class GenericShapeWrapper<T extends ShapeData> extends AnnotatableWrapper<T> implements Shape {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ShapeAnnotationLink";
@@ -257,7 +257,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      *
      * @return See above.
      */
-    String getCZT() {
+    public String getCZT() {
         return String.format("%d,%d,%d", getC(), getZ(), getT());
     }
 
@@ -328,30 +328,6 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
     public void setFill(Color fillColour) {
         data.getShapeSettings().setFill(fillColour);
     }
-
-
-    /**
-     * Gets the text on the ShapeData.
-     *
-     * @return the text
-     */
-    public abstract String getText();
-
-
-    /**
-     * Sets the text on the ShapeData.
-     *
-     * @param text the text
-     */
-    public abstract void setText(String text);
-
-
-    /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    public abstract java.awt.Shape toAWTShape();
 
 
     /**

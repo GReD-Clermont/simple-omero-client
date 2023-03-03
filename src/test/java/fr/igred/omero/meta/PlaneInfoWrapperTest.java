@@ -27,9 +27,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static fr.igred.omero.meta.PlaneInfoWrapper.computeMeanExposureTime;
-import static fr.igred.omero.meta.PlaneInfoWrapper.computeMeanTimeInterval;
-import static fr.igred.omero.meta.PlaneInfoWrapper.getMinPosition;
+import static fr.igred.omero.meta.PlaneInfo.computeMeanExposureTime;
+import static fr.igred.omero.meta.PlaneInfo.computeMeanTimeInterval;
+import static fr.igred.omero.meta.PlaneInfo.getMinPosition;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -67,7 +67,7 @@ class PlaneInfoWrapperTest extends UserTest {
         pixels.loadPlanesInfo(client);
         List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
 
-        Length positionX = getMinPosition(planes, PlaneInfoWrapper::getPositionX, UNITS.NANOMETER);
+        Length positionX = getMinPosition(planes, PlaneInfo::getPositionX, UNITS.NANOMETER);
         assertEquals(100000, positionX.getValue());
         assertEquals("nm", positionX.getSymbol());
     }

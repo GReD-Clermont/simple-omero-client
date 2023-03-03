@@ -27,6 +27,7 @@ import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import omero.gateway.model.ProjectData;
 import omero.model.NamedValue;
 import omero.model.ProjectI;
@@ -113,7 +114,7 @@ class AccessExceptionTest extends BasicTest {
     void testFolderAddROIWithoutImage() throws Exception {
         FolderWrapper folder = new FolderWrapper(client, "Test1");
 
-        RectangleWrapper rectangle = new RectangleWrapper(0, 0, 10, 10);
+        Shape rectangle = new RectangleWrapper(0, 0, 10, 10);
         rectangle.setCZT(0, 0, 0);
 
         ROIWrapper roi = new ROIWrapper();

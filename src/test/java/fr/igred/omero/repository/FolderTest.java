@@ -20,6 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import org.junit.jupiter.api.Test;
@@ -168,7 +169,7 @@ class FolderTest extends UserTest {
             rectangle.setT(0);
             rectangle.setC(0);
 
-            ROIWrapper roi = new ROIWrapper();
+            ROI roi = new ROIWrapper();
             roi.addShape(rectangle);
             roi.saveROI(client);
 

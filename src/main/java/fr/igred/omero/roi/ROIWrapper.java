@@ -20,15 +20,11 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.repository.Image;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
-import ij.IJ;
 import ij.gui.ShapeRoi;
 import omero.RString;
 import omero.gateway.model.AnnotationData;
@@ -45,10 +41,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -58,15 +51,10 @@ import static java.util.stream.Collectors.groupingBy;
  * Class containing a ROIData object.
  * <p> Wraps function calls to the ROIData contained.
  */
-public class ROIWrapper extends AnnotatableWrapper<ROIData> {
+public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "RoiAnnotationLink";
-
-    /**
-     * Default IJ property to store ROI local labels / indices.
-     */
-    public static final String IJ_PROPERTY = "ROI";
 
 
     /**
@@ -82,10 +70,10 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIWrapper(Iterable<? extends GenericShapeWrapper<?>> shapes) {
+    public ROIWrapper(Iterable<? extends Shape> shapes) {
         super(new ROIData());
 
-        for (GenericShapeWrapper<?> shape : shapes) {
+        for (Shape shape : shapes) {
             data.addShapeData(shape.asDataObject());
         }
     }
@@ -115,35 +103,6 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * Returns the ID property corresponding to the input local index/label property (appends "_ID" to said property).
-     *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
-     *                 null or empty.
-     *
-     * @return See above.
-     */
-    public static String ijIDProperty(String property) {
-        property = checkProperty(property);
-        return property + "_ID";
-    }
-
-
-    /**
-     * Returns the ID property corresponding to the input local index/label property (appends "_NAME" to said
-     * property).
-     *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
-     *                 null or empty.
-     *
-     * @return See above.
-     */
-    public static String ijNameProperty(String property) {
-        property = checkProperty(property);
-        return property + "_NAME";
-    }
-
-
-    /**
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs
      *
      * @param ijRois A list of ImageJ ROIs.
@@ -164,114 +123,8 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @return The converted list of OMERO ROIs.
      */
-    public static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
-        return fromImageJ(ijRois, property, ROIWrapper::new, GenericShapeWrapper::fromImageJ);
-    }
-
-
-    /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor and shape converter.
-     *
-     * @param ijRois      A list of ImageJ ROIs.
-     * @param property    The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if
-     *                    null or empty.
-     * @param constructor A constructor to create ROI instances.
-     * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
-     *
-     * @return The converted list of OMERO ROIs.
-     */
-    private static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois,
-                                               String property,
-                                               Supplier<? extends ROIWrapper> constructor,
-                                               Function<? super ij.gui.Roi, ? extends List<? extends GenericShapeWrapper<?>>> converter) {
-        property = checkProperty(property);
-
-        Map<String, ROIWrapper> rois4D = new TreeMap<>();
-        Map<String, String>     names  = new TreeMap<>();
-
-        Map<Integer, ROIWrapper> shape2roi = new TreeMap<>();
-
-        for (int i = 0; i < ijRois.size(); i++) {
-            String value = ijRois.get(i).getProperty(property);
-            String name  = ijRois.get(i).getProperty(ijNameProperty(property));
-
-            ROIWrapper roi;
-            if (value != null && !value.trim().isEmpty()) {
-                roi = rois4D.computeIfAbsent(value, v -> constructor.get());
-                names.putIfAbsent(value, name);
-            } else {
-                roi = constructor.get();
-                roi.setName(name);
-            }
-            shape2roi.put(i, roi);
-        }
-        rois4D.forEach((id, roi) -> roi.setName(names.get(id)));
-        shape2roi.forEach((key, value) -> value.addShapes(converter.apply(ijRois.get(key))));
-        return shape2roi.values().stream().distinct().collect(Collectors.toList());
-    }
-
-
-    /**
-     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
-     *
-     * @param rois A list of OMERO ROIs.
-     *
-     * @return The converted list of ImageJ ROIs.
-     */
-    public static List<ij.gui.Roi> toImageJ(List<? extends ROIWrapper> rois) {
-        return toImageJ(rois, IJ_PROPERTY);
-    }
-
-
-    /**
-     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
-     *
-     * @param rois     A list of OMERO ROIs.
-     * @param property The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if null
-     *                 or empty.
-     *
-     * @return The converted list of ImageJ ROIs.
-     */
-    public static List<ij.gui.Roi> toImageJ(List<? extends ROIWrapper> rois, String property) {
-        return toImageJ(rois, property, true);
-    }
-
-
-    /**
-     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
-     *
-     * @param rois      A list of OMERO ROIs.
-     * @param property  The property used to store the 4D ROI local labels/IDs. Defaults to {@value IJ_PROPERTY} if null
-     *                  or empty.
-     * @param groupRois Whether ImageJ Rois belonging to the same OMERO ROI should be grouped or not.
-     *
-     * @return The converted list of ImageJ ROIs.
-     */
-    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois, String property, boolean groupRois) {
-        property = checkProperty(property);
-        final int maxGroups = 255;
-        groupRois = groupRois && rois.size() < maxGroups && IJ.getVersion().compareTo("1.52t") >= 0;
-
-        int nShapes = rois.stream().map(GenericObjectWrapper::asDataObject).mapToInt(ROIData::getShapeCount).sum();
-
-        List<ij.gui.Roi> ijRois = new ArrayList<>(nShapes);
-
-        int index = 1;
-        for (ROIWrapper roi : rois) {
-            String name = roi.getName();
-
-            List<ij.gui.Roi> shapes = roi.toImageJ(property);
-            for (ij.gui.Roi r : shapes) {
-                r.setProperty(property, String.valueOf(index));
-                r.setProperty(ijNameProperty(property), name);
-                if (groupRois) {
-                    r.setGroup(index);
-                }
-            }
-            ijRois.addAll(shapes);
-            index++;
-        }
-        return ijRois;
+    public static List<ROIWrapper> fromImageJ(Collection<? extends ij.gui.Roi> ijRois, String property) {
+        return ROI.fromImageJ(ijRois, property, ROIWrapper::new, GenericShapeWrapper::fromImageJ);
     }
 
 
@@ -280,6 +133,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @return The ROI name (can be null).
      */
+    @Override
     public String getName() {
         RString name = ((_RoiOperationsNC) data.asIObject()).getName();
         return name != null ? name.getValue() : "";
@@ -291,6 +145,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param name The ROI name.
      */
+    @Override
     public void setName(String name) {
         ((_RoiOperationsNC) data.asIObject()).setName(omero.rtypes.rstring(name));
     }
@@ -312,7 +167,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param shapes List of GenericShapeWrapper.
      */
-    public void addShapes(List<? extends GenericShapeWrapper<?>> shapes) {
+    public void addShapes(Iterable<? extends Shape> shapes) {
         shapes.forEach(this::addShape);
     }
 
@@ -322,7 +177,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param shape GenericShapeWrapper to add.
      */
-    public void addShape(GenericShapeWrapper<?> shape) {
+    public void addShape(Shape shape) {
         data.addShapeData(shape.asDataObject());
     }
 
@@ -345,7 +200,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param image Image linked to the ROIData.
      */
-    public void setImage(ImageWrapper image) {
+    public void setImage(Image image) {
         data.setImage(image.asDataObject().asImage());
     }
 
@@ -388,15 +243,13 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param client The client handling the connection.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void saveROI(Client client) throws OMEROServerError, ServiceException {
-        Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
-                                            g -> g.getUpdateService(client.getCtx())
-                                                  .saveAndReturnObject(data.asIObject()))
-                                        .handleServiceOrServer("Cannot save ROI")
-                                        .get();
+    public void saveROI(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        Roi roi = (Roi) client.save(data.asIObject());
         data = new ROIData(roi);
     }
 
@@ -479,7 +332,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
             } else {
                 roi.setName(txt);
             }
-            roi.setProperty(ijIDProperty(property), String.valueOf(getId()));
+            roi.setProperty(ROI.ijIDProperty(property), String.valueOf(getId()));
             rois.add(roi);
         }
         return rois;
@@ -509,7 +362,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected <A extends AnnotationData> void link(Client client, A annotation)
+    public <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         RoiAnnotationLink link = new RoiAnnotationLinkI();
         link.setChild(annotation.asAnnotation());

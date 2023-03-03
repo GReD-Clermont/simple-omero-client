@@ -28,25 +28,7 @@ import java.util.List;
  * Class containing a GroupData object.
  * <p> Wraps function calls to the GroupData contained.
  */
-public class GroupWrapper extends GenericObjectWrapper<GroupData> {
-
-    /** Indicates that the group is {@code Private} i.e. RW----. */
-    public static final int PERMISSIONS_PRIVATE = GroupData.PERMISSIONS_PRIVATE;
-
-    /** Indicates that the group is {@code Group} i.e. RWR---. */
-    public static final int PERMISSIONS_GROUP_READ = GroupData.PERMISSIONS_GROUP_READ;
-
-    /** Indicates that the group is {@code Group} i.e. RWRA--. */
-    public static final int PERMISSIONS_GROUP_READ_LINK = GroupData.PERMISSIONS_GROUP_READ_LINK;
-
-    /** Indicates that the group is {@code Group} i.e. RWRW--. */
-    public static final int PERMISSIONS_GROUP_READ_WRITE = GroupData.PERMISSIONS_GROUP_READ_WRITE;
-
-    /** Indicates that the group is {@code Public} i.e. RWRWR-. */
-    public static final int PERMISSIONS_PUBLIC_READ = GroupData.PERMISSIONS_PUBLIC_READ;
-
-    /** Indicates that the group is {@code Public} i.e. RWRWRW. */
-    public static final int PERMISSIONS_PUBLIC_READ_WRITE = GroupData.PERMISSIONS_PUBLIC_READ_WRITE;
+public class GroupWrapper extends GenericObjectWrapper<GroupData> implements Group {
 
 
     /**
@@ -64,6 +46,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @return See above.
      */
+    @Override
     public String getName() {
         return data.getName();
     }
@@ -76,6 +59,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -97,6 +81,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @return See above.
      */
+    @Override
     public String getDescription() {
         return data.getDescription();
     }
@@ -109,6 +94,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -119,6 +105,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @return See above.
      */
+    @Override
     public List<ExperimenterWrapper> getLeaders() {
         return wrap(data.getLeaders(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
     }
@@ -129,6 +116,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @return See above.
      */
+    @Override
     public List<ExperimenterWrapper> getExperimenters() {
         return wrap(data.getExperimenters(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
     }
@@ -139,6 +127,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @return See above.
      */
+    @Override
     public List<ExperimenterWrapper> getMembersOnly() {
         return wrap(data.getMembersOnly(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
     }
@@ -149,6 +138,7 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      *
      * @return See above.
      */
+    @Override
     public int getPermissionsLevel() {
         return data.getPermissions().getPermissionsLevel();
     }

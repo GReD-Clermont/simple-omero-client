@@ -84,7 +84,7 @@ class ClientTest extends UserTest {
     void testCreateAndDeleteProject() throws Exception {
         String name = "Foo project";
 
-        ProjectWrapper project = new ProjectWrapper(client, name, "");
+        RemoteObject project = new ProjectWrapper(client, name, "");
 
         long newId = project.getId();
         assertEquals(name, client.getProject(newId).getName());

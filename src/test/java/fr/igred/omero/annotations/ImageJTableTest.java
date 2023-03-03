@@ -23,7 +23,9 @@ import fr.igred.omero.UserTest;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.repository.Image;
 import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import ij.gui.Roi;
@@ -138,13 +140,13 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults1() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "ROI_1");
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null, false);
+        List<Roi>        ijRois = ROI.toImageJ(rois, null, false);
 
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
         results.setValue("Image", 0, label);
-        results.setValue(ROIWrapper.IJ_PROPERTY, 0, "ROI_1");
+        results.setValue(ROI.IJ_PROPERTY, 0, "ROI_1");
 
         TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
@@ -210,7 +212,7 @@ class ImageJTableTest extends UserTest {
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
-        results.setValue(ROIWrapper.ijIDProperty(null), 0, rois.get(0).getId());
+        results.setValue(ROI.ijIDProperty(null), 0, rois.get(0).getId());
 
         TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
@@ -242,7 +244,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable("", volume1, unit1);
         results.setValue("Image", 0, label);
 
-        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -269,7 +271,7 @@ class ImageJTableTest extends UserTest {
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
-        TableWrapper table   = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table   = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         List<TableWrapper> tables = image.getTables(client);
@@ -298,8 +300,8 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
         ResultsTable results2 = createOneRowResultsTable(label, volume2, unit2);
 
-        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
-        table.addRows(client, results2, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        table.addRows(client, results2, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         List<TableWrapper> tables = image.getTables(client);
@@ -326,15 +328,15 @@ class ImageJTableTest extends UserTest {
     @Test
     void testAddRowsWithROIsFromIJResults() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, "");
+        List<Roi>        ijRois = ROI.toImageJ(rois, "");
 
         String label = image.getName();
 
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
-        results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results1.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
 
         ResultsTable results2 = createOneRowResultsTable(label, volume2, unit2);
-        results2.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results2.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
 
         TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
@@ -365,7 +367,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithLocalROIFromIJResults1() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+        List<Roi>        ijRois = ROI.toImageJ(rois);
 
         Roi local = new Roi(5, 5, 10, 10);
         local.setName("local");
@@ -375,10 +377,10 @@ class ImageJTableTest extends UserTest {
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
         addRowToResultsTable(results, label, volume2, unit2);
-        results.setValue(ROIWrapper.IJ_PROPERTY, 0, local.getName());
-        results.setValue(ROIWrapper.IJ_PROPERTY, 1, ijRois.get(0).getName());
+        results.setValue(ROI.IJ_PROPERTY, 0, local.getName());
+        results.setValue(ROI.IJ_PROPERTY, 1, ijRois.get(0).getName());
 
-        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -417,7 +419,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable(label1, volume1, unit1);
         addRowToResultsTable(results, label2, volume2, unit2);
 
-        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -461,7 +463,7 @@ class ImageJTableTest extends UserTest {
         }
 
         List<ROIWrapper> newROIs = image.saveROIs(client, rois);
-        List<Roi>        ijRois  = ROIWrapper.toImageJ(newROIs);
+        List<Roi>        ijRois  = ROI.toImageJ(newROIs);
 
         String label1 = image.getName() + ":" + newROIs.get(0).getShapes().get(0).getText() + ":4";
         String label2 = image.getName() + ":" + newROIs.get(1).getShapes().get(0).getText() + ":10";
@@ -519,7 +521,7 @@ class ImageJTableTest extends UserTest {
         image.saveROIs(client, roi2);
 
         List<ROIWrapper> rois   = image.getROIs(client);
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois);
+        List<Roi>        ijRois = ROI.toImageJ(rois);
 
         String label1 = rois.get(0).getShapes().get(0).getText();
         String label2 = rois.get(1).getShapes().get(0).getText();
@@ -563,7 +565,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
         ResultsTable results2 = createOneRowResultsTable(label, volume2, null);
 
-        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         try {
             table.addRows(client, results2, IMAGE1.id, ijRois);
         } catch (IllegalArgumentException e) {
@@ -577,17 +579,17 @@ class ImageJTableTest extends UserTest {
     @Test
     void testNumberFormatException() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "");
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
-        ijRois.get(0).setProperty(ROIWrapper.IJ_PROPERTY, "tutu");
-        ijRois.get(1).setProperty(ROIWrapper.IJ_PROPERTY, "tutu");
-        ijRois.get(2).setProperty(ROIWrapper.IJ_PROPERTY, "tutu");
-        ijRois.get(3).setProperty(ROIWrapper.ijIDProperty(ROIWrapper.IJ_PROPERTY), "tata");
+        List<Roi>        ijRois = ROI.toImageJ(rois, null);
+        ijRois.get(0).setProperty(ROI.IJ_PROPERTY, "tutu");
+        ijRois.get(1).setProperty(ROI.IJ_PROPERTY, "tutu");
+        ijRois.get(2).setProperty(ROI.IJ_PROPERTY, "tutu");
+        ijRois.get(3).setProperty(ROI.ijIDProperty(ROI.IJ_PROPERTY), "tata");
 
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
         results.setValue("Image", 0, label);
-        results.setValue(ROIWrapper.IJ_PROPERTY, 0, 1);
+        results.setValue(ROI.IJ_PROPERTY, 0, 1);
 
         TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
@@ -612,13 +614,13 @@ class ImageJTableTest extends UserTest {
     @Test
     void testNumericName() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "1");
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, null);
+        List<Roi>        ijRois = ROI.toImageJ(rois, null);
 
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, volume1, unit1);
         results.setValue("Image", 0, label);
-        results.setValue(ROIWrapper.IJ_PROPERTY, 0, 1.0d);
+        results.setValue(ROI.IJ_PROPERTY, 0, 1.0d);
 
         TableWrapper table = new TableWrapper(client, results, IMAGE1.id, ijRois);
         image.addTable(client, table);
@@ -654,8 +656,8 @@ class ImageJTableTest extends UserTest {
         results2.setValue("Volume Unit", 0, unit2);
         results2.setValue("Volume", 0, volume2);
 
-        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
-        table.addRows(client, results2, IMAGE1.id, ijRois, ROIWrapper.IJ_PROPERTY);
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
+        table.addRows(client, results2, IMAGE1.id, ijRois, ROI.IJ_PROPERTY);
         image.addTable(client, table);
         Object[][] data = table.getData();
 
@@ -681,18 +683,18 @@ class ImageJTableTest extends UserTest {
     @Test
     void testSaveTableAs() throws Exception {
         List<ROIWrapper> rois   = createAndSaveROI(client, image, "1");
-        List<Roi>        ijRois = ROIWrapper.toImageJ(rois, "");
+        List<Roi>        ijRois = ROI.toImageJ(rois, "");
 
         String label = image.getName();
         long   roiId = rois.get(0).getId();
 
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
-        results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results1.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
 
         ResultsTable results2 = createOneRowResultsTable(label, volume2, unit2);
-        results2.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results2.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
 
-        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+        Table table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
 
         @SuppressWarnings("MagicCharacter")

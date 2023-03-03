@@ -47,7 +47,8 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link AnnotationData}
  */
-public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends GenericObjectWrapper<T> {
+public abstract class GenericAnnotationWrapper<T extends AnnotationData>
+        extends GenericObjectWrapper<T> implements Annotation {
 
 
     /**
@@ -65,6 +66,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      *
      * @return See above.
      */
+    @Override
     public String getNameSpace() {
         return data.getNameSpace();
     }
@@ -75,6 +77,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      *
      * @param name The value to set.
      */
+    @Override
     public void setNameSpace(String name) {
         data.setNameSpace(name);
     }
@@ -85,6 +88,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      *
      * @return See above.
      */
+    @Override
     public Timestamp getLastModified() {
         return data.getLastModified();
     }
@@ -96,6 +100,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      *
      * @return See above
      */
+    @Override
     public String getDescription() {
         return data.getDescription();
     }
@@ -106,6 +111,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      *
      * @param description The description
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -121,6 +127,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
+    @Override
     public int countAnnotationLinks(Client client) throws ServiceException, OMEROServerError {
         return client.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
                                   "where link.child.id=" + getId()).size();
@@ -139,6 +146,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ProjectWrapper> getProjects(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os  = getLinks(client, ProjectWrapper.ANNOTATION_LINK);
@@ -159,6 +167,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<DatasetWrapper> getDatasets(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os  = getLinks(client, DatasetWrapper.ANNOTATION_LINK);
@@ -179,6 +188,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os  = getLinks(client, ImageWrapper.ANNOTATION_LINK);
@@ -199,6 +209,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ScreenWrapper> getScreens(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os  = getLinks(client, ScreenWrapper.ANNOTATION_LINK);
@@ -219,6 +230,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<PlateWrapper> getPlates(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os  = getLinks(client, PlateWrapper.ANNOTATION_LINK);
@@ -237,6 +249,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
+    @Override
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, OMEROServerError {
         List<IObject> os = getLinks(client, PlateAcquisitionWrapper.ANNOTATION_LINK);
@@ -258,6 +271,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os  = getLinks(client, WellWrapper.ANNOTATION_LINK);
@@ -278,6 +292,7 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<IObject> os  = getLinks(client, FolderWrapper.ANNOTATION_LINK);

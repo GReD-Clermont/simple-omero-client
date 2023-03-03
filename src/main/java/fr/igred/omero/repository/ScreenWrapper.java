@@ -42,7 +42,7 @@ import static java.util.stream.Collectors.toMap;
  * Class containing a ScreenData object.
  * <p> Wraps function calls to the ScreenData contained.
  */
-public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
+public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> implements Screen {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ScreenAnnotationLink";
@@ -107,6 +107,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -139,6 +140,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @param description The description of the screen.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -149,6 +151,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public List<PlateWrapper> getPlates() {
         return wrap(data.getPlates(), PlateWrapper::new);
     }
@@ -161,6 +164,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public List<PlateWrapper> getPlates(String name) {
         List<PlateWrapper> plates = getPlates();
         plates.removeIf(plate -> !plate.getName().equals(name));
@@ -179,7 +183,8 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    @Override
+    public List<? extends PlateAcquisition> getPlateAcquisitions(Client client)
     throws ServiceException, AccessException, ExecutionException {
         refresh(client);
         return getPlates().stream()
@@ -204,6 +209,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<PlateWrapper>            plates = getPlates();
@@ -226,6 +232,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<PlateWrapper>             plates = getPlates();
@@ -242,6 +249,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getProtocolDescription() {
         return data.getProtocolDescription();
     }
@@ -252,6 +260,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setProtocolDescription(String value) {
         data.setProtocolDescription(value);
     }
@@ -262,6 +271,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getProtocolIdentifier() {
         return data.getProtocolIdentifier();
     }
@@ -272,6 +282,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setProtocolIdentifier(String value) {
         data.setProtocolIdentifier(value);
     }
@@ -282,6 +293,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getReagentSetDescription() {
         return data.getReagentSetDescripion();
     }
@@ -292,6 +304,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setReagentSetDescription(String value) {
         data.setReagentSetDescripion(value);
     }
@@ -302,6 +315,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @return See above.
      */
+    @Override
     public String getReagentSetIdentifier() {
         return data.getReagentSetIdentifier();
     }
@@ -312,6 +326,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @param value The value to set.
      */
+    @Override
     public void setReagentSetIdentifier(String value) {
         data.setReagentSetIdentifier(value);
     }
@@ -326,6 +341,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
                                    bf -> bf.getScreens(client.getCtx(), Collections.singletonList(this.getId()))
@@ -349,6 +365,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public boolean importImages(GatewayWrapper client, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
         boolean success = importImages(client, data, paths);
@@ -370,6 +387,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<Long> importImage(GatewayWrapper client, String path)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         List<Long> ids = importImage(client, data, path);

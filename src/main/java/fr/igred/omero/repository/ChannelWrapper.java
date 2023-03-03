@@ -28,7 +28,7 @@ import java.awt.Color;
  * Class containing a ChannelData object.
  * <p> Wraps function calls to the ChannelData contained.
  */
-public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
+public class ChannelWrapper extends GenericObjectWrapper<ChannelData> implements Channel {
 
 
     /**
@@ -57,6 +57,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public boolean hasRGBA() {
         return data.asChannel().getRed() != null &&
                data.asChannel().getGreen() != null &&
@@ -70,6 +71,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getIndex() {
         return data.getIndex();
     }
@@ -81,6 +83,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public String getChannelLabeling() {
         return data.getChannelLabeling();
     }
@@ -91,6 +94,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public String getName() {
         return asDataObject().getName();
     }
@@ -101,6 +105,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @param name The name of the channel.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -111,6 +116,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return The original channel color.
      */
+    @Override
     public Color getColor() {
         Color color = Color.WHITE;
         if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
@@ -123,6 +129,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getAlpha() {
         return data.asChannel().getAlpha().getValue();
     }
@@ -133,6 +140,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getRed() {
         return data.asChannel().getRed().getValue();
     }
@@ -143,6 +151,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getGreen() {
         return data.asChannel().getGreen().getValue();
     }
@@ -153,6 +162,7 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      *
      * @return See above.
      */
+    @Override
     public int getBlue() {
         return data.asChannel().getBlue().getValue();
     }

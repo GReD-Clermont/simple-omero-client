@@ -23,6 +23,7 @@ import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -97,7 +98,7 @@ class ImageImportTest extends UserTest {
         image2.link(client, image1.getFileAnnotations(client).get(0));
         image2.link(client, image1.getMapAnnotations(client).get(0));
 
-        RectangleWrapper rectangle = new RectangleWrapper(3, 3, 2, 2);
+        Shape rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROIWrapper       roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);
@@ -184,7 +185,7 @@ class ImageImportTest extends UserTest {
         image2.link(client, image1.getFileAnnotations(client).get(0));
         image2.link(client, image1.getMapAnnotations(client).get(0));
 
-        RectangleWrapper rectangle = new RectangleWrapper(3, 3, 2, 2);
+        Shape rectangle = new RectangleWrapper(3, 3, 2, 2);
         ROIWrapper       roi       = new ROIWrapper();
         roi.setImage(image2);
         roi.addShape(rectangle);

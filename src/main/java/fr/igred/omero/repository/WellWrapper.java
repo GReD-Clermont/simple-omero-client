@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * Class containing a WellData object.
  * <p> Wraps function calls to the WellData contained.
  */
-public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
+public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> implements Well {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";
@@ -119,6 +119,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public List<WellSampleWrapper> getWellSamples() {
         return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
     }
@@ -136,6 +137,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws OMEROServerError   Server error.
      */
+    @Override
     public List<ScreenWrapper> getScreens(Client client)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError {
         refresh(client);
@@ -148,6 +150,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public PlateWrapper getPlate() {
         return new PlateWrapper(data.getPlate());
     }
@@ -164,6 +167,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, AccessException, ExecutionException {
         refresh(client);
@@ -176,6 +180,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public List<ImageWrapper> getImages() {
         return getWellSamples().stream()
                                .map(WellSampleWrapper::getImage)
@@ -188,6 +193,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public Integer getColumn() {
         return data.getColumn();
     }
@@ -198,6 +204,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public Integer getRow() {
         return data.getRow();
     }
@@ -208,6 +215,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public String getStatus() {
         return data.getStatus();
     }
@@ -218,6 +226,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @param status The status of the well.
      */
+    @Override
     public void setStatus(String status) {
         data.setStatus(status);
     }
@@ -228,6 +237,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public String getWellType() {
         return data.getWellType();
     }
@@ -238,6 +248,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @param type The value to set.
      */
+    @Override
     public void setWellType(String type) {
         data.setWellType(type);
     }
@@ -248,6 +259,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getRed() {
         return data.getRed();
     }
@@ -258,6 +270,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @param red The value to set.
      */
+    @Override
     public void setRed(Integer red) {
         data.setRed(red);
     }
@@ -268,6 +281,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getGreen() {
         return data.getGreen();
     }
@@ -278,6 +292,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @param green The value to set.
      */
+    @Override
     public void setGreen(Integer green) {
         data.setGreen(green);
     }
@@ -288,6 +303,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getBlue() {
         return data.getBlue();
     }
@@ -298,6 +314,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @param blue The value to set.
      */
+    @Override
     public void setBlue(Integer blue) {
         data.setBlue(blue);
     }
@@ -308,6 +325,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @return See above.
      */
+    @Override
     public int getAlpha() {
         return data.getAlpha();
     }
@@ -318,6 +336,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      *
      * @param alpha The value to set.
      */
+    @Override
     public void setAlpha(Integer alpha) {
         data.setAlpha(alpha);
     }
@@ -332,6 +351,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void refresh(Client client)
     throws ServiceException, AccessException, ExecutionException {
         data = client.getWell(getId()).asDataObject();

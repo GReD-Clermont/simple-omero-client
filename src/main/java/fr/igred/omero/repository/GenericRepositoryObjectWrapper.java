@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
@@ -55,7 +56,8 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class GenericRepositoryObjectWrapper<T extends DataObject> extends AnnotatableWrapper<T> {
+public abstract class GenericRepositoryObjectWrapper<T extends DataObject> extends AnnotatableWrapper<T>
+        implements RepositoryObject {
 
     /**
      * Constructor of the class GenericRepositoryObjectWrapper.
@@ -173,22 +175,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    public abstract String getName();
-
-
-    /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    public abstract String getDescription();
-
-
-    /**
      * Copies annotation links from some other object to this one.
      * <p>Kept for API compatibility purposes.</p>
      *
@@ -202,7 +188,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     @SuppressWarnings("MethodOverloadsMethodOfSuperclass")
     public void copyAnnotationLinks(Client client, GenericRepositoryObjectWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
-        super.copyAnnotationLinks(client, object);
+        super.copyAnnotationLinks(client, (Annotatable) object);
     }
 
 

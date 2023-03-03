@@ -23,6 +23,7 @@ import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.PlaneInfo;
 import fr.igred.omero.meta.PlaneInfoWrapper;
 import ome.units.UNITS;
 import ome.units.unit.Unit;
@@ -46,7 +47,7 @@ import static ome.formats.model.UnitsFactory.convertLength;
  * Class containing a PixelData object.
  * <p> Wraps function calls to the PixelData contained.
  */
-public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
+public class PixelsWrapper extends GenericObjectWrapper<PixelsData> implements Pixels {
 
     /** Size of tiles when retrieving pixels */
     public static final int MAX_DIST = 5000;
@@ -135,6 +136,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void loadPlanesInfo(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<PlaneInfoData> planes = ExceptionHandler.of(client.getMetadata(),
@@ -150,6 +152,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
+    @Override
     public List<PlaneInfoWrapper> getPlanesInfo() {
         return Collections.unmodifiableList(planesInfo);
     }
@@ -160,6 +163,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return the pixel type.
      */
+    @Override
     public String getPixelType() {
         return data.getPixelType();
     }
@@ -170,6 +174,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of a pixel on the X axis.
      */
+    @Override
     public Length getPixelSizeX() {
         return data.asPixels().getPhysicalSizeX();
     }
@@ -180,6 +185,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of a pixel on the Y axis.
      */
+    @Override
     public Length getPixelSizeY() {
         return data.asPixels().getPhysicalSizeY();
     }
@@ -190,6 +196,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of a pixel on the Z axis.
      */
+    @Override
     public Length getPixelSizeZ() {
         return data.asPixels().getPhysicalSizeZ();
     }
@@ -200,6 +207,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Time increment between time points.
      */
+    @Override
     public Time getTimeIncrement() {
         return data.asPixels().getTimeIncrement();
     }
@@ -211,8 +219,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
+    @Override
     public Time getMeanTimeInterval() {
-        return PlaneInfoWrapper.computeMeanTimeInterval(planesInfo, getSizeT());
+        return PlaneInfo.computeMeanTimeInterval(planesInfo, getSizeT());
     }
 
 
@@ -224,8 +233,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
+    @Override
     public Time getMeanExposureTime(int channel) {
-        return PlaneInfoWrapper.computeMeanExposureTime(planesInfo, channel);
+        return PlaneInfo.computeMeanExposureTime(planesInfo, channel);
     }
 
 
@@ -235,10 +245,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
+    @Override
     public Length getPositionX() {
         ome.units.quantity.Length       pixSizeX = convertLength(getPixelSizeX());
         Unit<ome.units.quantity.Length> unit     = pixSizeX == null ? UNITS.MICROMETER : pixSizeX.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionX, unit);
+        return PlaneInfo.getMinPosition(planesInfo, PlaneInfo::getPositionX, unit);
     }
 
 
@@ -248,10 +259,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
+    @Override
     public Length getPositionY() {
         ome.units.quantity.Length       pixSizeY = convertLength(getPixelSizeY());
         Unit<ome.units.quantity.Length> unit     = pixSizeY == null ? UNITS.MICROMETER : pixSizeY.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionY, unit);
+        return PlaneInfo.getMinPosition(planesInfo, PlaneInfo::getPositionY, unit);
     }
 
 
@@ -261,10 +273,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return See above.
      */
+    @Override
     public Length getPositionZ() {
         ome.units.quantity.Length       pixSizeZ = convertLength(getPixelSizeZ());
         Unit<ome.units.quantity.Length> unit     = pixSizeZ == null ? UNITS.MICROMETER : pixSizeZ.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionZ, unit);
+        return PlaneInfo.getMinPosition(planesInfo, PlaneInfo::getPositionZ, unit);
     }
 
 
@@ -273,6 +286,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of the image on the X axis.
      */
+    @Override
     public int getSizeX() {
         return data.getSizeX();
     }
@@ -283,6 +297,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of the image on the Y axis.
      */
+    @Override
     public int getSizeY() {
         return data.getSizeY();
     }
@@ -293,6 +308,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of the image on the Z axis.
      */
+    @Override
     public int getSizeZ() {
         return data.getSizeZ();
     }
@@ -303,6 +319,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of the image on the C axis.
      */
+    @Override
     public int getSizeC() {
         return data.getSizeC();
     }
@@ -313,6 +330,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      *
      * @return Size of the image on the T axis.
      */
+    @Override
     public int getSizeT() {
         return data.getSizeT();
     }
@@ -357,6 +375,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public double[][][][][] getAllPixels(Client client) throws AccessException, ExecutionException {
         return getAllPixels(client, null, null, null, null, null);
     }
@@ -377,6 +396,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public double[][][][][] getAllPixels(Client client,
                                          int[] xBounds,
                                          int[] yBounds,
@@ -479,6 +499,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public byte[][][][] getRawPixels(Client client, int bpp) throws AccessException, ExecutionException {
         return getRawPixels(client, null, null, null, null, null, bpp);
     }
@@ -500,6 +521,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public byte[][][][] getRawPixels(Client client,
                                      int[] xBounds,
                                      int[] yBounds,

@@ -147,7 +147,7 @@ class TableTest extends UserTest {
 
         List<ImageWrapper> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        Table table = new TableWrapper(2, "TableTest");
         table.setName("TableTestNewName");
 
         assertEquals("TableTestNewName", table.getName());
@@ -164,7 +164,7 @@ class TableTest extends UserTest {
 
     @Test
     void testErrorTableColumn() {
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        Table table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class, () -> table.setColumn(2, "Id", Long.class));
@@ -177,7 +177,7 @@ class TableTest extends UserTest {
 
         List<ImageWrapper> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        Table table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
@@ -191,7 +191,7 @@ class TableTest extends UserTest {
 
         List<ImageWrapper> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        Table table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         table.setRowCount(images.size());

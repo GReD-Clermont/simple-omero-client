@@ -19,7 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
@@ -41,7 +41,8 @@ import java.util.stream.Collectors;
  * Class containing a PlateAcquisitionData object.
  * <p> Wraps function calls to the PlateAcquisitionData contained.
  */
-public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<PlateAcquisitionData> {
+public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<PlateAcquisitionData>
+        implements PlateAcquisition {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
@@ -88,6 +89,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -120,6 +122,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @param description The description of the plate acquisition.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -137,7 +140,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected <A extends AnnotationData> void link(Client client, A annotation)
+    public <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
@@ -176,6 +179,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<PlateWrapper> getPlates(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return client.getPlates(getRefPlateId());
@@ -193,6 +197,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return getPlates(client).iterator().next().getWells(client);
@@ -210,15 +215,16 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return getWells(client).stream()
                                .map(WellWrapper::getImages)
                                .flatMap(Collection::stream)
-                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                               .collect(Collectors.toMap(RemoteObject::getId, i -> i, (i1, i2) -> i1))
                                .values()
                                .stream()
-                               .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                               .sorted(Comparator.comparing(RemoteObject::getId))
                                .collect(Collectors.toList());
     }
 
@@ -228,6 +234,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @return See above.
      */
+    @Override
     public String getLabel() {
         return data.getLabel();
     }
@@ -238,6 +245,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @return See above.
      */
+    @Override
     public long getRefPlateId() {
         return data.getRefPlateId();
     }
@@ -248,6 +256,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @param refPlateId The value to set.
      */
+    @Override
     public void setRefPlateId(long refPlateId) {
         data.setRefPlateId(refPlateId);
     }
@@ -258,6 +267,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @return See above.
      */
+    @Override
     public Timestamp getStartTime() {
         return data.getStartTime();
     }
@@ -268,6 +278,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @return See above.
      */
+    @Override
     public Timestamp getEndTime() {
         return data.getEndTime();
     }
@@ -278,6 +289,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @return See above.
      */
+    @Override
     public int getMaximumFieldCount() {
         return data.getMaximumFieldCount();
     }

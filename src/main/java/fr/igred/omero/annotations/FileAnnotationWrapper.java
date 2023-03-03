@@ -37,7 +37,7 @@ import java.io.IOException;
  * Class containing a FileAnnotationData object.
  * <p> Wraps function calls to the FileAnnotationData contained.
  */
-public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotationData> {
+public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotationData> implements FileAnnotation {
 
     /**
      * Constructor of the GenericAnnotationWrapper class.
@@ -83,6 +83,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public String getOriginalMimetype() {
         return data.getOriginalMimetype();
     }
@@ -93,6 +94,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public String getServerFileMimetype() {
         return data.getServerFileMimetype();
     }
@@ -103,6 +105,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public String getFileFormat() {
         return data.getFileFormat();
     }
@@ -113,6 +116,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public String getFileKind() {
         return data.getFileKind();
     }
@@ -123,6 +127,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public File getAttachedFile() {
         return data.getAttachedFile();
     }
@@ -133,6 +138,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public String getFileName() {
         return data.getFileName();
     }
@@ -143,6 +149,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public String getFilePath() {
         return data.getFilePath();
     }
@@ -153,6 +160,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public long getFileSize() {
         return data.getFileSize();
     }
@@ -163,6 +171,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public long getFileID() {
         return data.getFileID();
     }
@@ -180,6 +189,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      * @throws IOException      Cannot write to the file.
      * @throws OMEROServerError Server error.
      */
+    @Override
     public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
         File file = new File(path);
 
@@ -208,6 +218,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @see AnnotationData#getContentAsString()
      */
+    @Override
     public String getContentAsString() {
         return data.getContentAsString();
     }
@@ -218,6 +229,7 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      *
      * @return See above.
      */
+    @Override
     public boolean isMovieFile() {
         return data.isMovieFile();
     }

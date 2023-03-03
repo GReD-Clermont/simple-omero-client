@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a WellSampleData object.
  * <p> Wraps function calls to the WellSampleData contained.
  */
-public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
+public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> implements WellSample {
 
 
     /**
@@ -73,6 +73,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws OMEROServerError   Server error.
      */
+    @Override
     public List<ScreenWrapper> getScreens(Client client)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError {
         return getWell(client).getScreens(client);
@@ -90,6 +91,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<PlateWrapper> getPlates(Client client) throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(client).getPlate());
     }
@@ -106,6 +108,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return getWell(client).getPlateAcquisitions(client);
@@ -123,6 +126,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public WellWrapper getWell(Client client) throws AccessException, ServiceException, ExecutionException {
         return client.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }
@@ -133,6 +137,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      *
      * @return See above.
      */
+    @Override
     public ImageWrapper getImage() {
         return new ImageWrapper(data.getImage());
     }
@@ -143,7 +148,8 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      *
      * @param image The image to set.
      */
-    public void setImage(ImageWrapper image) {
+    @Override
+    public void setImage(Image image) {
         data.setImage(image.asDataObject());
     }
 
@@ -157,6 +163,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getPositionX(UnitsLength unit) throws BigResult {
         return data.getPositionX(unit);
     }
@@ -171,6 +178,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      *
      * @throws BigResult If an arithmetic under-/overflow occurred
      */
+    @Override
     public Length getPositionY(UnitsLength unit) throws BigResult {
         return data.getPositionY(unit);
     }
@@ -181,6 +189,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      *
      * @return See above.
      */
+    @Override
     public long getStartTime() {
         return data.getStartTime();
     }

@@ -20,7 +20,7 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * Class containing a ProjectData object.
  * <p> Wraps function calls to the Project contained
  */
-public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> {
+public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> implements Project {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ProjectAnnotationLink";
@@ -97,6 +97,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -129,6 +130,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      *
      * @param description The description of the project.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -162,6 +164,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      *
      * @return List of dataset with the given name.
      */
+    @Override
     public List<DatasetWrapper> getDatasets(String name) {
         List<DatasetWrapper> datasets = getDatasets();
         datasets.removeIf(dataset -> !dataset.getName().equals(name));
@@ -182,6 +185,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public DatasetWrapper addDataset(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         DatasetWrapper dataset = new DatasetWrapper(name, description);
@@ -202,7 +206,8 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(Client client, DatasetWrapper dataset)
+    @Override
+    public Dataset addDataset(Client client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException {
         dataset.saveAndUpdate(client);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
@@ -211,6 +216,26 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
         client.save(link);
         refresh(client);
+        dataset.refresh(client);
+        return dataset;
+    }
+
+
+    /**
+     * @param client  The client handling the connection.
+     * @param dataset Dataset to be added.
+     *
+     * @return The object saved in OMERO.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Adds a dataset to the project in OMERO.
+     */
+    @Deprecated
+    public DatasetWrapper addDataset(Client client, DatasetWrapper dataset)
+    throws ServiceException, AccessException, ExecutionException {
+        addDataset(client, (Dataset) dataset);
         dataset.refresh(client);
         return dataset;
     }
@@ -228,7 +253,8 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void removeDataset(Client client, DatasetWrapper dataset)
+    @Override
+    public void removeDataset(Client client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         removeLink(client, "ProjectDatasetLink", dataset.getId());
         refresh(client);
@@ -246,6 +272,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
         List<Long> projectIds = Collections.singletonList(getId());
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
@@ -268,6 +295,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client, String name)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
@@ -293,6 +321,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets(datasetName);
@@ -322,6 +351,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImagesLike(Client client, String motif)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
@@ -347,7 +377,8 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
+    @Override
+    public List<ImageWrapper> getImagesTagged(Client client, TagAnnotation tag)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
@@ -372,6 +403,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
@@ -414,6 +446,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImagesWithKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
@@ -458,6 +491,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImagesWithKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
@@ -479,6 +513,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
                                    bf -> bf.getProjects(client.getCtx(),

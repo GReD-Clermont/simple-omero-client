@@ -18,11 +18,13 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
+import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -31,7 +33,6 @@ import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
-import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
@@ -45,7 +46,6 @@ import omero.model.TagAnnotationI;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class AnnotatableWrapper<T extends DataObject> extends GenericObjectWrapper<T> {
+public abstract class AnnotatableWrapper<T extends DataObject> extends GenericObjectWrapper<T> implements Annotatable {
 
     /**
      * Constructor of the class GenericRepositoryObjectWrapper.
@@ -95,7 +95,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends GenericAnnotationWrapper<?>> boolean isLinked(Client client, A annotation)
+    @Override
+    public <A extends Annotation> boolean isLinked(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         return getAnnotations(client).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
@@ -112,7 +113,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    protected <A extends AnnotationData> void link(Client client, A annotation)
+    @Override
+    public <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
         ExceptionHandler.of(client.getDm(), d -> d.attachAnnotation(client.getCtx(), annotation, data))
@@ -132,48 +134,42 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
+    @Override
+    public <A extends Annotation> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         link(client, annotation.asDataObject());
     }
 
 
     /**
-     * Adds multiple annotations to the object in OMERO, if possible.
-     *
      * @param client      The client handling the connection.
      * @param annotations Annotations to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Adds multiple annotations to the object in OMERO, if possible.
      */
+    @Deprecated
     public void link(Client client, GenericAnnotationWrapper<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
-        for (GenericAnnotationWrapper<?> annotation : annotations) {
-            link(client, annotation);
-        }
+        Annotatable.super.link(client, annotations);
     }
 
 
     /**
-     * Adds multiple annotations to the object in OMERO if they are not already linked.
-     *
      * @param client      The client handling the connection.
      * @param annotations Annotations to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Adds multiple annotations to the object in OMERO if they are not already linked.
      */
+    @Deprecated
     public void linkIfNotLinked(Client client, GenericAnnotationWrapper<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long> annotationIds = getAnnotationData(client).stream()
-                                                            .map(DataObject::getId)
-                                                            .collect(Collectors.toList());
-        link(client, Arrays.stream(annotations)
-                           .filter(a -> !annotationIds.contains(a.getId()))
-                           .toArray(GenericAnnotationWrapper<?>[]::new));
+        Annotatable.super.linkIfNotLinked(client, annotations);
     }
 
 
@@ -188,6 +184,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTag(Client client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationWrapper tag = new TagAnnotationWrapper(new TagAnnotationData(name));
@@ -222,6 +219,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTag(Client client, Long id)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
@@ -257,6 +255,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTags(Client client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         for (Long id : ids) {
@@ -276,6 +275,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
@@ -308,6 +308,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<MapAnnotationWrapper> getMapAnnotations(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
@@ -357,6 +358,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         List<NamedValue>     kv  = Collections.singletonList(new NamedValue(key, value));
@@ -377,6 +379,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public Map<String, String> getKeyValuePairs(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(client).stream()
@@ -399,6 +402,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
+    @Override
     public String getValue(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Map<String, String> keyValuePairs = getKeyValuePairs(client);
@@ -423,6 +427,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws OMEROServerError     Server error.
      * @throws InterruptedException The thread was interrupted.
      */
+    @Override
     public void rate(Client client, int rating)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         String error = "Cannot retrieve rating annotations from " + this;
@@ -468,6 +473,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public int getMyRating(Client client)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot retrieve rating annotations from " + this;
@@ -514,37 +520,18 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
-     * Adds a table to the object in OMERO.
-     *
      * @param client The client handling the connection.
      * @param table  Table to add to the object.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Adds a table to the object in OMERO.
      */
+    @Deprecated
     public void addTable(Client client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException {
-        TablesFacility tablesFacility = client.getTablesFacility();
-        TableData tableData = ExceptionHandler.of(tablesFacility,
-                                                  tf -> tf.addTable(client.getCtx(),
-                                                                    data,
-                                                                    table.getName(),
-                                                                    table.createTable()))
-                                              .handleServiceOrAccess("Cannot add table to " + this)
-                                              .get();
-
-        Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
-                                                                    tf -> tf.getAvailableTables(client.getCtx(),
-                                                                                                data))
-                                                                .handleServiceOrAccess("Cannot add table to " + this)
-                                                                .get();
-        long fileId = tableData.getOriginalFileId();
-
-        long id = tables.stream().filter(v -> v.getFileID() == fileId)
-                        .mapToLong(DataObject::getId).max().orElse(-1L);
-        table.setId(id);
-        table.setFileId(tableData.getOriginalFileId());
+        Annotatable.super.addTable(client, table);
     }
 
 
@@ -561,7 +548,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws InterruptedException The thread was interrupted.
      * @throws OMEROServerError     Server error.
      */
-    public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    @Override
+    public void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         Collection<FileAnnotationWrapper> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
                                                                             t -> t.getAvailableTables(
@@ -583,9 +571,25 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
-     * Adds a table to the object in OMERO and unlinks previous tables with the same name, or deletes them if they're
-     * orphaned.
+     * @param client The client handling the connection.
+     * @param table  Table to add to the object.
+     * @param policy Whether older tables should be unlinked, deleted or deleted only if they become orphaned.
      *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     * @throws OMEROServerError     Server error.
+     * @deprecated Adds a table to the object in OMERO and unlinks or deletes previous tables with the same name.
+     */
+    @Deprecated
+    public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        addAndReplaceTable(client, (Table) table, policy);
+    }
+
+
+    /**
      * @param client The client handling the connection.
      * @param table  Table to add to the object.
      *
@@ -594,10 +598,13 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      * @throws OMEROServerError     Server error.
+     * @deprecated Adds a table to the object in OMERO and unlinks previous tables with the same name, or deletes them
+     * if they're orphaned.
      */
+    @Deprecated
     public void addAndReplaceTable(Client client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
+        Annotatable.super.addAndReplaceTable(client, table);
     }
 
 
@@ -613,6 +620,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData table = ExceptionHandler.of(client.getTablesFacility(), tf -> tf.getTable(client.getCtx(), fileId))
@@ -642,6 +650,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FileAnnotationData> tables = ExceptionHandler.of(client.getTablesFacility(),
@@ -671,6 +680,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
+    @Override
     public long addFile(Client client, File file) throws ExecutionException, InterruptedException {
         return client.getDm().attachFile(client.getCtx(),
                                          file,
@@ -696,6 +706,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws InterruptedException The thread was interrupted.
      * @throws OMEROServerError     Server error.
      */
+    @Override
     public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
         List<FileAnnotationWrapper> files = getFileAnnotations(client);
@@ -735,6 +746,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws InterruptedException The thread was interrupted.
      * @throws OMEROServerError     Server error.
      */
+    @Override
     public long addAndReplaceFile(Client client, File file)
     throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
@@ -768,6 +780,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<FileAnnotationWrapper> getFileAnnotations(Client client)
     throws ExecutionException, ServiceException, AccessException {
         String error = "Cannot retrieve file annotations from " + this;
@@ -803,9 +816,29 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, A annotation)
+    @Override
+    public <A extends Annotation> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         removeLink(client, annotationLinkType(), annotation.getId());
+    }
+
+
+    /**
+     * @param client     The client handling the connection.
+     * @param annotation An annotation.
+     * @param <A>        The type of the annotation.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     Server error.
+     * @throws InterruptedException If block(long) does not return.
+     * @deprecated Unlinks the given annotation from the current object.
+     */
+    @Deprecated
+    public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, A annotation)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        unlink(client, (Annotation) annotation);
     }
 
 
@@ -842,7 +875,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<AnnotationData> getAnnotationData(Client client)
+    @Override
+    public List<AnnotationData> getAnnotationData(Client client)
     throws AccessException, ServiceException, ExecutionException {
         return ExceptionHandler.of(client.getMetadata(), m -> m.getAnnotations(client.getCtx(), data))
                                .handleServiceOrAccess("Cannot get annotations from " + this)
@@ -861,6 +895,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public AnnotationList getAnnotations(Client client)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> annotationData = getAnnotationData(client);
@@ -880,7 +915,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void copyAnnotationLinks(Client client, AnnotatableWrapper<?> object)
+    @Override
+    public void copyAnnotationLinks(Client client, Annotatable object)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> newAnnotations = object.getAnnotationData(client);
         List<AnnotationData> oldAnnotations = this.getAnnotationData(client);
@@ -890,6 +926,22 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         for (AnnotationData annotation : newAnnotations) {
             link(client, annotation);
         }
+    }
+
+
+    /**
+     * @param client The client handling the connection.
+     * @param object Other repository object to copy annotations from.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Copies annotation links from some other object to this one.
+     */
+    @Deprecated
+    public void copyAnnotationLinks(Client client, AnnotatableWrapper<?> object)
+    throws AccessException, ServiceException, ExecutionException {
+        copyAnnotationLinks(client, (Annotatable) object);
     }
 
 }

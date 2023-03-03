@@ -24,6 +24,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.AnnotationData;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
  * Class containing a FolderData object.
  * <p> Wraps function calls to the FolderData contained.
  */
-public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
+public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> implements fr.igred.omero.repository.Folder {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "FolderAnnotationLink";
@@ -128,7 +129,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected  <A extends AnnotationData> void link(Client client, A annotation)
+    public <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
@@ -155,6 +156,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -187,6 +189,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @param description The folder description.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
     }
@@ -201,6 +204,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void reload(Client client)
     throws AccessException, ServiceException, ExecutionException {
         data = client.getFolder(getId()).asDataObject();
@@ -212,6 +216,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @return See above
      */
+    @Override
     public FolderWrapper getParent() {
         return new FolderWrapper(data.getParentFolder());
     }
@@ -222,7 +227,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @param folder The new parent folder.
      */
-    public void setParent(FolderWrapper folder) {
+    @Override
+    public void setParent(fr.igred.omero.repository.Folder folder) {
         data.setParentFolder(folder.asDataObject().asFolder());
     }
 
@@ -232,7 +238,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @param folder The new child folder.
      */
-    public void addChild(FolderWrapper folder) {
+    @Override
+    public void addChild(fr.igred.omero.repository.Folder folder) {
         data.asFolder().addChildFolders(folder.asDataObject().asFolder());
     }
 
@@ -242,9 +249,10 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @param folders The new children folders.
      */
-    public void addChildren(Collection<? extends FolderWrapper> folders) {
+    @Override
+    public void addChildren(Collection<? extends fr.igred.omero.repository.Folder> folders) {
         data.asFolder().addAllChildFoldersSet(folders.stream()
-                                                     .map(GenericObjectWrapper::asDataObject)
+                                                     .map(fr.igred.omero.repository.Folder::asDataObject)
                                                      .map(DataObject::asFolder)
                                                      .collect(Collectors.toList()));
     }
@@ -255,6 +263,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @return See above
      */
+    @Override
     public List<FolderWrapper> getChildren() {
         return wrap(data.copyChildFolders(), FolderWrapper::new);
     }
@@ -270,11 +279,12 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(Client client, ImageWrapper... images)
+    @Override
+    public void addImages(Client client, Image... images)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> links     = new ArrayList<>(images.length);
         List<Long>    linkedIds = getImages().stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             if (!linkedIds.contains(image.getId())) {
                 FolderImageLink link = new FolderImageLinkI();
                 link.setChild(image.asDataObject().asImage());
@@ -293,6 +303,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      *
      * @return See above
      */
+    @Override
     public List<ImageWrapper> getImages() {
         return wrap(data.copyImageLinks(), ImageWrapper::new);
     }
@@ -309,6 +320,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ImageWrapper> getImages(Client client) throws AccessException, ServiceException, ExecutionException {
         reload(client);
         return getImages();
@@ -347,7 +359,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @deprecated Adds an ROI to the folder and associate it to the image id set(an image need to be associated)
      */
     @Deprecated
-    public void addROI(Client client, ROIWrapper roi)
+    public void addROI(Client client, ROI roi)
     throws ServiceException, AccessException, ExecutionException {
         addROIs(client, imageID, roi);
     }
@@ -364,10 +376,11 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    public void addROIs(Client client, long imageId, ROIWrapper... rois)
+    @Override
+    public void addROIs(Client client, long imageId, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(GenericObjectWrapper::asDataObject)
+                                      .map(ROI::asDataObject)
                                       .collect(Collectors.toList());
         ROIFacility roiFac = client.getRoiFacility();
         ExceptionHandler.of(roiFac,
@@ -391,7 +404,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    public void addROIs(Client client, ImageWrapper image, ROIWrapper... rois)
+    @Override
+    public void addROIs(Client client, Image image, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         addROIs(client, image.getId(), rois);
     }
@@ -427,6 +441,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public List<ROIWrapper> getROIs(Client client, long imageId)
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFac = client.getRoiFacility();
@@ -460,7 +475,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> getROIs(Client client, ImageWrapper image)
+    @Override
+    public List<ROIWrapper> getROIs(Client client, Image image)
     throws ServiceException, AccessException, ExecutionException {
         return getROIs(client, image.getId());
     }
@@ -491,6 +507,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void unlinkAllROIs(Client client, long imageId)
     throws ServiceException, AccessException, ExecutionException {
         unlinkROIs(client, getROIs(client, imageId).toArray(EMPTY_ROI_ARRAY));
@@ -508,7 +525,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkAllROIs(Client client, ImageWrapper image)
+    @Override
+    public void unlinkAllROIs(Client client, Image image)
     throws ServiceException, AccessException, ExecutionException {
         unlinkAllROIs(client, image.getId());
     }
@@ -525,6 +543,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void unlinkAllROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ROIWrapper> rois = wrap(data.copyROILinks(), ROIWrapper::new);
@@ -543,7 +562,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * directly.
      */
     @Deprecated
-    public void unlinkROI(Client client, ROIWrapper roi)
+    public void unlinkROI(Client client, ROI roi)
     throws ServiceException, AccessException, ExecutionException {
         unlinkROIs(client, roi);
     }
@@ -553,17 +572,18 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * Unlink ROIs from the folder.
      * <p> The ROIs are now linked to the image directly.
      *
-     * @param client The data manager.
+     * @param client The client handling the connection.
      * @param rois   ROI to unlink.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkROIs(Client client, ROIWrapper... rois)
+    @Override
+    public void unlinkROIs(Client client, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(GenericObjectWrapper::asDataObject)
+                                      .map(ROI::asDataObject)
                                       .collect(Collectors.toList());
         ExceptionHandler.ofConsumer(client.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(client.getCtx(),

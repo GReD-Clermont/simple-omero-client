@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class GenericObjectWrapper<T extends DataObject> {
+public abstract class GenericObjectWrapper<T extends DataObject> implements RemoteObject {
 
     /** Wrapped object */
     protected T data;
@@ -120,12 +120,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @return Distinct objects list, sorted by ID.
      */
     public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
-        return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
-                      .values()
-                      .stream()
-                      .sorted(Comparator.comparing(T::getId))
-                      .collect(Collectors.toList());
+        return RemoteObject.distinct(objects);
     }
 
 
@@ -139,13 +134,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     public static <U extends GenericObjectWrapper<?>>
     List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
-        return lists.stream()
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toMap(U::getId, o -> o, (o1, o2) -> o1))
-                    .values()
-                    .stream()
-                    .sorted(Comparator.comparing(U::getId))
-                    .collect(Collectors.toList());
+        return RemoteObject.flatten(lists);
     }
 
 
@@ -154,6 +143,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return An object of type {@link T}.
      */
+    @Override
     public T asDataObject() {
         return data;
     }
@@ -174,6 +164,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return id.
      */
+    @Override
     public long getId() {
         return data.getId();
     }
@@ -184,6 +175,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return creation date.
      */
+    @Override
     public Timestamp getCreated() {
         return data.getCreated();
     }
@@ -194,6 +186,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return owner id.
      */
+    @Override
     @SuppressWarnings("ClassReferencesSubclass")
     public ExperimenterWrapper getOwner() {
         return new ExperimenterWrapper(data.getOwner());
@@ -205,6 +198,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return group id.
      */
+    @Override
     public Long getGroupId() {
         return data.getGroupId();
     }
@@ -228,6 +222,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
         data = (T) ExceptionHandler.of(client.getDm(),
@@ -242,6 +237,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canAnnotate() {
         return data.canAnnotate();
     }
@@ -253,6 +249,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canEdit() {
         return data.canEdit();
     }
@@ -264,6 +261,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canLink() {
         return data.canLink();
     }
@@ -275,6 +273,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canDelete() {
         return data.canDelete();
     }
@@ -286,6 +285,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canChgrp() {
         data.getPermissions().getPermissionsLevel();
         return data.canChgrp();
@@ -298,6 +298,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
+    @Override
     public boolean canChown() {
         return data.canChown();
     }

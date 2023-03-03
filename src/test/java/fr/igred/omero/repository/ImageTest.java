@@ -24,8 +24,10 @@ import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.roi.EllipseWrapper;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
@@ -617,10 +619,10 @@ class ImageTest extends UserTest {
     void testGetCropFromROI() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        RectangleWrapper rectangle = new RectangleWrapper(30, 30, 20, 20);
+        Shape rectangle = new RectangleWrapper(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        EllipseWrapper ellipse = new EllipseWrapper(50, 50, 20, 40);
+        Shape ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
         int[] xBounds = {30, 69};
@@ -629,7 +631,7 @@ class ImageTest extends UserTest {
         int[] zBounds = {0, 1};
         int[] tBounds = {1, 2};
 
-        ROIWrapper roiWrapper = new ROIWrapper();
+        ROI roiWrapper = new ROIWrapper();
         roiWrapper.setImage(image);
         roiWrapper.addShape(rectangle);
         roiWrapper.addShape(ellipse);
