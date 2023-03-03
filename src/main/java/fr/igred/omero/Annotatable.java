@@ -544,7 +544,8 @@ public interface Annotatable extends RemoteObject {
      */
     default List<AnnotationData> getAnnotationData(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return ExceptionHandler.of(browser.getMetadata(), m -> m.getAnnotations(browser.getCtx(), asDataObject()))
+        return ExceptionHandler.of(browser.getMetadataFacility(),
+                                   m -> m.getAnnotations(browser.getCtx(), asDataObject()))
                                .handleServiceOrAccess("Cannot get annotations from " + this)
                                .get();
     }

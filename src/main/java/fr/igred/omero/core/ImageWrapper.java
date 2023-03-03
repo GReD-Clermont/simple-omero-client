@@ -458,7 +458,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     @Override
     public List<Channel> getChannels(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData> channels = ExceptionHandler.of(browser.getMetadata(),
+        List<ChannelData> channels = ExceptionHandler.of(browser.getMetadataFacility(),
                                                          m -> m.getChannelData(browser.getCtx(), getId()))
                                                      .handleServiceOrAccess("Cannot get the channel name for " + this)
                                                      .get();
@@ -483,7 +483,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws IOException      Cannot read thumbnail from store.
      */
     @Override
-    public BufferedImage getThumbnail(Client client, int size)
+    public BufferedImage getThumbnail(ConnectionHandler client, int size)
     throws ServiceException, ServerException, IOException {
         BufferedImage thumbnail = null;
 
