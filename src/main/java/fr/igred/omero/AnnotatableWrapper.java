@@ -139,7 +139,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     public List<TagAnnotation> getTags(Browser browser) throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
                                                                m -> m.getAnnotations(browser.getCtx(),
                                                                                      data,
                                                                                      types,
@@ -171,7 +171,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     public List<MapAnnotation> getMapAnnotations(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
                                                                m -> m.getAnnotations(browser.getCtx(),
                                                                                      asDataObject(),
                                                                                      types,
@@ -232,7 +232,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
         List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
         List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
 
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadataFacility(),
                                                                m -> m.getAnnotations(client.getCtx(),
                                                                                      data,
                                                                                      types,
@@ -278,7 +278,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
         List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
         List<Long>                            userIds = Collections.singletonList(browser.getCtx().getExperimenter());
 
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
                                                                m -> m.getAnnotations(browser.getCtx(),
                                                                                      data,
                                                                                      types,
@@ -423,7 +423,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
 
         List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadata(),
+        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
                                                                m -> m.getAnnotations(browser.getCtx(),
                                                                                      data,
                                                                                      types,

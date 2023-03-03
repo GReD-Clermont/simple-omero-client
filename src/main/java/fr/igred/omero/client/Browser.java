@@ -115,7 +115,7 @@ public interface Browser {
      *
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
      */
-    MetadataFacility getMetadata() throws ExecutionException;
+    MetadataFacility getMetadataFacility() throws ExecutionException;
 
 
     /**

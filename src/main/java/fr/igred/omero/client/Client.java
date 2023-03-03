@@ -77,7 +77,7 @@ public interface Client extends ConnectionHandler, Browser, DataManager, AdminMa
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
      */
     @Override
-    default MetadataFacility getMetadata() throws ExecutionException {
+    default MetadataFacility getMetadataFacility() throws ExecutionException {
         return getGateway().getFacility(MetadataFacility.class);
     }
 

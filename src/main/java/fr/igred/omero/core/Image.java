@@ -544,7 +544,7 @@ public interface Image extends RepositoryObject {
      * @throws ServerException  Server error.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    BufferedImage getThumbnail(Client client, int size)
+    BufferedImage getThumbnail(ConnectionHandler client, int size)
     throws ServiceException, ServerException, IOException;
 
 
