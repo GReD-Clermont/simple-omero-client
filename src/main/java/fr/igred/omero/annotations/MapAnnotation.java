@@ -23,7 +23,6 @@ import omero.gateway.model.MapAnnotationData;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -49,7 +48,7 @@ public interface MapAnnotation extends Annotation {
      *
      * @return MapAnnotationData content.
      */
-    List<Entry<String, String>> getContent();
+    List<Map.Entry<String, String>> getContent();
 
 
     /**
@@ -57,7 +56,7 @@ public interface MapAnnotation extends Annotation {
      *
      * @param pairs Collection of Key-Value pairs.
      */
-    void setContent(Collection<? extends Entry<String, String>> pairs);
+    void setContent(Collection<? extends Map.Entry<String, String>> pairs);
 
 
     /**
@@ -66,7 +65,7 @@ public interface MapAnnotation extends Annotation {
      * @return See above.
      */
     default Map<String, List<String>> getContentAsMap() {
-        return getContent().stream().collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
+        return getContent().stream().collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, toList())));
     }
 
 }

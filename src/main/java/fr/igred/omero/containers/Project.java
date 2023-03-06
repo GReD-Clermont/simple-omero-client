@@ -22,6 +22,7 @@ import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -93,9 +94,10 @@ public interface Project extends RepositoryObject {
 
 
     /**
-     * Adds a dataset to the project in OMERO. Create the dataset.
+     * Creates a dataset and adds it to the project in OMERO. .
+     * <p>The project needs to be reloaded afterwards to list the new dataset.</p>
      *
-     * @param client      The client handling the connection.
+     * @param dm          The client handling the connection.
      * @param name        Dataset name.
      * @param description Dataset description.
      *
@@ -105,14 +107,15 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Dataset addDataset(Client client, String name, String description)
+    Dataset addDataset(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
      * Adds a dataset to the project in OMERO.
+     * <p>The project needs to be reloaded afterwards to list the new dataset.</p>
      *
-     * @param client  The client handling the connection.
+     * @param dm      The data manager.
      * @param dataset Dataset to be added.
      *
      * @return The object saved in OMERO.
@@ -121,16 +124,14 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default Dataset addDataset(Client client, Dataset dataset)
+    default Dataset addDataset(DataManager dm, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException {
-        dataset.saveAndUpdate(client);
+        dataset.saveAndUpdate(dm);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.setChild(dataset.asDataObject().asDataset());
         link.setParent(asDataObject().asProject());
 
-        client.save(link);
-        reload(client);
-        dataset.reload(client);
+        dm.save(link);
         return dataset;
     }
 

@@ -148,9 +148,10 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
 
 
     /**
-     * Adds a dataset to the project in OMERO. Create the dataset.
+     * Creates a dataset and adds it to the project in OMERO. .
+     * <p>The project needs to be reloaded afterwards to list the new dataset.</p>
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Dataset name.
      * @param description Dataset description.
      *
@@ -161,11 +162,11 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public Dataset addDataset(Client client, String name, String description)
+    public Dataset addDataset(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         Dataset dataset = new DatasetWrapper(name, description);
-        dataset.saveAndUpdate(client);
-        return addDataset(client, dataset);
+        dataset.saveAndUpdate(dm);
+        return addDataset(dm, dataset);
     }
 
 

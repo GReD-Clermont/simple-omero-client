@@ -20,7 +20,7 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -248,13 +248,11 @@ public interface Screen extends RepositoryObject {
      * @return If the import did not exit because of an error.
      *
      * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws IOException        Cannot read file.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    boolean importImages(Client client, String... paths)
-    throws ServiceException, ServerException, AccessException, IOException, ExecutionException;
+    boolean importImages(ConnectionHandler client, String... paths)
+    throws ServiceException, ServerException, IOException;
 
 
     /**
@@ -266,11 +264,9 @@ public interface Screen extends RepositoryObject {
      * @return The list of IDs of the newly imported images.
      *
      * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Long> importImage(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    List<Long> importImage(ConnectionHandler client, String path)
+    throws ServiceException, ServerException;
 
 }

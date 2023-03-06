@@ -95,6 +95,7 @@ class DatasetTest extends UserTest {
         Dataset newDataset = client.getDataset(id);
 
         newDataset.addImages(client, images);
+        newDataset.reload(client);
 
         assertEquals(images.size(), newDataset.getImages(client).size());
 

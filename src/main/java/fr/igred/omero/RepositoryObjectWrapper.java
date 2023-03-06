@@ -69,7 +69,6 @@ public abstract class RepositoryObjectWrapper<T extends DataObject>
      * Imports all images candidates in the paths to the target in OMERO.
      *
      * @param client The client handling the connection.
-     * @param target The import target.
      * @param paths  Paths to the image files on the computer.
      *
      * @return If the import did not exit because of an error.
@@ -78,20 +77,19 @@ public abstract class RepositoryObjectWrapper<T extends DataObject>
      * @throws ServerException  Server error.
      * @throws IOException      Cannot read file.
      */
-    protected static boolean importImages(ConnectionHandler client, DataObject target, String... paths)
+    protected boolean importImages(ConnectionHandler client, String... paths)
     throws ServiceException, ServerException, IOException {
         boolean success;
 
         ImportConfig config = new ImportConfig();
-        String       type   = PojoMapper.getGraphType(target.getClass());
-        config.target.set(type + ":" + target.getId());
+        String       type   = PojoMapper.getGraphType(data.getClass());
+        config.target.set(type + ":" + data.getId());
         config.username.set(client.getUser().getUserName());
         config.email.set(client.getUser().getEmail());
 
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            ExceptionHandler.ofConsumer(store,
-                                        s -> s.logVersionInfo(config.getIniVersionNumber()))
+            ExceptionHandler.ofConsumer(store, s -> s.logVersionInfo(config.getIniVersionNumber()))
                             .rethrow(ServerError.class, ServerException::new,
                                      "Cannot log version information during import.")
                             .rethrow();
@@ -116,7 +114,6 @@ public abstract class RepositoryObjectWrapper<T extends DataObject>
      * Imports one image file to the target in OMERO.
      *
      * @param client The client handling the connection.
-     * @param target The import target.
      * @param path   Path to the image file on the computer.
      *
      * @return The list of IDs of the newly imported images.
@@ -124,11 +121,11 @@ public abstract class RepositoryObjectWrapper<T extends DataObject>
      * @throws ServiceException Cannot connect to OMERO.
      * @throws ServerException  Server error.
      */
-    protected static List<Long> importImage(ConnectionHandler client, DataObject target, String path)
+    protected List<Long> importImage(ConnectionHandler client, String path)
     throws ServiceException, ServerException {
         ImportConfig config = new ImportConfig();
-        String       type   = PojoMapper.getGraphType(target.getClass());
-        config.target.set(type + ":" + target.getId());
+        String       type   = PojoMapper.getGraphType(data.getClass());
+        config.target.set(type + ":" + data.getId());
         config.username.set(client.getUser().getUserName());
         config.email.set(client.getUser().getEmail());
 
@@ -152,7 +149,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject>
             if (containers != null) {
                 for (int i = 0; i < containers.size(); i++) {
                     ImportContainer container = containers.get(i);
-                    container.setTarget(target.asIObject());
+                    container.setTarget(data.asIObject());
                     List<Pixels> imported = library.importImage(container, uploadThreadPool, i);
                     pixels.addAll(imported);
                 }

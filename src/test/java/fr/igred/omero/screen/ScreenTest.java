@@ -177,6 +177,7 @@ class ScreenTest extends UserTest {
         Screen screen = new ScreenWrapper(client, "Import", "test-import");
 
         boolean imported = screen.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
+        screen.reload(client);
 
         removeFile(f1);
         removeFile(f2);
@@ -217,6 +218,7 @@ class ScreenTest extends UserTest {
         Screen screen = new ScreenWrapper(client, "Import", "test-import");
 
         List<Long> ids = screen.importImage(client, file.getAbsolutePath());
+        screen.reload(client);
 
         removeFile(file);
 

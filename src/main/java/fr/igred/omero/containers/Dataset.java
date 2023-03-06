@@ -23,6 +23,8 @@ import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.client.ConnectionHandler;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServerException;
@@ -287,19 +289,19 @@ public interface Dataset extends RepositoryObject {
 
 
     /**
-     * Adds a list of image to the dataset in OMERO.
+     * Adds multiple images to the dataset in OMERO.
      *
-     * @param client The client handling the connection.
+     * @param dm     The data manager.
      * @param images Image to add to the dataset.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addImages(Client client, Iterable<? extends Image> images)
+    default void addImages(DataManager dm, Iterable<? extends Image> images)
     throws ServiceException, AccessException, ExecutionException {
         for (Image image : images) {
-            addImage(client, image);
+            addImage(dm, image);
         }
     }
 
@@ -307,21 +309,19 @@ public interface Dataset extends RepositoryObject {
     /**
      * Adds a single image to the dataset in OMERO
      *
-     * @param client The client handling the connection.
-     * @param image  Image to add.
+     * @param dm    The data manager.
+     * @param image Image to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addImage(Client client, Image image)
+    default void addImage(DataManager dm, Image image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.asDataObject().asImage());
         link.setParent(new DatasetI(getId(), false));
-
-        client.save(link);
-        reload(client);
+        dm.save(link);
     }
 
 
@@ -350,13 +350,11 @@ public interface Dataset extends RepositoryObject {
      * @return If the import did not exit because of an error.
      *
      * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
      * @throws IOException        Cannot read file.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    boolean importImages(Client client, String... paths)
-    throws ServiceException, ServerException, AccessException, IOException, ExecutionException;
+    boolean importImages(ConnectionHandler client, String... paths)
+    throws ServiceException, ServerException, IOException;
 
 
     /**
@@ -368,12 +366,10 @@ public interface Dataset extends RepositoryObject {
      * @return The list of IDs of the newly imported images.
      *
      * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
      * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Long> importImage(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    List<Long> importImage(ConnectionHandler client, String path)
+    throws ServiceException, ServerException;
 
 
     /**

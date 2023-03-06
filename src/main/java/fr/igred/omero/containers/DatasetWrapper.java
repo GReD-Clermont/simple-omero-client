@@ -21,6 +21,7 @@ package fr.igred.omero.containers;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -190,18 +191,14 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      *
      * @return If the import did not exit because of an error.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws IOException        Cannot read file.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws ServerException  Server error.
+     * @throws IOException      Cannot read file.
      */
     @Override
-    public boolean importImages(Client client, String... paths)
-    throws ServiceException, ServerException, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, paths);
-        reload(client);
-        return success;
+    public boolean importImages(ConnectionHandler client, String... paths)
+    throws ServiceException, ServerException, IOException {
+        return super.importImages(client, paths);
     }
 
 
@@ -213,17 +210,13 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      *
      * @return The list of IDs of the newly imported images.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws ServerException  Server error.
      */
     @Override
-    public List<Long> importImage(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        reload(client);
-        return ids;
+    public List<Long> importImage(ConnectionHandler client, String path)
+    throws ServiceException, ServerException {
+        return super.importImage(client, path);
     }
 
 
