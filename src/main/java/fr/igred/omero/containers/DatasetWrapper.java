@@ -18,7 +18,7 @@
 package fr.igred.omero.containers;
 
 
-import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.ImportWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
@@ -43,7 +43,7 @@ import static java.util.Collections.singletonList;
  * Class containing a DatasetData object.
  * <p> Wraps function calls to the DatasetData contained.
  */
-public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> implements Dataset {
+public class DatasetWrapper extends ImportWrapper<DatasetData> implements Dataset {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "DatasetAnnotationLink";

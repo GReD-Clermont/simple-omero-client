@@ -18,7 +18,7 @@
 package fr.igred.omero.containers;
 
 
-import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.DataManager;
@@ -43,7 +43,7 @@ import static fr.igred.omero.RemoteObject.distinct;
  * Class containing a ProjectData object.
  * <p> Wraps function calls to the Project contained
  */
-public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> implements Project {
+public class ProjectWrapper extends AnnotatableWrapper<ProjectData> implements Project {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ProjectAnnotationLink";

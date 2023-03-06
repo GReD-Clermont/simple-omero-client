@@ -18,7 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.ImportWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a ScreenData object.
  * <p> Wraps function calls to the ScreenData contained.
  */
-public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> implements Screen {
+public class ScreenWrapper extends ImportWrapper<ScreenData> implements Screen {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ScreenAnnotationLink";

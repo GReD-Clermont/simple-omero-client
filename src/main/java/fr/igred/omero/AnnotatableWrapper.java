@@ -69,9 +69,9 @@ import java.util.stream.Collectors;
 public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWrapper<T> implements Annotatable {
 
     /**
-     * Constructor of the class RepositoryObjectWrapper.
+     * Constructor of the class AnnotatableWrapper.
      *
-     * @param o The annotatable DataObject to wrap in the RepositoryObjectWrapper.
+     * @param o The annotatable DataObject to wrap in the AnnotatableWrapper.
      */
     protected AnnotatableWrapper(T o) {
         super(o);

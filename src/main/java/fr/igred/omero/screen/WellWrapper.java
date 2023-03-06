@@ -18,7 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a WellData object.
  * <p> Wraps function calls to the WellData contained.
  */
-public class WellWrapper extends RepositoryObjectWrapper<WellData> implements Well {
+public class WellWrapper extends AnnotatableWrapper<WellData> implements Well {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "WellAnnotationLink";

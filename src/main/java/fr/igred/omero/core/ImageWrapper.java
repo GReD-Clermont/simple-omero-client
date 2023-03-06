@@ -18,8 +18,8 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
@@ -76,7 +76,7 @@ import static omero.rtypes.rint;
  * Class containing an ImageData.
  * <p> Wraps function calls to the ImageData contained.
  */
-public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements Image {
+public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ImageAnnotationLink";

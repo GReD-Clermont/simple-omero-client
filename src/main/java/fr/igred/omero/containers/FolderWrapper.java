@@ -18,7 +18,7 @@
 package fr.igred.omero.containers;
 
 
-import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.client.DataManager;
@@ -48,7 +48,7 @@ import static fr.igred.omero.RemoteObject.distinct;
  * Class containing a FolderData object.
  * <p> Wraps function calls to the FolderData contained.
  */
-public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implements Folder {
+public class FolderWrapper extends AnnotatableWrapper<FolderData> implements Folder {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "FolderAnnotationLink";

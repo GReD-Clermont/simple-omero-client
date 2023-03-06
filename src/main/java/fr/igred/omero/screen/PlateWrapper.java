@@ -18,7 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * Class containing a PlateData object.
  * <p> Wraps function calls to the PlateData contained.
  */
-public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements Plate {
+public class PlateWrapper extends AnnotatableWrapper<PlateData> implements Plate {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAnnotationLink";
