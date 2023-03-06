@@ -116,13 +116,24 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
 
 
     /**
-     * Gets the object creation date
+     * Gets the time when the object was created.
      *
      * @return creation date.
      */
     @Override
     public Timestamp getCreated() {
         return data.getCreated();
+    }
+
+
+    /**
+     * Gets the time when the object was last updated.
+     *
+     * @return creation date.
+     */
+    @Override
+    public Timestamp getUpdated() {
+        return data.getUpdated();
     }
 
 

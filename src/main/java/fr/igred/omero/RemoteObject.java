@@ -108,11 +108,19 @@ public interface RemoteObject {
 
 
     /**
-     * Gets the object creation date
+     * Gets the time when the object was created.
      *
      * @return creation date.
      */
     Timestamp getCreated();
+
+
+    /**
+     * Gets the time when the object was last updated.
+     *
+     * @return creation date.
+     */
+    Timestamp getUpdated();
 
 
     /**
