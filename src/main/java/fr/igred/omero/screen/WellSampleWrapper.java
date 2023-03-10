@@ -19,12 +19,20 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServerException;
+import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
+import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.WellSampleData;
+import omero.model.IObject;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
+
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -41,6 +49,17 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      */
     public WellSampleWrapper(WellSampleData wellSample) {
         super(wellSample);
+    }
+
+
+    /**
+     * Returns the plate acquisition containing this well sample.
+     *
+     * @return See above.
+     */
+    @Override
+    public PlateAcquisition getPlateAcquisition() {
+        return new PlateAcquisitionWrapper(new PlateAcquisitionData(data.asWellSample().getPlateAcquisition()));
     }
 
 
@@ -104,6 +123,30 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
     @Override
     public long getStartTime() {
         return data.getStartTime();
+    }
+
+
+    /**
+     * Reloads the well sample from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        String query = "select ws from WellSample as ws " +
+                       "left outer join fetch ws.plateAcquisition as pa " +
+                       "left outer join fetch ws.well as w " +
+                       "left outer join fetch ws.image as img " +
+                       "left outer join fetch img.pixels as pix " +
+                       "where ws.id=" + getId();
+        IObject o = browser.findByQuery(query).iterator().next();
+        data = new WellSampleData((omero.model.WellSample) o);
     }
 
 }

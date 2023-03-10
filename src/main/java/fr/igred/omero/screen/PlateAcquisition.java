@@ -18,7 +18,6 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
@@ -32,11 +31,13 @@ import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static fr.igred.omero.RemoteObject.distinct;
 
 
 /**
@@ -121,32 +122,17 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     default List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        reload(browser);
         return browser.getPlates(getRefPlateId());
     }
 
 
     /**
-     * Retrieves the wells contained in the parent plate.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    default List<Well> getWells(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return getPlates(browser).iterator().next().getWells(browser);
-    }
-
-
-    /**
-     * Retrieves the images contained in the wells in the parent plate.
+     * Retrieves the wells containing the well samples for this plate acquisition.
      *
      * @param browser The data browser.
      *
@@ -155,17 +141,68 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    default List<Well> getWells(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        List<WellSample> wellSamples = getWellSamples(browser);
+        Collection<Well> wells       = new ArrayList<>(wellSamples.size());
+        for (WellSample ws : wellSamples) {
+            wells.add(ws.getWell(browser));
+        }
+        return distinct(wells);
+    }
+
+
+    /**
+     * Retrieves the well samples for this plate acquisition.
+     *
+     * @return See above.
+     */
+    List<WellSample> getWellSamples();
+
+
+    /**
+     * Retrieves the well samples for this plate acquisition and reloads them from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    List<WellSample> getWellSamples(Browser browser)
+    throws AccessException, ServiceException, ExecutionException, ServerException;
+
+
+    /**
+     * Retrieves the images contained in the well samples.
+     *
+     * @return See above
+     */
+    default List<Image> getImages() {
+        return getWellSamples().stream().map(WellSample::getImage).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the images contained in the well samples from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
      */
     default List<Image> getImages(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return getWells(browser).stream()
-                                .map(Well::getImages)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toMap(RemoteObject::getId, i -> i, (i1, i2) -> i1))
-                                .values()
-                                .stream()
-                                .sorted(Comparator.comparing(RemoteObject::getId))
-                                .collect(Collectors.toList());
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        return getWellSamples(browser).stream().map(WellSample::getImage).collect(Collectors.toList());
     }
 
 
@@ -215,5 +252,19 @@ public interface PlateAcquisition extends RepositoryObject {
      * @return See above.
      */
     int getMaximumFieldCount();
+
+
+    /**
+     * Reloads the plate acquisition from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 }

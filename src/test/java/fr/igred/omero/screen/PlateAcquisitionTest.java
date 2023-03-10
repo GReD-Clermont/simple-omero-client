@@ -63,7 +63,7 @@ class PlateAcquisitionTest extends UserTest {
         Plate            plate  = client.getPlate(PLATE1.id);
         PlateAcquisition acq    = plate.getPlateAcquisitions().get(0);
         List<Image>      images = acq.getImages(client);
-        assertEquals(36, images.size());
+        assertEquals(18, images.size());
     }
 
 

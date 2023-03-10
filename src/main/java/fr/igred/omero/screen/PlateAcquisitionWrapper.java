@@ -19,17 +19,23 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.AnnotatableWrapper;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.WellSampleData;
+import omero.model.IObject;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model._PlateAcquisitionOperationsNC;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -49,6 +55,14 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
      */
     public PlateAcquisitionWrapper(PlateAcquisitionData plateAcquisition) {
         super(plateAcquisition);
+        initRefPlate();
+    }
+
+
+    /**
+     * Initializes the ref. plate ID to what is stored in the underlying IObject.
+     */
+    private void initRefPlate() {
         omero.model.Plate plate = ((_PlateAcquisitionOperationsNC) data.asIObject()).getPlate();
         if (plate != null) data.setRefPlateId(plate.getId().getValue());
     }
@@ -133,6 +147,41 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
 
 
     /**
+     * Retrieves the well samples for this plate acquisition.
+     *
+     * @return See above.
+     */
+    @Override
+    public List<WellSample> getWellSamples() {
+        return ((_PlateAcquisitionOperationsNC) data.asIObject()).copyWellSample()
+                                                                 .stream()
+                                                                 .map(WellSampleData::new)
+                                                                 .map(WellSampleWrapper::new)
+                                                                 .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the well samples for this plate acquisition from OMERO and updates the object.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    public List<WellSample> getWellSamples(Browser browser)
+    throws AccessException, ServiceException, ExecutionException, ServerException {
+        reload(browser);
+        return getWellSamples();
+    }
+
+
+    /**
      * Returns the label associated to the plate acquisition.
      *
      * @return See above.
@@ -195,6 +244,34 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
     @Override
     public int getMaximumFieldCount() {
         return data.getMaximumFieldCount();
+    }
+
+
+    /**
+     * Reloads the plate acquisition from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    @Override
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException {
+        String query = "select pa from PlateAcquisition as pa " +
+                       "left outer join fetch pa.plate as p " +
+                       "left outer join fetch pa.wellSample as ws " +
+                       "left outer join fetch ws.plateAcquisition as pa2 " +
+                       "left outer join fetch ws.well as w " +
+                       "left outer join fetch ws.image as img " +
+                       "left outer join fetch img.pixels as pix " +
+                       "left outer join fetch pix.pixelsType as pt " +
+                       "where pa.id=" + getId();
+        IObject o = browser.findByQuery(query).iterator().next();
+        data = new PlateAcquisitionData((omero.model.PlateAcquisition) o);
+        initRefPlate();
     }
 
 }

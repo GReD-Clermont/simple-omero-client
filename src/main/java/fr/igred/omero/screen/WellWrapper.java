@@ -28,6 +28,7 @@ import omero.gateway.model.WellData;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -111,7 +112,7 @@ public class WellWrapper extends AnnotatableWrapper<WellData> implements Well {
      */
     @Override
     public List<WellSample> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
+        return data.getWellSamples().stream().map(WellSampleWrapper::new).collect(Collectors.toList());
     }
 
 

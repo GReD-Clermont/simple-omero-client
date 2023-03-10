@@ -32,6 +32,8 @@ import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.screen.WellSample;
+import fr.igred.omero.screen.WellSampleWrapper;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
 import ij.CompositeImage;
@@ -53,6 +55,7 @@ import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
+import omero.gateway.model.WellSampleData;
 import omero.model.Length;
 import omero.model.Time;
 
@@ -223,6 +226,22 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     @Override
     public Timestamp getAcquisitionDate() {
         return data.getAcquisitionDate();
+    }
+
+
+    /**
+     * Retrieves the well samples containing this image.
+     *
+     * @return See above
+     */
+    @Override
+    public List<WellSample> getWellSamples() {
+        return data.asImage()
+                   .copyWellSamples()
+                   .stream()
+                   .map(WellSampleData::new)
+                   .map(WellSampleWrapper::new)
+                   .collect(Collectors.toList());
     }
 
 

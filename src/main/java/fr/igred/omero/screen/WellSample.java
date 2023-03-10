@@ -84,20 +84,11 @@ public interface WellSample extends RemoteObject {
 
 
     /**
-     * Returns the plate acquisitions linked to the parent Well.
-     *
-     * @param browser The data browser.
+     * Returns the plate acquisition containing this well sample.
      *
      * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return getWell(browser).getPlateAcquisitions(browser);
-    }
+    PlateAcquisition getPlateAcquisition();
 
 
     /**
@@ -163,5 +154,19 @@ public interface WellSample extends RemoteObject {
      * @return See above.
      */
     long getStartTime();
+
+
+    /**
+     * Reloads the well sample from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 }

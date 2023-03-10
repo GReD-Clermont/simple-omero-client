@@ -52,11 +52,11 @@ class WellSampleTest extends UserTest {
 
 
     @Test
-    void testGetPlateAcquisitions() throws Exception {
-        Well                   well   = client.getWell(1L);
-        WellSample             sample = well.getWellSamples().get(0);
-        List<PlateAcquisition> acqs   = sample.getPlateAcquisitions(client);
-        assertEquals(1, acqs.size());
+    void testGetPlateAcquisition() throws Exception {
+        Plate            plate  = client.getPlate(1L);
+        PlateAcquisition acq    = plate.getPlateAcquisitions().get(0);
+        WellSample       sample = acq.getWellSamples(client).get(0);
+        assertEquals(acq.getId(), sample.getPlateAcquisition().getId());
     }
 
 

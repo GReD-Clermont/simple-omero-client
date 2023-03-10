@@ -74,13 +74,11 @@ class PlateTest extends UserTest {
 
     @Test
     void testGetPlateAcquisitionsFromPlate() throws Exception {
-        final String name = "PlateAcquisition Name 0";
-
         Plate plate = client.getPlate(PLATE1.id);
 
         List<PlateAcquisition> acquisitions = plate.getPlateAcquisitions();
-        assertEquals(1, acquisitions.size());
-        assertEquals(name, acquisitions.get(0).getName());
+        assertEquals(2, acquisitions.size());
+        assertEquals(1L, acquisitions.get(0).getId());
     }
 
 

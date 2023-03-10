@@ -31,6 +31,7 @@ import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import fr.igred.omero.roi.Shape;
+import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.Well;
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
@@ -100,9 +101,13 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetPlateAcquisitions() throws Exception {
-        final long   id   = 5L;
-        final String name = "PlateAcquisition Name 0";
-        assertEquals(name, client.getImage(id).getPlateAcquisitions(client).get(0).getName());
+        PlateAcquisition pa = client.getPlate(PLATE1.id).getPlateAcquisitions().get(0);
+
+        String                 name  = pa.getName();
+        Image                  image = pa.getImages(client).get(0);
+        List<PlateAcquisition> acqs  = image.getPlateAcquisitions(client);
+        assertEquals(1, acqs.size());
+        assertEquals(name, acqs.get(0).getName());
     }
 
 
