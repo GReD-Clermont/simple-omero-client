@@ -100,6 +100,24 @@ public interface Plate extends RepositoryObject {
 
 
     /**
+     * Reloads the plate and returns the plate acquisitions related to it.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        return getPlateAcquisitions();
+    }
+
+
+    /**
      * Gets all wells in the plate available from OMERO.
      *
      * @param browser The data browser.

@@ -32,6 +32,14 @@ class WellTest extends UserTest {
 
 
     @Test
+    void testGetPlateAcquisitions() throws Exception {
+        Well                   well = client.getWell(1L);
+        List<PlateAcquisition> acqs = well.getPlateAcquisitions(client);
+        assertEquals(2, acqs.size());
+    }
+
+
+    @Test
     void testAddTagToWell() throws Exception {
         Well well = client.getWell(2L);
 

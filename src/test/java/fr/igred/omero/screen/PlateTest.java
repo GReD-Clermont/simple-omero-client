@@ -76,7 +76,7 @@ class PlateTest extends UserTest {
     void testGetPlateAcquisitionsFromPlate() throws Exception {
         Plate plate = client.getPlate(PLATE1.id);
 
-        List<PlateAcquisition> acquisitions = plate.getPlateAcquisitions();
+        List<PlateAcquisition> acquisitions = plate.getPlateAcquisitions(client);
         assertEquals(2, acquisitions.size());
         assertEquals(1L, acquisitions.get(0).getId());
     }
