@@ -355,6 +355,7 @@ public interface Folder extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException;
 

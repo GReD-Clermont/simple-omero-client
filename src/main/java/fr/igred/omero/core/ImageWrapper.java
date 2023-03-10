@@ -541,4 +541,22 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
                                .get();
     }
 
+
+    /**
+     * Reloads the image from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   b -> b.getImage(browser.getCtx(), getId()))
+                               .handleServiceOrAccess("Can not reload " + this)
+                               .get();
+    }
+
 }

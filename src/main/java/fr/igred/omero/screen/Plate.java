@@ -243,6 +243,7 @@ public interface Plate extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException;
 

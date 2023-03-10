@@ -173,6 +173,7 @@ public interface Image extends RepositoryObject {
      */
     default List<WellSample> getWellSamples(Browser browser)
     throws AccessException, ServiceException, ExecutionException, ServerException {
+        reload(browser);
         List<WellSample> samples = getWellSamples();
         for (WellSample sample : samples) {
             sample.reload(browser);
@@ -592,5 +593,19 @@ public interface Image extends RepositoryObject {
      */
     List<File> download(ConnectionHandler client, String path)
     throws ServerException, ServiceException, AccessException, ExecutionException;
+
+
+    /**
+     * Reloads the image from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 }

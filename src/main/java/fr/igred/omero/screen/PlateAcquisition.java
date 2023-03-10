@@ -264,6 +264,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      * @throws ServerException    Server error.
      */
+    @Override
     void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException, ServerException;
 

@@ -18,6 +18,14 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServerException;
+import fr.igred.omero.exception.ServiceException;
+
+import java.util.concurrent.ExecutionException;
+
+
 /**
  * Interface to handle Repository Objects on OMERO.
  */
@@ -37,6 +45,20 @@ public interface RepositoryObject extends Annotatable {
      * @return See above.
      */
     String getDescription();
+
+
+    /**
+     * Reloads the object from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServerException    Server error.
+     */
+    void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException, ServerException;
 
 
 }
