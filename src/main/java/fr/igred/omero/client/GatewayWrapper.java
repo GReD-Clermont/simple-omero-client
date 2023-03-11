@@ -66,7 +66,7 @@ public class GatewayWrapper implements Client {
      * @param ctx     The security context.
      * @param user    The user.
      */
-    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, Experimenter user) {
+    public GatewayWrapper(Gateway gateway, SecurityContext ctx, Experimenter user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
         this.user = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
         this.ctx = ctx != null ? ctx : new SecurityContext(-1);
