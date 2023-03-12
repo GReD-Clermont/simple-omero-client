@@ -27,7 +27,6 @@ import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.Project;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.screen.Plate;
@@ -109,13 +108,12 @@ public interface Image extends RepositoryObject {
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Project> getProjects(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<Dataset> datasets = getDatasets(browser);
 
         Collection<List<Project>> projects = new ArrayList<>(datasets.size());
@@ -133,13 +131,12 @@ public interface Image extends RepositoryObject {
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Dataset> getDatasets(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from DatasetImageLink as link " +
                                                "where link.child=" + getId());
 
@@ -169,10 +166,9 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<WellSample> getWellSamples(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws AccessException, ServiceException, ExecutionException {
         reload(browser);
         List<WellSample> samples = getWellSamples();
         for (WellSample sample : samples) {
@@ -192,10 +188,9 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Well> getWells(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws AccessException, ServiceException, ExecutionException {
         List<WellSample> wellSamples = getWellSamples(browser);
         Collection<Well> wells       = new ArrayList<>(wellSamples.size());
         for (WellSample ws : wellSamples) {
@@ -215,10 +210,9 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws AccessException, ServiceException, ExecutionException {
         List<WellSample> wellSamples = getWellSamples(browser);
 
         Collection<PlateAcquisition> acqs = new ArrayList<>(wellSamples.size());
@@ -239,10 +233,9 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Plate> getPlates(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws AccessException, ServiceException, ExecutionException {
         return distinct(getWells(browser).stream().map(Well::getPlate).collect(Collectors.toList()));
     }
 
@@ -257,10 +250,9 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Screen> getScreens(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws AccessException, ServiceException, ExecutionException {
         List<Plate> plates = getPlates(browser);
 
         Collection<List<Screen>> screens = new ArrayList<>(plates.size());
@@ -279,10 +271,10 @@ public interface Image extends RepositoryObject {
      * @return {@code true} if the image is orphaned, {@code false} otherwise.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      */
     default boolean isOrphaned(Browser browser)
-    throws ServiceException, ServerException {
+    throws ServiceException, AccessException {
         boolean noDataset = browser.findByQuery("select link.parent from DatasetImageLink link " +
                                                 "where link.child=" + getId()).isEmpty();
         boolean noWell = browser.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
@@ -300,10 +292,9 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Image> getFilesetImages(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws AccessException, ServiceException, ExecutionException {
         List<Image> related = new ArrayList<>(0);
         if (asDataObject().isFSImage()) {
             long fsId = this.asDataObject().getFilesetId();
@@ -393,10 +384,9 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Folder> getFolders(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
         Long[] ids   = browser.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
         return browser.loadFolders(ids);
@@ -571,11 +561,11 @@ public interface Image extends RepositoryObject {
      * @return The thumbnail as a {@link BufferedImage}.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read thumbnail from store.
      */
     BufferedImage getThumbnail(ConnectionHandler client, int size)
-    throws ServiceException, ServerException, IOException;
+    throws ServiceException, IOException, AccessException;
 
 
     /**
@@ -586,13 +576,12 @@ public interface Image extends RepositoryObject {
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<File> download(ConnectionHandler client, String path)
-    throws ServerException, ServiceException, AccessException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**

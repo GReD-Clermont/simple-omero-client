@@ -26,7 +26,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
@@ -135,8 +134,8 @@ public class DatasetWrapper extends ImportWrapper<DatasetData> implements Datase
      * @return See above.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public List<Image> getImages() {
-        //noinspection unchecked
         return wrap(data.getImages(), ImageWrapper::new);
     }
 
@@ -158,7 +157,7 @@ public class DatasetWrapper extends ImportWrapper<DatasetData> implements Datase
         Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(browser.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .handleOMEROException("Cannot get images from " + this)
                                                        .get();
         return wrap(images, ImageWrapper::new);
     }
@@ -173,12 +172,11 @@ public class DatasetWrapper extends ImportWrapper<DatasetData> implements Datase
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
     public void removeImage(Client client, Image image)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, "DatasetImageLink", image.getId());
     }
 
@@ -192,12 +190,12 @@ public class DatasetWrapper extends ImportWrapper<DatasetData> implements Datase
      * @return If the import did not exit because of an error.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
     @Override
     public boolean importImages(ConnectionHandler client, String... paths)
-    throws ServiceException, ServerException, IOException {
+    throws ServiceException, AccessException, IOException {
         return super.importImages(client, paths);
     }
 
@@ -211,11 +209,12 @@ public class DatasetWrapper extends ImportWrapper<DatasetData> implements Datase
      * @return The list of IDs of the newly imported images.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
+     * @throws IOException      Cannot read file.
      */
     @Override
     public List<Long> importImage(ConnectionHandler client, String path)
-    throws ServiceException, ServerException {
+    throws ServiceException, AccessException, IOException {
         return super.importImage(client, path);
     }
 
@@ -234,7 +233,7 @@ public class DatasetWrapper extends ImportWrapper<DatasetData> implements Datase
     throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    bf -> bf.getDatasets(browser.getCtx(), singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
+                               .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()
                                .next();

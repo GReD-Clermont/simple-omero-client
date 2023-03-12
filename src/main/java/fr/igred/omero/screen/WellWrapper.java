@@ -294,7 +294,7 @@ public class WellWrapper extends AnnotatableWrapper<WellData> implements Well {
     throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    bf -> bf.getWells(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
+                               .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()
                                .next();

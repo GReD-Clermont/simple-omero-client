@@ -22,7 +22,10 @@ import fr.igred.omero.BasicTest;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.GatewayWrapper;
+import omero.ResourceError;
+import omero.SecurityViolation;
 import omero.ServerError;
+import omero.SessionException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import org.junit.jupiter.api.Test;
@@ -204,47 +207,63 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
-    void testExceptionHandler1() {
+    void testExceptionHandlerDSAccess() {
         Exception           e  = new DSAccessException("Test", null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(AccessException.class, () -> eh.rethrow(DSAccessException.class, AccessException::new, "Great"));
+        assertThrows(AccessException.class, () -> eh.rethrow(DSAccessException.class, AccessException::new, "Access"));
     }
 
 
     @Test
-    void testExceptionHandler2() {
+    void testExceptionHandlerDefaultServer() {
         Exception           e  = new ServerError(null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(ServerException.class, () -> eh.handleException("Great"));
+        assertThrows(AccessException.class, () -> eh.handleOMEROException("Server to Access 1"));
     }
 
 
     @Test
-    void testExceptionHandler3() {
+    void testExceptionHandlerDSOutOfService() {
         Exception           e  = new DSOutOfServiceException(null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(ServiceException.class, () -> eh.handleServiceOrServer("Great"));
+        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Service"));
     }
 
 
     @Test
-    void testExceptionHandler4() {
-        Exception           e  = new ServerError(null);
+    void testExceptionHandlerSecurityViolation() {
+        Exception           e  = new ServerError(new SecurityViolation(null));
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(ServerError.class, eh::rethrow);
+        assertThrows(AccessException.class, () -> eh.handleOMEROException("Server to Access 2"));
     }
 
 
     @Test
-    void testExceptionHandler5() {
-        Exception           e  = new ServerException(null);
+    void testExceptionHandlerSessionException() {
+        Exception           e  = new ServerError(new SessionException(null));
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(ServerException.class, () -> eh.rethrow(ServerException.class));
+        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Server to Service 1"));
     }
 
 
     @Test
-    void testExceptionHandler6() {
+    void testExceptionHandlerAuthenticationException() {
+        Exception           e  = new ServerError(new omero.AuthenticationException("Test"));
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Server to Service 1"));
+    }
+
+
+    @Test
+    void testExceptionHandlerResourceError() {
+        Exception           e  = new ServerError(new ResourceError(null));
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Server to Service 2"));
+    }
+
+
+    @Test
+    void testExceptionHandlerRethrow() {
         Exception           e  = new AccessException(null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
         assertThrows(AccessException.class, () -> eh.rethrow(AccessException.class));
@@ -252,10 +271,10 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
-    void testExceptionHandler7() {
+    void testExceptionHandlerRethrowNot() {
         Exception           e  = new DSAccessException("Test", null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertDoesNotThrow(() -> eh.rethrow(ServerError.class, ServerException::new, "Great"));
+        assertDoesNotThrow(() -> eh.rethrow(DSOutOfServiceException.class, ServiceException::new, "Not service"));
     }
 
 

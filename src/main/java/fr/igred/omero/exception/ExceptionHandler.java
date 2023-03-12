@@ -18,7 +18,11 @@
 package fr.igred.omero.exception;
 
 
+import omero.AuthenticationException;
+import omero.ResourceError;
+import omero.SecurityViolation;
 import omero.ServerError;
+import omero.SessionException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 
@@ -110,6 +114,53 @@ public class ExceptionHandler<T> {
 
 
     /**
+     * Checks the cause of an exception on OMERO and throws:
+     * <ul>
+     *     <li>
+     *         {@link ServiceException} if the cause was:
+     *         <ul>
+     *             <li>{@link SessionException}</li>
+     *             <li>{@link AuthenticationException}</li>
+     *             <li>{@link ResourceError}</li>
+     *         </ul>
+     *     </li>
+     *     <li>
+     *         {@link AccessException} if the cause was:
+     *         <ul>
+     *             <li>{@link SecurityViolation}</li>
+     *             <Li>Anything else</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     * <p>See {@link omero.gateway.facility.Facility#handleException}</p>
+     *
+     * @param throwable The exception.
+     * @param message   Error message.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     */
+    @SuppressWarnings("JavadocReference")
+    public static void handleOMEROException(Throwable throwable, String message)
+    throws ServiceException, AccessException {
+        Throwable cause = throwable.getCause();
+        if (cause instanceof SecurityViolation) {
+            String s = String.format("For security reasons, cannot access data. %n");
+            throw new AccessException(s + message, cause);
+        } else if (cause instanceof SessionException ||
+                   (cause != null && AuthenticationException.class.isAssignableFrom(cause.getClass()))) {
+            String s = String.format("Session is not valid or not properly initialized. %n");
+            throw new ServiceException(s + message, cause);
+        } else if (cause instanceof ResourceError) {
+            String s = String.format("Fatal error. Please contact the administrator. %n");
+            throw new ServiceException(s + message, throwable);
+        }
+        String s = String.format("Cannot access data. %n");
+        throw new AccessException(s + message, throwable);
+    }
+
+
+    /**
      * Throws an exception from the specified type, if one was caught.
      *
      * @param type The exception class.
@@ -149,28 +200,8 @@ public class ExceptionHandler<T> {
 
 
     /**
-     * Throws:
-     * <ul><li>{@link ServiceException} if {@link DSOutOfServiceException} was caught</li>
-     * <li>{@link ServerException} if {@link ServerError} was caught</li></ul>
-     *
-     * @param message Error message.
-     *
-     * @return The same ExceptionHandler.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
-     */
-    public ExceptionHandler<T> handleServiceOrServer(String message)
-    throws ServiceException, ServerException {
-        return this.rethrow(DSOutOfServiceException.class, ServiceException::new, message)
-                   .rethrow(ServerError.class, ServerException::new, message);
-    }
-
-
-    /**
-     * Throws:
-     * <ul><li>{@link ServiceException} if {@link DSOutOfServiceException} was caught</li>
-     * <li>{@link AccessException} if {@link DSAccessException} was caught</li></ul>
+     * Checks if a ServerError was thrown and handles the exception if it is the case.
+     * <p>See {@link #handleOMEROException(Throwable, String)}</p>
      *
      * @param message Error message.
      *
@@ -179,32 +210,35 @@ public class ExceptionHandler<T> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public ExceptionHandler<T> handleServiceOrAccess(String message)
+    public ExceptionHandler<T> handleServerError(String message)
+    throws ServiceException, AccessException {
+        if (exception instanceof ServerError) {
+            handleOMEROException(this.exception, message);
+        }
+        return this;
+    }
+
+
+    /**
+     * Throws:
+     * <ul>
+     *     <li>{@link AccessException} if {@link DSAccessException} was caught</li>
+     *     <li>{@link ServiceException} if {@link DSOutOfServiceException} was caught</li>
+     *     <li>The appropriate exception if {@link ServerError} was caught (see {@link  #handleOMEROException})</li>
+     * </ul>
+     *
+     * @param message Error message.
+     *
+     * @return The same ExceptionHandler.
+     *
+     * @throws AccessException  Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    public ExceptionHandler<T> handleOMEROException(String message)
     throws ServiceException, AccessException {
         return this.rethrow(DSOutOfServiceException.class, ServiceException::new, message)
-                   .rethrow(DSAccessException.class, AccessException::new, message);
-    }
-
-
-    /**
-     * Throws:
-     * <ul><li>{@link AccessException} if {@link DSAccessException} was caught</li>
-     * <li>{@link ServiceException} if {@link DSOutOfServiceException} was caught</li>
-     * <li>{@link ServerException} if {@link ServerError} was caught</li></ul>
-     *
-     * @param message Error message.
-     *
-     * @return The same ExceptionHandler.
-     *
-     * @throws AccessException  Cannot access data.
-     * @throws ServerException  Server error.
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    public ExceptionHandler<T> handleException(String message)
-    throws ServiceException, AccessException, ServerException {
-        return this.rethrow(DSOutOfServiceException.class, ServiceException::new, message)
                    .rethrow(DSAccessException.class, AccessException::new, message)
-                   .rethrow(ServerError.class, ServerException::new, message);
+                   .handleServerError(message);
     }
 
 
@@ -262,8 +296,8 @@ public class ExceptionHandler<T> {
 
 
     /**
-     * @param <T> The input type.
-     * @param <E> The exception type.
+     * @param <T> The input exception type.
+     * @param <E> The wrapped exception type.
      */
     @FunctionalInterface
     public interface ExceptionWrapper<T, E extends Throwable> {

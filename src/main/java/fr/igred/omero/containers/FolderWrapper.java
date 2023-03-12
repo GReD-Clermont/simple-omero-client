@@ -19,8 +19,8 @@ package fr.igred.omero.containers;
 
 
 import fr.igred.omero.AnnotatableWrapper;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
@@ -240,14 +240,14 @@ public class FolderWrapper extends AnnotatableWrapper<FolderData> implements Fol
         Collection<ROIResult> roiResults = ExceptionHandler.of(roiFac,
                                                                rf -> rf.loadROIsForFolder(dm.getCtx(), imageId,
                                                                                           data.getId()))
-                                                           .handleServiceOrAccess("Cannot get ROIs from " + this)
+                                                           .handleOMEROException("Cannot get ROIs from " + this)
                                                            .get();
 
         List<ROIWrapper> roiWrappers = roiResults.stream()
                                                  .map(ROIResult::getROIs)
                                                  .flatMap(Collection::stream)
                                                  .map(ROIWrapper::new)
-                                                 .sorted(Comparator.comparing(ObjectWrapper::getId))
+                                                 .sorted(Comparator.comparing(RemoteObject::getId))
                                                  .collect(Collectors.toList());
 
         return distinct(roiWrappers);
@@ -287,7 +287,7 @@ public class FolderWrapper extends AnnotatableWrapper<FolderData> implements Fol
     throws AccessException, ServiceException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    bf -> bf.loadFolders(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
+                               .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()
                                .next();

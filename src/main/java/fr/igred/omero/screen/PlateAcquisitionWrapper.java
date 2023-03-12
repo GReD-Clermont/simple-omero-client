@@ -22,7 +22,6 @@ import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
@@ -171,11 +170,10 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     @Override
     public List<WellSample> getWellSamples(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException {
+    throws AccessException, ServiceException, ExecutionException {
         reload(browser);
         return getWellSamples();
     }
@@ -255,11 +253,10 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     @Override
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         String query = "select pa from PlateAcquisition as pa " +
                        "left outer join fetch pa.plate as p " +
                        "left outer join fetch pa.wellSample as ws " +

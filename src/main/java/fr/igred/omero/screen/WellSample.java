@@ -22,7 +22,6 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.WellSampleData;
@@ -58,10 +57,9 @@ public interface WellSample extends RemoteObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Screen> getScreens(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         return getWell(browser).getScreens(browser);
     }
 
@@ -164,9 +162,8 @@ public interface WellSample extends RemoteObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException;
+    throws ServiceException, AccessException, ExecutionException;
 
 }

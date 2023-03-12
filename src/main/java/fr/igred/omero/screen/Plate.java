@@ -23,7 +23,6 @@ import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.RLong;
@@ -78,13 +77,12 @@ public interface Plate extends RepositoryObject {
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Screen> getScreens(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from ScreenPlateLink as link " +
                                                "where link.child=" + getId());
         return browser.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));

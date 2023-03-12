@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains wrapper classes for exceptions and an exception handler.
+ * This package contains wrapper classes for OMERO exceptions and an exception handler.
  */
 package fr.igred.omero.exception;

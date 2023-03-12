@@ -143,7 +143,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
     throws ServiceException, AccessException, ExecutionException {
         List<PlaneInfoData> planes = ExceptionHandler.of(browser.getMetadataFacility(),
                                                          m -> m.getPlaneInfos(browser.getCtx(), data))
-                                                     .handleServiceOrAccess("Cannot retrieve planes info.")
+                                                     .handleOMEROException("Cannot retrieve planes info.")
                                                      .get();
         planesInfo = wrap(planes, PlaneInfoWrapper::new);
     }

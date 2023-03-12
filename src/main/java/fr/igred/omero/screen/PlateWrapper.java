@@ -140,7 +140,7 @@ public class PlateWrapper extends AnnotatableWrapper<PlateData> implements Plate
     public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = ExceptionHandler.of(browser.getBrowseFacility(),
                                                          bf -> bf.getWells(browser.getCtx(), data.getId()))
-                                                     .handleServiceOrAccess("Cannot get wells from " + this)
+                                                     .handleOMEROException("Cannot get wells from " + this)
                                                      .get();
 
         return wells.stream()
@@ -293,7 +293,7 @@ public class PlateWrapper extends AnnotatableWrapper<PlateData> implements Plate
     throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    bf -> bf.getPlates(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
+                               .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()
                                .next();

@@ -23,7 +23,6 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
@@ -103,10 +102,9 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Screen> getScreens(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         Plate plate = browser.getPlate(getRefPlateId());
         return plate.getScreens(browser);
     }
@@ -122,10 +120,9 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         reload(browser);
         return browser.getPlates(getRefPlateId());
     }
@@ -141,10 +138,9 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Well> getWells(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         List<WellSample> wellSamples = getWellSamples(browser);
         Collection<Well> wells       = new ArrayList<>(wellSamples.size());
         for (WellSample ws : wellSamples) {
@@ -172,10 +168,9 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     List<WellSample> getWellSamples(Browser browser)
-    throws AccessException, ServiceException, ExecutionException, ServerException;
+    throws AccessException, ServiceException, ExecutionException;
 
 
     /**
@@ -198,10 +193,9 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     default List<Image> getImages(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         return getWellSamples(browser).stream().map(WellSample::getImage).collect(Collectors.toList());
     }
 
@@ -262,10 +256,9 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     @Override
     void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException;
+    throws ServiceException, AccessException, ExecutionException;
 
 }

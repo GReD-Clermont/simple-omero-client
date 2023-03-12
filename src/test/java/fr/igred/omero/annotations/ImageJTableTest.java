@@ -22,7 +22,6 @@ import fr.igred.omero.UserTest;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.roi.ROI;
@@ -130,8 +129,7 @@ class ImageJTableTest extends UserTest {
                     logger.log(Level.SEVERE,
                                String.format("%sROIs were not properly deleted.%s", ANSI_RED, ANSI_RESET));
                 }
-            } catch (AccessException | ServiceException | ServerException | ExecutionException |
-                     InterruptedException e) {
+            } catch (AccessException | ServiceException | ExecutionException | InterruptedException e) {
                 logger.log(Level.SEVERE, String.format("%sROIs were not properly deleted.%s", ANSI_RED, ANSI_RESET), e);
             }
         }

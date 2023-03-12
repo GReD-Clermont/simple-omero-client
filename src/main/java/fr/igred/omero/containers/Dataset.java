@@ -20,14 +20,13 @@ package fr.igred.omero.containers;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.util.ReplacePolicy;
@@ -90,13 +89,12 @@ public interface Dataset extends RepositoryObject {
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Project> getProjects(Browser browser)
-    throws ServerException, ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from ProjectDatasetLink as link " +
                                                "where link.child=" + getId());
         return browser.getProjects(os.stream()
@@ -182,11 +180,10 @@ public interface Dataset extends RepositoryObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         return getImagesTagged(browser, tag.getId());
     }
 
@@ -201,11 +198,10 @@ public interface Dataset extends RepositoryObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Image> getImagesTagged(Browser browser, Long tagId)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Long[] ids = browser.findByQuery("select link.parent " +
                                          "from ImageAnnotationLink link " +
                                          "where link.child = " +
@@ -334,11 +330,10 @@ public interface Dataset extends RepositoryObject {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void removeImage(Client client, Image image)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
     /**
@@ -349,12 +344,12 @@ public interface Dataset extends RepositoryObject {
      *
      * @return If the import did not exit because of an error.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ServerException    Server error.
-     * @throws IOException        Cannot read file.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws IOException      Cannot read file.
      */
     boolean importImages(ConnectionHandler client, String... paths)
-    throws ServiceException, ServerException, IOException;
+    throws ServiceException, AccessException, IOException;
 
 
     /**
@@ -365,11 +360,12 @@ public interface Dataset extends RepositoryObject {
      *
      * @return The list of IDs of the newly imported images.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ServerException    Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws IOException      Cannot read file.
      */
     List<Long> importImage(ConnectionHandler client, String path)
-    throws ServiceException, ServerException;
+    throws ServiceException, AccessException, IOException;
 
 
     /**
@@ -384,12 +380,11 @@ public interface Dataset extends RepositoryObject {
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
-     * @throws ServerException      Server error.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
     default List<Image> replaceImages(Client client, Collection<? extends Image> oldImages, Image newImage)
-    throws AccessException, ServiceException, ExecutionException, ServerException, InterruptedException {
+    throws AccessException, ServiceException, ExecutionException, InterruptedException {
         Collection<String> descriptions = new ArrayList<>(oldImages.size() + 1);
         List<Image>        orphaned     = new ArrayList<>(oldImages.size());
         descriptions.add(newImage.getDescription());
@@ -425,12 +420,12 @@ public interface Dataset extends RepositoryObject {
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
-     * @throws ServerException      Server error.
+     * @throws IOException          Cannot read file.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
     default List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
-    throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
+    throws ServiceException, AccessException, IOException, ExecutionException, InterruptedException {
         List<Long> ids    = importImage(client, path);
         Long[]     newIds = ids.toArray(new Long[0]);
 
@@ -474,12 +469,12 @@ public interface Dataset extends RepositoryObject {
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
-     * @throws ServerException      Server error.
+     * @throws IOException          Cannot read file.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
     default List<Long> importAndReplaceImages(Client client, String path)
-    throws ServiceException, AccessException, ServerException, ExecutionException, InterruptedException {
+    throws ServiceException, AccessException, IOException, ExecutionException, InterruptedException {
         return importAndReplaceImages(client, path, ReplacePolicy.UNLINK);
     }
 

@@ -23,7 +23,6 @@ import fr.igred.omero.annotations.Table;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.DataManagerFacility;
@@ -94,7 +93,7 @@ public interface DataManager {
      */
     default IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
         return ExceptionHandler.of(getDMFacility(), d -> d.saveAndReturnObject(getCtx(), object))
-                               .handleServiceOrAccess("Cannot save object")
+                               .handleOMEROException("Cannot save object")
                                .get();
     }
 
@@ -107,15 +106,14 @@ public interface DataManager {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     default void delete(IObject object)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         final long wait = 500L;
         ExceptionHandler.ofConsumer(getDMFacility(), d -> d.delete(getCtx(), object).loop(10, wait))
                         .rethrow(InterruptedException.class)
-                        .handleException("Cannot delete object")
+                        .handleOMEROException("Cannot delete object")
                         .rethrow();
     }
 
@@ -128,15 +126,14 @@ public interface DataManager {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     default void delete(List<IObject> objects)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         final long wait = 500L;
         ExceptionHandler.ofConsumer(getDMFacility(), d -> d.delete(getCtx(), objects).loop(10, wait))
                         .rethrow(InterruptedException.class)
-                        .handleException("Cannot delete objects")
+                        .handleOMEROException("Cannot delete objects")
                         .rethrow();
     }
 
@@ -149,11 +146,10 @@ public interface DataManager {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     default void deleteFile(Long id)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         FileAnnotationI file = new FileAnnotationI(id, false);
         delete(file);
     }
@@ -167,11 +163,10 @@ public interface DataManager {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     default void delete(Collection<? extends RemoteObject> objects)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         for (RemoteObject object : objects) {
             if (object instanceof Folder) {
                 ((Folder) object).unlinkAllROIs(this);
@@ -192,11 +187,10 @@ public interface DataManager {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     default void delete(RemoteObject object)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         if (object instanceof Folder) {
             ((Folder) object).unlinkAllROIs(this);
         }
@@ -213,11 +207,10 @@ public interface DataManager {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException ID not defined.
-     * @throws ServerException          Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
     default void delete(Table table)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFile(table.getId());
     }
 

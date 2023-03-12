@@ -19,7 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.client.ConnectionHandler;
-import fr.igred.omero.exception.ServerException;
+import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.FileAnnotationData;
 
@@ -122,11 +122,11 @@ public interface FileAnnotation extends Annotation {
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot write to the file.
-     * @throws ServerException  Server error.
      */
     File getFile(ConnectionHandler client, String path)
-    throws IOException, ServiceException, ServerException;
+    throws IOException, ServiceException, AccessException;
 
 
     /**

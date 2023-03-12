@@ -19,7 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
@@ -28,7 +28,6 @@ import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
@@ -278,7 +277,7 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
                                      .collect(Collectors.toList());
         Collection<ROIData> results = ExceptionHandler.of(dm.getRoiFacility(),
                                                           rf -> rf.saveROIs(dm.getCtx(), data.getId(), roisData))
-                                                      .handleServiceOrAccess("Cannot link ROI to " + this)
+                                                      .handleOMEROException("Cannot link ROI to " + this)
                                                       .get();
         return wrap(results, ROIWrapper::new);
     }
@@ -300,14 +299,14 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     throws ServiceException, AccessException, ExecutionException {
         List<ROIResult> roiResults = ExceptionHandler.of(dm.getRoiFacility(),
                                                          rf -> rf.loadROIs(dm.getCtx(), data.getId()))
-                                                     .handleServiceOrAccess("Cannot get ROIs from " + this)
+                                                     .handleOMEROException("Cannot get ROIs from " + this)
                                                      .get();
 
         List<ROIWrapper> rois = roiResults.stream()
                                           .map(ROIResult::getROIs)
                                           .flatMap(Collection::stream)
                                           .map(ROIWrapper::new)
-                                          .sorted(Comparator.comparing(ObjectWrapper::getId))
+                                          .sorted(Comparator.comparing(RemoteObject::getId))
                                           .collect(Collectors.toList());
 
         return distinct(rois);
@@ -333,7 +332,7 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
         Collection<FolderData> folders = ExceptionHandler.of(roiFacility,
                                                              rf -> rf.getROIFolders(dm.getCtx(),
                                                                                     this.data.getId()))
-                                                         .handleServiceOrAccess("Cannot get folders for " + this)
+                                                         .handleOMEROException("Cannot get folders for " + this)
                                                          .get();
 
         return wrap(folders, FolderWrapper::new);
@@ -479,7 +478,7 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     throws ServiceException, AccessException, ExecutionException {
         List<ChannelData> channels = ExceptionHandler.of(browser.getMetadataFacility(),
                                                          m -> m.getChannelData(browser.getCtx(), getId()))
-                                                     .handleServiceOrAccess("Cannot get the channel name for " + this)
+                                                     .handleOMEROException("Cannot get the channel name for " + this)
                                                      .get();
         return channels.stream()
                        .sorted(Comparator.comparing(ChannelData::getIndex))
@@ -498,16 +497,16 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
      * @return The thumbnail as a {@link BufferedImage}.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read thumbnail from store.
      */
     @Override
     public BufferedImage getThumbnail(ConnectionHandler client, int size)
-    throws ServiceException, ServerException, IOException {
+    throws ServiceException, IOException, AccessException {
         BufferedImage thumbnail = null;
 
         byte[] array = ExceptionHandler.of(client, c -> getThumbnailBytes(c, size))
-                                       .handleServiceOrServer("Error retrieving thumbnail.")
+                                       .handleOMEROException("Error retrieving thumbnail.")
                                        .get();
         if (array != null) {
             try (ByteArrayInputStream stream = new ByteArrayInputStream(array)) {
@@ -527,17 +526,16 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
      *
      * @return See above.
      *
-     * @throws ServerException    Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<File> download(ConnectionHandler client, String path)
-    throws ServerException, ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
         return ExceptionHandler.of(transfer, t -> t.downloadImage(client.getCtx(), path, getId()))
-                               .handleException("Could not download image " + getId())
+                               .handleOMEROException("Could not download image " + getId())
                                .get();
     }
 
@@ -555,7 +553,7 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    b -> b.getImage(browser.getCtx(), getId()))
-                               .handleServiceOrAccess("Can not reload " + this)
+                               .handleOMEROException("Can not reload " + this)
                                .get();
     }
 

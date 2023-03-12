@@ -25,7 +25,6 @@ import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.Project;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
@@ -132,12 +131,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<Project> getProjects(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(browser, ProjectWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getProjects(ids);
@@ -153,12 +151,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<Dataset> getDatasets(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(browser, DatasetWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getDatasets(ids);
@@ -174,12 +171,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<Image> getImages(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(browser, ImageWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getImages(ids);
@@ -195,12 +191,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<Screen> getScreens(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(browser, ScreenWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getScreens(ids);
@@ -216,12 +211,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(browser, PlateWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getPlates(ids);
@@ -236,11 +230,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      */
     @Override
     public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, ServerException {
+    throws ServiceException, AccessException {
         List<IObject> os = getLinks(browser, PlateAcquisitionWrapper.ANNOTATION_LINK);
         return os.stream()
                  .map(o -> new PlateAcquisitionWrapper(new PlateAcquisitionData((omero.model.PlateAcquisition) o)))
@@ -257,12 +251,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<Well> getWells(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(browser, WellWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.getWells(ids);
@@ -278,12 +271,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<Folder> getFolders(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(browser, FolderWrapper.ANNOTATION_LINK);
         Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
         return browser.loadFolders(ids);
@@ -299,10 +291,10 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @return The list of linked objects.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      */
     private List<IObject> getLinks(Browser browser, String linkType)
-    throws ServiceException, ServerException {
+    throws ServiceException, AccessException {
         return browser.findByQuery("select link.parent from " + linkType +
                                    " link where link.child = " + getId());
     }

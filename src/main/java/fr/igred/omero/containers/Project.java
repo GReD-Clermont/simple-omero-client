@@ -25,7 +25,6 @@ import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectDatasetLink;
@@ -145,11 +144,10 @@ public interface Project extends RepositoryObject {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     void removeDataset(Client client, Dataset dataset)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
     /**
@@ -251,11 +249,10 @@ public interface Project extends RepositoryObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
         Collection<List<Image>> lists = new ArrayList<>(datasets.size());
@@ -276,11 +273,10 @@ public interface Project extends RepositoryObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default List<Image> getImagesTagged(Browser browser, Long tagId)
-    throws ServiceException, AccessException, ServerException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
         Collection<List<Image>> lists = new ArrayList<>(datasets.size());

@@ -28,7 +28,6 @@ import fr.igred.omero.client.Client;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
 import omero.gateway.facility.TablesFacility;
@@ -89,7 +88,7 @@ public interface Annotatable extends RemoteObject {
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
         ExceptionHandler.of(dm.getDMFacility(), d -> d.attachAnnotation(dm.getCtx(), annotation, asDataObject()))
-                        .handleServiceOrAccess(error)
+                        .handleOMEROException(error)
                         .rethrow();
     }
 
@@ -296,11 +295,10 @@ public interface Annotatable extends RemoteObject {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException The thread was interrupted.
      */
     void rate(Client client, int rating)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
     /**
@@ -336,13 +334,13 @@ public interface Annotatable extends RemoteObject {
                                                                     asDataObject(),
                                                                     table.getName(),
                                                                     table.createTable()))
-                                              .handleServiceOrAccess("Cannot add table to " + this)
+                                              .handleOMEROException("Cannot add table to " + this)
                                               .get();
 
         Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
                                                                     tf -> tf.getAvailableTables(dm.getCtx(),
                                                                                                 asDataObject()))
-                                                                .handleServiceOrAccess("Cannot add table to " + this)
+                                                                .handleOMEROException("Cannot add table to " + this)
                                                                 .get();
         long fileId = tableData.getOriginalFileId();
 
@@ -366,10 +364,9 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws ServerException      Server error.
      */
     void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
     /**
@@ -383,10 +380,9 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws ServerException      Server error.
      */
     default void addAndReplaceTable(Client client, Table table)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
     }
 
@@ -423,7 +419,7 @@ public interface Annotatable extends RemoteObject {
         Collection<FileAnnotationData> files = ExceptionHandler.of(dm.getTablesFacility(),
                                                                    tf -> tf.getAvailableTables(dm.getCtx(),
                                                                                                asDataObject()))
-                                                               .handleServiceOrAccess("Cannot get tables from " + this)
+                                                               .handleOMEROException("Cannot get tables from " + this)
                                                                .get();
 
         List<Table> tablesWrapper = new ArrayList<>(files.size());
@@ -472,10 +468,9 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws ServerException      Server error.
      */
     long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
-    throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException;
+    throws ExecutionException, InterruptedException, AccessException, ServiceException;
 
 
     /**
@@ -491,10 +486,9 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws ServerException      Server error.
      */
     default long addAndReplaceFile(Client client, File file)
-    throws ExecutionException, InterruptedException, AccessException, ServiceException, ServerException {
+    throws ExecutionException, InterruptedException, AccessException, ServiceException {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
     }
 
@@ -524,11 +518,10 @@ public interface Annotatable extends RemoteObject {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     <A extends Annotation> void unlink(Client client, A annotation)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException;
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
     /**
@@ -546,7 +539,7 @@ public interface Annotatable extends RemoteObject {
     throws AccessException, ServiceException, ExecutionException {
         return ExceptionHandler.of(browser.getMetadataFacility(),
                                    m -> m.getAnnotations(browser.getCtx(), asDataObject()))
-                               .handleServiceOrAccess("Cannot get annotations from " + this)
+                               .handleOMEROException("Cannot get annotations from " + this)
                                .get();
     }
 

@@ -163,7 +163,7 @@ public interface Folder extends RepositoryObject {
             }
         }
         ExceptionHandler.of(dm.getDMFacility(), d -> d.saveAndReturnObject(dm.getCtx(), links, null, null))
-                        .handleServiceOrAccess("Cannot save links.")
+                        .handleOMEROException("Cannot save links.")
                         .rethrow();
     }
 
@@ -215,7 +215,7 @@ public interface Folder extends RepositoryObject {
                                                       imageId,
                                                       roiData,
                                                       Collections.singletonList(asDataObject())))
-                        .handleServiceOrAccess("Cannot add ROIs to " + this)
+                        .handleOMEROException("Cannot add ROIs to " + this)
                         .rethrow();
     }
 
@@ -341,7 +341,7 @@ public interface Folder extends RepositoryObject {
                                                                    -1L,
                                                                    roiData,
                                                                    Collections.singletonList(asDataObject())))
-                        .handleServiceOrAccess("Cannot unlink ROI from " + this)
+                        .handleOMEROException("Cannot unlink ROI from " + this)
                         .rethrow();
     }
 

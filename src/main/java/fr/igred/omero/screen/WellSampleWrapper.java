@@ -23,7 +23,6 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.PlateAcquisitionData;
@@ -134,11 +133,10 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws ServerException    Server error.
      */
     @Override
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, ServerException {
+    throws ServiceException, AccessException, ExecutionException {
         String query = "select ws from WellSample as ws " +
                        "left outer join fetch ws.plateAcquisition as pa " +
                        "left outer join fetch ws.well as w " +

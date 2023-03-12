@@ -26,7 +26,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ProjectData;
@@ -179,12 +178,11 @@ public class ProjectWrapper extends AnnotatableWrapper<ProjectData> implements P
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws ServerException      Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
     public void removeDataset(Client client, Dataset dataset)
-    throws ServiceException, AccessException, ExecutionException, ServerException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, "ProjectDatasetLink", dataset.getId());
         reload(client);
     }
@@ -207,7 +205,7 @@ public class ProjectWrapper extends AnnotatableWrapper<ProjectData> implements P
         List<Long> projectIds = Collections.singletonList(getId());
         Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
                                                            bf -> bf.getImagesForProjects(browser.getCtx(), projectIds))
-                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .handleOMEROException("Cannot get images from " + this)
                                                        .get();
         return distinct(wrap(images, ImageWrapper::new));
     }
@@ -226,7 +224,7 @@ public class ProjectWrapper extends AnnotatableWrapper<ProjectData> implements P
     public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    bf -> bf.getProjects(browser.getCtx(), Collections.singletonList(data.getId())))
-                               .handleServiceOrAccess("Cannot reload " + this)
+                               .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()
                                .next();

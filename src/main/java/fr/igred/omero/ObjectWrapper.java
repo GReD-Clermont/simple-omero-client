@@ -182,7 +182,7 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
     public void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException {
         data = (T) ExceptionHandler.of(dm.getDMFacility(),
                                        d -> d.saveAndReturnObject(dm.getCtx(), data))
-                                   .handleServiceOrAccess("Cannot save and update object.")
+                                   .handleOMEROException("Cannot save and update object.")
                                    .get();
     }
 

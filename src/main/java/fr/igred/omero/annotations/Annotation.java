@@ -24,7 +24,6 @@ import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Project;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServerException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.screen.Plate;
@@ -100,9 +99,9 @@ public interface Annotation extends RemoteObject {
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      */
-    default int countAnnotationLinks(Browser browser) throws ServiceException, ServerException {
+    default int countAnnotationLinks(Browser browser) throws ServiceException, AccessException {
         return browser.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
                                    "where link.child.id=" + getId()).size();
     }
@@ -117,11 +116,10 @@ public interface Annotation extends RemoteObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<Project> getProjects(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -133,11 +131,10 @@ public interface Annotation extends RemoteObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<Dataset> getDatasets(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -149,11 +146,10 @@ public interface Annotation extends RemoteObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<Image> getImages(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -165,11 +161,10 @@ public interface Annotation extends RemoteObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<Screen> getScreens(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -181,11 +176,10 @@ public interface Annotation extends RemoteObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<Plate> getPlates(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -196,10 +190,10 @@ public interface Annotation extends RemoteObject {
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws ServerException  Server error.
+     * @throws AccessException  Cannot access data.
      */
     List<PlateAcquisition> getPlateAcquisitions(Browser browser)
-    throws ServiceException, ServerException;
+    throws ServiceException, AccessException;
 
 
     /**
@@ -211,11 +205,10 @@ public interface Annotation extends RemoteObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<Well> getWells(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
@@ -227,10 +220,9 @@ public interface Annotation extends RemoteObject {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ServerException    Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     List<Folder> getFolders(Browser browser)
-    throws ServiceException, AccessException, ServerException, ExecutionException;
+    throws ServiceException, AccessException, ExecutionException;
 
 }
