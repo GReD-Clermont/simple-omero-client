@@ -200,8 +200,8 @@ public class ExceptionHandler<T> {
 
 
     /**
-     * Checks if a ServerError was thrown and handles the exception if it is the case.
-     * <p>See {@link #handleOMEROException(Throwable, String)}</p>
+     * Checks if a ServerError or a DSOutOfService was thrown and handles the exception according to the cause.
+     * <p>See {@link #handleOMEROException(Throwable, String)}.</p>
      *
      * @param message Error message.
      *
@@ -210,9 +210,9 @@ public class ExceptionHandler<T> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public ExceptionHandler<T> handleServerError(String message)
+    public ExceptionHandler<T> handleServerAndService(String message)
     throws ServiceException, AccessException {
-        if (exception instanceof ServerError) {
+        if (exception instanceof ServerError || exception instanceof DSOutOfServiceException) {
             handleOMEROException(this.exception, message);
         }
         return this;
@@ -238,7 +238,7 @@ public class ExceptionHandler<T> {
     throws ServiceException, AccessException {
         return this.rethrow(DSOutOfServiceException.class, ServiceException::new, message)
                    .rethrow(DSAccessException.class, AccessException::new, message)
-                   .handleServerError(message);
+                   .handleServerAndService(message);
     }
 
 

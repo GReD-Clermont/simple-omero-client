@@ -102,8 +102,9 @@ public interface Browser {
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    IQueryPrx getQueryService() throws ServiceException;
+    IQueryPrx getQueryService() throws ServiceException, AccessException;
 
 
     /**
@@ -128,9 +129,8 @@ public interface Browser {
      */
     default List<IObject> findByQuery(String query) throws ServiceException, AccessException {
         String error = "Query failed: " + query;
-        return ExceptionHandler.of(getQueryService(),
-                                   qs -> qs.findAllByQuery(query, null))
-                               .handleServerError(error)
+        return ExceptionHandler.of(getQueryService(), qs -> qs.findAllByQuery(query, null))
+                               .handleServerAndService(error)
                                .get();
     }
 

@@ -22,7 +22,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import omero.api.IQueryPrx;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.AdminFacility;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
@@ -59,12 +58,12 @@ public interface Client extends ConnectionHandler, Browser, DataManager, AdminMa
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     @Override
-    default IQueryPrx getQueryService() throws ServiceException {
+    default IQueryPrx getQueryService() throws ServiceException, AccessException {
         return ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx()))
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
-                                        "Could not retrieve Query Service")
+                               .handleServerAndService("Could not retrieve Query Service")
                                .get();
     }
 

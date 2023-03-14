@@ -186,6 +186,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot write to the file.
      */
     @Override
@@ -196,14 +197,14 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
         RawFileStorePrx store;
         try (FileOutputStream stream = new FileOutputStream(file)) {
             store = ExceptionHandler.of(client, c -> writeFile(c, stream))
-                                    .handleOMEROException("Could not create RawFileService")
+                                    .handleServerAndService("Could not create RawFileService")
                                     .rethrow(IOException.class)
                                     .get();
         }
 
         if (store != null) {
             ExceptionHandler.ofConsumer(store, RawFileStorePrx::close)
-                            .handleServerError("Could not close RawFileService")
+                            .handleServerAndService("Could not close RawFileService")
                             .rethrow();
         }
 

@@ -28,10 +28,21 @@ public class AccessException extends DSAccessException {
 
 
     /**
+     * Creates an AccessException from a {@link DSAccessException}.
+     *
+     * @param message Short explanation of the problem.
+     * @param cause   The exception that caused this one to be raised.
+     */
+    public AccessException(String message, DSAccessException cause) {
+        super(String.format("%s%n%s", message, cause.getMessage()), cause.getCause());
+    }
+
+
+    /**
      * Constructs a new exception with the specified detail message and cause.
      *
      * @param message Short explanation of the problem.
-     * @param cause   The exception that caused this one to be risen.
+     * @param cause   The exception that caused this one to be raised.
      */
     public AccessException(String message, Throwable cause) {
         super(message, cause);
@@ -41,7 +52,7 @@ public class AccessException extends DSAccessException {
     /**
      * Constructs a new exception with a general message and the cause.
      *
-     * @param cause The exception that caused this one to be risen.
+     * @param cause The exception that caused this one to be raised.
      */
     public AccessException(Throwable cause) {
         super("Cannot access data", cause);

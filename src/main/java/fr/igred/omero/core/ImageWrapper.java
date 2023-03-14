@@ -506,7 +506,7 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
         BufferedImage thumbnail = null;
 
         byte[] array = ExceptionHandler.of(client, c -> getThumbnailBytes(c, size))
-                                       .handleOMEROException("Error retrieving thumbnail.")
+                                       .handleServerAndService("Error retrieving thumbnail.")
                                        .get();
         if (array != null) {
             try (ByteArrayInputStream stream = new ByteArrayInputStream(array)) {

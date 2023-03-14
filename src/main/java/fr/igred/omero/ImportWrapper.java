@@ -124,7 +124,7 @@ public abstract class ImportWrapper<T extends DataObject> extends AnnotatableWra
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             ExceptionHandler.ofConsumer(store, s -> s.logVersionInfo(config.getIniVersionNumber()))
-                            .handleServerError("Cannot log version information during import.")
+                            .handleServerAndService("Cannot log version information during import.")
                             .rethrow();
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
 
@@ -168,7 +168,7 @@ public abstract class ImportWrapper<T extends DataObject> extends AnnotatableWra
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             ExceptionHandler.ofConsumer(store, s -> s.logVersionInfo(config.getIniVersionNumber()))
-                            .handleServerError("Cannot log version information during import.")
+                            .handleServerAndService("Cannot log version information during import.")
                             .rethrow();
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
 

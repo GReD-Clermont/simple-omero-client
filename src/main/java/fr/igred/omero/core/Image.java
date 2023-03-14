@@ -499,7 +499,7 @@ public interface Image extends RepositoryObject {
 
 
     /**
-     * Gets the original color of the channel
+     * Gets the original color of the channel.
      *
      * @param browser The data browser.
      * @param index   Channel number.
@@ -517,7 +517,7 @@ public interface Image extends RepositoryObject {
 
 
     /**
-     * Gets the current color of the channel
+     * Gets the current color of the channel, or the original if it cannot be retrieved.
      *
      * @param client The client handling the connection.
      * @param index  Channel number.
