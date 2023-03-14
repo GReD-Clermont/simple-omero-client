@@ -18,6 +18,8 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -25,11 +27,45 @@ import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class PlateAcquisitionTest extends UserTest {
+
+
+    @Test
+    void testGetParents() throws Exception {
+        Plate            plate = client.getPlate(1L);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+
+        List<RepositoryObject> parents = acq.getParents(client);
+        List<Plate>            plates  = acq.getPlates(client);
+
+        List<Long> childrenIds = parents.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> sampleIds   = plates.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        assertEquals(plates.size(), parents.size());
+        assertEquals(sampleIds, childrenIds);
+        assertTrue(Plate.class.isAssignableFrom(parents.get(0).getClass()));
+    }
+
+
+    @Test
+    void testGetChildren() throws Exception {
+        Plate            plate = client.getPlate(1L);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+
+        List<RepositoryObject> children = acq.getChildren(client);
+        List<WellSample>       samples  = acq.getWellSamples(client);
+
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).sorted().collect(Collectors.toList());
+        List<Long> sampleIds   = samples.stream().map(RemoteObject::getId).sorted().collect(Collectors.toList());
+        assertEquals(samples.size(), children.size());
+        assertEquals(sampleIds, childrenIds);
+        assertTrue(WellSample.class.isAssignableFrom(children.get(0).getClass()));
+    }
 
 
     @Test
@@ -59,10 +95,20 @@ class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    void testGetImages() throws Exception {
-        Plate            plate  = client.getPlate(PLATE1.id);
-        PlateAcquisition acq    = plate.getPlateAcquisitions().get(0);
-        List<Image>      images = acq.getImages(client);
+    void testGetImages1() throws Exception {
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+        List<Image> images = acq.getImages(client);
+        assertEquals(18, images.size());
+    }
+
+
+    @Test
+    void testGetImages2() throws Exception {
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+        acq.reload(client);
+        List<Image> images = acq.getImages();
         assertEquals(18, images.size());
     }
 

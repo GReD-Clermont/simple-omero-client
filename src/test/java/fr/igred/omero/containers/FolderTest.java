@@ -20,6 +20,7 @@ package fr.igred.omero.containers;
 
 import fr.igred.omero.Annotatable;
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -36,9 +37,60 @@ import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class FolderTest extends UserTest {
+
+
+    @Test
+    void testGetParents() throws Exception {
+        Folder        parent = new FolderWrapper(client, "Parent");
+        FolderWrapper child1 = new FolderWrapper(client, "Child 1");
+        FolderWrapper child2 = new FolderWrapper(client, "Child 2");
+        parent.addChild(child1);
+        parent.saveAndUpdate(client);
+        child2.setParent(parent);
+        child2.addChildren(Collections.singletonList(child1));
+        child2.saveAndUpdate(client);
+
+        List<RepositoryObject> parents = child1.getParents(client);
+
+        client.delete(parent);
+        client.delete(child1);
+        client.delete(child2);
+
+        assertEquals(1, parents.size());
+        assertEquals(parent.getId(), parents.get(0).getId());
+    }
+
+
+    @Test
+    void testGetChildren() throws Exception {
+        Image image = client.getImage(1L);
+
+        Folder        parent = new FolderWrapper(client, "Parent");
+        FolderWrapper child1 = new FolderWrapper(client, "Child 1");
+        FolderWrapper child2 = new FolderWrapper(client, "Child 2");
+        parent.addChild(child1);
+        parent.saveAndUpdate(client);
+        child2.setParent(parent);
+        child2.addChildren(Collections.singletonList(child1));
+        child2.saveAndUpdate(client);
+        parent.addImages(client, image);
+
+        List<RepositoryObject> children = parent.getChildren(client);
+
+        client.delete(parent);
+        client.delete(child1);
+        client.delete(child2);
+
+        assertEquals(3, children.size());
+        assertEquals(child1.getId(), children.get(0).getId());
+        assertTrue(Folder.class.isAssignableFrom(children.get(0).getClass()));
+        assertEquals(image.getId(), children.get(2).getId());
+        assertTrue(Image.class.isAssignableFrom(children.get(2).getClass()));
+    }
 
 
     @Test

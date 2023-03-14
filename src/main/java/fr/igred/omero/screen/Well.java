@@ -18,6 +18,7 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
@@ -25,6 +26,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -33,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * Interface to handle Wells on OMERO.
  */
-public interface Well extends RepositoryObject {
+public interface Well extends RepositoryObject, Annotatable {
 
     /**
      * Returns a WellData corresponding to the handled object.
@@ -45,6 +47,42 @@ public interface Well extends RepositoryObject {
 
 
     /**
+     * Gets the object parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getPlates(browser));
+    }
+
+
+    /**
+     * Gets the object children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getWellSamples(browser));
+    }
+
+
+    /**
      * Returns the well samples linked to the well.
      *
      * @return See above.
@@ -53,11 +91,29 @@ public interface Well extends RepositoryObject {
 
 
     /**
+     * Reloads this well and returns the well samples contained within.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<WellSample> getWellSamples(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        reload(browser);
+        return getWellSamples();
+    }
+
+
+    /**
      * Refreshes this well and retrieves the screens containing it.
      *
      * @param browser The data browser.
      *
-     * @return See above
+     * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -76,6 +132,23 @@ public interface Well extends RepositoryObject {
      * @return See above.
      */
     Plate getPlate();
+
+
+    /**
+     * Reloads this well and returns the plate containing it.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
+        reload(browser);
+        return browser.getPlates(getPlate().getId());
+    }
 
 
     /**

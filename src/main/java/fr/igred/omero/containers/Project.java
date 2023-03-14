@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -32,6 +33,7 @@ import omero.model.ProjectDatasetLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -41,7 +43,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Projects on OMERO.
  */
-public interface Project extends RepositoryObject {
+public interface Project extends RepositoryObject, Annotatable {
 
     /**
      * Returns a {@link ProjectData} corresponding to the handled object.
@@ -71,11 +73,56 @@ public interface Project extends RepositoryObject {
 
 
     /**
+     * Returns an empty list as projects do not have parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser) {
+        return Collections.emptyList();
+    }
+
+
+    /**
+     * Gets the object children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    default List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getDatasets(browser));
+    }
+
+
+    /**
      * Gets all the datasets in the project available from OMERO.
      *
      * @return Collection of Dataset.
      */
     List<Dataset> getDatasets();
+
+
+    /**
+     * Reloads this project and retrieves the updated list of datasets contained in this project.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Dataset> getDatasets(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        return getDatasets();
+    }
 
 
     /**

@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.annotations.TagAnnotation;
@@ -53,7 +54,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Interface to handle Datasets on OMERO.
  */
-public interface Dataset extends RepositoryObject {
+public interface Dataset extends RepositoryObject, Annotatable {
 
     /**
      * Returns a {@link DatasetData} corresponding to the handled object.
@@ -80,6 +81,42 @@ public interface Dataset extends RepositoryObject {
      * @param description The description of the dataset.
      */
     void setDescription(String description);
+
+
+    /**
+     * Gets the object parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getProjects(browser));
+    }
+
+
+    /**
+     * Gets the object children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getImages(browser));
+    }
 
 
     /**

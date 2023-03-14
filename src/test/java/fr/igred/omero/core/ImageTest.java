@@ -19,6 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotation;
@@ -26,6 +27,7 @@ import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.roi.EllipseWrapper;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
@@ -33,6 +35,7 @@ import fr.igred.omero.roi.RectangleWrapper;
 import fr.igred.omero.roi.Shape;
 import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.Well;
+import fr.igred.omero.screen.WellSample;
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
@@ -71,6 +74,42 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ImageTest extends UserTest {
+
+
+    @Test
+    void testGetParents1() throws Exception {
+        Image image = client.getImage(IMAGE1.id);
+
+        List<RepositoryObject> parents  = image.getParents(client);
+        List<Dataset>          datasets = image.getDatasets(client);
+
+        List<Long> parentIds  = parents.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> datasetIds = datasets.stream().map(RemoteObject::getId).collect(toList());
+        assertEquals(datasets.size(), parents.size());
+        assertEquals(datasetIds, parentIds);
+        assertTrue(Dataset.class.isAssignableFrom(parents.get(0).getClass()));
+    }
+
+
+    @Test
+    void testGetParents2() throws Exception {
+        Image image = client.getImage(5L);
+
+        List<RepositoryObject> parents = image.getParents(client);
+        List<WellSample>       samples = image.getWellSamples(client);
+
+        List<Long> parentIds = parents.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> sampleIds = samples.stream().map(RemoteObject::getId).collect(toList());
+        assertEquals(samples.size(), parents.size());
+        assertEquals(sampleIds, parentIds);
+        assertTrue(WellSample.class.isAssignableFrom(parents.get(0).getClass()));
+    }
+
+
+    @Test
+    void testGetChildren() throws Exception {
+        assertEquals(0, client.getImage(IMAGE1.id).getChildren(client).size());
+    }
 
 
     @Test

@@ -18,7 +18,7 @@
 package fr.igred.omero.screen;
 
 
-import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface to handle Well Samples on OMERO.
  */
-public interface WellSample extends RemoteObject {
+public interface WellSample extends RepositoryObject {
 
     /**
      * Returns an {@link WellSampleData} corresponding to the handled object.
@@ -45,6 +45,42 @@ public interface WellSample extends RemoteObject {
      */
     @Override
     WellSampleData asDataObject();
+
+
+    /**
+     * Gets the object parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return Collections.singletonList(getWell(browser));
+    }
+
+
+    /**
+     * Gets the object children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return Collections.singletonList(getImage());
+    }
 
 
     /**

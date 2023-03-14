@@ -19,6 +19,7 @@ package fr.igred.omero.containers;
 
 
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,6 +39,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class DatasetTest extends UserTest {
+
+
+    @Test
+    void testGetParents() throws Exception {
+        Dataset dataset = client.getDataset(DATASET1.id);
+
+        List<RepositoryObject> parents  = dataset.getParents(client);
+        List<Project>          projects = dataset.getProjects(client);
+
+        List<Long> parentIds  = parents.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> projectIds = projects.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        assertEquals(projects.size(), parents.size());
+        assertEquals(projectIds, parentIds);
+        assertTrue(Project.class.isAssignableFrom(parents.get(0).getClass()));
+    }
+
+
+    @Test
+    void testGetChildren() throws Exception {
+        Dataset dataset = client.getDataset(DATASET1.id);
+
+        List<RepositoryObject> children = dataset.getChildren(client);
+        List<Image>            images   = dataset.getImages(client);
+
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> imageIds    = images.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        assertEquals(images.size(), children.size());
+        assertEquals(imageIds, childrenIds);
+        assertTrue(Image.class.isAssignableFrom(children.get(0).getClass()));
+    }
 
 
     @Test

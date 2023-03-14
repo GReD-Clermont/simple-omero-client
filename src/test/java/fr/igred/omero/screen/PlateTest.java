@@ -18,6 +18,8 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -25,11 +27,43 @@ import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class PlateTest extends UserTest {
+
+
+    @Test
+    void testGetParents() throws Exception {
+        Plate plate = client.getPlate(1L);
+
+        List<RepositoryObject> parents = plate.getParents(client);
+        List<Screen>           screens = plate.getScreens(client);
+
+        List<Long> parentIds = parents.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> screenIds = screens.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        assertEquals(screens.size(), parents.size());
+        assertEquals(screenIds, parentIds);
+        assertTrue(Screen.class.isAssignableFrom(parents.get(0).getClass()));
+    }
+
+
+    @Test
+    void testGetChildren() throws Exception {
+        Plate plate = client.getPlate(1L);
+
+        List<RepositoryObject> children = plate.getChildren(client);
+        List<Well>             wells    = plate.getWells(client);
+
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> wellIds     = wells.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        assertEquals(wells.size(), children.size());
+        assertEquals(wellIds, childrenIds);
+        assertTrue(Well.class.isAssignableFrom(children.get(0).getClass()));
+    }
 
 
     @Test

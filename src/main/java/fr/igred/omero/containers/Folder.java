@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
 /**
  * Interface to handle Folders on OMERO.
  */
-public interface Folder extends RepositoryObject {
+public interface Folder extends RepositoryObject, Annotatable {
 
     /**
      * Returns a DataObject (or a subclass) corresponding to the handled object.
@@ -116,6 +117,25 @@ public interface Folder extends RepositoryObject {
 
 
     /**
+     * Reloads the folder and returns its parent as a singleton list.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        return Collections.singletonList(getParent());
+    }
+
+
+    /**
      * Adds a child folder to this folder.
      *
      * @param folder The new child folder.
@@ -137,6 +157,26 @@ public interface Folder extends RepositoryObject {
      * @return See above
      */
     List<Folder> getChildren();
+
+
+    /**
+     * Reloads the folder and gets its children (images and folders).
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        List<RepositoryObject> children = new ArrayList<>(getChildren());
+        children.addAll(getImages(browser));
+        return children;
+    }
 
 
     /**

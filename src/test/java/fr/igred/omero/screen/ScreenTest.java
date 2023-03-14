@@ -18,6 +18,8 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -33,6 +35,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ScreenTest extends UserTest {
+
+
+    @Test
+    void testGetParents() throws Exception {
+        Screen screen = client.getScreen(SCREEN2.id);
+        assertEquals(0, screen.getParents(client).size());
+    }
+
+
+    @Test
+    void testGetChildren() throws Exception {
+        Screen screen = client.getScreen(SCREEN2.id);
+
+        List<RepositoryObject> children = screen.getChildren(client);
+        List<Plate>            plates   = screen.getPlates();
+
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> plateIds    = plates.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        assertEquals(plates.size(), children.size());
+        assertEquals(plateIds, childrenIds);
+        assertTrue(Plate.class.isAssignableFrom(children.get(0).getClass()));
+    }
 
 
     @Test

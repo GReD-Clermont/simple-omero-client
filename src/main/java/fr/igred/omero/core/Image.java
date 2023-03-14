@@ -18,6 +18,7 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -51,6 +52,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -64,7 +66,7 @@ import static fr.igred.omero.RemoteObject.flatten;
 /**
  * Interface to handle Images on OMERO.
  */
-public interface Image extends RepositoryObject {
+public interface Image extends RepositoryObject, Annotatable {
 
     /**
      * Returns a {@link ImageData} corresponding to the handled object.
@@ -91,6 +93,44 @@ public interface Image extends RepositoryObject {
      * @param description The description of the image.
      */
     void setDescription(String description);
+
+
+    /**
+     * Gets the object parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        List<Dataset>          datasets = getDatasets(browser);
+        List<WellSample>       wells    = getWellSamples(browser);
+        List<Folder>           folders  = getFolders(browser);
+        List<RepositoryObject> parents  = new ArrayList<>(datasets.size() + wells.size() + folders.size());
+        parents.addAll(datasets);
+        parents.addAll(wells);
+        parents.addAll(folders);
+        return parents;
+    }
+
+
+    /**
+     * Returns an empty list as images do not have children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     */
+    @Override
+    default List<RepositoryObject> getChildren(Browser browser) {
+        return Collections.emptyList();
+    }
 
 
     /**

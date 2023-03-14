@@ -20,6 +20,7 @@ package fr.igred.omero.containers;
 
 import fr.igred.omero.Annotatable;
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.util.ReplacePolicy.DELETE;
 import static fr.igred.omero.util.ReplacePolicy.DELETE_ORPHANED;
@@ -41,6 +43,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ProjectTest extends UserTest {
+
+
+    @Test
+    void testGetParents() throws Exception {
+        Project project = client.getProject(PROJECT1.id);
+        assertEquals(0, project.getParents(client).size());
+    }
+
+
+    @Test
+    void testGetChildren() throws Exception {
+        Project                project  = client.getProject(PROJECT1.id);
+        List<RepositoryObject> children = project.getChildren(client);
+        List<Dataset>          datasets = project.getDatasets();
+
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> datasetIds  = datasets.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        assertEquals(datasets.size(), children.size());
+        assertEquals(datasetIds, childrenIds);
+        assertTrue(Dataset.class.isAssignableFrom(children.get(0).getClass()));
+    }
 
 
     @Test

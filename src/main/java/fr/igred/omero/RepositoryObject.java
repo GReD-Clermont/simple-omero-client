@@ -22,13 +22,15 @@ import fr.igred.omero.client.Browser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
 /**
  * Interface to handle Repository Objects on OMERO.
  */
-public interface RepositoryObject extends Annotatable {
+public interface RepositoryObject extends RemoteObject {
+
 
     /**
      * Gets the object name.
@@ -44,6 +46,36 @@ public interface RepositoryObject extends Annotatable {
      * @return See above.
      */
     String getDescription();
+
+
+    /**
+     * Gets the object parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    List<RepositoryObject> getParents(Browser browser)
+    throws AccessException, ServiceException, ExecutionException;
+
+
+    /**
+     * Gets the object children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException;
 
 
     /**

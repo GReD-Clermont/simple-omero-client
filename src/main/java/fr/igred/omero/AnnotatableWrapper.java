@@ -172,7 +172,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
         List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
                                                                m -> m.getAnnotations(browser.getCtx(),
-                                                                                     asDataObject(),
+                                                                                     data,
                                                                                      types,
                                                                                      null))
                                                            .handleOMEROException("Cannot get map annotations for "

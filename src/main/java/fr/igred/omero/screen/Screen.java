@@ -18,6 +18,7 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.ConnectionHandler;
@@ -29,8 +30,10 @@ import omero.gateway.model.ScreenData;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -41,7 +44,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  * Interface to handle Screens on OMERO.
  */
-public interface Screen extends RepositoryObject {
+public interface Screen extends RepositoryObject, Annotatable {
 
     /**
      * Returns an {@link ScreenData} corresponding to the handled object.
@@ -71,11 +74,62 @@ public interface Screen extends RepositoryObject {
 
 
     /**
+     * Returns an empty list as screens do not have parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws NoSuchElementException Screens do not have parents.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser) {
+        return Collections.emptyList();
+    }
+
+
+    /**
+     * Gets the object parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getPlates(browser));
+    }
+
+
+    /**
      * Returns the plates contained in this screen.
      *
      * @return See above.
      */
     List<Plate> getPlates();
+
+
+    /**
+     * Reloads this screen and returns the updated list of plates within.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        reload(browser);
+        return getPlates();
+    }
 
 
     /**
@@ -109,10 +163,10 @@ public interface Screen extends RepositoryObject {
         return getPlates().stream()
                           .map(Plate::getPlateAcquisitions)
                           .flatMap(Collection::stream)
-                          .collect(toMap(RepositoryObject::getId, p -> p, (p1, p2) -> p1))
+                          .collect(toMap(PlateAcquisition::getId, p -> p, (p1, p2) -> p1))
                           .values()
                           .stream()
-                          .sorted(Comparator.comparing(RepositoryObject::getId))
+                          .sorted(Comparator.comparing(PlateAcquisition::getId))
                           .collect(Collectors.toList());
     }
 

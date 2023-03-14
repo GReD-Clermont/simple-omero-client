@@ -126,6 +126,28 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
 
 
     /**
+     * Gets the underlying image name.
+     *
+     * @return See above.
+     */
+    @Override
+    public String getName() {
+        return getImage().getName();
+    }
+
+
+    /**
+     * Gets the underlying image description
+     *
+     * @return See above.
+     */
+    @Override
+    public String getDescription() {
+        return getImage().getDescription();
+    }
+
+
+    /**
      * Reloads the well sample from OMERO.
      *
      * @param browser The data browser.

@@ -18,6 +18,7 @@
 package fr.igred.omero.screen;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
@@ -42,7 +43,7 @@ import static fr.igred.omero.RemoteObject.distinct;
 /**
  * Interface to handle Plate Acquisitions on OMERO.
  */
-public interface PlateAcquisition extends RepositoryObject {
+public interface PlateAcquisition extends RepositoryObject, Annotatable {
 
     /**
      * Returns an {@link PlateAcquisitionData} corresponding to the handled object.
@@ -61,6 +62,42 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws IllegalArgumentException If the name is {@code null}.
      */
     void setName(String name);
+
+
+    /**
+     * Gets the object parents.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getParents(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getPlates(browser));
+    }
+
+
+    /**
+     * Gets the object children.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    default List<RepositoryObject> getChildren(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return new ArrayList<>(getWellSamples(browser));
+    }
 
 
     /**
