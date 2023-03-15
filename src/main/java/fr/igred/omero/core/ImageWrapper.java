@@ -551,8 +551,7 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
      */
     @Override
     public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   b -> b.getImage(browser.getCtx(), getId()))
+        data = ExceptionHandler.of(browser.getBrowseFacility(), b -> b.getImage(browser.getCtx(), getId()))
                                .handleOMEROException("Can not reload " + this)
                                .get();
     }

@@ -165,7 +165,7 @@ public interface Image extends RepositoryObject, Annotatable {
 
 
     /**
-     * Retrieves the datasets containing this image
+     * Retrieves the datasets containing this image from OMERO.
      *
      * @param browser The data browser.
      *

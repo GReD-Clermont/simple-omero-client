@@ -161,6 +161,19 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetWellSamples() throws Exception {
+        final long wellId = 1L;
+        WellSample sample = client.getWell(wellId).getWellSamples().get(0);
+
+        Image image = sample.getImage();
+        image.reload(client);
+        List<WellSample> samples = image.getWellSamples(client);
+        assertEquals(1, samples.size());
+        assertEquals(sample.getId(), samples.get(0).getId());
+    }
+
+
+    @Test
     void testGetAnnotations() throws Exception {
         List<Annotation> annotations = client.getImage(IMAGE1.id).getAnnotations(client);
         assertEquals(3, annotations.size());

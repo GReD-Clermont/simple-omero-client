@@ -111,6 +111,8 @@ class WellSampleTest extends UserTest {
 
         assertFalse(image.isOrphaned(client));
         assertEquals(name, image.getName());
+        assertEquals(sample.getName(), image.getName());
+        assertEquals(sample.getDescription(), image.getDescription());
     }
 
 
