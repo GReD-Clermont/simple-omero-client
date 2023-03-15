@@ -20,15 +20,11 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.WellSampleData;
 import omero.model.IObject;
-import omero.model.PlateAcquisitionAnnotationLink;
-import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model._PlateAcquisitionOperationsNC;
 
 import java.sql.Timestamp;
@@ -121,27 +117,6 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
     @Override
     public void setDescription(String description) {
         data.setDescription(description);
-    }
-
-
-    /**
-     * Adds a tag to the object in OMERO, if possible.
-     *
-     * @param dm         The data manager.
-     * @param annotation Tag to be added.
-     * @param <A>        The type of the annotation.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public <A extends AnnotationData> void link(DataManager dm, A annotation)
-    throws ServiceException, AccessException, ExecutionException {
-        PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(annotation.asAnnotation());
-        link.setParent((omero.model.PlateAcquisition) data.asIObject());
-        dm.save(link);
     }
 
 
