@@ -23,6 +23,7 @@ import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.RatingAnnotation;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableWrapper;
@@ -99,7 +100,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public void addTag(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(new TagAnnotationData(name));
+        TagAnnotation tag = new TagAnnotationWrapper(new TagAnnotationData(name));
         tag.setDescription(description);
         link(dm, tag);
     }
@@ -115,6 +116,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public void addTag(DataManager dm, Long id)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
@@ -150,7 +152,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
                           .filter(TagAnnotationData.class::isInstance)
                           .map(TagAnnotationData.class::cast)
                           .map(TagAnnotationWrapper::new)
-                          .sorted(Comparator.comparing(TagAnnotationWrapper::getId))
+                          .sorted(Comparator.comparing(TagAnnotation::getId))
                           .collect(Collectors.toList());
     }
 
@@ -183,7 +185,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
                           .filter(MapAnnotationData.class::isInstance)
                           .map(MapAnnotationData.class::cast)
                           .map(MapAnnotationWrapper::new)
-                          .sorted(Comparator.comparing(MapAnnotationWrapper::getId))
+                          .sorted(Comparator.comparing(MapAnnotation::getId))
                           .collect(Collectors.toList());
     }
 
@@ -204,7 +206,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     throws ServiceException, AccessException, ExecutionException {
         List<Map.Entry<String, String>> kv = Collections.singletonList(new AbstractMap.SimpleEntry<>(key, value));
 
-        MapAnnotationWrapper pkv = new MapAnnotationWrapper(kv);
+        MapAnnotation pkv = new MapAnnotationWrapper(kv);
         pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
         link(dm, pkv);
     }
@@ -237,20 +239,20 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
                                                                                      userIds))
                                                            .handleOMEROException(error)
                                                            .get();
-        List<RatingAnnotationWrapper> ratings = annotations.stream()
-                                                           .filter(RatingAnnotationData.class::isInstance)
-                                                           .map(RatingAnnotationData.class::cast)
-                                                           .map(RatingAnnotationWrapper::new)
-                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                           .collect(Collectors.toList());
+        List<RatingAnnotation> ratings = annotations.stream()
+                                                    .filter(RatingAnnotationData.class::isInstance)
+                                                    .map(RatingAnnotationData.class::cast)
+                                                    .map(RatingAnnotationWrapper::new)
+                                                    .sorted(Comparator.comparing(RatingAnnotation::getId))
+                                                    .collect(Collectors.toList());
 
         if (ratings.isEmpty()) {
-            RatingAnnotationWrapper rate = new RatingAnnotationWrapper(rating);
+            RatingAnnotation rate = new RatingAnnotationWrapper(rating);
             link(client, rate);
         } else {
             int n = ratings.size();
             if (n > 1) client.delete(ratings.subList(1, n));
-            RatingAnnotationWrapper rate = ratings.get(0);
+            RatingAnnotation rate = ratings.get(0);
             rate.setRating(rating);
             rate.saveAndUpdate(client);
         }
@@ -283,14 +285,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
                                                                                      userIds))
                                                            .handleOMEROException(error)
                                                            .get();
-        List<RatingAnnotationWrapper> ratings = annotations.stream()
-                                                           .filter(RatingAnnotationData.class::isInstance)
-                                                           .map(RatingAnnotationData.class::cast)
-                                                           .map(RatingAnnotationWrapper::new)
-                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                           .collect(Collectors.toList());
+        List<RatingAnnotation> ratings = annotations.stream()
+                                                    .filter(RatingAnnotationData.class::isInstance)
+                                                    .map(RatingAnnotationData.class::cast)
+                                                    .map(RatingAnnotationWrapper::new)
+                                                    .sorted(Comparator.comparing(RatingAnnotation::getId))
+                                                    .collect(Collectors.toList());
         int score = 0;
-        for (RatingAnnotationWrapper rate : ratings) {
+        for (RatingAnnotation rate : ratings) {
             score += rate.getRating();
         }
         return score / Math.max(1, ratings.size());
@@ -312,16 +314,15 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        Collection<FileAnnotationWrapper> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
-                                                                            t -> t.getAvailableTables(
-                                                                                    client.getCtx(), data))
-                                                                        .handleOMEROException("Cannot get tables from "
-                                                                                              + this)
-                                                                        .get(),
-                                                        FileAnnotationWrapper::new);
+        Collection<FileAnnotation> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
+                                                                     t -> t.getAvailableTables(client.getCtx(), data))
+                                                                 .handleOMEROException("Cannot get tables from "
+                                                                                       + this)
+                                                                 .get(),
+                                                 FileAnnotationWrapper::new);
         addTable(client, table);
         tables.removeIf(t -> !t.getDescription().equals(table.getName()));
-        for (FileAnnotationWrapper fileAnnotation : tables) {
+        for (FileAnnotation fileAnnotation : tables) {
             this.unlink(client, fileAnnotation);
             if (policy == ReplacePolicy.DELETE ||
                 policy == ReplacePolicy.DELETE_ORPHANED && fileAnnotation.countAnnotationLinks(client) == 0) {

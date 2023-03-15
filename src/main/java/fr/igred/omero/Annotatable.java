@@ -422,14 +422,14 @@ public interface Annotatable extends RemoteObject {
                                                                .handleOMEROException("Cannot get tables from " + this)
                                                                .get();
 
-        List<Table> tablesWrapper = new ArrayList<>(files.size());
+        List<Table> tables = new ArrayList<>(files.size());
         for (FileAnnotationData file : files) {
             Table table = getTable(dm, file.getFileID());
             table.setId(file.getId());
-            tablesWrapper.add(table);
+            tables.add(table);
         }
 
-        return tablesWrapper;
+        return tables;
     }
 
 
