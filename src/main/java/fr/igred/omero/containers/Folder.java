@@ -324,7 +324,7 @@ public interface Folder extends RepositoryObject, Annotatable {
      */
     default void unlinkAllROIs(DataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        unlinkROIs(dm, getROIs(dm, imageId).toArray(new ROI[0]));
+        unlinkROIs(dm, getROIs(dm, imageId));
     }
 
 
@@ -373,9 +373,26 @@ public interface Folder extends RepositoryObject, Annotatable {
      */
     default void unlinkROIs(DataManager dm, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(ROI::asDataObject)
-                                      .collect(Collectors.toList());
+        unlinkROIs(dm, Arrays.asList(rois));
+    }
+
+
+    /**
+     * Unlink ROIs from the folder.
+     * <p> The ROIs are now linked to the image directly.
+     *
+     * @param dm   The data manager.
+     * @param rois ROI to unlink.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default void unlinkROIs(DataManager dm, Collection<? extends ROI> rois)
+    throws ServiceException, AccessException, ExecutionException {
+        List<ROIData> roiData = rois.stream()
+                                    .map(ROI::asDataObject)
+                                    .collect(Collectors.toList());
         ExceptionHandler.ofConsumer(dm.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(dm.getCtx(),
                                                                    -1L,
