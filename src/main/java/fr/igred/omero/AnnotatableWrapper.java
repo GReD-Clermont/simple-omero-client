@@ -37,7 +37,6 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
 import fr.igred.omero.util.Wrapper;
-import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
@@ -49,13 +48,11 @@ import omero.model.IObject;
 import omero.model.TagAnnotationI;
 
 import java.io.File;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -204,10 +201,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public void addKeyValuePair(DataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<Map.Entry<String, String>> kv = Collections.singletonList(new AbstractMap.SimpleEntry<>(key, value));
-
-        MapAnnotation pkv = new MapAnnotationWrapper(kv);
-        pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
+        MapAnnotation pkv = new MapAnnotationWrapper(key, value);
         link(dm, pkv);
     }
 

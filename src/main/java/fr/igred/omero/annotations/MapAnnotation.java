@@ -35,6 +35,12 @@ import static java.util.stream.Collectors.toList;
 public interface MapAnnotation extends Annotation {
 
     /**
+     * The name space used to identify MapAnnotations created be the user
+     */
+    String NS_USER_CREATED = MapAnnotationData.NS_CLIENT_CREATED;
+
+
+    /**
      * Returns a {@link MapAnnotationData} corresponding to the handled object.
      *
      * @return See above.
