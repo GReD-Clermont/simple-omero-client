@@ -179,7 +179,8 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException {
+    public void saveAndUpdate(DataManager dm)
+    throws ExecutionException, ServiceException, AccessException {
         data = (T) ExceptionHandler.of(dm.getDMFacility(),
                                        d -> d.saveAndReturnObject(dm.getCtx(), data))
                                    .handleOMEROException("Cannot save and update object.")

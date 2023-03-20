@@ -198,7 +198,8 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void saveROI(DataManager dm) throws ServiceException, AccessException, ExecutionException {
+    public void saveROI(DataManager dm)
+    throws ServiceException, AccessException, ExecutionException {
         Roi roi = (Roi) dm.save(data.asIObject());
         data = new ROIData(roi);
     }

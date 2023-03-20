@@ -147,7 +147,8 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server error.
      */
-    private byte[] getThumbnailBytes(ConnectionHandler client, int size) throws DSOutOfServiceException, ServerError {
+    private byte[] getThumbnailBytes(ConnectionHandler client, int size)
+    throws DSOutOfServiceException, ServerError {
         Pixels pixels = getPixels();
 
         int   sizeX  = pixels.getSizeX();
@@ -550,7 +551,8 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(), b -> b.getImage(browser.getCtx(), getId()))
                                .handleOMEROException("Can not reload " + this)
                                .get();

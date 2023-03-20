@@ -137,7 +137,8 @@ public class PlateWrapper extends AnnotatableWrapper<PlateData> implements Plate
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Browser browser) throws ServiceException, AccessException, ExecutionException {
+    public List<Well> getWells(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = ExceptionHandler.of(browser.getBrowseFacility(),
                                                          bf -> bf.getWells(browser.getCtx(), data.getId()))
                                                      .handleOMEROException("Cannot get wells from " + this)

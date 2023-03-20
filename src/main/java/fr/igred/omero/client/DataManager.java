@@ -91,7 +91,8 @@ public interface DataManager {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
+    default IObject save(IObject object)
+    throws ServiceException, AccessException, ExecutionException {
         return ExceptionHandler.of(getDMFacility(), d -> d.saveAndReturnObject(getCtx(), object))
                                .handleOMEROException("Cannot save object")
                                .get();

@@ -784,7 +784,8 @@ public class TableWrapper implements Table {
      * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
      */
     @Override
-    public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
+    public void saveAs(String path, char delimiter)
+    throws FileNotFoundException, UnsupportedEncodingException {
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);
         formatter.setGroupingUsed(false);

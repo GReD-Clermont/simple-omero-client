@@ -93,8 +93,7 @@ public final class Wrapper {
     private static final String UNKNOWN_TYPE = "Unknown type: %s";
 
 
-    private Wrapper() {
-    }
+    private Wrapper() {}
 
 
     /**

@@ -127,7 +127,8 @@ public interface Browser {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<IObject> findByQuery(String query) throws ServiceException, AccessException {
+    default List<IObject> findByQuery(String query)
+    throws ServiceException, AccessException {
         String error = "Query failed: " + query;
         return ExceptionHandler.of(getQueryService(), qs -> qs.findAllByQuery(query, null))
                                .handleServerAndService(error)
@@ -170,9 +171,10 @@ public interface Browser {
      */
     default List<Project> getProjects(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get projects with IDs: " + Arrays.toString(ids);
+        List<Long> idList = Arrays.asList(ids);
+        String     error  = "Cannot get projects with IDs: " + Arrays.toString(ids);
         Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getProjects(getCtx(), Arrays.asList(ids)))
+                                                               bf -> bf.getProjects(getCtx(), idList))
                                                            .handleOMEROException(error)
                                                            .get();
         return wrap(projects, ProjectWrapper::new);
@@ -188,7 +190,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Project> getProjects() throws ServiceException, AccessException, ExecutionException {
+    default List<Project> getProjects()
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getProjects(getCtx()))
                                                            .handleOMEROException("Cannot get projects")
@@ -210,9 +213,10 @@ public interface Browser {
      */
     default List<Project> getProjects(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        long   uid   = experimenter.getId();
         String error = String.format("Cannot get projects for user %s", experimenter);
         Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getProjects(getCtx(), experimenter.getId()))
+                                                               bf -> bf.getProjects(getCtx(), uid))
                                                            .handleOMEROException(error)
                                                            .get();
         return wrap(projects, ProjectWrapper::new);
@@ -230,7 +234,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Project> getProjects(String name) throws ServiceException, AccessException, ExecutionException {
+    default List<Project> getProjects(String name)
+    throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get projects with name: " + name;
         Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getProjects(getCtx(), name))
@@ -256,7 +261,8 @@ public interface Browser {
     throws ServiceException, AccessException, ExecutionException {
         List<Dataset> datasets = getDatasets(id);
         if (datasets.isEmpty()) {
-            throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
+            String error = String.format("Dataset %d doesn't exist in this context", id);
+            throw new NoSuchElementException(error);
         }
         return datasets.iterator().next();
     }
@@ -275,9 +281,10 @@ public interface Browser {
      */
     default List<Dataset> getDatasets(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get dataset with ID: " + Arrays.toString(ids);
+        List<Long> idList = Arrays.asList(ids);
+        String     error  = "Cannot get dataset with ID: " + Arrays.toString(ids);
         Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getDatasets(getCtx(), Arrays.asList(ids)))
+                                                               bf -> bf.getDatasets(getCtx(), idList))
                                                            .handleOMEROException(error)
                                                            .get();
         return wrap(datasets, DatasetWrapper::new);
@@ -317,7 +324,8 @@ public interface Browser {
      */
     default List<Dataset> getDatasets(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
-        String query = String.format("select d from Dataset d where d.details.owner.id=%d", experimenter.getId());
+        long   uid   = experimenter.getId();
+        String query = String.format("select d from Dataset d where d.details.owner.id=%d", uid);
         Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
@@ -338,7 +346,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Dataset> getDatasets(String name) throws ServiceException, AccessException, ExecutionException {
+    default List<Dataset> getDatasets(String name)
+    throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get datasets with name: " + name;
         Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
                                                                bf -> bf.getDatasets(getCtx(), name))
@@ -385,10 +394,12 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Long... ids) throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get images with IDs: " + Arrays.toString(ids);
+    default List<Image> getImages(Long... ids)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Long> idList = Arrays.asList(ids);
+        String     error  = "Cannot get images with IDs: " + Arrays.toString(ids);
         Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getImages(getCtx(), Arrays.asList(ids)))
+                                                           bf -> bf.getImages(getCtx(), idList))
                                                        .handleOMEROException(error)
                                                        .get();
         return wrap(images, ImageWrapper::new);
@@ -404,7 +415,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages() throws ServiceException, AccessException, ExecutionException {
+    default List<Image> getImages()
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
                                                            bf -> bf.getUserImages(getCtx()))
                                                        .handleOMEROException("Cannot get images")
@@ -424,7 +436,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(String name) throws ServiceException, AccessException, ExecutionException {
+    default List<Image> getImages(String name)
+    throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with name: " + name;
         Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
                                                            bf -> bf.getImages(getCtx(), name))
@@ -488,7 +501,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesLike(String motif) throws ServiceException, AccessException, ExecutionException {
+    default List<Image> getImagesLike(String motif)
+    throws ServiceException, AccessException, ExecutionException {
         List<Image> images = getImages();
         String      regexp = ".*" + motif + ".*";
         images.removeIf(image -> !image.getName().matches(regexp));
@@ -561,7 +575,8 @@ public interface Browser {
     throws ServiceException, AccessException, ExecutionException {
         List<Screen> screens = getScreens(id);
         if (screens.isEmpty()) {
-            throw new NoSuchElementException(String.format("Screen %d doesn't exist in this context", id));
+            String error = String.format("Screen %d doesn't exist in this context", id);
+            throw new NoSuchElementException(error);
         }
         return screens.iterator().next();
     }
@@ -578,11 +593,13 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Screen> getScreens(Long... ids) throws ServiceException, AccessException, ExecutionException {
+    default List<Screen> getScreens(Long... ids)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Long> idList = Arrays.asList(ids);
+        String     error  = "Cannot get screens with IDs: " + Arrays.toString(ids);
         Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
-                                                             bf -> bf.getScreens(getCtx(), Arrays.asList(ids)))
-                                                         .handleOMEROException("Cannot get screens with IDs: "
-                                                                               + Arrays.toString(ids))
+                                                             bf -> bf.getScreens(getCtx(), idList))
+                                                         .handleOMEROException(error)
                                                          .get();
         return wrap(screens, ScreenWrapper::new);
     }
@@ -597,7 +614,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Screen> getScreens() throws ServiceException, AccessException, ExecutionException {
+    default List<Screen> getScreens()
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
                                                              bf -> bf.getScreens(getCtx()))
                                                          .handleOMEROException("Cannot get screens")
@@ -619,9 +637,10 @@ public interface Browser {
      */
     default List<Screen> getScreens(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        long   uid   = experimenter.getId();
         String error = String.format("Cannot get screens for user %s", experimenter);
         Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
-                                                             bf -> bf.getScreens(getCtx(), experimenter.getId()))
+                                                             bf -> bf.getScreens(getCtx(), uid))
                                                          .handleOMEROException(error)
                                                          .get();
         return wrap(screens, ScreenWrapper::new);
@@ -644,7 +663,8 @@ public interface Browser {
     throws ServiceException, AccessException, ExecutionException {
         List<Plate> plates = getPlates(id);
         if (plates.isEmpty()) {
-            throw new NoSuchElementException(String.format("Plate %d doesn't exist in this context", id));
+            String error = String.format("Plate %d doesn't exist in this context", id);
+            throw new NoSuchElementException(error);
         }
         return plates.iterator().next();
     }
@@ -661,11 +681,13 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Plate> getPlates(Long... ids) throws ServiceException, AccessException, ExecutionException {
+    default List<Plate> getPlates(Long... ids)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Long> idList = Arrays.asList(ids);
+        String     error  = "Cannot get plates with IDs: " + Arrays.toString(ids);
         Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getPlates(getCtx(), Arrays.asList(ids)))
-                                                       .handleOMEROException("Cannot get plates with IDs: "
-                                                                             + Arrays.toString(ids))
+                                                           bf -> bf.getPlates(getCtx(), idList))
+                                                       .handleOMEROException(error)
                                                        .get();
         return wrap(plates, PlateWrapper::new);
     }
@@ -680,7 +702,8 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Plate> getPlates() throws ServiceException, AccessException, ExecutionException {
+    default List<Plate> getPlates()
+    throws ServiceException, AccessException, ExecutionException {
         Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
                                                            bf -> bf.getPlates(getCtx()))
                                                        .handleOMEROException("Cannot get plates")
@@ -702,10 +725,11 @@ public interface Browser {
      */
     default List<Plate> getPlates(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
+        long   uid   = experimenter.getId();
+        String error = "Cannot get plates for user " + experimenter;
         Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getPlates(getCtx(), experimenter.getId()))
-                                                       .handleOMEROException("Cannot get plates for user "
-                                                                             + experimenter)
+                                                           bf -> bf.getPlates(getCtx(), uid))
+                                                       .handleOMEROException(error)
                                                        .get();
         return wrap(plates, PlateWrapper::new);
     }
@@ -727,7 +751,8 @@ public interface Browser {
     throws ServiceException, AccessException, ExecutionException {
         List<Well> wells = getWells(id);
         if (wells.isEmpty()) {
-            throw new NoSuchElementException(String.format("Plate %d doesn't exist in this context", id));
+            String error = String.format("Plate %d doesn't exist in this context", id);
+            throw new NoSuchElementException(error);
         }
         return wells.iterator().next();
     }
@@ -746,9 +771,10 @@ public interface Browser {
      */
     default List<Well> getWells(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get wells with IDs: " + Arrays.toString(ids);
+        List<Long> idList = Arrays.asList(ids);
+        String     error  = "Cannot get wells with IDs: " + Arrays.toString(ids);
         Collection<WellData> wells = ExceptionHandler.of(getBrowseFacility(),
-                                                         bf -> bf.getWells(getCtx(), Arrays.asList(ids)))
+                                                         bf -> bf.getWells(getCtx(), idList))
                                                      .handleOMEROException(error)
                                                      .get();
         return wrap(wells, WellWrapper::new);
@@ -788,7 +814,8 @@ public interface Browser {
      */
     default List<Well> getWells(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
-        String query = String.format("select w from Well w where w.details.owner.id=%d", experimenter.getId());
+        long   uid   = experimenter.getId();
+        String query = String.format("select w from Well w where w.details.owner.id=%d", uid);
         Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
@@ -814,7 +841,8 @@ public interface Browser {
     throws ServiceException, AccessException, ExecutionException {
         List<Folder> folders = loadFolders(id);
         if (folders.isEmpty()) {
-            throw new NoSuchElementException(String.format("Folder %d doesn't exist in this context", id));
+            String error = String.format("Folder %d doesn't exist in this context", id);
+            throw new NoSuchElementException(error);
         }
         return folders.iterator().next();
     }
@@ -831,9 +859,10 @@ public interface Browser {
      */
     default List<Folder> getFolders()
     throws ExecutionException, AccessException, ServiceException {
+        String error = "Cannot get folders";
         Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
                                                              b -> b.getFolders(getCtx()))
-                                                         .handleOMEROException("Cannot get folders")
+                                                         .handleOMEROException(error)
                                                          .get();
         return wrap(folders, FolderWrapper::new);
     }
@@ -852,9 +881,10 @@ public interface Browser {
      */
     default List<Folder> getFolders(Experimenter experimenter)
     throws ExecutionException, AccessException, ServiceException {
+        long   uid   = experimenter.getId();
         String error = String.format("Cannot get folders for user %s", experimenter);
         Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
-                                                             b -> b.getFolders(getCtx(), experimenter.getId()))
+                                                             b -> b.getFolders(getCtx(), uid))
                                                          .handleOMEROException(error)
                                                          .get();
         return wrap(folders, FolderWrapper::new);
@@ -874,9 +904,10 @@ public interface Browser {
      */
     default List<Folder> loadFolders(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
+        List<Long> idList = Arrays.asList(ids);
+        String     error  = "Cannot get folders with IDs: " + Arrays.toString(ids);
         Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
-                                                             bf -> bf.loadFolders(getCtx(), Arrays.asList(ids)))
+                                                             bf -> bf.loadFolders(getCtx(), idList))
                                                          .handleOMEROException(error)
                                                          .get();
         return wrap(folders, FolderWrapper::new);
@@ -891,9 +922,10 @@ public interface Browser {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<TagAnnotation> getTags() throws ServiceException, AccessException {
-        return ExceptionHandler.of(getQueryService(),
-                                   qs -> qs.findAll(omero.model.TagAnnotation.class.getSimpleName(), null))
+    default List<TagAnnotation> getTags()
+    throws ServiceException, AccessException {
+        String klass = omero.model.TagAnnotation.class.getSimpleName();
+        return ExceptionHandler.of(getQueryService(), qs -> qs.findAll(klass, null))
                                .handleOMEROException("Cannot get tags")
                                .get()
                                .stream()
@@ -915,7 +947,8 @@ public interface Browser {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<TagAnnotation> getTags(String name) throws ServiceException, AccessException {
+    default List<TagAnnotation> getTags(String name)
+    throws ServiceException, AccessException {
         String query = String.format("select t from TagAnnotation as t where t.textValue = '%s'", name);
         return findByQuery(query).stream()
                                  .map(omero.model.TagAnnotation.class::cast)
@@ -938,13 +971,15 @@ public interface Browser {
      * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    default TagAnnotation getTag(Long id) throws ServiceException, ExecutionException, AccessException {
+    default TagAnnotation getTag(Long id)
+    throws ServiceException, ExecutionException, AccessException {
         TagAnnotationData tag = ExceptionHandler.of(getBrowseFacility(),
                                                     b -> b.findObject(getCtx(), TagAnnotationData.class, id))
                                                 .handleOMEROException("Cannot get tag with ID: " + id)
                                                 .get();
         if (tag == null) {
-            throw new NoSuchElementException(String.format("Tag %d doesn't exist in this context", id));
+            String error = String.format("Tag %d doesn't exist in this context", id);
+            throw new NoSuchElementException(error);
         }
         return new TagAnnotationWrapper(tag);
     }
@@ -958,9 +993,10 @@ public interface Browser {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<MapAnnotation> getMapAnnotations() throws ServiceException, AccessException {
-        return ExceptionHandler.of(getQueryService(),
-                                   qs -> qs.findAll(omero.model.MapAnnotation.class.getSimpleName(), null))
+    default List<MapAnnotation> getMapAnnotations()
+    throws ServiceException, AccessException {
+        String klass = omero.model.MapAnnotation.class.getSimpleName();
+        return ExceptionHandler.of(getQueryService(), qs -> qs.findAll(klass, null))
                                .handleOMEROException("Cannot get map annotations")
                                .get()
                                .stream()
@@ -982,7 +1018,8 @@ public interface Browser {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<MapAnnotation> getMapAnnotations(String key) throws ServiceException, AccessException {
+    default List<MapAnnotation> getMapAnnotations(String key)
+    throws ServiceException, AccessException {
         String q = String.format("select m from MapAnnotation as m join m.mapValue as mv where mv.name = '%s'", key);
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
@@ -1028,10 +1065,10 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default MapAnnotation getMapAnnotation(Long id) throws ServiceException, AccessException, ExecutionException {
-        MapAnnotationData kv = ExceptionHandler.of(getBrowseFacility(), b -> b.findObject(getCtx(),
-                                                                                          MapAnnotationData.class,
-                                                                                          id))
+    default MapAnnotation getMapAnnotation(Long id)
+    throws ServiceException, AccessException, ExecutionException {
+        MapAnnotationData kv = ExceptionHandler.of(getBrowseFacility(),
+                                                   b -> b.findObject(getCtx(), MapAnnotationData.class, id))
                                                .handleOMEROException("Cannot get map annotation with ID: " + id)
                                                .get();
         return new MapAnnotationWrapper(kv);

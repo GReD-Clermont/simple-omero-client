@@ -194,7 +194,8 @@ public interface ConnectionHandler {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default OMEROMetadataStoreClient getImportStore() throws ServiceException, AccessException {
+    default OMEROMetadataStoreClient getImportStore()
+    throws ServiceException, AccessException {
         return ExceptionHandler.of(getGateway(), g -> g.getImportStore(getCtx()))
                                .handleServerAndService("Could not retrieve import store")
                                .get();

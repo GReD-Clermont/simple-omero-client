@@ -61,7 +61,8 @@ public interface Client extends ConnectionHandler, Browser, DataManager, AdminMa
      * @throws AccessException  Cannot access data.
      */
     @Override
-    default IQueryPrx getQueryService() throws ServiceException, AccessException {
+    default IQueryPrx getQueryService()
+    throws ServiceException, AccessException {
         return ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx()))
                                .handleServerAndService("Could not retrieve Query Service")
                                .get();
@@ -146,7 +147,8 @@ public interface Client extends ConnectionHandler, Browser, DataManager, AdminMa
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    Client sudo(String username) throws ServiceException, AccessException, ExecutionException;
+    Client sudo(String username)
+    throws ServiceException, AccessException, ExecutionException;
 
 
 }

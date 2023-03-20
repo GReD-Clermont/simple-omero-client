@@ -66,7 +66,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Converts an IJ roi to a list of shapes.
+     * Converts an ImageJ roi to a list of shapes.
      *
      * @param ijRoi An ImageJ ROI.
      *
@@ -161,9 +161,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Gets the channel.
+     * Gets the channel, -1 if the shape applies to all channels of the image.
      *
-     * @return the channel. -1 if the shape applies to all channels of the image.
+     * @return See above.
      */
     @Override
     public int getC() {
@@ -173,8 +173,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
     /**
      * Sets the channel.
+     * <p>Pass -1 to remove z value, i.e. shape applies to all channels of the image.</p>
      *
-     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
+     * @param c The channel.
      */
     @Override
     public void setC(int c) {
@@ -183,9 +184,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Gets the z-section.
+     * Gets the z-section, -1 if the shape applies to all z-sections of the image.
      *
-     * @return the z-section. -1 if the shape applies to all z-sections of the image.
+     * @return See above.
      */
     @Override
     public int getZ() {
@@ -195,8 +196,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
     /**
      * Sets the z-section.
+     * <p>Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.</p>
      *
-     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
+     * @param z The z-section.
      */
     @Override
     public void setZ(int z) {
@@ -205,9 +207,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Sets the time-point.
+     * Gets the time-point, -1 if the shape applies to all time-points of the image.
      *
-     * @return the time-point. -1 if the shape applies to all time-points of the image.
+     * @return See above.
      */
     @Override
     public int getT() {
@@ -217,8 +219,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
     /**
      * Sets the time-point.
+     * <p>Pass -1 to remove t value, i.e. shape applies to all time-points of the image.</p>
      *
-     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
+     * @param t The time-point.
      */
     @Override
     public void setT(int t) {
@@ -227,9 +230,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Gets ShapeData font size.
+     * Gets the shape font size (in typography points).
      *
-     * @return The font size (in typography points)
+     * @return See above.
      */
     @Override
     public double getFontSize() {
@@ -245,7 +248,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Sets ShapeData font size.
+     * Sets the shape font size.
      *
      * @param value The font size (in typography points)
      */
@@ -257,9 +260,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Gets the ShapeData stroke color.
+     * Gets the shape stroke color.
      *
-     * @return The stroke color
+     * @return See above.
      */
     @Override
     public Color getStroke() {
@@ -268,9 +271,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Sets ShapeData stroke color.
+     * Sets the shape stroke color.
      *
-     * @param strokeColour The stroke color
+     * @param strokeColour The stroke color.
      */
     @Override
     public void setStroke(Color strokeColour) {
@@ -279,9 +282,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Gets ShapeData fill color.
+     * Gets the shape fill color.
      *
-     * @return The fill color
+     * @return See above.
      */
     @Override
     public Color getFill() {
@@ -290,9 +293,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Sets the ShapeData fill color.
+     * Sets the shape fill color.
      *
-     * @param fillColour The fill color
+     * @param fillColour The fill color.
      */
     @Override
     public void setFill(Color fillColour) {
@@ -369,7 +372,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
 
 
     /**
-     * Converts shape to ImageJ ROI.
+     * Converts the shape to an ImageJ ROI.
      *
      * @return An ImageJ ROI.
      */

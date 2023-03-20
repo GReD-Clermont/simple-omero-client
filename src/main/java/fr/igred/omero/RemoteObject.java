@@ -149,7 +149,8 @@ public interface RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void saveAndUpdate(DataManager dm) throws ExecutionException, ServiceException, AccessException;
+    void saveAndUpdate(DataManager dm)
+    throws ExecutionException, ServiceException, AccessException;
 
 
     /**

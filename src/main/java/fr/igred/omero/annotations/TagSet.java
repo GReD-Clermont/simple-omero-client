@@ -97,6 +97,7 @@ public interface TagSet extends RemoteObject {
      * @param browser The data browser.
      *
      * @return See above.
+     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.

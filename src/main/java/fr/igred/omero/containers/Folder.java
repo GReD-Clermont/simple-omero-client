@@ -227,7 +227,8 @@ public interface Folder extends RepositoryObject, Annotatable {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Browser browser) throws AccessException, ServiceException, ExecutionException {
+    default List<Image> getImages(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
         reload(browser);
         return getImages();
     }

@@ -51,7 +51,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -72,6 +71,53 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      */
     protected AnnotatableWrapper(T o) {
         super(o);
+    }
+
+
+    /**
+     * Retrieves annotations of a given type linked to the object, for specific users.
+     *
+     * @param browser The data browser.
+     * @param type    The type of annotation.
+     * @param userIds The user IDs.
+     *
+     * @return A list of annotations, as AnnotationData.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    private <A extends AnnotationData> List<A> getAnnotations(Browser browser,
+                                                              Class<? extends A> type,
+                                                              List<Long> userIds)
+    throws AccessException, ServiceException, ExecutionException {
+        List<Class<? extends AnnotationData>> types = Collections.singletonList(type);
+        return ExceptionHandler.of(browser.getMetadataFacility(),
+                                   m -> m.getAnnotations(browser.getCtx(), data, types, userIds))
+                               .handleOMEROException("Cannot get annotations for " + this)
+                               .get()
+                               .stream()
+                               .filter(type::isInstance)
+                               .map(type::cast)
+                               .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves annotations of a given type linked to the object.
+     *
+     * @param browser The data browser.
+     * @param type    The type of annotation.
+     *
+     * @return A list of annotations, as AnnotationData.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    private <A extends AnnotationData> List<A> getAnnotations(Browser browser, Class<? extends A> type)
+    throws AccessException, ServiceException, ExecutionException {
+        return getAnnotations(browser, type, null);
     }
 
 
@@ -134,23 +180,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<TagAnnotation> getTags(Browser browser) throws ServiceException, AccessException, ExecutionException {
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
-
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleOMEROException("Cannot get tags for " + this)
-                                                           .get();
-
-        return annotations.stream()
-                          .filter(TagAnnotationData.class::isInstance)
-                          .map(TagAnnotationData.class::cast)
-                          .map(TagAnnotationWrapper::new)
-                          .sorted(Comparator.comparing(TagAnnotation::getId))
-                          .collect(Collectors.toList());
+    public List<TagAnnotation> getTags(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        List<TagAnnotationData> tags = getAnnotations(browser, TagAnnotationData.class);
+        return wrap(tags, TagAnnotationWrapper::new);
     }
 
 
@@ -168,22 +201,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public List<MapAnnotation> getMapAnnotations(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleOMEROException("Cannot get map annotations for "
-                                                                                 + this)
-                                                           .get();
-
-        return annotations.stream()
-                          .filter(MapAnnotationData.class::isInstance)
-                          .map(MapAnnotationData.class::cast)
-                          .map(MapAnnotationWrapper::new)
-                          .sorted(Comparator.comparing(MapAnnotation::getId))
-                          .collect(Collectors.toList());
+        List<MapAnnotationData> maps = getAnnotations(browser, MapAnnotationData.class);
+        return wrap(maps, MapAnnotationWrapper::new);
     }
 
 
@@ -221,25 +240,11 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public void rate(Client client, int rating)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        String error = "Cannot retrieve rating annotations from " + this;
+        List<Long> uids = Collections.singletonList(client.getCtx().getExperimenter());
 
-        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
-        List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
+        List<RatingAnnotationData> rad = getAnnotations(client, RatingAnnotationData.class, uids);
 
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadataFacility(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     userIds))
-                                                           .handleOMEROException(error)
-                                                           .get();
-        List<RatingAnnotation> ratings = annotations.stream()
-                                                    .filter(RatingAnnotationData.class::isInstance)
-                                                    .map(RatingAnnotationData.class::cast)
-                                                    .map(RatingAnnotationWrapper::new)
-                                                    .sorted(Comparator.comparing(RatingAnnotation::getId))
-                                                    .collect(Collectors.toList());
-
+        List<RatingAnnotation> ratings = wrap(rad, RatingAnnotationWrapper::new);
         if (ratings.isEmpty()) {
             RatingAnnotation rate = new RatingAnnotationWrapper(rating);
             link(client, rate);
@@ -267,24 +272,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public int getMyRating(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot retrieve rating annotations from " + this;
+        List<Long> uids = Collections.singletonList(browser.getCtx().getExperimenter());
 
-        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
-        List<Long>                            userIds = Collections.singletonList(browser.getCtx().getExperimenter());
+        List<RatingAnnotationData> rad = getAnnotations(browser, RatingAnnotationData.class, uids);
 
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     userIds))
-                                                           .handleOMEROException(error)
-                                                           .get();
-        List<RatingAnnotation> ratings = annotations.stream()
-                                                    .filter(RatingAnnotationData.class::isInstance)
-                                                    .map(RatingAnnotationData.class::cast)
-                                                    .map(RatingAnnotationWrapper::new)
-                                                    .sorted(Comparator.comparing(RatingAnnotation::getId))
-                                                    .collect(Collectors.toList());
+        List<RatingAnnotation> ratings = wrap(rad, RatingAnnotationWrapper::new);
+
         int score = 0;
         for (RatingAnnotation rate : ratings) {
             score += rate.getRating();
@@ -410,23 +403,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public List<FileAnnotation> getFileAnnotations(Browser browser)
     throws ExecutionException, ServiceException, AccessException {
-        String error = "Cannot retrieve file annotations from " + this;
-
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
-
-        List<AnnotationData> annotations = ExceptionHandler.of(browser.getMetadataFacility(),
-                                                               m -> m.getAnnotations(browser.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleOMEROException(error)
-                                                           .get();
-
-        return annotations.stream()
-                          .filter(FileAnnotationData.class::isInstance)
-                          .map(FileAnnotationData.class::cast)
-                          .map(FileAnnotationWrapper::new)
-                          .collect(Collectors.toList());
+        List<FileAnnotationData> files = getAnnotations(browser, FileAnnotationData.class);
+        return wrap(files, FileAnnotationWrapper::new);
     }
 
 
@@ -463,9 +441,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      */
     protected void removeLink(Client client, String linkType, long childId)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        List<IObject> os = client.findByQuery("select link from " + linkType +
-                                              " link where link.parent = " + getId() +
-                                              " and link.child = " + childId);
+        String query = "select link from " + linkType +
+                       " link where link.parent = " + getId() +
+                       " and link.child = " + childId;
+        List<IObject> os = client.findByQuery(query);
         client.delete(os.iterator().next());
     }
 

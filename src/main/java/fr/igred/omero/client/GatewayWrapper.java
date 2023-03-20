@@ -22,9 +22,11 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.Group;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
+import omero.gateway.ServerInformation;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.log.SimpleLogger;
@@ -176,13 +178,13 @@ public class GatewayWrapper implements Client {
      * @throws NoSuchElementException The requested user does not exist.
      */
     @Override
-    public Client sudo(String username) throws ServiceException, AccessException, ExecutionException {
-        Experimenter sudoUser = getUser(username);
-
-        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
+    public Client sudo(String username)
+    throws ServiceException, AccessException, ExecutionException {
+        Experimenter    sudoUser  = getUser(username);
+        Group           sudoGroup = sudoUser.getDefaultGroup();
+        SecurityContext context   = new SecurityContext(sudoGroup.getId());
         context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
-
         return new GatewayWrapper(this.gateway, context, sudoUser);
     }
 
@@ -194,7 +196,9 @@ public class GatewayWrapper implements Client {
      */
     @Override
     public String toString() {
-        String host = ctx.getServerInformation() != null ? ctx.getServerInformation().getHost() : "null";
+        ServerInformation serverInfo = ctx.getServerInformation();
+
+        String host = serverInfo != null ? serverInfo.getHost() : "null";
         return String.format("%s{host=%s, groupID=%d, userID=%d, connected=%b}",
                              getClass().getSimpleName(),
                              host,

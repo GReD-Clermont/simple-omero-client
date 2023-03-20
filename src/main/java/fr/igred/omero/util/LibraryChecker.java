@@ -23,8 +23,7 @@ package fr.igred.omero.util;
  */
 public final class LibraryChecker {
 
-    private LibraryChecker() {
-    }
+    private LibraryChecker() {}
 
 
     /**

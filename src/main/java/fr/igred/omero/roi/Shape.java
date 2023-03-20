@@ -48,49 +48,52 @@ public interface Shape extends Annotatable {
 
 
     /**
-     * Gets the channel.
+     * Gets the channel, -1 if the shape applies to all channels of the image.
      *
-     * @return the channel. -1 if the shape applies to all channels of the image.
+     * @return See above.
      */
     int getC();
 
 
     /**
      * Sets the channel.
+     * <p>Pass -1 to remove z value, i.e. shape applies to all channels of the image.</p>
      *
-     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
+     * @param c The channel.
      */
     void setC(int c);
 
 
     /**
-     * Gets the z-section.
+     * Gets the z-section, -1 if the shape applies to all z-sections of the image.
      *
-     * @return the z-section. -1 if the shape applies to all z-sections of the image.
+     * @return See above.
      */
     int getZ();
 
 
     /**
      * Sets the z-section.
+     * <p>Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.</p>
      *
-     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
+     * @param z The z-section.
      */
     void setZ(int z);
 
 
     /**
-     * Sets the time-point.
+     * Gets the time-point, -1 if the shape applies to all time-points of the image.
      *
-     * @return the time-point. -1 if the shape applies to all time-points of the image.
+     * @return See above.
      */
     int getT();
 
 
     /**
      * Sets the time-point.
+     * <p>Pass -1 to remove t value, i.e. shape applies to all time-points of the image.</p>
      *
-     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
+     * @param t The time-point.
      */
     void setT(int t);
 
@@ -98,9 +101,12 @@ public interface Shape extends Annotatable {
     /**
      * Sets the channel, z-section and time-point at once.
      *
-     * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
-     * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
-     * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
+     * @param c The channel.
+     *          <p>Pass -1 if the shape applies to all channels of the image.</p>
+     * @param z The z-section.
+     *          <p>Pass -1 if the shape applies to all z-sections of the image.</p>
+     * @param t The time-point.
+     *          <p>Pass -1 if the shape applies to all time-points of the image.</p>
      */
     default void setCZT(int c, int z, int t) {
         setC(c);
@@ -120,65 +126,65 @@ public interface Shape extends Annotatable {
 
 
     /**
-     * Gets ShapeData font size.
+     * Gets the shape font size (in typography points).
      *
-     * @return The font size (in typography points)
+     * @return See above.
      */
     double getFontSize();
 
 
     /**
-     * Sets ShapeData font size.
+     * Sets the shape font size.
      *
-     * @param value The font size (in typography points)
+     * @param value The font size (in typography points).
      */
     void setFontSize(double value);
 
 
     /**
-     * Gets the ShapeData stroke color.
+     * Gets the shape stroke color.
      *
-     * @return The stroke color
+     * @return See above.
      */
     Color getStroke();
 
 
     /**
-     * Sets ShapeData stroke color.
+     * Sets the shape stroke color.
      *
-     * @param strokeColour The stroke color
+     * @param strokeColour The stroke color.
      */
     void setStroke(Color strokeColour);
 
 
     /**
-     * Gets ShapeData fill color.
+     * Gets the shape fill color.
      *
-     * @return The fill color
+     * @return See above.
      */
     Color getFill();
 
 
     /**
-     * Sets the ShapeData fill color.
+     * Sets the shape fill color.
      *
-     * @param fillColour The fill color
+     * @param fillColour The fill color.
      */
     void setFill(Color fillColour);
 
 
     /**
-     * Gets the text on the ShapeData.
+     * Gets the text on the shape.
      *
-     * @return the text
+     * @return See above.
      */
     String getText();
 
 
     /**
-     * Sets the text on the ShapeData.
+     * Sets the text on the shape.
      *
-     * @param text the text
+     * @param text The text.
      */
     void setText(String text);
 
@@ -247,7 +253,7 @@ public interface Shape extends Annotatable {
 
 
     /**
-     * Converts shape to ImageJ ROI.
+     * Converts the shape to an ImageJ ROI.
      *
      * @return An ImageJ ROI.
      */
@@ -255,7 +261,7 @@ public interface Shape extends Annotatable {
 
 
     /**
-     * Attach an {@link AnnotationData} to this object.
+     * Attaches an {@link AnnotationData} to this object.
      *
      * @param <A>        The type of the annotation.
      * @param dm         The data manager.

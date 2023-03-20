@@ -239,7 +239,8 @@ public class ScreenWrapper extends ImportWrapper<ScreenData> implements Screen {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    bf -> bf.getScreens(browser.getCtx(), Collections.singletonList(data.getId())))
                                .handleOMEROException("Cannot reload " + this)

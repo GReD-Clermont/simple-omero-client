@@ -145,7 +145,8 @@ public interface Well extends RepositoryObject, Annotatable {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Plate> getPlates(Browser browser) throws ServiceException, AccessException, ExecutionException {
+    default List<Plate> getPlates(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
         reload(browser);
         return browser.getPlates(getPlate().getId());
     }

@@ -221,7 +221,8 @@ public class ProjectWrapper extends AnnotatableWrapper<ProjectData> implements P
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser) throws ServiceException, AccessException, ExecutionException {
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
                                    bf -> bf.getProjects(browser.getCtx(), Collections.singletonList(data.getId())))
                                .handleOMEROException("Cannot reload " + this)

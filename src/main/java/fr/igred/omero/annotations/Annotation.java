@@ -101,9 +101,11 @@ public interface Annotation extends RemoteObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default int countAnnotationLinks(Browser browser) throws ServiceException, AccessException {
-        return browser.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
-                                   "where link.child.id=" + getId()).size();
+    default int countAnnotationLinks(Browser browser)
+    throws ServiceException, AccessException {
+        String q = "select link.parent from ome.model.IAnnotationLink link " +
+                   "where link.child.id=" + getId();
+        return browser.findByQuery(q).size();
     }
 
 

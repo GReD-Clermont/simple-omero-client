@@ -19,7 +19,7 @@ package fr.igred.omero.util;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
@@ -136,8 +136,7 @@ class WrapperTest extends BasicTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("classes")
-    <T extends DataObject, U extends ObjectWrapper<? extends T>> void testWrap(Class<T> input, Class<U> output)
-    throws Exception {
+    <T extends DataObject, U extends RemoteObject> void testWrap(Class<T> input, Class<U> output) throws Exception {
         T object = input.getConstructor().newInstance();
         U result = Wrapper.wrap(object);
         assertSame(output, result.getClass());
@@ -195,8 +194,7 @@ class WrapperTest extends BasicTest {
 
     private static class WrongDataObject extends DataObject {
 
-        WrongDataObject() {
-        }
+        WrongDataObject() {}
 
     }
 
@@ -224,8 +222,7 @@ class WrapperTest extends BasicTest {
 
 
         @Override
-        public void setContent(Object content) {
-        }
+        public void setContent(Object content) {}
 
 
         @Override
