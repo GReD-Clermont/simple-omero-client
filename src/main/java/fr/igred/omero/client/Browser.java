@@ -144,7 +144,7 @@ public interface Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException No element with such id.
+     * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default Project getProject(Long id)
@@ -249,7 +249,7 @@ public interface Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException No element with such id.
+     * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default Dataset getDataset(Long id)
@@ -357,7 +357,7 @@ public interface Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException No element with such id.
+     * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default Image getImage(Long id)
@@ -554,7 +554,7 @@ public interface Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException No element with such id.
+     * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default Screen getScreen(Long id)
@@ -637,7 +637,7 @@ public interface Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException No element with such id.
+     * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default Plate getPlate(Long id)
@@ -720,7 +720,7 @@ public interface Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException No element with such id.
+     * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default Well getWell(Long id)
@@ -807,7 +807,7 @@ public interface Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException No element with such id.
+     * @throws NoSuchElementException No element with this ID.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default Folder getFolder(long id)
@@ -933,17 +933,19 @@ public interface Browser {
      *
      * @return See above.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws NoSuchElementException No element with this ID.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     default TagAnnotation getTag(Long id) throws ServiceException, ExecutionException, AccessException {
         TagAnnotationData tag = ExceptionHandler.of(getBrowseFacility(),
                                                     b -> b.findObject(getCtx(), TagAnnotationData.class, id))
                                                 .handleOMEROException("Cannot get tag with ID: " + id)
                                                 .get();
-        tag.setNameSpace(tag.getContentAsString());
-
+        if (tag == null) {
+            throw new NoSuchElementException(String.format("Tag %d doesn't exist in this context", id));
+        }
         return new TagAnnotationWrapper(tag);
     }
 
@@ -1032,7 +1034,6 @@ public interface Browser {
                                                                                           id))
                                                .handleOMEROException("Cannot get map annotation with ID: " + id)
                                                .get();
-
         return new MapAnnotationWrapper(kv);
     }
 

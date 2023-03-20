@@ -18,32 +18,36 @@
 package fr.igred.omero.annotations;
 
 
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
+import omero.model.IObject;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
 /**
- * Class containing a TagAnnotationData object.
+ * Class containing a TagAnnotationData object with a namespace set to {@link #NS_TAGSET}.
  * <p> Wraps function calls to the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> implements TagAnnotation {
+public class TagSetWrapper extends TagAnnotationWrapper implements TagSet {
 
     /**
-     * Constructor of the TagAnnotationWrapper class.
+     * Constructor of the TagSetWrapper class.
      *
      * @param tag TagAnnotationData to wrap.
      */
-    public TagAnnotationWrapper(TagAnnotationData tag) {
+    public TagSetWrapper(TagAnnotationData tag) {
         super(tag);
+        super.setNameSpace(NS_TAGSET);
     }
 
 
     /**
-     * Constructor of the TagAnnotationWrapper class. Creates the tag and saves it to OMERO.
+     * Constructor of the TagSetWrapper class. Creates the tag set and saves it to OMERO.
      *
      * @param dm          The data manager.
      * @param name        Tag name.
@@ -53,45 +57,42 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> i
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagAnnotationWrapper(DataManager dm, String name, String description)
+    public TagSetWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
-        super(new TagAnnotationData(name, description));
+        this(new TagAnnotationData(name, description));
         super.saveAndUpdate(dm);
     }
 
 
     /**
-     * Gets the tag name.
+     * Returns the list of tags related to this tag set.
      *
      * @return See above.
      */
     @Override
-    public String getName() {
-        return data.getTagValue();
+    public List<TagAnnotation> getTags() {
+        return wrap(data.getTags(), TagAnnotationWrapper::new);
     }
 
 
     /**
-     * Sets the tag name.
+     * Reloads the tag set from OMERO.
      *
-     * @param name The tag name. Mustn't be {@code null}.
+     * @param browser The data browser.
      *
-     * @throws IllegalArgumentException If the name is {@code null}.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void setName(String name) {
-        data.setTagValue(name);
-    }
-
-
-    /**
-     * Converts this tag annotation to a tag set.
-     *
-     * @return See above.
-     */
-    @Override
-    public TagSet toTagSet() {
-        return new TagSetWrapper(data);
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        String query = "select t from TagAnnotation as t " +
+                       "left outer join fetch t.annotationLinks as l " +
+                       "left outer join fetch l.child as a " +
+                       "where t.id=" + getId();
+        IObject o = browser.findByQuery(query).iterator().next();
+        data = new TagAnnotationData((omero.model.TagAnnotation) o);
     }
 
 }

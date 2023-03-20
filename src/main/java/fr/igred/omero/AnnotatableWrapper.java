@@ -121,7 +121,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
         TagAnnotationData tagData = new TagAnnotationData(tag);
-        link(dm, new TagAnnotationWrapper(tagData));
+        link(dm, tagData);
     }
 
 

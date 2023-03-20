@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -147,6 +148,33 @@ class TagTest extends UserTest {
         tag.setDescription(description);
         tag.saveAndUpdate(client);
         assertEquals(description, client.getTag(TAG1.id).getDescription());
+    }
+
+
+    @Test
+    void testIsTagSet() throws Exception {
+        TagAnnotation tag = new TagAnnotationWrapper(client, "tagset", "isTagSet");
+        tag.setNameSpace(TagAnnotation.NS_TAGSET);
+        client.delete(tag);
+        assertTrue(tag.isTagSet());
+    }
+
+
+    @Test
+    void testToTagSet() throws Exception {
+        TagAnnotation tag    = new TagAnnotationWrapper(client, "tagset", "toTagSet");
+        TagSet        tagSet = tag.toTagSet();
+        client.delete(tagSet);
+        assertTrue(tag.isTagSet());
+    }
+
+
+    @Test
+    void testLinkTagSetToProject() throws Exception {
+        TagAnnotation tagSet  = new TagSetWrapper(client, "tagset", "LinkTagSet");
+        Project       project = client.getProject(PROJECT1.id);
+        assertThrows(IllegalArgumentException.class, () -> project.link(client, tagSet));
+        client.delete(tagSet);
     }
 
 }

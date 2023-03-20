@@ -94,7 +94,7 @@ public interface Annotatable extends RemoteObject {
 
 
     /**
-     * Adds an annotation to the object in OMERO, if possible.
+     * Adds an annotation to the object in OMERO, if possible (and if it's not a TagSet).
      *
      * @param <A>        The type of the annotation.
      * @param dm         The client handling the connection.
@@ -106,7 +106,11 @@ public interface Annotatable extends RemoteObject {
      */
     default <A extends Annotation> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
-        link(dm, annotation.asDataObject());
+        if (!(annotation instanceof TagAnnotation) || !((TagAnnotation) annotation).isTagSet()) {
+            link(dm, annotation.asDataObject());
+        } else {
+            throw new IllegalArgumentException("Tag sets should only be linked to tags");
+        }
     }
 
 

@@ -27,6 +27,12 @@ import omero.gateway.model.TagAnnotationData;
 public interface TagAnnotation extends Annotation {
 
     /**
+     * The name space used to indicate that the tag is used a tag set.
+     */
+    String NS_TAGSET = TagAnnotationData.INSIGHT_TAGSET_NS;
+
+
+    /**
      * Returns a {@link TagAnnotationData} corresponding to the handled object.
      *
      * @return See above.
@@ -36,9 +42,9 @@ public interface TagAnnotation extends Annotation {
 
 
     /**
-     * Gets the name of the tag.
+     * Gets the tag name.
      *
-     * @return Tag name.
+     * @return See above.
      */
     String getName();
 
@@ -46,10 +52,28 @@ public interface TagAnnotation extends Annotation {
     /**
      * Sets the name of the tag.
      *
-     * @param name The name of the tag. Mustn't be {@code null}.
+     * @param name The tag name. Mustn't be {@code null}.
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
     void setName(String name);
+
+
+    /**
+     * Returns whether this tag is a TagSet or not.
+     *
+     * @return {@code true} if this tag is a tag set, {@code false} otherwise.
+     */
+    default boolean isTagSet() {
+        return NS_TAGSET.equals(getNameSpace());
+    }
+
+
+    /**
+     * Converts this tag annotation to a tag set.
+     *
+     * @return See above.
+     */
+    TagSet toTagSet();
 
 }
