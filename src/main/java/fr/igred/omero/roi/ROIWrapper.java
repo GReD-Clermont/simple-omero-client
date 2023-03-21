@@ -30,9 +30,7 @@ import omero.gateway.model.ShapeData;
 import omero.model.Roi;
 import omero.model._RoiOperationsNC;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -146,10 +144,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
      */
     @Override
     public List<Shape> getShapes() {
-        List<ShapeData> shapeData = data.getShapes();
-        List<Shape>     shapes    = new ArrayList<>(shapeData.size());
-        shapeData.stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(s -> shapes.add(Wrapper.wrap(s)));
-        return shapes;
+        return wrap(data.getShapes(), Wrapper::wrap);
     }
 
 

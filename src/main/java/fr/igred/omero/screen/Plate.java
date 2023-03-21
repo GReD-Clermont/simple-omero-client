@@ -34,10 +34,12 @@ import omero.model.enums.UnitsLength;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -123,7 +125,11 @@ public interface Plate extends RepositoryObject, Annotatable {
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = browser.findByQuery("select link.parent from ScreenPlateLink as link " +
                                                "where link.child=" + getId());
-        return browser.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        return browser.getScreens(os.stream()
+                                    .map(IObject::getId)
+                                    .map(RLong::getValue)
+                                    .distinct()
+                                    .toArray(Long[]::new));
     }
 
 
@@ -187,8 +193,8 @@ public interface Plate extends RepositoryObject, Annotatable {
                                 .collect(Collectors.toMap(RemoteObject::getId, i -> i, (i1, i2) -> i1))
                                 .values()
                                 .stream()
-                                .sorted(Comparator.comparing(RemoteObject::getId))
-                                .collect(Collectors.toList());
+                                .sorted(comparing(RemoteObject::getId))
+                                .collect(toList());
     }
 
 

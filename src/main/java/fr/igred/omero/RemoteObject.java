@@ -26,10 +26,12 @@ import omero.gateway.model.DataObject;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -50,7 +52,10 @@ public interface RemoteObject {
      */
     static <U extends RemoteObject, V extends U> List<V> getElementsOf(Collection<? extends U> collection,
                                                                        Class<? extends V> clazz) {
-        return collection.stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+        return collection.stream()
+                         .filter(clazz::isInstance)
+                         .map(clazz::cast)
+                         .collect(toList());
     }
 
 
@@ -67,8 +72,8 @@ public interface RemoteObject {
                       .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
                       .values()
                       .stream()
-                      .sorted(Comparator.comparing(T::getId))
-                      .collect(Collectors.toList());
+                      .sorted(comparing(T::getId))
+                      .collect(toList());
     }
 
 
@@ -86,8 +91,8 @@ public interface RemoteObject {
                     .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
                     .values()
                     .stream()
-                    .sorted(Comparator.comparing(T::getId))
-                    .collect(Collectors.toList());
+                    .sorted(comparing(T::getId))
+                    .collect(toList());
     }
 
 

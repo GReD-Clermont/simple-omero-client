@@ -237,8 +237,11 @@ public interface Shape extends Annotatable {
      * @return A new transformed {@link java.awt.Shape}.
      */
     default java.awt.Shape createTransformedAWTShape() {
-        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) return toAWTShape();
-        else return toAWTTransform().createTransformedShape(toAWTShape());
+        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) {
+            return toAWTShape();
+        } else {
+            return toAWTTransform().createTransformedShape(toAWTShape());
+        }
     }
 
 

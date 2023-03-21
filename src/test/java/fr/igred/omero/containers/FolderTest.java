@@ -45,9 +45,9 @@ class FolderTest extends UserTest {
 
     @Test
     void testGetParents() throws Exception {
-        Folder        parent = new FolderWrapper(client, "Parent");
-        FolderWrapper child1 = new FolderWrapper(client, "Child 1");
-        FolderWrapper child2 = new FolderWrapper(client, "Child 2");
+        Folder parent = new FolderWrapper(client, "Parent");
+        Folder child1 = new FolderWrapper(client, "Child 1");
+        Folder child2 = new FolderWrapper(client, "Child 2");
         parent.addChild(child1);
         parent.saveAndUpdate(client);
         child2.setParent(parent);
@@ -69,9 +69,9 @@ class FolderTest extends UserTest {
     void testGetChildren() throws Exception {
         Image image = client.getImage(1L);
 
-        Folder        parent = new FolderWrapper(client, "Parent");
-        FolderWrapper child1 = new FolderWrapper(client, "Child 1");
-        FolderWrapper child2 = new FolderWrapper(client, "Child 2");
+        Folder parent = new FolderWrapper(client, "Parent");
+        Folder child1 = new FolderWrapper(client, "Child 1");
+        Folder child2 = new FolderWrapper(client, "Child 2");
         parent.addChild(child1);
         parent.saveAndUpdate(client);
         child2.setParent(parent);
@@ -116,9 +116,9 @@ class FolderTest extends UserTest {
 
     @Test
     void testHierarchyFolders() throws Exception {
-        Folder        parent = new FolderWrapper(client, "Parent");
-        FolderWrapper child1 = new FolderWrapper(client, "Child 1");
-        FolderWrapper child2 = new FolderWrapper(client, "Child 2");
+        Folder parent = new FolderWrapper(client, "Parent");
+        Folder child1 = new FolderWrapper(client, "Child 1");
+        Folder child2 = new FolderWrapper(client, "Child 2");
         parent.addChild(child1);
         parent.saveAndUpdate(client);
         child2.setParent(parent);
@@ -256,7 +256,7 @@ class FolderTest extends UserTest {
 
         Image image = client.getImage(IMAGE2.id);
 
-        FolderWrapper folder1 = new FolderWrapper(client, "Test1");
+        Folder folder1 = new FolderWrapper(client, "Test1");
         folder1.setDescription("Test 1");
         folder1.saveAndUpdate(client);
         assertEquals("Test1", folder1.getName());
@@ -277,7 +277,7 @@ class FolderTest extends UserTest {
             folder1.addROIs(client, image, roi);
         }
 
-        FolderWrapper folder2 = new FolderWrapper(client, "Test");
+        Folder folder2 = new FolderWrapper(client, "Test");
         folder2.setName("Test2");
         folder2.saveAndUpdate(client);
         assertEquals("Test2", folder2.getName());
@@ -301,7 +301,9 @@ class FolderTest extends UserTest {
         assertEquals(2, folders.size());
         assertEquals(nImages, image.getROIs(client).size());
 
-        for (Folder f : folders) f.reload(client);
+        for (Folder f : folders) {
+            f.reload(client);
+        }
         client.delete(folders);
 
         assertEquals(0, image.getROIFolders(client).size());

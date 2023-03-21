@@ -57,10 +57,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.distinct;
 import static fr.igred.omero.RemoteObject.flatten;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -109,10 +109,12 @@ public interface Image extends RepositoryObject, Annotatable {
     @Override
     default List<RepositoryObject> getParents(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        List<Dataset>          datasets = getDatasets(browser);
-        List<WellSample>       wells    = getWellSamples(browser);
-        List<Folder>           folders  = getFolders(browser);
-        List<RepositoryObject> parents  = new ArrayList<>(datasets.size() + wells.size() + folders.size());
+        List<Dataset>    datasets = getDatasets(browser);
+        List<WellSample> wells    = getWellSamples(browser);
+        List<Folder>     folders  = getFolders(browser);
+        int              nParents = datasets.size() + wells.size() + folders.size();
+
+        List<RepositoryObject> parents = new ArrayList<>(nParents);
         parents.addAll(datasets);
         parents.addAll(wells);
         parents.addAll(folders);
@@ -276,7 +278,9 @@ public interface Image extends RepositoryObject, Annotatable {
      */
     default List<Plate> getPlates(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return distinct(getWells(browser).stream().map(Well::getPlate).collect(Collectors.toList()));
+        return distinct(getWells(browser).stream()
+                                         .map(Well::getPlate)
+                                         .collect(toList()));
     }
 
 
@@ -317,7 +321,8 @@ public interface Image extends RepositoryObject, Annotatable {
     throws ServiceException, AccessException {
         boolean noDataset = browser.findByQuery("select link.parent from DatasetImageLink link " +
                                                 "where link.child=" + getId()).isEmpty();
-        boolean noWell = browser.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
+        boolean noWell = browser.findByQuery("select ws from WellSample ws " +
+                                             "where image=" + getId()).isEmpty();
         return noDataset && noWell;
     }
 
@@ -337,11 +342,14 @@ public interface Image extends RepositoryObject, Annotatable {
     throws AccessException, ServiceException, ExecutionException {
         List<Image> related = new ArrayList<>(0);
         if (asDataObject().isFSImage()) {
-            long fsId = this.asDataObject().getFilesetId();
-
-            List<IObject> objects = browser.findByQuery("select i from Image i where fileset=" + fsId);
-
-            Long[] ids = objects.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+            long          fsId    = this.asDataObject().getFilesetId();
+            String        query   = "select i from Image i where fileset=" + fsId;
+            List<IObject> objects = browser.findByQuery(query);
+            Long[] ids = objects.stream()
+                                .map(IObject::getId)
+                                .map(RLong::getValue)
+                                .sorted()
+                                .toArray(Long[]::new);
             related = browser.getImages(ids);
         }
         return related;
@@ -427,8 +435,12 @@ public interface Image extends RepositoryObject, Annotatable {
      */
     default List<Folder> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
-        Long[] ids   = browser.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
+        String query = String.format("select link.parent from FolderImageLink as link " +
+                                     "where link.child.id=%d", getId());
+        Long[] ids = browser.findByQuery(query)
+                            .stream()
+                            .map(o -> o.getId().getValue())
+                            .toArray(Long[]::new);
         return browser.loadFolders(ids);
     }
 
@@ -570,14 +582,14 @@ public interface Image extends RepositoryObject, Annotatable {
      */
     default Color getChannelColor(Client client, int index)
     throws ServiceException, AccessException, ExecutionException {
-        long  pixelsId = getPixels().getId();
-        Color color    = getChannelImportedColor(client, index);
+        long  pid   = getPixels().getId();
+        Color color = getChannelImportedColor(client, index);
         try {
-            RenderingEnginePrx re = client.getGateway().getRenderingService(client.getCtx(), pixelsId);
-            re.lookupPixels(pixelsId);
-            if (!(re.lookupRenderingDef(pixelsId))) {
+            RenderingEnginePrx re = client.getGateway().getRenderingService(client.getCtx(), pid);
+            re.lookupPixels(pid);
+            if (!(re.lookupRenderingDef(pid))) {
                 re.resetDefaultSettings(true);
-                re.lookupRenderingDef(pixelsId);
+                re.lookupRenderingDef(pid);
             }
             re.load();
             int[] rgba = re.getRGBA(index);

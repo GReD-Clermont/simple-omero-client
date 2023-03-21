@@ -71,12 +71,13 @@ public interface AdminManager {
      */
     default Experimenter getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
-                                                            a -> a.lookupExperimenter(getCtx(), username))
-                                                        .handleOMEROException("Cannot retrieve user: " + username)
-                                                        .get();
-        if (experimenter != null) {
-            return new ExperimenterWrapper(experimenter);
+        String error = "Cannot retrieve user: " + username;
+        ExperimenterData user = ExceptionHandler.of(getAdminFacility(),
+                                                    a -> a.lookupExperimenter(getCtx(), username))
+                                                .handleOMEROException(error)
+                                                .get();
+        if (user != null) {
+            return new ExperimenterWrapper(user);
         } else {
             throw new NoSuchElementException(String.format("User not found: %s", username));
         }
@@ -97,8 +98,10 @@ public interface AdminManager {
      */
     default Group getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
-        GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
-                                          .handleOMEROException("Cannot retrieve group: " + groupName)
+        String error = "Cannot retrieve group: " + groupName;
+        GroupData group = ExceptionHandler.of(getAdminFacility(),
+                                              a -> a.lookupGroup(getCtx(), groupName))
+                                          .handleOMEROException(error)
                                           .get();
         if (group != null) {
             return new GroupWrapper(group);

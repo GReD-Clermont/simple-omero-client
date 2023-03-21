@@ -29,7 +29,8 @@ import omero.gateway.model.WellData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -178,7 +179,7 @@ public interface Well extends RepositoryObject, Annotatable {
     default List<Image> getImages() {
         return getWellSamples().stream()
                                .map(WellSample::getImage)
-                               .collect(Collectors.toList());
+                               .collect(toList());
     }
 
 

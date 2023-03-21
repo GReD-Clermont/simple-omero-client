@@ -41,10 +41,11 @@ import omero.model.IObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -131,7 +132,7 @@ public interface Folder extends RepositoryObject, Annotatable {
     default List<RepositoryObject> getParents(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         reload(browser);
-        return Collections.singletonList(getParent());
+        return singletonList(getParent());
     }
 
 
@@ -192,8 +193,10 @@ public interface Folder extends RepositoryObject, Annotatable {
      */
     default void addImages(DataManager dm, Image... images)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> links     = new ArrayList<>(images.length);
-        List<Long>    linkedIds = getImages().stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<IObject> links = new ArrayList<>(images.length);
+        List<Long> linkedIds = getImages().stream()
+                                          .map(RemoteObject::getId)
+                                          .collect(toList());
         for (Image image : images) {
             if (!linkedIds.contains(image.getId())) {
                 FolderImageLink link = new FolderImageLinkI();
@@ -249,13 +252,13 @@ public interface Folder extends RepositoryObject, Annotatable {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
                                       .map(ROI::asDataObject)
-                                      .collect(Collectors.toList());
+                                      .collect(toList());
         ROIFacility roiFac = dm.getRoiFacility();
         ExceptionHandler.of(roiFac,
                             rf -> rf.addRoisToFolders(dm.getCtx(),
                                                       imageId,
                                                       roiData,
-                                                      Collections.singletonList(asDataObject())))
+                                                      singletonList(asDataObject())))
                         .handleOMEROException("Cannot add ROIs to " + this)
                         .rethrow();
     }
@@ -393,12 +396,12 @@ public interface Folder extends RepositoryObject, Annotatable {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = rois.stream()
                                     .map(ROI::asDataObject)
-                                    .collect(Collectors.toList());
+                                    .collect(toList());
         ExceptionHandler.ofConsumer(dm.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(dm.getCtx(),
                                                                    -1L,
                                                                    roiData,
-                                                                   Collections.singletonList(asDataObject())))
+                                                                   singletonList(asDataObject())))
                         .handleOMEROException("Cannot unlink ROI from " + this)
                         .rethrow();
     }

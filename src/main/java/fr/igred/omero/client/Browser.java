@@ -61,14 +61,14 @@ import omero.model.IObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.ObjectWrapper.wrap;
 import static fr.igred.omero.RemoteObject.flatten;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -152,7 +152,8 @@ public interface Browser {
     throws ServiceException, AccessException, ExecutionException {
         List<Project> projects = getProjects(id);
         if (projects.isEmpty()) {
-            throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
+            String error = String.format("Project %d doesn't exist in this context", id);
+            throw new NoSuchElementException(error);
         }
         return projects.iterator().next();
     }
@@ -372,12 +373,12 @@ public interface Browser {
     default Image getImage(Long id)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get image with ID: " + id;
-        ImageData image = ExceptionHandler.of(getBrowseFacility(),
-                                              bf -> bf.getImage(getCtx(), id))
+        ImageData image = ExceptionHandler.of(getBrowseFacility(), bf -> bf.getImage(getCtx(), id))
                                           .handleOMEROException(error)
                                           .get();
         if (image == null) {
-            throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
+            String notFound = String.format("Image %d doesn't exist in this context", id);
+            throw new NoSuchElementException(notFound);
         }
         return new ImageWrapper(image);
     }
@@ -932,8 +933,8 @@ public interface Browser {
                                .map(omero.model.TagAnnotation.class::cast)
                                .map(TagAnnotationData::new)
                                .map(TagAnnotationWrapper::new)
-                               .sorted(Comparator.comparing(RemoteObject::getId))
-                               .collect(Collectors.toList());
+                               .sorted(comparing(RemoteObject::getId))
+                               .collect(toList());
     }
 
 
@@ -949,13 +950,14 @@ public interface Browser {
      */
     default List<TagAnnotation> getTags(String name)
     throws ServiceException, AccessException {
-        String query = String.format("select t from TagAnnotation as t where t.textValue = '%s'", name);
+        String query = String.format("select t from TagAnnotation as t " +
+                                     "where t.textValue = '%s'", name);
         return findByQuery(query).stream()
                                  .map(omero.model.TagAnnotation.class::cast)
                                  .map(TagAnnotationData::new)
                                  .map(TagAnnotationWrapper::new)
-                                 .sorted(Comparator.comparing(RemoteObject::getId))
-                                 .collect(Collectors.toList());
+                                 .sorted(comparing(RemoteObject::getId))
+                                 .collect(toList());
     }
 
 
@@ -973,13 +975,14 @@ public interface Browser {
      */
     default TagAnnotation getTag(Long id)
     throws ServiceException, ExecutionException, AccessException {
+        String error = "Cannot get tag with ID: " + id;
         TagAnnotationData tag = ExceptionHandler.of(getBrowseFacility(),
                                                     b -> b.findObject(getCtx(), TagAnnotationData.class, id))
-                                                .handleOMEROException("Cannot get tag with ID: " + id)
+                                                .handleOMEROException(error)
                                                 .get();
         if (tag == null) {
-            String error = String.format("Tag %d doesn't exist in this context", id);
-            throw new NoSuchElementException(error);
+            String notFound = String.format("Tag %d doesn't exist in this context", id);
+            throw new NoSuchElementException(notFound);
         }
         return new TagAnnotationWrapper(tag);
     }
@@ -1003,8 +1006,8 @@ public interface Browser {
                                .map(omero.model.MapAnnotation.class::cast)
                                .map(MapAnnotationData::new)
                                .map(MapAnnotationWrapper::new)
-                               .sorted(Comparator.comparing(RemoteObject::getId))
-                               .collect(Collectors.toList());
+                               .sorted(comparing(RemoteObject::getId))
+                               .collect(toList());
     }
 
 
@@ -1020,13 +1023,14 @@ public interface Browser {
      */
     default List<MapAnnotation> getMapAnnotations(String key)
     throws ServiceException, AccessException {
-        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv where mv.name = '%s'", key);
+        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv " +
+                                 "where mv.name = '%s'", key);
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
                              .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(RemoteObject::getId))
-                             .collect(Collectors.toList());
+                             .sorted(comparing(RemoteObject::getId))
+                             .collect(toList());
     }
 
 
@@ -1049,8 +1053,8 @@ public interface Browser {
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
                              .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(RemoteObject::getId))
-                             .collect(Collectors.toList());
+                             .sorted(comparing(RemoteObject::getId))
+                             .collect(toList());
     }
 
 
@@ -1061,16 +1065,22 @@ public interface Browser {
      *
      * @return See above.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException No element with this ID.
      */
     default MapAnnotation getMapAnnotation(Long id)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get map annotation with ID: " + id;
         MapAnnotationData kv = ExceptionHandler.of(getBrowseFacility(),
                                                    b -> b.findObject(getCtx(), MapAnnotationData.class, id))
-                                               .handleOMEROException("Cannot get map annotation with ID: " + id)
+                                               .handleOMEROException(error)
                                                .get();
+        if (kv == null) {
+            String notFound = String.format("Map annotation %d doesn't exist in this context", id);
+            throw new NoSuchElementException(notFound);
+        }
         return new MapAnnotationWrapper(kv);
     }
 

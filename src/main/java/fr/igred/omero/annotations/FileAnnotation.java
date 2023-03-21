@@ -50,7 +50,7 @@ public interface FileAnnotation extends Annotation {
 
 
     /**
-     * Returns the file format as defined by the specification, corresponding to the file extension.
+     * Returns the file format corresponding to the file extension as defined by the specification.
      *
      * @return See above.
      */

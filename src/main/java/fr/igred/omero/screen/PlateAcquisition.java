@@ -35,9 +35,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.distinct;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -216,7 +216,7 @@ public interface PlateAcquisition extends RepositoryObject, Annotatable {
      * @return See above
      */
     default List<Image> getImages() {
-        return getWellSamples().stream().map(WellSample::getImage).collect(Collectors.toList());
+        return getWellSamples().stream().map(WellSample::getImage).collect(toList());
     }
 
 
@@ -233,7 +233,9 @@ public interface PlateAcquisition extends RepositoryObject, Annotatable {
      */
     default List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getWellSamples(browser).stream().map(WellSample::getImage).collect(Collectors.toList());
+        return getWellSamples(browser).stream()
+                                      .map(WellSample::getImage)
+                                      .collect(toList());
     }
 
 

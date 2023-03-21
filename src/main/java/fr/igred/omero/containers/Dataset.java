@@ -41,11 +41,11 @@ import omero.model.IObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -132,8 +132,9 @@ public interface Dataset extends RepositoryObject, Annotatable {
      */
     default List<Project> getProjects(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = browser.findByQuery("select link.parent from ProjectDatasetLink as link " +
-                                               "where link.child=" + getId());
+        String query = "select link.parent from ProjectDatasetLink as link " +
+                       "where link.child=" + getId();
+        List<IObject> os = browser.findByQuery(query);
         return browser.getProjects(os.stream()
                                      .map(IObject::getId)
                                      .map(RLong::getValue)
@@ -282,7 +283,7 @@ public interface Dataset extends RepositoryObject, Annotatable {
                 selected.add(image);
             }
         }
-        selected.sort(Comparator.comparing(RemoteObject::getId));
+        selected.sort(comparing(RemoteObject::getId));
 
         return selected;
     }
@@ -315,7 +316,7 @@ public interface Dataset extends RepositoryObject, Annotatable {
                 selected.add(image);
             }
         }
-        selected.sort(Comparator.comparing(RemoteObject::getId));
+        selected.sort(comparing(RemoteObject::getId));
 
         return selected;
     }
@@ -431,7 +432,9 @@ public interface Dataset extends RepositoryObject, Annotatable {
             List<ROI> rois = oldImage.getROIs(client);
             newImage.saveROIs(client, rois);
             List<Folder> folders = oldImage.getFolders(client);
-            for (Folder folder : folders) folder.addImages(client, newImage);
+            for (Folder folder : folders) {
+                folder.addImages(client, newImage);
+            }
             this.removeImage(client, oldImage);
             if (oldImage.isOrphaned(client)) {
                 orphaned.add(oldImage);

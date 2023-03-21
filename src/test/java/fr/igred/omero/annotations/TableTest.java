@@ -80,7 +80,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableWrapper table1 = new TableWrapper(2, "TableTest");
+        Table table1 = new TableWrapper(2, "TableTest");
 
         assertEquals(2, table1.getColumnCount());
 
@@ -105,7 +105,7 @@ class TableTest extends UserTest {
         dataset.addTable(client, table1);
         long tableId1 = table1.getId();
 
-        TableWrapper table2 = new TableWrapper(2, "TableTest 2");
+        Table table2 = new TableWrapper(2, "TableTest 2");
         table2.setColumn(0, "Image", ImageData.class);
         table2.setColumn(1, "Name", String.class);
         table2.setRowCount(images.size());
@@ -116,7 +116,7 @@ class TableTest extends UserTest {
         dataset.addTable(client, table2);
         long tableId2 = table2.getId();
 
-        TableWrapper table3 = new TableWrapper(2, "TableTest");
+        Table table3 = new TableWrapper(2, "TableTest");
         table3.setColumn(0, "Image", ImageData.class);
         table3.setColumn(1, "Name", String.class);
         table3.setRowCount(images.size());

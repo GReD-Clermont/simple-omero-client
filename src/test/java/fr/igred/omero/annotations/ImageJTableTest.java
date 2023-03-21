@@ -76,7 +76,9 @@ class ImageJTableTest extends UserTest {
 
             roi.addShape(rectangle);
         }
-        if (name != null && !name.trim().isEmpty()) roi.setName(name);
+        if (name != null && !name.trim().isEmpty()) {
+            roi.setName(name);
+        }
         image.saveROIs(dm, Collections.singletonList(roi));
         return image.getROIs(dm);
     }
@@ -92,11 +94,13 @@ class ImageJTableTest extends UserTest {
     private static void addRowToResultsTable(ResultsTable results, String imageName, double volume, String unit) {
         int i = results.size();
         results.incrementCounter();
-        if (imageName != null && !imageName.trim().isEmpty())
+        if (imageName != null && !imageName.trim().isEmpty()) {
             results.setLabel(imageName, i);
+        }
         results.setValue("Volume", i, volume);
-        if (unit != null && !unit.trim().isEmpty())
+        if (unit != null && !unit.trim().isEmpty()) {
             results.setValue("Volume Unit", i, unit);
+        }
     }
 
 
@@ -458,8 +462,11 @@ class ImageJTableTest extends UserTest {
             rectangle.setT(0);
             rectangle.setC(0);
 
-            if (i % 2 == 1) rois.get(0).addShape(rectangle);
-            else rois.get(1).addShape(rectangle);
+            if (i % 2 == 1) {
+                rois.get(0).addShape(rectangle);
+            } else {
+                rois.get(1).addShape(rectangle);
+            }
         }
 
         List<ROI> newROIs = image.saveROIs(client, rois);
@@ -498,8 +505,8 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROINamesFromIJResults2() throws Exception {
-        ROIWrapper roi1 = new ROIWrapper();
-        ROIWrapper roi2 = new ROIWrapper();
+        ROI roi1 = new ROIWrapper();
+        ROI roi2 = new ROIWrapper();
 
         roi1.setImage(image);
         roi2.setImage(image);
@@ -513,8 +520,11 @@ class ImageJTableTest extends UserTest {
             rectangle.setT(0);
             rectangle.setC(0);
 
-            if (i % 2 == 1) roi1.addShape(rectangle);
-            else roi2.addShape(rectangle);
+            if (i % 2 == 1) {
+                roi1.addShape(rectangle);
+            } else {
+                roi2.addShape(rectangle);
+            }
         }
 
         image.saveROIs(client, roi1);

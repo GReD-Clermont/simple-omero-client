@@ -92,9 +92,9 @@ class RatingAnnotationTest extends UserTest {
         int   score1 = 2;
         int   score2 = 3;
 
-        RatingAnnotationWrapper rating1 = new RatingAnnotationWrapper(new RatingAnnotationData());
+        RatingAnnotation rating1 = new RatingAnnotationWrapper(new RatingAnnotationData());
         rating1.setRating(score0);
-        RatingAnnotationWrapper rating2 = new RatingAnnotationWrapper(new RatingAnnotationData());
+        RatingAnnotation rating2 = new RatingAnnotationWrapper(new RatingAnnotationData());
         rating1.setRating(score1);
         image.link(client, rating1);
         image.link(client, rating2);

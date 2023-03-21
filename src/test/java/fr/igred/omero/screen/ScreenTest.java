@@ -28,8 +28,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -51,8 +51,8 @@ class ScreenTest extends UserTest {
         List<RepositoryObject> children = screen.getChildren(client);
         List<Plate>            plates   = screen.getPlates();
 
-        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
-        List<Long> plateIds    = plates.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> plateIds    = plates.stream().map(RemoteObject::getId).collect(toList());
         assertEquals(plates.size(), children.size());
         assertEquals(plateIds, childrenIds);
         assertTrue(Plate.class.isAssignableFrom(children.get(0).getClass()));
@@ -214,11 +214,11 @@ class ScreenTest extends UserTest {
         List<WellSample> samples = wells.stream()
                                         .map(Well::getWellSamples)
                                         .flatMap(List::stream)
-                                        .collect(Collectors.toList());
+                                        .collect(toList());
         assertEquals(44, samples.size());
         List<Image> images = samples.stream()
                                     .map(WellSample::getImage)
-                                    .collect(Collectors.toList());
+                                    .collect(toList());
 
         client.delete(images);
         client.delete(samples);
@@ -253,11 +253,11 @@ class ScreenTest extends UserTest {
         List<WellSample> samples = wells.stream()
                                         .map(Well::getWellSamples)
                                         .flatMap(List::stream)
-                                        .collect(Collectors.toList());
+                                        .collect(toList());
         assertEquals(8, samples.size());
         List<Image> images = samples.stream()
                                     .map(WellSample::getImage)
-                                    .collect(Collectors.toList());
+                                    .collect(toList());
 
         assertEquals(images.size(), ids.size());
         client.delete(images);

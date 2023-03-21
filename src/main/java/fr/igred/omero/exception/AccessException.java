@@ -24,7 +24,7 @@ import omero.gateway.exception.DSAccessException;
 /** Reports an error occurred while trying to pull out data from the server. */
 public class AccessException extends DSAccessException {
 
-    private static final long serialVersionUID = 3118406890894909851L;
+    private static final long serialVersionUID = -8639419212398404028L;
 
 
     /**

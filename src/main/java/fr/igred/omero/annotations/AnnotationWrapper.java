@@ -46,7 +46,8 @@ import omero.model.IObject;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -136,8 +137,12 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     @Override
     public List<Project> getProjects(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os  = getLinks(browser, ProjectWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        List<IObject> os = getLinks(browser, ProjectWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return browser.getProjects(ids);
     }
 
@@ -156,8 +161,12 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     @Override
     public List<Dataset> getDatasets(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os  = getLinks(browser, DatasetWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        List<IObject> os = getLinks(browser, DatasetWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return browser.getDatasets(ids);
     }
 
@@ -176,8 +185,12 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     @Override
     public List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os  = getLinks(browser, ImageWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        List<IObject> os = getLinks(browser, ImageWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return browser.getImages(ids);
     }
 
@@ -196,8 +209,12 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     @Override
     public List<Screen> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os  = getLinks(browser, ScreenWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        List<IObject> os = getLinks(browser, ScreenWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return browser.getScreens(ids);
     }
 
@@ -216,8 +233,12 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     @Override
     public List<Plate> getPlates(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os  = getLinks(browser, PlateWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        List<IObject> os = getLinks(browser, PlateWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return browser.getPlates(ids);
     }
 
@@ -237,8 +258,10 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     throws ServiceException, AccessException {
         List<IObject> os = getLinks(browser, PlateAcquisitionWrapper.ANNOTATION_LINK);
         return os.stream()
-                 .map(o -> new PlateAcquisitionWrapper(new PlateAcquisitionData((omero.model.PlateAcquisition) o)))
-                 .collect(Collectors.toList());
+                 .map(omero.model.PlateAcquisition.class::cast)
+                 .map(PlateAcquisitionData::new)
+                 .map(PlateAcquisitionWrapper::new)
+                 .collect(toList());
     }
 
 
@@ -256,8 +279,12 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     @Override
     public List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os  = getLinks(browser, WellWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        List<IObject> os = getLinks(browser, WellWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return browser.getWells(ids);
     }
 
@@ -276,8 +303,12 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     @Override
     public List<Folder> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os  = getLinks(browser, FolderWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        List<IObject> os = getLinks(browser, FolderWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return browser.loadFolders(ids);
     }
 

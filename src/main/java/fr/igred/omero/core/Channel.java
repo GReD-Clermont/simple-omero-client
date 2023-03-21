@@ -86,7 +86,9 @@ public interface Channel extends RemoteObject {
      */
     default Color getColor() {
         Color color = Color.WHITE;
-        if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
+        if (hasRGBA()) {
+            color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
+        }
         return color;
     }
 

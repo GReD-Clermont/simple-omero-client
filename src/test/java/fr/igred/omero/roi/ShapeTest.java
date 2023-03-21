@@ -57,8 +57,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = point.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             differences += Math.abs(checkCoordinates[i] - pointCoordinates[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(text, point.getText());
@@ -82,8 +83,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = text.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             differences += Math.abs(checkCoordinates[i] - textCoordinates[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(font, fontSize, Double.MIN_VALUE);
@@ -101,8 +103,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = rectangle.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }
@@ -127,8 +130,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = rectangle.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(checkCoordinates[i] - rectangleCoordinates[i]);
+        }
 
         int c2 = rectangle.getC();
         int z2 = rectangle.getZ();
@@ -150,8 +154,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = mask.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(checkCoordinates[i] - maskCoordinates[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }
@@ -206,8 +211,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = ellipse.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(checkCoordinates[i] - ellipseCoordinates[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(stroke, ellipse.getStroke());
@@ -231,8 +237,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = line.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(text, line.getText());
@@ -252,8 +259,9 @@ class ShapeTest extends BasicTest {
         double[] checkCoordinates = line.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(checkCoordinates[i] - lineCoordinates[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }
@@ -316,8 +324,9 @@ class ShapeTest extends BasicTest {
         double[] coordinates2 = point2.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }
@@ -325,8 +334,8 @@ class ShapeTest extends BasicTest {
 
     @Test
     void testTextConstructor() {
-        TextWrapper text1 = new TextWrapper("Text1", 0, 0);
-        TextWrapper text2 = new TextWrapper(new TextData("Text1", 25, 25));
+        Text text1 = new TextWrapper("Text1", 0, 0);
+        Text text2 = new TextWrapper(new TextData("Text1", 25, 25));
 
         double[] textCoordinates = {25, 25};
         text1.setCoordinates(textCoordinates);
@@ -335,8 +344,9 @@ class ShapeTest extends BasicTest {
         double[] coordinates2 = text2.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
         assertEquals(text1.getText(), text2.getText());
@@ -355,8 +365,9 @@ class ShapeTest extends BasicTest {
         double[] coordinates2 = line2.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }
@@ -374,8 +385,9 @@ class ShapeTest extends BasicTest {
         double[] coordinates2 = r2.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }
@@ -399,10 +411,12 @@ class ShapeTest extends BasicTest {
         byte[] checkValues2 = m2.getMask();
 
         int differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += (int) Math.abs(coordinates1[i] - coordinates2[i]);
-        for (int i = 0; i < maskValues.length; i++)
+        }
+        for (int i = 0; i < maskValues.length; i++) {
             differences += Math.abs(checkValues2[i] - checkValues1[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }
@@ -420,8 +434,9 @@ class ShapeTest extends BasicTest {
         double[] coordinates2 = e2.getCoordinates();
 
         double differences = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++) {
             differences += Math.abs(coordinates1[i] - coordinates2[i]);
+        }
 
         assertEquals(0, differences, Double.MIN_VALUE);
     }

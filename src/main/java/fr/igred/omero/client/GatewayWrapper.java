@@ -159,7 +159,9 @@ public class GatewayWrapper implements Client {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
         ctx.setExperimenter(user.asDataObject());
-        if (sudo) ctx.sudo();
+        if (sudo) {
+            ctx.sudo();
+        }
     }
 
 

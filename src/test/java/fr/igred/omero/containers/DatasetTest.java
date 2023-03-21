@@ -29,8 +29,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -48,8 +48,8 @@ class DatasetTest extends UserTest {
         List<RepositoryObject> parents  = dataset.getParents(client);
         List<Project>          projects = dataset.getProjects(client);
 
-        List<Long> parentIds  = parents.stream().map(RemoteObject::getId).collect(Collectors.toList());
-        List<Long> projectIds = projects.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> parentIds  = parents.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> projectIds = projects.stream().map(RemoteObject::getId).collect(toList());
         assertEquals(projects.size(), parents.size());
         assertEquals(projectIds, parentIds);
         assertTrue(Project.class.isAssignableFrom(parents.get(0).getClass()));
@@ -63,8 +63,8 @@ class DatasetTest extends UserTest {
         List<RepositoryObject> children = dataset.getChildren(client);
         List<Image>            images   = dataset.getImages(client);
 
-        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
-        List<Long> imageIds    = images.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> imageIds    = images.stream().map(RemoteObject::getId).collect(toList());
         assertEquals(images.size(), children.size());
         assertEquals(imageIds, childrenIds);
         assertTrue(Image.class.isAssignableFrom(children.get(0).getClass()));
@@ -207,10 +207,10 @@ class DatasetTest extends UserTest {
     void testAddTagsToDataset() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        RemoteObject tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
@@ -230,10 +230,10 @@ class DatasetTest extends UserTest {
     void testAddTagsToDataset2() throws Exception {
         Dataset dataset = client.getDataset(DATASET1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a dataset");
 
         dataset.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
 

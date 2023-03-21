@@ -159,7 +159,7 @@ class ROI2ImageJTest extends BasicTest {
         line2.setCZT(1, 0, 4);
         line2.setTransform(transform);
 
-        LineWrapper line3 = new LineWrapper(2, 2, 3, 4);
+        Shape line3 = new LineWrapper(2, 2, 3, 4);
         line3.setCZT(1, 0, 5);
         line3.asDataObject().getShapeSettings().setMarkerStart(Line.ARROW);
         line3.asDataObject().getShapeSettings().setMarkerEnd(Line.ARROW);

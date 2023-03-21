@@ -31,13 +31,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.flatten;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -166,8 +166,8 @@ public interface Screen extends RepositoryObject, Annotatable {
                           .collect(toMap(PlateAcquisition::getId, p -> p, (p1, p2) -> p1))
                           .values()
                           .stream()
-                          .sorted(Comparator.comparing(PlateAcquisition::getId))
-                          .collect(Collectors.toList());
+                          .sorted(comparing(PlateAcquisition::getId))
+                          .collect(toList());
     }
 
 

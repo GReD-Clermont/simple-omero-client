@@ -45,7 +45,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -146,7 +147,7 @@ public interface Annotatable extends RemoteObject {
     throws ServiceException, AccessException, ExecutionException {
         List<Long> annotationIds = getAnnotationData(client).stream()
                                                             .map(DataObject::getId)
-                                                            .collect(Collectors.toList());
+                                                            .collect(toList());
         link(client, Arrays.stream(annotations)
                            .filter(a -> !annotationIds.contains(a.getId()))
                            .toArray(Annotation[]::new));
@@ -261,7 +262,7 @@ public interface Annotatable extends RemoteObject {
         return getMapAnnotations(browser).stream()
                                          .map(MapAnnotation::getContent)
                                          .flatMap(List::stream)
-                                         .collect(Collectors.toList());
+                                         .collect(toList());
     }
 
 
@@ -285,7 +286,7 @@ public interface Annotatable extends RemoteObject {
                                          .map(kv -> kv.get(key))
                                          .filter(Objects::nonNull)
                                          .flatMap(List::stream)
-                                         .collect(Collectors.toList());
+                                         .collect(toList());
     }
 
 
@@ -332,19 +333,21 @@ public interface Annotatable extends RemoteObject {
      */
     default void addTable(DataManager dm, Table table)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot add table to " + this;
+
         TablesFacility tablesFacility = dm.getTablesFacility();
         TableData tableData = ExceptionHandler.of(tablesFacility,
                                                   tf -> tf.addTable(dm.getCtx(),
                                                                     asDataObject(),
                                                                     table.getName(),
                                                                     table.createTable()))
-                                              .handleOMEROException("Cannot add table to " + this)
+                                              .handleOMEROException(error)
                                               .get();
 
         Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
                                                                     tf -> tf.getAvailableTables(dm.getCtx(),
                                                                                                 asDataObject()))
-                                                                .handleOMEROException("Cannot add table to " + this)
+                                                                .handleOMEROException(error)
                                                                 .get();
         long fileId = tableData.getOriginalFileId();
 
@@ -420,10 +423,11 @@ public interface Annotatable extends RemoteObject {
      */
     default List<Table> getTables(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get tables from " + this;
         Collection<FileAnnotationData> files = ExceptionHandler.of(dm.getTablesFacility(),
                                                                    tf -> tf.getAvailableTables(dm.getCtx(),
                                                                                                asDataObject()))
-                                                               .handleOMEROException("Cannot get tables from " + this)
+                                                               .handleOMEROException(error)
                                                                .get();
 
         List<Table> tables = new ArrayList<>(files.size());

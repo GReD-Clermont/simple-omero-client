@@ -136,10 +136,9 @@ class WrapperTest extends BasicTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("classes")
-    <T extends DataObject, U extends RemoteObject> void testWrap(Class<T> input, Class<U> output) throws Exception {
+    <T extends DataObject> void testWrap(Class<T> input, Class<? extends RemoteObject> output) throws Exception {
         T object = input.getConstructor().newInstance();
-        U result = Wrapper.wrap(object);
-        assertSame(output, result.getClass());
+        assertSame(output, Wrapper.wrap(object).getClass());
     }
 
 

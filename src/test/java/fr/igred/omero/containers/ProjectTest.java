@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.util.ReplacePolicy.DELETE;
 import static fr.igred.omero.util.ReplacePolicy.DELETE_ORPHANED;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,8 +58,8 @@ class ProjectTest extends UserTest {
         List<RepositoryObject> children = project.getChildren(client);
         List<Dataset>          datasets = project.getDatasets();
 
-        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
-        List<Long> datasetIds  = datasets.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> datasetIds  = datasets.stream().map(RemoteObject::getId).collect(toList());
         assertEquals(datasets.size(), children.size());
         assertEquals(datasetIds, childrenIds);
         assertTrue(Dataset.class.isAssignableFrom(children.get(0).getClass()));
@@ -161,10 +161,10 @@ class ProjectTest extends UserTest {
     void testAddTagsToProject() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Project tag 2", "tag attached to a project");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Project tag 3", "tag attached to a project");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Project tag 4", "tag attached to a project");
+        RemoteObject tag1 = new TagAnnotationWrapper(client, "Project tag 1", "tag attached to a project");
+        RemoteObject tag2 = new TagAnnotationWrapper(client, "Project tag 2", "tag attached to a project");
+        RemoteObject tag3 = new TagAnnotationWrapper(client, "Project tag 3", "tag attached to a project");
+        RemoteObject tag4 = new TagAnnotationWrapper(client, "Project tag 4", "tag attached to a project");
 
         project.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = project.getTags(client);
@@ -183,10 +183,10 @@ class ProjectTest extends UserTest {
     void testAddTagsToProject2() throws Exception {
         Project project = client.getProject(PROJECT1.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
         project.link(client, tag1, tag2, tag3, tag4);
         List<TagAnnotation> tags = project.getTags(client);
@@ -358,9 +358,11 @@ class ProjectTest extends UserTest {
         client.delete(tag);
         client.delete(table);
         List<MapAnnotation> maps = project1.getMapAnnotations(client);
-        if (!maps.isEmpty())
-            for (MapAnnotation map : maps)
+        if (!maps.isEmpty()) {
+            for (MapAnnotation map : maps) {
                 client.delete(map);
+            }
+        }
 
         assertEquals(0, project2.getTags(client).size());
         assertEquals(0, project2.getTables(client).size());

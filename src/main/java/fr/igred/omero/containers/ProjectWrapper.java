@@ -31,11 +31,11 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.ProjectData;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.RemoteObject.distinct;
+import static java.util.Collections.singletonList;
 
 
 /**
@@ -202,10 +202,11 @@ public class ProjectWrapper extends AnnotatableWrapper<ProjectData> implements P
     @Override
     public List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long> projectIds = Collections.singletonList(getId());
+        String     error      = "Cannot get images from " + this;
+        List<Long> projectIds = singletonList(getId());
         Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
                                                            bf -> bf.getImagesForProjects(browser.getCtx(), projectIds))
-                                                       .handleOMEROException("Cannot get images from " + this)
+                                                       .handleOMEROException(error)
                                                        .get();
         return distinct(wrap(images, ImageWrapper::new));
     }
@@ -224,7 +225,7 @@ public class ProjectWrapper extends AnnotatableWrapper<ProjectData> implements P
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getProjects(browser.getCtx(), Collections.singletonList(data.getId())))
+                                   bf -> bf.getProjects(browser.getCtx(), singletonList(getId())))
                                .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()

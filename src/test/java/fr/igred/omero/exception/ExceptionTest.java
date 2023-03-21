@@ -41,7 +41,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ExceptionTest extends BasicTest {
 
     private static <E extends Exception> Exception thrower(E t) throws E {
-        if (t != null) throw t;
+        if (t != null) {
+            throw t;
+        }
         return new Exception("Exception");
     }
 

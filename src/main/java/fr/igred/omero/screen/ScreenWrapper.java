@@ -28,9 +28,10 @@ import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ScreenData;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static java.util.Collections.singletonList;
 
 
 /**
@@ -242,7 +243,8 @@ public class ScreenWrapper extends ImportWrapper<ScreenData> implements Screen {
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getScreens(browser.getCtx(), Collections.singletonList(data.getId())))
+                                   bf -> bf.getScreens(browser.getCtx(),
+                                                       singletonList(data.getId())))
                                .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()

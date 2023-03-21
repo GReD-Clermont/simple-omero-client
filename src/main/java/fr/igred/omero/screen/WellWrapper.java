@@ -28,7 +28,8 @@ import omero.gateway.model.WellData;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -112,7 +113,10 @@ public class WellWrapper extends AnnotatableWrapper<WellData> implements Well {
      */
     @Override
     public List<WellSample> getWellSamples() {
-        return data.getWellSamples().stream().map(WellSampleWrapper::new).collect(Collectors.toList());
+        return data.getWellSamples()
+                   .stream()
+                   .map(WellSampleWrapper::new)
+                   .collect(toList());
     }
 
 
@@ -293,7 +297,8 @@ public class WellWrapper extends AnnotatableWrapper<WellData> implements Well {
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getWells(browser.getCtx(), Collections.singletonList(data.getId())))
+                                   bf -> bf.getWells(browser.getCtx(),
+                                                     Collections.singletonList(data.getId())))
                                .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()

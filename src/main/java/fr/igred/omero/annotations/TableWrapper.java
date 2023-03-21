@@ -54,9 +54,9 @@ import static java.util.stream.Collectors.toMap;
 
 /**
  * Class containing the information to create a Table in OMERO.
- * <p> The TableData itself is not contained, only the elements to create it, because once created the TableData cannot
- * be altered.
- * <p> To get the TableData corresponding to the elements contained use createTable.
+ * <br> The TableData itself is not contained, only the elements to create it, because once created the TableData
+ * cannot be altered.
+ * <br> To get the TableData corresponding to the elements contained use createTable.
  */
 public class TableWrapper implements Table {
 
@@ -178,7 +178,9 @@ public class TableWrapper implements Table {
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) offset++;
+        if (roiColumn.length > 0) {
+            offset++;
+        }
 
         String[] headings      = rt.getHeadings();
         String[] shortHeadings = rt.getHeadingsAsVariableNames();
@@ -202,10 +204,14 @@ public class TableWrapper implements Table {
 
             if (isColumnNumeric(col) && !headings[i].equals(LABEL)) {
                 createColumn(offset + i, shortHeadings[i], Double.class);
-                data[offset + i] = Arrays.stream(col).map(Variable::getValue).toArray(Double[]::new);
+                data[offset + i] = Arrays.stream(col)
+                                         .map(Variable::getValue)
+                                         .toArray(Double[]::new);
             } else {
                 createColumn(offset + i, shortHeadings[i], String.class);
-                data[offset + i] = Arrays.stream(col).map(Variable::getString).toArray(String[]::new);
+                data[offset + i] = Arrays.stream(col)
+                                         .map(Variable::getString)
+                                         .toArray(String[]::new);
             }
         }
         this.row = rowCount;
@@ -259,9 +265,13 @@ public class TableWrapper implements Table {
     private static void renameImageColumn(ResultsTable results) {
         if (results.columnExists(IMAGE)) {
             List<String> headings = Arrays.asList(results.getHeadings());
-            if (!headings.contains(LABEL)) results.renameColumn(IMAGE, LABEL);
-            else if (!results.columnExists(IMAGE + "_Name")) results.renameColumn(IMAGE, IMAGE + "_Name");
-            else results.renameColumn(IMAGE, IMAGE + "_column_" + results.getColumnIndex(IMAGE));
+            if (!headings.contains(LABEL)) {
+                results.renameColumn(IMAGE, LABEL);
+            } else if (!results.columnExists(IMAGE + "_Name")) {
+                results.renameColumn(IMAGE, IMAGE + "_Name");
+            } else {
+                results.renameColumn(IMAGE, IMAGE + "_column_" + results.getColumnIndex(IMAGE));
+            }
         }
     }
 
@@ -291,12 +301,20 @@ public class TableWrapper implements Table {
         ROIData[] roiColumn;
         if (isColumnNumeric(roiCol)) {
             roiColumn = numericColumnToROIColumn(roiCol, label2roi);
-            if (roiColumn.length == 0) roiColumn = idColumnToROIColumn(roiCol, id2roi);
-            if (roiColumn.length == 0) roiColumn = numericColumnToROIColumn(roiCol, name2roi);
+            if (roiColumn.length == 0) {
+                roiColumn = idColumnToROIColumn(roiCol, id2roi);
+            }
+            if (roiColumn.length == 0) {
+                roiColumn = numericColumnToROIColumn(roiCol, name2roi);
+            }
         } else {
             roiColumn = labelColumnToROIColumn(roiCol, name2roi, (m, s) -> s);
-            if (roiColumn.length == 0) roiColumn = labelColumnToROIColumn(roiCol, label2roi, (m, s) -> s);
-            if (roiColumn.length == 0) roiColumn = labelColumnToROIColumn(roiCol, shapeName2roi, (m, s) -> s);
+            if (roiColumn.length == 0) {
+                roiColumn = labelColumnToROIColumn(roiCol, label2roi, (m, s) -> s);
+            }
+            if (roiColumn.length == 0) {
+                roiColumn = labelColumnToROIColumn(roiCol, shapeName2roi, (m, s) -> s);
+            }
         }
         return roiColumn;
     }
@@ -316,7 +334,9 @@ public class TableWrapper implements Table {
                                     .map(Double::longValue)
                                     .map(id2roi::get).toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
-        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        if (Arrays.asList(roiColumn).contains(null)) {
+            roiColumn = EMPTY_ROI;
+        }
         return roiColumn;
     }
 
@@ -334,7 +354,9 @@ public class TableWrapper implements Table {
                                     .map(Variable::toString)
                                     .map(id2roi::get).toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
-        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        if (Arrays.asList(roiColumn).contains(null)) {
+            roiColumn = EMPTY_ROI;
+        }
         return roiColumn;
     }
 
@@ -356,17 +378,19 @@ public class TableWrapper implements Table {
                                     .map(label2roi::get)
                                     .toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
-        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        if (Arrays.asList(roiColumn).contains(null)) {
+            roiColumn = EMPTY_ROI;
+        }
         return roiColumn;
     }
 
 
     /**
      * Creates a ROIData column.
-     * <p>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
+     * <br>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
      * expected. It will look for the ROI OMERO ID in the latter, or for the local label/index, the OMERO ID, the names
      * or the shape names in the former.
-     * <p>If neither column is present, it will check the {@value LABEL} column for the ROI names inside.
+     * <br>If neither column is present, it will check the {@value LABEL} column for the ROI names inside.
      *
      * @param results     An ImageJ results table.
      * @param rois        A list of OMERO ROIs (each ROI (ID) should be present only once).
@@ -416,7 +440,9 @@ public class TableWrapper implements Table {
             roiColumn = propertyColumnToROIColumn(roiCol, id2roi, label2roi, name2roi, shape2roi);
             colToDelete = roiProperty;
         }
-        if (roiColumn.length != 0 && !colToDelete.isEmpty()) results.deleteColumn(colToDelete);
+        if (roiColumn.length != 0 && !colToDelete.isEmpty()) {
+            results.deleteColumn(colToDelete);
+        }
 
         String[] headings = results.getHeadings();
         if (roiColumn.length == 0 && Arrays.asList(headings).contains(LABEL)) {
@@ -449,10 +475,11 @@ public class TableWrapper implements Table {
      * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
      */
     private void createColumn(int column, String columnName, Class<?> type) {
-        if (column < columnCount)
+        if (column < columnCount) {
             columns[column] = new TableDataColumn(columnName, column, type);
-        else
+        } else {
             throw new IndexOutOfBoundsException("Column " + column + " doesn't exist");
+        }
     }
 
 
@@ -499,7 +526,9 @@ public class TableWrapper implements Table {
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) offset++;
+        if (roiColumn.length > 0) {
+            offset++;
+        }
 
         String[] headings = rt.getHeadings();
 
@@ -511,8 +540,12 @@ public class TableWrapper implements Table {
         int n = rt.size();
         setRowCount(rowCount + n);
 
-        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asDataObject());
-        if (offset > 1) System.arraycopy(roiColumn, 0, data[1], row, n);
+        if (offset > 0) {
+            Arrays.fill(data[0], row, row + n, image.asDataObject());
+        }
+        if (offset > 1) {
+            System.arraycopy(roiColumn, 0, data[1], row, n);
+        }
         for (int i = 0; i < nColumns; i++) {
             if (columns[offset + i].getType().equals(String.class)) {
                 for (int j = 0; j < n; j++) {
@@ -689,8 +722,9 @@ public class TableWrapper implements Table {
             Object[][] temp = new Object[columnCount][rowCount];
             if (data != null) {
                 row = Math.min(rowCount, row);
-                for (int j = 0; j < columnCount; j++)
+                for (int j = 0; j < columnCount; j++) {
                     System.arraycopy(data[j], 0, temp[j], 0, row);
+                }
             }
             this.rowCount = rowCount;
             data = temp;
@@ -768,7 +802,9 @@ public class TableWrapper implements Table {
      */
     @Override
     public TableData createTable() {
-        if (!isComplete()) truncateRow();
+        if (!isComplete()) {
+            truncateRow();
+        }
 
         return new TableData(columns, data);
     }

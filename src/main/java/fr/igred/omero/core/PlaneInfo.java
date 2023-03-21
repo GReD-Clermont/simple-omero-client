@@ -34,8 +34,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static ome.formats.model.UnitsFactory.convertTime;
 
 
@@ -54,7 +54,8 @@ public interface PlaneInfo extends RemoteObject {
      */
     static Time computeMeanTimeInterval(Collection<? extends PlaneInfo> planesInfo, int sizeT) {
         // planesInfo should be larger than sizeT, unless it is empty
-        ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[Math.min(sizeT, planesInfo.size())];
+        int                       nT     = Math.min(sizeT, planesInfo.size());
+        ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[nT];
 
         for (PlaneInfo plane : planesInfo) {
             int t = plane.getTheT();
@@ -137,7 +138,7 @@ public interface PlaneInfo extends RemoteObject {
                                            .map(getter)
                                            .map(UnitsFactory::convertLength)
                                            .map(p -> p.value(unit).doubleValue())
-                                           .collect(Collectors.toList());
+                                           .collect(toList());
         Double pos = positions.isEmpty() ? 0.0d : Collections.min(positions);
         return new LengthI(pos, unit);
     }

@@ -30,11 +30,12 @@ import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -139,16 +140,16 @@ public class PlateWrapper extends AnnotatableWrapper<PlateData> implements Plate
     @Override
     public List<Well> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get wells from " + this;
         Collection<WellData> wells = ExceptionHandler.of(browser.getBrowseFacility(),
                                                          bf -> bf.getWells(browser.getCtx(), data.getId()))
-                                                     .handleOMEROException("Cannot get wells from " + this)
+                                                     .handleOMEROException(error)
                                                      .get();
 
         return wells.stream()
                     .map(WellWrapper::new)
-                    .sorted(Comparator.comparing(WellWrapper::getRow)
-                                      .thenComparing(WellWrapper::getColumn))
-                    .collect(Collectors.toList());
+                    .sorted(comparing(WellWrapper::getRow).thenComparing(WellWrapper::getColumn))
+                    .collect(toList());
     }
 
 
@@ -293,7 +294,8 @@ public class PlateWrapper extends AnnotatableWrapper<PlateData> implements Plate
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getPlates(browser.getCtx(), Collections.singletonList(data.getId())))
+                                   bf -> bf.getPlates(browser.getCtx(),
+                                                      singletonList(data.getId())))
                                .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()

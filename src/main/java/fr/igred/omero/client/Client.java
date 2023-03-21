@@ -135,8 +135,9 @@ public interface Client extends ConnectionHandler, Browser, DataManager, AdminMa
 
 
     /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
+     * Gets the client associated with the username in the parameters.
+     * <p>The user calling this function needs to have administrator rights.
+     * <br>All action realized with the client returned will be considered as his.</p>
      *
      * @param username Username of user.
      *

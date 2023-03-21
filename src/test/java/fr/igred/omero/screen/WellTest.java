@@ -27,8 +27,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,8 +43,8 @@ class WellTest extends UserTest {
         List<RepositoryObject> parents = well.getParents(client);
         List<Plate>            plates  = Collections.singletonList(well.getPlate());
 
-        List<Long> parentIds = parents.stream().map(RemoteObject::getId).collect(Collectors.toList());
-        List<Long> plateIds  = plates.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> parentIds = parents.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> plateIds  = plates.stream().map(RemoteObject::getId).collect(toList());
         assertEquals(plates.size(), parents.size());
         assertEquals(plateIds, parentIds);
         assertTrue(Plate.class.isAssignableFrom(parents.get(0).getClass()));
@@ -58,8 +58,8 @@ class WellTest extends UserTest {
         List<RepositoryObject> children = well.getChildren(client);
         List<WellSample>       samples  = well.getWellSamples();
 
-        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(Collectors.toList());
-        List<Long> sampleIds   = samples.stream().map(RemoteObject::getId).collect(Collectors.toList());
+        List<Long> childrenIds = children.stream().map(RemoteObject::getId).collect(toList());
+        List<Long> sampleIds   = samples.stream().map(RemoteObject::getId).collect(toList());
         assertEquals(samples.size(), children.size());
         assertEquals(sampleIds, childrenIds);
         assertTrue(WellSample.class.isAssignableFrom(children.get(0).getClass()));

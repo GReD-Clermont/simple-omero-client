@@ -37,7 +37,6 @@ import omero.model.RoiAnnotationLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,9 +44,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -69,8 +69,11 @@ public interface ROI extends Annotatable {
      * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
      */
     static String checkProperty(String property) {
-        if (property == null || property.trim().isEmpty()) return IJ_PROPERTY;
-        else return property;
+        if (property == null || property.trim().isEmpty()) {
+            return IJ_PROPERTY;
+        } else {
+            return property;
+        }
     }
 
 
@@ -160,9 +163,9 @@ public interface ROI extends Annotatable {
         shape2roi.forEach((key, value) -> value.addShapes(converter.apply(key)));
         return shape2roi.values()
                         .stream()
-                        .sorted(Comparator.comparing(RemoteObject::getId))
+                        .sorted(comparing(RemoteObject::getId))
                         .distinct()
-                        .collect(Collectors.toList());
+                        .collect(toList());
     }
 
 
@@ -376,7 +379,7 @@ public interface ROI extends Annotatable {
         Map<String, List<Shape>> sameSlice = shapes.stream()
                                                    .collect(groupingBy(Shape::getCZT,
                                                                        LinkedHashMap::new,
-                                                                       Collectors.toList()));
+                                                                       toList()));
         sameSlice.values().removeIf(List::isEmpty);
         List<Roi> rois = new ArrayList<>(shapes.size());
         for (List<Shape> slice : sameSlice.values()) {

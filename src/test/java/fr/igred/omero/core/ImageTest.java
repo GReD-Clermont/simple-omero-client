@@ -504,10 +504,10 @@ class ImageTest extends UserTest {
     void testAddTagsToImage() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
+        RemoteObject tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        RemoteObject tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        RemoteObject tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        RemoteObject tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = image.getTags(client);
@@ -526,10 +526,10 @@ class ImageTest extends UserTest {
     void testAddTagsToImage2() throws Exception {
         Image image = client.getImage(IMAGE2.id);
 
-        TagAnnotationWrapper tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
-        TagAnnotationWrapper tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
-        TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
-        TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
+        TagAnnotation tag1 = new TagAnnotationWrapper(client, "Image tag 1", "tag attached to an image");
+        TagAnnotation tag2 = new TagAnnotationWrapper(client, "Image tag 2", "tag attached to an image");
+        TagAnnotation tag3 = new TagAnnotationWrapper(client, "Image tag 3", "tag attached to an image");
+        TagAnnotation tag4 = new TagAnnotationWrapper(client, "Image tag 4", "tag attached to an image");
 
         image.linkIfNotLinked(client, tag1, tag2, tag3, tag4);
         List<TagAnnotation> tags = image.getTags(client);

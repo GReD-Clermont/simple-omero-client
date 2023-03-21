@@ -65,12 +65,12 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.distinct;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static omero.rtypes.rint;
 
 
@@ -166,7 +166,9 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
             store.setPixelsId(pixels.getId());
             array = store.getThumbnail(rint(width), rint(height));
         } finally {
-            if (store != null) store.close();
+            if (store != null) {
+                store.close();
+            }
         }
         return array;
     }
@@ -241,7 +243,7 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
                    .stream()
                    .map(WellSampleData::new)
                    .map(WellSampleWrapper::new)
-                   .collect(Collectors.toList());
+                   .collect(toList());
     }
 
 
@@ -273,12 +275,13 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     public List<ROI> saveROIs(DataManager dm, Collection<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
+        String error = "Cannot link ROI to " + this;
         List<ROIData> roisData = rois.stream()
                                      .map(ROI::asDataObject)
-                                     .collect(Collectors.toList());
+                                     .collect(toList());
         Collection<ROIData> results = ExceptionHandler.of(dm.getRoiFacility(),
                                                           rf -> rf.saveROIs(dm.getCtx(), data.getId(), roisData))
-                                                      .handleOMEROException("Cannot link ROI to " + this)
+                                                      .handleOMEROException(error)
                                                       .get();
         return wrap(results, ROIWrapper::new);
     }
@@ -298,17 +301,18 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     @Override
     public List<ROI> getROIs(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIResult> roiResults = ExceptionHandler.of(dm.getRoiFacility(),
-                                                         rf -> rf.loadROIs(dm.getCtx(), data.getId()))
-                                                     .handleOMEROException("Cannot get ROIs from " + this)
-                                                     .get();
+        String error = "Cannot get ROIs from " + this;
+        List<ROIResult> results = ExceptionHandler.of(dm.getRoiFacility(),
+                                                      rf -> rf.loadROIs(dm.getCtx(), data.getId()))
+                                                  .handleOMEROException(error)
+                                                  .get();
 
-        List<ROIWrapper> rois = roiResults.stream()
-                                          .map(ROIResult::getROIs)
-                                          .flatMap(Collection::stream)
-                                          .map(ROIWrapper::new)
-                                          .sorted(Comparator.comparing(RemoteObject::getId))
-                                          .collect(Collectors.toList());
+        List<ROIWrapper> rois = results.stream()
+                                       .map(ROIResult::getROIs)
+                                       .flatMap(Collection::stream)
+                                       .map(ROIWrapper::new)
+                                       .sorted(comparing(RemoteObject::getId))
+                                       .collect(toList());
 
         return distinct(rois);
     }
@@ -329,11 +333,11 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     public List<Folder> getROIFolders(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = dm.getRoiFacility();
-
+        String      error       = "Cannot get folders for " + this;
         Collection<FolderData> folders = ExceptionHandler.of(roiFacility,
                                                              rf -> rf.getROIFolders(dm.getCtx(),
                                                                                     this.data.getId()))
-                                                         .handleOMEROException("Cannot get folders for " + this)
+                                                         .handleOMEROException(error)
                                                          .get();
 
         return wrap(folders, FolderWrapper::new);
@@ -396,8 +400,9 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
 
         int pixelType = FormatTools.pixelTypeFromString(pixels.getPixelType());
         int bpp       = FormatTools.getBytesPerPixel(pixelType);
+        int bit       = 8 * bpp;
 
-        ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
+        ImagePlus imp = IJ.createHyperStack(data.getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bit);
 
         Calibration calibration = imp.getCalibration();
         setCalibration(pixels, calibration);
@@ -477,14 +482,13 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     @Override
     public List<Channel> getChannels(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get the channel name for " + this;
         List<ChannelData> channels = ExceptionHandler.of(browser.getMetadataFacility(),
-                                                         m -> m.getChannelData(browser.getCtx(), getId()))
-                                                     .handleOMEROException("Cannot get the channel name for " + this)
+                                                         m -> m.getChannelData(browser.getCtx(),
+                                                                               data.getId()))
+                                                     .handleOMEROException(error)
                                                      .get();
-        return channels.stream()
-                       .sorted(Comparator.comparing(ChannelData::getIndex))
-                       .map(ChannelWrapper::new)
-                       .collect(Collectors.toList());
+        return wrap(channels, ChannelWrapper::new, Channel::getIndex);
     }
 
 
@@ -553,7 +557,8 @@ public class ImageWrapper extends AnnotatableWrapper<ImageData> implements Image
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(), b -> b.getImage(browser.getCtx(), getId()))
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   b -> b.getImage(browser.getCtx(), getId()))
                                .handleOMEROException("Can not reload " + this)
                                .get();
     }

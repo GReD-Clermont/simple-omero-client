@@ -20,6 +20,7 @@ package fr.igred.omero.exception;
 
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.RemoteObject;
+import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -71,7 +72,7 @@ class AccessExceptionTest extends BasicTest {
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudo("testUser2");
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
-            sudo = null;
+            sudo   = null;
             failed = true;
             logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }
@@ -250,7 +251,7 @@ class AccessExceptionTest extends BasicTest {
         result1.add(new AbstractMap.SimpleEntry<>("Test result1", "Value Test"));
         result1.add(new AbstractMap.SimpleEntry<>("Test2 result1", "Value Test2"));
 
-        MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
+        MapAnnotation mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class, () -> image.link(sudo, mapAnnotation1));
     }
 

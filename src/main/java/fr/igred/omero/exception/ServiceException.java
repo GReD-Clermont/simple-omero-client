@@ -28,7 +28,7 @@ import omero.gateway.exception.DSOutOfServiceException;
  */
 public class ServiceException extends DSOutOfServiceException {
 
-    private static final long serialVersionUID = -3953926293960923221L;
+    private static final long serialVersionUID = -7235789233263889665L;
 
 
     /**

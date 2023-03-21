@@ -171,8 +171,9 @@ public class ExceptionHandler<T> {
      * @throws E An exception from the specified type.
      */
     public <E extends Throwable> ExceptionHandler<T> rethrow(Class<E> type) throws E {
-        if (type.isInstance(exception))
+        if (type.isInstance(exception)) {
             throw type.cast(exception);
+        }
         return this;
     }
 
@@ -193,8 +194,9 @@ public class ExceptionHandler<T> {
     public <E extends Throwable, F extends Throwable> ExceptionHandler<T>
     rethrow(Class<E> type, ExceptionWrapper<? super E, ? extends F> mapper, String message)
     throws F {
-        if (type.isInstance(exception))
+        if (type.isInstance(exception)) {
             throw mapper.apply(message, type.cast(exception));
+        }
         return this;
     }
 
@@ -246,7 +248,9 @@ public class ExceptionHandler<T> {
      * Rethrows exception if one was caught (to not swallow it).
      */
     public void rethrow() {
-        if (exception != null) doThrow(exception);
+        if (exception != null) {
+            doThrow(exception);
+        }
     }
 
 

@@ -22,8 +22,10 @@ import fr.igred.omero.UserTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class MapAnnotationTest extends UserTest {
@@ -56,6 +58,12 @@ class MapAnnotationTest extends UserTest {
     void testGetSingleMapAnnotationByKeyAndValue() throws Exception {
         List<MapAnnotation> maps = client.getMapAnnotations("testKey1", "testValue1");
         assertEquals(1, maps.size());
+    }
+
+
+    @Test
+    void testNoSuchMapAnnotation() {
+        assertThrows(NoSuchElementException.class, () -> client.getMapAnnotation(-1L));
     }
 
 }

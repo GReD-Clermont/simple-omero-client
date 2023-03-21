@@ -71,7 +71,9 @@ public interface MapAnnotation extends Annotation {
      * @return See above.
      */
     default Map<String, List<String>> getContentAsMap() {
-        return getContent().stream().collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, toList())));
+        return getContent().stream()
+                           .collect(groupingBy(Map.Entry::getKey,
+                                               mapping(Map.Entry::getValue, toList())));
     }
 
 }

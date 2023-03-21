@@ -54,7 +54,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -99,7 +100,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
                                .stream()
                                .filter(type::isInstance)
                                .map(type::cast)
-                               .collect(Collectors.toList());
+                               .collect(toList());
     }
 
 
@@ -250,7 +251,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
             link(client, rate);
         } else {
             int n = ratings.size();
-            if (n > 1) client.delete(ratings.subList(1, n));
+            if (n > 1) {
+                client.delete(ratings.subList(1, n));
+            }
             RatingAnnotation rate = ratings.get(0);
             rate.setRating(rating);
             rate.saveAndUpdate(client);
@@ -301,10 +304,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
+        String error = "Cannot get tables from " + this;
         Collection<FileAnnotation> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
                                                                      t -> t.getAvailableTables(client.getCtx(), data))
-                                                                 .handleOMEROException("Cannot get tables from "
-                                                                                       + this)
+                                                                 .handleOMEROException(error)
                                                                  .get(),
                                                  FileAnnotationWrapper::new);
         addTable(client, table);
@@ -334,7 +337,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public Table getTable(DataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
-        TableData table = ExceptionHandler.of(dm.getTablesFacility(), tf -> tf.getTable(dm.getCtx(), fileId))
+        TableData table = ExceptionHandler.of(dm.getTablesFacility(),
+                                              tf -> tf.getTable(dm.getCtx(), fileId))
                                           .handleOMEROException("Cannot get table from " + this)
                                           .get();
         String name = ExceptionHandler.of(dm.getTablesFacility(),

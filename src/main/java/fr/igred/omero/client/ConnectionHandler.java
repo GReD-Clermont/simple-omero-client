@@ -32,6 +32,8 @@ import omero.gateway.exception.DSOutOfServiceException;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
+import static java.lang.String.valueOf;
+
 
 /**
  * Interface to handle the connection to an OMERO server through a {@link Gateway} for a given user and in a specific
@@ -138,7 +140,7 @@ public interface ConnectionHandler {
      */
     default void connect(String hostname, int port, String username, char[] password, Long groupID)
     throws ServiceException {
-        LoginCredentials cred = new LoginCredentials(username, String.valueOf(password), hostname, port);
+        LoginCredentials cred = new LoginCredentials(username, valueOf(password), hostname, port);
         cred.setGroupID(groupID);
         connect(cred);
     }
@@ -158,7 +160,7 @@ public interface ConnectionHandler {
      */
     default void connect(String hostname, int port, String username, char[] password)
     throws ServiceException {
-        connect(new LoginCredentials(username, String.valueOf(password), hostname, port));
+        connect(new LoginCredentials(username, valueOf(password), hostname, port));
     }
 
 

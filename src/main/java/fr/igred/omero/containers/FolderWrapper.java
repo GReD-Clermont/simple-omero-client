@@ -35,13 +35,13 @@ import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIResult;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.distinct;
+import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -194,7 +194,7 @@ public class FolderWrapper extends AnnotatableWrapper<FolderData> implements Fol
         data.asFolder().addAllChildFoldersSet(folders.stream()
                                                      .map(Folder::asDataObject)
                                                      .map(DataObject::asFolder)
-                                                     .collect(Collectors.toList()));
+                                                     .collect(toList()));
     }
 
 
@@ -237,20 +237,22 @@ public class FolderWrapper extends AnnotatableWrapper<FolderData> implements Fol
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFac = dm.getRoiFacility();
 
-        Collection<ROIResult> roiResults = ExceptionHandler.of(roiFac,
-                                                               rf -> rf.loadROIsForFolder(dm.getCtx(), imageId,
-                                                                                          data.getId()))
-                                                           .handleOMEROException("Cannot get ROIs from " + this)
-                                                           .get();
+        String error = "Cannot get ROIs from " + this;
+        Collection<ROIResult> results = ExceptionHandler.of(roiFac,
+                                                            rf -> rf.loadROIsForFolder(dm.getCtx(),
+                                                                                       imageId,
+                                                                                       data.getId()))
+                                                        .handleOMEROException(error)
+                                                        .get();
 
-        List<ROIWrapper> roiWrappers = roiResults.stream()
-                                                 .map(ROIResult::getROIs)
-                                                 .flatMap(Collection::stream)
-                                                 .map(ROIWrapper::new)
-                                                 .sorted(Comparator.comparing(RemoteObject::getId))
-                                                 .collect(Collectors.toList());
+        List<ROIWrapper> rois = results.stream()
+                                       .map(ROIResult::getROIs)
+                                       .flatMap(Collection::stream)
+                                       .map(ROIWrapper::new)
+                                       .sorted(comparing(RemoteObject::getId))
+                                       .collect(toList());
 
-        return distinct(roiWrappers);
+        return distinct(rois);
     }
 
 
@@ -286,7 +288,7 @@ public class FolderWrapper extends AnnotatableWrapper<FolderData> implements Fol
     public void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.loadFolders(browser.getCtx(), Collections.singletonList(data.getId())))
+                                   bf -> bf.loadFolders(browser.getCtx(), singletonList(getId())))
                                .handleOMEROException("Cannot reload " + this)
                                .get()
                                .iterator()

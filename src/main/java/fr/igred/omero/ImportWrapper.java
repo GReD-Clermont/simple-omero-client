@@ -43,7 +43,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -75,7 +76,7 @@ public abstract class ImportWrapper<T extends DataObject> extends AnnotatableWra
     private List<Pixels> importCandidates(ImportLibrary library, ImportConfig config, ImportCandidates candidates) {
         List<Pixels> pixels = new ArrayList<>(0);
 
-        ExecutorService uploadThreadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
+        ExecutorService threadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
 
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
@@ -85,16 +86,19 @@ public abstract class ImportWrapper<T extends DataObject> extends AnnotatableWra
                 container.setTarget(data.asIObject());
                 List<Pixels> imported = new ArrayList<>(1);
                 try {
-                    imported = library.importImage(container, uploadThreadPool, i);
+                    imported = library.importImage(container, threadPool, i);
                 } catch (Throwable e) {
-                    String error = String.format("Error during image import for: %s", container.getFile().getName());
+                    String filename = container.getFile().getName();
+                    String error = String.format("Error during image import for: %s", filename);
                     Logger.getLogger(getClass().getName()).severe(error);
-                    if (Boolean.FALSE.equals(config.contOnError.get())) return pixels;
+                    if (Boolean.FALSE.equals(config.contOnError.get())) {
+                        return pixels;
+                    }
                 }
                 pixels.addAll(imported);
             }
         }
-        uploadThreadPool.shutdown();
+        threadPool.shutdown();
         return pixels;
     }
 
@@ -186,7 +190,7 @@ public abstract class ImportWrapper<T extends DataObject> extends AnnotatableWra
         return pixels.stream()
                      .map(pix -> pix.getImage().getId().getValue())
                      .distinct()
-                     .collect(Collectors.toList());
+                     .collect(toList());
     }
 
 }

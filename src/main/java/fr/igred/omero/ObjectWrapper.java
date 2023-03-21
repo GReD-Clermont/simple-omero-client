@@ -28,11 +28,12 @@ import omero.gateway.model.DataObject;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -72,8 +73,8 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper, Function<? super V, ? extends W> sorter) {
         return objects.stream()
                       .map(mapper)
-                      .sorted(Comparator.comparing(sorter))
-                      .collect(Collectors.toList());
+                      .sorted(comparing(sorter))
+                      .collect(toList());
     }
 
 
@@ -87,8 +88,8 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      *
      * @return See above.
      */
-    public static <U extends DataObject, V extends RemoteObject> List<V>
-    wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
+    public static <U extends DataObject, V extends RemoteObject> List<V> wrap(Collection<U> objects,
+                                                                              Function<? super U, ? extends V> mapper) {
         return wrap(objects, mapper, RemoteObject::getId);
     }
 

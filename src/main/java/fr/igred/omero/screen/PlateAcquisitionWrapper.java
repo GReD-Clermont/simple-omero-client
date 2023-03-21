@@ -30,7 +30,8 @@ import omero.model._PlateAcquisitionOperationsNC;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -59,7 +60,9 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
      */
     private void initRefPlate() {
         omero.model.Plate plate = ((_PlateAcquisitionOperationsNC) data.asIObject()).getPlate();
-        if (plate != null) data.setRefPlateId(plate.getId().getValue());
+        if (plate != null) {
+            data.setRefPlateId(plate.getId().getValue());
+        }
     }
 
 
@@ -131,7 +134,7 @@ public class PlateAcquisitionWrapper extends AnnotatableWrapper<PlateAcquisition
                                                                  .stream()
                                                                  .map(WellSampleData::new)
                                                                  .map(WellSampleWrapper::new)
-                                                                 .collect(Collectors.toList());
+                                                                 .collect(toList());
     }
 
 

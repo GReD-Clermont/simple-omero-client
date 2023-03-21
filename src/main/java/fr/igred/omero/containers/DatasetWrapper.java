@@ -154,10 +154,11 @@ public class DatasetWrapper extends ImportWrapper<DatasetData> implements Datase
     @Override
     public List<Image> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get images from " + this;
         Collection<ImageData> images = ExceptionHandler.of(browser.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(browser.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleOMEROException("Cannot get images from " + this)
+                                                       .handleOMEROException(error)
                                                        .get();
         return wrap(images, ImageWrapper::new);
     }
