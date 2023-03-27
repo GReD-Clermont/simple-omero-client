@@ -947,8 +947,6 @@ public abstract class Browser extends GatewayWrapper {
                                     .handleServiceOrServer("Cannot get tag ID: " + id)
                                     .get();
         TagAnnotationData tag = new TagAnnotationData((TagAnnotation) Objects.requireNonNull(o));
-        tag.setNameSpace(tag.getContentAsString());
-
         return new TagAnnotationWrapper(tag);
     }
 
