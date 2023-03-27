@@ -615,7 +615,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
-        TableData table = ExceptionHandler.of(client.getTablesFacility(), tf -> tf.getTable(client.getCtx(), fileId))
+        TableData info = ExceptionHandler.of(client.getTablesFacility(), tf -> tf.getTableInfo(client.getCtx(), fileId))
+                                         .handleServiceOrAccess("Cannot get table from " + this)
+                                         .get();
+        long nRows = info.getNumberOfRows();
+        TableData table = ExceptionHandler.of(client.getTablesFacility(),
+                                              tf -> tf.getTable(client.getCtx(), fileId, 0, nRows - 1))
                                           .handleServiceOrAccess("Cannot get table from " + this)
                                           .get();
         String name = ExceptionHandler.of(client.getTablesFacility(),
