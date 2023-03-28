@@ -79,6 +79,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Upload to codecov after successful tests
         uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:

@@ -30,12 +30,9 @@ import omero.model.TimeI;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static ome.formats.model.UnitsFactory.convertTime;
 
@@ -108,7 +105,6 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
         Iterator<? extends PlaneInfoWrapper> iterator = planesInfo.iterator();
         while (t == null && iterator.hasNext()) {
             t = convertTime(planesInfo.iterator().next().getExposureTime());
-            iterator.next();
         }
 
         Unit<ome.units.quantity.Time> unit = t == null ? UNITS.SECOND : t.unit();
@@ -119,7 +115,10 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
             if (channel == plane.getTheC()) {
                 ome.units.quantity.Time time = convertTime(plane.getExposureTime());
                 if (time != null) {
-                    mean += time.value(unit).doubleValue();
+                    Number value = time.value(unit);
+                    if (value != null) {
+                        mean += value.doubleValue();
+                    }
                     count++;
                 }
             }
@@ -141,13 +140,15 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
     public static Length getMinPosition(Collection<? extends PlaneInfoWrapper> planesInfo,
                                         Function<? super PlaneInfoWrapper, ? extends Length> getter,
                                         Unit<ome.units.quantity.Length> unit) {
-        List<Double> positions = planesInfo.stream()
-                                           .map(getter)
-                                           .map(UnitsFactory::convertLength)
-                                           .filter(Objects::nonNull)
-                                           .map(p -> p.value(unit).doubleValue())
-                                           .collect(Collectors.toList());
-        Double pos = positions.isEmpty() ? 0.0d : Collections.min(positions);
+        double pos = planesInfo.stream()
+                               .map(getter)
+                               .map(UnitsFactory::convertLength)
+                               .filter(Objects::nonNull)
+                               .map(p -> p.value(unit))
+                               .filter(Objects::nonNull)
+                               .mapToDouble(Number::doubleValue)
+                               .min()
+                               .orElse(0.0d);
         return new LengthI(pos, unit);
     }
 

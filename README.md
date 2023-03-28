@@ -7,15 +7,14 @@
 
 A Maven project to easily connect to OMERO.
 
-This library presents a simplified API to put/get objects on an OMERO server. 
+This library presents a simplified API to put/get objects on an OMERO server.
 <p>It can be used from Maven.
 <p>The JAR can be put into the ImageJ plugins folder to use it from scripts.
 
-
 ## How to use
 
-
 ### Connection
+
 The main entry point is the Client class, which can be used to retrieve, save or delete objects.
 
 <p>To use it, a connection has to be established first:
@@ -134,5 +133,38 @@ ijRois.add(ijRoi2);
 List<ROIWrapper> rois = ROIWrapper.fromImageJ(ijRois);
 ```
 
+### About Tables & ROIs
+
+An OMERO Table can be created from an ImageJ `ResultsTable`.
+Rows can also be linked (optionally) to ROIs on OMERO by having a column identifying the ROIs and passing ImageJ ROIs as
+an argument:
+
+```java
+TableWrapper table = new TableWrapper(client, resultsTable, imageId, ijRois, property);
+```
+
+Each row will have the image ID in a column named "Image", and the ROI IDs in a "ROI" column.
+However, for ROIs to be linked, several conditions have to be fulfilled:
+
+1. ImageJ ROIs should have an ID property set containing the ROI ID on OMERO (`property + "_ID"`). Saving the local
+   ImageJ ROIs and converting back the OMERO ROIs to ImageJ can be done to accomplish this.
+2. The `ResultsTable` should have a column to identify the ROIs, which can be done in several ways:
+    1. A column can be named with `property + "_ID"` and should contain the OMERO IDs.
+    2. Or it can be named `property` and should contain either:
+        1. The ROI local index.
+        2. The ROI ID on OMERO.
+        3. The name of the ROI.
+        4. The name of a shape from the ROI.
+    3. Alternatively, it can be linked if the `Label` column of the `ResultsTable` contains:
+        1. The ROI name.
+        2. The name of a shape from the ROI.
+
+Rows can be added the same way to the table:
+
+```java
+table.addRows(client, resultsTable2, imageId2, ijRois2, property);
+```
+
 ## License
+
 [GPLv2+](https://choosealicense.com/licenses/gpl-2.0/)
