@@ -26,7 +26,6 @@ import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
-import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -163,7 +162,7 @@ public abstract class GatewayWrapper {
      */
     public void connect(String hostname, int port, String sessionId)
     throws ServiceException {
-        connect(new JoinSessionCredentials(sessionId, hostname, port));
+        connect(new LoginCredentials(sessionId, sessionId, hostname, port));
     }
 
 
