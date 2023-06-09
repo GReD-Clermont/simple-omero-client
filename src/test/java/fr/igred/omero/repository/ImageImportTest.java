@@ -49,7 +49,8 @@ class ImageImportTest extends UserTest {
 
         DatasetWrapper dataset = client.getDataset(DATASET2.id);
 
-        boolean imported = dataset.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
+        boolean imported = dataset.importImages(client, 2, f1.getAbsolutePath(), f2.getAbsolutePath());
+        client.closeImport();
 
         removeFile(f1);
         removeFile(f2);
