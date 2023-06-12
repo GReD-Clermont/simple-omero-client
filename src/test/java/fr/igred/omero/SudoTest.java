@@ -109,6 +109,8 @@ class SudoTest extends BasicTest {
 
         List<ImageWrapper> images = dataset.getImages(client3);
         assertEquals(1, images.size());
+        assertEquals(client3.getId(), images.get(0).getOwner().getId());
+        assertEquals(6L, images.get(0).getGroupId());
 
         client4.delete(images.get(0));
         client4.delete(dataset);

@@ -107,7 +107,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
             success = library.importCandidates(config, candidates);
         } finally {
-            store.logout();
+            client.closeImport();
         }
 
         return success;
@@ -163,7 +163,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         } catch (Throwable e) {
             throw new OMEROServerError(e);
         } finally {
-            store.logout();
+            client.closeImport();
         }
 
         List<Long> ids = new ArrayList<>(pixels.size());
