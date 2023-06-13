@@ -26,7 +26,6 @@ import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
-import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -43,6 +42,9 @@ import omero.model.IObject;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -51,6 +53,12 @@ import java.util.concurrent.ExecutionException;
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
 public abstract class GatewayWrapper {
+
+    /** Number of requested import stores */
+    private final AtomicInteger storeUses = new AtomicInteger(0);
+
+    /** Import store lock */
+    private final Lock storeLock = new ReentrantLock(true);
 
     /** Gateway linking the code to OMERO, only linked to one group. */
     private Gateway gateway;
@@ -84,6 +92,35 @@ public abstract class GatewayWrapper {
      */
     public Gateway getGateway() {
         return gateway;
+    }
+
+
+    /**
+     * Retrieves the shared import store in a thread-safe way.
+     *
+     * @throws DSOutOfServiceException If the connection is broken, or not logged in.
+     */
+    private OMEROMetadataStoreClient getImportStoreLocked() throws DSOutOfServiceException {
+        storeLock.lock();
+        try {
+            return gateway.getImportStore(ctx);
+        } finally {
+            storeLock.unlock();
+        }
+    }
+
+
+    /**
+     * Closes the import store in a thread-safe manner.
+     */
+    private void closeImportStoreLocked() {
+        if (storeLock.tryLock()) {
+            try {
+                gateway.closeImport(ctx, null);
+            } finally {
+                storeLock.unlock();
+            }
+        }
     }
 
 
@@ -163,7 +200,7 @@ public abstract class GatewayWrapper {
      */
     public void connect(String hostname, int port, String sessionId)
     throws ServiceException {
-        connect(new JoinSessionCredentials(sessionId, hostname, port));
+        connect(new LoginCredentials(sessionId, sessionId, hostname, port));
     }
 
 
@@ -233,6 +270,8 @@ public abstract class GatewayWrapper {
     public void disconnect() {
         if (isConnected()) {
             boolean sudo = ctx.isSudo();
+            storeUses.set(0);
+            closeImport();
             user = new ExperimenterWrapper(new ExperimenterData());
             ctx = new SecurityContext(-1);
             ctx.setExperimenter(user.asDataObject());
@@ -348,15 +387,27 @@ public abstract class GatewayWrapper {
     /**
      * Creates or recycles the import store.
      *
-     * @return config.
+     * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
     public OMEROMetadataStoreClient getImportStore() throws ServiceException {
-        return ExceptionHandler.of(gateway, g -> g.getImportStore(ctx))
+        storeUses.incrementAndGet();
+        return ExceptionHandler.of(this, GatewayWrapper::getImportStoreLocked)
                                .rethrow(DSOutOfServiceException.class, ServiceException::new,
                                         "Could not retrieve import store")
                                .get();
+    }
+
+
+    /**
+     * Closes the import store.
+     */
+    public void closeImport() {
+        int remainingStores = storeUses.decrementAndGet();
+        if (remainingStores <= 0) {
+            closeImportStoreLocked();
+        }
     }
 
 

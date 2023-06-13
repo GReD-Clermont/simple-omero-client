@@ -70,9 +70,10 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     /**
      * Imports all images candidates in the paths to the target in OMERO.
      *
-     * @param client The client handling the connection.
-     * @param target The import target.
-     * @param paths  Paths to the image files on the computer.
+     * @param client  The client handling the connection.
+     * @param target  The import target.
+     * @param threads The number of threads (same value used for filesets and uploads).
+     * @param paths   Paths to the image files on the computer.
      *
      * @return If the import did not exit because of an error.
      *
@@ -80,7 +81,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws OMEROServerError Server error.
      * @throws IOException      Cannot read file.
      */
-    protected static boolean importImages(GatewayWrapper client, DataObject target, String... paths)
+    protected static boolean importImages(GatewayWrapper client, DataObject target, int threads, String... paths)
     throws ServiceException, OMEROServerError, IOException {
         boolean success;
 
@@ -89,6 +90,8 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         config.target.set(type + ":" + target.getId());
         config.username.set(client.getUser().getUserName());
         config.email.set(client.getUser().getEmail());
+        config.parallelFileset.set(threads);
+        config.parallelUpload.set(threads);
 
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
@@ -107,7 +110,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
             success = library.importCandidates(config, candidates);
         } finally {
-            store.logout();
+            client.closeImport();
         }
 
         return success;
@@ -163,7 +166,7 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
         } catch (Throwable e) {
             throw new OMEROServerError(e);
         } finally {
-            store.logout();
+            client.closeImport();
         }
 
         List<Long> ids = new ArrayList<>(pixels.size());

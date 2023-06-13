@@ -351,7 +351,28 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public boolean importImages(GatewayWrapper client, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, paths);
+        return this.importImages(client, 1, paths);
+    }
+
+
+    /**
+     * Imports all images candidates in the paths to the screen in OMERO.
+     *
+     * @param client  The client handling the connection.
+     * @param threads The number of threads (same value used for filesets and uploads).
+     * @param paths   Paths to the image files on the computer.
+     *
+     * @return If the import did not exit because of an error.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws IOException        Cannot read file.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public boolean importImages(GatewayWrapper client, int threads, String... paths)
+    throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
+        boolean success = importImages(client, data, threads, paths);
         refresh(client);
         return success;
     }
