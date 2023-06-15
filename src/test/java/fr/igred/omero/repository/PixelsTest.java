@@ -106,8 +106,8 @@ class PixelsTest extends UserTest {
         PixelsWrapper pixels = image.getPixels();
 
         int[] xBounds = {511, 513};
-        int[] yBounds = {0, 2};
-        int[] cBounds = {0, 2};
+        int[] yBounds = {525, 2};
+        int[] cBounds = {-1, -1};
         int[] zBounds = {0, 2};
         int[] tBounds = {0, 2};
 

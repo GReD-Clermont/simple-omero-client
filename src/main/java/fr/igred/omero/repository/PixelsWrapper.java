@@ -109,7 +109,9 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /**
-     * Checks bounds
+     * Checks bounds.
+     * <br>If the lower bound is outside [0 - imageSize-1], the resulting value will be 0.
+     * <br>Conversely, if the higher bound is outside [0 - imageSize-1], the resulting value will be imageSize-1.
      *
      * @param bounds    Array containing the specified bounds for 1 coordinate.
      * @param imageSize Size of the image (in the corresponding dimension).
@@ -117,12 +119,12 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @return New array with valid bounds.
      */
     private static int[] checkBounds(int[] bounds, int imageSize) {
-        int[] newBounds = {0, imageSize - 1};
+        int[] b = {0, imageSize - 1};
         if (bounds != null && bounds.length > 1) {
-            newBounds[0] = Math.max(newBounds[0], bounds[0]);
-            newBounds[1] = Math.min(newBounds[1], bounds[1]);
+            b[0] = bounds[0] >= b[0] && bounds[0] <= b[1] ? bounds[0] : b[0];
+            b[1] = bounds[1] >= b[0] && bounds[1] <= b[1] ? bounds[1] : b[1];
         }
-        return newBounds;
+        return b;
     }
 
 
