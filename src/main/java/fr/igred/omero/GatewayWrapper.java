@@ -40,11 +40,13 @@ import omero.log.SimpleLogger;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 
 /**
@@ -503,6 +505,24 @@ public abstract class GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         FileAnnotationI file = new FileAnnotationI(id, false);
         delete(file);
+    }
+
+    /**
+     * Deletes a file from OMERO
+     *
+     * @param ids List of files IDs to delete.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     Server error.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public void deleteFiles(List<Long> ids)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        List<IObject> files = new ArrayList<>();
+        ids.forEach(e->files.add(new FileAnnotationI(e, false)));
+        delete(files);
     }
 
 

@@ -230,9 +230,45 @@ public class Client extends Browser {
      * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
+    @Deprecated
     public void delete(TableWrapper table)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         deleteFile(table.getId());
+    }
+
+    /**
+     * Deletes a table from OMERO.
+     *
+     * @param table Table to delete.
+     *
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
+     * @throws IllegalArgumentException ID not defined.
+     * @throws OMEROServerError         Server error.
+     * @throws InterruptedException     If block(long) does not return.
+     */
+    public void deleteTable(TableWrapper table)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        deleteFile(table.getId());
+    }
+
+
+    /**
+     * Deletes a table from OMERO.
+     *
+     * @param tables List of tables to delete.
+     *
+     * @throws ServiceException         Cannot connect to OMERO.
+     * @throws AccessException          Cannot access data.
+     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
+     * @throws IllegalArgumentException ID not defined.
+     * @throws OMEROServerError         Server error.
+     * @throws InterruptedException     If block(long) does not return.
+     */
+    public void deleteTables(List<TableWrapper> tables)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        deleteFiles(tables.stream().map(TableWrapper::getId).collect(Collectors.toList()));
     }
 
 
