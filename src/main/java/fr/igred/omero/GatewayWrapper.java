@@ -40,7 +40,7 @@ import omero.log.SimpleLogger;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -503,12 +503,12 @@ public abstract class GatewayWrapper {
      */
     public void deleteFile(Long id)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        FileAnnotationI file = new FileAnnotationI(id, false);
-        delete(file);
+        deleteFiles(id);
     }
 
+
     /**
-     * Deletes a file from OMERO
+     * Deletes files from OMERO.
      *
      * @param ids List of files IDs to delete.
      *
@@ -518,10 +518,11 @@ public abstract class GatewayWrapper {
      * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void deleteFiles(List<Long> ids)
+    public void deleteFiles(Long... ids)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        List<IObject> files = new ArrayList<>();
-        ids.forEach(e->files.add(new FileAnnotationI(e, false)));
+        List<IObject> files = Arrays.stream(ids)
+                                    .map(id -> new FileAnnotationI(id, false))
+                                    .collect(Collectors.toList());
         delete(files);
     }
 

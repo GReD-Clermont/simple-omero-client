@@ -219,8 +219,6 @@ public class Client extends Browser {
 
 
     /**
-     * Deletes a table from OMERO.
-     *
      * @param table Table to delete.
      *
      * @throws ServiceException         Cannot connect to OMERO.
@@ -229,12 +227,14 @@ public class Client extends Browser {
      * @throws IllegalArgumentException ID not defined.
      * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
+     * @deprecated Deletes a table from OMERO.
      */
     @Deprecated
     public void delete(TableWrapper table)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        deleteFile(table.getId());
+        deleteTable(table);
     }
+
 
     /**
      * Deletes a table from OMERO.
@@ -255,7 +255,7 @@ public class Client extends Browser {
 
 
     /**
-     * Deletes a table from OMERO.
+     * Deletes tables from OMERO.
      *
      * @param tables List of tables to delete.
      *
@@ -268,7 +268,7 @@ public class Client extends Browser {
      */
     public void deleteTables(List<TableWrapper> tables)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        deleteFiles(tables.stream().map(TableWrapper::getId).collect(Collectors.toList()));
+        deleteFiles(tables.stream().map(TableWrapper::getId).toArray(Long[]::new));
     }
 
 
