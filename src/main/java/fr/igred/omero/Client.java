@@ -266,7 +266,7 @@ public class Client extends Browser {
      * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
-    public void deleteTables(List<TableWrapper> tables)
+    public void deleteTables(Collection<? extends TableWrapper> tables)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         deleteFiles(tables.stream().map(TableWrapper::getId).toArray(Long[]::new));
     }
