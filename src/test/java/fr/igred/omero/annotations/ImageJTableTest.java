@@ -154,7 +154,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -188,7 +188,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -220,7 +220,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -250,7 +250,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -278,7 +278,7 @@ class ImageJTableTest extends UserTest {
 
         Object[][] data = tables.get(0).getData();
 
-        client.delete(tables.get(0));
+        client.deleteTable(tables.get(0));
         List<TableWrapper> noTables = image.getTables(client);
 
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -308,7 +308,7 @@ class ImageJTableTest extends UserTest {
 
         Object[][] data = tables.get(0).getData();
 
-        client.delete(tables.get(0));
+        client.deleteTables(tables);
         List<TableWrapper> noTables = image.getTables(client);
 
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -345,7 +345,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -385,7 +385,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -424,7 +424,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -477,7 +477,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -535,7 +535,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -596,7 +596,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -627,7 +627,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -663,7 +663,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(1, tables.size());
         assertEquals(2, tables.get(0).getRowCount());
 
-        client.delete(tables.get(0));
+        client.deleteTables(tables);
         List<TableWrapper> noTables = image.getTables(client);
 
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
