@@ -385,7 +385,9 @@ public class TableWrapper {
         Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROIWrapper::getId, GenericObjectWrapper::asDataObject));
         Map<String, ROIData> name2roi = rois.stream()
                                             .filter(r -> !r.getName().isEmpty())
-                                            .collect(toMap(ROIWrapper::getName, GenericObjectWrapper::asDataObject));
+                                            .collect(toMap(ROIWrapper::getName,
+                                                           GenericObjectWrapper::asDataObject,
+                                                           (x1, x2) -> x1));
 
         Map<String, ROIData> label2roi = ijRois.stream()
                                                .map(r -> new SimpleEntry<>(r.getProperty(roiProperty),
