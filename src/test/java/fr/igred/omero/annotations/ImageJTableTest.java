@@ -500,7 +500,9 @@ class ImageJTableTest extends UserTest {
         ROIWrapper roi2 = new ROIWrapper();
 
         roi1.setImage(image);
+        roi1.setName("ROI");
         roi2.setImage(image);
+        roi2.setName("ROI");
 
         final int max = 14;
         for (int i = 10; i < max; i++) {
