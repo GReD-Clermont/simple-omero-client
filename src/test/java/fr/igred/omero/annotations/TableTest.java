@@ -66,7 +66,7 @@ class TableTest extends UserTest {
         dataset.addTable(client, table);
 
         List<TableWrapper> tables = dataset.getTables(client);
-        client.delete(tables.get(0));
+        client.deleteTables(tables);
         List<TableWrapper> noTables = dataset.getTables(client);
 
         assertEquals(1, tables.size());
