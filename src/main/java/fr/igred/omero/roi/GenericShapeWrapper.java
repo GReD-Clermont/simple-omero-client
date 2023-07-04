@@ -136,9 +136,6 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @param ijRoi An ImageJ Roi.
      */
     protected void copyFromIJRoi(ij.gui.Roi ijRoi) {
-        data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
-        data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
-        data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
         LengthI size          = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
         Color   defaultStroke = Optional.ofNullable(Roi.getColor()).orElse(Color.YELLOW);
         Color   defaultFill   = Optional.ofNullable(Roi.getDefaultFillColor()).orElse(TRANSPARENT);
@@ -147,6 +144,34 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         data.getShapeSettings().setStrokeWidth(size);
         data.getShapeSettings().setStroke(stroke);
         data.getShapeSettings().setFill(fill);
+        // Set the plane 
+        int pos = ijRoi.getPosition();
+        int c = ijRoi.getCPosition();
+        int z = ijRoi.getZPosition();
+        int t = ijRoi.getTPosition();
+        ij.ImagePlus ip = ij.WindowManager.getImage(ijRoi.getImageID()); //ijRoi.getImage() returns null
+        int imageC = ip.getNChannels();
+        int imageT = ip.getNFrames();
+        int imageZ = ip.getNSlices();
+        if (imageC == 1 && imageZ == 1) {
+            t = pos;
+            //reset values
+            c = 1;
+            z = 1;
+        } else if (imageZ == 1 && imageT == 1) {
+            c = pos;
+            //reset values
+            z = 1;
+            t = 1;
+        } else if (imageC == 1 && imageT == 1) {
+            z = pos;
+            //reset values
+            c = 1;
+            t = 1;
+        }
+        data.setC(Math.max(-1, c - 1));
+        data.setZ(Math.max(-1, z - 1));
+        data.setT(Math.max(-1, t - 1));
     }
 
 
