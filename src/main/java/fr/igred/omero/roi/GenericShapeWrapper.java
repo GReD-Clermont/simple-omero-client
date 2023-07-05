@@ -150,9 +150,14 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         int z = ijRoi.getZPosition();
         int t = ijRoi.getTPosition();
         ij.ImagePlus ip = ij.WindowManager.getImage(ijRoi.getImageID()); //ijRoi.getImage() returns null
-        int imageC = ip.getNChannels();
-        int imageT = ip.getNFrames();
-        int imageZ = ip.getNSlices();
+        int imageC = 1;
+        int imageT = 1;
+        int imageZ = 1;
+        if (ip != null) {
+            imageC = ip.getNChannels();
+            imageT = ip.getNFrames();
+            imageZ = ip.getNSlices();
+        }
         if (imageC == 1 && imageZ == 1) {
             t = pos;
             //reset values
