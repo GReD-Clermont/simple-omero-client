@@ -22,6 +22,7 @@ import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
+import ij.ImagePlus;
 import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
@@ -144,36 +145,37 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         data.getShapeSettings().setStrokeWidth(size);
         data.getShapeSettings().setStroke(stroke);
         data.getShapeSettings().setFill(fill);
-        // Set the plane 
-        int pos = ijRoi.getPosition();
+
+        // Set the plane
         int c = ijRoi.getCPosition();
         int z = ijRoi.getZPosition();
         int t = ijRoi.getTPosition();
-        ij.ImagePlus ip = ij.WindowManager.getImage(ijRoi.getImageID()); //ijRoi.getImage() returns null
-        int imageC = 1;
-        int imageT = 1;
-        int imageZ = 1;
-        if (ip != null) {
-            imageC = ip.getNChannels();
-            imageT = ip.getNFrames();
-            imageZ = ip.getNSlices();
+
+        // Adjust coordinates if ROI does not have hyperstack positions
+        if (!ijRoi.hasHyperStackPosition()) {
+            ImagePlus imp = ij.WindowManager.getImage(ijRoi.getImageID()); //ijRoi.getImage() returns null
+            if (imp != null) {
+                int stackSize = imp.getStackSize();
+                int imageC    = imp.getNChannels();
+                int imageZ    = imp.getNSlices();
+                int imageT    = imp.getNFrames();
+                int pos       = ijRoi.getPosition();
+
+                // Reset values
+                c = 1;
+                z = 1;
+                t = 1;
+
+                if (stackSize == imageZ) {
+                    z = pos;
+                } else if (stackSize == imageC) {
+                    c = pos;
+                } else if (stackSize == imageT) {
+                    t = pos;
+                }
+            }
         }
-        if (imageC == 1 && imageZ == 1) {
-            t = pos;
-            //reset values
-            c = 1;
-            z = 1;
-        } else if (imageZ == 1 && imageT == 1) {
-            c = pos;
-            //reset values
-            z = 1;
-            t = 1;
-        } else if (imageC == 1 && imageT == 1) {
-            z = pos;
-            //reset values
-            c = 1;
-            t = 1;
-        }
+
         data.setC(Math.max(-1, c - 1));
         data.setZ(Math.max(-1, z - 1));
         data.setT(Math.max(-1, t - 1));
