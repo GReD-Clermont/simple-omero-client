@@ -153,7 +153,10 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
 
         // Adjust coordinates if ROI does not have hyperstack positions
         if (!ijRoi.hasHyperStackPosition()) {
-            ImagePlus imp = ij.WindowManager.getImage(ijRoi.getImageID()); //ijRoi.getImage() returns null
+            ImagePlus imp = ijRoi.getImage();
+            if (imp == null) {
+                imp = ij.WindowManager.getImage(ijRoi.getImageID());
+            }
             if (imp != null) {
                 int stackSize = imp.getStackSize();
                 int imageC    = imp.getNChannels();
