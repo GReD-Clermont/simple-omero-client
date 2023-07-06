@@ -19,6 +19,8 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.BasicTest;
+import ij.IJ;
+import ij.ImagePlus;
 import ij.gui.Arrow;
 import ij.gui.EllipseRoi;
 import ij.gui.Line;
@@ -455,6 +457,78 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(polyline.getC(), newPolyline.getC());
         assertEquals(polyline.getZ(), newPolyline.getZ());
         assertEquals(polyline.getT(), newPolyline.getT());
+    }
+
+
+    @Test
+    void convertRectangleWithCStack() {
+        ImagePlus img = IJ.createImage("test", "grayscale", 1000, 1000, 10, 1, 1);
+        int pos = 4;
+        img.setPosition(pos);
+
+        Roi ijRoi = new Roi(10, 10, 10, 10);
+        ijRoi.setPosition(img);
+        ijRoi.setImage(img);
+
+        assertEquals(pos, ijRoi.getPosition());
+
+        List<Roi> roiList = new ArrayList<>(1);
+        roiList.add(ijRoi);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, null).get(0);
+
+        RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
+
+        assertEquals(pos - 1, newRectangle.getC());
+        assertEquals(0, newRectangle.getZ());
+        assertEquals(0, newRectangle.getT());
+    }
+
+
+    @Test
+    void convertRectangleWithZStack() {
+        ImagePlus img = IJ.createImage("test", "grayscale", 1000, 1000, 1, 10, 1);
+        int pos = 5;
+        img.setPosition(pos);
+
+        Roi ijRoi = new Roi(10, 10, 10, 10);
+        ijRoi.setPosition(img);
+        ijRoi.setImage(img);
+
+        assertEquals(pos, ijRoi.getPosition());
+
+        List<Roi> roiList = new ArrayList<>(1);
+        roiList.add(ijRoi);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, null).get(0);
+
+        RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
+
+        assertEquals(0, newRectangle.getC());
+        assertEquals(pos - 1, newRectangle.getZ());
+        assertEquals(0, newRectangle.getT());
+    }
+
+
+    @Test
+    void convertRectangleWithTStack() {
+        ImagePlus img = IJ.createImage("test", "grayscale", 1000, 1000, 1, 1, 10);
+        int pos = 6;
+        img.setPosition(pos);
+
+        Roi ijRoi = new Roi(10, 10, 10, 10);
+        ijRoi.setPosition(img);
+        ijRoi.setImage(img);
+
+        assertEquals(pos, ijRoi.getPosition());
+
+        List<Roi> roiList = new ArrayList<>(1);
+        roiList.add(ijRoi);
+        ROIWrapper roi = ROIWrapper.fromImageJ(roiList, null).get(0);
+
+        RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
+
+        assertEquals(0, newRectangle.getC());
+        assertEquals(0, newRectangle.getZ());
+        assertEquals(pos - 1, newRectangle.getT());
     }
 
 }
