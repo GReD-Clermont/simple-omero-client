@@ -43,6 +43,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -400,18 +401,18 @@ public class TableWrapper {
                                                                            safeParseLong(r.getProperty(roiIdProperty))))
                                                .filter(p -> p.getKey() != null)
                                                .filter(p -> p.getValue() != null)
-                                               .collect(toMap(SimpleEntry::getKey,
-                                                              p -> id2roi.get(p.getValue()),
-                                                              (x1, x2) -> x1));
+                                               .collect(HashMap::new,
+                                                        (m, v) -> m.put(v.getKey(), id2roi.get(v.getValue())),
+                                                        HashMap::putAll);
 
         Map<String, ROIData> shape2roi = ijRois.stream()
                                                .map(r -> new SimpleEntry<>(r.getName(),
                                                                            safeParseLong(r.getProperty(roiIdProperty))))
                                                .filter(p -> p.getKey() != null)
                                                .filter(p -> p.getValue() != null)
-                                               .collect(toMap(SimpleEntry::getKey,
-                                                              p -> id2roi.get(p.getValue()),
-                                                              (x1, x2) -> x1));
+                                               .collect(HashMap::new,
+                                                        (m, v) -> m.put(v.getKey(), id2roi.get(v.getValue())),
+                                                        HashMap::putAll);
         String colToDelete = "";
         if (results.columnExists(roiIdProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
@@ -535,16 +536,16 @@ public class TableWrapper {
         boolean hasImageId = false;
         boolean hasROICol  = false;
         if (imageId != null) {
+            hasImageId = true;
             image = client.getImage(imageId);
             rois = image.getROIs(client);
-            hasImageId = true;
             offset++;
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
         if (roiColumn.length > 0) {
-            hasROICol = true;
             offset++;
+            hasROICol = true;
         }
 
         String[] headings = rt.getHeadings();
