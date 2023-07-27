@@ -45,6 +45,7 @@ import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
@@ -720,6 +721,43 @@ class ImageJTableTest extends UserTest {
             assertEquals(expected.get(i), actual.get(i));
         }
         Files.deleteIfExists(file.toPath());
+    }
+
+
+    @Test
+    void testAddRowsWithMismatch() throws Exception {
+        List<ROIWrapper> rois = new ArrayList<>(2);
+        rois.add(new ROIWrapper());
+        rois.add(new ROIWrapper());
+
+        rois.get(0).setImage(image);
+        rois.get(1).setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setText(String.valueOf(10 + i % 2));
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(i);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            if (i % 2 == 1) rois.get(0).addShape(rectangle);
+            else rois.get(1).addShape(rectangle);
+        }
+
+        List<ROIWrapper> newROIs = image.saveROIs(client, rois);
+        List<Roi>        ijRois  = ROIWrapper.toImageJ(newROIs);
+
+        String label1 = image.getName() + ":" + newROIs.get(0).getShapes().get(0).getText() + ":4";
+        String label2 = image.getName() + ":" + newROIs.get(1).getShapes().get(0).getText() + ":10";
+
+        ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
+        ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
+
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+
+        assertThrows(IllegalArgumentException.class,
+                     () -> table.addRows(client, results2, null, ijRois));
     }
 
 }
