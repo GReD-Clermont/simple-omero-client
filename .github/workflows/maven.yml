@@ -50,9 +50,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Remove "-SNAPSHOT" if 'push' happened on a tag
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')}}
-        run: mvn versions:set -DremoveSnapshot
+      - name: Make sure to append "-SNAPSHOT" if 'push' happened on 'main'
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: |
+            mvn versions:set -DremoveSnapshot
+            mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
+            VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
+            mvn versions:set -DnewVersion=$VERSION-SNAPSHOT
       - name: Append branch name to version if 'push' did not happen on 'main' or a tag
         if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')}}
         run: |
