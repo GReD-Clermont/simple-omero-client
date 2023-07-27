@@ -164,7 +164,9 @@ public class TableWrapper {
         this.name = rt.getTitle();
         this.rowCount = rt.size();
 
-        int offset = 0;
+        int     offset     = 0;
+        boolean hasImageId = false;
+        boolean hasROICol  = false;
 
         ImageWrapper image = new ImageWrapper(null);
 
@@ -173,11 +175,15 @@ public class TableWrapper {
         if (imageId != null) {
             image = client.getImage(imageId);
             rois = image.getROIs(client);
+            hasImageId = true;
             offset++;
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) offset++;
+        if (roiColumn.length > 0) {
+            hasROICol = true;
+            offset++;
+        }
 
         String[] headings      = rt.getHeadings();
         String[] shortHeadings = rt.getHeadingsAsVariableNames();
@@ -187,14 +193,14 @@ public class TableWrapper {
         columns = new TableDataColumn[columnCount];
         data = new Object[columnCount][];
 
-        if (offset > 0) {
+        if (hasImageId) {
             createColumn(0, IMAGE, ImageData.class);
             data[0] = new ImageData[rowCount];
             Arrays.fill(data[0], image.asDataObject());
         }
-        if (offset > 1) {
+        if (hasROICol) {
             createColumn(1, roiProperty, ROIData.class);
-            data[1] = roiColumn;
+            data[offset - 1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
             Variable[] col = rt.getColumnAsVariables(headings[i]);
@@ -441,6 +447,22 @@ public class TableWrapper {
 
 
     /**
+     * Checks if the new columns match the existing ones.
+     *
+     * @param offset      The offset in the current Results Table.
+     * @param nColumns    The number of columns in the current Results Table.
+     * @param hasImageCol Whether an Image column is present.
+     * @param hasROICol   Whether a ROI column is present.
+     */
+    private boolean checkColumns(int offset, int nColumns, boolean hasImageCol, boolean hasROICol) {
+        boolean match = offset + nColumns == columnCount;
+        if (hasImageCol && !columns[0].getType().equals(ImageData.class)) match = false;
+        if (hasROICol && !columns[offset - 1].getType().equals(ROIData.class)) match = false;
+        return match;
+    }
+
+
+    /**
      * Sets the information about a given column.
      *
      * @param column     Column number.
@@ -509,28 +531,34 @@ public class TableWrapper {
 
         List<ROIWrapper> rois = new ArrayList<>(0);
 
-        int offset = 0;
+        int     offset     = 0;
+        boolean hasImageId = false;
+        boolean hasROICol  = false;
         if (imageId != null) {
             image = client.getImage(imageId);
             rois = image.getROIs(client);
+            hasImageId = true;
             offset++;
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) offset++;
+        if (roiColumn.length > 0) {
+            hasROICol = true;
+            offset++;
+        }
 
         String[] headings = rt.getHeadings();
 
         int nColumns = headings.length;
-        if (nColumns + offset != columnCount) {
-            throw new IllegalArgumentException("Number of columns mismatch");
+        if (!checkColumns(offset, nColumns, hasImageId, hasROICol)) {
+            throw new IllegalArgumentException("Number or type of columns mismatch");
         }
 
         int n = rt.size();
         setRowCount(rowCount + n);
 
-        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asDataObject());
-        if (offset > 1) System.arraycopy(roiColumn, 0, data[1], row, n);
+        if (hasImageId) Arrays.fill(data[0], row, row + n, image.asDataObject());
+        if (hasROICol) System.arraycopy(roiColumn, 0, data[offset - 1], row, n);
         for (int i = 0; i < nColumns; i++) {
             if (columns[offset + i].getType().equals(String.class)) {
                 for (int j = 0; j < n; j++) {
