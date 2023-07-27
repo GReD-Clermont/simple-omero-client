@@ -43,6 +43,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -394,18 +395,18 @@ public class TableWrapper {
                                                                            safeParseLong(r.getProperty(roiIdProperty))))
                                                .filter(p -> p.getKey() != null)
                                                .filter(p -> p.getValue() != null)
-                                               .collect(toMap(SimpleEntry::getKey,
-                                                              p -> id2roi.get(p.getValue()),
-                                                              (x1, x2) -> x1));
+                                               .collect(HashMap::new,
+                                                        (m, v) -> m.put(v.getKey(), id2roi.get(v.getValue())),
+                                                        HashMap::putAll);
 
         Map<String, ROIData> shape2roi = ijRois.stream()
                                                .map(r -> new SimpleEntry<>(r.getName(),
                                                                            safeParseLong(r.getProperty(roiIdProperty))))
                                                .filter(p -> p.getKey() != null)
                                                .filter(p -> p.getValue() != null)
-                                               .collect(toMap(SimpleEntry::getKey,
-                                                              p -> id2roi.get(p.getValue()),
-                                                              (x1, x2) -> x1));
+                                               .collect(HashMap::new,
+                                                        (m, v) -> m.put(v.getKey(), id2roi.get(v.getValue())),
+                                                        HashMap::putAll);
         String colToDelete = "";
         if (results.columnExists(roiIdProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
@@ -437,6 +438,20 @@ public class TableWrapper {
         }
 
         return roiColumn;
+    }
+
+
+    /**
+     * Checks if the new columns match the existing ones.
+     *
+     * @param nColumns The number of columns in the current Results Table.
+     * @param offset   The offset in the current Results Table.
+     */
+    private boolean checkColumns(int nColumns, int offset) {
+        boolean match = offset + nColumns == columnCount;
+        if (offset > 0 && !columns[0].getType().equals(ImageData.class)) match = false;
+        if (offset > 1 && !columns[1].getType().equals(ROIData.class)) match = false;
+        return match;
     }
 
 
@@ -522,8 +537,8 @@ public class TableWrapper {
         String[] headings = rt.getHeadings();
 
         int nColumns = headings.length;
-        if (nColumns + offset != columnCount) {
-            throw new IllegalArgumentException("Number of columns mismatch");
+        if (!checkColumns(nColumns, offset)) {
+            throw new IllegalArgumentException("Number or type of columns mismatch");
         }
 
         int n = rt.size();
