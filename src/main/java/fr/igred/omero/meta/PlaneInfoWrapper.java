@@ -61,26 +61,21 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
         // planesInfo should be larger than sizeT, unless it is empty
         ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[Math.min(sizeT, planesInfo.size())];
 
-        for (PlaneInfoWrapper plane : planesInfo) {
-            int t = plane.getTheT();
-            int z = plane.getTheZ();
-            int c = plane.getTheC();
-            if (c == 0 && z == 0 && t < deltas.length) {
-                deltas[t] = convertTime(plane.getDeltaT());
-            }
-        }
-        Unit<ome.units.quantity.Time> unit = UNITS.SECOND;
+        planesInfo.stream()
+                  .filter(p -> p.getTheC() == 0 && p.getTheZ() == 0 && p.getTheT() < deltas.length)
+                  .forEach(p -> deltas[p.getTheT()] = convertTime(p.getDeltaT()));
 
-        ome.units.quantity.Time first = Arrays.stream(deltas).findFirst().orElse(null);
-        if (first != null) {
-            unit = first.unit();
-        }
+        Unit<ome.units.quantity.Time> unit = Arrays.stream(deltas)
+                                                   .filter(Objects::nonNull)
+                                                   .findFirst()
+                                                   .map(ome.units.quantity.Time::unit)
+                                                   .orElse(UNITS.SECOND);
 
         double mean  = 0;
         int    count = 0;
         for (int i = 1; i < deltas.length; i++) {
-            double delta1 = deltas[i - 1].value(unit).doubleValue();
-            double delta2 = deltas[i].value(unit).doubleValue();
+            double delta1 = deltas[i - 1] != null ? deltas[i - 1].value(unit).doubleValue() : Double.NaN;
+            double delta2 = deltas[i] != null ? deltas[i].value(unit).doubleValue() : Double.NaN;
             if (!Double.isNaN(delta1) && !Double.isNaN(delta2)) {
                 mean += delta2 - delta1;
                 count++;
