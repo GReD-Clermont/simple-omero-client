@@ -67,8 +67,8 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
 
         Unit<ome.units.quantity.Time> unit = Arrays.stream(deltas)
                                                    .filter(Objects::nonNull)
-                                                   .map(ome.units.quantity.Time::unit)
                                                    .findFirst()
+                                                   .map(ome.units.quantity.Time::unit)
                                                    .orElse(UNITS.SECOND);
 
         double mean  = 0;
