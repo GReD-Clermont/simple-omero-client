@@ -31,8 +31,11 @@ import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -297,6 +300,29 @@ public class Client extends Browser {
         }
     }
 
+    /**
+     * Returns the user which matches the user ID.
+     *
+     * @param userId The ID of the user.
+     *
+     * @return The user matching the user ID, or null if it does not exist.
+     *
+     * @throws DSOutOfServiceException
+     * @throws AccessException
+     * @throws ExecutionException
+     */
+    public ExperimenterWrapper getUser(long userId)
+    throws DSOutOfServiceException, AccessException, ExecutionException {
+        Experimenter user = ExceptionHandler.of(getGateway().getAdminService(getCtx()), a -> a.getExperimenter(userId))
+                                            .handleServiceOrAccess("Cannot retrieve user: " + userId)
+                                            .get();
+
+        if (user != null) {
+            return getUser(user.getOmeName().getValue());
+        } else {
+            throw new NoSuchElementException(String.format("User not found: %d", userId));
+        }
+    }
 
     /**
      * Returns the group which matches the name.
@@ -322,6 +348,31 @@ public class Client extends Browser {
         }
     }
 
+
+    /**
+     * Returns the group which matches the group ID.
+     *
+     * @param groupId The ID of the group.
+     *
+     * @return The group with the appropriate group ID, if it exists.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException The requested group does not exist.
+     */
+    public GroupWrapper getGroup(long groupId)
+    throws DSOutOfServiceException, AccessException, ExecutionException {
+        ExperimenterGroup group = ExceptionHandler.of(getGateway().getAdminService(getCtx()), a->a.getGroup(groupId))
+                                                  .handleServiceOrAccess("Cannot retrieve group: " + groupId)
+                                                  .get();
+
+        if (group != null) {
+            return getGroup(group.getName().getValue());
+        } else {
+            throw new NoSuchElementException(String.format("Group not found: %d", groupId));
+        }
+    }
 
     /**
      * Gets the client associated with the username in the parameters. The user calling this function needs to have
