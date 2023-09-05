@@ -45,6 +45,7 @@ import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
@@ -154,7 +155,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -188,7 +189,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -220,7 +221,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -250,7 +251,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -278,7 +279,7 @@ class ImageJTableTest extends UserTest {
 
         Object[][] data = tables.get(0).getData();
 
-        client.delete(tables.get(0));
+        client.deleteTable(tables.get(0));
         List<TableWrapper> noTables = image.getTables(client);
 
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -308,7 +309,7 @@ class ImageJTableTest extends UserTest {
 
         Object[][] data = tables.get(0).getData();
 
-        client.delete(tables.get(0));
+        client.deleteTables(tables);
         List<TableWrapper> noTables = image.getTables(client);
 
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -345,7 +346,7 @@ class ImageJTableTest extends UserTest {
         long       roiId    = rois.get(0).getId();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -385,7 +386,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -424,7 +425,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -477,7 +478,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -500,7 +501,9 @@ class ImageJTableTest extends UserTest {
         ROIWrapper roi2 = new ROIWrapper();
 
         roi1.setImage(image);
+        roi1.setName("ROI");
         roi2.setImage(image);
+        roi2.setName("ROI");
 
         final int max = 14;
         for (int i = 10; i < max; i++) {
@@ -535,7 +538,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(2, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -596,7 +599,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -627,7 +630,7 @@ class ImageJTableTest extends UserTest {
         Object[][] data     = table.getData();
         Long       fileId   = table.getFileId();
 
-        client.delete(table);
+        client.deleteTable(table);
 
         assertEquals(1, rowCount);
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -663,7 +666,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(1, tables.size());
         assertEquals(2, tables.get(0).getRowCount());
 
-        client.delete(tables.get(0));
+        client.deleteTables(tables);
         List<TableWrapper> noTables = image.getTables(client);
 
         assertEquals(imageId, ((DataObject) data[0][0]).getId());
@@ -718,6 +721,43 @@ class ImageJTableTest extends UserTest {
             assertEquals(expected.get(i), actual.get(i));
         }
         Files.deleteIfExists(file.toPath());
+    }
+
+
+    @Test
+    void testAddRowsWithMismatch() throws Exception {
+        List<ROIWrapper> rois = new ArrayList<>(2);
+        rois.add(new ROIWrapper());
+        rois.add(new ROIWrapper());
+
+        rois.get(0).setImage(image);
+        rois.get(1).setImage(image);
+
+        for (int i = 0; i < 4; i++) {
+            RectangleWrapper rectangle = new RectangleWrapper();
+            rectangle.setText(String.valueOf(10 + i % 2));
+            rectangle.setCoordinates(i * 2, i * 2, 10, 10);
+            rectangle.setZ(i);
+            rectangle.setT(0);
+            rectangle.setC(0);
+
+            if (i % 2 == 1) rois.get(0).addShape(rectangle);
+            else rois.get(1).addShape(rectangle);
+        }
+
+        List<ROIWrapper> newROIs = image.saveROIs(client, rois);
+        List<Roi>        ijRois  = ROIWrapper.toImageJ(newROIs);
+
+        String label1 = image.getName() + ":" + newROIs.get(0).getShapes().get(0).getText() + ":4";
+        String label2 = image.getName() + ":" + newROIs.get(1).getShapes().get(0).getText() + ":10";
+
+        ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
+        ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
+
+        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+
+        assertThrows(IllegalArgumentException.class,
+                     () -> table.addRows(client, results2, null, ijRois));
     }
 
 }

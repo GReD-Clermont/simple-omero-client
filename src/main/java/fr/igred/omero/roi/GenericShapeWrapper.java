@@ -22,6 +22,7 @@ import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
+import ij.ImagePlus;
 import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
@@ -136,9 +137,6 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @param ijRoi An ImageJ Roi.
      */
     protected void copyFromIJRoi(ij.gui.Roi ijRoi) {
-        data.setC(Math.max(-1, ijRoi.getCPosition() - 1));
-        data.setZ(Math.max(-1, ijRoi.getZPosition() - 1));
-        data.setT(Math.max(-1, ijRoi.getTPosition() - 1));
         LengthI size          = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
         Color   defaultStroke = Optional.ofNullable(Roi.getColor()).orElse(Color.YELLOW);
         Color   defaultFill   = Optional.ofNullable(Roi.getDefaultFillColor()).orElse(TRANSPARENT);
@@ -147,6 +145,43 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         data.getShapeSettings().setStrokeWidth(size);
         data.getShapeSettings().setStroke(stroke);
         data.getShapeSettings().setFill(fill);
+
+        // Set the plane
+        int c = ijRoi.getCPosition();
+        int z = ijRoi.getZPosition();
+        int t = ijRoi.getTPosition();
+
+        // Adjust coordinates if ROI does not have hyperstack positions
+        if (!ijRoi.hasHyperStackPosition()) {
+            ImagePlus imp = ijRoi.getImage();
+            if (imp == null) {
+                imp = ij.WindowManager.getImage(ijRoi.getImageID());
+            }
+            if (imp != null) {
+                int stackSize = imp.getStackSize();
+                int imageC    = imp.getNChannels();
+                int imageZ    = imp.getNSlices();
+                int imageT    = imp.getNFrames();
+                int pos       = ijRoi.getPosition();
+
+                // Reset values
+                c = 1;
+                z = 1;
+                t = 1;
+
+                if (stackSize == imageZ) {
+                    z = pos;
+                } else if (stackSize == imageC) {
+                    c = pos;
+                } else if (stackSize == imageT) {
+                    t = pos;
+                }
+            }
+        }
+
+        data.setC(Math.max(-1, c - 1));
+        data.setZ(Math.max(-1, z - 1));
+        data.setT(Math.max(-1, t - 1));
     }
 
 
