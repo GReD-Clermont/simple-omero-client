@@ -18,8 +18,13 @@
 package fr.igred.omero.meta;
 
 
+import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
+import omero.ServerError;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
+import omero.model.ExperimenterGroup;
+import omero.model.GroupExperimenterMap;
 
 import java.util.List;
 
@@ -211,5 +216,52 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
     public boolean isLDAP() {
         return data.isLDAP();
     }
+
+
+    /**
+     * Returns {@code true} if the user is a group owner
+     *
+     * @param client {@link Client} that handles the connection
+     * @param groupId The ID of the group
+     *
+     * @return See above.
+     *
+     * @throws DSOutOfServiceException
+     * @throws ServerError
+     */
+    public boolean isLeader(Client client, long groupId) throws DSOutOfServiceException, ServerError {
+
+        ExperimenterGroup group = client.getGateway().getAdminService(client.getCtx()).getGroup(groupId);
+        long id    = getId();
+        boolean isLeader = false;
+        if(group.sizeOfGroupExperimenterMap() > 0){
+            for(GroupExperimenterMap experimenterLink : group.copyGroupExperimenterMap()){
+                if(experimenterLink.getOwner().getValue()){
+                    if(experimenterLink.getChild().getId().getValue() == id){
+                        isLeader = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return isLeader;
+    }
+
+
+    /**
+     * Returns {@code true} if the user is a full admin
+     *
+     * @param client {@link Client} that handles the connection
+     *
+     * @return See above.
+     *
+     * @throws DSOutOfServiceException
+     * @throws ServerError
+     */
+    public boolean isAdmin(Client client) throws DSOutOfServiceException, ServerError {
+        return !client.getGateway().getAdminService(client.getCtx()).getCurrentAdminPrivileges().isEmpty();
+    }
+
 
 }
