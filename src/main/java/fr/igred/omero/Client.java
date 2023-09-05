@@ -374,6 +374,40 @@ public class Client extends Browser {
         }
     }
 
+
+    /**
+     * List of all groups to which the specified user belongs
+     *
+     * @param userId The ID of the user
+     *
+     * @return the list of groups
+     *
+     * @throws DSOutOfServiceException
+     * @throws AccessException
+     */
+    public List<GroupWrapper> getAllAvailableGroups(long userId)
+    throws DSOutOfServiceException, AccessException {
+
+        List<ExperimenterGroup> groups = ExceptionHandler.of(getGateway().getAdminService(getCtx()), a -> a.containedGroups(userId))
+                                                         .handleServiceOrAccess("Cannot retrieve available groups from user : " + userId)
+                                                         .get();
+
+        if (groups != null && !groups.isEmpty()) {
+            List<GroupWrapper> groupWrappers = new ArrayList<>();
+            groups.forEach(e-> {
+                try {
+                    groupWrappers.add(getGroup(e.getName().getValue()));
+                } catch (ExecutionException | ServiceException | AccessException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+
+            return groupWrappers;
+        } else {
+            throw new NoSuchElementException(String.format("Groups not found for user: %d", userId));
+        }
+    }
+
     /**
      * Gets the client associated with the username in the parameters. The user calling this function needs to have
      * administrator rights. All action realized with the client returned will be considered as his.
