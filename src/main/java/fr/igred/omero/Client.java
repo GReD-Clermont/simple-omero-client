@@ -31,7 +31,6 @@ import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.model.Experimenter;
@@ -285,7 +284,7 @@ public class Client extends Browser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
+     * @throws NoSuchElementException The requested user cannot be found.
      */
     public ExperimenterWrapper getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
@@ -308,13 +307,14 @@ public class Client extends Browser {
      *
      * @return The user matching the user ID, or null if it does not exist.
      *
-     * @throws DSOutOfServiceException
-     * @throws AccessException
-     * @throws ExecutionException
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException The requested user cannot be found.
      */
     public ExperimenterWrapper getUser(long userId)
-    throws DSOutOfServiceException, AccessException, ExecutionException {
-        Experimenter user = ExceptionHandler.of(getGateway().getAdminService(getCtx()), a -> a.getExperimenter(userId))
+    throws ServiceException, AccessException, ExecutionException {
+        Experimenter user = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getExperimenter(userId))
                                             .handleServiceOrAccess("Cannot retrieve user: " + userId)
                                             .get();
 
@@ -336,7 +336,7 @@ public class Client extends Browser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested group does not exist.
+     * @throws NoSuchElementException The requested group cannot be found.
      */
     public GroupWrapper getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
@@ -361,11 +361,11 @@ public class Client extends Browser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested group does not exist.
+     * @throws NoSuchElementException The requested group cannot be found.
      */
     public GroupWrapper getGroup(long groupId)
-    throws DSOutOfServiceException, AccessException, ExecutionException {
-        ExperimenterGroup group = ExceptionHandler.of(getGateway().getAdminService(getCtx()), a->a.getGroup(groupId))
+    throws ServiceException, AccessException, ExecutionException {
+        ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
                                                   .handleServiceOrAccess("Cannot retrieve group: " + groupId)
                                                   .get();
 
@@ -384,26 +384,23 @@ public class Client extends Browser {
      *
      * @return the list of groups
      *
-     * @throws DSOutOfServiceException
-     * @throws AccessException
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<GroupWrapper> getAllAvailableGroups(long userId)
-    throws DSOutOfServiceException, AccessException {
-
-        List<ExperimenterGroup> groups = ExceptionHandler.of(getGateway().getAdminService(getCtx()), a -> a.containedGroups(userId))
-                                                         .handleServiceOrAccess("Cannot retrieve available groups from user : " + userId)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = String.format("Cannot retrieve available groups from user %d: ", userId);
+        List<ExperimenterGroup> groups = ExceptionHandler.of(getGateway(),
+                                                             g -> g.getAdminService(getCtx()).containedGroups(userId))
+                                                         .handleServiceOrAccess(error)
                                                          .get();
 
         if (groups != null && !groups.isEmpty()) {
-            List<GroupWrapper> groupWrappers = new ArrayList<>();
-            groups.forEach(e-> {
-                try {
-                    groupWrappers.add(getGroup(e.getName().getValue()));
-                } catch (ExecutionException | ServiceException | AccessException ex) {
-                    throw new RuntimeException(ex);
-                }
-            });
-
+            List<GroupWrapper> groupWrappers = new ArrayList<>(groups.size());
+            for (ExperimenterGroup group : groups) {
+                groupWrappers.add(getGroup(group.getName().getValue()));
+            }
             return groupWrappers;
         } else {
             throw new NoSuchElementException(String.format("Groups not found for user: %d", userId));
