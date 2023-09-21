@@ -121,4 +121,34 @@ class ExperimenterTest extends RootTest {
         assertEquals(GROUP1.name, experimenter.getDefaultGroup().getName());
     }
 
+
+    @Test
+    void testIsNotGroupLeader() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        GroupWrapper        group        = client.getGroup(GROUP1.name);
+        assertFalse(experimenter.isLeader(group));
+    }
+
+
+    @Test
+    void testIsGroupLeader() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser("testUser4");
+        GroupWrapper        group        = client.getGroup("testGroup3");
+        assertTrue(experimenter.isLeader(group));
+    }
+
+
+    @Test
+    void testIsNotAdmin() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        assertFalse(experimenter.isAdmin(client));
+    }
+
+
+    @Test
+    void testIsAdmin() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser();
+        assertTrue(experimenter.isAdmin(client));
+    }
+
 }
