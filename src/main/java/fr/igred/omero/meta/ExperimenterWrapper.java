@@ -24,11 +24,14 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.model.ExperimenterGroup;
 import omero.model.GroupExperimenterMap;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 
@@ -222,55 +225,33 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
 
 
     /**
-     * Returns {@code true} if the user is a group owner
+     * Returns {@code true} if the user owns the specified group.
      *
-     * @param client  {@link Client} that handles the connection
-     * @param groupId The ID of the group
+     * @param group The group.
      *
      * @return See above.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws NoSuchElementException The requested group cannot be found.
      */
-    public boolean isLeader(Client client, long groupId) throws ServiceException, OMEROServerError {
-        ExperimenterGroup group = ExceptionHandler.of(client,
-                                                      c -> c.getGateway()
-                                                            .getAdminService(client.getCtx())
-                                                            .getGroup(groupId))
-                                                  .handleServiceOrServer("Cannot retrieve group: " + groupId)
-                                                  .get();
-        long    id       = getId();
-        boolean isLeader = false;
-        if (group.sizeOfGroupExperimenterMap() > 0) {
-            for (GroupExperimenterMap experimenterLink : group.copyGroupExperimenterMap()) {
-                if (experimenterLink.getOwner().getValue()
-                    && (experimenterLink.getChild().getId().getValue() == id)) {
-                    isLeader = true;
-                    break;
-                }
-            }
-        }
-
-        return isLeader;
+    public boolean isLeader(GroupWrapper group) {
+        return group.getLeaders().stream().anyMatch(e -> e.getId() == data.getId());
     }
 
 
     /**
-     * Returns {@code true} if the user is a full admin
+     * Returns {@code true} if the user is a full admin.
      *
      * @param client {@link Client} that handles the connection
      *
      * @return See above.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public boolean isAdmin(Client client) throws ServiceException, OMEROServerError {
-        return !ExceptionHandler.of(client,
-                                    c -> c.getGateway()
-                                          .getAdminService(client.getCtx())
-                                          .getCurrentAdminPrivileges())
-                                .handleServiceOrServer("Could not retrieve admin privileges.")
+    public boolean isAdmin(Client client) throws ServiceException, AccessException, ExecutionException {
+        return !ExceptionHandler.of(client.getAdminFacility(), a -> a.getAdminPrivileges(client.getCtx(), data))
+                                .handleServiceOrAccess("Cannot retrieve admin privileges.")
                                 .get()
                                 .isEmpty();
     }
