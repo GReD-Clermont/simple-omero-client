@@ -26,7 +26,6 @@ import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ExperimenterData;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 
