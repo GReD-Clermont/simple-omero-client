@@ -373,37 +373,6 @@ public class Client extends Browser {
 
 
     /**
-     * List of all groups to which the specified user belongs
-     *
-     * @param userId The ID of the user
-     *
-     * @return the list of groups
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<GroupWrapper> getAllAvailableGroups(long userId)
-    throws ServiceException, AccessException, ExecutionException {
-        String error = String.format("Cannot retrieve available groups from user %d: ", userId);
-        List<ExperimenterGroup> groups = ExceptionHandler.of(getGateway(),
-                                                             g -> g.getAdminService(getCtx()).containedGroups(userId))
-                                                         .handleServiceOrAccess(error)
-                                                         .get();
-
-        if (groups != null && !groups.isEmpty()) {
-            List<GroupWrapper> groupWrappers = new ArrayList<>(groups.size());
-            for (ExperimenterGroup group : groups) {
-                groupWrappers.add(getGroup(group.getName().getValue()));
-            }
-            return groupWrappers;
-        } else {
-            throw new NoSuchElementException(String.format("Groups not found for user: %d", userId));
-        }
-    }
-
-
-    /**
      * Gets the client associated with the username in the parameters. The user calling this function needs to have
      * administrator rights. All action realized with the client returned will be considered as his.
      *
