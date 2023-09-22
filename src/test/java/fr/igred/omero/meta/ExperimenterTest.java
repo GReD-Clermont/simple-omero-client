@@ -19,6 +19,7 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.RootTest;
+import fr.igred.omero.exception.OMEROServerError;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -36,6 +37,18 @@ class ExperimenterTest extends RootTest {
     @Test
     void testGetWrongUser() {
         assertThrows(NoSuchElementException.class, () -> client.getUser("nonexistent"));
+    }
+
+
+    @Test
+    void testGetWrongUserId() {
+        assertThrows(OMEROServerError.class, () -> client.getUser(859L));
+    }
+
+
+    @Test
+    void testGetUserById() throws Exception {
+        assertEquals(USER1.name, client.getUser(USER1.id).getUserName());
     }
 
 

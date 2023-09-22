@@ -19,6 +19,7 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.RootTest;
+import fr.igred.omero.exception.OMEROServerError;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -34,6 +35,18 @@ class GroupTest extends RootTest {
     @Test
     void testGetWrongGroup() {
         assertThrows(NoSuchElementException.class, () -> client.getGroup("nonexistent"));
+    }
+
+
+    @Test
+    void testGetWrongGroupId() {
+        assertThrows(OMEROServerError.class, () -> client.getGroup(859L));
+    }
+
+
+    @Test
+    void testGetGroupById() throws Exception {
+        assertEquals(GROUP1.name, client.getGroup(GROUP1.id).getName());
     }
 
 
