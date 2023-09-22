@@ -310,18 +310,19 @@ public class Client extends Browser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError       Server error.
      * @throws NoSuchElementException The requested user cannot be found.
      */
     public ExperimenterWrapper getUser(long userId)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
         Experimenter user = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getExperimenter(userId))
-                                            .handleServiceOrAccess("Cannot retrieve user: " + userId)
+                                            .handleServiceOrServer("Cannot retrieve user: " + userId)
                                             .get();
 
-        if (user != null) {
+        if (user != null && user.getOmeName() != null) {
             return getUser(user.getOmeName().getValue());
         } else {
-            throw new NoSuchElementException(String.format("User not found: %d", userId));
+            throw new NoSuchElementException(String.format("User cannot be found: %d", userId));
         }
     }
 
@@ -361,18 +362,19 @@ public class Client extends Browser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError       Server error.
      * @throws NoSuchElementException The requested group cannot be found.
      */
     public GroupWrapper getGroup(long groupId)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
         ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
-                                                  .handleServiceOrAccess("Cannot retrieve group: " + groupId)
+                                                  .handleServiceOrServer("Cannot retrieve group: " + groupId)
                                                   .get();
 
-        if (group != null) {
+        if (group != null && group.getName() != null) {
             return getGroup(group.getName().getValue());
         } else {
-            throw new NoSuchElementException(String.format("Group not found: %d", groupId));
+            throw new NoSuchElementException(String.format("Group cannot be found: %d", groupId));
         }
     }
 
