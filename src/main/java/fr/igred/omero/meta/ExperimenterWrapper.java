@@ -225,11 +225,9 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      * @param group The group.
      *
      * @return See above.
-     *
-     * @throws NoSuchElementException The requested group cannot be found.
      */
     public boolean isLeader(GroupWrapper group) {
-        return group.getLeaders().stream().anyMatch(e -> e.getId() == data.getId());
+        return group.getLeaders().stream().anyMatch(l -> l.getId() == data.getId());
     }
 
 
@@ -244,7 +242,8 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public boolean isAdmin(Client client) throws ServiceException, AccessException, ExecutionException {
+    public boolean isAdmin(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         return !ExceptionHandler.of(client.getAdminFacility(), a -> a.getAdminPrivileges(client.getCtx(), data))
                                 .handleServiceOrAccess("Cannot retrieve admin privileges.")
                                 .get()

@@ -137,7 +137,7 @@ class ExperimenterTest extends RootTest {
     @Test
     void testIsNotGroupLeader() throws Exception {
         ExperimenterWrapper experimenter = client.getUser(USER1.name);
-        GroupWrapper        group        = client.getGroup(GROUP1.name);
+        GroupWrapper        group        = client.getGroup("testGroup3");
         assertFalse(experimenter.isLeader(group));
     }
 
