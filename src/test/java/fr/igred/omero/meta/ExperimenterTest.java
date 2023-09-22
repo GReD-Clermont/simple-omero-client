@@ -40,6 +40,18 @@ class ExperimenterTest extends RootTest {
 
 
     @Test
+    void testGetWrongUserId() {
+        assertThrows(NoSuchElementException.class, () -> client.getUser(859L));
+    }
+
+
+    @Test
+    void testGetUserById() throws Exception {
+        assertEquals(USER1.name, client.getUser(USER1.id).getUserName());
+    }
+
+
+    @Test
     void testSudoWrongUser() {
         assertThrows(NoSuchElementException.class, () -> client.sudoGetUser("nonexistent"));
     }
@@ -119,6 +131,36 @@ class ExperimenterTest extends RootTest {
         List<GroupWrapper>  groups       = experimenter.getGroups();
         assertEquals(3, groups.size());
         assertEquals(GROUP1.name, experimenter.getDefaultGroup().getName());
+    }
+
+
+    @Test
+    void testIsNotGroupLeader() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        GroupWrapper        group        = client.getGroup("testGroup3");
+        assertFalse(experimenter.isLeader(group));
+    }
+
+
+    @Test
+    void testIsGroupLeader() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser("testUser4");
+        GroupWrapper        group        = client.getGroup("testGroup3");
+        assertTrue(experimenter.isLeader(group));
+    }
+
+
+    @Test
+    void testIsNotAdmin() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser(USER1.name);
+        assertFalse(experimenter.isAdmin(client));
+    }
+
+
+    @Test
+    void testIsAdmin() throws Exception {
+        ExperimenterWrapper experimenter = client.getUser();
+        assertTrue(experimenter.isAdmin(client));
     }
 
 }

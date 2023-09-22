@@ -29,10 +29,13 @@ import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
+import omero.ApiUsageException;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -282,7 +285,7 @@ public class Client extends Browser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user does not exist.
+     * @throws NoSuchElementException The requested user cannot be found.
      */
     public ExperimenterWrapper getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
@@ -299,6 +302,29 @@ public class Client extends Browser {
 
 
     /**
+     * Returns the user which matches the user ID.
+     *
+     * @param userId The ID of the user.
+     *
+     * @return The user matching the user ID, or null if it does not exist.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws OMEROServerError       Server error.
+     * @throws NoSuchElementException The requested user cannot be found.
+     */
+    public ExperimenterWrapper getUser(long userId)
+    throws ServiceException, OMEROServerError {
+        Experimenter user = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getExperimenter(userId))
+                                            .rethrow(ApiUsageException.class,
+                                                     (m, e) -> new NoSuchElementException(m),
+                                                     "User not found: " + userId)
+                                            .handleServiceOrServer("Cannot retrieve user: " + userId)
+                                            .get();
+        return new ExperimenterWrapper(new ExperimenterData(user));
+    }
+
+
+    /**
      * Returns the group which matches the name.
      *
      * @param groupName The name of the group.
@@ -308,7 +334,7 @@ public class Client extends Browser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws AccessException        Cannot access data.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested group does not exist.
+     * @throws NoSuchElementException The requested group cannot be found.
      */
     public GroupWrapper getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
@@ -320,6 +346,29 @@ public class Client extends Browser {
         } else {
             throw new NoSuchElementException(String.format("Group not found: %s", groupName));
         }
+    }
+
+
+    /**
+     * Returns the group which matches the group ID.
+     *
+     * @param groupId The ID of the group.
+     *
+     * @return The group with the appropriate group ID, if it exists.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws OMEROServerError       Server error.
+     * @throws NoSuchElementException The requested group cannot be found.
+     */
+    public GroupWrapper getGroup(long groupId)
+    throws ServiceException, OMEROServerError {
+        ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
+                                                  .rethrow(ApiUsageException.class,
+                                                           (m, e) -> new NoSuchElementException(m),
+                                                           "User not found: " + groupId)
+                                                  .handleServiceOrServer("Cannot retrieve group: " + groupId)
+                                                  .get();
+        return new GroupWrapper(new GroupData(group));
     }
 
 

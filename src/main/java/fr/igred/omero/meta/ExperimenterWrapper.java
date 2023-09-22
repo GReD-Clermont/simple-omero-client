@@ -18,10 +18,15 @@
 package fr.igred.omero.meta;
 
 
+import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
+import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ExperimenterData;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -210,6 +215,38 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      */
     public boolean isLDAP() {
         return data.isLDAP();
+    }
+
+
+    /**
+     * Returns {@code true} if the user owns the specified group.
+     *
+     * @param group The group.
+     *
+     * @return See above.
+     */
+    public boolean isLeader(GroupWrapper group) {
+        return group.getLeaders().stream().anyMatch(l -> l.getId() == data.getId());
+    }
+
+
+    /**
+     * Returns {@code true} if the user is a full admin.
+     *
+     * @param client {@link Client} that handles the connection
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public boolean isAdmin(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return !ExceptionHandler.of(client.getAdminFacility(), a -> a.getAdminPrivileges(client.getCtx(), data))
+                                .handleServiceOrAccess("Cannot retrieve admin privileges.")
+                                .get()
+                                .isEmpty();
     }
 
 }

@@ -38,6 +38,18 @@ class GroupTest extends RootTest {
 
 
     @Test
+    void testGetWrongGroupId() {
+        assertThrows(NoSuchElementException.class, () -> client.getGroup(859L));
+    }
+
+
+    @Test
+    void testGetGroupById() throws Exception {
+        assertEquals(GROUP1.name, client.getGroup(GROUP1.id).getName());
+    }
+
+
+    @Test
     void testSetGroupName() throws Exception {
         GroupWrapper group = client.getGroup("testGroup2");
         assertEquals("testGroup2", group.getName());
