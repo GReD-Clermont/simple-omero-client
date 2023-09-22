@@ -22,13 +22,8 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
-import omero.model.ExperimenterGroup;
-import omero.model.GroupExperimenterMap;
 
 import java.util.List;
 import java.util.NoSuchElementException;

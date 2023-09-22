@@ -29,6 +29,7 @@ import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.repository.FolderWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.ProjectWrapper;
+import omero.ApiUsageException;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ExperimenterData;
@@ -308,22 +309,18 @@ public class Client extends Browser {
      * @return The user matching the user ID, or null if it does not exist.
      *
      * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws OMEROServerError       Server error.
      * @throws NoSuchElementException The requested user cannot be found.
      */
     public ExperimenterWrapper getUser(long userId)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, OMEROServerError {
         Experimenter user = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getExperimenter(userId))
+                                            .rethrow(ApiUsageException.class,
+                                                     (m, e) -> new NoSuchElementException(m),
+                                                     "User not found: " + userId)
                                             .handleServiceOrServer("Cannot retrieve user: " + userId)
                                             .get();
-
-        if (user != null && user.getOmeName() != null) {
-            return getUser(user.getOmeName().getValue());
-        } else {
-            throw new NoSuchElementException(String.format("User cannot be found: %d", userId));
-        }
+        return new ExperimenterWrapper(new ExperimenterData(user));
     }
 
 
@@ -360,22 +357,18 @@ public class Client extends Browser {
      * @return The group with the appropriate group ID, if it exists.
      *
      * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws OMEROServerError       Server error.
      * @throws NoSuchElementException The requested group cannot be found.
      */
     public GroupWrapper getGroup(long groupId)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, OMEROServerError {
         ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
+                                                  .rethrow(ApiUsageException.class,
+                                                           (m, e) -> new NoSuchElementException(m),
+                                                           "User not found: " + groupId)
                                                   .handleServiceOrServer("Cannot retrieve group: " + groupId)
                                                   .get();
-
-        if (group != null && group.getName() != null) {
-            return getGroup(group.getName().getValue());
-        } else {
-            throw new NoSuchElementException(String.format("Group cannot be found: %d", groupId));
-        }
+        return new GroupWrapper(new GroupData(group));
     }
 
 
