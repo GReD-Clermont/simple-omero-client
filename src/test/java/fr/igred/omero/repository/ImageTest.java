@@ -500,11 +500,14 @@ class ImageTest extends UserTest {
 
         List<TagAnnotationWrapper> tags = image.getTags(client);
         image.unlink(client, tag);
+        boolean linked = image.isLinked(client, tag);
+
         List<TagAnnotationWrapper> removed = image.getTags(client);
         client.delete(tag);
 
         assertEquals(1, tags.size());
         assertEquals(0, removed.size());
+        assertFalse(linked);
     }
 
 
