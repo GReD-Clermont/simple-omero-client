@@ -981,20 +981,15 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      *
      * @return See above.
      *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<File> download(Client client, String path)
-    throws ServiceException, AccessException {
-        List<File> files = new ArrayList<>(0);
-        try {
-            files = call(client.getGateway().getFacility(TransferFacility.class),
-                         t -> t.downloadImage(client.getCtx(), path, getId()),
-                         "Could not download image " + getId());
-        } catch (ExecutionException e) {
-            // IGNORE FOR API COMPATIBILITY
-        }
-        return files;
+    throws ServiceException, AccessException, ExecutionException {
+        return call(client.getGateway().getFacility(TransferFacility.class),
+                    t -> t.downloadImage(client.getCtx(), path, getId()),
+                    "Could not download image " + getId());
     }
 
 
