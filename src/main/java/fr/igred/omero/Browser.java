@@ -522,55 +522,6 @@ public abstract class Browser extends GatewayWrapper {
 
 
     /**
-     * @param tag The tag annotation.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images tagged with a specified tag from OMERO.
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesTagged(TagAnnotationWrapper tag)
-    throws ServiceException, AccessException, ExecutionException {
-        return getImages(tag);
-    }
-
-
-    /**
-     * @param tagId Id of the tag researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images tagged with a specified tag from OMERO.
-     */
-    @Deprecated
-    public List<ImageWrapper> getImagesTagged(Long tagId)
-    throws ServiceException, AccessException, ExecutionException {
-        return getImagesTagged(getTag(tagId));
-    }
-
-
-    /**
-     * @param key Name of the key researched.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images with a certain key
-     */
-    @Deprecated
-    public abstract List<ImageWrapper> getImagesKey(String key)
-    throws ServiceException, AccessException, ExecutionException;
-
-
-    /**
      * Gets all images with a certain key.
      *
      * @param key Name of the key researched.
@@ -592,22 +543,6 @@ public abstract class Browser extends GatewayWrapper {
 
         return flatten(selected);
     }
-
-
-    /**
-     * @param key   Name of the key researched.
-     * @param value Value associated with the key.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets all images with a certain key value pair from OMERO
-     */
-    @Deprecated
-    public abstract List<ImageWrapper> getImagesPairKeyValue(String key, String value)
-    throws ServiceException, AccessException, ExecutionException;
 
 
     /**

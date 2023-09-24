@@ -154,15 +154,8 @@ class ClientTest extends UserTest {
 
 
     @Test
-    void testGetImagesTagged() throws Exception {
-        List<ImageWrapper> images = client.getImagesTagged(TAG1.id);
-        assertEquals(3, images.size());
-    }
-
-
-    @Test
     void testGetImagesKey() throws Exception {
-        List<ImageWrapper> images = client.getImagesKey("testKey1");
+        List<ImageWrapper> images = client.getImagesWithKey("testKey1");
         assertEquals(3, images.size());
     }
 
@@ -174,8 +167,6 @@ class ClientTest extends UserTest {
 
         List<ImageWrapper> images = client.getImagesWithKeyValuePair(key, val);
         assertEquals(2, images.size());
-        List<ImageWrapper> images2 = client.getImagesPairKeyValue(key, val);
-        assertEquals(2, images2.size());
     }
 
 
