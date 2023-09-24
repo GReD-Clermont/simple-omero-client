@@ -370,17 +370,6 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * @param data The ROI data.
-     *
-     * @deprecated Changes the wrapped data.
-     */
-    @Deprecated
-    public void setData(ROIData data) {
-        this.data = data;
-    }
-
-
-    /**
      * Adds ShapeData objects from a list of GenericShapeWrapper to the ROIData
      *
      * @param shapes List of GenericShapeWrapper.
