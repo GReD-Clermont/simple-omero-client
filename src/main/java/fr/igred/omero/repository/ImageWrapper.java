@@ -49,11 +49,11 @@ import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
+import omero.gateway.model.WellSampleData;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Length;
 import omero.model.Time;
-import omero.model.WellSample;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
@@ -297,6 +297,42 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Retrieves the well samples containing this image.
+     *
+     * @return See above
+     */
+    public List<WellSampleWrapper> getWellSamples() {
+        return data.asImage()
+                   .copyWellSamples()
+                   .stream()
+                   .map(WellSampleData::new)
+                   .map(WellSampleWrapper::new)
+                   .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the well samples containing this image and updates them from OMERO.
+     *
+     * @param client The data browser.
+     *
+     * @return See above
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<WellSampleWrapper> getWellSamples(Client client)
+    throws AccessException, ServiceException, ExecutionException {
+        List<WellSampleWrapper> samples = getWellSamples();
+        for (WellSampleWrapper sample : samples) {
+            sample.reload(client);
+        }
+        return samples;
+    }
+
+
+    /**
      * Retrieves the wells containing this image.
      *
      * @param client The client handling the connection.
@@ -309,15 +345,16 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<WellWrapper> getWells(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        Long[] ids = this.asDataObject()
-                         .asImage()
-                         .copyWellSamples()
-                         .stream()
-                         .map(WellSample::getWell)
-                         .map(IObject::getId)
-                         .map(RLong::getValue)
-                         .sorted().distinct()
-                         .toArray(Long[]::new);
+        List<WellSampleWrapper> wellSamples = getWellSamples();
+        Collection<WellWrapper> wells       = new ArrayList<>(wellSamples.size());
+        for (WellSampleWrapper ws : wellSamples) {
+            wells.add(ws.getWell(client));
+        }
+        Long[] ids = wells.stream()
+                          .map(WellWrapper::getId)
+                          .sorted()
+                          .distinct()
+                          .toArray(Long[]::new);
         return client.getWells(ids);
     }
 
