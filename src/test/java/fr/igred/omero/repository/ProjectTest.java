@@ -32,6 +32,7 @@ import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePo
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ProjectTest extends UserTest {
@@ -265,10 +266,16 @@ class ProjectTest extends UserTest {
         String name2 = "NewName";
         project.setName(name2);
         project.saveAndUpdate(client);
-        assertEquals(name2, client.getProject(PROJECT1.id).getName());
+        String checkName2 = client.getProject(PROJECT1.id).getName();
 
         project.setName(name);
         project.saveAndUpdate(client);
+
+        long updated = project.getUpdated().getTime();
+        long now     = System.currentTimeMillis();
+
+        assertTrue(now - updated < 5000, String.format("Updated at: %d. Current time was: %d", updated, now));
+        assertEquals(name2, checkName2);
         assertEquals(name, client.getProject(PROJECT1.id).getName());
     }
 
