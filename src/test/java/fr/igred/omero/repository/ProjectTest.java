@@ -244,7 +244,7 @@ class ProjectTest extends UserTest {
     void testGetImagesKeyInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImagesKey(client, "testKey1");
+        List<ImageWrapper> images = project.getImagesWithKey(client, "testKey1");
 
         assertEquals(3, images.size());
     }
@@ -254,7 +254,7 @@ class ProjectTest extends UserTest {
     void testGetImagesPairKeyValueInProject() throws Exception {
         ProjectWrapper project = client.getProject(PROJECT1.id);
 
-        List<ImageWrapper> images = project.getImagesPairKeyValue(client, "testKey1", "testValue1");
+        List<ImageWrapper> images = project.getImagesWithKeyValuePair(client, "testKey1", "testValue1");
         assertEquals(2, images.size());
     }
 
