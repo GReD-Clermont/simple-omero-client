@@ -397,9 +397,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public boolean importImages(GatewayWrapper client, int threads, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, threads, paths);
-        refresh(client);
-        return success;
+        return importImages(client, data, threads, paths);
     }
 
 
@@ -418,9 +416,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public List<Long> importImage(GatewayWrapper client, String path)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        refresh(client);
-        return ids;
+        return importImage(client, data, path);
     }
 
 }

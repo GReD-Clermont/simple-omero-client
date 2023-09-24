@@ -426,9 +426,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.asDataObject().asImage());
         link.setParent(new DatasetI(data.getId(), false));
-
         client.save(link);
-        reload(client);
     }
 
 
@@ -487,9 +485,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public boolean importImages(Client client, int threads, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, threads, paths);
-        reload(client);
-        return success;
+        return importImages(client, data, threads, paths);
     }
 
 
@@ -508,9 +504,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<Long> importImage(Client client, String path)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        reload(client);
-        return ids;
+        return importImage(client, data, path);
     }
 
 

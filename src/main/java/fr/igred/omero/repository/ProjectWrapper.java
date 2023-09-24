@@ -172,7 +172,8 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Adds a dataset to the project in OMERO. Create the dataset.
+     * Creates a dataset and adds it to the project in OMERO.
+     * <p>The project needs to be reloaded afterwards to list the new dataset.</p>
      *
      * @param client      The client handling the connection.
      * @param name        Dataset name.
@@ -212,8 +213,6 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         link.setParent(data.asProject());
 
         client.save(link);
-        reload(client);
-        dataset.reload(client);
         return dataset;
     }
 
