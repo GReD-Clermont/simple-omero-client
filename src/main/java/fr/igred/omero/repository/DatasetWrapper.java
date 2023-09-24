@@ -41,9 +41,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -293,8 +295,11 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null) {
+            Map<String, List<String>> pairs = imageWrapper.getKeyValuePairs(client)
+                                                          .stream()
+                                                          .collect(groupingBy(Map.Entry::getKey,
+                                                                              mapping(Map.Entry::getValue, toList())));
+            if (pairs.get(key) != null) {
                 selected.add(imageWrapper);
             }
         }
@@ -330,8 +335,12 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
+
+            Map<String, List<String>> pairs = imageWrapper.getKeyValuePairs(client)
+                                                          .stream()
+                                                          .collect(groupingBy(Map.Entry::getKey,
+                                                                              mapping(Map.Entry::getValue, toList())));
+            if (pairs.get(key) != null && pairs.get(key).contains(value)) {
                 selected.add(imageWrapper);
             }
         }
@@ -529,7 +538,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             }
         }
         if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(toList());
 
             Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
             for (ImageWrapper orphan : orphans) {

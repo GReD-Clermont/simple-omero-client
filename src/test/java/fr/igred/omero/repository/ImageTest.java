@@ -45,6 +45,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +53,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -134,8 +138,11 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetKeyValuePair1() throws Exception {
-        ImageWrapper        image = client.getImage(IMAGE1.id);
-        Map<String, String> pairs = image.getKeyValuePairs(client);
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        Map<String, List<String>> pairs = image.getKeyValuePairs(client)
+                                               .stream()
+                                               .collect(groupingBy(Map.Entry::getKey,
+                                                                   mapping(Map.Entry::getValue, toList())));
         assertEquals(2, pairs.size());
     }
 
@@ -149,17 +156,17 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testGetValue() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
-        String       value = image.getValue(client, "testKey1");
-        assertEquals("testValue1", value);
+    void testGetValues() throws Exception {
+        ImageWrapper image  = client.getImage(IMAGE1.id);
+        List<String> values = image.getValues(client, "testKey1");
+        assertEquals("testValue1", values.get(0));
     }
 
 
     @Test
-    void testGetValueWrongKey() throws Exception {
+    void testGetValuesWrongKey() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
-        assertThrows(NoSuchElementException.class, () -> image.getValue(client, "testKey"));
+        assertEquals(0, image.getValues(client, "testKey").size());
     }
 
 
@@ -173,22 +180,25 @@ class ImageTest extends UserTest {
         String value1 = "Value Test";
         String value2 = "Value Test2";
 
-        List<NamedValue> values = new ArrayList<>(2);
-        values.add(new NamedValue(name1, value1));
-        values.add(new NamedValue(name2, value2));
+        List<Map.Entry<String, String>> values = new ArrayList<>(2);
+        values.add(new AbstractMap.SimpleEntry<>(name1, value1));
+        values.add(new AbstractMap.SimpleEntry<>(name2, value2));
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(values);
         image.link(client, mapAnnotation);
 
-        Map<String, String> pairs = image.getKeyValuePairs(client);
+        Map<String, List<String>> pairs = image.getKeyValuePairs(client)
+                                               .stream()
+                                               .collect(groupingBy(Map.Entry::getKey,
+                                                                   mapping(Map.Entry::getValue, toList())));
 
-        String value = image.getValue(client, name1);
+        List<String> value = image.getValues(client, name1);
 
         client.delete(image.getMapAnnotations(client));
 
         assertEquals(values, mapAnnotation.getContent());
         assertEquals(2, pairs.size());
-        assertEquals(value1, value);
+        assertEquals(value1, value.get(0));
     }
 
 
@@ -212,15 +222,18 @@ class ImageTest extends UserTest {
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper(mapData);
         image.link(client, mapAnnotation);
 
-        Map<String, String> pairs = image.getKeyValuePairs(client);
+        Map<String, List<String>> pairs = image.getKeyValuePairs(client)
+                                               .stream()
+                                               .collect(groupingBy(Map.Entry::getKey,
+                                                                   mapping(Map.Entry::getValue, toList())));
 
-        String value = image.getValue(client, name2);
+        List<String> vals = image.getValues(client, name2);
 
         client.delete(image.getMapAnnotations(client));
 
-        assertEquals(values, mapAnnotation.getContent());
+        assertEquals(values, mapAnnotation.asDataObject().getContent());
         assertEquals(2, pairs.size());
-        assertEquals(value2, value);
+        assertEquals(value2, vals.get(0));
     }
 
 
@@ -234,9 +247,9 @@ class ImageTest extends UserTest {
         String value1 = "Value Test";
         String value2 = "Value Test2";
 
-        List<NamedValue> values = new ArrayList<>(2);
-        values.add(new NamedValue(name1, value1));
-        values.add(new NamedValue(name2, value2));
+        Collection<Map.Entry<String, String>> values = new ArrayList<>(2);
+        values.add(new AbstractMap.SimpleEntry<>(name1, value1));
+        values.add(new AbstractMap.SimpleEntry<>(name2, value2));
 
         MapAnnotationWrapper mapAnnotation = new MapAnnotationWrapper();
         mapAnnotation.setContent(values);
@@ -244,13 +257,13 @@ class ImageTest extends UserTest {
 
         List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
 
-        String value = image.getValue(client, name1);
+        List<String> value = image.getValues(client, name1);
 
         client.delete(image.getMapAnnotations(client));
 
         assertEquals(values, mapAnnotation.getContent());
         assertEquals(1, maps.size());
-        assertEquals(value1, value);
+        assertEquals(value1, value.get(0));
     }
 
 
@@ -270,13 +283,13 @@ class ImageTest extends UserTest {
 
         List<MapAnnotationWrapper> maps = image.getMapAnnotations(client);
 
-        String value = image.getValue(client, key1);
+        List<String> value = image.getValues(client, key1);
         client.delete(maps);
 
         assertEquals(2, maps.size());
         assertEquals(NSCLIENTMAPANNOTATION.value, maps.get(0).getNameSpace());
         assertEquals(0, (maps.get(0).getLastModified().getTime() - ts.getTime()) / 1000);
-        assertEquals(value1, value);
+        assertEquals(value1, value.get(0));
     }
 
 
