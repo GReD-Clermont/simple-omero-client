@@ -86,7 +86,7 @@ class ProjectTest extends UserTest {
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
-        project.addTag(client, tag);
+        project.link(client, tag);
         List<TagAnnotationWrapper> tags = project.getTags(client);
         client.delete(tag);
         List<TagAnnotationWrapper> endTags = project.getTags(client);
@@ -160,7 +160,7 @@ class ProjectTest extends UserTest {
         TagAnnotationWrapper tag3 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
         TagAnnotationWrapper tag4 = new TagAnnotationWrapper(client, "Project tag", "tag attached to a project");
 
-        project.addTags(client, tag1, tag2, tag3, tag4);
+        project.link(client, tag1, tag2, tag3, tag4);
         List<TagAnnotationWrapper> tags = project.getTags(client);
         client.delete(tag1);
         client.delete(tag2);
@@ -311,7 +311,7 @@ class ProjectTest extends UserTest {
 
         TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "CopyTestTag", "Copy annotations");
         project1.link(client, tag);
-        project1.addPairKeyValue(client, "CopyTest", "Annotation");
+        project1.addKeyValuePair(client, "CopyTest", "Annotation");
 
         TableWrapper table = new TableWrapper(1, "CopyTest");
         table.setColumn(0, "Name", String.class);
@@ -360,7 +360,7 @@ class ProjectTest extends UserTest {
         assertEquals(1, files.size());
 
         if (!files.isEmpty()) {
-            project2.addFileAnnotation(client, files.get(0));
+            project2.link(client, files.get(0));
         }
         assertEquals(1, project2.getFileAnnotations(client).size());
 
