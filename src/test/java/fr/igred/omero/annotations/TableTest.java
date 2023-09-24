@@ -139,7 +139,7 @@ class TableTest extends UserTest {
 
         List<TableWrapper> tables = dataset.getTables(client);
         for (TableWrapper table : tables) {
-            client.delete(table);
+            client.deleteTable(table);
         }
         List<TableWrapper> noTables = dataset.getTables(client);
 

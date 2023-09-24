@@ -328,7 +328,7 @@ class ProjectTest extends UserTest {
 
         client.deleteFile(fileId);
         client.delete(tag);
-        client.delete(table);
+        client.deleteTable(table);
         List<MapAnnotationWrapper> maps = project1.getMapAnnotations(client);
         if (!maps.isEmpty()) {
             for (MapAnnotationWrapper map : maps) {
