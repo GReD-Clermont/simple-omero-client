@@ -40,6 +40,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -202,7 +203,7 @@ class ROI2ImageJTest extends BasicTest {
         roiWrapper2.addShape(polyline);
         roiWrapper2.addShape(polygon);
 
-        List<ROIWrapper> rois = new ArrayList<>(2);
+        Collection<ROIWrapper> rois = new ArrayList<>(2);
         rois.add(roiWrapper1);
         rois.add(roiWrapper2);
 
