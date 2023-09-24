@@ -496,7 +496,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public void unlinkAllROIs(Client client, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        unlinkROIs(client, getROIs(client, imageId).toArray(EMPTY_ROI_ARRAY));
+        unlinkROIs(client, getROIs(client, imageId));
     }
 
 
@@ -565,9 +565,26 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public void unlinkROIs(Client client, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIData> roiData = Arrays.stream(rois)
-                                      .map(GenericObjectWrapper::asDataObject)
-                                      .collect(Collectors.toList());
+        unlinkROIs(client, Arrays.asList(rois));
+    }
+
+
+    /**
+     * Unlink ROIs from the folder.
+     * <p> The ROIs are now linked to the image directly.
+     *
+     * @param client The data manager.
+     * @param rois   ROI to unlink.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void unlinkROIs(Client client, Collection<? extends ROIWrapper> rois)
+    throws ServiceException, AccessException, ExecutionException {
+        List<ROIData> roiData = rois.stream()
+                                    .map(ROIWrapper::asDataObject)
+                                    .collect(Collectors.toList());
         ExceptionHandler.ofConsumer(client.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(client.getCtx(),
                                                                    -1L,
