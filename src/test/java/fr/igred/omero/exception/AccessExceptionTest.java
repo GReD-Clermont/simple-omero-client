@@ -255,7 +255,7 @@ class AccessExceptionTest extends BasicTest {
 
         MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class,
-                     () -> image.addMapAnnotation(sudo, mapAnnotation1));
+                     () -> image.link(sudo, mapAnnotation1));
     }
 
 
