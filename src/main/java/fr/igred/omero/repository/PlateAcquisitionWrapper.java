@@ -106,17 +106,6 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the PlateAcquisitionData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public PlateAcquisitionData asPlateAcquisitionData() {
-        return data;
-    }
-
-
-    /**
      * Gets the plate acquisition description
      *
      * @return See above.

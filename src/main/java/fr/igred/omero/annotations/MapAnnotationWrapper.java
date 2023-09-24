@@ -205,15 +205,4 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
         return data.getContentAsString();
     }
 
-
-    /**
-     * @return the {@link MapAnnotationData} contained.
-     *
-     * @deprecated Gets the MapAnnotationData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public MapAnnotationData asMapAnnotationData() {
-        return data;
-    }
-
 }

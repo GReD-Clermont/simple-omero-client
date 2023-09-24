@@ -104,17 +104,6 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the ProjectData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public ProjectData asProjectData() {
-        return data;
-    }
-
-
-    /**
      * Gets the project description
      *
      * @return The project description.
