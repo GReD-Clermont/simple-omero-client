@@ -167,23 +167,6 @@ public class Client extends Browser {
 
 
     /**
-     * @param table Table to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException ID not defined.
-     * @throws InterruptedException     If block(long) does not return.
-     * @deprecated Deletes a table from OMERO.
-     */
-    @Deprecated
-    public void delete(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        deleteTable(table);
-    }
-
-
-    /**
      * Deletes a table from OMERO.
      *
      * @param table Table to delete.

@@ -144,7 +144,7 @@ class ImageImportTest extends UserTest {
         client.delete(dataset);
         client.delete(tag1);
         client.delete(tag2);
-        client.delete(table);
+        client.deleteTable(table);
         client.deleteFile(fileId);
         client.delete(roi);
         client.delete(roiFolder);
@@ -229,7 +229,7 @@ class ImageImportTest extends UserTest {
         client.delete(dataset);
         client.delete(tag1);
         client.delete(tag2);
-        client.delete(table);
+        client.deleteTable(table);
         client.deleteFile(fileId);
         client.delete(roi);
         client.delete(folder);
