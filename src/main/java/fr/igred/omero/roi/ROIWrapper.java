@@ -219,7 +219,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @return The converted list of ImageJ ROIs.
      */
-    public static List<ij.gui.Roi> toImageJ(List<? extends ROIWrapper> rois) {
+    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois) {
         return toImageJ(rois, IJ_PROPERTY);
     }
 
@@ -233,7 +233,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @return The converted list of ImageJ ROIs.
      */
-    public static List<ij.gui.Roi> toImageJ(List<? extends ROIWrapper> rois, String property) {
+    public static List<ij.gui.Roi> toImageJ(Collection<? extends ROIWrapper> rois, String property) {
         return toImageJ(rois, property, true);
     }
 
@@ -374,7 +374,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param shapes List of GenericShapeWrapper.
      */
-    public void addShapes(List<? extends GenericShapeWrapper<?>> shapes) {
+    public void addShapes(Iterable<? extends GenericShapeWrapper<?>> shapes) {
         shapes.forEach(this::addShape);
     }
 
