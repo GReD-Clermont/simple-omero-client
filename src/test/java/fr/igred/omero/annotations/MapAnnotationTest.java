@@ -19,7 +19,6 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import omero.model.NamedValue;
 import org.junit.jupiter.api.Test;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -45,8 +44,8 @@ class MapAnnotationTest extends UserTest {
     @Test
     void testGetSingleMapAnnotation() throws Exception {
         MapAnnotationWrapper map = client.getMapAnnotation(4L);
-        assertEquals("testKey1", map.getContent().get(0).name);
-        assertEquals("testValue1", map.getContent().get(0).value);
+        assertEquals("testKey1", map.getContent().get(0).getKey());
+        assertEquals("testValue1", map.getContent().get(0).getValue());
     }
 
 
@@ -54,7 +53,7 @@ class MapAnnotationTest extends UserTest {
     void testGetSingleMapAnnotationByKey() throws Exception {
         List<MapAnnotationWrapper> maps = client.getMapAnnotations("testKey1");
         assertEquals(2, maps.size());
-        assertEquals("testValue1", maps.get(0).getContent().get(0).value);
+        assertEquals("testValue1", maps.get(0).getContent().get(0).getValue());
     }
 
 
@@ -88,8 +87,8 @@ class MapAnnotationTest extends UserTest {
 
     @Test
     void testSetContent() throws Exception {
-        MapAnnotationWrapper map     = client.getMapAnnotation(4L);
-        List<NamedValue>     content = map.getContent();
+        MapAnnotationWrapper        map     = client.getMapAnnotation(4L);
+        List<Entry<String, String>> content = map.getContent();
 
         Collection<Entry<String, String>> pairs = new ArrayList<>(2);
         pairs.add(new SimpleEntry<>("testKey2", "testValue2"));
@@ -107,8 +106,8 @@ class MapAnnotationTest extends UserTest {
 
         assertEquals(2, size);
         assertEquals(expected, actual);
-        assertEquals("testKey1", map.getContent().get(0).name);
-        assertEquals("testValue1", map.getContent().get(0).value);
+        assertEquals("testKey1", map.getContent().get(0).getKey());
+        assertEquals("testValue1", map.getContent().get(0).getValue());
     }
 
 }

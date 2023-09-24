@@ -55,7 +55,6 @@ import java.util.concurrent.ExecutionException;
 import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -319,27 +318,6 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
-     * Gets the List of key-value pairs associated to an object as a map (no duplicate key should exist).
-     *
-     * @param client The client handling the connection.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public Map<String, String> getKeyValuePairs(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        return getMapAnnotations(client).stream()
-                                        .map(MapAnnotationWrapper::getContent)
-                                        .flatMap(List::stream)
-                                        .collect(toMap(nv -> nv.name,
-                                                       nv -> nv.value));
-    }
-
-
-    /**
      * Gets the List of Key-Value pairs associated to an object.
      *
      * @param client The client handling the connection.
@@ -349,14 +327,11 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     *
-     * @deprecated This method will be renamed to {@link #getKeyValuePairs(Client)} ()} in a future version.
      */
-    @Deprecated
-    public List<Map.Entry<String, String>> getKeyValuePairsAsList(Client client)
+    public List<Map.Entry<String, String>> getKeyValuePairs(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(client).stream()
-                                        .map(MapAnnotationWrapper::getContentAsEntryList)
+                                        .map(MapAnnotationWrapper::getContent)
                                         .flatMap(List::stream)
                                         .collect(toList());
     }
@@ -375,15 +350,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public String getValue(Client client, String key)
+    public List<String> getValues(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
-        Map<String, String> keyValuePairs = getKeyValuePairs(client);
-        String              value         = keyValuePairs.get(key);
-        if (value != null) {
-            return value;
-        } else {
-            throw new NoSuchElementException("Key \"" + key + "\" not found");
-        }
+        return getMapAnnotations(client).stream()
+                                        .map(MapAnnotationWrapper::getContentAsMap)
+                                        .map(kv -> kv.get(key))
+                                        .filter(Objects::nonNull)
+                                        .flatMap(List::stream)
+                                        .collect(toList());
     }
 
 
@@ -440,6 +414,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
     /**
      * Rates the object (using a rating annotation).
+     * <p>If multiple ratings are present, only one will be kept and updated.
      *
      * @param client The client handling the connection.
      * @param rating The rating.
