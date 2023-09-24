@@ -18,13 +18,16 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
+import omero.model.IObject;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model._PlateAcquisitionOperationsNC;
@@ -54,6 +57,17 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      */
     public PlateAcquisitionWrapper(PlateAcquisitionData plateAcquisition) {
         super(plateAcquisition);
+        omero.model.Plate plate = ((_PlateAcquisitionOperationsNC) data.asIObject()).getPlate();
+        if (plate != null) {
+            data.setRefPlateId(plate.getId().getValue());
+        }
+    }
+
+
+    /**
+     * Initializes the ref. plate ID to what is stored in the underlying IObject.
+     */
+    private void initRefPlate() {
         omero.model.Plate plate = ((_PlateAcquisitionOperationsNC) data.asIObject()).getPlate();
         if (plate != null) {
             data.setRefPlateId(plate.getId().getValue());
@@ -282,6 +296,40 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      */
     public int getMaximumFieldCount() {
         return data.getMaximumFieldCount();
+    }
+
+
+    /**
+     * Reloads the plate acquisition from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        String query = "select pa from PlateAcquisition as pa " +
+                       "left outer join fetch pa.plate as p " +
+                       "left outer join fetch pa.wellSample as ws " +
+                       "left outer join fetch ws.plateAcquisition as pa2 " +
+                       "left outer join fetch ws.well as w " +
+                       "left outer join fetch ws.image as img " +
+                       "left outer join fetch img.pixels as pix " +
+                       "left outer join fetch pix.pixelsType as pt " +
+                       "where pa.id=" + getId();
+        // TODO: replace with Browser::findByQuery when possible
+        IObject o = ExceptionHandler.of(browser.getGateway(),
+                                        g -> g.getQueryService(browser.getCtx())
+                                              .findAllByQuery(query, null))
+                                    .handleOMEROException("Query failed: " + query)
+                                    .get()
+                                    .iterator()
+                                    .next();
+        data = new PlateAcquisitionData((omero.model.PlateAcquisition) o);
+        initRefPlate();
     }
 
 }

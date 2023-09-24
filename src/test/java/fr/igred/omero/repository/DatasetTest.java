@@ -102,7 +102,7 @@ class DatasetTest extends UserTest {
 
         client.delete(newDataset);
 
-        dataset.refresh(client);
+        dataset.reload(client);
         List<ImageWrapper> newImages = dataset.getImages(client);
 
         assertEquals(images.size(), newImages.size());

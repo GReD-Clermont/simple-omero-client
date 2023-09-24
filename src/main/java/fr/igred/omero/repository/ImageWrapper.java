@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -908,6 +909,25 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             // IGNORE FOR API COMPATIBILITY
         }
         return files;
+    }
+
+
+    /**
+     * Reloads the image from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   b -> b.getImage(browser.getCtx(), getId()))
+                               .handleOMEROException("Can not reload " + this)
+                               .get();
     }
 
 }

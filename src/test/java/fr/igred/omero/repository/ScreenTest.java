@@ -198,7 +198,7 @@ class ScreenTest extends UserTest {
         client.delete(wells);
         client.delete(plates);
 
-        screen.refresh(client);
+        screen.reload(client);
         assertTrue(screen.getPlates().isEmpty());
 
         client.delete(screen);

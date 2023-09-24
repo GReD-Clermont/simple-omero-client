@@ -18,13 +18,16 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.WellSampleData;
+import omero.model.IObject;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
@@ -185,6 +188,35 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      */
     public long getStartTime() {
         return data.getStartTime();
+    }
+
+
+    /**
+     * Reloads the well sample from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        String query = "select ws from WellSample as ws " +
+                       "left outer join fetch ws.plateAcquisition as pa " +
+                       "left outer join fetch ws.well as w " +
+                       "left outer join fetch ws.image as img " +
+                       "left outer join fetch img.pixels as pix " +
+                       "where ws.id=" + getId();
+        // TODO: replace with Browser::findByQuery when possible
+        IObject o = ExceptionHandler.of(browser.getGateway(),
+                                        g -> g.getQueryService(browser.getCtx())
+                                              .findAllByQuery(query, null))
+                                    .handleOMEROException("Query failed: " + query)
+                                    .get()
+                                    .iterator()
+                                    .next();
+        data = new WellSampleData((omero.model.WellSample) o);
     }
 
 }

@@ -19,6 +19,7 @@ package fr.igred.omero.repository;
 
 
 import fr.igred.omero.AnnotatableWrapper;
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -206,6 +207,36 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
     public void copyAnnotationLinks(Client client, GenericRepositoryObjectWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
         super.copyAnnotationLinks(client, object);
+    }
+
+
+    /**
+     * @param client The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Reloads the object from OMERO.
+     */
+    @Deprecated
+    public void refresh(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        reload(client);
+    }
+
+
+    /**
+     * Reloads the object from OMERO.
+     *
+     * @param browser The data browser.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        // DO NOTHING FOR API COMPATIBILITY PURPOSES
     }
 
 

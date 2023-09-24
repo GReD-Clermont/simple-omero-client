@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -41,11 +42,12 @@ import omero.model.IObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.singletonList;
 
 
 /**
@@ -194,17 +196,17 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * Reloads the folder from OMERO, to update all links.
-     *
      * @param client The client handling the connection.
      *
      * @throws AccessException    Cannot access data.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Reloads the folder from OMERO, to update all links.
      */
+    @Deprecated
     public void reload(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        data = client.getFolder(getId()).asDataObject();
+        reload((Browser) client);
     }
 
 
@@ -376,7 +378,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                             rf -> rf.addRoisToFolders(client.getCtx(),
                                                       imageId,
                                                       roiData,
-                                                      Collections.singletonList(data)))
+                                                      singletonList(data)))
                         .handleOMEROException("Cannot add ROIs to " + this)
                         .rethrow();
     }
@@ -589,9 +591,31 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                     rf -> rf.removeRoisFromFolders(client.getCtx(),
                                                                    -1L,
                                                                    roiData,
-                                                                   Collections.singletonList(data)))
+                                                                   singletonList(data)))
                         .handleOMEROException("Cannot unlink ROI from " + this)
                         .rethrow();
+    }
+
+
+    /**
+     * Reloads the folder from OMERO, to update all links.
+     *
+     * @param browser The data browser.
+     *
+     * @throws AccessException    Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void reload(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.loadFolders(browser.getCtx(),
+                                                        singletonList(getId())))
+                               .handleOMEROException("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }
