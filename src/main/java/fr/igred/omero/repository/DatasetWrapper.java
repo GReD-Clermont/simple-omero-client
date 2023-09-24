@@ -105,17 +105,6 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the DatasetData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public DatasetData asDatasetData() {
-        return data;
-    }
-
-
-    /**
      * Gets the DatasetData description
      *
      * @return DatasetData description.

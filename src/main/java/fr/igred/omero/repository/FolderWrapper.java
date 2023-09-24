@@ -163,17 +163,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * @return the FolderData.
-     *
-     * @deprecated Gets the folder contained in the FolderWrapper. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public FolderData asFolderData() {
-        return data;
-    }
-
-
-    /**
      * Gets the folder description
      *
      * @return The folder description.

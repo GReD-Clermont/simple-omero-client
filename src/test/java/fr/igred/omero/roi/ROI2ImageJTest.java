@@ -268,7 +268,7 @@ class ROI2ImageJTest extends BasicTest {
     void convertArrow() {
         LineWrapper arrow = new LineWrapper(3, 3, 10, 10);
         arrow.setCZT(0, 0, 2);
-        arrow.asShapeData().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
+        arrow.asDataObject().getShapeSettings().setMarkerStart(LineWrapper.ARROW);
         arrow.setFill(new Color(0, 0, 0, 0));
 
         Arrow ijArrow = (Arrow) arrow.toImageJ();

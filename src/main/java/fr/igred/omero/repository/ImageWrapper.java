@@ -202,17 +202,6 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the ImageData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public ImageData asImageData() {
-        return data;
-    }
-
-
-    /**
      * Gets the ImageData description
      *
      * @return description.

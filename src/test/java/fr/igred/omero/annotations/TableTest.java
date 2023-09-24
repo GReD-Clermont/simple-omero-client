@@ -204,7 +204,7 @@ class TableTest extends UserTest {
         table.setColumn(1, "Name", String.class);
         table.setRowCount(images.size());
         assertThrows(IllegalArgumentException.class,
-                     () -> images.forEach(img -> table.addRow(img.asImageData())));
+                     () -> images.forEach(img -> table.addRow(img.asDataObject())));
     }
 
 }

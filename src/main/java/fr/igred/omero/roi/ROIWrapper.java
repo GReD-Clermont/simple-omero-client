@@ -426,17 +426,6 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * @return the {@link ROIData} contained.
-     *
-     * @deprecated Returns the ROIData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public ROIData asROIData() {
-        return data;
-    }
-
-
-    /**
      * Deletes a ShapeData from the ROI.
      *
      * @param shape ShapeData to delete.

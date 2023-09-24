@@ -53,17 +53,6 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
 
 
     /**
-     * @return See above.
-     *
-     * @deprecated Returns the WellSampleData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public WellSampleData asWellSampleData() {
-        return data;
-    }
-
-
-    /**
      * Returns the screens containing the parent Well.
      *
      * @param client The client handling the connection.
