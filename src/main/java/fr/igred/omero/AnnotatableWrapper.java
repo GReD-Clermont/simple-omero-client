@@ -678,7 +678,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    public long addFile(Client client, File file) throws ExecutionException, InterruptedException {
+    public long addFile(Client client, File file)
+    throws ExecutionException, InterruptedException {
         return client.getDm().attachFile(client.getCtx(),
                                          file,
                                          null,

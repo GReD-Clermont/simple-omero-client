@@ -394,7 +394,8 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public void saveROI(Client client) throws OMEROServerError, ServiceException {
+    public void saveROI(Client client)
+    throws OMEROServerError, ServiceException {
         Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
                                             g -> g.getUpdateService(client.getCtx())
                                                   .saveAndReturnObject(data.asIObject()))

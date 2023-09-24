@@ -90,7 +90,8 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client) throws ServiceException, AccessException, ExecutionException {
+    public List<PlateWrapper> getPlates(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(client).getPlate());
     }
 
@@ -123,7 +124,8 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public WellWrapper getWell(Client client) throws AccessException, ServiceException, ExecutionException {
+    public WellWrapper getWell(Client client)
+    throws AccessException, ServiceException, ExecutionException {
         return client.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }
 

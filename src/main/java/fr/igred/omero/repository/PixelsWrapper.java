@@ -364,7 +364,8 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public double[][][][][] getAllPixels(Client client) throws AccessException, ExecutionException {
+    public double[][][][][] getAllPixels(Client client)
+    throws AccessException, ExecutionException {
         return getAllPixels(client, null, null, null, null, null);
     }
 
@@ -486,7 +487,8 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public byte[][][][] getRawPixels(Client client, int bpp) throws AccessException, ExecutionException {
+    public byte[][][][] getRawPixels(Client client, int bpp)
+    throws AccessException, ExecutionException {
         return getRawPixels(client, null, null, null, null, null, bpp);
     }
 

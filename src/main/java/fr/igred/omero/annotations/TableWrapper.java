@@ -885,7 +885,8 @@ public class TableWrapper {
      * @throws FileNotFoundException        The requested file cannot be written.
      * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
      */
-    public void saveAs(String path, char delimiter) throws FileNotFoundException, UnsupportedEncodingException {
+    public void saveAs(String path, char delimiter)
+    throws FileNotFoundException, UnsupportedEncodingException {
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);
         formatter.setGroupingUsed(false);

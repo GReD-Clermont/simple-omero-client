@@ -178,7 +178,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
+    public List<ImageWrapper> getImages(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
@@ -372,7 +373,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess("Cannot get images with key-value pair from " + this)
+                                                       .handleServiceOrAccess(
+                                                               "Cannot get images with key-value pair from " + this)
                                                        .get();
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
@@ -636,7 +638,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
+    public void refresh(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
                                    bf -> bf.getDatasets(client.getCtx(), singletonList(this.getId()))
                                            .iterator().next())

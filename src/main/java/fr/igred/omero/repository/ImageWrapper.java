@@ -148,7 +148,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server error.
      */
-    private byte[] getThumbnailBytes(Client client, int size) throws DSOutOfServiceException, ServerError {
+    private byte[] getThumbnailBytes(Client client, int size)
+    throws DSOutOfServiceException, ServerError {
         PixelsWrapper pixels = getPixels();
 
         int   sizeX  = pixels.getSizeX();
@@ -305,7 +306,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client) throws AccessException, ServiceException, ExecutionException {
+    public List<WellWrapper> getWells(Client client)
+    throws AccessException, ServiceException, ExecutionException {
         Long[] ids = this.asDataObject()
                          .asImage()
                          .copyWellSamples()
@@ -353,7 +355,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client) throws AccessException, ServiceException, ExecutionException {
+    public List<PlateWrapper> getPlates(Client client)
+    throws AccessException, ServiceException, ExecutionException {
         return distinct(getWells(client).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
     }
 
@@ -392,7 +395,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public boolean isOrphaned(Client client) throws ServiceException, OMEROServerError {
+    public boolean isOrphaned(Client client)
+    throws ServiceException, OMEROServerError {
         boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
                                                "where link.child=" + getId()).isEmpty();
         boolean noWell = client.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
@@ -576,7 +580,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @deprecated Gets the folder with the specified id on OMERO.
      */
     @Deprecated
-    public FolderWrapper getFolder(Client client, Long folderId) throws ServiceException, OMEROServerError {
+    public FolderWrapper getFolder(Client client, Long folderId)
+    throws ServiceException, OMEROServerError {
         List<IObject> os = client.findByQuery("select f " +
                                               "from Folder as f " +
                                               "where f.id = " +
@@ -862,7 +867,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      * @throws OMEROServerError Server error.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    public BufferedImage getThumbnail(Client client, int size) throws ServiceException, OMEROServerError, IOException {
+    public BufferedImage getThumbnail(Client client, int size)
+    throws ServiceException, OMEROServerError, IOException {
         BufferedImage thumbnail = null;
 
         byte[] array = ExceptionHandler.of(client, c -> getThumbnailBytes(c, size))

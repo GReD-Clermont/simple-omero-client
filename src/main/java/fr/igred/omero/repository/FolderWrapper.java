@@ -93,7 +93,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public FolderWrapper(Client client, String name) throws ServiceException, OMEROServerError {
+    public FolderWrapper(Client client, String name)
+    throws ServiceException, OMEROServerError {
         super(new FolderData());
         data.setName(name);
         Folder f = (Folder) ExceptionHandler.of(client.getGateway(),
@@ -309,7 +310,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws AccessException, ServiceException, ExecutionException {
+    public List<ImageWrapper> getImages(Client client)
+    throws AccessException, ServiceException, ExecutionException {
         reload(client);
         return getImages();
     }
@@ -475,7 +477,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @deprecated Unlink all ROI, associated to the image set, in the folder. ROIs are now linked to the image directly
      */
     @Deprecated
-    public void unlinkAllROI(Client client) throws ServiceException, AccessException, ExecutionException {
+    public void unlinkAllROI(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         unlinkAllROIs(client);
     }
 

@@ -246,7 +246,8 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
+    public List<ImageWrapper> getImages(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         List<Long> projectIds = Collections.singletonList(getId());
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForProjects(client.getCtx(), projectIds))
@@ -479,7 +480,8 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
+    public void refresh(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
                                    bf -> bf.getProjects(client.getCtx(),
                                                         Collections.singletonList(this.getId()))

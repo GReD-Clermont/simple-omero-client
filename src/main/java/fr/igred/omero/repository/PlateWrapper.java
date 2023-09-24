@@ -166,7 +166,8 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client) throws ServiceException, AccessException, ExecutionException {
+    public List<WellWrapper> getWells(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = ExceptionHandler.of(client.getBrowseFacility(),
                                                          bf -> bf.getWells(client.getCtx(), data.getId()))
                                                      .handleServiceOrAccess("Cannot get wells from " + this)

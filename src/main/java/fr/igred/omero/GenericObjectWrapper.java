@@ -229,7 +229,8 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
+    public void saveAndUpdate(Client client)
+    throws ExecutionException, ServiceException, AccessException {
         data = (T) ExceptionHandler.of(client.getDm(),
                                        d -> d.saveAndReturnObject(client.getCtx(), data))
                                    .handleServiceOrAccess("Cannot save and update object.")

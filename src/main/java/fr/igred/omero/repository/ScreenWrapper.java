@@ -326,7 +326,8 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
+    public void refresh(GatewayWrapper client)
+    throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
                                    bf -> bf.getScreens(client.getCtx(), Collections.singletonList(this.getId()))
                                            .iterator().next())
