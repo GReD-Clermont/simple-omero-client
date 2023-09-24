@@ -207,8 +207,9 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testExceptionHandlerDSAccess() {
-        Throwable t = new DSAccessException("Test", null);
-        assertThrows(AccessException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(AccessException.class, () -> eh.rethrow(DSAccessException.class, AccessException::new, "Access"));
     }
 
 
@@ -221,23 +222,10 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
-    void testExceptionHandlerServerError() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleException(t, "Great"));
-    }
-
-
-    @Test
-    void testExceptionHandlerServiceOrServerError() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
-    }
-
-
-    @Test
     void testExceptionHandlerDSOutOfService() {
-        Throwable t = new DSOutOfServiceException(null);
-        assertThrows(ServiceException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        Exception           e  = new DSOutOfServiceException(null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Service"));
     }
 
 
@@ -290,23 +278,10 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
-    void testExceptionHandlerRethrowNotException() {
-        Throwable t = new Exception("Nothing");
-        assertDoesNotThrow(() -> ExceptionHandler.handleException(t, "Great"));
-    }
-
-
-    @Test
-    void testExceptionHandlerRethrowNotServer() {
-        Throwable t = new ServerError(null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrAccess(t, "Great"));
-    }
-
-
-    @Test
     void testExceptionHandlerRethrowNot() {
-        Throwable t = new DSAccessException("Test", null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertDoesNotThrow(() -> eh.rethrow(DSOutOfServiceException.class, ServiceException::new, "Not service"));
     }
 
 
