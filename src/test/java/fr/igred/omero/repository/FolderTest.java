@@ -158,8 +158,9 @@ class FolderTest extends UserTest {
 
     @Test
     void testFolder2() throws Exception {
+        long imageId = IMAGE2.id;
+
         FolderWrapper folder = new FolderWrapper(client, "Test");
-        folder.setImage(IMAGE2.id);
 
         for (int i = 0; i < 8; i++) {
             RectangleWrapper rectangle = new RectangleWrapper();
@@ -172,15 +173,15 @@ class FolderTest extends UserTest {
             roi.addShape(rectangle);
             roi.saveROI(client);
 
-            folder.addROI(client, roi);
+            folder.addROIs(client, imageId, roi);
         }
 
-        List<ROIWrapper> rois = folder.getROIs(client);
+        List<ROIWrapper> rois = folder.getROIs(client, imageId);
         assertEquals(8, rois.size());
 
-        folder.unlinkROI(client, rois.get(0));
+        folder.unlinkROIs(client, rois.get(0));
         client.delete(rois.get(0));
-        List<ROIWrapper> updatedROIs = folder.getROIs(client);
+        List<ROIWrapper> updatedROIs = folder.getROIs(client, imageId);
         assertEquals(7, updatedROIs.size());
 
         client.delete(folder);

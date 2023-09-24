@@ -62,9 +62,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     /** Empty ROI array for fast list conversion */
     private static final ROIWrapper[] EMPTY_ROI_ARRAY = new ROIWrapper[0];
 
-    /** ID of the associated image */
-    private long imageID = -1L;
-
 
     /**
      * Constructor of the FolderWrapper class.
@@ -185,21 +182,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * @param client The client handling the connection.
-     *
-     * @throws AccessException    Cannot access data.
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Reloads the folder from OMERO, to update all links.
-     */
-    @Deprecated
-    public void reload(Client client)
-    throws AccessException, ServiceException, ExecutionException {
-        reload((Browser) client);
-    }
-
-
-    /**
      * Retrieves the parent folders for this folder.
      *
      * @return See above
@@ -313,44 +295,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * @param id ID of the image to associate.
-     *
-     * @deprecated Sets the image associated to the folder
-     */
-    @Deprecated
-    public void setImage(long id) {
-        imageID = id;
-    }
-
-
-    /**
-     * @param image Image to associate.
-     *
-     * @deprecated Sets the image associated to the folder
-     */
-    @Deprecated
-    public void setImage(ImageWrapper image) {
-        imageID = image.getId();
-    }
-
-
-    /**
-     * @param client The client handling the connection.
-     * @param roi    ROI to add.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
-     * @deprecated Adds an ROI to the folder and associate it to the image id set(an image need to be associated)
-     */
-    @Deprecated
-    public void addROI(Client client, ROIWrapper roi)
-    throws ServiceException, AccessException, ExecutionException {
-        addROIs(client, imageID, roi);
-    }
-
-
-    /**
      * Adds ROIs to the folder and associate them to the provided image ID.
      *
      * @param client  The client handling the connection.
@@ -391,24 +335,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     public void addROIs(Client client, ImageWrapper image, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
         addROIs(client, image.getId(), rois);
-    }
-
-
-    /**
-     * @param client The client handling the connection.
-     *
-     * @return List of ROIWrapper containing the ROI.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Gets the ROI contained in the folder associated with the image id set (an image need to be
-     * associated)
-     */
-    @Deprecated
-    public List<ROIWrapper> getROIs(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        return getROIs(client, imageID);
     }
 
 
@@ -462,21 +388,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
 
 
     /**
-     * @param client The client handling the connection.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Unlink all ROI, associated to the image set, in the folder. ROIs are now linked to the image directly
-     */
-    @Deprecated
-    public void unlinkAllROI(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        unlinkAllROIs(client);
-    }
-
-
-    /**
      * Unlink all ROIs associated to the provided image ID from the folder.
      * <p> ROIs are now linked to the image directly.
      *
@@ -525,23 +436,6 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     throws ServiceException, AccessException, ExecutionException {
         Collection<ROIWrapper> rois = wrap(data.copyROILinks(), ROIWrapper::new);
         unlinkROIs(client, rois.toArray(EMPTY_ROI_ARRAY));
-    }
-
-
-    /**
-     * @param client The client handling the connection.
-     * @param roi    ROI to unlink.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Unlink an ROI, associated to the image set, in the folder. The ROI is now linked to the image
-     * directly.
-     */
-    @Deprecated
-    public void unlinkROI(Client client, ROIWrapper roi)
-    throws ServiceException, AccessException, ExecutionException {
-        unlinkROIs(client, roi);
     }
 
 
