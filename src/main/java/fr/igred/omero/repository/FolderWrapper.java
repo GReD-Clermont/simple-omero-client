@@ -128,7 +128,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected  <A extends AnnotationData> void link(Client client, A annotation)
+    protected <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asAnnotation());

@@ -109,8 +109,11 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
      */
     public static String checkProperty(String property) {
-        if (property == null || property.trim().isEmpty()) return IJ_PROPERTY;
-        else return property;
+        if (property == null || property.trim().isEmpty()) {
+            return IJ_PROPERTY;
+        } else {
+            return property;
+        }
     }
 
 

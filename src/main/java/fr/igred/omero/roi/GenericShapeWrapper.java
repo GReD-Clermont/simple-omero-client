@@ -121,10 +121,11 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
                 rois.stream().map(GenericShapeWrapper::fromImageJ).forEach(list::addAll);
                 break;
             default:
-                if (ijRoi instanceof TextRoi)
+                if (ijRoi instanceof TextRoi) {
                     list.add(new TextWrapper((TextRoi) ijRoi));
-                else
+                } else {
                     list.add(new RectangleWrapper(ijRoi));
+                }
                 break;
         }
         return list;
@@ -194,7 +195,9 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         ijRoi.setName(getText());
         ijRoi.setStrokeColor(getStroke());
         Color fill = getFill();
-        if (!TRANSPARENT.equals(fill)) ijRoi.setFillColor(getFill());
+        if (!TRANSPARENT.equals(fill)) {
+            ijRoi.setFillColor(getFill());
+        }
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);
@@ -429,8 +432,9 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @return The converted affine transform.
      */
     public java.awt.geom.AffineTransform toAWTTransform() {
-        if (data.getTransform() == null) return new java.awt.geom.AffineTransform();
-        else {
+        if (data.getTransform() == null) {
+            return new java.awt.geom.AffineTransform();
+        } else {
             double a00 = data.getTransform().getA00().getValue();
             double a10 = data.getTransform().getA10().getValue();
             double a01 = data.getTransform().getA01().getValue();
@@ -449,8 +453,11 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @return A new transformed {@link java.awt.Shape}.
      */
     public java.awt.Shape createTransformedAWTShape() {
-        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) return toAWTShape();
-        else return toAWTTransform().createTransformedShape(toAWTShape());
+        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) {
+            return toAWTShape();
+        } else {
+            return toAWTTransform().createTransformedShape(toAWTShape());
+        }
     }
 
 

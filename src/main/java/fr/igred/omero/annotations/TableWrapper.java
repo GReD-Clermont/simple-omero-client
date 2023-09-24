@@ -100,11 +100,11 @@ public class TableWrapper {
      */
     public TableWrapper(int columnCount, String name) {
         this.columnCount = columnCount;
-        this.name = name;
-        columns = new TableDataColumn[columnCount];
-        data = new Object[columnCount][0];
-        rowCount = 0;
-        row = 0;
+        this.name        = name;
+        columns          = new TableDataColumn[columnCount];
+        data             = new Object[columnCount][0];
+        rowCount         = 0;
+        row              = 0;
     }
 
 
@@ -115,11 +115,11 @@ public class TableWrapper {
      */
     public TableWrapper(TableData table) {
         this.columns = table.getColumns();
-        columnCount = columns.length;
-        data = table.getData();
-        rowCount = (int) table.getNumberOfRows();
-        row = rowCount;
-        name = null;
+        columnCount  = columns.length;
+        data         = table.getData();
+        rowCount     = (int) table.getNumberOfRows();
+        row          = rowCount;
+        name         = null;
     }
 
 
@@ -161,8 +161,8 @@ public class TableWrapper {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
 
         ResultsTable rt = (ResultsTable) results.clone();
-        this.fileId = null;
-        this.name = rt.getTitle();
+        this.fileId   = null;
+        this.name     = rt.getTitle();
         this.rowCount = rt.size();
 
         int offset = 0;
@@ -173,20 +173,22 @@ public class TableWrapper {
 
         if (imageId != null) {
             image = client.getImage(imageId);
-            rois = image.getROIs(client);
+            rois  = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) offset++;
+        if (roiColumn.length > 0) {
+            offset++;
+        }
 
         String[] headings      = rt.getHeadings();
         String[] shortHeadings = rt.getHeadingsAsVariableNames();
 
         int nColumns = headings.length;
         this.columnCount = nColumns + offset;
-        columns = new TableDataColumn[columnCount];
-        data = new Object[columnCount][];
+        columns          = new TableDataColumn[columnCount];
+        data             = new Object[columnCount][];
 
         if (offset > 0) {
             createColumn(0, IMAGE, ImageData.class);
@@ -202,7 +204,9 @@ public class TableWrapper {
 
             if (isColumnNumeric(col) && !headings[i].equals(LABEL)) {
                 createColumn(offset + i, shortHeadings[i], Double.class);
-                data[offset + i] = Arrays.stream(col).map(Variable::getValue).toArray(Double[]::new);
+                data[offset + i] = Arrays.stream(col)
+                                         .map(Variable::getValue)
+                                         .toArray(Double[]::new);
             } else {
                 createColumn(offset + i, shortHeadings[i], String.class);
                 data[offset + i] = rt.getColumnAsStrings(headings[i]);
@@ -259,9 +263,13 @@ public class TableWrapper {
     private static void renameImageColumn(ResultsTable results) {
         if (results.columnExists(IMAGE)) {
             List<String> headings = Arrays.asList(results.getHeadings());
-            if (!headings.contains(LABEL)) results.renameColumn(IMAGE, LABEL);
-            else if (!results.columnExists(IMAGE + "_Name")) results.renameColumn(IMAGE, IMAGE + "_Name");
-            else results.renameColumn(IMAGE, IMAGE + "_column_" + results.getColumnIndex(IMAGE));
+            if (!headings.contains(LABEL)) {
+                results.renameColumn(IMAGE, LABEL);
+            } else if (!results.columnExists(IMAGE + "_Name")) {
+                results.renameColumn(IMAGE, IMAGE + "_Name");
+            } else {
+                results.renameColumn(IMAGE, IMAGE + "_column_" + results.getColumnIndex(IMAGE));
+            }
         }
     }
 
@@ -291,12 +299,20 @@ public class TableWrapper {
         ROIData[] roiColumn;
         if (isColumnNumeric(roiCol)) {
             roiColumn = numericColumnToROIColumn(roiCol, label2roi);
-            if (roiColumn.length == 0) roiColumn = idColumnToROIColumn(roiCol, id2roi);
-            if (roiColumn.length == 0) roiColumn = numericColumnToROIColumn(roiCol, name2roi);
+            if (roiColumn.length == 0) {
+                roiColumn = idColumnToROIColumn(roiCol, id2roi);
+            }
+            if (roiColumn.length == 0) {
+                roiColumn = numericColumnToROIColumn(roiCol, name2roi);
+            }
         } else {
             roiColumn = labelColumnToROIColumn(roiCol, name2roi, (m, s) -> s);
-            if (roiColumn.length == 0) roiColumn = labelColumnToROIColumn(roiCol, label2roi, (m, s) -> s);
-            if (roiColumn.length == 0) roiColumn = labelColumnToROIColumn(roiCol, shapeName2roi, (m, s) -> s);
+            if (roiColumn.length == 0) {
+                roiColumn = labelColumnToROIColumn(roiCol, label2roi, (m, s) -> s);
+            }
+            if (roiColumn.length == 0) {
+                roiColumn = labelColumnToROIColumn(roiCol, shapeName2roi, (m, s) -> s);
+            }
         }
         return roiColumn;
     }
@@ -316,7 +332,9 @@ public class TableWrapper {
                                     .map(Double::longValue)
                                     .map(id2roi::get).toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
-        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        if (Arrays.asList(roiColumn).contains(null)) {
+            roiColumn = EMPTY_ROI;
+        }
         return roiColumn;
     }
 
@@ -334,7 +352,9 @@ public class TableWrapper {
                                     .map(Variable::toString)
                                     .map(id2roi::get).toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
-        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        if (Arrays.asList(roiColumn).contains(null)) {
+            roiColumn = EMPTY_ROI;
+        }
         return roiColumn;
     }
 
@@ -356,7 +376,9 @@ public class TableWrapper {
                                     .map(label2roi::get)
                                     .toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
-        if (Arrays.asList(roiColumn).contains(null)) roiColumn = EMPTY_ROI;
+        if (Arrays.asList(roiColumn).contains(null)) {
+            roiColumn = EMPTY_ROI;
+        }
         return roiColumn;
     }
 
@@ -410,15 +432,17 @@ public class TableWrapper {
         String colToDelete = "";
         if (results.columnExists(roiIdProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiIdProperty);
-            roiColumn = idColumnToROIColumn(roiCol, id2roi);
+            roiColumn   = idColumnToROIColumn(roiCol, id2roi);
             colToDelete = roiIdProperty;
         }
         if (roiColumn.length == 0 && results.columnExists(roiProperty)) {
             Variable[] roiCol = results.getColumnAsVariables(roiProperty);
-            roiColumn = propertyColumnToROIColumn(roiCol, id2roi, label2roi, name2roi, shape2roi);
+            roiColumn   = propertyColumnToROIColumn(roiCol, id2roi, label2roi, name2roi, shape2roi);
             colToDelete = roiProperty;
         }
-        if (roiColumn.length != 0 && !colToDelete.isEmpty()) results.deleteColumn(colToDelete);
+        if (roiColumn.length != 0 && !colToDelete.isEmpty()) {
+            results.deleteColumn(colToDelete);
+        }
 
         String[] headings = results.getHeadings();
         if (roiColumn.length == 0 && Arrays.asList(headings).contains(LABEL)) {
@@ -449,8 +473,12 @@ public class TableWrapper {
      */
     private boolean checkColumns(int nColumns, int offset) {
         boolean match = offset + nColumns == columnCount;
-        if (offset > 0 && !columns[0].getType().equals(ImageData.class)) match = false;
-        if (offset > 1 && !columns[1].getType().equals(ROIData.class)) match = false;
+        if (offset > 0 && !columns[0].getType().equals(ImageData.class)) {
+            match = false;
+        }
+        if (offset > 1 && !columns[1].getType().equals(ROIData.class)) {
+            match = false;
+        }
         return match;
     }
 
@@ -465,10 +493,11 @@ public class TableWrapper {
      * @throws IndexOutOfBoundsException Column number is bigger than actual number of column in the table.
      */
     private void createColumn(int column, String columnName, Class<?> type) {
-        if (column < columnCount)
+        if (column < columnCount) {
             columns[column] = new TableDataColumn(columnName, column, type);
-        else
+        } else {
             throw new IndexOutOfBoundsException("Column " + column + " doesn't exist");
+        }
     }
 
 
@@ -574,12 +603,14 @@ public class TableWrapper {
         int offset = 0;
         if (imageId != null) {
             image = client.getImage(imageId);
-            rois = image.getROIs(client);
+            rois  = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
         }
         ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
-        if (roiColumn.length > 0) offset++;
+        if (roiColumn.length > 0) {
+            offset++;
+        }
 
         String[] headings = rt.getHeadings();
 
@@ -591,8 +622,12 @@ public class TableWrapper {
         int n = rt.size();
         setRowCount(rowCount + n);
 
-        if (offset > 0) Arrays.fill(data[0], row, row + n, image.asDataObject());
-        if (offset > 1) System.arraycopy(roiColumn, 0, data[1], row, n);
+        if (offset > 0) {
+            Arrays.fill(data[0], row, row + n, image.asDataObject());
+        }
+        if (offset > 1) {
+            System.arraycopy(roiColumn, 0, data[1], row, n);
+        }
         for (int i = 0; i < nColumns; i++) {
             if (columns[offset + i].getType().equals(String.class)) {
                 String[] col = rt.getColumnAsStrings(headings[i]);
@@ -755,11 +790,12 @@ public class TableWrapper {
             Object[][] temp = new Object[columnCount][rowCount];
             if (data != null) {
                 row = Math.min(rowCount, row);
-                for (int j = 0; j < columnCount; j++)
+                for (int j = 0; j < columnCount; j++) {
                     System.arraycopy(data[j], 0, temp[j], 0, row);
+                }
             }
             this.rowCount = rowCount;
-            data = temp;
+            data          = temp;
         }
     }
 
@@ -829,7 +865,9 @@ public class TableWrapper {
      * @return See above.
      */
     public TableData createTable() {
-        if (!isComplete()) truncateRow();
+        if (!isComplete()) {
+            truncateRow();
+        }
 
         Collection<Integer> emptyColumns = getEmptyStringColumns();
         emptyColumns.forEach(this::removeColumn);

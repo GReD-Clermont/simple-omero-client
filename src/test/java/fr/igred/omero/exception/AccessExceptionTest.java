@@ -63,7 +63,7 @@ class AccessExceptionTest extends BasicTest {
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudoGetUser("testUser2");
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
-            sudo = null;
+            sudo   = null;
             failed = true;
             logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
         }

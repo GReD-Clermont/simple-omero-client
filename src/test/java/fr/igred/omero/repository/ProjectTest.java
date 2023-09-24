@@ -322,9 +322,11 @@ class ProjectTest extends UserTest {
         client.delete(tag);
         client.delete(table);
         List<MapAnnotationWrapper> maps = project1.getMapAnnotations(client);
-        if (!maps.isEmpty())
-            for (MapAnnotationWrapper map : maps)
+        if (!maps.isEmpty()) {
+            for (MapAnnotationWrapper map : maps) {
                 client.delete(map);
+            }
+        }
 
         assertEquals(0, project2.getTags(client).size());
         assertEquals(0, project2.getTables(client).size());

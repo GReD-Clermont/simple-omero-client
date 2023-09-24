@@ -55,7 +55,9 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
     public PlateAcquisitionWrapper(PlateAcquisitionData plateAcquisition) {
         super(plateAcquisition);
         omero.model.Plate plate = ((_PlateAcquisitionOperationsNC) data.asIObject()).getPlate();
-        if (plate != null) data.setRefPlateId(plate.getId().getValue());
+        if (plate != null) {
+            data.setRefPlateId(plate.getId().getValue());
+        }
     }
 
 

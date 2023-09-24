@@ -269,12 +269,12 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
             GenericShapeWrapper<?> p1;
             GenericShapeWrapper<?> p2;
             if (ry <= rx) {
-                p1 = new PointWrapper(x - rx, y);
-                p2 = new PointWrapper(x + rx, y);
+                p1    = new PointWrapper(x - rx, y);
+                p2    = new PointWrapper(x + rx, y);
                 ratio = ry / rx;
             } else {
-                p1 = new PointWrapper(x, y - ry);
-                p2 = new PointWrapper(x, y + ry);
+                p1    = new PointWrapper(x, y - ry);
+                p2    = new PointWrapper(x, y + ry);
                 ratio = rx / ry;
             }
             p1.setTransform(toAWTTransform());

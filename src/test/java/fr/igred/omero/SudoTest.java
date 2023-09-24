@@ -68,8 +68,9 @@ class SudoTest extends BasicTest {
 
         int differences = 0;
         for (int i = 0; i < images.size(); i++) {
-            if (images.get(i).getId() != tagged.get(i).getId())
+            if (images.get(i).getId() != tagged.get(i).getId()) {
                 differences++;
+            }
         }
 
         test.delete(tag);

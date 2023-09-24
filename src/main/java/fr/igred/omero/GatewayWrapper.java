@@ -82,8 +82,8 @@ public abstract class GatewayWrapper {
      */
     protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
-        this.user = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
-        this.ctx = ctx != null ? ctx : new SecurityContext(-1);
+        this.user    = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
+        this.ctx     = ctx != null ? ctx : new SecurityContext(-1);
     }
 
 
@@ -275,7 +275,7 @@ public abstract class GatewayWrapper {
             storeUses.set(0);
             closeImport();
             user = new ExperimenterWrapper(new ExperimenterData());
-            ctx = new SecurityContext(-1);
+            ctx  = new SecurityContext(-1);
             ctx.setExperimenter(user.asDataObject());
             if (sudo) {
                 gateway = new Gateway(gateway.getLogger());
@@ -295,7 +295,9 @@ public abstract class GatewayWrapper {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
         ctx.setExperimenter(user.asDataObject());
-        if (sudo) ctx.sudo();
+        if (sudo) {
+            ctx.sudo();
+        }
     }
 
 

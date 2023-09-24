@@ -79,9 +79,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @param height Height of the plane.
      */
     private static void copy(double[][] tab, Plane2D p, Coordinates start, int width, int height) {
+        int startX = start.getX();
+        int startY = start.getY();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                tab[start.getY() + y][start.getX() + x] = p.getPixelValue(x, y);
+                tab[startY + y][startX + x] = p.getPixelValue(x, y);
             }
         }
     }
@@ -90,21 +92,24 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     /**
      * Copies the value from the plane at the corresponding position in the array
      *
-     * @param bytes     Array containing the results.
-     * @param p         Plane2D containing the voxels value.
-     * @param start     Starting pixel coordinates.
-     * @param width     Width of the plane.
-     * @param height    Height of the plane.
-     * @param trueWidth Width of the image.
-     * @param bpp       Bytes per pixels of the image.
+     * @param bytes    Array containing the results.
+     * @param p        Plane2D containing the voxels value.
+     * @param start    Starting pixel coordinates.
+     * @param width    Width of the plane.
+     * @param height   Height of the plane.
+     * @param imgWidth Width of the image.
+     * @param bpp      Bytes per pixels of the image.
      */
-    private static void copy(byte[] bytes, Plane2D p, Coordinates start, int width, int height, int trueWidth,
-                             int bpp) {
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-                for (int i = 0; i < bpp; i++)
-                    bytes[((y + start.getY()) * trueWidth + x + start.getX()) * bpp + i] =
-                            p.getRawValue((x + y * width) * bpp + i);
+    private static void copy(byte[] bytes, Plane2D p, Coordinates start, int width, int height, int imgWidth, int bpp) {
+        int startX = start.getX();
+        int startY = start.getY();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int i = 0; i < bpp; i++) {
+                    bytes[((y + startY) * imgWidth + x + startX) * bpp + i] = p.getRawValue((x + y * width) * bpp + i);
+                }
+            }
+        }
     }
 
 
@@ -334,7 +339,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
         boolean created = false;
         if (rawDataFacility == null) {
             rawDataFacility = client.getGateway().getFacility(RawDataFacility.class);
-            created = true;
+            created         = true;
         }
         return created;
     }
@@ -729,11 +734,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
          */
         public Bounds(Coordinates start, Coordinates end) {
             this.start = start;
-            this.size = new Coordinates(end.getX() - start.getX() + 1,
-                                        end.getY() - start.getY() + 1,
-                                        end.getC() - start.getC() + 1,
-                                        end.getZ() - start.getZ() + 1,
-                                        end.getT() - start.getT() + 1);
+            this.size  = new Coordinates(end.getX() - start.getX() + 1,
+                                         end.getY() - start.getY() + 1,
+                                         end.getC() - start.getC() + 1,
+                                         end.getZ() - start.getZ() + 1,
+                                         end.getT() - start.getT() + 1);
         }
 
 

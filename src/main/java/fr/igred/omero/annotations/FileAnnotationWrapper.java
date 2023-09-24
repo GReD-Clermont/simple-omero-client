@@ -180,7 +180,8 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
      * @throws IOException      Cannot write to the file.
      * @throws OMEROServerError Server error.
      */
-    public File getFile(Client client, String path) throws IOException, ServiceException, OMEROServerError {
+    public File getFile(Client client, String path)
+    throws IOException, ServiceException, OMEROServerError {
         File file = new File(path);
 
         RawFileStorePrx store;

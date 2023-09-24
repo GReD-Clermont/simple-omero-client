@@ -449,7 +449,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
             link(client, rate);
         } else {
             int n = ratings.size();
-            if (n > 1) client.delete(ratings.subList(1, n));
+            if (n > 1) {
+                client.delete(ratings.subList(1, n));
+            }
             RatingAnnotationWrapper rate = ratings.get(0);
             rate.setRating(rating);
             rate.saveAndUpdate(client);

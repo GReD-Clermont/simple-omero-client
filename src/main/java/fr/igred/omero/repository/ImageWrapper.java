@@ -166,7 +166,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             store.setPixelsId(pixels.getId());
             array = store.getThumbnail(rint(width), rint(height));
         } finally {
-            if (store != null) store.close();
+            if (store != null) {
+                store.close();
+            }
         }
         return array;
     }
