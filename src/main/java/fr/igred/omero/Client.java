@@ -341,7 +341,7 @@ public class Client extends Browser {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public Client sudoGetUser(String username)
+    public Client sudo(String username)
     throws ServiceException, AccessException, ExecutionException {
         ExperimenterWrapper sudoUser = getUser(username);
         long                groupId  = sudoUser.getDefaultGroup().getId();
