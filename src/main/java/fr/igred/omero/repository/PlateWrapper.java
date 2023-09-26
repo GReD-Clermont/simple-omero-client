@@ -170,7 +170,7 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
     throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = ExceptionHandler.of(client.getBrowseFacility(),
                                                          bf -> bf.getWells(client.getCtx(), data.getId()))
-                                                     .handleServiceOrAccess("Cannot get wells from " + this)
+                                                     .handleOMEROException("Cannot get wells from " + this)
                                                      .get();
 
         return wells.stream()

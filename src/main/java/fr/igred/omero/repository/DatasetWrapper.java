@@ -183,7 +183,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .handleOMEROException("Cannot get images from " + this)
                                                        .get();
         return wrap(images, ImageWrapper::new);
     }
@@ -318,7 +318,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess(error)
+                                                       .handleOMEROException(error)
                                                        .get();
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
@@ -373,7 +373,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess(
+                                                       .handleOMEROException(
                                                                "Cannot get images with key-value pair from " + this)
                                                        .get();
 
@@ -643,7 +643,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         data = ExceptionHandler.of(client.getBrowseFacility(),
                                    bf -> bf.getDatasets(client.getCtx(), singletonList(this.getId()))
                                            .iterator().next())
-                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .handleOMEROException("Cannot refresh " + this)
                                .get();
     }
 

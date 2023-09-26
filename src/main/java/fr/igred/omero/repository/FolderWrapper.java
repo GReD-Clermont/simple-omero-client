@@ -284,7 +284,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
             }
         }
         ExceptionHandler.of(client.getDm(), d -> d.saveAndReturnObject(client.getCtx(), links, null, null))
-                        .handleServiceOrAccess("Cannot save links.")
+                        .handleOMEROException("Cannot save links.")
                         .rethrow();
     }
 
@@ -377,7 +377,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                                       imageId,
                                                       roiData,
                                                       Collections.singletonList(data)))
-                        .handleServiceOrAccess("Cannot add ROIs to " + this)
+                        .handleOMEROException("Cannot add ROIs to " + this)
                         .rethrow();
     }
 
@@ -436,7 +436,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
         Collection<ROIResult> roiResults = ExceptionHandler.of(roiFac,
                                                                rf -> rf.loadROIsForFolder(client.getCtx(), imageId,
                                                                                           data.getId()))
-                                                           .handleServiceOrAccess("Cannot get ROIs from " + this)
+                                                           .handleOMEROException("Cannot get ROIs from " + this)
                                                            .get();
 
         List<ROIWrapper> roiWrappers = roiResults.stream()
@@ -590,7 +590,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                                                    -1L,
                                                                    roiData,
                                                                    Collections.singletonList(data)))
-                        .handleServiceOrAccess("Cannot unlink ROI from " + this)
+                        .handleOMEROException("Cannot unlink ROI from " + this)
                         .rethrow();
     }
 

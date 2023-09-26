@@ -452,7 +452,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                                      .collect(Collectors.toList());
         Collection<ROIData> results = ExceptionHandler.of(client.getRoiFacility(),
                                                           rf -> rf.saveROIs(client.getCtx(), data.getId(), roisData))
-                                                      .handleServiceOrAccess("Cannot link ROI to " + this)
+                                                      .handleOMEROException("Cannot link ROI to " + this)
                                                       .get();
         return wrap(results, ROIWrapper::new);
     }
@@ -509,7 +509,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIResult> roiResults = ExceptionHandler.of(client.getRoiFacility(),
                                                          rf -> rf.loadROIs(client.getCtx(), data.getId()))
-                                                     .handleServiceOrAccess("Cannot get ROIs from " + this)
+                                                     .handleOMEROException("Cannot get ROIs from " + this)
                                                      .get();
 
         List<ROIWrapper> roiWrappers = roiResults.stream()
@@ -541,7 +541,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         Collection<FolderData> folders = ExceptionHandler.of(roiFacility,
                                                              rf -> rf.getROIFolders(client.getCtx(),
                                                                                     this.data.getId()))
-                                                         .handleServiceOrAccess("Cannot get folders for " + this)
+                                                         .handleOMEROException("Cannot get folders for " + this)
                                                          .get();
 
         return wrap(folders, FolderWrapper::new);
@@ -774,7 +774,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws ServiceException, AccessException, ExecutionException {
         List<ChannelData> channels = ExceptionHandler.of(client.getMetadata(),
                                                          m -> m.getChannelData(client.getCtx(), getId()))
-                                                     .handleServiceOrAccess("Cannot get the channel name for " + this)
+                                                     .handleOMEROException("Cannot get the channel name for " + this)
                                                      .get();
         return channels.stream()
                        .sorted(Comparator.comparing(ChannelData::getIndex))

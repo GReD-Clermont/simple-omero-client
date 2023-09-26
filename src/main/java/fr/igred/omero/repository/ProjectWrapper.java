@@ -251,7 +251,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         List<Long> projectIds = Collections.singletonList(getId());
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForProjects(client.getCtx(), projectIds))
-                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .handleOMEROException("Cannot get images from " + this)
                                                        .get();
         return distinct(wrap(images, ImageWrapper::new));
     }
@@ -486,7 +486,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
                                    bf -> bf.getProjects(client.getCtx(),
                                                         Collections.singletonList(this.getId()))
                                            .iterator().next())
-                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .handleOMEROException("Cannot refresh " + this)
                                .get();
     }
 

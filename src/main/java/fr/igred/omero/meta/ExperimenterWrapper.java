@@ -244,7 +244,7 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
     public boolean isAdmin(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return !ExceptionHandler.of(client.getAdminFacility(), a -> a.getAdminPrivileges(client.getCtx(), data))
-                                .handleServiceOrAccess("Cannot retrieve admin privileges.")
+                                .handleOMEROException("Cannot retrieve admin privileges.")
                                 .get()
                                 .isEmpty();
     }

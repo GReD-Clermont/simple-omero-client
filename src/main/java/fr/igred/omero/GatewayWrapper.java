@@ -448,7 +448,7 @@ public abstract class GatewayWrapper {
     public IObject save(IObject object)
     throws ServiceException, AccessException, ExecutionException {
         return ExceptionHandler.of(getDm(), d -> d.saveAndReturnObject(ctx, object))
-                               .handleServiceOrAccess("Cannot save object")
+                               .handleOMEROException("Cannot save object")
                                .get();
     }
 

@@ -64,4 +64,15 @@ public class ServiceException extends DSOutOfServiceException {
         this(message, cause, cause.getConnectionStatus());
     }
 
+
+    /**
+     * Constructs a new exception with the specified cause and a generic message.
+     *
+     * @param message Short explanation of the problem.
+     * @param cause   The exception that caused this one to be risen.
+     */
+    public ServiceException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

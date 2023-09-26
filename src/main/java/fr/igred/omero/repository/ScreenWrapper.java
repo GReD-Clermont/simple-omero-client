@@ -331,7 +331,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
         data = ExceptionHandler.of(client.getBrowseFacility(),
                                    bf -> bf.getScreens(client.getCtx(), Collections.singletonList(this.getId()))
                                            .iterator().next())
-                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .handleOMEROException("Cannot refresh " + this)
                                .get();
     }
 

@@ -146,7 +146,7 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     throws ServiceException, AccessException, ExecutionException {
         List<PlaneInfoData> planes = ExceptionHandler.of(client.getMetadata(),
                                                          m -> m.getPlaneInfos(client.getCtx(), data))
-                                                     .handleServiceOrAccess("Cannot retrieve planes info.")
+                                                     .handleOMEROException("Cannot retrieve planes info.")
                                                      .get();
         planesInfo = wrap(planes, PlaneInfoWrapper::new);
     }

@@ -243,7 +243,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     throws ExecutionException, ServiceException, AccessException {
         data = (T) ExceptionHandler.of(client.getDm(),
                                        d -> d.saveAndReturnObject(client.getCtx(), data))
-                                   .handleServiceOrAccess("Cannot save and update object.")
+                                   .handleOMEROException("Cannot save and update object.")
                                    .get();
     }
 
