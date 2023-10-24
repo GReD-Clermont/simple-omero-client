@@ -66,7 +66,7 @@ class ProjectTest extends UserTest {
 
         int initialSize = project.getDatasets().size();
         project.addDataset(client, dataset);
-        project.refresh(client);
+        project.reload(client);
         int size = project.getDatasets().size();
 
         project.removeDataset(client, dataset);

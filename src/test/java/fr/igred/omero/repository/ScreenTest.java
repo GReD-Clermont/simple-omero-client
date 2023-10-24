@@ -18,7 +18,6 @@
 package fr.igred.omero.repository;
 
 
-import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
@@ -201,7 +200,7 @@ class ScreenTest extends UserTest {
         ScreenWrapper screen = new ScreenWrapper(client, name, desc);
 
         boolean imported = screen.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
-        screen.refresh(client);
+        screen.reload(client);
 
         removeFile(f1);
         removeFile(f2);
@@ -268,7 +267,7 @@ class ScreenTest extends UserTest {
         client.delete(wells);
         client.delete(plates);
 
-        screen.refresh((GatewayWrapper) client);
+        screen.reload(client);
         List<PlateWrapper> endPlates = screen.getPlates();
 
         client.delete(screen);
