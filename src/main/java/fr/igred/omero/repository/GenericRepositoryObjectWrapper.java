@@ -240,21 +240,6 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
-     * @param client The data browser.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Reloads the object from OMERO.
-     */
-    @Deprecated
-    public void refresh(Client client)
-    throws ServiceException, AccessException, ExecutionException {
-        reload(client);
-    }
-
-
-    /**
      * Reloads the object from OMERO.
      *
      * @param browser The data browser.
@@ -263,10 +248,8 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        // DO NOTHING FOR API COMPATIBILITY PURPOSES
-    }
+    public abstract void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**
