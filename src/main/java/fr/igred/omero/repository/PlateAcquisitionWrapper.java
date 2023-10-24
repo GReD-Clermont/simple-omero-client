@@ -21,8 +21,6 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
@@ -170,10 +168,9 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
      */
     public List<ScreenWrapper> getScreens(Client client)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException {
         PlateWrapper plate = client.getPlate(getRefPlateId());
         return plate.getScreens(client);
     }
@@ -358,14 +355,7 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
                        "left outer join fetch img.pixels as pix " +
                        "left outer join fetch pix.pixelsType as pt " +
                        "where pa.id=" + getId();
-        // TODO: replace with Browser::findByQuery when possible
-        IObject o = ExceptionHandler.of(browser.getGateway(),
-                                        g -> g.getQueryService(browser.getCtx())
-                                              .findAllByQuery(query, null))
-                                    .handleOMEROException("Query failed: " + query)
-                                    .get()
-                                    .iterator()
-                                    .next();
+        IObject o = browser.findByQuery(query).iterator().next();
         data = new PlateAcquisitionData((omero.model.PlateAcquisition) o);
         initRefPlate();
     }

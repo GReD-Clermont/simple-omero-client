@@ -385,12 +385,11 @@ public class ExceptionHandler<T> {
      * @return The same ExceptionHandler.
      *
      * @throws AccessException  Cannot access data.
-     * @throws OMEROServerError Server error.
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Deprecated
     public ExceptionHandler<T> handleException(String message)
-    throws ServiceException, AccessException, OMEROServerError {
+    throws ServiceException, AccessException {
         return this.handleOMEROException(message);
     }
 

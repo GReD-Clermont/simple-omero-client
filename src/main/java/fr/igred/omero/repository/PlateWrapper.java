@@ -23,7 +23,6 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.RLong;
@@ -135,13 +134,12 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      *
      * @return See above.
      *
-     * @throws OMEROServerError   Server error.
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ScreenWrapper> getScreens(Client client)
-    throws OMEROServerError, ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = client.findByQuery("select link.parent from ScreenPlateLink as link " +
                                               "where link.child=" + getId());
         return client.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));

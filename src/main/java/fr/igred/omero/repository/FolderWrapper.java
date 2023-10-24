@@ -23,7 +23,6 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.gateway.facility.ROIFacility;
@@ -93,16 +92,16 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @param name   Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws AccessException    Cannot access data.
      */
     public FolderWrapper(Client client, String name)
-    throws ServiceException, OMEROServerError {
+    throws ServiceException, AccessException {
         super(new FolderData());
         data.setName(name);
         Folder f = (Folder) ExceptionHandler.of(client.getGateway(),
                                                 g -> g.getUpdateService(client.getCtx())
                                                       .saveAndReturnObject(data.asIObject()))
-                                            .handleServiceOrServer("Could not create Folder with name: " + name)
+                                            .handleServerAndService("Could not create Folder with name: " + name)
                                             .get();
         data.setFolder(f);
     }

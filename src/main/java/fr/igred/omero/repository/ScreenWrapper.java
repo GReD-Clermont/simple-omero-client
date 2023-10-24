@@ -23,7 +23,6 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ScreenData;
 
@@ -319,13 +318,12 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * @deprecated Reloads the screen from OMERO.
-     *
      * @param client The client handling the connection.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Reloads the screen from OMERO.
      */
     @Deprecated
     public void refresh(GatewayWrapper client)
@@ -370,12 +368,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public boolean importImages(GatewayWrapper client, String... paths)
-    throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
+    throws ServiceException, AccessException, IOException, ExecutionException {
         return this.importImages(client, 1, paths);
     }
 
@@ -391,12 +388,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
      * @throws IOException        Cannot read file.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public boolean importImages(GatewayWrapper client, int threads, String... paths)
-    throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
+    throws ServiceException, AccessException, IOException, ExecutionException {
         return importImages(client, data, threads, paths);
     }
 
@@ -409,13 +405,12 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      *
      * @return The list of IDs of the newly imported images.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     * @throws IOException      Cannot read file.
      */
     public List<Long> importImage(GatewayWrapper client, String path)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, IOException {
         return importImage(client, data, path);
     }
 
