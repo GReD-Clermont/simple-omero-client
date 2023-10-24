@@ -128,7 +128,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Refreshes this well and retrieves the screens containing it.
+     * Reloads this well and retrieves the screens containing it.
      *
      * @param client The client handling the connection.
      *
@@ -156,7 +156,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
 
 
     /**
-     * Refreshes this well and returns the plate acquisitions linked to it.
+     * Reloads this well and returns the plate acquisitions linked to it.
      *
      * @param client The client handling the connection.
      *
