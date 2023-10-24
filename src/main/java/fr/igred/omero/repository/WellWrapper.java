@@ -21,7 +21,6 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
 
@@ -140,10 +139,9 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
      */
     public List<ScreenWrapper> getScreens(Client client)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException {
         reload(client);
         return getPlate().getScreens(client);
     }

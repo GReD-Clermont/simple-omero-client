@@ -21,7 +21,6 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
 import omero.model.AnnotationAnnotationLink;
@@ -88,10 +87,9 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
      */
     public List<TagAnnotationWrapper> getTags(Browser browser)
-    throws ExecutionException, AccessException, ServiceException, OMEROServerError {
+    throws ExecutionException, AccessException, ServiceException {
         reload(browser);
         return getTags();
     }
@@ -142,10 +140,9 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
      */
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException {
         String query = "select t from TagAnnotation as t" +
                        " left outer join fetch t.annotationLinks as l" +
                        " left outer join fetch l.child as a" +

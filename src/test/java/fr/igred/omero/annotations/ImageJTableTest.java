@@ -21,7 +21,6 @@ package fr.igred.omero.annotations;
 import fr.igred.omero.Client;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.roi.ROIWrapper;
@@ -134,7 +133,7 @@ class ImageJTableTest extends UserTest {
                     String msg = "%sROIs were not properly deleted.%s";
                     logger.log(SEVERE, format(msg, ANSI_RED, ANSI_RESET));
                 }
-            } catch (AccessException | ServiceException | OMEROServerError | ExecutionException |
+            } catch (AccessException | ServiceException | ExecutionException |
                      InterruptedException e) {
                 String msg = "%sROIs were not properly deleted.%s";
                 logger.log(SEVERE, format(msg, ANSI_RED, ANSI_RESET), e);

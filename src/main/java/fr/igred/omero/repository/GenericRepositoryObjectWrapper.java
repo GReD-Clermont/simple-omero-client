@@ -24,7 +24,6 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
@@ -36,19 +35,21 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
 import ome.formats.importer.cli.LoggingImportMonitor;
-import omero.ServerError;
 import omero.gateway.model.DataObject;
 import omero.gateway.util.PojoMapper;
 import omero.model.Pixels;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -69,6 +70,46 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
 
     /**
+     * Method used for importing a number of import candidates.
+     *
+     * @param target     The import target.
+     * @param library    The importer.
+     * @param config     The configuration information.
+     * @param candidates Hosts information about the files to import.
+     *
+     * @return The list of imported pixels.
+     */
+    private static List<Pixels> importCandidates(DataObject target, ImportLibrary library, ImportConfig config, ImportCandidates candidates) {
+        List<Pixels> pixels = new ArrayList<>(0);
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
+
+        List<ImportContainer> containers = candidates.getContainers();
+        if (containers != null) {
+            pixels = new ArrayList<>(containers.size());
+            for (int i = 0; i < containers.size(); i++) {
+                ImportContainer container = containers.get(i);
+                container.setTarget(target.asIObject());
+                List<Pixels> imported = new ArrayList<>(1);
+                try {
+                    imported = library.importImage(container, threadPool, i);
+                } catch (Throwable e) {
+                    String filename = container.getFile().getName();
+                    String error    = String.format("Error during image import for: %s", filename);
+                    Logger.getLogger(MethodHandles.lookup().lookupClass().getName()).severe(error);
+                    if (Boolean.FALSE.equals(config.contOnError.get())) {
+                        return pixels;
+                    }
+                }
+                pixels.addAll(imported);
+            }
+        }
+        threadPool.shutdown();
+        return pixels;
+    }
+
+
+    /**
      * Imports all images candidates in the paths to the target in OMERO.
      *
      * @param client  The client handling the connection.
@@ -79,11 +120,11 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @return If the import did not exit because of an error.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
     protected static boolean importImages(GatewayWrapper client, DataObject target, int threads, String... paths)
-    throws ServiceException, OMEROServerError, IOException {
+    throws ServiceException, AccessException, IOException {
         boolean success;
 
         ImportConfig config = new ImportConfig();
@@ -96,10 +137,8 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
 
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            ExceptionHandler.ofConsumer(store,
-                                        s -> s.logVersionInfo(config.getIniVersionNumber()))
-                            .rethrow(ServerError.class, OMEROServerError::new,
-                                     "Cannot log version information during import.")
+            ExceptionHandler.ofConsumer(store, s -> s.logVersionInfo(config.getIniVersionNumber()))
+                            .handleServerAndService("Cannot log version information during import.")
                             .rethrow();
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
 
@@ -128,21 +167,24 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
      * @return The list of IDs of the newly imported images.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws OMEROServerError Server error.
+     * @throws AccessException  Cannot access data.
+     * @throws IOException      Cannot read file.
      */
     protected static List<Long> importImage(GatewayWrapper client, DataObject target, String path)
-    throws ServiceException, OMEROServerError {
+    throws ServiceException, AccessException, IOException {
         ImportConfig config = new ImportConfig();
         String       type   = PojoMapper.getGraphType(target.getClass());
         config.target.set(type + ":" + target.getId());
         config.username.set(client.getUser().getUserName());
         config.email.set(client.getUser().getEmail());
 
-        Collection<Pixels> pixels = new ArrayList<>(1);
+        Collection<Pixels> pixels;
 
         OMEROMetadataStoreClient store = client.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
-            store.logVersionInfo(config.getIniVersionNumber());
+            ExceptionHandler.ofConsumer(store, s -> s.logVersionInfo(config.getIniVersionNumber()))
+                            .handleServerAndService("Cannot log version information during import.")
+                            .rethrow();
             reader.setMetadataOptions(new DefaultMetadataOptions(MetadataLevel.ALL));
 
             ImportLibrary library = new ImportLibrary(store, reader);
@@ -151,28 +193,15 @@ public abstract class GenericRepositoryObjectWrapper<T extends DataObject> exten
             ErrorHandler handler = new ErrorHandler(config);
 
             ImportCandidates candidates = new ImportCandidates(reader, new String[]{path}, handler);
-
-            ExecutorService uploadThreadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
-
-            List<ImportContainer> containers = candidates.getContainers();
-            if (containers != null) {
-                for (int i = 0; i < containers.size(); i++) {
-                    ImportContainer container = containers.get(i);
-                    container.setTarget(target.asIObject());
-                    List<Pixels> imported = library.importImage(container, uploadThreadPool, i);
-                    pixels.addAll(imported);
-                }
-            }
-            uploadThreadPool.shutdown();
-        } catch (Throwable e) {
-            throw new OMEROServerError(e);
+            pixels = importCandidates(target, library, config, candidates);
         } finally {
             client.closeImport();
         }
 
-        List<Long> ids = new ArrayList<>(pixels.size());
-        pixels.forEach(pix -> ids.add(pix.getImage().getId().getValue()));
-        return ids.stream().distinct().collect(Collectors.toList());
+        return pixels.stream()
+                     .map(pix -> pix.getImage().getId().getValue())
+                     .distinct()
+                     .collect(toList());
     }
 
 

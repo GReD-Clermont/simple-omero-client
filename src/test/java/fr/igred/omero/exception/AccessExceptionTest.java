@@ -176,10 +176,9 @@ class AccessExceptionTest extends BasicTest {
     }
 
 
-    // This test returns a ServiceException for a "security violation".
     @Test
     void testSudoFailGetDatasets() {
-        assertThrows(ServiceException.class, () -> sudo.getDatasets());
+        assertThrows(AccessException.class, () -> sudo.getDatasets());
     }
 
 
@@ -222,13 +221,13 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetAllTags() {
-        assertThrows(ServiceException.class, () -> sudo.getTags());
+        assertThrows(AccessException.class, () -> sudo.getTags());
     }
 
 
     @Test
     void testSudoFailGetTag() {
-        assertThrows(ServiceException.class, () -> sudo.getTag(TAG1.id));
+        assertThrows(AccessException.class, () -> sudo.getTag(TAG1.id));
     }
 
 

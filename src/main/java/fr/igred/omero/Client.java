@@ -22,7 +22,6 @@ import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
@@ -114,12 +113,11 @@ public class Client extends Browser {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws OMEROServerError   Server error.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public List<ImageWrapper> getImages(GenericAnnotationWrapper<?> annotation)
-    throws ServiceException, AccessException, OMEROServerError, ExecutionException {
+    throws ServiceException, AccessException, ExecutionException {
         return annotation.getImages(this);
     }
 
@@ -186,11 +184,10 @@ public class Client extends Browser {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(Collection<? extends GenericObjectWrapper<?>> objects)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         for (GenericObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
                 ((FolderWrapper) object).unlinkAllROIs(this);
@@ -213,11 +210,10 @@ public class Client extends Browser {
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public void delete(GenericObjectWrapper<?> object)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         if (object instanceof FolderWrapper) {
             ((FolderWrapper) object).unlinkAllROIs(this);
         }
@@ -232,13 +228,12 @@ public class Client extends Browser {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException ID not defined.
-     * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
      * @deprecated Deletes a table from OMERO.
      */
     @Deprecated
     public void delete(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteTable(table);
     }
 
@@ -252,11 +247,10 @@ public class Client extends Browser {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException ID not defined.
-     * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteTable(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFile(table.getId());
     }
 
@@ -270,11 +264,10 @@ public class Client extends Browser {
      * @throws AccessException          Cannot access data.
      * @throws ExecutionException       A Facility can't be retrieved or instantiated.
      * @throws IllegalArgumentException ID not defined.
-     * @throws OMEROServerError         Server error.
      * @throws InterruptedException     If block(long) does not return.
      */
     public void deleteTables(Collection<? extends TableWrapper> tables)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFiles(tables.stream()
                           .map(TableWrapper::getId)
                           .toArray(Long[]::new));
@@ -316,18 +309,18 @@ public class Client extends Browser {
      * @return The user matching the user ID, or null if it does not exist.
      *
      * @throws ServiceException       Cannot connect to OMERO.
-     * @throws OMEROServerError       Server error.
+     * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException The requested user cannot be found.
      */
     public ExperimenterWrapper getUser(long userId)
-    throws ServiceException, OMEROServerError {
+    throws ServiceException, AccessException {
         Experimenter user = ExceptionHandler.of(getGateway(),
                                                 g -> g.getAdminService(getCtx())
                                                       .getExperimenter(userId))
                                             .rethrow(ApiUsageException.class,
                                                      (m, e) -> new NoSuchElementException(m),
                                                      "User not found: " + userId)
-                                            .handleServiceOrServer("Cannot retrieve user: " + userId)
+                                            .handleOMEROException("Cannot retrieve user: " + userId)
                                             .get();
         return new ExperimenterWrapper(new ExperimenterData(user));
     }
@@ -367,18 +360,18 @@ public class Client extends Browser {
      * @return The group with the appropriate group ID, if it exists.
      *
      * @throws ServiceException       Cannot connect to OMERO.
-     * @throws OMEROServerError       Server error.
+     * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException The requested group cannot be found.
      */
     public GroupWrapper getGroup(long groupId)
-    throws ServiceException, OMEROServerError {
+    throws ServiceException, AccessException {
         ExperimenterGroup group = ExceptionHandler.of(getGateway(),
                                                       g -> g.getAdminService(getCtx())
                                                             .getGroup(groupId))
                                                   .rethrow(ApiUsageException.class,
                                                            (m, e) -> new NoSuchElementException(m),
                                                            "Group not found: " + groupId)
-                                                  .handleServiceOrServer("Cannot retrieve group: " + groupId)
+                                                  .handleOMEROException("Cannot retrieve group: " + groupId)
                                                   .get();
         return new GroupWrapper(new GroupData(group));
     }

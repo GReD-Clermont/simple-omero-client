@@ -22,7 +22,6 @@ import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
 import omero.gateway.model.PlateAcquisitionData;
@@ -34,8 +33,6 @@ import omero.model.enums.UnitsLength;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
@@ -76,10 +73,9 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
      */
     public List<ScreenWrapper> getScreens(Client client)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException, ExecutionException {
         return getWell(client).getScreens(client);
     }
 
@@ -220,13 +216,7 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
                        " left outer join fetch ws.image as img" +
                        " left outer join fetch img.pixels as pix" +
                        " where ws.id=" + getId();
-        // TODO: replace with Browser::findByQuery when possible
-        IObject o = call(browser.getGateway(),
-                         g -> g.getQueryService(browser.getCtx())
-                               .findAllByQuery(query, null)
-                               .iterator()
-                               .next(),
-                         "Query failed: " + query);
+        IObject o = browser.findByQuery(query).iterator().next();
         data = new WellSampleData((omero.model.WellSample) o);
     }
 

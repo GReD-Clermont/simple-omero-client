@@ -26,7 +26,6 @@ import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy;
 import omero.gateway.facility.TablesFacility;
@@ -498,11 +497,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
      * @throws InterruptedException The thread was interrupted.
      */
     public void rate(Client client, int rating)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         List<Long> userIds = singletonList(client.getCtx().getExperimenter());
 
         List<RatingAnnotationWrapper> ratings = getRatings(client, userIds);
@@ -611,10 +609,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws OMEROServerError     Server error.
      */
     public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         String error = "Cannot add table to " + this;
         Collection<FileAnnotationWrapper> tables = wrap(call(client.getTablesFacility(),
                                                              t -> t.getAvailableTables(client.getCtx(),
@@ -645,10 +642,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws OMEROServerError     Server error.
      */
     public void addAndReplaceTable(Client client, TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
     }
 
@@ -752,10 +748,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws OMEROServerError     Server error.
      */
     public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
-    throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
+    throws ExecutionException, InterruptedException, AccessException, ServiceException {
         List<FileAnnotationWrapper> files = getFileAnnotations(client);
 
         FileAnnotationData uploaded = client.getDm().attachFile(client.getCtx(),
@@ -792,10 +787,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
-     * @throws OMEROServerError     Server error.
      */
     public long addAndReplaceFile(Client client, File file)
-    throws ExecutionException, InterruptedException, AccessException, ServiceException, OMEROServerError {
+    throws ExecutionException, InterruptedException, AccessException, ServiceException {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
     }
 
@@ -858,11 +852,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, A annotation)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, annotationLinkType(), annotation.getId());
     }
 
@@ -877,11 +870,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, Collection<A> annotations)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLinks(client,
                     annotationLinkType(),
                     annotations.stream()
@@ -900,11 +892,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     protected void removeLinks(Client client, String linkType, Collection<Long> childIds)
-    throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         String template = "select link from %s link" +
                           " where link.parent = %d" +
                           " and link.child.id in (:ids)";
@@ -929,11 +920,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
      * @throws InterruptedException If block(long) does not return.
      */
     protected void removeLink(Client client, String linkType, long childId)
-    throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
+    throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLinks(client, linkType, singletonList(childId));
     }
 
