@@ -318,25 +318,6 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * @param client The client handling the connection.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @deprecated Reloads the screen from OMERO.
-     */
-    @Deprecated
-    public void refresh(GatewayWrapper client)
-    throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getScreens(client.getCtx(), singletonList(this.getId()))
-                                           .iterator().next())
-                               .handleOMEROException("Cannot refresh " + this)
-                               .get();
-    }
-
-
-    /**
      * Reloads the screen from OMERO.
      *
      * @param browser The client handling the connection.
