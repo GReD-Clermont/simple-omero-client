@@ -412,6 +412,58 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
+     * Returns all the ratings from the specified user IDs for this object.
+     *
+     * @param client  The client handling the connection.
+     * @param userIds List of user IDs (can be null, i. e. all users).
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    private List<RatingAnnotationWrapper> getRatings(Client client, List<Long> userIds)
+    throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot retrieve rating annotations from " + this;
+
+        List<Class<? extends AnnotationData>> types = Collections.singletonList(RatingAnnotationData.class);
+
+        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
+                                                               m -> m.getAnnotations(client.getCtx(),
+                                                                                     data,
+                                                                                     types,
+                                                                                     userIds))
+                                                           .handleOMEROException(error)
+                                                           .get();
+        annotations = annotations == null ? Collections.emptyList() : annotations;
+        return annotations.stream()
+                          .filter(RatingAnnotationData.class::isInstance)
+                          .map(RatingAnnotationData.class::cast)
+                          .map(RatingAnnotationWrapper::new)
+                          .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
+                          .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Returns all the ratings from all users for this object.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<RatingAnnotationWrapper> getRatings(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return getRatings(client, null);
+    }
+
+
+    /**
      * Rates the object (using a rating annotation).
      *
      * @param client The client handling the connection.
@@ -425,24 +477,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void rate(Client client, int rating)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        String error = "Cannot retrieve rating annotations from " + this;
-
-        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
-        List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
-
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     userIds))
-                                                           .handleOMEROException(error)
-                                                           .get();
-        List<RatingAnnotationWrapper> ratings = annotations.stream()
-                                                           .filter(RatingAnnotationData.class::isInstance)
-                                                           .map(RatingAnnotationData.class::cast)
-                                                           .map(RatingAnnotationWrapper::new)
-                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                           .collect(Collectors.toList());
+        List<Long>                    userIds = Collections.singletonList(client.getCtx().getExperimenter());
+        List<RatingAnnotationWrapper> ratings = getRatings(client, userIds);
 
         if (ratings.isEmpty()) {
             RatingAnnotationWrapper rate = new RatingAnnotationWrapper(rating);
@@ -472,25 +508,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public int getMyRating(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        String error = "Cannot retrieve rating annotations from " + this;
-
-        List<Class<? extends AnnotationData>> types   = Collections.singletonList(RatingAnnotationData.class);
-        List<Long>                            userIds = Collections.singletonList(client.getCtx().getExperimenter());
-
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     userIds))
-                                                           .handleOMEROException(error)
-                                                           .get();
-        List<RatingAnnotationWrapper> ratings = annotations.stream()
-                                                           .filter(RatingAnnotationData.class::isInstance)
-                                                           .map(RatingAnnotationData.class::cast)
-                                                           .map(RatingAnnotationWrapper::new)
-                                                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                                                           .collect(Collectors.toList());
-        int score = 0;
+        List<Long>                    userIds = Collections.singletonList(client.getCtx().getExperimenter());
+        List<RatingAnnotationWrapper> ratings = getRatings(client, userIds);
+        int                           score   = 0;
         for (RatingAnnotationWrapper rate : ratings) {
             score += rate.getRating();
         }
