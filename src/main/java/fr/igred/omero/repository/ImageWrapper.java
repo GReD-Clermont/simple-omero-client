@@ -324,6 +324,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<WellSampleWrapper> getWellSamples(Client client)
     throws AccessException, ServiceException, ExecutionException {
+        reload(client);
         List<WellSampleWrapper> samples = getWellSamples();
         for (WellSampleWrapper sample : samples) {
             sample.reload(client);
@@ -345,17 +346,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<WellWrapper> getWells(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        List<WellSampleWrapper> wellSamples = getWellSamples();
+        List<WellSampleWrapper> wellSamples = getWellSamples(client);
         Collection<WellWrapper> wells       = new ArrayList<>(wellSamples.size());
         for (WellSampleWrapper ws : wellSamples) {
             wells.add(ws.getWell(client));
         }
-        Long[] ids = wells.stream()
-                          .map(WellWrapper::getId)
-                          .sorted()
-                          .distinct()
-                          .toArray(Long[]::new);
-        return client.getWells(ids);
+        return distinct(wells);
     }
 
 
@@ -372,13 +368,13 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        List<WellWrapper> wells = getWells(client);
+        List<WellSampleWrapper> wellSamples = getWellSamples(client);
 
-        Collection<List<PlateAcquisitionWrapper>> acqs = new ArrayList<>(wells.size());
-        for (WellWrapper w : wells) {
-            acqs.add(w.getPlateAcquisitions(client));
+        Collection<PlateAcquisitionWrapper> acqs = new ArrayList<>(wellSamples.size());
+        for (WellSampleWrapper ws : wellSamples) {
+            acqs.add(ws.getPlateAcquisition());
         }
-        return flatten(acqs);
+        return distinct(acqs);
     }
 
 

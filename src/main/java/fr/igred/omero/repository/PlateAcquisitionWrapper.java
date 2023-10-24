@@ -20,21 +20,19 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.WellSampleData;
 import omero.model.IObject;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model._PlateAcquisitionOperationsNC;
 
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -216,6 +214,51 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
 
 
     /**
+     * Retrieves the well samples for this plate acquisition.
+     *
+     * @return See above.
+     */
+    public List<WellSampleWrapper> getWellSamples() {
+        _PlateAcquisitionOperationsNC pa = (_PlateAcquisitionOperationsNC) data.asIObject();
+        return pa.copyWellSample()
+                 .stream()
+                 .map(WellSampleData::new)
+                 .map(WellSampleWrapper::new)
+                 .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Retrieves the well samples for this plate acquisition from OMERO and updates the object.
+     *
+     * @param browser The data browser.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<WellSampleWrapper> getWellSamples(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        reload(browser);
+        return getWellSamples();
+    }
+
+
+    /**
+     * Retrieves the images contained in the well samples.
+     *
+     * @return See above
+     */
+    public List<ImageWrapper> getImages() {
+        return getWellSamples().stream()
+                               .map(WellSampleWrapper::getImage)
+                               .collect(Collectors.toList());
+    }
+
+
+    /**
      * Retrieves the images contained in the wells in the parent plate.
      *
      * @param client The client handling the connection.
@@ -228,14 +271,9 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      */
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        return getWells(client).stream()
-                               .map(WellWrapper::getImages)
-                               .flatMap(Collection::stream)
-                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
-                               .values()
-                               .stream()
-                               .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                               .collect(Collectors.toList());
+        return getWellSamples(client).stream()
+                                     .map(WellSampleWrapper::getImage)
+                                     .collect(Collectors.toList());
     }
 
 

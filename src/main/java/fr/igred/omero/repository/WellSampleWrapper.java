@@ -26,6 +26,7 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
+import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.WellSampleData;
 import omero.model.IObject;
 import omero.model.Length;
@@ -96,6 +97,16 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
     public List<PlateWrapper> getPlates(Client client)
     throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(client).getPlate());
+    }
+
+
+    /**
+     * Returns the plate acquisition containing this well sample.
+     *
+     * @return See above.
+     */
+    public PlateAcquisitionWrapper getPlateAcquisition() {
+        return new PlateAcquisitionWrapper(new PlateAcquisitionData(data.asWellSample().getPlateAcquisition()));
     }
 
 

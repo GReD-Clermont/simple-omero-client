@@ -91,9 +91,13 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetPlateAcquisitions() throws Exception {
-        final long   id   = 5L;
-        final String name = "PlateAcquisition Name 0";
-        assertEquals(name, client.getImage(id).getPlateAcquisitions(client).get(0).getName());
+        PlateAcquisitionWrapper pa = client.getPlate(PLATE1.id).getPlateAcquisitions().get(0);
+
+        String                        name  = pa.getName();
+        ImageWrapper                  image = pa.getImages(client).get(0);
+        List<PlateAcquisitionWrapper> acqs  = image.getPlateAcquisitions(client);
+        assertEquals(1, acqs.size());
+        assertEquals(name, acqs.get(0).getName());
     }
 
 
@@ -109,7 +113,7 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetWellSamples() throws Exception {
-        final long wellId = 1L;
+        final long        wellId = 1L;
         WellSampleWrapper sample = client.getWell(wellId).getWellSamples().get(0);
 
         ImageWrapper image = sample.getImage();

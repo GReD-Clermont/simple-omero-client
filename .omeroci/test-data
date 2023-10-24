@@ -54,10 +54,10 @@ touch "$WORKDIR/screen1.fake"
 {
     echo "screens=1"
     echo "plates=1"
-    echo "plateAcqs=1"
+    echo "plateAcqs=2"
     echo "plateRows=3"
     echo "plateCols=3"
-    echo "fields=4"
+    echo "fields=2"
 } > "$WORKDIR/screen1.fake.ini"
 
 touch "$WORKDIR/screen2.fake"
