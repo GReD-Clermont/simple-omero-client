@@ -691,12 +691,15 @@ class ImageJTableTest extends UserTest {
 
         ResultsTable results1 = createOneRowResultsTable(label, volume1, unit1);
         results1.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results1.setValue("Removed", 0, "");
 
         ResultsTable results2 = createOneRowResultsTable(label, volume2, unit2);
         results2.setValue(ROIWrapper.IJ_PROPERTY, 0, ijRois.get(0).getName());
+        results2.setValue("Removed", 0, "");
 
         TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
         table.addRows(client, results2, IMAGE1.id, ijRois);
+        table.createTable();
 
         @SuppressWarnings("MagicCharacter")
         char delimiter = '\t';

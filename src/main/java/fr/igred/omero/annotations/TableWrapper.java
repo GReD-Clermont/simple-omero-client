@@ -67,14 +67,14 @@ public class TableWrapper {
     /** Image column name */
     private static final String    IMAGE     = "Image";
 
-    /** Number of column in the table */
-    private final int columnCount;
-
     /** Information of each column (Name, Type) */
-    private final TableDataColumn[] columns;
+    private TableDataColumn[] columns;
 
     /** Content of the table */
     private Object[][] data;
+
+    /** Number of column in the table */
+    private int columnCount;
 
     /** Number of row in the table */
     private int rowCount;
@@ -473,6 +473,53 @@ public class TableWrapper {
 
 
     /**
+     * Gets the indices of empty String columns.
+     *
+     * @return See above.
+     */
+    private Collection<Integer> getEmptyStringColumns() {
+        Collection<Integer> emptyColumns = new ArrayList<>(0);
+        for (int j = 0; j < columns.length; j++) {
+            TableDataColumn column = columns[j];
+            if (column.getType().equals(String.class)) {
+                boolean empty = true;
+                int     i     = 0;
+                while (i < rowCount && empty) {
+                    if (data[j][i] != null && !((String) data[j][i]).isEmpty()) {
+                        empty = false;
+                    }
+                    i++;
+                }
+                if (empty) {
+                    emptyColumns.add(j);
+                }
+            }
+        }
+        return emptyColumns;
+    }
+
+
+    /**
+     * Removes the column at the specified index.
+     *
+     * @param index The index of the column to remove.
+     */
+    private void removeColumn(int index) {
+        if (index < columnCount) {
+            columnCount--;
+            TableDataColumn[] newColumns = new TableDataColumn[columnCount];
+            Object[][]        newData    = new Object[columnCount][];
+            System.arraycopy(columns, 0, newColumns, 0, index);
+            System.arraycopy(columns, index + 1, newColumns, index, columnCount - index);
+            System.arraycopy(data, 0, newData, 0, index);
+            System.arraycopy(data, index + 1, newData, index, columnCount - index);
+            columns = newColumns;
+            data    = newData;
+        }
+    }
+
+
+    /**
      * Overridden to return the name of the class and the object id.
      */
     @Override
@@ -783,6 +830,9 @@ public class TableWrapper {
      */
     public TableData createTable() {
         if (!isComplete()) truncateRow();
+
+        Collection<Integer> emptyColumns = getEmptyStringColumns();
+        emptyColumns.forEach(this::removeColumn);
 
         return new TableData(columns, data);
     }
