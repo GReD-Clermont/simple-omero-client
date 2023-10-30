@@ -163,7 +163,7 @@ class DatasetTest extends UserTest {
         dataset.addTag(client, tagId);
         List<TagAnnotationWrapper> tags = dataset.getTags(client);
         client.delete(tag);
-        assertThrows(NullPointerException.class, () -> client.getTag(tagId));
+        assertThrows(NoSuchElementException.class, () -> client.getTag(tagId));
         assertEquals(1, tags.size());
     }
 

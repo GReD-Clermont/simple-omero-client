@@ -43,7 +43,7 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
 
 
     /**
-     * Constructor of the TagAnnotationWrapper class. Creates the tag and save it in OMERO.
+     * Constructor of the TagAnnotationWrapper class. Creates the tag and saves it to OMERO.
      *
      * @param client      The client handling the connection.
      * @param name        Annotation name.
@@ -61,9 +61,9 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
 
 
     /**
-     * Gets the name of the TagData.
+     * Gets the tag name.
      *
-     * @return TagData name.
+     * @return See above.
      */
     public String getName() {
         return data.getTagValue();
@@ -71,9 +71,9 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
 
 
     /**
-     * Sets the name of the TagData.
+     * Sets the tag name.
      *
-     * @param name The name of the TagData. Mustn't be {@code null}.
+     * @param name The tag name. Mustn't be {@code null}.
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */

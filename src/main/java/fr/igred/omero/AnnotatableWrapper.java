@@ -226,7 +226,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
         TagAnnotationData tagData = new TagAnnotationData(tag);
-        link(client, new TagAnnotationWrapper(tagData));
+        link(client, tagData);
     }
 
 
@@ -317,7 +317,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
                                                                                      types,
                                                                                      null))
                                                            .handleOMEROException("Cannot get map annotations for "
-                                                                                  + this)
+                                                                                 + this)
                                                            .get();
 
         return annotations.stream()
@@ -589,7 +589,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
                                                                             t -> t.getAvailableTables(
                                                                                     client.getCtx(), data))
                                                                         .handleOMEROException("Cannot get tables from "
-                                                                                               + this)
+                                                                                              + this)
                                                                         .get(),
                                                         FileAnnotationWrapper::new);
         addTable(client, table);
