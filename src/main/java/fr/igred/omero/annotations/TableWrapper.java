@@ -205,7 +205,7 @@ public class TableWrapper {
                 data[offset + i] = Arrays.stream(col).map(Variable::getValue).toArray(Double[]::new);
             } else {
                 createColumn(offset + i, shortHeadings[i], String.class);
-                data[offset + i] = Arrays.stream(col).map(Variable::getString).toArray(String[]::new);
+                data[offset + i] = rt.getColumnAsStrings(headings[i]);
             }
         }
         this.row = rowCount;
@@ -548,13 +548,13 @@ public class TableWrapper {
         if (offset > 1) System.arraycopy(roiColumn, 0, data[1], row, n);
         for (int i = 0; i < nColumns; i++) {
             if (columns[offset + i].getType().equals(String.class)) {
-                for (int j = 0; j < n; j++) {
-                    data[offset + i][row + j] = rt.getStringValue(headings[i], j);
-                }
+                String[] col = rt.getColumnAsStrings(headings[i]);
+                System.arraycopy(col, 0, data[offset + i], row, n);
             } else {
-                for (int j = 0; j < n; j++) {
-                    data[offset + i][row + j] = rt.getValue(headings[i], j);
-                }
+                Double[] col = Arrays.stream(rt.getColumn(headings[i]))
+                                     .boxed()
+                                     .toArray(Double[]::new);
+                System.arraycopy(col, 0, data[offset + i], row, n);
             }
         }
         row += n;
