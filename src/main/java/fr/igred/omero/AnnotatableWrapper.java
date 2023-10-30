@@ -122,7 +122,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
-     * Adds an annotation to the object in OMERO, if possible.
+     * Adds an annotation to the object in OMERO, if possible (and if it's not a TagSet).
      *
      * @param client     The client handling the connection.
      * @param annotation Annotation to be added.
@@ -134,7 +134,11 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
-        link(client, annotation.asDataObject());
+        if (!(annotation instanceof TagAnnotationWrapper) || !((TagAnnotationWrapper) annotation).isTagSet()) {
+            link(client, annotation.asDataObject());
+        } else {
+            throw new IllegalArgumentException("Tag sets should only be linked to tags");
+        }
     }
 
 

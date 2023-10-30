@@ -33,6 +33,12 @@ import java.util.concurrent.ExecutionException;
 public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotationData> {
 
     /**
+     * The name space used to indicate that the tag is used a tag set.
+     */
+    public static final String NS_TAGSET = TagAnnotationData.INSIGHT_TAGSET_NS;
+
+
+    /**
      * Constructor of the TagAnnotationWrapper class.
      *
      * @param tag TagAnnotationData to wrap.
@@ -79,6 +85,27 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
      */
     public void setName(String name) {
         data.setTagValue(name);
+    }
+
+
+    /**
+     * Returns whether this tag is a TagSet or not.
+     *
+     * @return {@code true} if this tag is a tag set, {@code false} otherwise.
+     */
+    public boolean isTagSet() {
+        return NS_TAGSET.equals(getNameSpace());
+    }
+
+
+    /**
+     * Converts this tag annotation to a tag set.
+     *
+     * @return See above.
+     */
+    @SuppressWarnings("ClassReferencesSubclass")
+    public TagSetWrapper toTagSet() {
+        return new TagSetWrapper(data);
     }
 
 
