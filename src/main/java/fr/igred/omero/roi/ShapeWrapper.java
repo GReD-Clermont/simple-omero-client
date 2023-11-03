@@ -66,7 +66,7 @@ import static omero.model.enums.UnitsLength.POINT;
  *
  * @param <T> Subclass of {@link ShapeData}
  */
-public abstract class GenericShapeWrapper<T extends ShapeData> extends AnnotatableWrapper<T> {
+public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapper<T> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ShapeAnnotationLink";
@@ -79,11 +79,11 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
 
 
     /**
-     * Constructor of the GenericShapeWrapper class using a ShapeData.
+     * Constructor of the ShapeWrapper class using a ShapeData.
      *
      * @param s The shape.
      */
-    protected GenericShapeWrapper(T s) {
+    protected ShapeWrapper(T s) {
         super(s);
     }
 
@@ -133,7 +133,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
                 rois.forEach(r -> r.setPosition(ijRoi.getCPosition(),
                                                 ijRoi.getZPosition(),
                                                 ijRoi.getTPosition()));
-                rois.stream().map(GenericShapeWrapper::fromImageJ).forEach(list::addAll);
+                rois.stream().map(ShapeWrapper::fromImageJ).forEach(list::addAll);
                 break;
             default:
                 if (ijRoi instanceof TextRoi) {

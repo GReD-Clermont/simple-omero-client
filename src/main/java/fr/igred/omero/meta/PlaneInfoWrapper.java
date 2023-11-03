@@ -18,7 +18,7 @@
 package fr.igred.omero.meta;
 
 
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import ome.formats.model.UnitsFactory;
 import ome.units.unit.Unit;
 import omero.gateway.model.PlaneInfoData;
@@ -39,7 +39,7 @@ import static ome.units.UNITS.MICROMETER;
 import static ome.units.UNITS.SECOND;
 
 
-public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
+public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> {
 
     /**
      * Constructor of the class PlaneInfoWrapper.

@@ -42,7 +42,7 @@ import static java.util.stream.Collectors.toMap;
  * Class containing a ScreenData object.
  * <p> Wraps function calls to the ScreenData contained.
  */
-public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
+public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ScreenAnnotationLink";
@@ -174,11 +174,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
         return getPlates().stream()
                           .map(PlateWrapper::getPlateAcquisitions)
                           .flatMap(Collection::stream)
-                          .collect(toMap(GenericRepositoryObjectWrapper::getId,
+                          .collect(toMap(RepositoryObjectWrapper::getId,
                                          p -> p, (p1, p2) -> p1))
                           .values()
                           .stream()
-                          .sorted(comparing(GenericRepositoryObjectWrapper::getId))
+                          .sorted(comparing(RepositoryObjectWrapper::getId))
                           .collect(Collectors.toList());
     }
 

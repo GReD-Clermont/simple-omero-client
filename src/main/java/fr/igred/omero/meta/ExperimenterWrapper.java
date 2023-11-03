@@ -19,7 +19,7 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ExperimenterData;
@@ -34,7 +34,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
  * Class containing an ExperimenterData object.
  * <p> Wraps function calls to the ExperimenterData contained.
  */
-public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> {
+public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
 
     /**
      * Constructor of the class ExperimenterWrapper.

@@ -32,7 +32,7 @@ import java.awt.geom.RectangularShape;
  * Class containing an EllipseData.
  * <p> Wraps function calls to the EllipseData contained.
  */
-public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
+public class EllipseWrapper extends ShapeWrapper<EllipseData> {
 
 
     /**
@@ -272,8 +272,8 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
             double ry = getRadiusY();
             double ratio;
 
-            GenericShapeWrapper<?> p1;
-            GenericShapeWrapper<?> p2;
+            ShapeWrapper<?> p1;
+            ShapeWrapper<?> p2;
             if (ry <= rx) {
                 p1    = new PointWrapper(x - rx, y);
                 p2    = new PointWrapper(x + rx, y);
