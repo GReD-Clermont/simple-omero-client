@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
  * Class containing an PolylineData.
  * <p> Wraps function calls to the PolylineData contained.
  */
-public class PolylineWrapper extends GenericShapeWrapper<PolylineData> {
+public class PolylineWrapper extends ShapeWrapper<PolylineData> {
 
 
     /**

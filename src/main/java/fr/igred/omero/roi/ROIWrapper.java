@@ -20,7 +20,7 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -80,10 +80,10 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @param shapes List of shapes to add to the ROIData.
      */
-    public ROIWrapper(Iterable<? extends GenericShapeWrapper<?>> shapes) {
+    public ROIWrapper(Iterable<? extends ShapeWrapper<?>> shapes) {
         super(new ROIData());
 
-        for (GenericShapeWrapper<?> shape : shapes) {
+        for (ShapeWrapper<?> shape : shapes) {
             data.addShapeData(shape.asDataObject());
         }
     }
@@ -166,7 +166,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
-        return fromImageJ(ijRois, property, ROIWrapper::new, GenericShapeWrapper::fromImageJ);
+        return fromImageJ(ijRois, property, ROIWrapper::new, ShapeWrapper::fromImageJ);
     }
 
 
@@ -184,7 +184,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     private static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois,
                                                String property,
                                                Supplier<? extends ROIWrapper> constructor,
-                                               Function<? super ij.gui.Roi, ? extends List<? extends GenericShapeWrapper<?>>> converter) {
+                                               Function<? super ij.gui.Roi, ? extends List<? extends ShapeWrapper<?>>> converter) {
         property = checkProperty(property);
 
         Map<String, ROIWrapper> rois4D = new TreeMap<>();
@@ -253,7 +253,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
         final int maxGroups = 255;
         groupRois = groupRois && rois.size() < maxGroups && IJ.getVersion().compareTo("1.52t") >= 0;
 
-        int nShapes = rois.stream().map(GenericObjectWrapper::asDataObject).mapToInt(ROIData::getShapeCount).sum();
+        int nShapes = rois.stream().map(ObjectWrapper::asDataObject).mapToInt(ROIData::getShapeCount).sum();
 
         List<ij.gui.Roi> ijRois = new ArrayList<>(nShapes);
 
@@ -285,7 +285,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return See above.
      */
     private static ij.gui.Roi xor(Collection<? extends ij.gui.Roi> rois) {
-        String idProperty = GenericShapeWrapper.IJ_ID_PROPERTY;
+        String idProperty = ShapeWrapper.IJ_ID_PROPERTY;
         String shapeIDs = rois.stream()
                               .map(r -> r.getProperty(idProperty))
                               .collect(Collectors.joining(","));
@@ -316,7 +316,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return See above.
      */
     private static PointRoi combine(Collection<? extends PointRoi> points) {
-        String idProperty = GenericShapeWrapper.IJ_ID_PROPERTY;
+        String idProperty = ShapeWrapper.IJ_ID_PROPERTY;
         String shapeIDs = points.stream()
                                 .map(p -> p.getProperty(idProperty))
                                 .collect(Collectors.joining(","));
@@ -337,7 +337,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @return See above.
      */
-    private ij.gui.Roi shapeToIJRoiWithName(GenericShapeWrapper<?> shape) {
+    private ij.gui.Roi shapeToIJRoiWithName(ShapeWrapper<?> shape) {
         ij.gui.Roi roi         = shape.toImageJ();
         String     name        = roi.getName();
         String     defaultName = String.format("%d-%d", getId(), shape.getId());
@@ -370,21 +370,21 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
-     * Adds ShapeData objects from a list of GenericShapeWrapper to the ROIData
+     * Adds ShapeData objects from a list of ShapeWrapper to the ROIData
      *
-     * @param shapes List of GenericShapeWrapper.
+     * @param shapes List of ShapeWrapper.
      */
-    public void addShapes(Iterable<? extends GenericShapeWrapper<?>> shapes) {
+    public void addShapes(Iterable<? extends ShapeWrapper<?>> shapes) {
         shapes.forEach(this::addShape);
     }
 
 
     /**
-     * Adds a ShapeData from a GenericShapeWrapper to the ROIData
+     * Adds a ShapeData from a ShapeWrapper to the ROIData
      *
-     * @param shape GenericShapeWrapper to add.
+     * @param shape ShapeWrapper to add.
      */
-    public void addShape(GenericShapeWrapper<?> shape) {
+    public void addShape(ShapeWrapper<?> shape) {
         data.addShapeData(shape.asDataObject());
     }
 
@@ -466,7 +466,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
         int[] c = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] z = {Integer.MAX_VALUE, Integer.MIN_VALUE};
         int[] t = {Integer.MAX_VALUE, Integer.MIN_VALUE};
-        for (GenericShapeWrapper<?> shape : getShapes()) {
+        for (ShapeWrapper<?> shape : getShapes()) {
             RectangleWrapper box = shape.getBoundingBox();
             x[0] = Math.min(x[0], (int) box.getX());
             y[0] = Math.min(y[0], (int) box.getY());
@@ -510,13 +510,13 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
         ShapeList shapes = getShapes();
 
-        Map<String, List<GenericShapeWrapper<?>>> sameSlice = shapes.stream()
-                                                                    .collect(groupingBy(GenericShapeWrapper::getCZT,
-                                                                                        LinkedHashMap::new,
-                                                                                        Collectors.toList()));
+        Map<String, List<ShapeWrapper<?>>> sameSlice = shapes.stream()
+                                                             .collect(groupingBy(ShapeWrapper::getCZT,
+                                                                                 LinkedHashMap::new,
+                                                                                 Collectors.toList()));
         sameSlice.values().removeIf(List::isEmpty);
         List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
-        for (List<GenericShapeWrapper<?>> slice : sameSlice.values()) {
+        for (List<ShapeWrapper<?>> slice : sameSlice.values()) {
             // Handle 2D shapes using XOR (Rectangles, Ellipses and Polygons)
             List<ij.gui.Roi> toXOR = slice.stream()
                                           .filter(s -> (s instanceof RectangleWrapper)

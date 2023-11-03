@@ -33,7 +33,7 @@ import java.awt.image.BufferedImage;
  * Class containing an MaskData.
  * <p> Wraps function calls to the MaskData contained.
  */
-public class MaskWrapper extends GenericShapeWrapper<MaskData> {
+public class MaskWrapper extends ShapeWrapper<MaskData> {
 
 
     private static final double MAX_UINT8 = 255.0;

@@ -28,7 +28,7 @@ import java.awt.geom.Path2D;
  * Class containing an TextData.
  * <p> Wraps function calls to the TextData contained.
  */
-public class TextWrapper extends GenericShapeWrapper<TextData> {
+public class TextWrapper extends ShapeWrapper<TextData> {
 
 
     /**

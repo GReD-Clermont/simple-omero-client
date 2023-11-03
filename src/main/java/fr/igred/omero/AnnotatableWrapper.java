@@ -19,8 +19,8 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.AnnotationList;
+import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
@@ -28,7 +28,7 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy;
+import fr.igred.omero.repository.RepositoryObjectWrapper.ReplacePolicy;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
@@ -60,12 +60,12 @@ import java.util.stream.Collectors;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class AnnotatableWrapper<T extends DataObject> extends GenericObjectWrapper<T> {
+public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWrapper<T> {
 
     /**
-     * Constructor of the class GenericRepositoryObjectWrapper.
+     * Constructor of the class RepositoryObjectWrapper.
      *
-     * @param o The annotatable DataObject to wrap in the GenericRepositoryObjectWrapper.
+     * @param o The annotatable DataObject to wrap in the RepositoryObjectWrapper.
      */
     protected AnnotatableWrapper(T o) {
         super(o);
@@ -93,7 +93,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends GenericAnnotationWrapper<?>> boolean isLinked(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> boolean isLinked(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         return getAnnotations(client).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
@@ -130,7 +130,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends GenericAnnotationWrapper<?>> void link(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         if (!(annotation instanceof TagAnnotationWrapper) || !((TagAnnotationWrapper) annotation).isTagSet()) {
             link(client, annotation.asDataObject());
@@ -150,9 +150,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void link(Client client, GenericAnnotationWrapper<?>... annotations)
+    public void link(Client client, AnnotationWrapper<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
-        for (GenericAnnotationWrapper<?> annotation : annotations) {
+        for (AnnotationWrapper<?> annotation : annotations) {
             link(client, annotation);
         }
     }
@@ -168,14 +168,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void linkIfNotLinked(Client client, GenericAnnotationWrapper<?>... annotations)
+    public void linkIfNotLinked(Client client, AnnotationWrapper<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> annotationIds = getAnnotationData(client).stream()
                                                             .map(DataObject::getId)
                                                             .collect(Collectors.toList());
         link(client, Arrays.stream(annotations)
                            .filter(a -> !annotationIds.contains(a.getId()))
-                           .toArray(GenericAnnotationWrapper<?>[]::new));
+                           .toArray(AnnotationWrapper<?>[]::new));
     }
 
 
@@ -744,7 +744,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, annotationLinkType(), annotation.getId());
     }
@@ -762,7 +762,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, Collection<A> annotations)
+    public <A extends AnnotationWrapper<?>> void unlink(Client client, Collection<A> annotations)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLinks(client, annotationLinkType(), annotations.stream().map(A::getId).collect(Collectors.toList()));
     }

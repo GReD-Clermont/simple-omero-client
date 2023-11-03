@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * Class containing a PlateAcquisitionData object.
  * <p> Wraps function calls to the PlateAcquisitionData contained.
  */
-public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<PlateAcquisitionData> {
+public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> {
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
