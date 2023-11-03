@@ -18,7 +18,7 @@
 package fr.igred.omero.meta;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;

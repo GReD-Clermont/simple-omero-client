@@ -19,7 +19,7 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Client;
 import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;

@@ -18,8 +18,8 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Browser;
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
