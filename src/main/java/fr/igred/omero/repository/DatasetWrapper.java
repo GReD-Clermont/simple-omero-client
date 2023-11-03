@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -178,11 +179,12 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
+    public List<ImageWrapper> getImages(Client client)
+    throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .handleOMEROException("Cannot get images from " + this)
                                                        .get();
         return wrap(images, ImageWrapper::new);
     }
@@ -317,7 +319,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess(error)
+                                                       .handleOMEROException(error)
                                                        .get();
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
@@ -372,7 +374,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForDatasets(client.getCtx(),
                                                                                          singletonList(data.getId())))
-                                                       .handleServiceOrAccess("Cannot get images with key-value pair from " + this)
+                                                       .handleOMEROException(
+                                                               "Cannot get images with key-value pair from " + this)
                                                        .get();
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
@@ -423,9 +426,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.asDataObject().asImage());
         link.setParent(new DatasetI(data.getId(), false));
-
         client.save(link);
-        refresh(client);
     }
 
 
@@ -484,9 +485,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public boolean importImages(Client client, int threads, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, threads, paths);
-        refresh(client);
-        return success;
+        return importImages(client, data, threads, paths);
     }
 
 
@@ -505,9 +504,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<Long> importImage(Client client, String path)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        refresh(client);
-        return ids;
+        return importImage(client, data, path);
     }
 
 
@@ -540,7 +537,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             List<ROIWrapper> rois = oldImage.getROIs(client);
             newImage.saveROIs(client, rois);
             List<FolderWrapper> folders = oldImage.getFolders(client);
-            for (FolderWrapper folder : folders) folder.addImages(client, newImage);
+            for (FolderWrapper folder : folders) {
+                folder.addImages(client, newImage);
+            }
             this.removeImage(client, oldImage);
             if (oldImage.isOrphaned(client)) {
                 orphaned.add(oldImage);
@@ -628,18 +627,22 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     /**
      * Reloads the dataset from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getDatasets(client.getCtx(), singletonList(this.getId()))
-                                           .iterator().next())
-                               .handleServiceOrAccess("Cannot refresh " + this)
-                               .get();
+    @Override
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getDatasets(browser.getCtx(),
+                                                        singletonList(getId())))
+                               .handleOMEROException("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

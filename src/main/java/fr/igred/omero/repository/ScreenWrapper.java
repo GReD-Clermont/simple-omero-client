@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -29,12 +30,12 @@ import omero.gateway.model.ScreenData;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -181,7 +182,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        refresh(client);
+        reload(client);
         return getPlates().stream()
                           .map(PlateWrapper::getPlateAcquisitions)
                           .flatMap(Collection::stream)
@@ -318,7 +319,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Reloads the screen from OMERO.
+     * @deprecated Reloads the screen from OMERO.
      *
      * @param client The client handling the connection.
      *
@@ -326,12 +327,36 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(GatewayWrapper client) throws ServiceException, AccessException, ExecutionException {
+    @Deprecated
+    public void refresh(GatewayWrapper client)
+    throws ServiceException, AccessException, ExecutionException {
         data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getScreens(client.getCtx(), Collections.singletonList(this.getId()))
+                                   bf -> bf.getScreens(client.getCtx(), singletonList(this.getId()))
                                            .iterator().next())
-                               .handleServiceOrAccess("Cannot refresh " + this)
+                               .handleOMEROException("Cannot refresh " + this)
                                .get();
+    }
+
+
+    /**
+     * Reloads the screen from OMERO.
+     *
+     * @param browser The client handling the connection.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getScreens(browser.getCtx(),
+                                                       singletonList(getId())))
+                               .handleOMEROException("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 
@@ -372,9 +397,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public boolean importImages(GatewayWrapper client, int threads, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
-        boolean success = importImages(client, data, threads, paths);
-        refresh(client);
-        return success;
+        return importImages(client, data, threads, paths);
     }
 
 
@@ -393,9 +416,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public List<Long> importImage(GatewayWrapper client, String path)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<Long> ids = importImage(client, data, path);
-        refresh(client);
-        return ids;
+        return importImage(client, data, path);
     }
 
 }

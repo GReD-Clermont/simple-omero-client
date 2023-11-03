@@ -4,12 +4,12 @@
     <parent>
         <artifactId>pom-scijava</artifactId>
         <groupId>org.scijava</groupId>
-        <version>36.0.0</version>
+        <version>37.0.0</version>
     </parent>
 
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <version>5.15.1-SNAPSHOT</version>
+    <version>5.16.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Simple OMERO Client</name>

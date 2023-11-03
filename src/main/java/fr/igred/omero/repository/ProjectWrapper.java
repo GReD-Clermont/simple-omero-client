@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -32,11 +33,12 @@ import omero.model.ProjectDatasetLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.singletonList;
 
 
 /**
@@ -170,7 +172,8 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
 
 
     /**
-     * Adds a dataset to the project in OMERO. Create the dataset.
+     * Creates a dataset and adds it to the project in OMERO.
+     * <p>The project needs to be reloaded afterwards to list the new dataset.</p>
      *
      * @param client      The client handling the connection.
      * @param name        Dataset name.
@@ -210,8 +213,6 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         link.setParent(data.asProject());
 
         client.save(link);
-        refresh(client);
-        dataset.refresh(client);
         return dataset;
     }
 
@@ -231,7 +232,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     public void removeDataset(Client client, DatasetWrapper dataset)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         removeLink(client, "ProjectDatasetLink", dataset.getId());
-        refresh(client);
+        reload(client);
     }
 
 
@@ -246,11 +247,12 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client) throws ServiceException, AccessException, ExecutionException {
-        List<Long> projectIds = Collections.singletonList(getId());
+    public List<ImageWrapper> getImages(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        List<Long> projectIds = singletonList(getId());
         Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
                                                            bf -> bf.getImagesForProjects(client.getCtx(), projectIds))
-                                                       .handleServiceOrAccess("Cannot get images from " + this)
+                                                       .handleOMEROException("Cannot get images from " + this)
                                                        .get();
         return distinct(wrap(images, ImageWrapper::new));
     }
@@ -473,19 +475,22 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     /**
      * Reloads the project from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The client handling the connection.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client) throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getProjects(client.getCtx(),
-                                                        Collections.singletonList(this.getId()))
-                                           .iterator().next())
-                               .handleServiceOrAccess("Cannot refresh " + this)
-                               .get();
+    @Override
+    public void reload(Browser browser)
+    throws ServiceException, AccessException, ExecutionException {
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getProjects(browser.getCtx(),
+                                                        singletonList(getId())))
+                               .handleOMEROException("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

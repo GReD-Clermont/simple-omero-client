@@ -121,7 +121,8 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public int countAnnotationLinks(Client client) throws ServiceException, OMEROServerError {
+    public int countAnnotationLinks(Client client)
+    throws ServiceException, OMEROServerError {
         return client.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
                                   "where link.child.id=" + getId()).size();
     }

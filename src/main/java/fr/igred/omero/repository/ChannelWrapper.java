@@ -113,7 +113,9 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      */
     public Color getColor() {
         Color color = Color.WHITE;
-        if (hasRGBA()) color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
+        if (hasRGBA()) {
+            color = new Color(getRed(), getGreen(), getBlue(), getAlpha());
+        }
         return color;
     }
 

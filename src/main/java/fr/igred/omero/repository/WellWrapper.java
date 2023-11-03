@@ -18,8 +18,10 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
@@ -27,6 +29,8 @@ import omero.gateway.model.WellData;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.singletonList;
 
 
 /**
@@ -138,7 +142,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError {
-        refresh(client);
+        reload(client);
         return getPlate().getScreens(client);
     }
 
@@ -166,7 +170,7 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        refresh(client);
+        reload(client);
         return client.getPlate(getPlate().getId()).getPlateAcquisitions();
     }
 
@@ -326,15 +330,22 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
     /**
      * Reloads the well from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void refresh(Client client)
+    @Override
+    public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = client.getWell(getId()).asDataObject();
+        data = ExceptionHandler.of(browser.getBrowseFacility(),
+                                   bf -> bf.getWells(browser.getCtx(),
+                                                     singletonList(getId())))
+                               .handleOMEROException("Cannot reload " + this)
+                               .get()
+                               .iterator()
+                               .next();
     }
 
 }

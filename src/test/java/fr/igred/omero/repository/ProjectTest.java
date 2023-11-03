@@ -32,6 +32,7 @@ import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePo
 import static fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy.DELETE_ORPHANED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ProjectTest extends UserTest {
@@ -64,6 +65,7 @@ class ProjectTest extends UserTest {
 
         int initialSize = project.getDatasets().size();
         project.addDataset(client, dataset);
+        project.refresh(client);
         int size = project.getDatasets().size();
 
         project.removeDataset(client, dataset);
@@ -265,10 +267,16 @@ class ProjectTest extends UserTest {
         String name2 = "NewName";
         project.setName(name2);
         project.saveAndUpdate(client);
-        assertEquals(name2, client.getProject(PROJECT1.id).getName());
+        String checkName2 = client.getProject(PROJECT1.id).getName();
 
         project.setName(name);
         project.saveAndUpdate(client);
+
+        long updated = project.getUpdated().getTime();
+        long now     = System.currentTimeMillis();
+
+        assertTrue(now - updated < 5000, String.format("Updated at: %d. Current time was: %d", updated, now));
+        assertEquals(name2, checkName2);
         assertEquals(name, client.getProject(PROJECT1.id).getName());
     }
 
@@ -322,9 +330,11 @@ class ProjectTest extends UserTest {
         client.delete(tag);
         client.delete(table);
         List<MapAnnotationWrapper> maps = project1.getMapAnnotations(client);
-        if (!maps.isEmpty())
-            for (MapAnnotationWrapper map : maps)
+        if (!maps.isEmpty()) {
+            for (MapAnnotationWrapper map : maps) {
                 client.delete(map);
+            }
+        }
 
         assertEquals(0, project2.getTags(client).size());
         assertEquals(0, project2.getTables(client).size());

@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -56,7 +57,7 @@ class TableTest extends UserTest {
         assertEquals(images.size(), table.getRowCount());
 
         for (ImageWrapper image : images) {
-            assertNotEquals(true, table.isComplete());
+            assertFalse(table.isComplete());
             table.addRow(image.asDataObject(), image.getName());
         }
 
@@ -95,7 +96,7 @@ class TableTest extends UserTest {
         assertEquals(images.size(), table1.getRowCount());
 
         for (ImageWrapper image : images) {
-            assertNotEquals(true, table1.isComplete());
+            assertFalse(table1.isComplete());
             table1.addRow(image.asDataObject(), image.getName());
         }
 
@@ -107,11 +108,17 @@ class TableTest extends UserTest {
 
         TableWrapper table2 = new TableWrapper(2, "TableTest 2");
         table2.setColumn(0, "Image", ImageData.class);
-        table2.setColumn(1, "Name", String.class);
+        table2.setColumn(1, "Description", String.class);
         table2.setRowCount(images.size());
+        boolean untouched = true;
         for (ImageWrapper image : images) {
-            assertNotEquals(true, table2.isComplete());
-            table2.addRow(image.asDataObject(), image.getDescription());
+            assertFalse(table2.isComplete());
+            String description = image.getDescription();
+            if (untouched && description == null) {
+                description = "";
+                untouched   = false;
+            }
+            table2.addRow(image.asDataObject(), description);
         }
         dataset.addTable(client, table2);
         long tableId2 = table2.getId();
@@ -121,7 +128,7 @@ class TableTest extends UserTest {
         table3.setColumn(1, "Name", String.class);
         table3.setRowCount(images.size());
         for (ImageWrapper image : images) {
-            assertNotEquals(true, table3.isComplete());
+            assertFalse(table3.isComplete());
             table3.addRow(image.asDataObject(), "Test name");
         }
         dataset.addAndReplaceTable(client, table3);
@@ -136,6 +143,7 @@ class TableTest extends UserTest {
         }
         List<TableWrapper> noTables = dataset.getTables(client);
 
+        assertEquals(1, table2.getColumnCount());
         assertEquals(2, tables.size());
         assertEquals(0, noTables.size());
     }

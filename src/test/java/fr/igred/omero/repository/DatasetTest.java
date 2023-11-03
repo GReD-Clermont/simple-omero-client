@@ -92,6 +92,7 @@ class DatasetTest extends UserTest {
         DatasetWrapper newDataset = client.getDataset(id);
 
         newDataset.addImages(client, images);
+        newDataset.refresh(client);
 
         assertEquals(images.size(), newDataset.getImages(client).size());
 
@@ -102,7 +103,7 @@ class DatasetTest extends UserTest {
 
         client.delete(newDataset);
 
-        dataset.refresh(client);
+        dataset.reload(client);
         List<ImageWrapper> newImages = dataset.getImages(client);
 
         assertEquals(images.size(), newImages.size());
@@ -162,7 +163,7 @@ class DatasetTest extends UserTest {
         dataset.addTag(client, tagId);
         List<TagAnnotationWrapper> tags = dataset.getTags(client);
         client.delete(tag);
-        assertThrows(NullPointerException.class, () -> client.getTag(tagId));
+        assertThrows(NoSuchElementException.class, () -> client.getTag(tagId));
         assertEquals(1, tags.size());
     }
 

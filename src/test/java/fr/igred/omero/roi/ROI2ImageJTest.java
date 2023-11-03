@@ -463,7 +463,7 @@ class ROI2ImageJTest extends BasicTest {
     @Test
     void convertRectangleWithCStack() {
         ImagePlus img = IJ.createImage("test", "grayscale", 1000, 1000, 10, 1, 1);
-        int pos = 4;
+        int       pos = 4;
         img.setPosition(pos);
 
         Roi ijRoi = new Roi(10, 10, 10, 10);
@@ -487,7 +487,7 @@ class ROI2ImageJTest extends BasicTest {
     @Test
     void convertRectangleWithZStack() {
         ImagePlus img = IJ.createImage("test", "grayscale", 1000, 1000, 1, 10, 1);
-        int pos = 5;
+        int       pos = 5;
         img.setPosition(pos);
 
         Roi ijRoi = new Roi(10, 10, 10, 10);
@@ -511,7 +511,7 @@ class ROI2ImageJTest extends BasicTest {
     @Test
     void convertRectangleWithTStack() {
         ImagePlus img = IJ.createImage("test", "grayscale", 1000, 1000, 1, 1, 10);
-        int pos = 6;
+        int       pos = 6;
         img.setPosition(pos);
 
         Roi ijRoi = new Roi(10, 10, 10, 10);

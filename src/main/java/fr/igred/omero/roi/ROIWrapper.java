@@ -109,8 +109,11 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
      */
     public static String checkProperty(String property) {
-        if (property == null || property.trim().isEmpty()) return IJ_PROPERTY;
-        else return property;
+        if (property == null || property.trim().isEmpty()) {
+            return IJ_PROPERTY;
+        } else {
+            return property;
+        }
     }
 
 
@@ -391,7 +394,8 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public void saveROI(Client client) throws OMEROServerError, ServiceException {
+    public void saveROI(Client client)
+    throws OMEROServerError, ServiceException {
         Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
                                             g -> g.getUpdateService(client.getCtx())
                                                   .saveAndReturnObject(data.asIObject()))

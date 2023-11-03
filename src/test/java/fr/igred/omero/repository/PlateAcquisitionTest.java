@@ -57,11 +57,21 @@ class PlateAcquisitionTest extends UserTest {
 
 
     @Test
-    void testGetImages() throws Exception {
+    void testGetImages1() throws Exception {
         PlateWrapper            plate  = client.getPlate(PLATE1.id);
         PlateAcquisitionWrapper acq    = plate.getPlateAcquisitions().get(0);
         List<ImageWrapper>      images = acq.getImages(client);
-        assertEquals(36, images.size());
+        assertEquals(18, images.size());
+    }
+
+
+    @Test
+    void testGetImages2() throws Exception {
+        PlateWrapper            plate = client.getPlate(PLATE1.id);
+        PlateAcquisitionWrapper acq   = plate.getPlateAcquisitions().get(0);
+        acq.reload(client);
+        List<ImageWrapper> images = acq.getImages();
+        assertEquals(18, images.size());
     }
 
 

@@ -180,12 +180,22 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
 
 
     /**
-     * Gets the object creation date
+     * Gets the time when the object was created.
      *
-     * @return creation date.
+     * @return See above.
      */
     public Timestamp getCreated() {
         return data.getCreated();
+    }
+
+
+    /**
+     * Gets the time when the object was last updated.
+     *
+     * @return See above.
+     */
+    public Timestamp getUpdated() {
+        return data.getUpdated();
     }
 
 
@@ -229,10 +239,11 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(Client client) throws ExecutionException, ServiceException, AccessException {
+    public void saveAndUpdate(Client client)
+    throws ExecutionException, ServiceException, AccessException {
         data = (T) ExceptionHandler.of(client.getDm(),
                                        d -> d.saveAndReturnObject(client.getCtx(), data))
-                                   .handleServiceOrAccess("Cannot save and update object.")
+                                   .handleOMEROException("Cannot save and update object.")
                                    .get();
     }
 

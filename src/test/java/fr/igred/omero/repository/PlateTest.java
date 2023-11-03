@@ -72,13 +72,11 @@ class PlateTest extends UserTest {
 
     @Test
     void testGetPlateAcquisitionsFromPlate() throws Exception {
-        final String name = "PlateAcquisition Name 0";
-
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
         List<PlateAcquisitionWrapper> acquisitions = plate.getPlateAcquisitions();
-        assertEquals(1, acquisitions.size());
-        assertEquals(name, acquisitions.get(0).getName());
+        assertEquals(2, acquisitions.size());
+        assertEquals(1L, acquisitions.get(0).getId());
     }
 
 
@@ -139,6 +137,7 @@ class PlateTest extends UserTest {
         String status2 = "New status";
         plate.setStatus(status2);
         plate.saveAndUpdate(client);
+        plate.reload(client);
         assertEquals(status2, client.getPlate(PLATE1.id).getStatus());
 
         plate.setStatus(status);

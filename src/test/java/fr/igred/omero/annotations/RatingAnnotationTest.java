@@ -19,6 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import omero.gateway.model.RatingAnnotationData;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class RatingAnnotationTest extends UserTest {
@@ -111,6 +113,35 @@ class RatingAnnotationTest extends UserTest {
         assertEquals(1, ratings.size());
         assertEquals((score0 + score1) / 2, myRating1);
         assertEquals(score2, myRating2);
+    }
+
+
+    @Test
+    void testRate3() throws Exception {
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+        int            score1  = 4;
+        int            score2  = 3;
+
+        dataset.rate(client, score1);
+        int rating1 = dataset.getMyRating(client);
+        dataset.rate(client, score2);
+        int rating2 = dataset.getMyRating(client);
+
+        List<RatingAnnotationWrapper> ratings = dataset.getAnnotations(client)
+                                                       .getElementsOf(RatingAnnotationWrapper.class);
+        client.delete(ratings);
+
+        assertEquals(1, ratings.size());
+        assertEquals(score1, rating1);
+        assertEquals(score2, rating2);
+    }
+
+
+    @Test
+    void testGetRatings() throws Exception {
+        DatasetWrapper                dataset = client.getDataset(DATASET1.id);
+        List<RatingAnnotationWrapper> ratings = dataset.getRatings(client);
+        assertTrue(ratings.isEmpty());
     }
 
 }

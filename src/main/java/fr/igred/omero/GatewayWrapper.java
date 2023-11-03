@@ -82,8 +82,8 @@ public abstract class GatewayWrapper {
      */
     protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
-        this.user = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
-        this.ctx = ctx != null ? ctx : new SecurityContext(-1);
+        this.user    = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
+        this.ctx     = ctx != null ? ctx : new SecurityContext(-1);
     }
 
 
@@ -102,7 +102,8 @@ public abstract class GatewayWrapper {
      *
      * @throws DSOutOfServiceException If the connection is broken, or not logged in.
      */
-    private OMEROMetadataStoreClient getImportStoreLocked() throws DSOutOfServiceException {
+    private OMEROMetadataStoreClient getImportStoreLocked()
+    throws DSOutOfServiceException {
         storeLock.lock();
         try {
             return gateway.getImportStore(ctx);
@@ -275,7 +276,7 @@ public abstract class GatewayWrapper {
             storeUses.set(0);
             closeImport();
             user = new ExperimenterWrapper(new ExperimenterData());
-            ctx = new SecurityContext(-1);
+            ctx  = new SecurityContext(-1);
             ctx.setExperimenter(user.asDataObject());
             if (sudo) {
                 gateway = new Gateway(gateway.getLogger());
@@ -295,7 +296,9 @@ public abstract class GatewayWrapper {
         boolean sudo = ctx.isSudo();
         ctx = new SecurityContext(groupId);
         ctx.setExperimenter(user.asDataObject());
-        if (sudo) ctx.sudo();
+        if (sudo) {
+            ctx.sudo();
+        }
     }
 
 
@@ -423,7 +426,8 @@ public abstract class GatewayWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws OMEROServerError Server error.
      */
-    public List<IObject> findByQuery(String query) throws ServiceException, OMEROServerError {
+    public List<IObject> findByQuery(String query)
+    throws ServiceException, OMEROServerError {
         return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx).findAllByQuery(query, null))
                                .handleServiceOrServer("Query failed: " + query)
                                .get();
@@ -441,9 +445,10 @@ public abstract class GatewayWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public IObject save(IObject object) throws ServiceException, AccessException, ExecutionException {
+    public IObject save(IObject object)
+    throws ServiceException, AccessException, ExecutionException {
         return ExceptionHandler.of(getDm(), d -> d.saveAndReturnObject(ctx, object))
-                               .handleServiceOrAccess("Cannot save object")
+                               .handleOMEROException("Cannot save object")
                                .get();
     }
 
