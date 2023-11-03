@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
@@ -88,7 +89,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      *
      * @return See above.
      */
-    protected static <U extends DataObject, V extends ObjectWrapper<U>> List<V>
+    public static <U extends DataObject, V extends ObjectWrapper<U>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
         return wrap(objects, mapper, ObjectWrapper::getId);
     }
@@ -139,16 +140,6 @@ public abstract class ObjectWrapper<T extends DataObject> {
      */
     public T asDataObject() {
         return data;
-    }
-
-
-    /**
-     * Returns the contained DataObject as IObject.
-     *
-     * @return See above.
-     */
-    IObject asIObject() {
-        return data.asIObject();
     }
 
 

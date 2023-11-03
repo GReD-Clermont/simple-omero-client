@@ -19,14 +19,14 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.repository.PixelsWrapper.Bounds;
-import fr.igred.omero.repository.PixelsWrapper.Coordinates;
+import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.PixelsWrapper.Bounds;
+import fr.igred.omero.core.PixelsWrapper.Coordinates;
 import ij.IJ;
 import ij.gui.PointRoi;
 import ij.gui.ShapeRoi;
