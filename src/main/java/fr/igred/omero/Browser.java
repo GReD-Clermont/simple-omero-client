@@ -297,6 +297,33 @@ public abstract class Browser extends GatewayWrapper {
         return wrap(datasets, DatasetWrapper::new);
     }
 
+    /**
+     * Gets all orphaned datasets available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<DatasetWrapper> getOrphanedDatasets(ExperimenterWrapper experimenter)
+    throws ServiceException, ExecutionException, OMEROServerError, AccessException {
+        String query = String.format("select dataset from Dataset as dataset " +
+                                     "join fetch dataset.details.owner as o " +
+                                     "where o.id = " + experimenter.getId() +
+                                     "and not exists (select obl from " +
+                                     "ProjectDatasetLink as obl where obl.child = dataset.id) ");
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getDatasets(ids);
+    }
+
 
     /**
      * Returns the image with the specified ID from OMERO.
@@ -383,6 +410,24 @@ public abstract class Browser extends GatewayWrapper {
                                                        .handleOMEROException("Cannot get images with name: " + name)
                                                        .get();
         images.removeIf(image -> !image.getName().equals(name));
+        return wrap(images, ImageWrapper::new);
+    }
+
+    /**
+     * Gets all orphaned images owned by the current user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public Collection<ImageWrapper> getOrphanedImages(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
+                                              bf -> bf.getOrphanedImages(getCtx(), experimenter.getId()))
+                                          .handleOMEROException("Cannot get orphaned images")
+                                          .get();
         return wrap(images, ImageWrapper::new);
     }
 
