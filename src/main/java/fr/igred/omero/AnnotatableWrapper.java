@@ -842,6 +842,25 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
+     * Unlinks the given annotations from the current object.
+     *
+     * @param client      The client handling the connection.
+     * @param annotations List of annotations
+     * @param <A>         The type of the annotation.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     Server error.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, List<A> annotations)
+    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        removeLinks(client, annotationLinkType(),annotations.stream().map(A::getId).collect(Collectors.toList()));
+    }
+
+
+    /**
      * Removes the link of the given type with the given child ID.
      *
      * @param client   The client handling the connection.
@@ -856,12 +875,48 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     protected void removeLink(Client client, String linkType, long childId)
     throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
-        List<IObject> os = client.findByQuery("select link from " + linkType +
-                                              " link where link.parent = " + getId() +
-                                              " and link.child = " + childId);
+        List<IObject> os = getLinks(client, linkType, childId);
         delete(client, os.iterator().next());
     }
 
+    /**
+     * Removes the link of the given type with the given child IDs.
+     *
+     * @param client   The client handling the connection.
+     * @param linkType The link type.
+     * @param childIds List of link child IDs.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     Server error.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    protected void removeLinks(Client client, String linkType, List<Long> childIds)
+    throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
+        List<IObject> os = new ArrayList<>();
+        for(Long childId : childIds)
+            os.addAll(getLinks(client, linkType, childId));
+        client.delete(os);
+    }
+
+
+    /**
+     * Gets the links of the given type with the given child ID.
+     *
+     * @param client
+     * @param linkType
+     * @param childId
+     * @return
+     * @throws ServiceException
+     * @throws OMEROServerError
+     */
+    protected List<IObject> getLinks(Client client, String linkType, long childId)
+    throws ServiceException, OMEROServerError {
+            return client.findByQuery("select link from " + linkType +
+                                      " link where link.parent = " + getId() +
+                                      " and link.child = " + childId);
+    }
 
     /**
      * Retrieves annotations linked to the object.
