@@ -774,6 +774,34 @@ public abstract class Browser extends GatewayWrapper {
 
 
     /**
+     * Gets all orphaned plates available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getOrphanedPlates(ExperimenterWrapper experimenter)
+    throws ServiceException, ExecutionException, OMEROServerError, AccessException {
+        String query = String.format("select plate from Plate as plate " +
+                                     "join fetch plate.details.owner as o " +
+                                     "where o.id = " + experimenter.getId() +
+                                     "and not exists (select obl from " +
+                                     "ScreenPlateLink as obl where obl.child = plate.id) ");
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getPlates(ids);
+    }
+
+
+    /**
      * Gets the well with the specified id from OMERO.
      *
      * @param id ID of the well.
