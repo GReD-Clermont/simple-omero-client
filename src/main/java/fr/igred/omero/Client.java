@@ -365,7 +365,7 @@ public class Client extends Browser {
         ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
                                                   .rethrow(ApiUsageException.class,
                                                            (m, e) -> new NoSuchElementException(m),
-                                                           "User not found: " + groupId)
+                                                           "Group not found: " + groupId)
                                                   .handleServiceOrServer("Cannot retrieve group: " + groupId)
                                                   .get();
         return new GroupWrapper(new GroupData(group));
