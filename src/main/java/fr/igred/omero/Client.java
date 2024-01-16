@@ -378,10 +378,12 @@ public class Client extends Browser {
      *
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws OMEROServerError       Server error.
+     * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException The requested group cannot be found.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     public List<GroupWrapper> getGroups()
-    throws ServiceException, OMEROServerError, AccessException, ExecutionException {
+    throws ServiceException, OMEROServerError, AccessException, ExecutionException, NoSuchElementException {
         if(getUser().isAdmin(this)) {
             List<ExperimenterGroup> groups = ExceptionHandler.of(getGateway(),
                                                           g -> g.getAdminService(getCtx()).lookupGroups())
