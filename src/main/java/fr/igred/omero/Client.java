@@ -371,6 +371,30 @@ public class Client extends Browser {
         return new GroupWrapper(new GroupData(group));
     }
 
+    /**
+     * Returns all the groups on the OMERO database (for admins only)
+     *
+     * @return The list of groups on OMERO.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws OMEROServerError       Server error.
+     * @throws NoSuchElementException The requested group cannot be found.
+     */
+    public List<GroupWrapper> getGroups()
+    throws ServiceException, OMEROServerError, AccessException, ExecutionException {
+        if(getUser().isAdmin(this)) {
+            List<ExperimenterGroup> groups = ExceptionHandler.of(getGateway(),
+                                                          g -> g.getAdminService(getCtx()).lookupGroups())
+                                                      .rethrow(ApiUsageException.class,
+                                                               (m, e) -> new NoSuchElementException(m),
+                                                               "Groups not found")
+                                                      .handleServiceOrServer("Cannot retrieve the groups on OMERO")
+                                                      .get();
+            return groups.stream().map(GroupData::new).map(GroupWrapper::new).collect(Collectors.toList());
+        }else{
+            throw new NoSuchElementException("You don't have admin rights to get the list of all the groups on OMERO");
+        }
+    }
 
     /**
      * Gets the client associated with the username in the parameters. The user calling this function needs to have
