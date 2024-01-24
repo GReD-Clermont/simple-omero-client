@@ -33,16 +33,20 @@ import ij.gui.TextRoi;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ROI2ImageJTest extends BasicTest {
@@ -396,6 +400,29 @@ class ROI2ImageJTest extends BasicTest {
         assertEquals(text.getZ(), newText.getZ());
         assertEquals(text.getT(), newText.getT());
         assertEquals(text.getText(), c.matcher(newText.getText().trim()).replaceAll(Matcher.quoteReplacement("")));
+    }
+
+
+    @Test
+    void convertText2() {
+        Font font = new Font("Arial", Font.BOLD, 25);
+        List<Roi> roiList = new ArrayList<>(1);
+        TextRoi   ijText  = new TextRoi(3, 3, "Text");
+        ijText.setAngle(33);
+        ijText.setFont(font);
+        roiList.add(ijText);
+
+        Roi ijRoi = ROIWrapper.toImageJ(ROIWrapper.fromImageJ(roiList)).get(0);
+
+        assertInstanceOf(TextRoi.class, ijRoi);
+        assertEquals(ijText.getXBase(), ijRoi.getXBase(), Double.MIN_VALUE);
+        assertEquals(ijText.getYBase(), ijRoi.getYBase(), Double.MIN_VALUE);
+        assertEquals(ijText.getAngle(), ijRoi.getAngle(), Double.MIN_VALUE);
+
+        Font newFont = ((TextRoi) ijRoi).getCurrentFont();
+        assertEquals(font.getFamily(), newFont.getFamily());
+        assertEquals(font.getStyle(), newFont.getStyle());
+        assertEquals(font.getSize(), newFont.getSize());
     }
 
 
