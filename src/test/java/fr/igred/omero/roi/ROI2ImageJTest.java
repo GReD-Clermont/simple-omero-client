@@ -31,6 +31,8 @@ import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -38,7 +40,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +47,6 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ROI2ImageJTest extends BasicTest {
@@ -403,9 +403,10 @@ class ROI2ImageJTest extends BasicTest {
     }
 
 
-    @Test
-    void convertText2() {
-        Font font = new Font("Arial", Font.BOLD, 25);
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = {Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC})
+    void convertText(int style) {
+        Font font = new Font("Arial", style, 25);
         List<Roi> roiList = new ArrayList<>(1);
         TextRoi   ijText  = new TextRoi(3, 3, "Text");
         ijText.setAngle(33);
