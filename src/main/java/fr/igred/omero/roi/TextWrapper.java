@@ -19,9 +19,14 @@ package fr.igred.omero.roi;
 
 
 import ij.gui.TextRoi;
+import ome.model.enums.UnitsLength;
 import omero.gateway.model.TextData;
+import omero.model.LengthI;
 
+import java.awt.Font;
+import java.awt.font.TextAttribute;
 import java.awt.geom.Path2D;
+import java.util.Map;
 
 
 /**
@@ -57,6 +62,12 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
     public TextWrapper(TextRoi text) {
         this(text.getText(), text.getBounds().getX(), text.getBounds().getY());
         super.copyFromIJRoi(text);
+        Font font = text.getCurrentFont();
+        if(font != null) {
+            Map<TextAttribute, ?> attributes = font.getAttributes();
+            if(attributes.containsKey(TextAttribute.SIZE) && attributes.get(TextAttribute.SIZE) != null)
+                setFontSize(((Float)(attributes.get(TextAttribute.SIZE))));
+        }
     }
 
 
@@ -93,6 +104,15 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
         data.setText(text);
     }
 
+    /**
+     * Sets the font size on the ShapeData.
+     *
+     * @param size the font size
+     */
+    public void setFontSize(int size) {
+        if(size > 0)
+           data.getShapeSettings().setFontSize(new LengthI(size, UnitsLength.POINT));
+    }
 
     /**
      * Converts the shape to an {@link java.awt.Shape}.
