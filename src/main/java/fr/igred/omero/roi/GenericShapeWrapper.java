@@ -23,6 +23,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import ij.ImagePlus;
+import ij.gui.ImageRoi;
 import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
@@ -126,6 +127,8 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
             default:
                 if (ijRoi instanceof TextRoi) {
                     list.add(new TextWrapper((TextRoi) ijRoi));
+                } else if (ijRoi instanceof ImageRoi) {
+                    list.add(new MaskWrapper((ImageRoi) ijRoi));
                 } else {
                     list.add(new RectangleWrapper(ijRoi));
                 }
@@ -256,7 +259,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         ijRoi.setStrokeColor(getStroke());
         Color fill = getFill();
         if (!TRANSPARENT.equals(fill)) {
-            ijRoi.setFillColor(getFill());
+            ijRoi.setFillColor(fill);
         }
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);

@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -329,23 +330,40 @@ class ROI2ImageJTest extends BasicTest {
         MaskWrapper mask = new MaskWrapper();
         mask.setCoordinates(3, 3, 10, 10);
         mask.setCZT(0, 0, 2);
+        mask.setFill(Color.WHITE);
 
-        Roi ijRectangle = mask.toImageJ();
-        assertEquals(mask.toAWTShape().getBounds(), ijRectangle.getBounds());
+        int[][] maskPixels = new int[10][10];
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (i > 3 && i < 7 && j > 4 && j < 8) {
+                    maskPixels[i][j] = 1;
+                }
+            }
+        }
+        mask.setMask(maskPixels);
+
+        Roi imgRoi = mask.toImageJ();
+        assertEquals(mask.toAWTShape().getBounds(), imgRoi.getBounds());
 
         List<Roi> roiList = new ArrayList<>(1);
-        roiList.add(ijRectangle);
+        roiList.add(imgRoi);
         ROIWrapper roi = ROIWrapper.fromImageJ(roiList).get(0);
 
-        RectangleWrapper newRectangle = roi.getShapes().getElementsOf(RectangleWrapper.class).get(0);
+        MaskWrapper newMask   = roi.getShapes().getElementsOf(MaskWrapper.class).get(0);
+        int[][]     checkMask = newMask.getMaskAsBinaryArray();
 
-        assertEquals(mask.getX(), newRectangle.getX(), Double.MIN_VALUE);
-        assertEquals(mask.getY(), newRectangle.getY(), Double.MIN_VALUE);
-        assertEquals(mask.getWidth(), newRectangle.getWidth(), Double.MIN_VALUE);
-        assertEquals(mask.getHeight(), newRectangle.getHeight(), Double.MIN_VALUE);
-        assertEquals(mask.getC(), newRectangle.getC());
-        assertEquals(mask.getZ(), newRectangle.getZ());
-        assertEquals(mask.getT(), newRectangle.getT());
+        assertEquals(mask.getX(), newMask.getX(), Double.MIN_VALUE);
+        assertEquals(mask.getY(), newMask.getY(), Double.MIN_VALUE);
+        assertEquals(mask.getWidth(), newMask.getWidth(), Double.MIN_VALUE);
+        assertEquals(mask.getHeight(), newMask.getHeight(), Double.MIN_VALUE);
+        assertEquals(mask.getC(), newMask.getC());
+        assertEquals(mask.getZ(), newMask.getZ());
+        assertEquals(mask.getT(), newMask.getT());
+        assertEquals(maskPixels.length, checkMask.length);
+        for (int i = 0; i < maskPixels.length; i++) {
+            assertArrayEquals(maskPixels[i], checkMask[i]);
+        }
+
     }
 
 
@@ -406,7 +424,7 @@ class ROI2ImageJTest extends BasicTest {
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = {Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC})
     void convertText(int style) {
-        Font font = new Font("Arial", style, 25);
+        Font      font    = new Font("Arial", style, 25);
         List<Roi> roiList = new ArrayList<>(1);
         TextRoi   ijText  = new TextRoi(3, 3, "Text");
         ijText.setAngle(33);
