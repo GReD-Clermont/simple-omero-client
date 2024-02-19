@@ -279,6 +279,32 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
 
     /**
+     * Combines a list of ROIs into a single ROI.
+     *
+     * @param rois The ROIs to combine.
+     *
+     * @return See above.
+     */
+    private static ij.gui.Roi xor(Collection<? extends GenericShapeWrapper<?>> rois) {
+        GenericShapeWrapper<?> shape = rois.iterator().next();
+
+        ij.gui.Roi roi = shape.toImageJ();
+        if (rois.size() > 1) {
+            roi = rois.stream()
+                      .map(GenericShapeWrapper::toImageJ)
+                      .map(ShapeRoi::new)
+                      .reduce(ShapeRoi::xor)
+                      .map(ij.gui.Roi.class::cast)
+                      .orElse(roi);
+            roi.setStrokeColor(roi.getStrokeColor());
+            roi.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
+        }
+        roi.setName(shape.getText());
+        return roi;
+    }
+
+
+    /**
      * Gets the ROI name.
      *
      * @return The ROI name (can be null).
@@ -454,6 +480,8 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      */
     public List<ij.gui.Roi> toImageJ(String property) {
         property = checkProperty(property);
+        String ijIDProperty = ijIDProperty(property);
+
         ShapeList shapes = getShapes();
 
         Map<String, List<GenericShapeWrapper<?>>> sameSlice = shapes.stream()
@@ -463,28 +491,45 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
         sameSlice.values().removeIf(List::isEmpty);
         List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
         for (List<GenericShapeWrapper<?>> slice : sameSlice.values()) {
-            GenericShapeWrapper<?> shape = slice.iterator().next();
+            // Handle 2D shapes to XOR (Rectangles, Ellipses and Polygons)
+            List<GenericShapeWrapper<?>> toXOR = slice.stream()
+                                                      .filter(s -> (s instanceof RectangleWrapper)
+                                                                   || (s instanceof EllipseWrapper)
+                                                                   || (s instanceof PolygonWrapper))
+                                                      .collect(Collectors.toList());
+            if (!toXOR.isEmpty()) {
+                ij.gui.Roi xor = xor(toXOR);
+                if (xor.getName().isEmpty()) {
+                    long first = toXOR.get(0).getId();
+                    xor.setName(String.format("%d-%d", getId(), first));
+                }
+                xor.setProperty(ijIDProperty, String.valueOf(getId()));
+                rois.add(xor);
+            }
 
-            ij.gui.Roi roi = shape.toImageJ();
-            String     txt = shape.getText();
-            if (slice.size() > 1) {
-                ij.gui.Roi xor = slice.stream()
-                                      .map(GenericShapeWrapper::toImageJ)
-                                      .map(ShapeRoi::new)
-                                      .reduce(ShapeRoi::xor)
-                                      .map(ij.gui.Roi.class::cast)
-                                      .orElse(roi);
-                xor.setStrokeColor(roi.getStrokeColor());
-                xor.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
-                roi = xor;
+            // Handle points
+            List<ij.gui.PointRoi> points = slice.stream()
+                                                .filter(PointWrapper.class::isInstance)
+                                                .map(GenericShapeWrapper::toImageJ)
+                                                .map(ij.gui.PointRoi.class::cast)
+                                                .collect(Collectors.toList());
+            if (!points.isEmpty()) {
+                ij.gui.PointRoi point = points.get(0);
+                points.stream().skip(1).forEach(p -> point.addPoint(p.getXBase(), p.getYBase()));
+                point.setProperty(ijIDProperty, String.valueOf(getId()));
+                rois.add(point);
             }
-            if (txt.isEmpty()) {
-                roi.setName(String.format("%d-%d", getId(), shape.getId()));
-            } else {
-                roi.setName(txt);
-            }
-            roi.setProperty(ijIDProperty(property), String.valueOf(getId()));
-            rois.add(roi);
+
+            // Simply convert the others
+            List<ij.gui.Roi> others = slice.stream()
+                                           .filter(s -> !(s instanceof RectangleWrapper)
+                                                        && !(s instanceof EllipseWrapper)
+                                                        && !(s instanceof PolygonWrapper)
+                                                        && !(s instanceof PointWrapper))
+                                           .map(GenericShapeWrapper::toImageJ)
+                                           .collect(Collectors.toList());
+            others.forEach(r -> r.setProperty(ijIDProperty, String.valueOf(getId())));
+            rois.addAll(others);
         }
         return rois;
     }
