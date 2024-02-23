@@ -32,6 +32,7 @@ import ij.plugin.ImageCalculator;
 import ij.process.ImageStatistics;
 import loci.plugins.BF;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
+import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
 import omero.model.NamedValue;
 import org.junit.jupiter.api.Test;
@@ -690,6 +691,25 @@ class ImageTest extends UserTest {
         assertTrue(files.get(0).exists());
         Files.deleteIfExists(files.get(0).toPath());
         Files.deleteIfExists(files.get(1).toPath());
+    }
+
+
+    @Test
+    void testCreateOrphanedImageAndDeleteIt() throws Exception {
+        String name = "To delete";
+
+        ImageWrapper image = new ImageWrapper(new ImageData());
+        image.setName(name);
+        image.saveAndUpdate(client);
+        long id = image.getId();
+
+        List<ImageWrapper> orphaned = client.getOrphanedImages();
+        client.delete(orphaned);
+
+        assertEquals(1, orphaned.size());
+        assertEquals(name, orphaned.get(0).getName());
+
+        assertThrows(NoSuchElementException.class, () -> client.getImage(id));
     }
 
 

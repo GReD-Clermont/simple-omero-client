@@ -299,6 +299,50 @@ public abstract class Browser extends GatewayWrapper {
 
 
     /**
+     * Gets all orphaned datasets available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<DatasetWrapper> getOrphanedDatasets(ExperimenterWrapper experimenter)
+    throws ServiceException, ExecutionException, OMEROServerError, AccessException {
+        String template = "select dataset from Dataset as dataset" +
+                          " join fetch dataset.details.owner as o" +
+                          " where o.id = %d" +
+                          " and not exists (select obl from ProjectDatasetLink as obl where obl.child = dataset.id) ";
+        String query = String.format(template, experimenter.getId());
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getDatasets(ids);
+    }
+
+
+    /**
+     * Gets all orphaned datasets available from OMERO owned by the current user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<DatasetWrapper> getOrphanedDatasets()
+    throws ServiceException, ExecutionException, OMEROServerError, AccessException {
+        return getOrphanedDatasets(getUser());
+    }
+
+
+    /**
      * Returns the image with the specified ID from OMERO.
      *
      * @param id ID of the image.
@@ -384,6 +428,40 @@ public abstract class Browser extends GatewayWrapper {
                                                        .get();
         images.removeIf(image -> !image.getName().equals(name));
         return wrap(images, ImageWrapper::new);
+    }
+
+
+    /**
+     * Gets all orphaned images owned by the specified user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getOrphanedImages(ExperimenterWrapper experimenter)
+    throws ServiceException, AccessException, ExecutionException {
+        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
+                                                           bf -> bf.getOrphanedImages(getCtx(), experimenter.getId()))
+                                                       .handleOMEROException("Cannot get orphaned images")
+                                                       .get();
+        return wrap(images, ImageWrapper::new);
+    }
+
+
+    /**
+     * Gets all orphaned images owned by the current user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<ImageWrapper> getOrphanedImages()
+    throws ServiceException, AccessException, ExecutionException {
+        return getOrphanedImages(getUser());
     }
 
 
@@ -725,6 +803,51 @@ public abstract class Browser extends GatewayWrapper {
                                                                              + experimenter)
                                                        .get();
         return wrap(plates, PlateWrapper::new);
+    }
+
+
+    /**
+     * Gets all orphaned plates available from OMERO owned by a given user.
+     *
+     * @param experimenter The user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getOrphanedPlates(ExperimenterWrapper experimenter)
+    throws ServiceException, ExecutionException, OMEROServerError, AccessException {
+        String template = "select plate from Plate as plate" +
+                          " join fetch plate.details.owner as o" +
+                          " where o.id = %d" +
+                          " and not exists (select obl from " +
+                          " ScreenPlateLink as obl where obl.child = plate.id) ";
+        String query = String.format(template, experimenter.getId());
+        Long[] ids = this.findByQuery(query)
+                         .stream()
+                         .map(IObject::getId)
+                         .map(RLong::getValue)
+                         .toArray(Long[]::new);
+        return getPlates(ids);
+    }
+
+
+    /**
+     * Gets all orphaned plates available from OMERO for the current user.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws OMEROServerError   Server error.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<PlateWrapper> getOrphanedPlates()
+    throws ServiceException, ExecutionException, OMEROServerError, AccessException {
+        return getOrphanedPlates(getUser());
     }
 
 
