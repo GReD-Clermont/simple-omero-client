@@ -838,7 +838,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        removeLinks(client, annotationLinkType(), Collections.singletonList(annotation.getId()));
+        removeLink(client, annotationLinkType(), annotation.getId());
     }
 
 
@@ -886,6 +886,25 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
                                            .handleOMEROException("Cannot get links from " + this)
                                            .get();
         client.delete(os);
+    }
+
+
+    /**
+     * Removes the link of the given type with the given child ID.
+     *
+     * @param client   The client handling the connection.
+     * @param linkType The link type.
+     * @param childId  Link child ID.
+     *
+     * @throws ServiceException     Cannot connect to OMERO.
+     * @throws AccessException      Cannot access data.
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws OMEROServerError     Server error.
+     * @throws InterruptedException If block(long) does not return.
+     */
+    protected void removeLink(Client client, String linkType, long childId)
+    throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
+        removeLinks(client, linkType, Collections.singletonList(childId));
     }
 
 
