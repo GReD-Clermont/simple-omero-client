@@ -279,12 +279,18 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
 
     /**
      * Combines a list of ROIs into a single ROI.
+     * <p>{@code SHAPE_ID} property is the concatenation of shape IDs.</p>
      *
      * @param rois The ROIs to combine (must contain at least 1 element).
      *
      * @return See above.
      */
     private static ij.gui.Roi xor(Collection<? extends ij.gui.Roi> rois) {
+        String idProperty = GenericShapeWrapper.IJ_IDPROPERTY;
+        String shapeIDs = rois.stream()
+                              .map(r -> r.getProperty(idProperty))
+                              .collect(Collectors.joining(","));
+
         ij.gui.Roi roi = rois.iterator().next();
         if (rois.size() > 1) {
             ij.gui.Roi xor = rois.stream()
@@ -296,10 +302,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
             xor.setFillColor(roi.getFillColor());
             xor.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
             xor.setName(roi.getName());
-
-            String shapeID = roi.getProperty(GenericShapeWrapper.IJ_IDPROPERTY);
-            xor.setProperty(GenericShapeWrapper.IJ_IDPROPERTY, shapeID);
-
+            xor.setProperty(idProperty, shapeIDs);
             roi = xor;
         }
         return roi;
@@ -314,10 +317,16 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return See above.
      */
     private static PointRoi combine(Collection<? extends PointRoi> points) {
+        String idProperty = GenericShapeWrapper.IJ_IDPROPERTY;
+        String shapeIDs = points.stream()
+                                .map(p -> p.getProperty(idProperty))
+                                .collect(Collectors.joining(","));
+
         PointRoi point = points.iterator().next();
         points.stream()
               .skip(1)
               .forEachOrdered(p -> point.addPoint(p.getXBase(), p.getYBase()));
+        point.setProperty(idProperty, shapeIDs);
         return point;
     }
 

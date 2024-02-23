@@ -64,7 +64,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
     public static final String ANNOTATION_LINK = "ShapeAnnotationLink";
 
     /** Default IJ property to store shape ID. */
-    static final String IJ_IDPROPERTY = "SHAPE_ID";
+    public static final String IJ_IDPROPERTY = "SHAPE_ID";
 
     /** Transparent color */
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
@@ -254,7 +254,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
 
     /**
      * Copies details to an ImageJ ROI (name, position, stroke color, fill color, stroke width).
-     * <p>Also sets the "SHAPE_ID" property (using the shape ID).</p>
+     * <p>Also sets the {@code SHAPE_ID} property to the shape ID.</p>
      *
      * @param ijRoi An ImageJ Roi.
      */
