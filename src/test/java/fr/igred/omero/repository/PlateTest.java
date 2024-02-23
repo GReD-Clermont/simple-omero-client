@@ -20,11 +20,14 @@ package fr.igred.omero.repository;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import omero.gateway.model.PlateData;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class PlateTest extends UserTest {
@@ -211,6 +214,25 @@ class PlateTest extends UserTest {
         final double origin = 1.0d;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
         assertEquals(origin, plate.getWellOriginY(null).getValue(), Double.MIN_VALUE);
+    }
+
+
+    @Test
+    void testCreateOrphanedPlateAndDeleteIt() throws Exception {
+        String name = "To delete";
+
+        PlateWrapper plate = new PlateWrapper(new PlateData());
+        plate.setName(name);
+        plate.saveAndUpdate(client);
+        long id = plate.getId();
+
+        List<PlateWrapper> orphaned = client.getOrphanedPlates();
+        client.delete(orphaned);
+
+        assertEquals(1, orphaned.size());
+        assertEquals(name, orphaned.get(0).getName());
+
+        assertThrows(NoSuchElementException.class, () -> client.getPlate(id));
     }
 
 }

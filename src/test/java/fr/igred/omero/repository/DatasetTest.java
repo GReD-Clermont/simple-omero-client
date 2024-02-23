@@ -361,4 +361,22 @@ class DatasetTest extends UserTest {
         assertEquals(description, client.getDataset(DATASET1.id).getDescription());
     }
 
+
+    @Test
+    void testCreateOrphanedDatasetAndDeleteIt() throws Exception {
+        String name = "To delete";
+
+        DatasetWrapper dataset = new DatasetWrapper(name, "Dataset which will be deleted");
+        dataset.saveAndUpdate(client);
+        long id = dataset.getId();
+
+        List<DatasetWrapper> orphaned = client.getOrphanedDatasets();
+        client.delete(orphaned);
+
+        assertEquals(1, orphaned.size());
+        assertEquals(name, orphaned.get(0).getName());
+
+        assertThrows(NoSuchElementException.class, () -> client.getDataset(id));
+    }
+
 }
