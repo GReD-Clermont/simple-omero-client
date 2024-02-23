@@ -434,6 +434,8 @@ public abstract class Browser extends GatewayWrapper {
     /**
      * Gets all orphaned images owned by the specified user.
      *
+     * @param experimenter The user.
+     *
      * @return See above.
      *
      * @throws ServiceException   Cannot connect to OMERO.
