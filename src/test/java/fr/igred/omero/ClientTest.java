@@ -19,6 +19,7 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.GroupWrapper;
 import fr.igred.omero.repository.DatasetWrapper;
 import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PlateWrapper;
@@ -370,6 +371,13 @@ class ClientTest extends UserTest {
 
         Collection<WellWrapper> wells = client.getWells(user);
         assertEquals(0, wells.size());
+    }
+
+
+    @Test
+    void testGetAllGroups() throws Exception {
+        List<GroupWrapper> groups = client.getGroups();
+        assertEquals(7, groups.size());
     }
 
 }
