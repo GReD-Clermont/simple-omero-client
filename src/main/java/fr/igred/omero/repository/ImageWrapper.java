@@ -85,6 +85,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ImageAnnotationLink";
 
+    /** Default IJ property to store image ID. */
+    public static final String IJ_ID_PROPERTY = "IMAGE_ID";
+
 
     /**
      * Constructor of the class ImageWrapper
@@ -771,7 +774,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         }
         imp.setPosition(1);
         if (IJ.getVersion().compareTo("1.53a") >= 0) {
-            imp.setProp("IMAGE_ID", getId());
+            imp.setProp(IJ_ID_PROPERTY, getId());
         }
         return imp;
     }
