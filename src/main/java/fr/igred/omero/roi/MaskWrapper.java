@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2023 GReD
+ *  Copyright (C) 2020-2024 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,11 +18,15 @@
 package fr.igred.omero.roi;
 
 
+import ij.gui.ImageRoi;
 import ij.gui.Roi;
+import ij.process.ImageProcessor;
 import omero.gateway.model.MaskData;
 
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -30,6 +34,9 @@ import java.awt.geom.Rectangle2D;
  * <p> Wraps function calls to the MaskData contained.
  */
 public class MaskWrapper extends GenericShapeWrapper<MaskData> {
+
+
+    private static final double MAX_UINT8 = 255.0;
 
 
     /**
@@ -47,6 +54,41 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
      */
     public MaskWrapper() {
         this(new MaskData());
+    }
+
+
+    /**
+     * Constructor of the MaskWrapper class using an ImageJ ImageRoi.
+     *
+     * @param imageRoi An ImageJ ImageRoi.
+     */
+    public MaskWrapper(ImageRoi imageRoi) {
+        this();
+        data.setX(imageRoi.getXBase());
+        data.setY(imageRoi.getYBase());
+        data.setWidth(imageRoi.getFloatWidth());
+        data.setHeight(imageRoi.getFloatHeight());
+
+        ImageProcessor ip = imageRoi.getProcessor();
+        ip.flipVertical();
+        data.setMask(ip.getIntArray());
+        ip.flipVertical();
+
+        Color lut = new Color(ip.getCurrentColorModel().getRGB((int) ip.getMax()));
+        int   r   = lut.getRed();
+        int   g   = lut.getGreen();
+        int   b   = lut.getBlue();
+        int   a   = (int) (imageRoi.getOpacity() * MAX_UINT8);
+
+        data.setText(imageRoi.getName());
+        super.copyFromIJRoi(imageRoi);
+        data.getShapeSettings().setFill(new Color(r, g, b, a));
+
+        // Always 0 as long as ImageRoi::getAngle() method is not updated
+        double          angle     = StrictMath.toRadians(-imageRoi.getAngle());
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(angle, imageRoi.getXBase(), imageRoi.getYBase());
+        super.setTransform(transform);
     }
 
 
@@ -188,6 +230,16 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
 
 
     /**
+     * Returns the mask image.
+     *
+     * @return See above.
+     */
+    public BufferedImage getMaskAsBufferedImage() {
+        return data.getMaskAsBufferedImage();
+    }
+
+
+    /**
      * Returns the mask as a byte array.
      *
      * @return See above.
@@ -288,7 +340,12 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
 
         Roi roi;
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
-            roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
+            int      x      = (int) getX();
+            int      y      = (int) getY();
+            ImageRoi imgRoi = new ImageRoi(x, y, getMaskAsBufferedImage());
+            imgRoi.setZeroTransparent(true);
+            imgRoi.setOpacity(getFill().getAlpha() / MAX_UINT8);
+            roi = imgRoi;
         } else {
             PointWrapper p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
             PointWrapper p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);

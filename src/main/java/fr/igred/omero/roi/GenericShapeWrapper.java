@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2023 GReD
+ *  Copyright (C) 2020-2024 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,6 +23,7 @@ import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import ij.ImagePlus;
+import ij.gui.ImageRoi;
 import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
@@ -30,6 +31,7 @@ import ij.gui.TextRoi;
 import ome.model.units.BigResult;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ShapeData;
+import omero.gateway.model.ShapeSettingsData;
 import omero.model.AffineTransform;
 import omero.model.AffineTransformI;
 import omero.model.LengthI;
@@ -38,6 +40,8 @@ import omero.model.ShapeAnnotationLinkI;
 import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +62,9 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
 
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ShapeAnnotationLink";
+
+    /** Default IJ property to store shape ID. */
+    public static final String IJ_IDPROPERTY = "SHAPE_ID";
 
     /** Transparent color */
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
@@ -123,12 +130,32 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
             default:
                 if (ijRoi instanceof TextRoi) {
                     list.add(new TextWrapper((TextRoi) ijRoi));
+                } else if (ijRoi instanceof ImageRoi) {
+                    list.add(new MaskWrapper((ImageRoi) ijRoi));
                 } else {
                     list.add(new RectangleWrapper(ijRoi));
                 }
                 break;
         }
         return list;
+    }
+
+
+    /**
+     * Extracts the angle from an AffineTransform.
+     *
+     * @param transform The AffineTransform.
+     *
+     * @return See above.
+     */
+    private static double extractAngle(java.awt.geom.AffineTransform transform) {
+        Point2D p1  = new Point2D.Double(0, 0);
+        Point2D p2  = new Point2D.Double(1, 0);
+        Point2D tp1 = transform.transform(p1, null);
+        Point2D tp2 = transform.transform(p2, null);
+        double  dx  = tp2.getX() - tp1.getX();
+        double  dy  = tp2.getY() - tp1.getY();
+        return StrictMath.atan2(dy, dx);
     }
 
 
@@ -183,11 +210,51 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         data.setC(Math.max(-1, c - 1));
         data.setZ(Math.max(-1, z - 1));
         data.setT(Math.max(-1, t - 1));
+
+        if (ijRoi instanceof TextRoi) {
+            copyFromIJTextRoi((TextRoi) ijRoi);
+        }
+    }
+
+
+    /**
+     * Copies details from an ImageJ TextRoi (angle, font).
+     *
+     * @param text An ImageJ TextRoi.
+     */
+    private void copyFromIJTextRoi(ij.gui.TextRoi text) {
+        Font font = text.getCurrentFont();
+        setFontSize(font.getSize());
+
+        int style = font.getStyle();
+
+        String styleName;
+        if (style == java.awt.Font.BOLD) {
+            styleName = ShapeSettingsData.FONT_BOLD;
+        } else if (style == java.awt.Font.ITALIC) {
+            styleName = ShapeSettingsData.FONT_ITALIC;
+        } else if (style == java.awt.Font.BOLD + java.awt.Font.ITALIC) {
+            styleName = ShapeSettingsData.FONT_BOLD_ITALIC;
+        } else {
+            styleName = ShapeSettingsData.FONT_REGULAR;
+        }
+        data.getShapeSettings().setFontStyle(styleName);
+        data.getShapeSettings().setFontFamily(font.getFamily());
+
+        // Angle is negative and in degrees in IJ
+        double angle = StrictMath.toRadians(-text.getAngle());
+        double x     = text.getBounds().getX();
+        double y     = text.getBounds().getY();
+
+        java.awt.geom.AffineTransform at = new java.awt.geom.AffineTransform();
+        at.rotate(angle, x, y);
+        setTransform(at);
     }
 
 
     /**
      * Copies details to an ImageJ ROI (name, position, stroke color, fill color, stroke width).
+     * <p>Also sets the {@code SHAPE_ID} property to the shape ID.</p>
      *
      * @param ijRoi An ImageJ Roi.
      */
@@ -196,12 +263,39 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         ijRoi.setStrokeColor(getStroke());
         Color fill = getFill();
         if (!TRANSPARENT.equals(fill)) {
-            ijRoi.setFillColor(getFill());
+            ijRoi.setFillColor(fill);
         }
         int c = Math.max(0, getC() + 1);
         int z = Math.max(0, getZ() + 1);
         int t = Math.max(0, getT() + 1);
         ijRoi.setPosition(c, z, t);
+        if (ijRoi instanceof TextRoi) {
+            copyToIJTextRoi((TextRoi) ijRoi);
+        }
+        ijRoi.setProperty(IJ_IDPROPERTY, String.valueOf(data.getId()));
+    }
+
+
+    /**
+     * Copies details to an ImageJ TextRoi (angle, font).
+     *
+     * @param text An ImageJ TextRoi.
+     */
+    private void copyToIJTextRoi(ij.gui.TextRoi text) {
+        // Set negative angle in degrees for IJ
+        double angle = -StrictMath.toDegrees(extractAngle(toAWTTransform()));
+        text.setAngle(angle);
+
+        String fontFamily = data.getShapeSettings().getFontFamily();
+        int    fontStyle  = Font.PLAIN;
+        if (data.getShapeSettings().getFontStyle().equals(ShapeSettingsData.FONT_BOLD)) {
+            fontStyle = Font.BOLD;
+        } else if (data.getShapeSettings().getFontStyle().equals(ShapeSettingsData.FONT_ITALIC)) {
+            fontStyle = Font.ITALIC;
+        } else if (data.getShapeSettings().getFontStyle().equals(ShapeSettingsData.FONT_BOLD_ITALIC)) {
+            fontStyle = Font.BOLD + Font.ITALIC;
+        }
+        text.setFont(new Font(fontFamily, fontStyle, (int) getFontSize()));
     }
 
 

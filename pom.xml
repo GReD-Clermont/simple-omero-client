@@ -9,7 +9,7 @@
 
     <groupId>fr.igred</groupId>
     <artifactId>simple-omero-client</artifactId>
-    <version>5.16.0</version>
+    <version>5.17.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Simple OMERO Client</name>
@@ -35,7 +35,7 @@
             <id>ppouchin</id>
             <name>Pierre Pouchin</name>
             <email>pierre.pouchin@uca.fr</email>
-            <url>https://www.igred.fr/directory/member/pierre-pouchin/</url>
+            <url>https://www.igred.fr/en/member/pierre_pouchin/</url>
             <organization>GReD (INSERM U1103 / CNRS UMR 6293 / UCA)</organization>
             <organizationUrl>https://www.igred.fr</organizationUrl>
             <roles>
