@@ -63,6 +63,9 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "ShapeAnnotationLink";
 
+    /** Default IJ property to store shape ID. */
+    static final String IJ_IDPROPERTY = "SHAPE_ID";
+
     /** Transparent color */
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
@@ -251,6 +254,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
 
     /**
      * Copies details to an ImageJ ROI (name, position, stroke color, fill color, stroke width).
+     * <p>Also sets the "SHAPE_ID" property (using the shape ID).</p>
      *
      * @param ijRoi An ImageJ Roi.
      */
@@ -268,6 +272,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         if (ijRoi instanceof TextRoi) {
             copyToIJTextRoi((TextRoi) ijRoi);
         }
+        ijRoi.setProperty(IJ_IDPROPERTY, String.valueOf(data.getId()));
     }
 
 
