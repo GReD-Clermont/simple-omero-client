@@ -29,6 +29,7 @@ import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.repository.PixelsWrapper.Bounds;
 import fr.igred.omero.repository.PixelsWrapper.Coordinates;
 import ij.IJ;
+import ij.gui.PointRoi;
 import ij.gui.ShapeRoi;
 import omero.RString;
 import omero.gateway.model.AnnotationData;
@@ -63,9 +64,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     /** Annotation link name for this type of object */
     public static final String ANNOTATION_LINK = "RoiAnnotationLink";
 
-    /**
-     * Default IJ property to store ROI local labels / indices.
-     */
+    /** Default IJ property to store ROI local labels / indices. */
     public static final String IJ_PROPERTY = "ROI";
 
 
@@ -281,25 +280,62 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     /**
      * Combines a list of ROIs into a single ROI.
      *
-     * @param rois The ROIs to combine.
+     * @param rois The ROIs to combine (must contain at least 1 element).
      *
      * @return See above.
      */
-    private static ij.gui.Roi xor(Collection<? extends GenericShapeWrapper<?>> rois) {
-        GenericShapeWrapper<?> shape = rois.iterator().next();
-
-        ij.gui.Roi roi = shape.toImageJ();
+    private static ij.gui.Roi xor(Collection<? extends ij.gui.Roi> rois) {
+        ij.gui.Roi roi = rois.iterator().next();
         if (rois.size() > 1) {
-            roi = rois.stream()
-                      .map(GenericShapeWrapper::toImageJ)
-                      .map(ShapeRoi::new)
-                      .reduce(ShapeRoi::xor)
-                      .map(ij.gui.Roi.class::cast)
-                      .orElse(roi);
-            roi.setStrokeColor(roi.getStrokeColor());
-            roi.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
+            ij.gui.Roi xor = rois.stream()
+                                 .map(ShapeRoi::new)
+                                 .reduce(ShapeRoi::xor)
+                                 .map(ij.gui.Roi.class::cast)
+                                 .orElse(roi);
+            xor.setStrokeColor(roi.getStrokeColor());
+            xor.setFillColor(roi.getFillColor());
+            xor.setPosition(roi.getCPosition(), roi.getZPosition(), roi.getTPosition());
+            xor.setName(roi.getName());
+
+            String shapeID = roi.getProperty(GenericShapeWrapper.IJ_IDPROPERTY);
+            xor.setProperty(GenericShapeWrapper.IJ_IDPROPERTY, shapeID);
+
+            roi = xor;
         }
-        roi.setName(shape.getText());
+        return roi;
+    }
+
+
+    /**
+     * Combines a list of points into a single PointRoi.
+     *
+     * @param points The points to combine (must contain at least 1 element).
+     *
+     * @return See above.
+     */
+    private static PointRoi combine(Collection<? extends PointRoi> points) {
+        PointRoi point = points.iterator().next();
+        points.stream()
+              .skip(1)
+              .forEachOrdered(p -> point.addPoint(p.getXBase(), p.getYBase()));
+        return point;
+    }
+
+
+    /**
+     * Converts a shape to an ImageJ ROI and adds a name if there is none.
+     *
+     * @param shape The shape to convert.
+     *
+     * @return See above.
+     */
+    private ij.gui.Roi shapeToIJRoiWithName(GenericShapeWrapper<?> shape) {
+        ij.gui.Roi roi         = shape.toImageJ();
+        String     name        = roi.getName();
+        String     defaultName = String.format("%d-%d", getId(), shape.getId());
+        if (name.isEmpty()) {
+            roi.setName(defaultName);
+        }
         return roi;
     }
 
@@ -364,7 +400,9 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     public ShapeList getShapes() {
         List<ShapeData> shapeData = data.getShapes();
         ShapeList       shapes    = new ShapeList(shapeData.size());
-        shapeData.stream().sorted(Comparator.comparing(ShapeData::getId)).forEach(shapes::add);
+        shapeData.stream()
+                 .sorted(Comparator.comparing(ShapeData::getId))
+                 .forEachOrdered(shapes::add);
         return shapes;
     }
 
@@ -480,7 +518,9 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      */
     public List<ij.gui.Roi> toImageJ(String property) {
         property = checkProperty(property);
-        String ijIDProperty = ijIDProperty(property);
+        String ijIDProperty   = ijIDProperty(property);
+        String ijNameProperty = ijNameProperty(property);
+        String roiID          = String.valueOf(getId());
 
         ShapeList shapes = getShapes();
 
@@ -491,45 +531,39 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
         sameSlice.values().removeIf(List::isEmpty);
         List<ij.gui.Roi> rois = new ArrayList<>(shapes.size());
         for (List<GenericShapeWrapper<?>> slice : sameSlice.values()) {
-            // Handle 2D shapes to XOR (Rectangles, Ellipses and Polygons)
-            List<GenericShapeWrapper<?>> toXOR = slice.stream()
-                                                      .filter(s -> (s instanceof RectangleWrapper)
-                                                                   || (s instanceof EllipseWrapper)
-                                                                   || (s instanceof PolygonWrapper))
-                                                      .collect(Collectors.toList());
+            // Handle 2D shapes using XOR (Rectangles, Ellipses and Polygons)
+            List<ij.gui.Roi> toXOR = slice.stream()
+                                          .filter(s -> (s instanceof RectangleWrapper)
+                                                       || (s instanceof EllipseWrapper)
+                                                       || (s instanceof PolygonWrapper))
+                                          .map(this::shapeToIJRoiWithName)
+                                          .collect(Collectors.toList());
             if (!toXOR.isEmpty()) {
-                ij.gui.Roi xor = xor(toXOR);
-                if (xor.getName().isEmpty()) {
-                    long first = toXOR.get(0).getId();
-                    xor.setName(String.format("%d-%d", getId(), first));
-                }
-                xor.setProperty(ijIDProperty, String.valueOf(getId()));
-                rois.add(xor);
+                rois.add(xor(toXOR));
             }
 
-            // Handle points
-            List<ij.gui.PointRoi> points = slice.stream()
-                                                .filter(PointWrapper.class::isInstance)
-                                                .map(GenericShapeWrapper::toImageJ)
-                                                .map(ij.gui.PointRoi.class::cast)
-                                                .collect(Collectors.toList());
+            // Handle points by combining them
+            List<PointRoi> points = slice.stream()
+                                         .filter(PointWrapper.class::isInstance)
+                                         .map(this::shapeToIJRoiWithName)
+                                         .map(PointRoi.class::cast)
+                                         .collect(Collectors.toList());
             if (!points.isEmpty()) {
-                ij.gui.PointRoi point = points.get(0);
-                points.stream().skip(1).forEach(p -> point.addPoint(p.getXBase(), p.getYBase()));
-                point.setProperty(ijIDProperty, String.valueOf(getId()));
-                rois.add(point);
+                rois.add(combine(points));
             }
 
-            // Simply convert the others
-            List<ij.gui.Roi> others = slice.stream()
-                                           .filter(s -> !(s instanceof RectangleWrapper)
-                                                        && !(s instanceof EllipseWrapper)
-                                                        && !(s instanceof PolygonWrapper)
-                                                        && !(s instanceof PointWrapper))
-                                           .map(GenericShapeWrapper::toImageJ)
-                                           .collect(Collectors.toList());
-            others.forEach(r -> r.setProperty(ijIDProperty, String.valueOf(getId())));
-            rois.addAll(others);
+            // Simply convert and add the others
+            slice.stream()
+                 .filter(s -> !(s instanceof RectangleWrapper)
+                              && !(s instanceof EllipseWrapper)
+                              && !(s instanceof PolygonWrapper)
+                              && !(s instanceof PointWrapper))
+                 .map(this::shapeToIJRoiWithName)
+                 .forEachOrdered(rois::add);
+
+            // Add properties
+            rois.forEach(r -> r.setProperty(ijIDProperty, roiID));
+            rois.forEach(r -> r.setProperty(ijNameProperty, getName()));
         }
         return rois;
     }
