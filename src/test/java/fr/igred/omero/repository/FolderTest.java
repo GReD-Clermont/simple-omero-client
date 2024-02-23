@@ -269,7 +269,7 @@ class FolderTest extends UserTest {
 
         List<TagAnnotationWrapper> tags = folder.getTags(client);
         assertEquals(1, tags.size());
-        folder.unlink(client, tags.get(0));
+        folder.unlink(client, tags);
 
         List<TagAnnotationWrapper> removed = folder.getTags(client);
         assertEquals(0, removed.size());
