@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -365,10 +366,33 @@ public class Client extends Browser {
         ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
                                                   .rethrow(ApiUsageException.class,
                                                            (m, e) -> new NoSuchElementException(m),
-                                                           "User not found: " + groupId)
+                                                           "Group not found: " + groupId)
                                                   .handleServiceOrServer("Cannot retrieve group: " + groupId)
                                                   .get();
         return new GroupWrapper(new GroupData(group));
+    }
+
+
+    /**
+     * Returns all the groups on OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     */
+    public List<GroupWrapper> getGroups()
+    throws ServiceException, AccessException {
+        String error = "Cannot retrieve the groups on OMERO";
+        return ExceptionHandler.of(getGateway(),
+                                   g -> g.getAdminService(getCtx()).lookupGroups())
+                               .handleOMEROException(error)
+                               .get()
+                               .stream()
+                               .filter(Objects::nonNull)
+                               .map(GroupData::new)
+                               .map(GroupWrapper::new)
+                               .collect(Collectors.toList());
     }
 
 

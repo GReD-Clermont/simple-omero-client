@@ -50,11 +50,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * Constructor of the ProjectWrapper class. Creates a new project and saves it to OMERO.
+     * Constructor of the ScreenWrapper class. Creates a new screen and saves it to OMERO.
      *
      * @param client      The client handling the connection.
-     * @param name        Project name.
-     * @param description Project description.
+     * @param name        Screen name.
+     * @param description Screen description.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
