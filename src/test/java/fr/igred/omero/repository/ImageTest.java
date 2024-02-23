@@ -596,6 +596,12 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetFormat() throws Exception {
+        assertEquals("Fake", client.getImage(IMAGE1.id).getFormat());
+    }
+
+
+    @Test
     void testGetChannel() throws Exception {
         ChannelWrapper channel = client.getImage(IMAGE1.id).getChannels(client).get(0);
         assertEquals(0, channel.getIndex());

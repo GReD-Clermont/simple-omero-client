@@ -242,6 +242,16 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Returns the format of the image.
+     *
+     * @return See above.
+     */
+    public String getFormat() {
+        return data.getFormat();
+    }
+
+
+    /**
      * Returns the type of annotation link for this object.
      *
      * @return See above.
