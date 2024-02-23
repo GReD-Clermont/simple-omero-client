@@ -240,13 +240,14 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         return data.getAcquisitionDate();
     }
 
+
     /**
-     * Gets the image original file format
+     * Returns the format of the image.
      *
-     * @return image format.
+     * @return See above.
      */
     public String getFormat() {
-        return data.asImage().getFormat().getValue().getValue();
+        return data.getFormat();
     }
 
 
