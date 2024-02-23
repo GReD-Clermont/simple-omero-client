@@ -20,7 +20,6 @@ package fr.igred.omero;
 
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.model.DataObject;
@@ -90,24 +89,6 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     protected static <U extends DataObject, V extends GenericObjectWrapper<U>> List<V>
     wrap(Collection<U> objects, Function<? super U, ? extends V> mapper) {
         return wrap(objects, mapper, GenericObjectWrapper::getId);
-    }
-
-
-    /**
-     * Deletes an object from OMERO.
-     *
-     * @param client The client handling the connection.
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError     Server error.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    protected static void delete(Client client, IObject object)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        client.delete(object);
     }
 
 

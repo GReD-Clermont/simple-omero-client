@@ -552,19 +552,21 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void addTable(Client client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot add table to " + this;
+
         TablesFacility tablesFacility = client.getTablesFacility();
         TableData tableData = ExceptionHandler.of(tablesFacility,
                                                   tf -> tf.addTable(client.getCtx(),
                                                                     data,
                                                                     table.getName(),
                                                                     table.createTable()))
-                                              .handleOMEROException("Cannot add table to " + this)
+                                              .handleOMEROException(error)
                                               .get();
 
         Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
                                                                     tf -> tf.getAvailableTables(client.getCtx(),
                                                                                                 data))
-                                                                .handleOMEROException("Cannot add table to " + this)
+                                                                .handleOMEROException(error)
                                                                 .get();
         long fileId = tableData.getOriginalFileId();
 
@@ -590,17 +592,18 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
+        String error = "Cannot add table to " + this;
+
         Collection<FileAnnotationWrapper> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
                                                                             t -> t.getAvailableTables(
                                                                                     client.getCtx(), data))
-                                                                        .handleOMEROException("Cannot get tables from "
-                                                                                              + this)
+                                                                        .handleOMEROException(error)
                                                                         .get(),
                                                         FileAnnotationWrapper::new);
         addTable(client, table);
         tables.removeIf(t -> !t.getDescription().equals(table.getName()));
+        this.unlink(client, tables);
         for (FileAnnotationWrapper fileAnnotation : tables) {
-            this.unlink(client, fileAnnotation);
             if (policy == ReplacePolicy.DELETE ||
                 policy == ReplacePolicy.DELETE_ORPHANED && fileAnnotation.countAnnotationLinks(client) == 0) {
                 client.deleteFile(fileAnnotation.getId());

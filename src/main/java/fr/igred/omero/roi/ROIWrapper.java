@@ -286,7 +286,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return See above.
      */
     private static ij.gui.Roi xor(Collection<? extends ij.gui.Roi> rois) {
-        String idProperty = GenericShapeWrapper.IJ_IDPROPERTY;
+        String idProperty = GenericShapeWrapper.IJ_ID_PROPERTY;
         String shapeIDs = rois.stream()
                               .map(r -> r.getProperty(idProperty))
                               .collect(Collectors.joining(","));
@@ -317,7 +317,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return See above.
      */
     private static PointRoi combine(Collection<? extends PointRoi> points) {
-        String idProperty = GenericShapeWrapper.IJ_IDPROPERTY;
+        String idProperty = GenericShapeWrapper.IJ_ID_PROPERTY;
         String shapeIDs = points.stream()
                                 .map(p -> p.getProperty(idProperty))
                                 .collect(Collectors.joining(","));
