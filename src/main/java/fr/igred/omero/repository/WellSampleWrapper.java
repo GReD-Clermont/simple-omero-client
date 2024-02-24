@@ -206,10 +206,9 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException {
         String query = "select ws from WellSample as ws " +
                        "left outer join fetch ws.plateAcquisition as pa " +
                        "left outer join fetch ws.well as w " +

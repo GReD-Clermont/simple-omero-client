@@ -341,11 +341,10 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException {
         String query = "select pa from PlateAcquisition as pa " +
                        "left outer join fetch pa.plate as p " +
                        "left outer join fetch pa.wellSample as ws " +

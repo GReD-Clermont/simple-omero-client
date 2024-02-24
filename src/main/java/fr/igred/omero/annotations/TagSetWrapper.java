@@ -139,10 +139,9 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException {
         String query = "select t from TagAnnotation as t " +
                        "left outer join fetch t.annotationLinks as l " +
                        "left outer join fetch l.child as a " +
