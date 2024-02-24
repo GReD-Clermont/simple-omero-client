@@ -232,12 +232,11 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @return See above.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public List<WellSampleWrapper> getWellSamples(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
+    throws AccessException, ServiceException {
         reload(browser);
         return getWellSamples();
     }
@@ -262,12 +261,11 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @return See above
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public List<ImageWrapper> getImages(Client client)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException {
         return getWellSamples(client).stream()
                                      .map(WellSampleWrapper::getImage)
                                      .collect(Collectors.toList());
@@ -339,13 +337,12 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
      *
      * @param browser The data browser.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     @Override
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException {
         String query = "select pa from PlateAcquisition as pa " +
                        " left outer join fetch pa.plate as p" +
                        " left outer join fetch pa.wellSample as ws" +
