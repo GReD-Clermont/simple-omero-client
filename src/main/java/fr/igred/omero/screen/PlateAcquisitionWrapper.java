@@ -225,10 +225,9 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<WellSampleWrapper> getWellSamples(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
+    throws AccessException, ServiceException {
         reload(browser);
         return getWellSamples();
     }
@@ -255,10 +254,9 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<ImageWrapper> getImages(Client client)
-    throws ServiceException, AccessException, ExecutionException {
+    throws ServiceException, AccessException {
         return getWellSamples(client).stream()
                                      .map(WellSampleWrapper::getImage)
                                      .collect(Collectors.toList());

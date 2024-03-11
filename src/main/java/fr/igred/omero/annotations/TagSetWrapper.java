@@ -86,10 +86,9 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public List<TagAnnotationWrapper> getTags(Browser browser)
-    throws ExecutionException, AccessException, ServiceException {
+    throws AccessException, ServiceException {
         reload(browser);
         return getTags();
     }

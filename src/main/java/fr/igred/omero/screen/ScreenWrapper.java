@@ -341,10 +341,9 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws IOException        Cannot read file.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     public boolean importImages(GatewayWrapper client, String... paths)
-    throws ServiceException, AccessException, IOException, ExecutionException {
+    throws ServiceException, AccessException, IOException {
         return this.importImages(client, 1, paths);
     }
 
