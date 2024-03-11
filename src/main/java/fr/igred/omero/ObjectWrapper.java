@@ -24,7 +24,6 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.model.DataObject;
-import omero.model.IObject;
 
 import java.sql.Timestamp;
 import java.util.Collection;

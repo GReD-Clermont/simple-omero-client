@@ -20,7 +20,6 @@ package fr.igred.omero.client;
 
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.core.ImageWrapper;
 import org.junit.jupiter.api.Test;
