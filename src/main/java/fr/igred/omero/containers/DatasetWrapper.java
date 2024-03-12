@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -188,11 +189,10 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      */
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                         singletonList(data.getId())))
-                                                       .handleOMEROException("Cannot get images from " + this)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                          singletonList(data.getId())),
+                                            "Cannot get images from " + this);
         return wrap(images, ImageWrapper::new);
     }
 
@@ -303,11 +303,10 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
     public List<ImageWrapper> getImagesWithKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                         singletonList(data.getId())))
-                                                       .handleOMEROException(error)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                          singletonList(data.getId())),
+                                            error);
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
@@ -342,17 +341,14 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      */
     public List<ImageWrapper> getImagesWithKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                         singletonList(data.getId())))
-                                                       .handleOMEROException(
-                                                               "Cannot get images with key-value pair from " + this)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                          singletonList(data.getId())),
+                                            "Cannot get images with key-value pair from " + this);
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
-
 
             Map<String, List<String>> pairs = imageWrapper.getKeyValuePairs(client)
                                                           .stream()

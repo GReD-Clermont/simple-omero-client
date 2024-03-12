@@ -46,6 +46,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.ObjectWrapper.flatten;
+import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
@@ -214,10 +215,10 @@ public class Client extends Browser {
      */
     public ExperimenterWrapper getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData experimenter = ExceptionHandler.of(getAdminFacility(),
-                                                            a -> a.lookupExperimenter(getCtx(), username))
-                                                        .handleOMEROException("Cannot retrieve user: " + username)
-                                                        .get();
+        ExperimenterData experimenter = call(getAdminFacility(),
+                                             a -> a.lookupExperimenter(getCtx(),
+                                                                       username),
+                                             "Cannot retrieve user: " + username);
         if (experimenter != null) {
             return new ExperimenterWrapper(experimenter);
         } else {
@@ -264,9 +265,9 @@ public class Client extends Browser {
      */
     public GroupWrapper getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
-        GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
-                                          .handleOMEROException("Cannot retrieve group: " + groupName)
-                                          .get();
+        GroupData group = call(getAdminFacility(),
+                               a -> a.lookupGroup(getCtx(), groupName),
+                               "Cannot retrieve group: " + groupName);
         if (group != null) {
             return new GroupWrapper(group);
         } else {
@@ -289,7 +290,8 @@ public class Client extends Browser {
      */
     public GroupWrapper getGroup(long groupId)
     throws ServiceException, AccessException {
-        ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
+        ExperimenterGroup group = ExceptionHandler.of(getGateway(),
+                                                      g -> g.getAdminService(getCtx()).getGroup(groupId))
                                                   .rethrow(ApiUsageException.class,
                                                            (m, e) -> new NoSuchElementException(m),
                                                            "Group not found: " + groupId)
@@ -310,15 +312,15 @@ public class Client extends Browser {
     public List<GroupWrapper> getGroups()
     throws ServiceException, AccessException {
         String error = "Cannot retrieve the groups on OMERO";
-        return ExceptionHandler.of(getGateway(),
-                                   g -> g.getAdminService(getCtx()).lookupGroups())
-                               .handleOMEROException(error)
-                               .get()
-                               .stream()
-                               .filter(Objects::nonNull)
-                               .map(GroupData::new)
-                               .map(GroupWrapper::new)
-                               .collect(Collectors.toList());
+        List<ExperimenterGroup> groups = call(getGateway(),
+                                              g -> g.getAdminService(getCtx())
+                                                    .lookupGroups(),
+                                              error);
+        return groups.stream()
+                     .filter(Objects::nonNull)
+                     .map(GroupData::new)
+                     .map(GroupWrapper::new)
+                     .collect(Collectors.toList());
     }
 
 

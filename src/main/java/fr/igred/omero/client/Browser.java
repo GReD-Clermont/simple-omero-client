@@ -23,7 +23,6 @@ import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.containers.DatasetWrapper;
@@ -60,7 +59,9 @@ import java.util.stream.Collectors;
 
 import static fr.igred.omero.ObjectWrapper.flatten;
 import static fr.igred.omero.ObjectWrapper.wrap;
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 
 /**
@@ -117,11 +118,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ProjectWrapper> getProjects(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getProjects(getCtx(), Arrays.asList(ids)))
-                                                           .handleOMEROException("Cannot get projects with IDs: "
-                                                                                 + Arrays.toString(ids))
-                                                           .get();
+        Collection<ProjectData> projects = call(getBrowseFacility(),
+                                                bf -> bf.getProjects(getCtx(),
+                                                                     asList(ids)),
+                                                "Cannot get projects with IDs: "
+                                                + Arrays.toString(ids));
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -137,10 +138,9 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ProjectWrapper> getProjects()
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getProjects(getCtx()))
-                                                           .handleOMEROException("Cannot get projects")
-                                                           .get();
+        Collection<ProjectData> projects = call(getBrowseFacility(),
+                                                bf -> bf.getProjects(getCtx()),
+                                                "Cannot get projects");
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -158,11 +158,12 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ProjectWrapper> getProjects(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getProjects(getCtx(), experimenter.getId()))
-                                                           .handleOMEROException("Cannot get projects for user "
-                                                                                 + experimenter)
-                                                           .get();
+        long exId = experimenter.getId();
+        Collection<ProjectData> projects = call(getBrowseFacility(),
+                                                bf -> bf.getProjects(getCtx(),
+                                                                     exId),
+                                                "Cannot get projects for user "
+                                                + experimenter);
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -180,11 +181,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ProjectWrapper> getProjects(String name)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ProjectData> projects = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getProjects(getCtx(), name))
-                                                           .handleOMEROException("Cannot get projects with name: "
-                                                                                 + name)
-                                                           .get();
+        Collection<ProjectData> projects = call(getBrowseFacility(),
+                                                bf -> bf.getProjects(getCtx(),
+                                                                     name),
+                                                "Cannot get projects with name: "
+                                                + name);
         return wrap(projects, ProjectWrapper::new);
     }
 
@@ -225,11 +226,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<DatasetWrapper> getDatasets(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getDatasets(getCtx(), Arrays.asList(ids)))
-                                                           .handleOMEROException("Cannot get datasets with IDs: "
-                                                                                 + Arrays.toString(ids))
-                                                           .get();
+        Collection<DatasetData> datasets = call(getBrowseFacility(),
+                                                bf -> bf.getDatasets(getCtx(),
+                                                                     asList(ids)),
+                                                "Cannot get datasets with IDs: "
+                                                + Arrays.toString(ids));
         return wrap(datasets, DatasetWrapper::new);
     }
 
@@ -292,10 +293,10 @@ public abstract class Browser extends GatewayWrapper {
     public List<DatasetWrapper> getDatasets(String name)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get datasets with name: " + name;
-        Collection<DatasetData> datasets = ExceptionHandler.of(getBrowseFacility(),
-                                                               bf -> bf.getDatasets(getCtx(), name))
-                                                           .handleOMEROException(error)
-                                                           .get();
+        Collection<DatasetData> datasets = call(getBrowseFacility(),
+                                                bf -> bf.getDatasets(getCtx(),
+                                                                     name),
+                                                error);
         return wrap(datasets, DatasetWrapper::new);
     }
 
@@ -359,10 +360,9 @@ public abstract class Browser extends GatewayWrapper {
     public ImageWrapper getImage(Long id)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get image with ID: " + id;
-        ImageData image = ExceptionHandler.of(getBrowseFacility(),
-                                              bf -> bf.getImage(getCtx(), id))
-                                          .handleOMEROException(error)
-                                          .get();
+        ImageData image = call(getBrowseFacility(),
+                               bf -> bf.getImage(getCtx(), id),
+                               error);
         if (image == null) {
             String msg = format("Image %d doesn't exist in this context", id);
             throw new NoSuchElementException(msg);
@@ -385,10 +385,10 @@ public abstract class Browser extends GatewayWrapper {
     public List<ImageWrapper> getImages(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with IDs: " + Arrays.toString(ids);
-        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getImages(getCtx(), Arrays.asList(ids)))
-                                                       .handleOMEROException(error)
-                                                       .get();
+        Collection<ImageData> images = call(getBrowseFacility(),
+                                            bf -> bf.getImages(getCtx(),
+                                                               asList(ids)),
+                                            error);
         return wrap(images, ImageWrapper::new);
     }
 
@@ -404,10 +404,9 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ImageWrapper> getImages()
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getUserImages(getCtx()))
-                                                       .handleOMEROException("Cannot get images")
-                                                       .get();
+        Collection<ImageData> images = call(getBrowseFacility(),
+                                            bf -> bf.getUserImages(getCtx()),
+                                            "Cannot get images");
         return wrap(images, ImageWrapper::new);
     }
 
@@ -425,10 +424,9 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ImageWrapper> getImages(String name)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getImages(getCtx(), name))
-                                                       .handleOMEROException("Cannot get images with name: " + name)
-                                                       .get();
+        Collection<ImageData> images = call(getBrowseFacility(),
+                                            bf -> bf.getImages(getCtx(), name),
+                                            "Cannot get images with name: " + name);
         images.removeIf(image -> !image.getName().equals(name));
         return wrap(images, ImageWrapper::new);
     }
@@ -447,10 +445,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ImageWrapper> getOrphanedImages(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getOrphanedImages(getCtx(), experimenter.getId()))
-                                                       .handleOMEROException("Cannot get orphaned images")
-                                                       .get();
+        long exId = experimenter.getId();
+        Collection<ImageData> images = call(getBrowseFacility(),
+                                            bf -> bf.getOrphanedImages(getCtx(),
+                                                                       exId),
+                                            "Cannot get orphaned images");
         return wrap(images, ImageWrapper::new);
     }
 
@@ -607,11 +606,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ScreenWrapper> getScreens(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
-                                                             bf -> bf.getScreens(getCtx(), Arrays.asList(ids)))
-                                                         .handleOMEROException("Cannot get screens with IDs: "
-                                                                               + Arrays.toString(ids))
-                                                         .get();
+        Collection<ScreenData> screens = call(getBrowseFacility(),
+                                              bf -> bf.getScreens(getCtx(),
+                                                                  asList(ids)),
+                                              "Cannot get screens with IDs: "
+                                              + Arrays.toString(ids));
         return wrap(screens, ScreenWrapper::new);
     }
 
@@ -627,10 +626,9 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ScreenWrapper> getScreens()
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
-                                                             bf -> bf.getScreens(getCtx()))
-                                                         .handleOMEROException("Cannot get screens")
-                                                         .get();
+        Collection<ScreenData> screens = call(getBrowseFacility(),
+                                              bf -> bf.getScreens(getCtx()),
+                                              "Cannot get screens");
         return wrap(screens, ScreenWrapper::new);
     }
 
@@ -649,10 +647,11 @@ public abstract class Browser extends GatewayWrapper {
     public List<ScreenWrapper> getScreens(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException {
         String error = format("Cannot get screens for user %s", experimenter);
-        Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
-                                                             bf -> bf.getScreens(getCtx(), experimenter.getId()))
-                                                         .handleOMEROException(error)
-                                                         .get();
+        long   exId  = experimenter.getId();
+        Collection<ScreenData> screens = call(getBrowseFacility(),
+                                              bf -> bf.getScreens(getCtx(),
+                                                                  exId),
+                                              error);
         return wrap(screens, ScreenWrapper::new);
     }
 
@@ -693,11 +692,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<PlateWrapper> getPlates(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getPlates(getCtx(), Arrays.asList(ids)))
-                                                       .handleOMEROException("Cannot get plates with IDs: "
-                                                                             + Arrays.toString(ids))
-                                                       .get();
+        Collection<PlateData> plates = call(getBrowseFacility(),
+                                            bf -> bf.getPlates(getCtx(),
+                                                               asList(ids)),
+                                            "Cannot get plates with IDs: "
+                                            + Arrays.toString(ids));
         return wrap(plates, PlateWrapper::new);
     }
 
@@ -713,10 +712,9 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<PlateWrapper> getPlates()
     throws ServiceException, AccessException, ExecutionException {
-        Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getPlates(getCtx()))
-                                                       .handleOMEROException("Cannot get plates")
-                                                       .get();
+        Collection<PlateData> plates = call(getBrowseFacility(),
+                                            bf -> bf.getPlates(getCtx()),
+                                            "Cannot get plates");
         return wrap(plates, PlateWrapper::new);
     }
 
@@ -734,11 +732,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<PlateWrapper> getPlates(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<PlateData> plates = ExceptionHandler.of(getBrowseFacility(),
-                                                           bf -> bf.getPlates(getCtx(), experimenter.getId()))
-                                                       .handleOMEROException("Cannot get plates for user "
-                                                                             + experimenter)
-                                                       .get();
+        long exId = experimenter.getId();
+        Collection<PlateData> plates = call(getBrowseFacility(),
+                                            bf -> bf.getPlates(getCtx(), exId),
+                                            "Cannot get plates for user "
+                                            + experimenter);
         return wrap(plates, PlateWrapper::new);
     }
 
@@ -823,11 +821,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<WellWrapper> getWells(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = ExceptionHandler.of(getBrowseFacility(),
-                                                         bf -> bf.getWells(getCtx(), Arrays.asList(ids)))
-                                                     .handleOMEROException("Cannot get wells with IDs: "
-                                                                           + Arrays.toString(ids))
-                                                     .get();
+        Collection<WellData> wells = call(getBrowseFacility(),
+                                          bf -> bf.getWells(getCtx(),
+                                                            asList(ids)),
+                                          "Cannot get wells with IDs: "
+                                          + Arrays.toString(ids));
         return wrap(wells, WellWrapper::new);
     }
 
@@ -910,10 +908,9 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<FolderWrapper> getFolders()
     throws ExecutionException, AccessException, ServiceException {
-        Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
-                                                             b -> b.getFolders(getCtx()))
-                                                         .handleOMEROException("Cannot get folders")
-                                                         .get();
+        Collection<FolderData> folders = call(getBrowseFacility(),
+                                              b -> b.getFolders(getCtx()),
+                                              "Cannot get folders");
         return wrap(folders, FolderWrapper::new);
     }
 
@@ -932,10 +929,10 @@ public abstract class Browser extends GatewayWrapper {
     public List<FolderWrapper> getFolders(ExperimenterWrapper experimenter)
     throws ExecutionException, AccessException, ServiceException {
         String error = format("Cannot get folders for user %s", experimenter);
-        Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
-                                                             b -> b.getFolders(getCtx(), experimenter.getId()))
-                                                         .handleOMEROException(error)
-                                                         .get();
+        long   exId  = experimenter.getId();
+        Collection<FolderData> folders = call(getBrowseFacility(),
+                                              b -> b.getFolders(getCtx(), exId),
+                                              error);
         return wrap(folders, FolderWrapper::new);
     }
 
@@ -954,10 +951,10 @@ public abstract class Browser extends GatewayWrapper {
     public List<FolderWrapper> loadFolders(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
-        Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
-                                                             bf -> bf.loadFolders(getCtx(), Arrays.asList(ids)))
-                                                         .handleOMEROException(error)
-                                                         .get();
+        Collection<FolderData> folders = call(getBrowseFacility(),
+                                              bf -> bf.loadFolders(getCtx(),
+                                                                   asList(ids)),
+                                              error);
         return wrap(folders, FolderWrapper::new);
     }
 
@@ -972,10 +969,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<TagAnnotationWrapper> getTags()
     throws AccessException, ServiceException {
-        List<IObject> os = ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
-                                                                   .findAll(TagAnnotation.class.getSimpleName(), null))
-                                           .handleOMEROException("Cannot get tags")
-                                           .get();
+        String klass = TagAnnotation.class.getSimpleName();
+        List<IObject> os = call(getGateway(),
+                                g -> g.getQueryService(getCtx())
+                                      .findAll(klass, null),
+                                "Cannot get tags");
         return os.stream()
                  .map(TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
@@ -1017,10 +1015,10 @@ public abstract class Browser extends GatewayWrapper {
      */
     public TagAnnotationWrapper getTag(Long id)
     throws AccessException, ServiceException {
-        IObject o = ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
-                                                            .find(TagAnnotation.class.getSimpleName(), id))
-                                    .handleOMEROException("Cannot get tag ID: " + id)
-                                    .get();
+        IObject o = call(getGateway(),
+                         g -> g.getQueryService(getCtx())
+                               .find(TagAnnotation.class.getSimpleName(), id),
+                         "Cannot get tag ID: " + id);
         TagAnnotationData tag;
         if (o == null) {
             String msg = format("Tag %d doesn't exist in this context", id);
@@ -1042,16 +1040,17 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<MapAnnotationWrapper> getMapAnnotations()
     throws AccessException, ServiceException {
-        return ExceptionHandler.of(getGateway(), g -> g.getQueryService(getCtx())
-                                                       .findAll(omero.model.MapAnnotation.class.getSimpleName(), null))
-                               .handleOMEROException("Cannot get map annotations")
-                               .get()
-                               .stream()
-                               .map(omero.model.MapAnnotation.class::cast)
-                               .map(MapAnnotationData::new)
-                               .map(MapAnnotationWrapper::new)
-                               .sorted(Comparator.comparing(ObjectWrapper::getId))
-                               .collect(Collectors.toList());
+        String klass = omero.model.MapAnnotation.class.getSimpleName();
+        List<IObject> os = call(getGateway(),
+                                g -> g.getQueryService(getCtx())
+                                      .findAll(klass, null),
+                                "Cannot get map annotations");
+        return os.stream()
+                 .map(omero.model.MapAnnotation.class::cast)
+                 .map(MapAnnotationData::new)
+                 .map(MapAnnotationWrapper::new)
+                 .sorted(Comparator.comparing(ObjectWrapper::getId))
+                 .collect(Collectors.toList());
     }
 
 
@@ -1119,11 +1118,11 @@ public abstract class Browser extends GatewayWrapper {
      */
     public MapAnnotationWrapper getMapAnnotation(Long id)
     throws ServiceException, ExecutionException, AccessException {
-        MapAnnotationData kv = ExceptionHandler.of(getBrowseFacility(), b -> b.findObject(getCtx(),
-                                                                                          MapAnnotationData.class,
-                                                                                          id))
-                                               .handleOMEROException("Cannot get map annotation with ID: " + id)
-                                               .get();
+        MapAnnotationData kv = call(getBrowseFacility(),
+                                    b -> b.findObject(getCtx(),
+                                                      MapAnnotationData.class,
+                                                      id),
+                                    "Cannot get map annotation with ID: " + id);
 
         return new MapAnnotationWrapper(kv);
     }

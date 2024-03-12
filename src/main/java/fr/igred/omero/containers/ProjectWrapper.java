@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 
 
@@ -239,10 +240,10 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> projectIds = singletonList(getId());
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForProjects(client.getCtx(), projectIds))
-                                                       .handleOMEROException("Cannot get images from " + this)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForProjects(client.getCtx(),
+                                                                          projectIds),
+                                            "Cannot get images from " + this);
         return distinct(wrap(images, ImageWrapper::new));
     }
 

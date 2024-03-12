@@ -22,7 +22,6 @@ import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.util.Bounds;
@@ -51,6 +50,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.stream.Collectors.groupingBy;
 
 
@@ -446,11 +446,10 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      */
     public void saveROI(Client client)
     throws AccessException, ServiceException {
-        Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
-                                            g -> g.getUpdateService(client.getCtx())
-                                                  .saveAndReturnObject(data.asIObject()))
-                                        .handleOMEROException("Cannot save ROI")
-                                        .get();
+        Roi roi = (Roi) call(client.getGateway(),
+                             g -> g.getUpdateService(client.getCtx())
+                                   .saveAndReturnObject(data.asIObject()),
+                             "Cannot save ROI");
         data = new ROIData(roi);
     }
 

@@ -114,6 +114,30 @@ public class ExceptionHandler<T> {
 
 
     /**
+     * Calls the provided function on the given input and return the result or handles any OMERO exception and rethrows
+     * the appropriate exception with the specified message.
+     * <p>Do not use if other exceptions can be thrown by the function.</p>
+     *
+     * @param <I>     Input argument type.
+     * @param <R>     Returned object type.
+     * @param input   Object to process.
+     * @param mapper  Lambda to apply on object.
+     * @param message The message, if an exception is thrown.
+     *
+     * @return The function output.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     */
+    public static <I, R> R call(I input,
+                                ThrowingFunction<? super I, ? extends R, ? extends Exception> mapper,
+                                String message)
+    throws AccessException, ServiceException {
+        return of(input, mapper).handleOMEROException(message).get();
+    }
+
+
+    /**
      * Checks the cause of an exception on OMERO and throws:
      * <ul>
      *     <li>

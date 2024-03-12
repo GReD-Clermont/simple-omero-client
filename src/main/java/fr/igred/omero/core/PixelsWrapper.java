@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static ome.formats.model.UnitsFactory.convertLength;
 
 
@@ -145,10 +146,10 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      */
     public void loadPlanesInfo(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = ExceptionHandler.of(client.getMetadata(),
-                                                         m -> m.getPlaneInfos(client.getCtx(), data))
-                                                     .handleOMEROException("Cannot retrieve planes info.")
-                                                     .get();
+        List<PlaneInfoData> planes = call(client.getMetadata(),
+                                          m -> m.getPlaneInfos(client.getCtx(),
+                                                               data),
+                                          "Cannot retrieve planes info.");
         planesInfo = wrap(planes, PlaneInfoWrapper::new);
     }
 

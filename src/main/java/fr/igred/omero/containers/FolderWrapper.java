@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 
 
@@ -91,17 +92,16 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @param name   Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
+     * @throws AccessException  Cannot access data.
      */
     public FolderWrapper(Client client, String name)
     throws ServiceException, AccessException {
         super(new FolderData());
         data.setName(name);
-        Folder f = (Folder) ExceptionHandler.of(client.getGateway(),
-                                                g -> g.getUpdateService(client.getCtx())
-                                                      .saveAndReturnObject(data.asIObject()))
-                                            .handleServerAndService("Could not create Folder with name: " + name)
-                                            .get();
+        Folder f = (Folder) call(client.getGateway(),
+                                 g -> g.getUpdateService(client.getCtx())
+                                       .saveAndReturnObject(data.asIObject()),
+                                 "Could not create Folder with name: " + name);
         data.setFolder(f);
     }
 
@@ -349,13 +349,11 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      */
     public List<ROIWrapper> getROIs(Client client, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFac = client.getRoiFacility();
-
-        Collection<ROIResult> roiResults = ExceptionHandler.of(roiFac,
-                                                               rf -> rf.loadROIsForFolder(client.getCtx(), imageId,
-                                                                                          data.getId()))
-                                                           .handleOMEROException("Cannot get ROIs from " + this)
-                                                           .get();
+        Collection<ROIResult> roiResults = call(client.getRoiFacility(),
+                                                rf -> rf.loadROIsForFolder(client.getCtx(),
+                                                                           imageId,
+                                                                           data.getId()),
+                                                "Cannot get ROIs from " + this);
 
         List<ROIWrapper> roiWrappers = roiResults.stream()
                                                  .map(ROIResult::getROIs)

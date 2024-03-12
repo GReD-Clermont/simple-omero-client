@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 
 
@@ -165,10 +166,10 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      */
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = ExceptionHandler.of(client.getBrowseFacility(),
-                                                         bf -> bf.getWells(client.getCtx(), data.getId()))
-                                                     .handleOMEROException("Cannot get wells from " + this)
-                                                     .get();
+        Collection<WellData> wells = call(client.getBrowseFacility(),
+                                          bf -> bf.getWells(client.getCtx(),
+                                                            data.getId()),
+                                          "Cannot get wells from " + this);
 
         return wells.stream()
                     .map(WellWrapper::new)
