@@ -64,7 +64,7 @@ jobs:
       - name: Set folders ownership back to current user
         run: sudo chown -R $(id -u):$(id -g) $GITHUB_WORKSPACE && sudo chown -R $(id -u):$(id -g) $HOME
       - name: Sonar analysis
-        if: ${{ env.HAVE_SONAR_TOKEN == 'true' && HAVE_SONAR_DETAILS == 'true' }}
+        if: ${{ env.HAVE_SONAR_TOKEN == 'true' && env.HAVE_SONAR_DETAILS == 'true' }}
         run: mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=$SONAR_PROJECTKEY -Dsonar.organization=$SONAR_ORGANIZATION
         env:
           SONAR_PROJECTKEY: ${{ vars.SONAR_PROJECTKEY }}
