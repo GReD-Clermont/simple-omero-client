@@ -131,9 +131,14 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from ScreenPlateLink as link " +
-                                              "where link.child=" + getId());
-        return client.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        String query = "select link.parent from ScreenPlateLink as link" +
+                       " where link.child=" + getId();
+        List<IObject> os = client.findByQuery(query);
+        return client.getScreens(os.stream()
+                                   .map(IObject::getId)
+                                   .map(RLong::getValue)
+                                   .distinct()
+                                   .toArray(Long[]::new));
     }
 
 

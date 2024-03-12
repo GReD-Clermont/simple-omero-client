@@ -122,8 +122,9 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      */
     public int countAnnotationLinks(Client client)
     throws ServiceException, AccessException {
-        return client.findByQuery("select link.parent from ome.model.IAnnotationLink link " +
-                                  "where link.child.id=" + getId()).size();
+        String q = "select link.parent from ome.model.IAnnotationLink link" +
+                   " where link.child.id=" + getId();
+        return client.findByQuery(q).size();
     }
 
 
@@ -255,7 +256,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(client, WellWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        Long[]        ids = os.stream()
+                              .map(IObject::getId)
+                              .map(RLong::getValue)
+                              .sorted()
+                              .toArray(Long[]::new);
         return client.getWells(ids);
     }
 
@@ -274,7 +279,11 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os  = getLinks(client, FolderWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+        Long[]        ids = os.stream()
+                              .map(IObject::getId)
+                              .map(RLong::getValue)
+                              .sorted()
+                              .toArray(Long[]::new);
         return client.loadFolders(ids);
     }
 

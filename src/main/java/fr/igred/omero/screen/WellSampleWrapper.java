@@ -199,12 +199,12 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      */
     public void reload(Browser browser)
     throws ServiceException, AccessException {
-        String query = "select ws from WellSample as ws " +
-                       "left outer join fetch ws.plateAcquisition as pa " +
-                       "left outer join fetch ws.well as w " +
-                       "left outer join fetch ws.image as img " +
-                       "left outer join fetch img.pixels as pix " +
-                       "where ws.id=" + getId();
+        String query = "select ws from WellSample as ws" +
+                       " left outer join fetch ws.plateAcquisition as pa" +
+                       " left outer join fetch ws.well as w" +
+                       " left outer join fetch ws.image as img" +
+                       " left outer join fetch img.pixels as pix" +
+                       " where ws.id=" + getId();
         IObject o = browser.findByQuery(query).iterator().next();
         data = new WellSampleData((omero.model.WellSample) o);
     }

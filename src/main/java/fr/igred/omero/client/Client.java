@@ -221,7 +221,8 @@ public class Client extends Browser {
         if (experimenter != null) {
             return new ExperimenterWrapper(experimenter);
         } else {
-            throw new NoSuchElementException(String.format("User not found: %s", username));
+            String msg = String.format("User not found: %s", username);
+            throw new NoSuchElementException(msg);
         }
     }
 
@@ -269,7 +270,8 @@ public class Client extends Browser {
         if (group != null) {
             return new GroupWrapper(group);
         } else {
-            throw new NoSuchElementException(String.format("Group not found: %s", groupName));
+            String msg = String.format("Group not found: %s", groupName);
+            throw new NoSuchElementException(msg);
         }
     }
 
@@ -302,8 +304,8 @@ public class Client extends Browser {
      *
      * @return See above.
      *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public List<GroupWrapper> getGroups()
     throws ServiceException, AccessException {

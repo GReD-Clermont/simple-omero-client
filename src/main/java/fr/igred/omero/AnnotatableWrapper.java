@@ -783,7 +783,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      */
     protected void removeLinks(Client client, String linkType, Collection<Long> childIds)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        String      template = "select link from %s link where link.parent = %d and link.child.id in (:ids)";
+        String      template = "select link from %s link" +
+                               " where link.parent = %d" +
+                               " and link.child.id in (:ids)";
         String      query    = String.format(template, linkType, getId());
         ParametersI param    = new ParametersI();
         param.addIds(childIds);

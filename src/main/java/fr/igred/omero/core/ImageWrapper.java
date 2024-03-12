@@ -295,8 +295,9 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      */
     public List<DatasetWrapper> getDatasets(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
-                                              "where link.child=" + getId());
+        String query = "select link.parent from DatasetImageLink as link" +
+                       " where link.child=" + getId();
+        List<IObject> os = client.findByQuery(query);
 
         return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
     }
@@ -436,10 +437,13 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      */
     public boolean isOrphaned(Client client)
     throws ServiceException, AccessException {
-        boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
-                                               "where link.child=" + getId()).isEmpty();
-        boolean noWell = client.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
-        return noDataset && noWell;
+        String dsQuery = "select link.parent from DatasetImageLink link" +
+                         " where link.child=" + getId();
+        String wsQuery = "select ws from WellSample ws where image=" + getId();
+
+        boolean noDataset    = client.findByQuery(dsQuery).isEmpty();
+        boolean noWellSample = client.findByQuery(wsQuery).isEmpty();
+        return noDataset && noWellSample;
     }
 
 
@@ -458,9 +462,10 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     throws AccessException, ServiceException, ExecutionException {
         List<ImageWrapper> related = new ArrayList<>(0);
         if (data.isFSImage()) {
-            long fsId = this.asDataObject().getFilesetId();
+            long   fsId  = this.asDataObject().getFilesetId();
+            String query = "select i from Image i where fileset=" + fsId;
 
-            List<IObject> objects = client.findByQuery("select i from Image i where fileset=" + fsId);
+            List<IObject> objects = client.findByQuery(query);
 
             Long[] ids = objects.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
             related = client.getImages(ids);
@@ -582,8 +587,13 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      */
     public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
-        Long[] ids   = client.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
+        String template = "select link.parent from FolderImageLink as link" +
+                          " where link.child.id=%d";
+        String query = String.format(template, getId());
+        Long[] ids = client.findByQuery(query)
+                           .stream()
+                           .map(o -> o.getId().getValue())
+                           .toArray(Long[]::new);
         return client.loadFolders(ids);
     }
 
