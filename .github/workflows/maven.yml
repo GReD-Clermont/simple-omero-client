@@ -11,6 +11,7 @@ jobs:
 
     env:
       HAVE_SONAR_TOKEN: ${{ secrets.SONAR_TOKEN != '' }}
+      HAVE_SONAR_DETAILS: ${{ vars.SONAR_PROJECTKEY != '' && vars.SONAR_ORGANIZATION != '' }}
       HAVE_DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN != '' }}
 
     steps:
@@ -63,12 +64,12 @@ jobs:
       - name: Set folders ownership back to current user
         run: sudo chown -R $(id -u):$(id -g) $GITHUB_WORKSPACE && sudo chown -R $(id -u):$(id -g) $HOME
       - name: Sonar analysis
-        if: ${{ env.HAVE_SONAR_TOKEN == 'true' }}
+        if: ${{ env.HAVE_SONAR_TOKEN == 'true' && HAVE_SONAR_DETAILS == 'true' }}
         run: mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=$SONAR_PROJECTKEY -Dsonar.organization=$SONAR_ORGANIZATION
         env:
-          SONAR_PROJECTKEY: GReD-Clermont_simple-omero-client
-          SONAR_ORGANIZATION: gred-clermont
-          SONAR_URL: https://sonarcloud.io
+          SONAR_PROJECTKEY: ${{ vars.SONAR_PROJECTKEY }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_URL: ${{ vars.SONAR_URL }}
           GITHUB_TOKEN: ${{ github.token }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Upload to codecov after successful tests
