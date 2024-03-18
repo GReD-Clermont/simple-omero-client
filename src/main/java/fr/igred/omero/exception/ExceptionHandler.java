@@ -52,6 +52,59 @@ public class ExceptionHandler<T> {
 
 
     /**
+     * Returns {@code true} if the exception is an {@link AuthenticationException}.
+     *
+     * @param t The Exception.
+     *
+     * @return See above.
+     */
+    private static boolean isAuthenticationException(Throwable t) {
+        return t != null &&
+               AuthenticationException.class.isAssignableFrom(t.getClass());
+    }
+
+
+    /**
+     * Returns {@code true} if the exception is an {@link SecurityViolation}.
+     *
+     * @param t The Exception.
+     *
+     * @return See above.
+     */
+    private static boolean isSecurityViolation(Throwable t) {
+        return t instanceof SecurityViolation ||
+               t != null && t.getCause() instanceof SecurityViolation;
+    }
+
+
+    /**
+     * Returns {@code true} if the exception is a {@link ServerError}, or a {@link DSOutOfServiceException} and the
+     * cause is either:
+     * <ul><li>a {@link SecurityViolation}</li>
+     * <li>a {@link SessionException}</li>
+     * <li>an {@link AuthenticationException}</li>
+     * <li>a {@link ResourceError}</li></ul>
+     *
+     * @param t The Exception
+     *
+     * @return See above.
+     */
+    private static boolean shouldBeHandled(Throwable t) {
+        boolean toHandle = false;
+        if (t instanceof ServerError) {
+            toHandle = true;
+        } else if (t instanceof DSOutOfServiceException) {
+            Throwable cause = t.getCause();
+            toHandle = isSecurityViolation(cause) ||
+                       cause instanceof SessionException ||
+                       isAuthenticationException(cause) ||
+                       cause instanceof ResourceError;
+        }
+        return toHandle;
+    }
+
+
+    /**
      * @deprecated Helper method to convert DSOutOfServiceException to ServiceException.
      *
      * @param t       The Exception
@@ -279,12 +332,14 @@ public class ExceptionHandler<T> {
     public static void handleOMEROException(Throwable throwable, String message)
     throws ServiceException, AccessException {
         Throwable cause = throwable.getCause();
-        if (cause instanceof SecurityViolation) {
+        if (isSecurityViolation(cause)) {
             String s = String.format("For security reasons, cannot access data. %n");
             throw new AccessException(s + message, cause);
-        } else if (cause instanceof SessionException ||
-                   (cause != null && AuthenticationException.class.isAssignableFrom(cause.getClass()))) {
-            String s = String.format("Session is not valid or not properly initialized. %n");
+        } else if (cause instanceof SessionException) {
+            String s = String.format("Session is not valid. %n");
+            throw new ServiceException(s + message, cause);
+        } else if (isAuthenticationException(cause)) {
+            String s = String.format("Cannot initialize the session. %n");
             throw new ServiceException(s + message, cause);
         } else if (cause instanceof ResourceError) {
             String s = String.format("Fatal error. Please contact the administrator. %n");
@@ -349,8 +404,10 @@ public class ExceptionHandler<T> {
      */
     public ExceptionHandler<T> handleServerAndService(String message)
     throws ServiceException, AccessException {
-        if (exception instanceof ServerError || exception instanceof DSOutOfServiceException) {
+        if (shouldBeHandled(exception)) {
             handleOMEROException(this.exception, message);
+        } else if (exception instanceof DSOutOfServiceException) {
+            rethrow(DSOutOfServiceException.class, ServiceException::new, message);
         }
         return this;
     }
@@ -435,8 +492,7 @@ public class ExceptionHandler<T> {
      */
     public ExceptionHandler<T> handleOMEROException(String message)
     throws ServiceException, AccessException {
-        return this.rethrow(DSOutOfServiceException.class, ServiceException::new, message)
-                   .rethrow(DSAccessException.class, AccessException::new, message)
+        return this.rethrow(DSAccessException.class, AccessException::new, message)
                    .handleServerAndService(message);
     }
 
