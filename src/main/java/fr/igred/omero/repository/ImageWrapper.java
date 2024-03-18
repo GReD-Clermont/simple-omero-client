@@ -670,7 +670,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the imagePlus generated from the image from OMERO corresponding to the bound.
+     * Gets the ImagePlus from the image within the specified boundaries.
      *
      * @param client  The client handling the connection.
      * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
@@ -781,7 +781,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
-     * Gets the imagePlus from the image generated from the ROI.
+     * Gets the ImagePlus from the image, but only inside the ROI.
      *
      * @param client The client handling the connection.
      * @param roi    The ROI.
@@ -794,8 +794,24 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public ImagePlus toImagePlus(Client client, ROIWrapper roi)
     throws ServiceException, AccessException, ExecutionException {
-        Bounds bounds = roi.getBounds();
+        return toImagePlus(client, roi.getBounds());
+    }
 
+
+    /**
+     * Gets the ImagePlus from the image within the specified boundaries.
+     *
+     * @param client The client handling the connection.
+     * @param bounds The bounds.
+     *
+     * @return an ImagePlus from the ij library.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public ImagePlus toImagePlus(Client client, Bounds bounds)
+    throws ServiceException, AccessException, ExecutionException {
         int[] x = {bounds.getStart().getX(), bounds.getEnd().getX()};
         int[] y = {bounds.getStart().getY(), bounds.getEnd().getY()};
         int[] c = {bounds.getStart().getC(), bounds.getEnd().getC()};
