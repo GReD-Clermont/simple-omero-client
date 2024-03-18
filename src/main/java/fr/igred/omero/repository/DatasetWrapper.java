@@ -67,8 +67,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public DatasetWrapper(String name, String description) {
         super(new DatasetData());
-        this.data.setName(name);
-        this.data.setDescription(description);
+        data.setName(name);
+        data.setDescription(description);
     }
 
 
@@ -162,9 +162,14 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ProjectWrapper> getProjects(Client client)
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
-                                              "where link.child=" + getId());
-        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        String query = "select link.parent from ProjectDatasetLink as link" +
+                       " where link.child=" + getId();
+        List<IObject> os = client.findByQuery(query);
+        return client.getProjects(os.stream()
+                                    .map(IObject::getId)
+                                    .map(RLong::getValue)
+                                    .distinct()
+                                    .toArray(Long[]::new));
     }
 
 
@@ -276,14 +281,14 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        Long[] ids = client.findByQuery("select link.parent " +
-                                        "from ImageAnnotationLink link " +
-                                        "where link.child = " +
+        Long[] ids = client.findByQuery("select link.parent" +
+                                        " from ImageAnnotationLink link" +
+                                        " where link.child = " +
                                         tagId +
-                                        " and link.parent in " +
-                                        "(select link2.child " +
-                                        "from DatasetImageLink link2 " +
-                                        "where link2.parent = " +
+                                        " and link.parent in" +
+                                        " (select link2.child" +
+                                        " from DatasetImageLink link2" +
+                                        " where link2.parent = " +
                                         data.getId() + ")")
                            .stream()
                            .map(IObject::getId)
@@ -597,7 +602,9 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             }
         }
         if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+            List<Long> idsToDelete = toDelete.stream()
+                                             .map(GenericObjectWrapper::getId)
+                                             .collect(Collectors.toList());
 
             Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
             for (ImageWrapper orphan : orphans) {

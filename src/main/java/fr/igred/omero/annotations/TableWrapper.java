@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -49,6 +48,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -898,7 +898,7 @@ public class TableWrapper {
         String sol = "\"";
         String sep = String.format("\"%c\"", delimiter);
         String eol = String.format("\"%n");
-        try (PrintWriter stream = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
+        try (PrintWriter stream = new PrintWriter(file, UTF_8.name())) {
             sb.append(sol);
             for (int j = 0; j < columnCount; j++) {
                 sb.append(columns[j].getName());

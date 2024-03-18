@@ -54,12 +54,13 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.GenericObjectWrapper.flatten;
 import static fr.igred.omero.GenericObjectWrapper.wrap;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -96,7 +97,8 @@ public abstract class Browser extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException {
         List<ProjectWrapper> projects = getProjects(id);
         if (projects.isEmpty()) {
-            throw new NoSuchElementException(String.format("Project %d doesn't exist in this context", id));
+            String msg = format("Project %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         }
         return projects.iterator().next();
     }
@@ -203,7 +205,8 @@ public abstract class Browser extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException {
         List<DatasetWrapper> datasets = getDatasets(id);
         if (datasets.isEmpty()) {
-            throw new NoSuchElementException(String.format("Dataset %d doesn't exist in this context", id));
+            String msg = format("Dataset %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         }
         return datasets.iterator().next();
     }
@@ -266,7 +269,8 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<DatasetWrapper> getDatasets(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        String query = String.format("select d from Dataset d where d.details.owner.id=%d", experimenter.getId());
+        String template = "select d from Dataset d where d.details.owner.id=%d";
+        String query    = format(template, experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
@@ -315,8 +319,10 @@ public abstract class Browser extends GatewayWrapper {
         String template = "select dataset from Dataset as dataset" +
                           " join fetch dataset.details.owner as o" +
                           " where o.id = %d" +
-                          " and not exists (select obl from ProjectDatasetLink as obl where obl.child = dataset.id) ";
-        String query = String.format(template, experimenter.getId());
+                          " and not exists" +
+                          " (select obl from ProjectDatasetLink as obl" +
+                          " where obl.child = dataset.id)";
+        String query = format(template, experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
@@ -362,7 +368,8 @@ public abstract class Browser extends GatewayWrapper {
                                           .handleOMEROException(error)
                                           .get();
         if (image == null) {
-            throw new NoSuchElementException(String.format("Image %d doesn't exist in this context", id));
+            String msg = format("Image %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         }
         return new ImageWrapper(image);
     }
@@ -654,7 +661,8 @@ public abstract class Browser extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException {
         List<ScreenWrapper> screens = getScreens(id);
         if (screens.isEmpty()) {
-            throw new NoSuchElementException(String.format("Screen %d doesn't exist in this context", id));
+            String msg = format("Screen %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         }
         return screens.iterator().next();
     }
@@ -714,7 +722,7 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ScreenWrapper> getScreens(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException {
-        String error = String.format("Cannot get screens for user %s", experimenter);
+        String error = format("Cannot get screens for user %s", experimenter);
         Collection<ScreenData> screens = ExceptionHandler.of(getBrowseFacility(),
                                                              bf -> bf.getScreens(getCtx(), experimenter.getId()))
                                                          .handleOMEROException(error)
@@ -739,7 +747,8 @@ public abstract class Browser extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException {
         List<PlateWrapper> plates = getPlates(id);
         if (plates.isEmpty()) {
-            throw new NoSuchElementException(String.format("Plate %d doesn't exist in this context", id));
+            String msg = format("Plate %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         }
         return plates.iterator().next();
     }
@@ -825,9 +834,10 @@ public abstract class Browser extends GatewayWrapper {
         String template = "select plate from Plate as plate" +
                           " join fetch plate.details.owner as o" +
                           " where o.id = %d" +
-                          " and not exists (select obl from " +
-                          " ScreenPlateLink as obl where obl.child = plate.id) ";
-        String query = String.format(template, experimenter.getId());
+                          " and not exists" +
+                          " (select obl from ScreenPlateLink as obl" +
+                          " where obl.child = plate.id)";
+        String query = format(template, experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
@@ -869,7 +879,8 @@ public abstract class Browser extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException {
         List<WellWrapper> wells = getWells(id);
         if (wells.isEmpty()) {
-            throw new NoSuchElementException(String.format("Plate %d doesn't exist in this context", id));
+            String msg = format("Plate %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         }
         return wells.iterator().next();
     }
@@ -932,7 +943,8 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<WellWrapper> getWells(ExperimenterWrapper experimenter)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError {
-        String query = String.format("select w from Well w where w.details.owner.id=%d", experimenter.getId());
+        String template = "select w from Well w where w.details.owner.id=%d";
+        String query    = format(template, experimenter.getId());
         Long[] ids = this.findByQuery(query)
                          .stream()
                          .map(IObject::getId)
@@ -958,7 +970,8 @@ public abstract class Browser extends GatewayWrapper {
     throws ServiceException, AccessException, ExecutionException {
         List<FolderWrapper> folders = loadFolders(id);
         if (folders.isEmpty()) {
-            throw new NoSuchElementException(String.format("Folder %d doesn't exist in this context", id));
+            String msg = format("Folder %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         }
         return folders.iterator().next();
     }
@@ -996,7 +1009,7 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<FolderWrapper> getFolders(ExperimenterWrapper experimenter)
     throws ExecutionException, AccessException, ServiceException {
-        String error = String.format("Cannot get folders for user %s", experimenter);
+        String error = format("Cannot get folders for user %s", experimenter);
         Collection<FolderData> folders = ExceptionHandler.of(getBrowseFacility(),
                                                              b -> b.getFolders(getCtx(), experimenter.getId()))
                                                          .handleOMEROException(error)
@@ -1088,9 +1101,10 @@ public abstract class Browser extends GatewayWrapper {
                                     .get();
         TagAnnotationData tag;
         if (o == null) {
-            throw new NoSuchElementException(String.format("Tag %d doesn't exist in this context", id));
+            String msg = format("Tag %d doesn't exist in this context", id);
+            throw new NoSuchElementException(msg);
         } else {
-            tag = new TagAnnotationData((TagAnnotation) Objects.requireNonNull(o));
+            tag = new TagAnnotationData((TagAnnotation) requireNonNull(o));
         }
         return new TagAnnotationWrapper(tag);
     }
@@ -1131,7 +1145,10 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<MapAnnotationWrapper> getMapAnnotations(String key)
     throws OMEROServerError, ServiceException {
-        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv where mv.name = '%s'", key);
+        String template = "select m from MapAnnotation as m" +
+                          " join m.mapValue as mv" +
+                          " where mv.name = '%s'";
+        String q = format(template, key);
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
@@ -1154,8 +1171,10 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<MapAnnotationWrapper> getMapAnnotations(String key, String value)
     throws OMEROServerError, ServiceException {
-        String q = String.format("select m from MapAnnotation as m join m.mapValue as mv " +
-                                 "where mv.name = '%s' and mv.value = '%s'", key, value);
+        String template = "select m from MapAnnotation as m" +
+                          " join m.mapValue as mv" +
+                          " where mv.name = '%s' and mv.value = '%s'";
+        String q = format(template, key, value);
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)

@@ -879,9 +879,11 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     protected void removeLinks(Client client, String linkType, Collection<Long> childIds)
     throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
-        String      template = "select link from %s link where link.parent = %d and link.child.id in (:ids)";
-        String      query    = String.format(template, linkType, getId());
-        ParametersI param    = new ParametersI();
+        String template = "select link from %s link" +
+                          " where link.parent = %d" +
+                          " and link.child.id in (:ids)";
+        String      query = String.format(template, linkType, getId());
+        ParametersI param = new ParametersI();
         param.addIds(childIds);
         List<IObject> os = ExceptionHandler.of(client.getGateway(),
                                                g -> g.getQueryService(client.getCtx())

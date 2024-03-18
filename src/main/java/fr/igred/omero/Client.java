@@ -297,7 +297,8 @@ public class Client extends Browser {
         if (experimenter != null) {
             return new ExperimenterWrapper(experimenter);
         } else {
-            throw new NoSuchElementException(String.format("User not found: %s", username));
+            String msg = String.format("User not found: %s", username);
+            throw new NoSuchElementException(msg);
         }
     }
 
@@ -315,7 +316,9 @@ public class Client extends Browser {
      */
     public ExperimenterWrapper getUser(long userId)
     throws ServiceException, OMEROServerError {
-        Experimenter user = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getExperimenter(userId))
+        Experimenter user = ExceptionHandler.of(getGateway(),
+                                                g -> g.getAdminService(getCtx())
+                                                      .getExperimenter(userId))
                                             .rethrow(ApiUsageException.class,
                                                      (m, e) -> new NoSuchElementException(m),
                                                      "User not found: " + userId)
@@ -339,13 +342,15 @@ public class Client extends Browser {
      */
     public GroupWrapper getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
-        GroupData group = ExceptionHandler.of(getAdminFacility(), a -> a.lookupGroup(getCtx(), groupName))
+        GroupData group = ExceptionHandler.of(getAdminFacility(),
+                                              a -> a.lookupGroup(getCtx(), groupName))
                                           .handleOMEROException("Cannot retrieve group: " + groupName)
                                           .get();
         if (group != null) {
             return new GroupWrapper(group);
         } else {
-            throw new NoSuchElementException(String.format("Group not found: %s", groupName));
+            String msg = String.format("Group not found: %s", groupName);
+            throw new NoSuchElementException(msg);
         }
     }
 
@@ -363,7 +368,8 @@ public class Client extends Browser {
      */
     public GroupWrapper getGroup(long groupId)
     throws ServiceException, OMEROServerError {
-        ExperimenterGroup group = ExceptionHandler.of(getGateway(), g -> g.getAdminService(getCtx()).getGroup(groupId))
+        ExperimenterGroup group = ExceptionHandler.of(getGateway(),
+                                                      g -> g.getAdminService(getCtx()).getGroup(groupId))
                                                   .rethrow(ApiUsageException.class,
                                                            (m, e) -> new NoSuchElementException(m),
                                                            "Group not found: " + groupId)
@@ -378,8 +384,8 @@ public class Client extends Browser {
      *
      * @return See above.
      *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public List<GroupWrapper> getGroups()
     throws ServiceException, AccessException {
@@ -412,8 +418,9 @@ public class Client extends Browser {
     public Client sudoGetUser(String username)
     throws ServiceException, AccessException, ExecutionException {
         ExperimenterWrapper sudoUser = getUser(username);
+        long                groupId  = sudoUser.getDefaultGroup().getId();
 
-        SecurityContext context = new SecurityContext(sudoUser.getDefaultGroup().getId());
+        SecurityContext context = new SecurityContext(groupId);
         context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
 

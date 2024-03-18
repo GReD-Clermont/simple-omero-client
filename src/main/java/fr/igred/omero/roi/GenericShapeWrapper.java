@@ -316,7 +316,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @return the channel. -1 if the shape applies to all channels of the image.
      */
     public int getC() {
-        return this.data.getC();
+        return data.getC();
     }
 
 
@@ -326,7 +326,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @param c the channel. Pass -1 to remove z value, i.e. shape applies to all channels of the image.
      */
     public void setC(int c) {
-        this.data.setC(c);
+        data.setC(c);
     }
 
 
@@ -336,7 +336,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @return the z-section. -1 if the shape applies to all z-sections of the image.
      */
     public int getZ() {
-        return this.data.getZ();
+        return data.getZ();
     }
 
 
@@ -346,7 +346,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @param z the z-section. Pass -1 to remove z value, i.e. shape applies to all z-sections of the image.
      */
     public void setZ(int z) {
-        this.data.setZ(z);
+        data.setZ(z);
     }
 
 
@@ -356,7 +356,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @return the time-point. -1 if the shape applies to all time-points of the image.
      */
     public int getT() {
-        return this.data.getT();
+        return data.getT();
     }
 
 
@@ -366,7 +366,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @param t the time-point. Pass -1 to remove t value, i.e. shape applies to all time-points of the image.
      */
     public void setT(int t) {
-        this.data.setT(t);
+        data.setT(t);
     }
 
 

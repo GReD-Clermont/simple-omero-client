@@ -69,10 +69,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static java.util.logging.Level.WARNING;
 import static omero.rtypes.rint;
 
 
@@ -302,10 +302,15 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<DatasetWrapper> getDatasets(Client client)
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from DatasetImageLink as link " +
-                                              "where link.child=" + getId());
+        String query = "select link.parent from DatasetImageLink as link" +
+                       " where link.child=" + getId();
+        List<IObject> os = client.findByQuery(query);
 
-        return client.getDatasets(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        return client.getDatasets(os.stream()
+                                    .map(IObject::getId)
+                                    .map(RLong::getValue)
+                                    .distinct()
+                                    .toArray(Long[]::new));
     }
 
 
@@ -404,7 +409,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<PlateWrapper> getPlates(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        return distinct(getWells(client).stream().map(WellWrapper::getPlate).collect(Collectors.toList()));
+        return distinct(getWells(client).stream()
+                                        .map(WellWrapper::getPlate)
+                                        .collect(Collectors.toList()));
     }
 
 
@@ -444,10 +451,13 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public boolean isOrphaned(Client client)
     throws ServiceException, OMEROServerError {
-        boolean noDataset = client.findByQuery("select link.parent from DatasetImageLink link " +
-                                               "where link.child=" + getId()).isEmpty();
-        boolean noWell = client.findByQuery("select ws from WellSample ws where image=" + getId()).isEmpty();
-        return noDataset && noWell;
+        String dsQuery = "select link.parent from DatasetImageLink link" +
+                         " where link.child=" + getId();
+        String wsQuery = "select ws from WellSample ws where image=" + getId();
+
+        boolean noDataset    = client.findByQuery(dsQuery).isEmpty();
+        boolean noWellSample = client.findByQuery(wsQuery).isEmpty();
+        return noDataset && noWellSample;
     }
 
 
@@ -467,11 +477,16 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws AccessException, ServiceException, ExecutionException, OMEROServerError {
         List<ImageWrapper> related = new ArrayList<>(0);
         if (data.isFSImage()) {
-            long fsId = this.asDataObject().getFilesetId();
+            long   fsId  = this.asDataObject().getFilesetId();
+            String query = "select i from Image i where fileset=" + fsId;
 
-            List<IObject> objects = client.findByQuery("select i from Image i where fileset=" + fsId);
+            List<IObject> objects = client.findByQuery(query);
 
-            Long[] ids = objects.stream().map(IObject::getId).map(RLong::getValue).sorted().toArray(Long[]::new);
+            Long[] ids = objects.stream()
+                                .map(IObject::getId)
+                                .map(RLong::getValue)
+                                .sorted()
+                                .toArray(Long[]::new);
             related = client.getImages(ids);
         }
         return related;
@@ -587,7 +602,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
         Collection<FolderData> folders = ExceptionHandler.of(roiFacility,
                                                              rf -> rf.getROIFolders(client.getCtx(),
-                                                                                    this.data.getId()))
+                                                                                    data.getId()))
                                                          .handleOMEROException("Cannot get folders for " + this)
                                                          .get();
 
@@ -609,8 +624,13 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError {
-        String query = String.format("select link.parent from FolderImageLink as link where link.child.id=%d", getId());
-        Long[] ids   = client.findByQuery(query).stream().map(o -> o.getId().getValue()).toArray(Long[]::new);
+        String template = "select link.parent from FolderImageLink as link" +
+                          " where link.child.id=%d";
+        String query = String.format(template, getId());
+        Long[] ids = client.findByQuery(query)
+                           .stream()
+                           .map(o -> o.getId().getValue())
+                           .toArray(Long[]::new);
         return client.loadFolders(ids);
     }
 
@@ -635,7 +655,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                                               folderId);
 
         FolderWrapper folderWrapper = new FolderWrapper((Folder) os.iterator().next());
-        folderWrapper.setImage(this.data.getId());
+        folderWrapper.setImage(data.getId());
 
         return folderWrapper;
     }
@@ -665,7 +685,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public ImagePlus toImagePlus(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        return this.toImagePlus(client, null, null, null, null, null);
+        return toImagePlus(client, null, null, null, null, null);
     }
 
 
@@ -899,7 +919,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         long  pixelsId = data.getDefaultPixels().getId();
         Color color    = getChannelImportedColor(client, index);
         try {
-            RenderingEnginePrx re = client.getGateway().getRenderingService(client.getCtx(), pixelsId);
+            RenderingEnginePrx re = client.getGateway()
+                                          .getRenderingService(client.getCtx(),
+                                                               pixelsId);
             re.lookupPixels(pixelsId);
             if (!(re.lookupRenderingDef(pixelsId))) {
                 re.resetDefaultSettings(true);
@@ -911,7 +933,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             re.close();
         } catch (DSOutOfServiceException | ServerError e) {
             Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Error while retrieving current color", e);
+                  .log(WARNING, "Error while retrieving current color", e);
         }
         return color;
     }
@@ -934,11 +956,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws ServiceException, OMEROServerError, IOException {
         BufferedImage thumbnail = null;
 
-        byte[] array = ExceptionHandler.of(client, c -> getThumbnailBytes(c, size))
-                                       .handleServiceOrServer("Error retrieving thumbnail.")
-                                       .get();
-        if (array != null) {
-            try (ByteArrayInputStream stream = new ByteArrayInputStream(array)) {
+        byte[] arr = ExceptionHandler.of(client,
+                                         c -> getThumbnailBytes(c, size))
+                                     .handleServiceOrServer("Error retrieving thumbnail.")
+                                     .get();
+        if (arr != null) {
+            try (ByteArrayInputStream stream = new ByteArrayInputStream(arr)) {
                 //Create a buffered image to display
                 thumbnail = ImageIO.read(stream);
             }
@@ -964,7 +987,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         List<File> files = new ArrayList<>(0);
         try {
             TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
-            files = ExceptionHandler.of(transfer, t -> t.downloadImage(client.getCtx(), path, getId()))
+            files = ExceptionHandler.of(transfer,
+                                        t -> t.downloadImage(client.getCtx(), path, getId()))
                                     .handleException("Could not download image " + getId())
                                     .get();
         } catch (ExecutionException e) {

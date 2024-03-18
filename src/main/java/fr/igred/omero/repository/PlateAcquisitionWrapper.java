@@ -350,14 +350,14 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         String query = "select pa from PlateAcquisition as pa " +
-                       "left outer join fetch pa.plate as p " +
-                       "left outer join fetch pa.wellSample as ws " +
-                       "left outer join fetch ws.plateAcquisition as pa2 " +
-                       "left outer join fetch ws.well as w " +
-                       "left outer join fetch ws.image as img " +
-                       "left outer join fetch img.pixels as pix " +
-                       "left outer join fetch pix.pixelsType as pt " +
-                       "where pa.id=" + getId();
+                       " left outer join fetch pa.plate as p" +
+                       " left outer join fetch pa.wellSample as ws" +
+                       " left outer join fetch ws.plateAcquisition as pa2" +
+                       " left outer join fetch ws.well as w" +
+                       " left outer join fetch ws.image as img" +
+                       " left outer join fetch img.pixels as pix" +
+                       " left outer join fetch pix.pixelsType as pt" +
+                       " where pa.id=" + getId();
         // TODO: replace with Browser::findByQuery when possible
         IObject o = ExceptionHandler.of(browser.getGateway(),
                                         g -> g.getQueryService(browser.getCtx())

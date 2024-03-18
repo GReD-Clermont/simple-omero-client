@@ -30,12 +30,12 @@ import omero.gateway.model.ScreenData;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -186,10 +186,11 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
         return getPlates().stream()
                           .map(PlateWrapper::getPlateAcquisitions)
                           .flatMap(Collection::stream)
-                          .collect(toMap(GenericRepositoryObjectWrapper::getId, p -> p, (p1, p2) -> p1))
+                          .collect(toMap(GenericRepositoryObjectWrapper::getId,
+                                         p -> p, (p1, p2) -> p1))
                           .values()
                           .stream()
-                          .sorted(Comparator.comparing(GenericRepositoryObjectWrapper::getId))
+                          .sorted(comparing(GenericRepositoryObjectWrapper::getId))
                           .collect(Collectors.toList());
     }
 
@@ -376,7 +377,7 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
      */
     public boolean importImages(GatewayWrapper client, String... paths)
     throws ServiceException, OMEROServerError, AccessException, IOException, ExecutionException {
-        return this.importImages(client, 1, paths);
+        return importImages(client, 1, paths);
     }
 
 

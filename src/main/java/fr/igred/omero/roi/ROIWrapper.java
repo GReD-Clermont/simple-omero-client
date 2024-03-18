@@ -514,7 +514,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return A list of ROIs.
      */
     public List<ij.gui.Roi> toImageJ() {
-        return this.toImageJ(IJ_PROPERTY);
+        return toImageJ(IJ_PROPERTY);
     }
 
 

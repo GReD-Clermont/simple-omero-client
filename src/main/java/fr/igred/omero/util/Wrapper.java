@@ -83,6 +83,8 @@ import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 
+import static java.lang.String.format;
+
 
 /**
  * Utility class to convert DataObjects dynamically.
@@ -126,7 +128,8 @@ public final class Wrapper {
         } else if (object instanceof MaskData) {
             converted = (U) new MaskWrapper((MaskData) object);
         } else {
-            throw new IllegalArgumentException(String.format(UNKNOWN_TYPE, object.getClass().getName()));
+            String msg = format(UNKNOWN_TYPE, object.getClass().getName());
+            throw new IllegalArgumentException(msg);
         }
         return converted;
     }
@@ -155,7 +158,8 @@ public final class Wrapper {
         } else if (object instanceof TextualAnnotationData) {
             converted = (U) new TextualAnnotationWrapper((TextualAnnotationData) object);
         } else {
-            throw new IllegalArgumentException(String.format(UNKNOWN_TYPE, object.getClass().getName()));
+            String msg = format(UNKNOWN_TYPE, object.getClass().getName());
+            throw new IllegalArgumentException(msg);
         }
         return converted;
     }
@@ -215,7 +219,8 @@ public final class Wrapper {
         } else if (object instanceof FolderData) {
             converted = (U) new FolderWrapper((FolderData) object);
         } else {
-            throw new IllegalArgumentException(String.format(UNKNOWN_TYPE, object.getClass().getName()));
+            String msg = format(UNKNOWN_TYPE, object.getClass().getName());
+            throw new IllegalArgumentException(msg);
         }
         return converted;
     }

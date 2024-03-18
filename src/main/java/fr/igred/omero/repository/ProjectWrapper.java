@@ -33,12 +33,12 @@ import omero.model.ProjectDatasetLinkI;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparing;
 
 
 /**
@@ -305,7 +305,7 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
         }
         List<ImageWrapper> images = lists.stream()
                                          .flatMap(Collection::stream)
-                                         .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                         .sorted(comparing(GenericObjectWrapper::getId))
                                          .collect(Collectors.toList());
 
         return distinct(images);

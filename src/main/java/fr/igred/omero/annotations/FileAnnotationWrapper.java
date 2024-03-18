@@ -65,7 +65,8 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
     throws ServerError, DSOutOfServiceException, IOException {
         final int inc = 262144;
 
-        RawFileStorePrx store = client.getGateway().getRawFileService(client.getCtx());
+        RawFileStorePrx store = client.getGateway()
+                                      .getRawFileService(client.getCtx());
         store.setFileId(this.getFileID());
 
         long size = getFileSize();

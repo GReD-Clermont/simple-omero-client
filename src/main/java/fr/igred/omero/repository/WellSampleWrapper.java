@@ -213,12 +213,12 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      */
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        String query = "select ws from WellSample as ws " +
-                       "left outer join fetch ws.plateAcquisition as pa " +
-                       "left outer join fetch ws.well as w " +
-                       "left outer join fetch ws.image as img " +
-                       "left outer join fetch img.pixels as pix " +
-                       "where ws.id=" + getId();
+        String query = "select ws from WellSample as ws" +
+                       " left outer join fetch ws.plateAcquisition as pa" +
+                       " left outer join fetch ws.well as w" +
+                       " left outer join fetch ws.image as img" +
+                       " left outer join fetch img.pixels as pix" +
+                       " where ws.id=" + getId();
         // TODO: replace with Browser::findByQuery when possible
         IObject o = ExceptionHandler.of(browser.getGateway(),
                                         g -> g.getQueryService(browser.getCtx())
