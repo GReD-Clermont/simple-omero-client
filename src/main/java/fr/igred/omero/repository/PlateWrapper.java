@@ -22,7 +22,6 @@ import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 
 
@@ -176,10 +176,10 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      */
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = ExceptionHandler.of(client.getBrowseFacility(),
-                                                         bf -> bf.getWells(client.getCtx(), data.getId()))
-                                                     .handleOMEROException("Cannot get wells from " + this)
-                                                     .get();
+        Collection<WellData> wells = call(client.getBrowseFacility(),
+                                          bf -> bf.getWells(client.getCtx(),
+                                                            data.getId()),
+                                          "Cannot get wells from " + this);
 
         return wells.stream()
                     .map(WellWrapper::new)
@@ -343,13 +343,11 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getPlates(browser.getCtx(),
-                                                      singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.getPlates(browser.getCtx(), singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 }

@@ -21,7 +21,6 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.AnnotationData;
@@ -36,6 +35,8 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
@@ -359,13 +360,12 @@ public class PlateAcquisitionWrapper extends GenericRepositoryObjectWrapper<Plat
                        " left outer join fetch pix.pixelsType as pt" +
                        " where pa.id=" + getId();
         // TODO: replace with Browser::findByQuery when possible
-        IObject o = ExceptionHandler.of(browser.getGateway(),
-                                        g -> g.getQueryService(browser.getCtx())
-                                              .findAllByQuery(query, null))
-                                    .handleOMEROException("Query failed: " + query)
-                                    .get()
-                                    .iterator()
-                                    .next();
+        IObject o = call(browser.getGateway(),
+                         g -> g.getQueryService(browser.getCtx())
+                               .findAllByQuery(query, null)
+                               .iterator()
+                               .next(),
+                         "Query failed: " + query);
         data = new PlateAcquisitionData((omero.model.PlateAcquisition) o);
         initRefPlate();
     }

@@ -22,7 +22,6 @@ import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ScreenData;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
@@ -320,22 +320,21 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
 
 
     /**
-     * @deprecated Reloads the screen from OMERO.
-     *
      * @param client The client handling the connection.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @deprecated Reloads the screen from OMERO.
      */
     @Deprecated
     public void refresh(GatewayWrapper client)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(client.getBrowseFacility(),
-                                   bf -> bf.getScreens(client.getCtx(), singletonList(this.getId()))
-                                           .iterator().next())
-                               .handleOMEROException("Cannot refresh " + this)
-                               .get();
+        data = call(client.getBrowseFacility(),
+                    bf -> bf.getScreens(client.getCtx(), singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot refresh " + this);
     }
 
 
@@ -351,13 +350,12 @@ public class ScreenWrapper extends GenericRepositoryObjectWrapper<ScreenData> {
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getScreens(browser.getCtx(),
-                                                       singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.getScreens(browser.getCtx(),
+                                        singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 

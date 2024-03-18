@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 
 
@@ -433,13 +434,11 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public List<ROIWrapper> getROIs(Client client, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFac = client.getRoiFacility();
-
-        Collection<ROIResult> roiResults = ExceptionHandler.of(roiFac,
-                                                               rf -> rf.loadROIsForFolder(client.getCtx(), imageId,
-                                                                                          data.getId()))
-                                                           .handleOMEROException("Cannot get ROIs from " + this)
-                                                           .get();
+        Collection<ROIResult> roiResults = call(client.getRoiFacility(),
+                                                rf -> rf.loadROIsForFolder(client.getCtx(),
+                                                                           imageId,
+                                                                           data.getId()),
+                                                "Cannot get ROIs from " + this);
 
         List<ROIWrapper> roiWrappers = roiResults.stream()
                                                  .map(ROIResult::getROIs)
@@ -609,13 +608,12 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     @Override
     public void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.loadFolders(browser.getCtx(),
-                                                        singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.loadFolders(browser.getCtx(),
+                                         singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 }

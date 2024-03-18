@@ -26,7 +26,6 @@ import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy;
@@ -56,6 +55,8 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
@@ -116,9 +117,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     protected <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
-        ExceptionHandler.of(client.getDm(), d -> d.attachAnnotation(client.getCtx(), annotation, data))
-                        .handleOMEROException(error)
-                        .rethrow();
+        call(client.getDm(),
+             d -> d.attachAnnotation(client.getCtx(), annotation, data),
+             error);
     }
 
 
@@ -285,13 +286,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleOMEROException("Cannot get tags for " + this)
-                                                           .get();
+        List<AnnotationData> annotations = call(client.getMetadata(),
+                                                m -> m.getAnnotations(client.getCtx(),
+                                                                      data,
+                                                                      types,
+                                                                      null),
+                                                "Cannot get tags for " + this);
 
         return annotations.stream()
                           .filter(TagAnnotationData.class::isInstance)
@@ -316,14 +316,13 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     public List<MapAnnotationWrapper> getMapAnnotations(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleOMEROException("Cannot get map annotations for "
-                                                                                 + this)
-                                                           .get();
+        List<AnnotationData> annotations = call(client.getMetadata(),
+                                                m -> m.getAnnotations(client.getCtx(),
+                                                                      data,
+                                                                      types,
+                                                                      null),
+                                                "Cannot get map annotations for "
+                                                + this);
 
         return annotations.stream()
                           .filter(MapAnnotationData.class::isInstance)
@@ -434,13 +433,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
         List<Class<? extends AnnotationData>> types = Collections.singletonList(RatingAnnotationData.class);
 
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     userIds))
-                                                           .handleOMEROException(error)
-                                                           .get();
+        List<AnnotationData> annotations = call(client.getMetadata(),
+                                                m -> m.getAnnotations(client.getCtx(),
+                                                                      data,
+                                                                      types,
+                                                                      userIds),
+                                                error);
         annotations = annotations == null ? Collections.emptyList() : annotations;
         return annotations.stream()
                           .filter(RatingAnnotationData.class::isInstance)
@@ -555,23 +553,24 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         String error = "Cannot add table to " + this;
 
         TablesFacility tablesFacility = client.getTablesFacility();
-        TableData tableData = ExceptionHandler.of(tablesFacility,
-                                                  tf -> tf.addTable(client.getCtx(),
-                                                                    data,
-                                                                    table.getName(),
-                                                                    table.createTable()))
-                                              .handleOMEROException(error)
-                                              .get();
+        TableData tableData = call(tablesFacility,
+                                   tf -> tf.addTable(client.getCtx(),
+                                                     data,
+                                                     table.getName(),
+                                                     table.createTable()),
+                                   error);
 
-        Collection<FileAnnotationData> tables = ExceptionHandler.of(tablesFacility,
-                                                                    tf -> tf.getAvailableTables(client.getCtx(),
-                                                                                                data))
-                                                                .handleOMEROException(error)
-                                                                .get();
+        Collection<FileAnnotationData> tables = call(tablesFacility,
+                                                     tf -> tf.getAvailableTables(client.getCtx(),
+                                                                                 data),
+                                                     error);
         long fileId = tableData.getOriginalFileId();
 
-        long id = tables.stream().filter(v -> v.getFileID() == fileId)
-                        .mapToLong(DataObject::getId).max().orElse(-1L);
+        long id = tables.stream()
+                        .filter(v -> v.getFileID() == fileId)
+                        .mapToLong(DataObject::getId)
+                        .max()
+                        .orElse(-1L);
         table.setId(id);
         table.setFileId(tableData.getOriginalFileId());
     }
@@ -593,12 +592,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         String error = "Cannot add table to " + this;
-
-        Collection<FileAnnotationWrapper> tables = wrap(ExceptionHandler.of(client.getTablesFacility(),
-                                                                            t -> t.getAvailableTables(
-                                                                                    client.getCtx(), data))
-                                                                        .handleOMEROException(error)
-                                                                        .get(),
+        Collection<FileAnnotationWrapper> tables = wrap(call(client.getTablesFacility(),
+                                                             t -> t.getAvailableTables(client.getCtx(),
+                                                                                       data),
+                                                             error),
                                                         FileAnnotationWrapper::new);
         addTable(client, table);
         tables.removeIf(t -> !t.getDescription().equals(table.getName()));
@@ -645,21 +642,22 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public TableWrapper getTable(Client client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
-        TableData info = ExceptionHandler.of(client.getTablesFacility(), tf -> tf.getTableInfo(client.getCtx(), fileId))
-                                         .handleOMEROException("Cannot get table from " + this)
-                                         .get();
+        TableData info = call(client.getTablesFacility(),
+                              tf -> tf.getTableInfo(client.getCtx(), fileId),
+                              "Cannot get table from " + this);
         long nRows = info.getNumberOfRows();
-        TableData table = ExceptionHandler.of(client.getTablesFacility(),
-                                              tf -> tf.getTable(client.getCtx(), fileId, 0, nRows - 1))
-                                          .handleOMEROException("Cannot get table from " + this)
-                                          .get();
-        String name = ExceptionHandler.of(client.getTablesFacility(),
-                                          tf -> tf.getAvailableTables(client.getCtx(), data)
-                                                  .stream().filter(t -> t.getFileID() == fileId)
-                                                  .map(FileAnnotationData::getDescription)
-                                                  .findFirst().orElse(null))
-                                      .handleOMEROException("Cannot get table name from " + this)
-                                      .get();
+        TableData table = call(client.getTablesFacility(),
+                               tf -> tf.getTable(client.getCtx(), fileId,
+                                                 0, nRows - 1),
+                               "Cannot get table from " + this);
+        String name = call(client.getTablesFacility(),
+                           tf -> tf.getAvailableTables(client.getCtx(), data)
+                                   .stream()
+                                   .filter(t -> t.getFileID() == fileId)
+                                   .map(FileAnnotationData::getDescription)
+                                   .findFirst()
+                                   .orElse(null),
+                           "Cannot get table name from " + this);
         TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
         result.setName(name);
         return result;
@@ -679,10 +677,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public List<TableWrapper> getTables(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = ExceptionHandler.of(client.getTablesFacility(),
-                                                                    tf -> tf.getAvailableTables(client.getCtx(), data))
-                                                                .handleOMEROException("Cannot get tables from " + this)
-                                                                .get();
+        Collection<FileAnnotationData> tables = call(client.getTablesFacility(),
+                                                     tf -> tf.getAvailableTables(client.getCtx(), data),
+                                                     "Cannot get tables from " + this);
 
         List<TableWrapper> tablesWrapper = new ArrayList<>(tables.size());
         for (FileAnnotationData table : tables) {
@@ -810,13 +807,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
         List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = ExceptionHandler.of(client.getMetadata(),
-                                                               m -> m.getAnnotations(client.getCtx(),
-                                                                                     data,
-                                                                                     types,
-                                                                                     null))
-                                                           .handleOMEROException(error)
-                                                           .get();
+        List<AnnotationData> annotations = call(client.getMetadata(),
+                                                m -> m.getAnnotations(client.getCtx(),
+                                                                      data,
+                                                                      types,
+                                                                      null),
+                                                error);
 
         return annotations.stream()
                           .filter(FileAnnotationData.class::isInstance)
@@ -885,11 +881,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         String      query = String.format(template, linkType, getId());
         ParametersI param = new ParametersI();
         param.addIds(childIds);
-        List<IObject> os = ExceptionHandler.of(client.getGateway(),
-                                               g -> g.getQueryService(client.getCtx())
-                                                     .findAllByQuery(query, param))
-                                           .handleOMEROException("Cannot get links from " + this)
-                                           .get();
+        List<IObject> os = call(client.getGateway(),
+                                g -> g.getQueryService(client.getCtx())
+                                      .findAllByQuery(query, param),
+                                "Cannot get links from " + this);
         client.delete(os);
     }
 
@@ -926,9 +921,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     private List<AnnotationData> getAnnotationData(Client client)
     throws AccessException, ServiceException, ExecutionException {
-        return ExceptionHandler.of(client.getMetadata(), m -> m.getAnnotations(client.getCtx(), data))
-                               .handleOMEROException("Cannot get annotations from " + this)
-                               .get();
+        return call(client.getMetadata(),
+                    m -> m.getAnnotations(client.getCtx(), data),
+                    "Cannot get annotations from " + this);
     }
 
 

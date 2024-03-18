@@ -226,6 +226,29 @@ public class ExceptionHandler<T> {
 
 
     /**
+     * Calls the provided function on the given input and return the result or handles any OMERO exception and rethrows
+     * the appropriate exception with the specified message.
+     *
+     * @param <I>     Input argument type.
+     * @param <R>     Returned object type.
+     * @param input   Object to process.
+     * @param mapper  Lambda to apply on object.
+     * @param message The message, if an exception is thrown.
+     *
+     * @return The function output.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     */
+    public static <I, R> R call(I input,
+                                OMEROFunction<? super I, ? extends R> mapper,
+                                String message)
+    throws AccessException, ServiceException {
+        return of(input, mapper).handleOMEROException(message).get();
+    }
+
+
+    /**
      * Checks the cause of an exception on OMERO and throws:
      * <ul>
      *     <li>
@@ -457,6 +480,20 @@ public class ExceptionHandler<T> {
     public interface ThrowingFunction<T, R, E extends Throwable> {
 
         R apply(T t) throws E;
+
+    }
+
+
+    /**
+     * Interface for a function that can throw OMERO exceptions.
+     *
+     * @param <T> The input type.
+     * @param <R> The output type.
+     */
+    @FunctionalInterface
+    public interface OMEROFunction<T, R> extends ThrowingFunction<T, R, Exception> {
+
+        R apply(T t) throws DSOutOfServiceException, DSAccessException, ServerError;
 
     }
 

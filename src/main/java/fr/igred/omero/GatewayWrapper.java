@@ -48,6 +48,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
+
 
 /**
  * Basic class, contains the gateway, the security context, and multiple facilities.
@@ -458,10 +460,9 @@ public abstract class GatewayWrapper {
      */
     public IObject save(IObject object)
     throws ServiceException, AccessException, ExecutionException {
-        return ExceptionHandler.of(getDm(),
-                                   d -> d.saveAndReturnObject(ctx, object))
-                               .handleOMEROException("Cannot save object")
-                               .get();
+        return call(getDm(),
+                    d -> d.saveAndReturnObject(ctx, object),
+                    "Cannot save object");
     }
 
 

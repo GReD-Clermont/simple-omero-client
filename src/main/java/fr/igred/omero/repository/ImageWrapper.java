@@ -65,13 +65,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
+import static java.util.Comparator.comparing;
 import static java.util.logging.Level.WARNING;
 import static omero.rtypes.rint;
 
@@ -512,10 +513,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         List<ROIData> roisData = rois.stream()
                                      .map(GenericObjectWrapper::asDataObject)
                                      .collect(Collectors.toList());
-        Collection<ROIData> results = ExceptionHandler.of(client.getRoiFacility(),
-                                                          rf -> rf.saveROIs(client.getCtx(), data.getId(), roisData))
-                                                      .handleOMEROException("Cannot link ROI to " + this)
-                                                      .get();
+        Collection<ROIData> results = call(client.getRoiFacility(),
+                                           rf -> rf.saveROIs(client.getCtx(),
+                                                             data.getId(),
+                                                             roisData),
+                                           "Cannot link ROI to " + this);
         return wrap(results, ROIWrapper::new);
     }
 
@@ -569,16 +571,16 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ROIWrapper> getROIs(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ROIResult> roiResults = ExceptionHandler.of(client.getRoiFacility(),
-                                                         rf -> rf.loadROIs(client.getCtx(), data.getId()))
-                                                     .handleOMEROException("Cannot get ROIs from " + this)
-                                                     .get();
+        List<ROIResult> roiResults = call(client.getRoiFacility(),
+                                          rf -> rf.loadROIs(client.getCtx(),
+                                                            data.getId()),
+                                          "Cannot get ROIs from " + this);
 
         List<ROIWrapper> roiWrappers = roiResults.stream()
                                                  .map(ROIResult::getROIs)
                                                  .flatMap(Collection::stream)
                                                  .map(ROIWrapper::new)
-                                                 .sorted(Comparator.comparing(GenericObjectWrapper::getId))
+                                                 .sorted(comparing(GenericObjectWrapper::getId))
                                                  .collect(Collectors.toList());
 
         return distinct(roiWrappers);
@@ -600,11 +602,10 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws ServiceException, AccessException, ExecutionException {
         ROIFacility roiFacility = client.getRoiFacility();
 
-        Collection<FolderData> folders = ExceptionHandler.of(roiFacility,
-                                                             rf -> rf.getROIFolders(client.getCtx(),
-                                                                                    data.getId()))
-                                                         .handleOMEROException("Cannot get folders for " + this)
-                                                         .get();
+        Collection<FolderData> folders = call(roiFacility,
+                                              rf -> rf.getROIFolders(client.getCtx(),
+                                                                     data.getId()),
+                                              "Cannot get folders for " + this);
 
         return wrap(folders, FolderWrapper::new);
     }
@@ -855,12 +856,12 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ChannelWrapper> getChannels(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<ChannelData> channels = ExceptionHandler.of(client.getMetadata(),
-                                                         m -> m.getChannelData(client.getCtx(), getId()))
-                                                     .handleOMEROException("Cannot get the channel name for " + this)
-                                                     .get();
+        List<ChannelData> channels = call(client.getMetadata(),
+                                          m -> m.getChannelData(client.getCtx(),
+                                                                getId()),
+                                          "Cannot get the channel name for " + this);
         return channels.stream()
-                       .sorted(Comparator.comparing(ChannelData::getIndex))
+                       .sorted(comparing(ChannelData::getIndex))
                        .map(ChannelWrapper::new)
                        .collect(Collectors.toList());
     }
@@ -986,11 +987,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     throws OMEROServerError, ServiceException, AccessException {
         List<File> files = new ArrayList<>(0);
         try {
-            TransferFacility transfer = client.getGateway().getFacility(TransferFacility.class);
-            files = ExceptionHandler.of(transfer,
-                                        t -> t.downloadImage(client.getCtx(), path, getId()))
-                                    .handleException("Could not download image " + getId())
-                                    .get();
+            files = call(client.getGateway().getFacility(TransferFacility.class),
+                         t -> t.downloadImage(client.getCtx(), path, getId()),
+                         "Could not download image " + getId());
         } catch (ExecutionException e) {
             // IGNORE FOR API COMPATIBILITY
         }
@@ -1010,10 +1009,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   b -> b.getImage(browser.getCtx(), getId()))
-                               .handleOMEROException("Can not reload " + this)
-                               .get();
+        data = call(browser.getBrowseFacility(),
+                    b -> b.getImage(browser.getCtx(), getId()),
+                    "Can not reload " + this);
     }
 
 }

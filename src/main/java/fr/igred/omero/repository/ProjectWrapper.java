@@ -23,7 +23,6 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ImageData;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
 
@@ -250,10 +250,10 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> projectIds = singletonList(getId());
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForProjects(client.getCtx(), projectIds))
-                                                       .handleOMEROException("Cannot get images from " + this)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForProjects(client.getCtx(),
+                                                                          projectIds),
+                                            "Cannot get images from " + this);
         return distinct(wrap(images, ImageWrapper::new));
     }
 
@@ -484,13 +484,12 @@ public class ProjectWrapper extends GenericRepositoryObjectWrapper<ProjectData> 
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getProjects(browser.getCtx(),
-                                                        singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.getProjects(browser.getCtx(),
+                                         singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 }
