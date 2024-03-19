@@ -54,9 +54,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.call;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -139,7 +141,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         if (!(annotation instanceof TagAnnotationWrapper) || !((TagAnnotationWrapper) annotation).isTagSet()) {
             link(client, annotation.asDataObject());
         } else {
-            throw new IllegalArgumentException("Tag sets should only be linked to tags");
+            String msg = "Tag sets should only be linked to tags";
+            throw new IllegalArgumentException(msg);
         }
     }
 
@@ -176,7 +179,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     throws ServiceException, AccessException, ExecutionException {
         List<Long> annotationIds = getAnnotationData(client).stream()
                                                             .map(DataObject::getId)
-                                                            .collect(Collectors.toList());
+                                                            .collect(toList());
         link(client, Arrays.stream(annotations)
                            .filter(a -> !annotationIds.contains(a.getId()))
                            .toArray(GenericAnnotationWrapper<?>[]::new));
@@ -284,7 +287,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public List<TagAnnotationWrapper> getTags(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(TagAnnotationData.class);
+        List<Class<? extends AnnotationData>> types = singletonList(TagAnnotationData.class);
 
         List<AnnotationData> annotations = call(client.getMetadata(),
                                                 m -> m.getAnnotations(client.getCtx(),
@@ -298,7 +301,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
                           .map(TagAnnotationData.class::cast)
                           .map(TagAnnotationWrapper::new)
                           .sorted(Comparator.comparing(TagAnnotationWrapper::getId))
-                          .collect(Collectors.toList());
+                          .collect(toList());
     }
 
 
@@ -315,7 +318,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public List<MapAnnotationWrapper> getMapAnnotations(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(MapAnnotationData.class);
+        List<Class<? extends AnnotationData>> types = singletonList(MapAnnotationData.class);
         List<AnnotationData> annotations = call(client.getMetadata(),
                                                 m -> m.getAnnotations(client.getCtx(),
                                                                       data,
@@ -329,7 +332,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
                           .map(MapAnnotationData.class::cast)
                           .map(MapAnnotationWrapper::new)
                           .sorted(Comparator.comparing(MapAnnotationWrapper::getId))
-                          .collect(Collectors.toList());
+                          .collect(toList());
     }
 
 
@@ -363,7 +366,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void addKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<NamedValue>     kv  = Collections.singletonList(new NamedValue(key, value));
+        List<NamedValue>     kv  = singletonList(new NamedValue(key, value));
         MapAnnotationWrapper pkv = new MapAnnotationWrapper(kv);
         pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
         link(client, pkv);
@@ -386,7 +389,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         return getMapAnnotations(client).stream()
                                         .map(MapAnnotationWrapper::getContent)
                                         .flatMap(List::stream)
-                                        .collect(Collectors.toMap(nv -> nv.name, nv -> nv.value));
+                                        .collect(toMap(nv -> nv.name,
+                                                       nv -> nv.value));
     }
 
 
@@ -431,7 +435,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot retrieve rating annotations from " + this;
 
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(RatingAnnotationData.class);
+        List<Class<? extends AnnotationData>> types = singletonList(RatingAnnotationData.class);
 
         List<AnnotationData> annotations = call(client.getMetadata(),
                                                 m -> m.getAnnotations(client.getCtx(),
@@ -445,7 +449,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
                           .map(RatingAnnotationData.class::cast)
                           .map(RatingAnnotationWrapper::new)
                           .sorted(Comparator.comparing(RatingAnnotationWrapper::getId))
-                          .collect(Collectors.toList());
+                          .collect(toList());
     }
 
 
@@ -480,9 +484,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void rate(Client client, int rating)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        List<Long>                    userIds = Collections.singletonList(client.getCtx().getExperimenter());
-        List<RatingAnnotationWrapper> ratings = getRatings(client, userIds);
+        List<Long> userIds = singletonList(client.getCtx().getExperimenter());
 
+        List<RatingAnnotationWrapper> ratings = getRatings(client, userIds);
         if (ratings.isEmpty()) {
             RatingAnnotationWrapper rate = new RatingAnnotationWrapper(rating);
             link(client, rate);
@@ -511,7 +515,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public int getMyRating(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long>                    userIds = Collections.singletonList(client.getCtx().getExperimenter());
+        List<Long> userIds = singletonList(client.getCtx().getExperimenter());
+
         List<RatingAnnotationWrapper> ratings = getRatings(client, userIds);
         int                           score   = 0;
         for (RatingAnnotationWrapper rate : ratings) {
@@ -601,8 +606,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         tables.removeIf(t -> !t.getDescription().equals(table.getName()));
         this.unlink(client, tables);
         for (FileAnnotationWrapper fileAnnotation : tables) {
-            if (policy == ReplacePolicy.DELETE ||
-                policy == ReplacePolicy.DELETE_ORPHANED && fileAnnotation.countAnnotationLinks(client) == 0) {
+            if (policy == ReplacePolicy.DELETE
+                || policy == ReplacePolicy.DELETE_ORPHANED
+                   && fileAnnotation.countAnnotationLinks(client) == 0) {
                 client.deleteFile(fileAnnotation.getId());
             }
         }
@@ -744,8 +750,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
         files.removeIf(fileAnnotation -> !fileAnnotation.getFileName().equals(annotation.getFileName()));
         for (FileAnnotationWrapper fileAnnotation : files) {
             this.unlink(client, fileAnnotation);
-            if (policy == ReplacePolicy.DELETE ||
-                policy == ReplacePolicy.DELETE_ORPHANED && fileAnnotation.countAnnotationLinks(client) == 0) {
+            if (policy == ReplacePolicy.DELETE
+                || policy == ReplacePolicy.DELETE_ORPHANED
+                   && fileAnnotation.countAnnotationLinks(client) == 0) {
                 client.deleteFile(fileAnnotation.getId());
             }
         }
@@ -805,7 +812,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     throws ExecutionException, ServiceException, AccessException {
         String error = "Cannot retrieve file annotations from " + this;
 
-        List<Class<? extends AnnotationData>> types = Collections.singletonList(FileAnnotationData.class);
+        List<Class<? extends AnnotationData>> types = singletonList(FileAnnotationData.class);
 
         List<AnnotationData> annotations = call(client.getMetadata(),
                                                 m -> m.getAnnotations(client.getCtx(),
@@ -818,7 +825,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
                           .filter(FileAnnotationData.class::isInstance)
                           .map(FileAnnotationData.class::cast)
                           .map(FileAnnotationWrapper::new)
-                          .collect(Collectors.toList());
+                          .collect(toList());
     }
 
 
@@ -856,7 +863,11 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public <A extends GenericAnnotationWrapper<?>> void unlink(Client client, Collection<A> annotations)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        removeLinks(client, annotationLinkType(), annotations.stream().map(A::getId).collect(Collectors.toList()));
+        removeLinks(client,
+                    annotationLinkType(),
+                    annotations.stream()
+                               .map(A::getId)
+                               .collect(toList()));
     }
 
 
@@ -904,7 +915,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     protected void removeLink(Client client, String linkType, long childId)
     throws ServiceException, OMEROServerError, AccessException, ExecutionException, InterruptedException {
-        removeLinks(client, linkType, Collections.singletonList(childId));
+        removeLinks(client, linkType, singletonList(childId));
     }
 
 
@@ -941,7 +952,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
     public AnnotationList getAnnotations(Client client)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> annotationData = getAnnotationData(client);
-        AnnotationList       annotations    = new AnnotationList(annotationData.size());
+
+        AnnotationList annotations = new AnnotationList(annotationData.size());
         annotationData.forEach(annotations::add);
         return annotations;
     }

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static fr.igred.omero.meta.GroupWrapper.PERMISSIONS_GROUP_READ;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -33,7 +34,8 @@ class GroupTest extends RootTest {
 
     @Test
     void testGetWrongGroup() {
-        assertThrows(NoSuchElementException.class, () -> client.getGroup("nonexistent"));
+        String name = "nonexistent";
+        assertThrows(NoSuchElementException.class, () -> client.getGroup(name));
     }
 
 
@@ -65,7 +67,7 @@ class GroupTest extends RootTest {
     @Test
     void testSetDescription() throws Exception {
         GroupWrapper group = client.getGroup("testGroup1");
-        assertEquals(GroupWrapper.PERMISSIONS_GROUP_READ, group.getPermissionsLevel());
+        assertEquals(PERMISSIONS_GROUP_READ, group.getPermissionsLevel());
         group.setDescription("Test");
         group.saveAndUpdate(client);
         assertEquals("Test", client.getGroup("testGroup1").getDescription());

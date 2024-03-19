@@ -89,7 +89,9 @@ import static java.lang.String.format;
 /**
  * Utility class to convert DataObjects dynamically.
  */
-@SuppressWarnings({"OverlyCoupledClass", "unchecked", "IfStatementWithTooManyBranches"})
+@SuppressWarnings({"OverlyCoupledClass",
+                   "unchecked",
+                   "IfStatementWithTooManyBranches"})
 public final class Wrapper {
 
     private static final String UNKNOWN_TYPE = "Unknown type: %s";

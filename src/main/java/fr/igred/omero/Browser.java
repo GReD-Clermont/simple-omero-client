@@ -429,9 +429,10 @@ public abstract class Browser extends GatewayWrapper {
      */
     public List<ImageWrapper> getImages(String name)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get images with name: " + name;
         Collection<ImageData> images = call(getBrowseFacility(),
                                             bf -> bf.getImages(getCtx(), name),
-                                            "Cannot get images with name: " + name);
+                                            error);
         images.removeIf(image -> !image.getName().equals(name));
         return wrap(images, ImageWrapper::new);
     }

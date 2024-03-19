@@ -179,12 +179,14 @@ public class TextWrapper extends GenericShapeWrapper<TextData> {
      */
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
-            throw new IllegalArgumentException("TextData cannot set null coordinates.");
+            String msg = "TextData cannot set null coordinates.";
+            throw new IllegalArgumentException(msg);
         } else if (coordinates.length == 2) {
             data.setX(coordinates[0]);
             data.setY(coordinates[1]);
         } else {
-            throw new IllegalArgumentException("2 coordinates required for TextData.");
+            String msg = "2 coordinates required for TextData.";
+            throw new IllegalArgumentException(msg);
         }
     }
 

@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -205,7 +206,8 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
         return getWells(client).stream()
                                .map(WellWrapper::getImages)
                                .flatMap(Collection::stream)
-                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                               .collect(toMap(GenericObjectWrapper::getId,
+                                              i -> i, (i1, i2) -> i1))
                                .values()
                                .stream()
                                .sorted(Comparator.comparing(GenericObjectWrapper::getId))

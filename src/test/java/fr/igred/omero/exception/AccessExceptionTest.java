@@ -38,8 +38,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
+import static java.lang.String.format;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,14 +60,16 @@ class AccessExceptionTest extends BasicTest {
         boolean failed = false;
         client = new Client();
         try {
-            client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
+            char[] password = "password".toCharArray();
+            client.connect(HOST, PORT, USER1.name, password, GROUP1.id);
             assertEquals(USER1.id, client.getId(), "Wrong user");
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudoGetUser("testUser2");
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
             sudo   = null;
             failed = true;
-            logger.log(Level.SEVERE, String.format("%sConnection failed.%s", ANSI_RED, ANSI_RESET), e);
+            String template = "%sConnection failed.%s";
+            logger.log(SEVERE, format(template, ANSI_RED, ANSI_RESET), e);
         }
         assumeFalse(failed, "Connection failed");
     }
@@ -76,7 +80,8 @@ class AccessExceptionTest extends BasicTest {
         try {
             client.disconnect();
         } catch (RuntimeException e) {
-            logger.log(Level.WARNING, String.format("%sDisconnection failed.%s", ANSI_YELLOW, ANSI_RESET), e);
+            String template = "%sDisconnection failed.%s";
+            logger.log(WARNING, format(template, ANSI_YELLOW, ANSI_RESET), e);
         }
     }
 
@@ -96,7 +101,10 @@ class AccessExceptionTest extends BasicTest {
         assertTrue(image.canChgrp());
         assertTrue(image.canChown());
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "image tag", "tag attached to an image");
+        String name = "image tag";
+        String desc = "tag attached to an image";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
 
         try {
             image.link(client, tag);
@@ -120,7 +128,8 @@ class AccessExceptionTest extends BasicTest {
         roi.addShape(rectangle);
         roi.saveROI(client);
 
-        assertThrows(AccessException.class, () -> folder.addROIs(client, -1L, roi));
+        assertThrows(AccessException.class,
+                     () -> folder.addROIs(client, -1L, roi));
         client.delete(folder);
     }
 
@@ -139,7 +148,8 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetProjectByName() {
-        assertThrows(AccessException.class, () -> sudo.getProjects("TestProject"));
+        assertThrows(AccessException.class,
+                     () -> sudo.getProjects(PROJECT1.name));
     }
 
 
@@ -181,7 +191,8 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetDatasetByName() {
-        assertThrows(AccessException.class, () -> sudo.getDatasets("TestDataset"));
+        assertThrows(AccessException.class,
+                     () -> sudo.getDatasets(DATASET1.name));
     }
 
 
@@ -199,7 +210,7 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetImagesName() {
-        assertThrows(AccessException.class, () -> sudo.getImages("image1.fake"));
+        assertThrows(AccessException.class, () -> sudo.getImages(IMAGE1.name));
     }
 
 
@@ -244,7 +255,8 @@ class AccessExceptionTest extends BasicTest {
         result1.add(new NamedValue("Test2 result1", "Value Test2"));
 
         MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
-        assertThrows(AccessException.class, () -> image.addMapAnnotation(sudo, mapAnnotation1));
+        assertThrows(AccessException.class,
+                     () -> image.addMapAnnotation(sudo, mapAnnotation1));
     }
 
 

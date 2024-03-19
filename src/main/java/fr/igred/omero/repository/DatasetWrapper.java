@@ -393,8 +393,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
+            Map<String, String> pairs = imageWrapper.getKeyValuePairs(client);
+            if (pairs.get(key) != null && pairs.get(key).equals(value)) {
                 selected.add(imageWrapper);
             }
         }
@@ -605,7 +605,7 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
             for (ImageWrapper orphan : orphans) {
                 for (ImageWrapper other : orphan.getFilesetImages(client)) {
-                    if (!idsToDelete.contains(other.getId()) && other.isOrphaned(client)) {
+                    if (other.isOrphaned(client) && !idsToDelete.contains(other.getId())) {
                         toDelete.add(other);
                     }
                 }

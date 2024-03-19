@@ -31,13 +31,11 @@ import ij.gui.TextRoi;
 import ome.model.units.BigResult;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ShapeData;
-import omero.gateway.model.ShapeSettingsData;
 import omero.model.AffineTransform;
 import omero.model.AffineTransformI;
 import omero.model.LengthI;
 import omero.model.ShapeAnnotationLink;
 import omero.model.ShapeAnnotationLinkI;
-import omero.model.enums.UnitsLength;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -49,8 +47,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.awt.Color.YELLOW;
+import static java.awt.Font.BOLD;
+import static java.awt.Font.ITALIC;
+import static java.awt.geom.AffineTransform.TYPE_IDENTITY;
+import static java.util.logging.Level.WARNING;
+import static omero.gateway.model.ShapeSettingsData.FONT_BOLD;
+import static omero.gateway.model.ShapeSettingsData.FONT_BOLD_ITALIC;
+import static omero.gateway.model.ShapeSettingsData.FONT_ITALIC;
+import static omero.gateway.model.ShapeSettingsData.FONT_REGULAR;
+import static omero.model.enums.UnitsLength.POINT;
 
 
 /**
@@ -165,11 +173,15 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @param ijRoi An ImageJ Roi.
      */
     protected void copyFromIJRoi(ij.gui.Roi ijRoi) {
-        LengthI size          = new LengthI(ijRoi.getStrokeWidth(), UnitsLength.POINT);
-        Color   defaultStroke = Optional.ofNullable(Roi.getColor()).orElse(Color.YELLOW);
-        Color   defaultFill   = Optional.ofNullable(Roi.getDefaultFillColor()).orElse(TRANSPARENT);
-        Color   stroke        = Optional.ofNullable(ijRoi.getStrokeColor()).orElse(defaultStroke);
-        Color   fill          = Optional.ofNullable(ijRoi.getFillColor()).orElse(defaultFill);
+        LengthI size = new LengthI(ijRoi.getStrokeWidth(), POINT);
+        Color defaultStroke = Optional.ofNullable(Roi.getColor())
+                                      .orElse(YELLOW);
+        Color defaultFill = Optional.ofNullable(Roi.getDefaultFillColor())
+                                    .orElse(TRANSPARENT);
+        Color stroke = Optional.ofNullable(ijRoi.getStrokeColor())
+                               .orElse(defaultStroke);
+        Color fill = Optional.ofNullable(ijRoi.getFillColor())
+                             .orElse(defaultFill);
         data.getShapeSettings().setStrokeWidth(size);
         data.getShapeSettings().setStroke(stroke);
         data.getShapeSettings().setFill(fill);
@@ -228,17 +240,17 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
 
         int style = font.getStyle();
 
-        String styleName;
-        if (style == java.awt.Font.BOLD) {
-            styleName = ShapeSettingsData.FONT_BOLD;
-        } else if (style == java.awt.Font.ITALIC) {
-            styleName = ShapeSettingsData.FONT_ITALIC;
-        } else if (style == java.awt.Font.BOLD + java.awt.Font.ITALIC) {
-            styleName = ShapeSettingsData.FONT_BOLD_ITALIC;
+        String fontStyle;
+        if (style == BOLD) {
+            fontStyle = FONT_BOLD;
+        } else if (style == ITALIC) {
+            fontStyle = FONT_ITALIC;
+        } else if (style == BOLD + ITALIC) {
+            fontStyle = FONT_BOLD_ITALIC;
         } else {
-            styleName = ShapeSettingsData.FONT_REGULAR;
+            fontStyle = FONT_REGULAR;
         }
-        data.getShapeSettings().setFontStyle(styleName);
+        data.getShapeSettings().setFontStyle(fontStyle);
         data.getShapeSettings().setFontFamily(font.getFamily());
 
         // Angle is negative and in degrees in IJ
@@ -287,15 +299,16 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
         text.setAngle(angle);
 
         String fontFamily = data.getShapeSettings().getFontFamily();
-        int    fontStyle  = Font.PLAIN;
-        if (data.getShapeSettings().getFontStyle().equals(ShapeSettingsData.FONT_BOLD)) {
-            fontStyle = Font.BOLD;
-        } else if (data.getShapeSettings().getFontStyle().equals(ShapeSettingsData.FONT_ITALIC)) {
-            fontStyle = Font.ITALIC;
-        } else if (data.getShapeSettings().getFontStyle().equals(ShapeSettingsData.FONT_BOLD_ITALIC)) {
-            fontStyle = Font.BOLD + Font.ITALIC;
+        String fontStyle  = data.getShapeSettings().getFontStyle();
+        int    style      = Font.PLAIN;
+        if (FONT_BOLD.equals(fontStyle)) {
+            style = BOLD;
+        } else if (FONT_ITALIC.equals(fontStyle)) {
+            style = ITALIC;
+        } else if (FONT_BOLD_ITALIC.equals(fontStyle)) {
+            style = BOLD + ITALIC;
         }
-        text.setFont(new Font(fontFamily, fontStyle, (int) getFontSize()));
+        text.setFont(new Font(fontFamily, style, (int) getFontSize()));
     }
 
 
@@ -402,10 +415,10 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
     public double getFontSize() {
         double fontSize = Double.NaN;
         try {
-            fontSize = data.getShapeSettings().getFontSize(UnitsLength.POINT).getValue();
+            fontSize = data.getShapeSettings().getFontSize(POINT).getValue();
         } catch (BigResult bigResult) {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Error while getting font size from ShapeData.", bigResult);
+            String msg = "Error while getting font size from ShapeData.";
+            Logger.getLogger(getClass().getName()).log(WARNING, msg, bigResult);
         }
         return fontSize;
     }
@@ -417,7 +430,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @param value The font size (in typography points)
      */
     public void setFontSize(double value) {
-        LengthI size = new LengthI(value, UnitsLength.POINT);
+        LengthI size = new LengthI(value, POINT);
         data.getShapeSettings().setFontSize(size);
     }
 
@@ -547,7 +560,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @return A new transformed {@link java.awt.Shape}.
      */
     public java.awt.Shape createTransformedAWTShape() {
-        if (toAWTTransform().getType() == java.awt.geom.AffineTransform.TYPE_IDENTITY) {
+        if (toAWTTransform().getType() == TYPE_IDENTITY) {
             return toAWTShape();
         } else {
             return toAWTTransform().createTransformedShape(toAWTShape());
@@ -586,7 +599,7 @@ public abstract class GenericShapeWrapper<T extends ShapeData> extends Annotatab
      * @return An ImageJ ROI.
      */
     public Roi toImageJ() {
-        Roi roi = new ij.gui.ShapeRoi(createTransformedAWTShape()).trySimplify();
+        Roi roi = new ShapeRoi(createTransformedAWTShape()).trySimplify();
         copyToIJRoi(roi);
         return roi;
     }

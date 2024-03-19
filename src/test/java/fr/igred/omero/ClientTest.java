@@ -88,10 +88,10 @@ class ClientTest extends UserTest {
 
         ProjectWrapper project = new ProjectWrapper(client, name, "");
 
-        long newId = project.getId();
-        assertEquals(name, client.getProject(newId).getName());
-        client.delete(client.getProject(newId));
-        assertThrows(NoSuchElementException.class, () -> client.getProject(newId));
+        long id = project.getId();
+        assertEquals(name, client.getProject(id).getName());
+        client.delete(client.getProject(id));
+        assertThrows(NoSuchElementException.class, () -> client.getProject(id));
     }
 
 
@@ -169,16 +169,21 @@ class ClientTest extends UserTest {
 
     @Test
     void testGetImagesKeyValue() throws Exception {
-        List<ImageWrapper> images = client.getImagesWithKeyValuePair("testKey1", "testValue1");
+        String key = "testKey1";
+        String val = "testValue1";
+
+        List<ImageWrapper> images = client.getImagesWithKeyValuePair(key, val);
         assertEquals(2, images.size());
-        List<ImageWrapper> images2 = client.getImagesPairKeyValue("testKey1", "testValue1");
+        List<ImageWrapper> images2 = client.getImagesPairKeyValue(key, val);
         assertEquals(2, images2.size());
     }
 
 
     @Test
     void testGetImagesFromNames() throws Exception {
-        List<ImageWrapper> images = client.getImages(PROJECT1.name, DATASET1.name, IMAGE1.name);
+        List<ImageWrapper> images = client.getImages(PROJECT1.name,
+                                                     DATASET1.name,
+                                                     IMAGE1.name);
         assertEquals(2, images.size());
     }
 

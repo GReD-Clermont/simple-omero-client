@@ -35,7 +35,8 @@ class ExperimenterTest extends RootTest {
 
     @Test
     void testGetWrongUser() {
-        assertThrows(NoSuchElementException.class, () -> client.getUser("nonexistent"));
+        String user = "nonexistent";
+        assertThrows(NoSuchElementException.class, () -> client.getUser(user));
     }
 
 
@@ -53,7 +54,8 @@ class ExperimenterTest extends RootTest {
 
     @Test
     void testSudoWrongUser() {
-        assertThrows(NoSuchElementException.class, () -> client.sudoGetUser("nonexistent"));
+        String user = "nonexistent";
+        assertThrows(NoSuchElementException.class, () -> client.sudoGetUser(user));
     }
 
 

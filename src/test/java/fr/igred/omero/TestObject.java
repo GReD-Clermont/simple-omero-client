@@ -34,7 +34,8 @@ public class TestObject {
 
     @Override
     public String toString() {
-        return String.format("TestObject{id=%d, name='%s', description='%s'}", id, name, description);
+        String template = "TestObject{id=%d, name='%s', description='%s'}";
+        return String.format(template, id, name, description);
     }
 
 }

@@ -441,7 +441,8 @@ public abstract class GatewayWrapper {
     public List<IObject> findByQuery(String query)
     throws ServiceException, OMEROServerError {
         return ExceptionHandler.of(gateway,
-                                   g -> g.getQueryService(ctx).findAllByQuery(query, null))
+                                   g -> g.getQueryService(ctx)
+                                         .findAllByQuery(query, null))
                                .handleServiceOrServer("Query failed: " + query)
                                .get();
     }

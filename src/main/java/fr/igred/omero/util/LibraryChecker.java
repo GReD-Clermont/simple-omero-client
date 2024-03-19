@@ -33,12 +33,12 @@ public final class LibraryChecker {
      * @return {@code true} if the libraries are available, {@code false} otherwise.
      */
     public static boolean areRequirementsAvailable() {
-        return isFormatsAPIAvailable() &&
-               isOMEROModelAvailable() &&
-               isOMEXMLAvailable() &&
-               isOMECommonAvailable() &&
-               isOMEROBlitzAvailable() &&
-               isOMEROGatewayAvailable();
+        return isFormatsAPIAvailable()
+               && isOMEROModelAvailable()
+               && isOMEXMLAvailable()
+               && isOMECommonAvailable()
+               && isOMEROBlitzAvailable()
+               && isOMEROGatewayAvailable();
     }
 
 

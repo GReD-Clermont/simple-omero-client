@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static java.lang.Double.MIN_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -87,7 +88,10 @@ class PlateTest extends UserTest {
     void testAddTagToPlate() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate tag", "tag attached to a plate");
+        String name = "Plate tag";
+        String desc = "tag attached to a plate";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
         plate.link(client, tag);
         List<TagAnnotationWrapper> tags = plate.getTags(client);
         client.delete(tag);
@@ -173,7 +177,8 @@ class PlateTest extends UserTest {
         PlateWrapper plate = client.getPlate(PLATE1.id);
         plate.setExternalIdentifier(identifier);
         plate.saveAndUpdate(client);
-        assertEquals(identifier, client.getPlate(PLATE1.id).getExternalIdentifier());
+        assertEquals(identifier,
+                     client.getPlate(PLATE1.id).getExternalIdentifier());
     }
 
 
@@ -205,7 +210,7 @@ class PlateTest extends UserTest {
     void testGetWellOriginX() throws Exception {
         final double origin = 0.0d;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
-        assertEquals(origin, plate.getWellOriginX(null).getValue(), Double.MIN_VALUE);
+        assertEquals(origin, plate.getWellOriginX(null).getValue(), MIN_VALUE);
     }
 
 
@@ -213,7 +218,7 @@ class PlateTest extends UserTest {
     void testGetWellOriginY() throws Exception {
         final double origin = 1.0d;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
-        assertEquals(origin, plate.getWellOriginY(null).getValue(), Double.MIN_VALUE);
+        assertEquals(origin, plate.getWellOriginY(null).getValue(), MIN_VALUE);
     }
 
 

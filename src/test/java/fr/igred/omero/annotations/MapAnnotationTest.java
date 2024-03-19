@@ -54,7 +54,10 @@ class MapAnnotationTest extends UserTest {
 
     @Test
     void testGetSingleMapAnnotationByKeyAndValue() throws Exception {
-        List<MapAnnotationWrapper> maps = client.getMapAnnotations("testKey1", "testValue1");
+        String key = "testKey1";
+        String val = "testValue1";
+
+        List<MapAnnotationWrapper> maps = client.getMapAnnotations(key, val);
         assertEquals(1, maps.size());
     }
 

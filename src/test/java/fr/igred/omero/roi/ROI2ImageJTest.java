@@ -422,7 +422,10 @@ class ROI2ImageJTest extends BasicTest {
 
 
     @ParameterizedTest(name = "{0}")
-    @ValueSource(ints = {Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC})
+    @ValueSource(ints = {Font.PLAIN,
+                         Font.BOLD,
+                         Font.ITALIC,
+                         Font.BOLD | Font.ITALIC})
     void convertText(int style) {
         Font      font    = new Font("Arial", style, 25);
         List<Roi> roiList = new ArrayList<>(1);

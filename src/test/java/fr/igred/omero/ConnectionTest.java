@@ -30,10 +30,11 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testDisconnect() {
+        String expected = "Client{host=null, groupID=-1, userID=-1, connected=false}";
         Client testRoot = new Client();
         testRoot.disconnect();
         assertFalse(testRoot.isConnected());
-        assertEquals("Client{host=null, groupID=-1, userID=-1, connected=false}", testRoot.toString());
+        assertEquals(expected, testRoot.toString());
     }
 
 
@@ -52,8 +53,9 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testRootConnection() throws ServiceException {
+        char[] password = "omero".toCharArray();
         Client testRoot = new Client();
-        testRoot.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
+        testRoot.connect(HOST, PORT, ROOT.name, password, GROUP1.id);
         long id      = testRoot.getId();
         long groupId = testRoot.getCurrentGroupId();
         try {
@@ -67,8 +69,8 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testUserConnection() throws ServiceException {
-        String toString = String.format("Client{host=%s, groupID=%d, userID=%s, connected=true}",
-                                        HOST, GROUP1.id, USER1.id);
+        String template = "Client{host=%s, groupID=%d, userID=%s, connected=true}";
+        String toString = String.format(template, HOST, GROUP1.id, USER1.id);
 
         Client testUser = new Client();
         assertFalse(testUser.isConnected());

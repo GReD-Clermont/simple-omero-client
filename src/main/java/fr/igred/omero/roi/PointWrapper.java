@@ -167,12 +167,14 @@ public class PointWrapper extends GenericShapeWrapper<PointData> {
      */
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
-            throw new IllegalArgumentException("PointData cannot set null coordinates.");
+            String msg = "PointData cannot set null coordinates.";
+            throw new IllegalArgumentException(msg);
         } else if (coordinates.length == 2) {
             data.setX(coordinates[0]);
             data.setY(coordinates[1]);
         } else {
-            throw new IllegalArgumentException("2 coordinates required for PointData.");
+            String msg = "2 coordinates required for PointData.";
+            throw new IllegalArgumentException(msg);
         }
     }
 

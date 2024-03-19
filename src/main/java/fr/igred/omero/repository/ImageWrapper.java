@@ -35,14 +35,12 @@ import ij.ImageStack;
 import ij.measure.Calibration;
 import ij.process.ImageProcessor;
 import ij.process.LUT;
-import loci.common.DataTools;
 import loci.formats.FormatTools;
 import omero.RLong;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.TransferFacility;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.FolderData;
@@ -74,6 +72,7 @@ import java.util.stream.Collectors;
 import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Comparator.comparing;
 import static java.util.logging.Level.WARNING;
+import static loci.common.DataTools.makeDataArray;
 import static omero.rtypes.rint;
 
 
@@ -366,7 +365,8 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
     public List<WellWrapper> getWells(Client client)
     throws AccessException, ServiceException, ExecutionException {
         List<WellSampleWrapper> wellSamples = getWellSamples(client);
-        Collection<WellWrapper> wells       = new ArrayList<>(wellSamples.size());
+
+        Collection<WellWrapper> wells = new ArrayList<>(wellSamples.size());
         for (WellSampleWrapper ws : wellSamples) {
             wells.add(ws.getWell(client));
         }
@@ -600,9 +600,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<FolderWrapper> getROIFolders(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFacility = client.getRoiFacility();
-
-        Collection<FolderData> folders = call(roiFacility,
+        Collection<FolderData> folders = call(client.getRoiFacility(),
                                               rf -> rf.getROIFolders(client.getCtx(),
                                                                      data.getId()),
                                               "Cannot get folders for " + this);
@@ -762,7 +760,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
                     byte[] tiles = pixels.getRawTile(client, pos, sizeX, sizeY, bpp);
 
                     int n = imp.getStackIndex(c + 1, z + 1, t + 1);
-                    stack.setPixels(DataTools.makeDataArray(tiles, bpp, isFloat, false), n);
+                    stack.setPixels(makeDataArray(tiles, bpp, isFloat, false), n);
                     ImageProcessor ip = stack.getProcessor(n);
                     ip.resetMinAndMax();
 
@@ -856,10 +854,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<ChannelWrapper> getChannels(Client client)
     throws ServiceException, AccessException, ExecutionException {
+        String error = "Cannot get the channel name for " + this;
         List<ChannelData> channels = call(client.getMetadata(),
                                           m -> m.getChannelData(client.getCtx(),
                                                                 getId()),
-                                          "Cannot get the channel name for " + this);
+                                          error);
         return channels.stream()
                        .sorted(comparing(ChannelData::getIndex))
                        .map(ChannelWrapper::new)

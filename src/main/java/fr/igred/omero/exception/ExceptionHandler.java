@@ -28,6 +28,8 @@ import omero.gateway.exception.DSOutOfServiceException;
 
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 
 /**
  * Class to handle and convert OMERO exceptions.
@@ -59,8 +61,8 @@ public class ExceptionHandler<T> {
      * @return See above.
      */
     private static boolean isAuthenticationException(Throwable t) {
-        return t != null &&
-               AuthenticationException.class.isAssignableFrom(t.getClass());
+        return t != null
+               && AuthenticationException.class.isAssignableFrom(t.getClass());
     }
 
 
@@ -72,8 +74,8 @@ public class ExceptionHandler<T> {
      * @return See above.
      */
     private static boolean isSecurityViolation(Throwable t) {
-        return t instanceof SecurityViolation ||
-               t != null && t.getCause() instanceof SecurityViolation;
+        return t instanceof SecurityViolation
+               || t != null && t.getCause() instanceof SecurityViolation;
     }
 
 
@@ -95,10 +97,10 @@ public class ExceptionHandler<T> {
             toHandle = true;
         } else if (t instanceof DSOutOfServiceException) {
             Throwable cause = t.getCause();
-            toHandle = isSecurityViolation(cause) ||
-                       cause instanceof SessionException ||
-                       isAuthenticationException(cause) ||
-                       cause instanceof ResourceError;
+            toHandle = isSecurityViolation(cause)
+                       || cause instanceof SessionException
+                       || isAuthenticationException(cause)
+                       || cause instanceof ResourceError;
         }
         return toHandle;
     }
@@ -333,19 +335,19 @@ public class ExceptionHandler<T> {
     throws ServiceException, AccessException {
         Throwable cause = throwable.getCause();
         if (isSecurityViolation(cause)) {
-            String s = String.format("For security reasons, cannot access data. %n");
+            String s = format("For security reasons, cannot access data. %n");
             throw new AccessException(s + message, cause);
         } else if (cause instanceof SessionException) {
-            String s = String.format("Session is not valid. %n");
+            String s = format("Session is not valid. %n");
             throw new ServiceException(s + message, cause);
         } else if (isAuthenticationException(cause)) {
-            String s = String.format("Cannot initialize the session. %n");
+            String s = format("Cannot initialize the session. %n");
             throw new ServiceException(s + message, cause);
         } else if (cause instanceof ResourceError) {
-            String s = String.format("Fatal error. Please contact the administrator. %n");
+            String s = format("Fatal error. Please contact the administrator. %n");
             throw new ServiceException(s + message, throwable);
         }
-        String s = String.format("Cannot access data. %n");
+        String s = format("Cannot access data. %n");
         throw new AccessException(s + message, throwable);
     }
 
@@ -360,7 +362,8 @@ public class ExceptionHandler<T> {
      *
      * @throws E An exception from the specified type.
      */
-    public <E extends Throwable> ExceptionHandler<T> rethrow(Class<E> type) throws E {
+    public <E extends Throwable> ExceptionHandler<T> rethrow(Class<E> type)
+    throws E {
         if (type.isInstance(exception)) {
             throw type.cast(exception);
         }
@@ -395,19 +398,19 @@ public class ExceptionHandler<T> {
      * Checks if a ServerError or a DSOutOfService was thrown and handles the exception according to the cause.
      * <p>See {@link #handleOMEROException(Throwable, String)}.</p>
      *
-     * @param message Error message.
+     * @param msg Error message.
      *
      * @return The same ExceptionHandler.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public ExceptionHandler<T> handleServerAndService(String message)
+    public ExceptionHandler<T> handleServerAndService(String msg)
     throws ServiceException, AccessException {
         if (shouldBeHandled(exception)) {
-            handleOMEROException(this.exception, message);
+            handleOMEROException(this.exception, msg);
         } else if (exception instanceof DSOutOfServiceException) {
-            rethrow(DSOutOfServiceException.class, ServiceException::new, message);
+            rethrow(DSOutOfServiceException.class, ServiceException::new, msg);
         }
         return this;
     }
@@ -483,17 +486,17 @@ public class ExceptionHandler<T> {
      *     <li>The appropriate exception if {@link ServerError} was caught (see {@link  #handleOMEROException})</li>
      * </ul>
      *
-     * @param message Error message.
+     * @param msg Error message.
      *
      * @return The same ExceptionHandler.
      *
      * @throws AccessException  Cannot access data.
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public ExceptionHandler<T> handleOMEROException(String message)
+    public ExceptionHandler<T> handleOMEROException(String msg)
     throws ServiceException, AccessException {
-        return this.rethrow(DSAccessException.class, AccessException::new, message)
-                   .handleServerAndService(message);
+        return this.rethrow(DSAccessException.class, AccessException::new, msg)
+                   .handleServerAndService(msg);
     }
 
 

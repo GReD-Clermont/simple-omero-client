@@ -45,10 +45,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -247,10 +247,11 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @param folders The new children folders.
      */
     public void addChildren(Collection<? extends FolderWrapper> folders) {
-        data.asFolder().addAllChildFoldersSet(folders.stream()
-                                                     .map(GenericObjectWrapper::asDataObject)
-                                                     .map(DataObject::asFolder)
-                                                     .collect(Collectors.toList()));
+        data.asFolder()
+            .addAllChildFoldersSet(folders.stream()
+                                          .map(GenericObjectWrapper::asDataObject)
+                                          .map(DataObject::asFolder)
+                                          .collect(toList()));
     }
 
 
@@ -276,8 +277,10 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public void addImages(Client client, ImageWrapper... images)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> links     = new ArrayList<>(images.length);
-        List<Long>    linkedIds = getImages().stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+        List<IObject> links = new ArrayList<>(images.length);
+        List<Long> linkedIds = getImages().stream()
+                                          .map(GenericObjectWrapper::getId)
+                                          .collect(toList());
         for (ImageWrapper image : images) {
             if (!linkedIds.contains(image.getId())) {
                 FolderImageLink link = new FolderImageLinkI();
@@ -286,7 +289,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                 links.add(link);
             }
         }
-        ExceptionHandler.of(client.getDm(), d -> d.saveAndReturnObject(client.getCtx(), links, null, null))
+        ExceptionHandler.of(client.getDm(),
+                            d -> d.saveAndReturnObject(client.getCtx(), links, null, null))
                         .handleOMEROException("Cannot save links.")
                         .rethrow();
     }
@@ -373,7 +377,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
                                       .map(GenericObjectWrapper::asDataObject)
-                                      .collect(Collectors.toList());
+                                      .collect(toList());
         ROIFacility roiFac = client.getRoiFacility();
         ExceptionHandler.of(roiFac,
                             rf -> rf.addRoisToFolders(client.getCtx(),
@@ -445,7 +449,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                                                  .flatMap(Collection::stream)
                                                  .map(ROIWrapper::new)
                                                  .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                                 .collect(Collectors.toList());
+                                                 .collect(toList());
 
         return distinct(roiWrappers);
     }
@@ -585,7 +589,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = rois.stream()
                                     .map(ROIWrapper::asDataObject)
-                                    .collect(Collectors.toList());
+                                    .collect(toList());
         ExceptionHandler.ofConsumer(client.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(client.getCtx(),
                                                                    -1L,

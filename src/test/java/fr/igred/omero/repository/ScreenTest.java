@@ -76,7 +76,10 @@ class ScreenTest extends UserTest {
     void testAddTagToScreen() throws Exception {
         ScreenWrapper screen = client.getScreen(SCREEN2.id);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Screen tag", "tag attached to a screen");
+        String name = "Screen tag";
+        String desc = "tag attached to a screen";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
         screen.link(client, tag);
         List<TagAnnotationWrapper> tags = screen.getTags(client);
         client.delete(tag);
@@ -172,7 +175,10 @@ class ScreenTest extends UserTest {
         File f1 = createFile(filename1);
         File f2 = createFile(filename2);
 
-        ScreenWrapper screen = new ScreenWrapper(client, "Import", "test-import");
+        String name = "Import";
+        String desc = "test-import";
+
+        ScreenWrapper screen = new ScreenWrapper(client, name, desc);
 
         boolean imported = screen.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
         screen.refresh(client);
@@ -213,7 +219,10 @@ class ScreenTest extends UserTest {
 
         File file = createFile(filename);
 
-        ScreenWrapper screen = new ScreenWrapper(client, "Import", "test-import");
+        String name = "Import";
+        String desc = "test-import";
+
+        ScreenWrapper screen = new ScreenWrapper(client, name, desc);
 
         List<Long> ids = screen.importImage(client, file.getAbsolutePath());
         screen.reload(client);

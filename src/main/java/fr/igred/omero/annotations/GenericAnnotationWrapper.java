@@ -143,12 +143,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<ProjectWrapper> getProjects(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os  = getLinks(client, ProjectWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream()
-                              .map(IObject::getId)
-                              .map(RLong::getValue)
-                              .sorted()
-                              .toArray(Long[]::new);
+        List<IObject> os = getLinks(client, ProjectWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return client.getProjects(ids);
     }
 
@@ -167,12 +167,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<DatasetWrapper> getDatasets(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os  = getLinks(client, DatasetWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream()
-                              .map(IObject::getId)
-                              .map(RLong::getValue)
-                              .sorted()
-                              .toArray(Long[]::new);
+        List<IObject> os = getLinks(client, DatasetWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return client.getDatasets(ids);
     }
 
@@ -191,12 +191,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os  = getLinks(client, ImageWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream()
-                              .map(IObject::getId)
-                              .map(RLong::getValue)
-                              .sorted()
-                              .toArray(Long[]::new);
+        List<IObject> os = getLinks(client, ImageWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return client.getImages(ids);
     }
 
@@ -215,12 +215,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os  = getLinks(client, ScreenWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream()
-                              .map(IObject::getId)
-                              .map(RLong::getValue)
-                              .sorted()
-                              .toArray(Long[]::new);
+        List<IObject> os = getLinks(client, ScreenWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return client.getScreens(ids);
     }
 
@@ -239,12 +239,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<PlateWrapper> getPlates(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os  = getLinks(client, PlateWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream()
-                              .map(IObject::getId)
-                              .map(RLong::getValue)
-                              .sorted()
-                              .toArray(Long[]::new);
+        List<IObject> os = getLinks(client, PlateWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return client.getPlates(ids);
     }
 
@@ -261,9 +261,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
     throws ServiceException, OMEROServerError {
-        List<IObject> os = getLinks(client, PlateAcquisitionWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(client,
+                                    PlateAcquisitionWrapper.ANNOTATION_LINK);
         return os.stream()
-                 .map(o -> new PlateAcquisitionWrapper(new PlateAcquisitionData((omero.model.PlateAcquisition) o)))
+                 .map(omero.model.PlateAcquisition.class::cast)
+                 .map(PlateAcquisitionData::new)
+                 .map(PlateAcquisitionWrapper::new)
                  .collect(Collectors.toList());
     }
 
@@ -282,12 +285,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os  = getLinks(client, WellWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream()
-                              .map(IObject::getId)
-                              .map(RLong::getValue)
-                              .sorted()
-                              .toArray(Long[]::new);
+        List<IObject> os = getLinks(client, WellWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return client.getWells(ids);
     }
 
@@ -306,12 +309,12 @@ public abstract class GenericAnnotationWrapper<T extends AnnotationData> extends
      */
     public List<FolderWrapper> getFolders(Client client)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        List<IObject> os  = getLinks(client, FolderWrapper.ANNOTATION_LINK);
-        Long[]        ids = os.stream()
-                              .map(IObject::getId)
-                              .map(RLong::getValue)
-                              .sorted()
-                              .toArray(Long[]::new);
+        List<IObject> os = getLinks(client, FolderWrapper.ANNOTATION_LINK);
+        Long[] ids = os.stream()
+                       .map(IObject::getId)
+                       .map(RLong::getValue)
+                       .sorted()
+                       .toArray(Long[]::new);
         return client.loadFolders(ids);
     }
 

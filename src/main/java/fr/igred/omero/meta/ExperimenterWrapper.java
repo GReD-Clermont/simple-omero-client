@@ -227,7 +227,9 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      * @return See above.
      */
     public boolean isLeader(GroupWrapper group) {
-        return group.getLeaders().stream().anyMatch(l -> l.getId() == data.getId());
+        return group.getLeaders()
+                    .stream()
+                    .anyMatch(l -> l.getId() == data.getId());
     }
 
 

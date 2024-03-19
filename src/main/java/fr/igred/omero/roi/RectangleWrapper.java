@@ -230,14 +230,16 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
      */
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
-            throw new IllegalArgumentException("RectangleData cannot set null coordinates.");
+            String msg = "RectangleData cannot set null coordinates.";
+            throw new IllegalArgumentException(msg);
         } else if (coordinates.length == 4) {
             data.setX(coordinates[0]);
             data.setY(coordinates[1]);
             data.setWidth(coordinates[2]);
             data.setHeight(coordinates[3]);
         } else {
-            throw new IllegalArgumentException("4 coordinates required for RectangleData.");
+            String msg = "4 coordinates required for RectangleData.";
+            throw new IllegalArgumentException(msg);
         }
     }
 
@@ -260,8 +262,8 @@ public class RectangleWrapper extends GenericShapeWrapper<RectangleData> {
             p1.setTransform(transform);
             p2.setTransform(transform);
 
-            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
             double x1 = shape1.getX();
             double y1 = shape1.getY();

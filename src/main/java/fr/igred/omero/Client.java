@@ -197,7 +197,9 @@ public class Client extends Browser {
             }
         }
         if (!objects.isEmpty()) {
-            delete(objects.stream().map(GenericObjectWrapper::asIObject).collect(Collectors.toList()));
+            delete(objects.stream()
+                          .map(GenericObjectWrapper::asIObject)
+                          .collect(Collectors.toList()));
         }
     }
 
@@ -273,7 +275,9 @@ public class Client extends Browser {
      */
     public void deleteTables(Collection<? extends TableWrapper> tables)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
-        deleteFiles(tables.stream().map(TableWrapper::getId).toArray(Long[]::new));
+        deleteFiles(tables.stream()
+                          .map(TableWrapper::getId)
+                          .toArray(Long[]::new));
     }
 
 
@@ -369,7 +373,8 @@ public class Client extends Browser {
     public GroupWrapper getGroup(long groupId)
     throws ServiceException, OMEROServerError {
         ExperimenterGroup group = ExceptionHandler.of(getGateway(),
-                                                      g -> g.getAdminService(getCtx()).getGroup(groupId))
+                                                      g -> g.getAdminService(getCtx())
+                                                            .getGroup(groupId))
                                                   .rethrow(ApiUsageException.class,
                                                            (m, e) -> new NoSuchElementException(m),
                                                            "Group not found: " + groupId)

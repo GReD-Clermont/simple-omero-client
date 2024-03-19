@@ -34,7 +34,10 @@ class WellTest extends UserTest {
     void testAddTagToWell() throws Exception {
         WellWrapper well = client.getWell(2L);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Well tag", "tag attached to a well");
+        String name = "Well tag";
+        String desc = "tag attached to a well";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
         well.link(client, tag);
         List<TagAnnotationWrapper> tags = well.getTags(client);
         client.delete(tag);

@@ -30,7 +30,10 @@ class TagSetTest extends UserTest {
 
     @Test
     void testCreateTagSet() throws Exception {
-        TagAnnotationWrapper tagSet = new TagSetWrapper(client, "tagset", "tagset description");
+        String name = "tagset";
+        String desc = "tagset description";
+
+        TagAnnotationWrapper tagSet = new TagSetWrapper(client, name, desc);
         client.delete(tagSet);
         assertTrue(tagSet.isTagSet());
     }
@@ -38,7 +41,10 @@ class TagSetTest extends UserTest {
 
     @Test
     void testLinkTagSet() throws Exception {
-        TagSetWrapper tagSet = new TagSetWrapper(client, "tagset", "LinkTagSet");
+        String name = "tagset";
+        String desc = "LinkTagSet";
+
+        TagSetWrapper tagSet = new TagSetWrapper(client, name, desc);
         tagSet.link(client, client.getTag(1L), client.getTag(2L));
         int nTags = tagSet.getTags(client).size();
         client.delete(tagSet);

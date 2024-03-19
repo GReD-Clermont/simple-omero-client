@@ -124,7 +124,9 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @return See above.
      */
     public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
+        return wrap(data.getWellSamples(),
+                    WellSampleWrapper::new,
+                    w -> w.getImage().asDataObject().getSeries());
     }
 
 

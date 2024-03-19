@@ -67,7 +67,9 @@ class PlaneInfoWrapperTest extends UserTest {
         pixels.loadPlanesInfo(client);
         List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
 
-        Length positionX = getMinPosition(planes, PlaneInfoWrapper::getPositionX, UNITS.NANOMETER);
+        Length positionX = getMinPosition(planes,
+                                          PlaneInfoWrapper::getPositionX,
+                                          UNITS.NANOMETER);
         assertEquals(100000, positionX.getValue());
         assertEquals("nm", positionX.getSymbol());
     }

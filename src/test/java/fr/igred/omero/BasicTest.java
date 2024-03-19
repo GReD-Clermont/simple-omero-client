@@ -30,6 +30,9 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import static java.lang.String.format;
+import static java.util.logging.Logger.getLogger;
+
 
 @ExtendWith(LoggingExtension.class)
 public abstract class BasicTest {
@@ -40,7 +43,9 @@ public abstract class BasicTest {
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_BLUE   = "\u001B[34m";
 
-    protected static final Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    protected static final Logger logger = getLogger(MethodHandles.lookup()
+                                                                  .lookupClass()
+                                                                  .getName());
 
     protected static final String HOST = "omero";
     protected static final int    PORT = 4064;
@@ -71,7 +76,8 @@ public abstract class BasicTest {
 
         File file = new File(tmpdir + File.separator + filename);
         if (!file.createNewFile()) {
-            logger.severe("\"" + file.getCanonicalPath() + "\" could not be created.");
+            String template = "\"%s\" could not be created.";
+            logger.severe(format(template, file.getCanonicalPath()));
         }
         return file;
     }
@@ -95,10 +101,12 @@ public abstract class BasicTest {
         File parent = file.getParentFile();
         if (file.delete()) {
             if (!parent.delete()) {
-                logger.warning("\"" + parent.getCanonicalPath() + "\" could not be deleted.");
+                String template = "\"%s\" could not be deleted.";
+                logger.warning(format(template, parent.getCanonicalPath()));
             }
         } else {
-            logger.severe("\"" + file.getCanonicalPath() + "\" could not be deleted.");
+            String template = "\"%s\" could not be deleted.";
+            logger.severe(format(template, file.getCanonicalPath()));
         }
     }
 

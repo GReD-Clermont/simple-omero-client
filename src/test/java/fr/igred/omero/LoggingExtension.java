@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.TestWatcher;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -37,6 +36,8 @@ import static fr.igred.omero.BasicTest.ANSI_GREEN;
 import static fr.igred.omero.BasicTest.ANSI_RED;
 import static fr.igred.omero.BasicTest.ANSI_RESET;
 import static fr.igred.omero.BasicTest.ANSI_YELLOW;
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallback, BeforeAllCallback, AfterAllCallback {
@@ -59,6 +60,15 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
 
 
     /**
+     * Output to console.
+     */
+    private static void showOutputs() {
+        System.setOut(output);
+        System.setErr(error);
+    }
+
+
+    /**
      * Callback that is invoked once <em>before</em> all tests in the current container.
      *
      * @param context the current extension context; never {@code null}
@@ -66,14 +76,22 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     @Override
     public void beforeAll(ExtensionContext context) throws IOException {
         //noinspection AccessOfSystemProperties
-        System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
+        System.setProperty("java.util.logging.SimpleFormatter.format",
+                           "[%1$tF %1$tT] [%4$-7s] %5$s %n");
         String klass = context.getRequiredTestClass().getSimpleName();
         logger = Logger.getLogger(klass);
 
-        File file = new File("target" + File.separator + "logs" + File.separator + klass + ".log");
+        String logPath = "target" + File.separator +
+                         "logs" + File.separator +
+                         klass + ".log";
+
+        File file = new File(logPath);
         Files.createDirectories(file.toPath().getParent());
         Files.deleteIfExists(file.toPath());
-        logFile = new PrintStream(Files.newOutputStream(file.toPath()), false, StandardCharsets.UTF_8.name());
+
+        logFile = new PrintStream(Files.newOutputStream(file.toPath()),
+                                  false,
+                                  UTF_8.name());
     }
 
 
@@ -117,7 +135,10 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     @Override
     public void testDisabled(ExtensionContext context, Optional<String> reason) {
         float time = (float) (System.currentTimeMillis() - start) / 1000;
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "DISABLED", ANSI_BLUE, time);
+
+        String method = context.getRequiredTestMethod().getName();
+        String status = "DISABLED";
+        logStatus(method, context.getDisplayName(), status, ANSI_BLUE, time);
     }
 
 
@@ -132,7 +153,10 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     @Override
     public void testSuccessful(ExtensionContext context) {
         float time = (float) (System.currentTimeMillis() - start) / 1000;
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "SUCCEEDED", ANSI_GREEN, time);
+
+        String method = context.getRequiredTestMethod().getName();
+        String status = "SUCCEEDED";
+        logStatus(method, context.getDisplayName(), status, ANSI_GREEN, time);
     }
 
 
@@ -148,7 +172,10 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     @Override
     public void testAborted(ExtensionContext context, Throwable cause) {
         float time = (float) (System.currentTimeMillis() - start) / 1000;
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "ABORTED", ANSI_YELLOW, time);
+
+        String method = context.getRequiredTestMethod().getName();
+        String status = "ABORTED";
+        logStatus(method, context.getDisplayName(), status, ANSI_YELLOW, time);
     }
 
 
@@ -164,7 +191,10 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
         float time = (float) (System.currentTimeMillis() - start) / 1000;
-        logStatus(context.getRequiredTestMethod().getName(), context.getDisplayName(), "FAILED", ANSI_RED, time);
+
+        String method = context.getRequiredTestMethod().getName();
+        String status = "FAILED";
+        logStatus(method, context.getDisplayName(), status, ANSI_RED, time);
     }
 
 
@@ -179,18 +209,9 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     private void logStatus(String methodName, String displayName, String status, String color, float time) {
         showOutputs();
         displayName = displayName.equals(methodName + "()") ? "" : displayName;
-        String name = String.format("%s %s", methodName, displayName);
-        logger.info(String.format(FORMAT, name, color, status, ANSI_RESET, time));
+        String name = format("%s %s", methodName, displayName);
+        logger.info(format(FORMAT, name, color, status, ANSI_RESET, time));
         logFile.printf("%9s: %s%n", status, name);
-    }
-
-
-    /**
-     * Output to console.
-     */
-    private static void showOutputs() {
-        System.setOut(output);
-        System.setErr(error);
     }
 
 

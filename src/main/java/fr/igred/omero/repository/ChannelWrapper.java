@@ -58,10 +58,10 @@ public class ChannelWrapper extends GenericObjectWrapper<ChannelData> {
      * @return See above.
      */
     public boolean hasRGBA() {
-        return data.asChannel().getRed() != null &&
-               data.asChannel().getGreen() != null &&
-               data.asChannel().getBlue() != null &&
-               data.asChannel().getAlpha() != null;
+        return data.asChannel().getRed() != null
+               && data.asChannel().getGreen() != null
+               && data.asChannel().getBlue() != null
+               && data.asChannel().getAlpha() != null;
     }
 
 

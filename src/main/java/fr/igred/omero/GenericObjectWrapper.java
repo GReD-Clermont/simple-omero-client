@@ -33,6 +33,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static fr.igred.omero.exception.ExceptionHandler.call;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -103,7 +105,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
         return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
+                      .collect(toMap(T::getId, o -> o, (o1, o2) -> o1))
                       .values()
                       .stream()
                       .sorted(Comparator.comparing(T::getId))
@@ -123,7 +125,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
         return lists.stream()
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toMap(U::getId, o -> o, (o1, o2) -> o1))
+                    .collect(toMap(U::getId, o -> o, (o1, o2) -> o1))
                     .values()
                     .stream()
                     .sorted(Comparator.comparing(U::getId))
@@ -207,7 +209,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     @Override
     public String toString() {
-        return String.format("%s (id=%d)", getClass().getSimpleName(), data.getId());
+        return format("%s (id=%d)", getClass().getSimpleName(), data.getId());
     }
 
 

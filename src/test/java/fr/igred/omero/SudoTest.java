@@ -89,9 +89,10 @@ class SudoTest extends BasicTest {
     @Test
     void sudoImport() throws Exception {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
+        char[] password = "password4".toCharArray();
 
         Client client4 = new Client();
-        client4.connect(HOST, PORT, "testUser4", "password4".toCharArray(), 6L);
+        client4.connect(HOST, PORT, "testUser4", password, 6L);
         assertEquals(5L, client4.getId());
 
         Client client3 = client4.sudoGetUser("testUser3");
@@ -120,6 +121,7 @@ class SudoTest extends BasicTest {
             client3.disconnect();
             client4.disconnect();
         } catch (RuntimeException ignored) {
+            // DO NOTHING
         }
     }
 

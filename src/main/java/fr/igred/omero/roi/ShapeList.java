@@ -18,12 +18,13 @@
 package fr.igred.omero.roi;
 
 
-import fr.igred.omero.util.Wrapper;
 import omero.gateway.model.ShapeData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static fr.igred.omero.util.Wrapper.wrap;
 
 
 /** List of GenericShapeWrapper objects */
@@ -61,7 +62,9 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
      * @return See above.
      */
     public <T extends GenericShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
-        return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+        return stream().filter(clazz::isInstance)
+                       .map(clazz::cast)
+                       .collect(Collectors.toList());
     }
 
 
@@ -76,8 +79,7 @@ public class ShapeList extends ArrayList<GenericShapeWrapper<?>> {
         boolean added;
 
         try {
-            GenericShapeWrapper<? extends ShapeData> wrapper = Wrapper.wrap(shape);
-            added = add(wrapper);
+            added = add(wrap(shape));
         } catch (IllegalArgumentException e) {
             added = false;
         }

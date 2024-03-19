@@ -74,11 +74,12 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
         data.setMask(ip.getIntArray());
         ip.flipVertical();
 
-        Color lut = new Color(ip.getCurrentColorModel().getRGB((int) ip.getMax()));
-        int   r   = lut.getRed();
-        int   g   = lut.getGreen();
-        int   b   = lut.getBlue();
-        int   a   = (int) (imageRoi.getOpacity() * MAX_UINT8);
+        Color lut = new Color(ip.getCurrentColorModel()
+                                .getRGB((int) ip.getMax()));
+        int r = lut.getRed();
+        int g = lut.getGreen();
+        int b = lut.getBlue();
+        int a = (int) (imageRoi.getOpacity() * MAX_UINT8);
 
         data.setText(imageRoi.getName());
         super.copyFromIJRoi(imageRoi);
@@ -317,14 +318,16 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
      */
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
-            throw new IllegalArgumentException("MaskData cannot set null coordinates.");
+            String msg = "MaskData cannot set null coordinates.";
+            throw new IllegalArgumentException(msg);
         } else if (coordinates.length == 4) {
             data.setX(coordinates[0]);
             data.setY(coordinates[1]);
             data.setWidth(coordinates[2]);
             data.setHeight(coordinates[3]);
         } else {
-            throw new IllegalArgumentException("4 coordinates required for MaskData.");
+            String msg = "4 coordinates required for MaskData.";
+            throw new IllegalArgumentException(msg);
         }
     }
 
@@ -352,8 +355,8 @@ public class MaskWrapper extends GenericShapeWrapper<MaskData> {
             p1.setTransform(transform);
             p2.setTransform(transform);
 
-            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
             double x1 = shape1.getX();
             double y1 = shape1.getY();

@@ -18,12 +18,13 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.util.Wrapper;
 import omero.gateway.model.AnnotationData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static fr.igred.omero.util.Wrapper.wrap;
 
 
 /** List of GenericAnnotationWrapper objects */
@@ -61,7 +62,9 @@ public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
      * @return See above.
      */
     public <T extends GenericAnnotationWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
-        return stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+        return stream().filter(clazz::isInstance)
+                       .map(clazz::cast)
+                       .collect(Collectors.toList());
     }
 
 
@@ -76,8 +79,7 @@ public class AnnotationList extends ArrayList<GenericAnnotationWrapper<?>> {
         boolean added;
 
         try {
-            GenericAnnotationWrapper<? extends AnnotationData> wrapper = Wrapper.wrap(shape);
-            added = add(wrapper);
+            added = add(wrap(shape));
         } catch (IllegalArgumentException e) {
             added = false;
         }
