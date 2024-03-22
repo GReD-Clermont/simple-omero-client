@@ -24,7 +24,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.PlaneInfoWrapper;
-import ome.units.UNITS;
 import ome.units.unit.Unit;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
@@ -39,7 +38,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.units.UNITS.MICROMETER;
 
 
 /**
@@ -101,12 +102,12 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @param bpp      Bytes per pixels of the image.
      */
     private static void copy(byte[] bytes, Plane2D p, Coordinates start, int width, int height, int imgWidth, int bpp) {
-        int startX = start.getX();
-        int startY = start.getY();
+        int x0 = start.getX();
+        int y0 = start.getY();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int i = 0; i < bpp; i++) {
-                    bytes[((y + startY) * imgWidth + x + startX) * bpp + i] = p.getRawValue((x + y * width) * bpp + i);
+                    bytes[((y + y0) * imgWidth + x + x0) * bpp + i] = p.getRawValue((x + y * width) * bpp + i);
                 }
             }
         }
@@ -144,10 +145,10 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      */
     public void loadPlanesInfo(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = ExceptionHandler.of(client.getMetadata(),
-                                                         m -> m.getPlaneInfos(client.getCtx(), data))
-                                                     .handleOMEROException("Cannot retrieve planes info.")
-                                                     .get();
+        List<PlaneInfoData> planes = call(client.getMetadata(),
+                                          m -> m.getPlaneInfos(client.getCtx(),
+                                                               data),
+                                          "Cannot retrieve planes info.");
         planesInfo = wrap(planes, PlaneInfoWrapper::new);
     }
 
@@ -243,9 +244,12 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @return See above.
      */
     public Length getPositionX() {
-        ome.units.quantity.Length       pixSizeX = convertLength(getPixelSizeX());
-        Unit<ome.units.quantity.Length> unit     = pixSizeX == null ? UNITS.MICROMETER : pixSizeX.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionX, unit);
+        ome.units.quantity.Length pixSizeX = convertLength(getPixelSizeX());
+
+        Unit<ome.units.quantity.Length> unit = pixSizeX == null ? MICROMETER : pixSizeX.unit();
+        return PlaneInfoWrapper.getMinPosition(planesInfo,
+                                               PlaneInfoWrapper::getPositionX,
+                                               unit);
     }
 
 
@@ -256,9 +260,12 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @return See above.
      */
     public Length getPositionY() {
-        ome.units.quantity.Length       pixSizeY = convertLength(getPixelSizeY());
-        Unit<ome.units.quantity.Length> unit     = pixSizeY == null ? UNITS.MICROMETER : pixSizeY.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionY, unit);
+        ome.units.quantity.Length pixSizeY = convertLength(getPixelSizeY());
+
+        Unit<ome.units.quantity.Length> unit = pixSizeY == null ? MICROMETER : pixSizeY.unit();
+        return PlaneInfoWrapper.getMinPosition(planesInfo,
+                                               PlaneInfoWrapper::getPositionY,
+                                               unit);
     }
 
 
@@ -269,9 +276,12 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
      * @return See above.
      */
     public Length getPositionZ() {
-        ome.units.quantity.Length       pixSizeZ = convertLength(getPixelSizeZ());
-        Unit<ome.units.quantity.Length> unit     = pixSizeZ == null ? UNITS.MICROMETER : pixSizeZ.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo, PlaneInfoWrapper::getPositionZ, unit);
+        ome.units.quantity.Length pixSizeZ = convertLength(getPixelSizeZ());
+
+        Unit<ome.units.quantity.Length> unit = pixSizeZ == null ? MICROMETER : pixSizeZ.unit();
+        return PlaneInfoWrapper.getMinPosition(planesInfo,
+                                               PlaneInfoWrapper::getPositionZ,
+                                               unit);
     }
 
 
@@ -338,7 +348,8 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     boolean createRawDataFacility(Client client) throws ExecutionException {
         boolean created = false;
         if (rawDataFacility == null) {
-            rawDataFacility = client.getGateway().getFacility(RawDataFacility.class);
+            rawDataFacility = client.getGateway()
+                                    .getFacility(RawDataFacility.class);
             created         = true;
         }
         return created;
@@ -398,13 +409,25 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
         Coordinates start = lim.getStart();
         Coordinates size  = lim.getSize();
 
-        double[][][][][] tab = new double[size.getT()][size.getZ()][size.getC()][][];
+        int x0 = start.getX();
+        int y0 = start.getY();
+        int sx = size.getX();
+        int sy = size.getY();
 
-        for (int t = 0, posT = start.getT(); t < size.getT(); t++, posT++) {
-            for (int z = 0, posZ = start.getZ(); z < size.getZ(); z++, posZ++) {
-                for (int c = 0, posC = start.getC(); c < size.getC(); c++, posC++) {
-                    Coordinates pos = new Coordinates(start.getX(), start.getY(), posC, posZ, posT);
-                    tab[t][z][c] = getTile(client, pos, size.getX(), size.getY());
+        int startC = start.getC();
+        int startZ = start.getZ();
+        int startT = start.getT();
+        int sizeC  = size.getC();
+        int sizeZ  = size.getZ();
+        int sizeT  = size.getT();
+
+        double[][][][][] tab = new double[sizeT][sizeZ][sizeC][][];
+
+        for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
+            for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
+                for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
+                    Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+                    tab[t][z][c] = getTile(client, pos, sx, sy);
                 }
             }
         }
@@ -432,8 +455,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     double[][] getTile(Client client, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
-        double[][] tile = ExceptionHandler.of(this, t -> t.getTileUnchecked(client, start, width, height))
-                                          .rethrow(DataSourceException.class, AccessException::new, "Cannot read tile")
+        double[][] tile = ExceptionHandler.of(this,
+                                              t -> t.getTileUnchecked(client, start, width, height))
+                                          .rethrow(DataSourceException.class,
+                                                   AccessException::new,
+                                                   "Cannot read tile")
                                           .get();
         if (rdf) {
             destroyRawDataFacility();
@@ -523,13 +549,25 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
         Coordinates start = lim.getStart();
         Coordinates size  = lim.getSize();
 
-        byte[][][][] bytes = new byte[size.getT()][size.getZ()][size.getC()][];
+        int x0     = start.getX();
+        int y0     = start.getY();
+        int startC = start.getC();
+        int startZ = start.getZ();
+        int startT = start.getT();
 
-        for (int t = 0, posT = start.getT(); t < size.getT(); t++, posT++) {
-            for (int z = 0, posZ = start.getZ(); z < size.getZ(); z++, posZ++) {
-                for (int c = 0, posC = start.getC(); c < size.getC(); c++, posC++) {
-                    Coordinates pos = new Coordinates(start.getX(), start.getY(), posC, posZ, posT);
-                    bytes[t][z][c] = getRawTile(client, pos, size.getX(), size.getY(), bpp);
+        int sx    = size.getX();
+        int sy    = size.getY();
+        int sizeC = size.getC();
+        int sizeZ = size.getZ();
+        int sizeT = size.getT();
+
+        byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][];
+
+        for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
+            for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
+                for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
+                    Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+                    bytes[t][z][c] = getRawTile(client, pos, sx, sy, bpp);
                 }
             }
         }
@@ -557,8 +595,11 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
     byte[] getRawTile(Client client, Coordinates start, int width, int height, int bpp)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
-        byte[] tile = ExceptionHandler.of(this, t -> t.getRawTileUnchecked(client, start, width, height, bpp))
-                                      .rethrow(DataSourceException.class, AccessException::new, "Cannot read raw tile")
+        byte[] tile = ExceptionHandler.of(this,
+                                          t -> t.getRawTileUnchecked(client, start, width, height, bpp))
+                                      .rethrow(DataSourceException.class,
+                                               AccessException::new,
+                                               "Cannot read raw tile")
                                       .get();
         if (rdf) {
             destroyRawDataFacility();

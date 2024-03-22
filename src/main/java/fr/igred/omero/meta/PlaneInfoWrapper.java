@@ -20,7 +20,6 @@ package fr.igred.omero.meta;
 
 import fr.igred.omero.GenericObjectWrapper;
 import ome.formats.model.UnitsFactory;
-import ome.units.UNITS;
 import ome.units.unit.Unit;
 import omero.gateway.model.PlaneInfoData;
 import omero.model.Length;
@@ -34,7 +33,9 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static java.lang.Double.NaN;
 import static ome.formats.model.UnitsFactory.convertTime;
+import static ome.units.UNITS.SECOND;
 
 
 public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
@@ -59,29 +60,32 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
      */
     public static Time computeMeanTimeInterval(Collection<? extends PlaneInfoWrapper> planesInfo, int sizeT) {
         // planesInfo should be larger than sizeT, unless it is empty
-        ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[Math.min(sizeT, planesInfo.size())];
+        int                       size   = Math.min(sizeT, planesInfo.size());
+        ome.units.quantity.Time[] deltas = new ome.units.quantity.Time[size];
 
         planesInfo.stream()
-                  .filter(p -> p.getTheC() == 0 && p.getTheZ() == 0 && p.getTheT() < deltas.length)
+                  .filter(p -> p.getTheC() == 0
+                               && p.getTheZ() == 0
+                               && p.getTheT() < deltas.length)
                   .forEach(p -> deltas[p.getTheT()] = convertTime(p.getDeltaT()));
 
         Unit<ome.units.quantity.Time> unit = Arrays.stream(deltas)
                                                    .filter(Objects::nonNull)
                                                    .findFirst()
                                                    .map(ome.units.quantity.Time::unit)
-                                                   .orElse(UNITS.SECOND);
+                                                   .orElse(SECOND);
 
         double mean  = 0;
         int    count = 0;
         for (int i = 1; i < deltas.length; i++) {
-            double delta1 = deltas[i - 1] != null ? deltas[i - 1].value(unit).doubleValue() : Double.NaN;
-            double delta2 = deltas[i] != null ? deltas[i].value(unit).doubleValue() : Double.NaN;
+            double delta1 = deltas[i - 1] != null ? deltas[i - 1].value(unit).doubleValue() : NaN;
+            double delta2 = deltas[i] != null ? deltas[i].value(unit).doubleValue() : NaN;
             if (!Double.isNaN(delta1) && !Double.isNaN(delta2)) {
                 mean += delta2 - delta1;
                 count++;
             }
         }
-        mean /= count == 0 ? Double.NaN : count;
+        mean /= count == 0 ? NaN : count;
         return new TimeI(mean, unit);
     }
 
@@ -95,22 +99,22 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
      * @return See above.
      */
     public static Time computeMeanExposureTime(Iterable<? extends PlaneInfoWrapper> planesInfo, int channel) {
-        ome.units.quantity.Time t = null;
+        ome.units.quantity.Time t0 = null;
 
         Iterator<? extends PlaneInfoWrapper> iterator = planesInfo.iterator();
-        while (t == null && iterator.hasNext()) {
-            t = convertTime(planesInfo.iterator().next().getExposureTime());
+        while (t0 == null && iterator.hasNext()) {
+            t0 = convertTime(planesInfo.iterator().next().getExposureTime());
         }
 
-        Unit<ome.units.quantity.Time> unit = t == null ? UNITS.SECOND : t.unit();
+        Unit<ome.units.quantity.Time> unit = t0 == null ? SECOND : t0.unit();
 
         double mean  = 0;
         int    count = 0;
-        for (PlaneInfoWrapper plane : planesInfo) {
-            if (channel == plane.getTheC()) {
-                ome.units.quantity.Time time = convertTime(plane.getExposureTime());
-                if (time != null) {
-                    Number value = time.value(unit);
+        for (PlaneInfoWrapper p : planesInfo) {
+            if (channel == p.getTheC()) {
+                ome.units.quantity.Time t = convertTime(p.getExposureTime());
+                if (t != null) {
+                    Number value = t.value(unit);
                     if (value != null) {
                         mean += value.doubleValue();
                     }
@@ -118,7 +122,7 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
                 }
             }
         }
-        mean /= count == 0 ? Double.NaN : count;
+        mean /= count == 0 ? NaN : count;
         return new TimeI(mean, unit);
     }
 

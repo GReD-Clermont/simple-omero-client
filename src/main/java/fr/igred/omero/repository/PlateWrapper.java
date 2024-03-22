@@ -22,7 +22,6 @@ import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
@@ -39,7 +38,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -142,9 +143,14 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      */
     public List<ScreenWrapper> getScreens(Client client)
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from ScreenPlateLink as link " +
-                                              "where link.child=" + getId());
-        return client.getScreens(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        String query = "select link.parent from ScreenPlateLink as link" +
+                       " where link.child=" + getId();
+        List<IObject> os = client.findByQuery(query);
+        return client.getScreens(os.stream()
+                                   .map(IObject::getId)
+                                   .map(RLong::getValue)
+                                   .distinct()
+                                   .toArray(Long[]::new));
     }
 
 
@@ -171,10 +177,10 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
      */
     public List<WellWrapper> getWells(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = ExceptionHandler.of(client.getBrowseFacility(),
-                                                         bf -> bf.getWells(client.getCtx(), data.getId()))
-                                                     .handleOMEROException("Cannot get wells from " + this)
-                                                     .get();
+        Collection<WellData> wells = call(client.getBrowseFacility(),
+                                          bf -> bf.getWells(client.getCtx(),
+                                                            data.getId()),
+                                          "Cannot get wells from " + this);
 
         return wells.stream()
                     .map(WellWrapper::new)
@@ -200,7 +206,8 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
         return getWells(client).stream()
                                .map(WellWrapper::getImages)
                                .flatMap(Collection::stream)
-                               .collect(Collectors.toMap(GenericObjectWrapper::getId, i -> i, (i1, i2) -> i1))
+                               .collect(toMap(GenericObjectWrapper::getId,
+                                              i -> i, (i1, i2) -> i1))
                                .values()
                                .stream()
                                .sorted(Comparator.comparing(GenericObjectWrapper::getId))
@@ -338,13 +345,11 @@ public class PlateWrapper extends GenericRepositoryObjectWrapper<PlateData> {
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getPlates(browser.getCtx(),
-                                                      singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.getPlates(browser.getCtx(), singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 }

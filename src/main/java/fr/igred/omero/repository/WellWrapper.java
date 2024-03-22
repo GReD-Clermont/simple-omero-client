@@ -21,7 +21,6 @@ package fr.igred.omero.repository;
 import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 
 
@@ -124,7 +124,9 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
      * @return See above.
      */
     public List<WellSampleWrapper> getWellSamples() {
-        return wrap(data.getWellSamples(), WellSampleWrapper::new, w -> w.getImage().asDataObject().getSeries());
+        return wrap(data.getWellSamples(),
+                    WellSampleWrapper::new,
+                    w -> w.getImage().asDataObject().getSeries());
     }
 
 
@@ -339,13 +341,12 @@ public class WellWrapper extends GenericRepositoryObjectWrapper<WellData> {
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getWells(browser.getCtx(),
-                                                     singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.getWells(browser.getCtx(),
+                                      singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 }

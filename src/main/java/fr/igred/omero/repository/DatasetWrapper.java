@@ -23,7 +23,6 @@ import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
@@ -44,6 +43,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
 
 
@@ -67,8 +67,8 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public DatasetWrapper(String name, String description) {
         super(new DatasetData());
-        this.data.setName(name);
-        this.data.setDescription(description);
+        data.setName(name);
+        data.setDescription(description);
     }
 
 
@@ -162,9 +162,24 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ProjectWrapper> getProjects(Client client)
     throws OMEROServerError, ServiceException, AccessException, ExecutionException {
-        List<IObject> os = client.findByQuery("select link.parent from ProjectDatasetLink as link " +
-                                              "where link.child=" + getId());
-        return client.getProjects(os.stream().map(IObject::getId).map(RLong::getValue).distinct().toArray(Long[]::new));
+        String query = "select link.parent from ProjectDatasetLink as link" +
+                       " where link.child=" + getId();
+        List<IObject> os = client.findByQuery(query);
+        return client.getProjects(os.stream()
+                                    .map(IObject::getId)
+                                    .map(RLong::getValue)
+                                    .distinct()
+                                    .toArray(Long[]::new));
+    }
+
+
+    /**
+     * Gets all the images in the dataset (if it was properly loaded from OMERO).
+     *
+     * @return See above.
+     */
+    public List<ImageWrapper> getImages() {
+        return wrap(data.getImages(), ImageWrapper::new);
     }
 
 
@@ -181,11 +196,10 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImages(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                         singletonList(data.getId())))
-                                                       .handleOMEROException("Cannot get images from " + this)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                          singletonList(data.getId())),
+                                            "Cannot get images from " + this);
         return wrap(images, ImageWrapper::new);
     }
 
@@ -266,14 +280,14 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
     throws ServiceException, AccessException, OMEROServerError, ExecutionException {
-        Long[] ids = client.findByQuery("select link.parent " +
-                                        "from ImageAnnotationLink link " +
-                                        "where link.child = " +
+        Long[] ids = client.findByQuery("select link.parent" +
+                                        " from ImageAnnotationLink link" +
+                                        " where link.child = " +
                                         tagId +
-                                        " and link.parent in " +
-                                        "(select link2.child " +
-                                        "from DatasetImageLink link2 " +
-                                        "where link2.parent = " +
+                                        " and link.parent in" +
+                                        " (select link2.child" +
+                                        " from DatasetImageLink link2" +
+                                        " where link2.parent = " +
                                         data.getId() + ")")
                            .stream()
                            .map(IObject::getId)
@@ -316,11 +330,10 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     public List<ImageWrapper> getImagesWithKey(Client client, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                         singletonList(data.getId())))
-                                                       .handleOMEROException(error)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                          singletonList(data.getId())),
+                                            error);
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
@@ -371,19 +384,17 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
      */
     public List<ImageWrapper> getImagesWithKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ImageData> images = ExceptionHandler.of(client.getBrowseFacility(),
-                                                           bf -> bf.getImagesForDatasets(client.getCtx(),
-                                                                                         singletonList(data.getId())))
-                                                       .handleOMEROException(
-                                                               "Cannot get images with key-value pair from " + this)
-                                                       .get();
+        Collection<ImageData> images = call(client.getBrowseFacility(),
+                                            bf -> bf.getImagesForDatasets(client.getCtx(),
+                                                                          singletonList(data.getId())),
+                                            "Cannot get images with key-value pair from " + this);
 
         List<ImageWrapper> selected = new ArrayList<>(images.size());
         for (ImageData image : images) {
             ImageWrapper imageWrapper = new ImageWrapper(image);
 
-            Map<String, String> pairsKeyValue = imageWrapper.getKeyValuePairs(client);
-            if (pairsKeyValue.get(key) != null && pairsKeyValue.get(key).equals(value)) {
+            Map<String, String> pairs = imageWrapper.getKeyValuePairs(client);
+            if (pairs.get(key) != null && pairs.get(key).equals(value)) {
                 selected.add(imageWrapper);
             }
         }
@@ -587,12 +598,14 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
             }
         }
         if (policy == ReplacePolicy.DELETE_ORPHANED) {
-            List<Long> idsToDelete = toDelete.stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+            List<Long> idsToDelete = toDelete.stream()
+                                             .map(GenericObjectWrapper::getId)
+                                             .collect(Collectors.toList());
 
             Iterable<ImageWrapper> orphans = new ArrayList<>(toDelete);
             for (ImageWrapper orphan : orphans) {
                 for (ImageWrapper other : orphan.getFilesetImages(client)) {
-                    if (!idsToDelete.contains(other.getId()) && other.isOrphaned(client)) {
+                    if (other.isOrphaned(client) && !idsToDelete.contains(other.getId())) {
                         toDelete.add(other);
                     }
                 }
@@ -636,13 +649,12 @@ public class DatasetWrapper extends GenericRepositoryObjectWrapper<DatasetData> 
     @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.getDatasets(browser.getCtx(),
-                                                        singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.getDatasets(browser.getCtx(),
+                                         singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 }

@@ -167,7 +167,9 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROIWrapper> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
-        return fromImageJ(ijRois, property, ROIWrapper::new, GenericShapeWrapper::fromImageJ);
+        return fromImageJ(ijRois, property,
+                          ROIWrapper::new,
+                          GenericShapeWrapper::fromImageJ);
     }
 
 
@@ -209,7 +211,10 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
         }
         rois4D.forEach((id, roi) -> roi.setName(names.get(id)));
         shape2roi.forEach((key, value) -> value.addShapes(converter.apply(ijRois.get(key))));
-        return shape2roi.values().stream().distinct().collect(Collectors.toList());
+        return shape2roi.values()
+                        .stream()
+                        .distinct()
+                        .collect(Collectors.toList());
     }
 
 
@@ -254,7 +259,10 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
         final int maxGroups = 255;
         groupRois = groupRois && rois.size() < maxGroups && IJ.getVersion().compareTo("1.52t") >= 0;
 
-        int nShapes = rois.stream().map(GenericObjectWrapper::asDataObject).mapToInt(ROIData::getShapeCount).sum();
+        int nShapes = rois.stream()
+                          .map(GenericObjectWrapper::asDataObject)
+                          .mapToInt(ROIData::getShapeCount)
+                          .sum();
 
         List<ij.gui.Roi> ijRois = new ArrayList<>(nShapes);
 
@@ -514,7 +522,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @return A list of ROIs.
      */
     public List<ij.gui.Roi> toImageJ() {
-        return this.toImageJ(IJ_PROPERTY);
+        return toImageJ(IJ_PROPERTY);
     }
 
 

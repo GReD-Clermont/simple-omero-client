@@ -25,6 +25,7 @@ import omero.gateway.model.LineData;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 
 /**
@@ -238,14 +239,16 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
      */
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
-            throw new IllegalArgumentException("LineData cannot set null coordinates.");
+            String msg = "LineData cannot set null coordinates.";
+            throw new IllegalArgumentException(msg);
         } else if (coordinates.length == 4) {
             data.setX1(coordinates[0]);
             data.setY1(coordinates[1]);
             data.setX2(coordinates[2]);
             data.setY2(coordinates[3]);
         } else {
-            throw new IllegalArgumentException("4 coordinates required for LineData.");
+            String msg = "4 coordinates required for LineData.";
+            throw new IllegalArgumentException(msg);
         }
     }
 
@@ -265,8 +268,8 @@ public class LineWrapper extends GenericShapeWrapper<LineData> {
             p2.setTransform(transform);
         }
 
-        java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-        java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+        Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+        Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
         String start = data.getShapeSettings().getMarkerStart();
         String end   = data.getShapeSettings().getMarkerEnd();

@@ -48,43 +48,50 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorUsername() {
-        Client client = new Client();
+        String username = "badUser";
+        char[] pw       = "badPassword".toCharArray();
+        Client client   = new Client();
         assertThrows(ServiceException.class,
-                     () -> client.connect(HOST, PORT, "badUser", "omero".toCharArray(), GROUP1.id));
+                     () -> client.connect(HOST, PORT, username, pw, GROUP1.id));
     }
 
 
     @Test
     void testConnectionErrorPassword() {
+        char[] pw   = "badPassword".toCharArray();
         Client root = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, PORT, ROOT.name, "badPassword".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, PORT, ROOT.name, pw, GROUP1.id));
     }
 
 
     @Test
     void testConnectionErrorHost() {
+        String host = "127.0.0.1";
+        char[] pw   = "omero".toCharArray();
         Client root = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect("127.0.0.1", PORT, ROOT.name, "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect(host, PORT, ROOT.name, pw, GROUP1.id));
     }
 
 
     @Test
     void testConnectionErrorPort() {
-        final int badPort = 5000;
-        Client    root    = new Client();
+        final int port = 5000;
+        char[]    pw   = "omero".toCharArray();
+        Client    root = new Client();
         assertThrows(ServiceException.class,
-                     () -> root.connect(HOST, badPort, ROOT.name, "omero".toCharArray(), GROUP1.id));
+                     () -> root.connect(HOST, port, ROOT.name, pw, GROUP1.id));
     }
 
 
     @Test
     void testConnectionErrorGroupNotExist() throws ServiceException {
         final long badGroup = 200L;
+        char[]     pw       = "password".toCharArray();
 
         Client clientNoSuchGroup = new Client();
-        clientNoSuchGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), badGroup);
+        clientNoSuchGroup.connect(HOST, PORT, USER1.name, pw, badGroup);
         assertEquals(USER1.id, clientNoSuchGroup.getId());
         assertEquals(GROUP1.id, clientNoSuchGroup.getCurrentGroupId());
     }
@@ -92,8 +99,10 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorNotInGroup() throws ServiceException {
+        char[] pw = "password".toCharArray();
+
         Client clientWrongGroup = new Client();
-        clientWrongGroup.connect(HOST, PORT, USER1.name, "password".toCharArray(), 0L);
+        clientWrongGroup.connect(HOST, PORT, USER1.name, pw, 0L);
         assertEquals(USER1.id, clientWrongGroup.getId());
         assertEquals(GROUP1.id, clientWrongGroup.getCurrentGroupId());
     }
@@ -119,10 +128,11 @@ class ExceptionTest extends BasicTest {
     @Test
     void testGetImageError() throws Exception {
         final long badImage = 200L;
+        char[]     pw       = "password".toCharArray();
 
         boolean exception = false;
         Client  client    = new Client();
-        client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
+        client.connect(HOST, PORT, USER1.name, pw, GROUP1.id);
         assertEquals(USER1.id, client.getId());
 
         try {
@@ -138,10 +148,11 @@ class ExceptionTest extends BasicTest {
     @Test
     void testGetImageError2() throws Exception {
         final long badImage = -5L;
+        char[]     pw       = "password".toCharArray();
 
         boolean exception = false;
         Client  client    = new Client();
-        client.connect(HOST, PORT, USER1.name, "password".toCharArray(), GROUP1.id);
+        client.connect(HOST, PORT, USER1.name, pw, GROUP1.id);
         assertEquals(USER1.id, client.getId());
 
         try {
@@ -157,11 +168,12 @@ class ExceptionTest extends BasicTest {
     @Test
     void testGetSingleScreenError() throws Exception {
         final long badScreen = 333L;
+        char[]     pw        = "password".toCharArray();
 
         boolean exception = false;
         Client  client    = new Client();
         try {
-            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.connect(HOST, PORT, USER1.name, pw);
             client.getScreen(badScreen);
         } catch (NoSuchElementException e) {
             exception = true;
@@ -174,11 +186,12 @@ class ExceptionTest extends BasicTest {
     @Test
     void testGetSinglePlateError() throws Exception {
         final long badPlate = 333L;
+        char[]     pw       = "password".toCharArray();
 
         boolean exception = false;
         Client  client    = new Client();
         try {
-            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.connect(HOST, PORT, USER1.name, pw);
             client.getPlate(badPlate);
         } catch (NoSuchElementException e) {
             exception = true;
@@ -191,11 +204,12 @@ class ExceptionTest extends BasicTest {
     @Test
     void testGetSingleWellError() throws Exception {
         final long badWell = 333L;
+        char[]     pw      = "password".toCharArray();
 
         boolean exception = false;
         Client  client    = new Client();
         try {
-            client.connect(HOST, PORT, USER1.name, "password".toCharArray());
+            client.connect(HOST, PORT, USER1.name, pw);
             client.getWell(badWell);
         } catch (NoSuchElementException e) {
             exception = true;
@@ -208,7 +222,8 @@ class ExceptionTest extends BasicTest {
     @Test
     void testExceptionHandlerDSAccess() {
         Throwable t = new DSAccessException("Test", null);
-        assertThrows(AccessException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        assertThrows(AccessException.class,
+                     () -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
@@ -216,68 +231,102 @@ class ExceptionTest extends BasicTest {
     void testExceptionHandlerDefaultServer() {
         Exception           e  = new ServerError(null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(AccessException.class, () -> eh.handleOMEROException("Server to Access 1"));
+        assertThrows(AccessException.class,
+                     () -> eh.handleOMEROException("Server to Access 1"));
     }
 
 
     @Test
     void testExceptionHandlerServerError() {
         Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleException(t, "Great"));
+        assertThrows(OMEROServerError.class,
+                     () -> ExceptionHandler.handleException(t, "Great"));
     }
 
 
     @Test
     void testExceptionHandlerServiceOrServerError() {
         Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class, () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        assertThrows(OMEROServerError.class,
+                     () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
     }
 
 
     @Test
     void testExceptionHandlerDSOutOfService() {
         Throwable t = new DSOutOfServiceException(null);
-        assertThrows(ServiceException.class, () -> ExceptionHandler.handleException(t, "Great"));
+        assertThrows(ServiceException.class,
+                     () -> ExceptionHandler.handleException(t, "Great"));
+    }
+
+
+    @Test
+    void testExceptionHandlerDSOutOfService2() {
+        String    msg   = "Unknown Error";
+        Exception cause = null;
+        Exception e     = new DSOutOfServiceException(msg, cause);
+
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertThrows(ServiceException.class,
+                     () -> eh.handleOMEROException("Service to Service"));
     }
 
 
     @Test
     void testExceptionHandlerSecurityViolation1() {
-        Exception           e  = new ServerError(new SecurityViolation(null));
+        String    msg   = "Security Violation";
+        Exception cause = new AccessException(new SecurityViolation(null));
+        Exception e     = new DSOutOfServiceException(msg, cause);
+
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(AccessException.class, () -> eh.handleOMEROException("Server to Access 2"));
+        assertThrows(AccessException.class,
+                     () -> eh.handleOMEROException("Server to Access 2"));
     }
 
 
     @Test
     void testExceptionHandlerSecurityViolation2() {
-        Exception           e  = new DSOutOfServiceException("Security Violation", new SecurityViolation(null));
+        String    msg   = "Security Violation";
+        Exception cause = new SecurityViolation(null);
+        Exception e     = new DSOutOfServiceException(msg, cause);
+
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(AccessException.class, () -> eh.handleServerAndService("Service to Access"));
+        assertThrows(AccessException.class,
+                     () -> eh.handleOMEROException("Service to Access"));
     }
 
 
     @Test
     void testExceptionHandlerSessionException() {
-        Exception           e  = new ServerError(new SessionException(null));
+        Exception cause = new SessionException(null);
+        Exception e     = new DSOutOfServiceException("Error", cause);
+
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Server to Service 1"));
+        assertThrows(ServiceException.class,
+                     () -> eh.handleOMEROException("Service to Service"));
     }
 
 
     @Test
     void testExceptionHandlerAuthenticationException() {
-        Exception           e  = new ServerError(new omero.AuthenticationException("Test"));
+        Exception cause = new omero.AuthenticationException("Test");
+        Exception e     = new DSOutOfServiceException("Error", cause);
+
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Server to Service 1"));
+        assertThrows(ServiceException.class,
+                     () -> eh.handleOMEROException("Service to Service"));
     }
 
 
     @Test
     void testExceptionHandlerResourceError() {
-        Exception           e  = new ServerError(new ResourceError(null));
+        String    msg   = "Resource Error";
+        Exception cause = new ResourceError(null);
+        Exception e     = new DSOutOfServiceException(msg, cause);
+
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(ServiceException.class, () -> eh.handleOMEROException("Server to Service 2"));
+        assertThrows(ServiceException.class,
+                     () -> eh.handleOMEROException("Service to Service"));
     }
 
 
@@ -285,7 +334,8 @@ class ExceptionTest extends BasicTest {
     void testExceptionHandlerRethrow() {
         Exception           e  = new AccessException(null);
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
-        assertThrows(AccessException.class, () -> eh.rethrow(AccessException.class));
+        assertThrows(AccessException.class,
+                     () -> eh.rethrow(AccessException.class));
     }
 
 

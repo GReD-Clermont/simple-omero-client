@@ -146,10 +146,10 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      */
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError {
-        String query = "select t from TagAnnotation as t " +
-                       "left outer join fetch t.annotationLinks as l " +
-                       "left outer join fetch l.child as a " +
-                       "where t.id=" + getId();
+        String query = "select t from TagAnnotation as t" +
+                       " left outer join fetch t.annotationLinks as l" +
+                       " left outer join fetch l.child as a" +
+                       " where t.id=" + getId();
         IObject o = browser.findByQuery(query).iterator().next();
         data = new TagAnnotationData((omero.model.TagAnnotation) o);
     }

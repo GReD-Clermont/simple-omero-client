@@ -48,6 +48,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
+
 
 /**
  * Basic class, contains the gateway, the security context, and multiple facilities.
@@ -175,8 +177,10 @@ public abstract class GatewayWrapper {
      * @throws ServiceException If the connection is broken, or not logged in
      */
     public String getSessionId() throws ServiceException {
-        return ExceptionHandler.of(gateway, g -> g.getSessionId(user.asDataObject()))
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+        return ExceptionHandler.of(gateway,
+                                   g -> g.getSessionId(user.asDataObject()))
+                               .rethrow(DSOutOfServiceException.class,
+                                        ServiceException::new,
                                         "Could not retrieve session ID")
                                .get();
     }
@@ -222,7 +226,10 @@ public abstract class GatewayWrapper {
      */
     public void connect(String hostname, int port, String username, char[] password, Long groupID)
     throws ServiceException {
-        LoginCredentials cred = new LoginCredentials(username, String.valueOf(password), hostname, port);
+        LoginCredentials cred = new LoginCredentials(username,
+                                                     String.valueOf(password),
+                                                     hostname,
+                                                     port);
         cred.setGroupID(groupID);
         connect(cred);
     }
@@ -242,7 +249,10 @@ public abstract class GatewayWrapper {
      */
     public void connect(String hostname, int port, String username, char[] password)
     throws ServiceException {
-        connect(new LoginCredentials(username, String.valueOf(password), hostname, port));
+        connect(new LoginCredentials(username,
+                                     String.valueOf(password),
+                                     hostname,
+                                     port));
     }
 
 
@@ -323,7 +333,8 @@ public abstract class GatewayWrapper {
      */
     public IQueryPrx getQueryService() throws ServiceException {
         return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx))
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+                               .rethrow(DSOutOfServiceException.class,
+                                        ServiceException::new,
                                         "Could not retrieve Query Service")
                                .get();
     }
@@ -399,7 +410,8 @@ public abstract class GatewayWrapper {
     public OMEROMetadataStoreClient getImportStore() throws ServiceException {
         storeUses.incrementAndGet();
         return ExceptionHandler.of(this, GatewayWrapper::getImportStoreLocked)
-                               .rethrow(DSOutOfServiceException.class, ServiceException::new,
+                               .rethrow(DSOutOfServiceException.class,
+                                        ServiceException::new,
                                         "Could not retrieve import store")
                                .get();
     }
@@ -428,7 +440,9 @@ public abstract class GatewayWrapper {
      */
     public List<IObject> findByQuery(String query)
     throws ServiceException, OMEROServerError {
-        return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx).findAllByQuery(query, null))
+        return ExceptionHandler.of(gateway,
+                                   g -> g.getQueryService(ctx)
+                                         .findAllByQuery(query, null))
                                .handleServiceOrServer("Query failed: " + query)
                                .get();
     }
@@ -447,9 +461,9 @@ public abstract class GatewayWrapper {
      */
     public IObject save(IObject object)
     throws ServiceException, AccessException, ExecutionException {
-        return ExceptionHandler.of(getDm(), d -> d.saveAndReturnObject(ctx, object))
-                               .handleOMEROException("Cannot save object")
-                               .get();
+        return call(getDm(),
+                    d -> d.saveAndReturnObject(ctx, object),
+                    "Cannot save object");
     }
 
 
@@ -467,7 +481,8 @@ public abstract class GatewayWrapper {
     void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, object).loop(10, wait))
+        ExceptionHandler.ofConsumer(getDm(),
+                                    d -> d.delete(ctx, object).loop(10, wait))
                         .rethrow(InterruptedException.class)
                         .handleException("Cannot delete object")
                         .rethrow();
@@ -488,7 +503,8 @@ public abstract class GatewayWrapper {
     void delete(List<IObject> objects)
     throws ServiceException, AccessException, ExecutionException, OMEROServerError, InterruptedException {
         final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(), d -> d.delete(ctx, objects).loop(10, wait))
+        ExceptionHandler.ofConsumer(getDm(),
+                                    d -> d.delete(ctx, objects).loop(10, wait))
                         .rethrow(InterruptedException.class)
                         .handleException("Cannot delete objects")
                         .rethrow();

@@ -21,12 +21,13 @@ package fr.igred.omero.meta;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ExperimenterData;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
@@ -226,7 +227,9 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      * @return See above.
      */
     public boolean isLeader(GroupWrapper group) {
-        return group.getLeaders().stream().anyMatch(l -> l.getId() == data.getId());
+        return group.getLeaders()
+                    .stream()
+                    .anyMatch(l -> l.getId() == data.getId());
     }
 
 
@@ -243,10 +246,9 @@ public class ExperimenterWrapper extends GenericObjectWrapper<ExperimenterData> 
      */
     public boolean isAdmin(Client client)
     throws ServiceException, AccessException, ExecutionException {
-        return !ExceptionHandler.of(client.getAdminFacility(), a -> a.getAdminPrivileges(client.getCtx(), data))
-                                .handleOMEROException("Cannot retrieve admin privileges.")
-                                .get()
-                                .isEmpty();
+        return !call(client.getAdminFacility(),
+                     a -> a.getAdminPrivileges(client.getCtx(), data),
+                     "Cannot retrieve admin privileges.").isEmpty();
     }
 
 }

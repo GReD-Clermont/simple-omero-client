@@ -81,7 +81,10 @@ class PlateAcquisitionTest extends UserTest {
 
         PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Plate acq. tag", "tag attached to a plate acq.");
+        String name = "Plate acq. tag";
+        String desc = "tag attached to a plate acq.";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
         acq.link(client, tag);
 
         List<PlateAcquisitionWrapper> taggedAcqs = tag.getPlateAcquisitions(client);
@@ -97,6 +100,27 @@ class PlateAcquisitionTest extends UserTest {
 
 
     @Test
+    void testAddAndRemoveTagFromPlateAcquisition() throws Exception {
+        PlateWrapper plate = client.getPlate(PLATE1.id);
+
+        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+
+        String name = "Plate acq. tag";
+        String desc = "tag attached to a plate acq.";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        acq.link(client, tag);
+        List<TagAnnotationWrapper> tags = acq.getTags(client);
+        acq.unlink(client, tag);
+        List<TagAnnotationWrapper> removedTags = acq.getTags(client);
+        client.delete(tag);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, removedTags.size());
+    }
+
+
+    @Test
     void testSetName() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
@@ -106,11 +130,17 @@ class PlateAcquisitionTest extends UserTest {
         String name2 = "New name";
         acq.setName(name2);
         acq.saveAndUpdate(client);
-        assertEquals(name2, client.getPlate(PLATE1.id).getPlateAcquisitions().get(0).getName());
+        assertEquals(name2, client.getPlate(PLATE1.id)
+                                  .getPlateAcquisitions()
+                                  .get(0)
+                                  .getName());
 
         acq.setName(name);
         acq.saveAndUpdate(client);
-        assertEquals(name, client.getPlate(PLATE1.id).getPlateAcquisitions().get(0).getName());
+        assertEquals(name, client.getPlate(PLATE1.id)
+                                 .getPlateAcquisitions()
+                                 .get(0)
+                                 .getName());
     }
 
 
@@ -124,11 +154,17 @@ class PlateAcquisitionTest extends UserTest {
         String name2 = "New description";
         acq.setDescription(name2);
         acq.saveAndUpdate(client);
-        assertEquals(name2, client.getPlate(PLATE1.id).getPlateAcquisitions().get(0).getDescription());
+        assertEquals(name2, client.getPlate(PLATE1.id)
+                                  .getPlateAcquisitions()
+                                  .get(0)
+                                  .getDescription());
 
         acq.setDescription(name);
         acq.saveAndUpdate(client);
-        assertEquals(name, client.getPlate(PLATE1.id).getPlateAcquisitions().get(0).getDescription());
+        assertEquals(name, client.getPlate(PLATE1.id)
+                                 .getPlateAcquisitions()
+                                 .get(0)
+                                 .getDescription());
     }
 
 

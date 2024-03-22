@@ -45,9 +45,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -246,10 +247,11 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      * @param folders The new children folders.
      */
     public void addChildren(Collection<? extends FolderWrapper> folders) {
-        data.asFolder().addAllChildFoldersSet(folders.stream()
-                                                     .map(GenericObjectWrapper::asDataObject)
-                                                     .map(DataObject::asFolder)
-                                                     .collect(Collectors.toList()));
+        data.asFolder()
+            .addAllChildFoldersSet(folders.stream()
+                                          .map(GenericObjectWrapper::asDataObject)
+                                          .map(DataObject::asFolder)
+                                          .collect(toList()));
     }
 
 
@@ -275,8 +277,10 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public void addImages(Client client, ImageWrapper... images)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> links     = new ArrayList<>(images.length);
-        List<Long>    linkedIds = getImages().stream().map(GenericObjectWrapper::getId).collect(Collectors.toList());
+        List<IObject> links = new ArrayList<>(images.length);
+        List<Long> linkedIds = getImages().stream()
+                                          .map(GenericObjectWrapper::getId)
+                                          .collect(toList());
         for (ImageWrapper image : images) {
             if (!linkedIds.contains(image.getId())) {
                 FolderImageLink link = new FolderImageLinkI();
@@ -285,7 +289,8 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
                 links.add(link);
             }
         }
-        ExceptionHandler.of(client.getDm(), d -> d.saveAndReturnObject(client.getCtx(), links, null, null))
+        ExceptionHandler.of(client.getDm(),
+                            d -> d.saveAndReturnObject(client.getCtx(), links, null, null))
                         .handleOMEROException("Cannot save links.")
                         .rethrow();
     }
@@ -372,7 +377,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
                                       .map(GenericObjectWrapper::asDataObject)
-                                      .collect(Collectors.toList());
+                                      .collect(toList());
         ROIFacility roiFac = client.getRoiFacility();
         ExceptionHandler.of(roiFac,
                             rf -> rf.addRoisToFolders(client.getCtx(),
@@ -433,20 +438,18 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
      */
     public List<ROIWrapper> getROIs(Client client, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        ROIFacility roiFac = client.getRoiFacility();
-
-        Collection<ROIResult> roiResults = ExceptionHandler.of(roiFac,
-                                                               rf -> rf.loadROIsForFolder(client.getCtx(), imageId,
-                                                                                          data.getId()))
-                                                           .handleOMEROException("Cannot get ROIs from " + this)
-                                                           .get();
+        Collection<ROIResult> roiResults = call(client.getRoiFacility(),
+                                                rf -> rf.loadROIsForFolder(client.getCtx(),
+                                                                           imageId,
+                                                                           data.getId()),
+                                                "Cannot get ROIs from " + this);
 
         List<ROIWrapper> roiWrappers = roiResults.stream()
                                                  .map(ROIResult::getROIs)
                                                  .flatMap(Collection::stream)
                                                  .map(ROIWrapper::new)
                                                  .sorted(Comparator.comparing(GenericObjectWrapper::getId))
-                                                 .collect(Collectors.toList());
+                                                 .collect(toList());
 
         return distinct(roiWrappers);
     }
@@ -586,7 +589,7 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = rois.stream()
                                     .map(ROIWrapper::asDataObject)
-                                    .collect(Collectors.toList());
+                                    .collect(toList());
         ExceptionHandler.ofConsumer(client.getRoiFacility(),
                                     rf -> rf.removeRoisFromFolders(client.getCtx(),
                                                                    -1L,
@@ -609,13 +612,12 @@ public class FolderWrapper extends GenericRepositoryObjectWrapper<FolderData> {
     @Override
     public void reload(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        data = ExceptionHandler.of(browser.getBrowseFacility(),
-                                   bf -> bf.loadFolders(browser.getCtx(),
-                                                        singletonList(getId())))
-                               .handleOMEROException("Cannot reload " + this)
-                               .get()
-                               .iterator()
-                               .next();
+        data = call(browser.getBrowseFacility(),
+                    bf -> bf.loadFolders(browser.getCtx(),
+                                         singletonList(getId()))
+                            .iterator()
+                            .next(),
+                    "Cannot reload " + this);
     }
 
 }

@@ -153,7 +153,10 @@ class TagTest extends UserTest {
 
     @Test
     void testIsTagSet() throws Exception {
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "tagset", "isTagSet");
+        String name = "tagset";
+        String desc = "isTagSet";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
         tag.setNameSpace(TagAnnotationWrapper.NS_TAGSET);
         client.delete(tag);
         assertTrue(tag.isTagSet());
@@ -162,8 +165,12 @@ class TagTest extends UserTest {
 
     @Test
     void testToTagSet() throws Exception {
-        TagAnnotationWrapper tag    = new TagAnnotationWrapper(client, "tagset", "toTagSet");
-        TagSetWrapper        tagSet = tag.toTagSet();
+        String name = "tagset";
+        String desc = "toTagSet";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+
+        TagSetWrapper tagSet = tag.toTagSet();
         client.delete(tagSet);
         assertTrue(tag.isTagSet());
     }
@@ -171,9 +178,13 @@ class TagTest extends UserTest {
 
     @Test
     void testLinkTagSetToProject() throws Exception {
-        TagAnnotationWrapper tagSet  = new TagSetWrapper(client, "tagset", "LinkTagSet");
+        String name = "tagset";
+        String desc = "LinkTagSet";
+
+        TagAnnotationWrapper tagSet  = new TagSetWrapper(client, name, desc);
         ProjectWrapper       project = client.getProject(PROJECT1.id);
-        assertThrows(IllegalArgumentException.class, () -> project.link(client, tagSet));
+        assertThrows(IllegalArgumentException.class,
+                     () -> project.link(client, tagSet));
         client.delete(tagSet);
     }
 

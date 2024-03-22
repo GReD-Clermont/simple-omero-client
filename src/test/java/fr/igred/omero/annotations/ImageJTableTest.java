@@ -41,8 +41,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
+import static java.lang.String.format;
+import static java.util.logging.Level.SEVERE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -111,9 +112,11 @@ class ImageJTableTest extends UserTest {
             image = client.getImage(imageId);
         } catch (AccessException | RuntimeException | ExecutionException | ServiceException e) {
             failed = true;
-            logger.log(Level.SEVERE, String.format("%sCould not retrieve image.%s", ANSI_RED, ANSI_RESET), e);
+            String msg = "%sCould not retrieve image.%s";
+            logger.log(SEVERE, format(msg, ANSI_RED, ANSI_RESET), e);
         }
-        assumeFalse(failed, String.format("Could not retrieve image with ID=%d.", IMAGE1.id));
+        String error = "Could not retrieve image with ID=%d.";
+        assumeFalse(failed, format(error, IMAGE1.id));
     }
 
 
@@ -128,12 +131,13 @@ class ImageJTableTest extends UserTest {
                 }
                 int nRois = image.getROIs(client).size();
                 if (nRois != 0) {
-                    logger.log(Level.SEVERE,
-                               String.format("%sROIs were not properly deleted.%s", ANSI_RED, ANSI_RESET));
+                    String msg = "%sROIs were not properly deleted.%s";
+                    logger.log(SEVERE, format(msg, ANSI_RED, ANSI_RESET));
                 }
             } catch (AccessException | ServiceException | OMEROServerError | ExecutionException |
                      InterruptedException e) {
-                logger.log(Level.SEVERE, String.format("%sROIs were not properly deleted.%s", ANSI_RED, ANSI_RESET), e);
+                String msg = "%sROIs were not properly deleted.%s";
+                logger.log(SEVERE, format(msg, ANSI_RED, ANSI_RESET), e);
             }
         }
         super.cleanUp();
@@ -471,14 +475,17 @@ class ImageJTableTest extends UserTest {
         List<ROIWrapper> newROIs = image.saveROIs(client, rois);
         List<Roi>        ijRois  = ROIWrapper.toImageJ(newROIs);
 
-        String label1 = image.getName() + ":" + newROIs.get(0).getShapes().get(0).getText() + ":4";
-        String label2 = image.getName() + ":" + newROIs.get(1).getShapes().get(0).getText() + ":10";
+        String name1 = newROIs.get(0).getShapes().get(0).getText();
+        String name2 = newROIs.get(1).getShapes().get(0).getText();
 
-        ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
-        ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
+        String label1 = image.getName() + ":" + name1 + ":4";
+        String label2 = image.getName() + ":" + name2 + ":10";
 
-        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
-        table.addRows(client, results2, IMAGE1.id, ijRois);
+        ResultsTable res1 = createOneRowResultsTable(label1, volume1, unit1);
+        ResultsTable res2 = createOneRowResultsTable(label2, volume2, unit2);
+
+        TableWrapper table = new TableWrapper(client, res1, IMAGE1.id, ijRois);
+        table.addRows(client, res2, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -537,11 +544,11 @@ class ImageJTableTest extends UserTest {
         String label1 = rois.get(0).getShapes().get(0).getText();
         String label2 = rois.get(1).getShapes().get(0).getText();
 
-        ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
-        ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
+        ResultsTable res1 = createOneRowResultsTable(label1, volume1, unit1);
+        ResultsTable res2 = createOneRowResultsTable(label2, volume2, unit2);
 
-        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
-        table.addRows(client, results2, IMAGE1.id, ijRois);
+        TableWrapper table = new TableWrapper(client, res1, IMAGE1.id, ijRois);
+        table.addRows(client, res2, IMAGE1.id, ijRois);
         image.addTable(client, table);
 
         int        rowCount = table.getRowCount();
@@ -721,9 +728,10 @@ class ImageJTableTest extends UserTest {
         String vol1 = formatter.format(volume1);
         String vol2 = formatter.format(volume2);
 
+        String line  = "\"%d\"\t\"%d\"\t\"%s\"\t\"%s\"\t\"%s\"";
         String line1 = "\"Image\"\t\"ROI\"\t\"Label\"\t\"Volume\"\t\"Volume_Unit\"";
-        String line2 = String.format("\"%d\"\t\"%d\"\t\"%s\"\t\"%s\"\t\"%s\"", imageId, roiId, label, vol1, unit1);
-        String line3 = String.format("\"%d\"\t\"%d\"\t\"%s\"\t\"%s\"\t\"%s\"", imageId, roiId, label, vol2, unit2);
+        String line2 = format(line, imageId, roiId, label, vol1, unit1);
+        String line3 = format(line, imageId, roiId, label, vol2, unit2);
 
         List<String> expected = Arrays.asList(line1, line2, line3);
 
@@ -764,16 +772,19 @@ class ImageJTableTest extends UserTest {
         List<ROIWrapper> newROIs = image.saveROIs(client, rois);
         List<Roi>        ijRois  = ROIWrapper.toImageJ(newROIs);
 
-        String label1 = image.getName() + ":" + newROIs.get(0).getShapes().get(0).getText() + ":4";
-        String label2 = image.getName() + ":" + newROIs.get(1).getShapes().get(0).getText() + ":10";
+        String name1 = newROIs.get(0).getShapes().get(0).getText();
+        String name2 = newROIs.get(1).getShapes().get(0).getText();
 
-        ResultsTable results1 = createOneRowResultsTable(label1, volume1, unit1);
-        ResultsTable results2 = createOneRowResultsTable(label2, volume2, unit2);
+        String label1 = image.getName() + ":" + name1 + ":4";
+        String label2 = image.getName() + ":" + name2 + ":10";
 
-        TableWrapper table = new TableWrapper(client, results1, IMAGE1.id, ijRois);
+        ResultsTable res1 = createOneRowResultsTable(label1, volume1, unit1);
+        ResultsTable res2 = createOneRowResultsTable(label2, volume2, unit2);
+
+        TableWrapper table = new TableWrapper(client, res1, IMAGE1.id, ijRois);
 
         assertThrows(IllegalArgumentException.class,
-                     () -> table.addRows(client, results2, null, ijRois));
+                     () -> table.addRows(client, res2, null, ijRois));
     }
 
 }

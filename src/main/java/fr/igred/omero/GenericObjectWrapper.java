@@ -19,7 +19,6 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import omero.gateway.model.DataObject;
@@ -32,6 +31,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static fr.igred.omero.exception.ExceptionHandler.call;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -102,7 +105,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     public static <T extends GenericObjectWrapper<?>> List<T> distinct(Collection<? extends T> objects) {
         return objects.stream()
-                      .collect(Collectors.toMap(T::getId, o -> o, (o1, o2) -> o1))
+                      .collect(toMap(T::getId, o -> o, (o1, o2) -> o1))
                       .values()
                       .stream()
                       .sorted(Comparator.comparing(T::getId))
@@ -122,7 +125,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
         return lists.stream()
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toMap(U::getId, o -> o, (o1, o2) -> o1))
+                    .collect(toMap(U::getId, o -> o, (o1, o2) -> o1))
                     .values()
                     .stream()
                     .sorted(Comparator.comparing(U::getId))
@@ -206,7 +209,7 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
      */
     @Override
     public String toString() {
-        return String.format("%s (id=%d)", getClass().getSimpleName(), data.getId());
+        return format("%s (id=%d)", getClass().getSimpleName(), data.getId());
     }
 
 
@@ -222,10 +225,9 @@ public abstract class GenericObjectWrapper<T extends DataObject> {
     @SuppressWarnings("unchecked")
     public void saveAndUpdate(Client client)
     throws ExecutionException, ServiceException, AccessException {
-        data = (T) ExceptionHandler.of(client.getDm(),
-                                       d -> d.saveAndReturnObject(client.getCtx(), data))
-                                   .handleOMEROException("Cannot save and update object.")
-                                   .get();
+        data = (T) call(client.getDm(),
+                        d -> d.saveAndReturnObject(client.getCtx(), data),
+                        "Cannot save and update object.");
     }
 
 

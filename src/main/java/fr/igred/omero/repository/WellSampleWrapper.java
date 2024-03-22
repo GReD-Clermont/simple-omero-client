@@ -22,7 +22,6 @@ import fr.igred.omero.Browser;
 import fr.igred.omero.Client;
 import fr.igred.omero.GenericObjectWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
@@ -35,6 +34,8 @@ import omero.model.enums.UnitsLength;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
@@ -213,20 +214,19 @@ public class WellSampleWrapper extends GenericObjectWrapper<WellSampleData> {
      */
     public void reload(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        String query = "select ws from WellSample as ws " +
-                       "left outer join fetch ws.plateAcquisition as pa " +
-                       "left outer join fetch ws.well as w " +
-                       "left outer join fetch ws.image as img " +
-                       "left outer join fetch img.pixels as pix " +
-                       "where ws.id=" + getId();
+        String query = "select ws from WellSample as ws" +
+                       " left outer join fetch ws.plateAcquisition as pa" +
+                       " left outer join fetch ws.well as w" +
+                       " left outer join fetch ws.image as img" +
+                       " left outer join fetch img.pixels as pix" +
+                       " where ws.id=" + getId();
         // TODO: replace with Browser::findByQuery when possible
-        IObject o = ExceptionHandler.of(browser.getGateway(),
-                                        g -> g.getQueryService(browser.getCtx())
-                                              .findAllByQuery(query, null))
-                                    .handleOMEROException("Query failed: " + query)
-                                    .get()
-                                    .iterator()
-                                    .next();
+        IObject o = call(browser.getGateway(),
+                         g -> g.getQueryService(browser.getCtx())
+                               .findAllByQuery(query, null)
+                               .iterator()
+                               .next(),
+                         "Query failed: " + query);
         data = new WellSampleData((omero.model.WellSample) o);
     }
 

@@ -91,6 +91,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static fr.igred.omero.util.Wrapper.wrap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -142,7 +143,7 @@ class WrapperTest extends BasicTest {
     <T extends DataObject, U extends GenericObjectWrapper<? extends T>> void testWrap(Class<T> input, Class<U> output)
     throws Exception {
         T object = input.getConstructor().newInstance();
-        U result = Wrapper.wrap(object);
+        U result = wrap(object);
         assertSame(output, result.getClass());
     }
 
@@ -150,49 +151,51 @@ class WrapperTest extends BasicTest {
     @Test
     void testWrapChannelData() {
         ChannelData object = new ChannelData(0);
-        assertSame(ChannelWrapper.class, Wrapper.wrap(object).getClass());
+        assertSame(ChannelWrapper.class, wrap(object).getClass());
     }
 
 
     @Test
     void testWrapFileAnnotationData() {
-        FileAnnotationData object = new FileAnnotationData(new FileAnnotationI());
-        assertSame(FileAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+        FileAnnotationI    fileAnn = new FileAnnotationI();
+        FileAnnotationData object  = new FileAnnotationData(fileAnn);
+        assertSame(FileAnnotationWrapper.class, wrap(object).getClass());
     }
 
 
     @Test
     void testWrapTagAnnotationData() {
         TagAnnotationData object = new TagAnnotationData(new TagAnnotationI());
-        assertSame(TagAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+        assertSame(TagAnnotationWrapper.class, wrap(object).getClass());
     }
 
 
     @Test
     void testWrapTextualAnnotationData() {
-        TextualAnnotationData object = new TextualAnnotationData(new CommentAnnotationI());
-        assertSame(TextualAnnotationWrapper.class, Wrapper.wrap(object).getClass());
+        CommentAnnotationI    comment = new CommentAnnotationI();
+        TextualAnnotationData object  = new TextualAnnotationData(comment);
+        assertSame(TextualAnnotationWrapper.class, wrap(object).getClass());
     }
 
 
     @Test
     void testWrapWrongDataObject() {
         DataObject object = new WrongDataObject();
-        assertThrows(IllegalArgumentException.class, () -> Wrapper.wrap(object));
+        assertThrows(IllegalArgumentException.class, () -> wrap(object));
     }
 
 
     @Test
     void testWrapWrongShapeData() {
         ShapeData object = new WrongShapeData();
-        assertThrows(IllegalArgumentException.class, () -> Wrapper.wrap(object));
+        assertThrows(IllegalArgumentException.class, () -> wrap(object));
     }
 
 
     @Test
     void testWrapWrongAnnotationData() {
         AnnotationData object = new WrongAnnotationData();
-        assertThrows(IllegalArgumentException.class, () -> Wrapper.wrap(object));
+        assertThrows(IllegalArgumentException.class, () -> wrap(object));
     }
 
 

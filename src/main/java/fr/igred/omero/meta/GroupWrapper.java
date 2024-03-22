@@ -120,7 +120,9 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getLeaders() {
-        return wrap(data.getLeaders(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
+        return wrap(data.getLeaders(),
+                    ExperimenterWrapper::new,
+                    ExperimenterWrapper::getLastName);
     }
 
 
@@ -130,7 +132,9 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getExperimenters() {
-        return wrap(data.getExperimenters(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
+        return wrap(data.getExperimenters(),
+                    ExperimenterWrapper::new,
+                    ExperimenterWrapper::getLastName);
     }
 
 
@@ -140,7 +144,9 @@ public class GroupWrapper extends GenericObjectWrapper<GroupData> {
      * @return See above.
      */
     public List<ExperimenterWrapper> getMembersOnly() {
-        return wrap(data.getMembersOnly(), ExperimenterWrapper::new, ExperimenterWrapper::getLastName);
+        return wrap(data.getMembersOnly(),
+                    ExperimenterWrapper::new,
+                    ExperimenterWrapper::getLastName);
     }
 
 

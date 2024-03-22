@@ -166,7 +166,8 @@ class TableTest extends UserTest {
         table.setRowCount(images.size() - 1);
 
         assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(img -> table.addRow(img.asDataObject(), img.getName())));
+                     () -> images.forEach(i -> table.addRow(i.asDataObject(),
+                                                            i.getName())));
     }
 
 
@@ -175,7 +176,8 @@ class TableTest extends UserTest {
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
-        assertThrows(IndexOutOfBoundsException.class, () -> table.setColumn(2, "Id", Long.class));
+        assertThrows(IndexOutOfBoundsException.class,
+                     () -> table.setColumn(2, "Id", Long.class));
     }
 
 
@@ -189,7 +191,8 @@ class TableTest extends UserTest {
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
-                     () -> images.forEach(img -> table.addRow(img.asDataObject(), img.getName())));
+                     () -> images.forEach(i -> table.addRow(i.asDataObject(),
+                                                            i.getName())));
     }
 
 
@@ -204,7 +207,7 @@ class TableTest extends UserTest {
         table.setColumn(1, "Name", String.class);
         table.setRowCount(images.size());
         assertThrows(IllegalArgumentException.class,
-                     () -> images.forEach(img -> table.addRow(img.asImageData())));
+                     () -> images.forEach(i -> table.addRow(i.asImageData())));
     }
 
 }

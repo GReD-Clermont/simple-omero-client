@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -49,6 +48,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
+import static java.lang.Double.NaN;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -246,7 +247,7 @@ public class TableWrapper {
     private static boolean isColumnNumeric(Variable[] resultsColumn) {
         return Arrays.stream(resultsColumn)
                      .map(v -> !Double.isNaN(v.getValue())
-                               || v.toString().equals(String.valueOf(Double.NaN)))
+                               || v.toString().equals(String.valueOf(NaN)))
                      .reduce(Boolean::logicalOr).orElse(false);
     }
 
@@ -405,7 +406,9 @@ public class TableWrapper {
 
         ROIData[] roiColumn = EMPTY_ROI;
 
-        Map<Long, ROIData> id2roi = rois.stream().collect(toMap(ROIWrapper::getId, GenericObjectWrapper::asDataObject));
+        Map<Long, ROIData> id2roi = rois.stream()
+                                        .collect(toMap(ROIWrapper::getId,
+                                                       GenericObjectWrapper::asDataObject));
         Map<String, ROIData> name2roi = rois.stream()
                                             .filter(r -> !r.getName().isEmpty())
                                             .collect(toMap(ROIWrapper::getName,
@@ -447,17 +450,21 @@ public class TableWrapper {
         String[] headings = results.getHeadings();
         if (roiColumn.length == 0 && Arrays.asList(headings).contains(LABEL)) {
             Variable[] roiCol = results.getColumnAsVariables(LABEL);
-            roiColumn = labelColumnToROIColumn(roiCol, shape2roi, (m, s) -> m.keySet()
-                                                                             .stream()
-                                                                             .filter(s::contains)
-                                                                             .findFirst()
-                                                                             .orElse(null));
+            roiColumn = labelColumnToROIColumn(roiCol,
+                                               shape2roi,
+                                               (m, s) -> m.keySet()
+                                                          .stream()
+                                                          .filter(s::contains)
+                                                          .findFirst()
+                                                          .orElse(null));
             if (roiColumn.length == 0) {
-                roiColumn = labelColumnToROIColumn(roiCol, name2roi, (m, s) -> m.keySet()
-                                                                                .stream()
-                                                                                .filter(s::contains)
-                                                                                .findFirst()
-                                                                                .orElse(null));
+                roiColumn = labelColumnToROIColumn(roiCol,
+                                                   name2roi,
+                                                   (m, s) -> m.keySet()
+                                                              .stream()
+                                                              .filter(s::contains)
+                                                              .findFirst()
+                                                              .orElse(null));
             }
         }
 
@@ -496,7 +503,8 @@ public class TableWrapper {
         if (column < columnCount) {
             columns[column] = new TableDataColumn(columnName, column, type);
         } else {
-            throw new IndexOutOfBoundsException("Column " + column + " doesn't exist");
+            String error = String.format("Column %d doesn't exist", column);
+            throw new IndexOutOfBoundsException(error);
         }
     }
 
@@ -536,12 +544,13 @@ public class TableWrapper {
     private void removeColumn(int index) {
         if (index < columnCount) {
             columnCount--;
+            int               length     = columnCount - index;
             TableDataColumn[] newColumns = new TableDataColumn[columnCount];
             Object[][]        newData    = new Object[columnCount][];
             System.arraycopy(columns, 0, newColumns, 0, index);
-            System.arraycopy(columns, index + 1, newColumns, index, columnCount - index);
+            System.arraycopy(columns, index + 1, newColumns, index, length);
             System.arraycopy(data, 0, newData, 0, index);
-            System.arraycopy(data, index + 1, newData, index, columnCount - index);
+            System.arraycopy(data, index + 1, newData, index, length);
             columns = newColumns;
             data    = newData;
         }
@@ -616,7 +625,8 @@ public class TableWrapper {
 
         int nColumns = headings.length;
         if (!checkColumns(nColumns, offset)) {
-            throw new IllegalArgumentException("Number or type of columns mismatch");
+            String error = "Number or type of columns mismatch";
+            throw new IllegalArgumentException(error);
         }
 
         int n = rt.size();
@@ -843,10 +853,12 @@ public class TableWrapper {
             if (rowCount == 0) {
                 throw new IndexOutOfBoundsException("Row size is 0");
             } else {
-                throw new IndexOutOfBoundsException("The table is already complete");
+                String error = "The table is already complete";
+                throw new IndexOutOfBoundsException(error);
             }
         } else {
-            throw new IllegalArgumentException("Argument count is different than the column size");
+            String error = "Argument count is different than the column size";
+            throw new IllegalArgumentException(error);
         }
     }
 
@@ -898,7 +910,7 @@ public class TableWrapper {
         String sol = "\"";
         String sep = String.format("\"%c\"", delimiter);
         String eol = String.format("\"%n");
-        try (PrintWriter stream = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
+        try (PrintWriter stream = new PrintWriter(file, UTF_8.name())) {
             sb.append(sol);
             for (int j = 0; j < columnCount; j++) {
                 sb.append(columns[j].getName());

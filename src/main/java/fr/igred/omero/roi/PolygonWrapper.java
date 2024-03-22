@@ -65,7 +65,8 @@ public class PolygonWrapper extends GenericShapeWrapper<PolygonData> {
         float[] y = ijRoi.getFloatPolygon().ypoints;
 
         List<Point2D.Double> points = new LinkedList<>();
-        IntStream.range(0, x.length).forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
+        IntStream.range(0, x.length)
+                 .forEach(i -> points.add(new Point2D.Double(x[i], y[i])));
 
         data.setPoints(points);
         data.setText(ijRoi.getName());

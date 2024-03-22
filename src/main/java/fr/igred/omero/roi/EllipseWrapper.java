@@ -24,6 +24,7 @@ import ij.gui.Roi;
 import omero.gateway.model.EllipseData;
 
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 
 
@@ -109,7 +110,10 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      */
     @Override
     public java.awt.Shape toAWTShape() {
-        return new Ellipse2D.Double(getX() - getRadiusX(), getY() - getRadiusY(), 2 * getRadiusX(), 2 * getRadiusY());
+        return new Ellipse2D.Double(getX() - getRadiusX(),
+                                    getY() - getRadiusY(),
+                                    2 * getRadiusX(),
+                                    2 * getRadiusY());
     }
 
 
@@ -231,14 +235,16 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
      */
     public void setCoordinates(double[] coordinates) {
         if (coordinates == null) {
-            throw new IllegalArgumentException("EllipseData cannot set null coordinates.");
+            String error = "EllipseData cannot set null coordinates.";
+            throw new IllegalArgumentException(error);
         } else if (coordinates.length == 4) {
             data.setX(coordinates[0]);
             data.setY(coordinates[1]);
             data.setRadiusX(coordinates[2]);
             data.setRadiusY(coordinates[3]);
         } else {
-            throw new IllegalArgumentException("4 coordinates required for EllipseData.");
+            String error = "4 coordinates required for EllipseData.";
+            throw new IllegalArgumentException(error);
         }
     }
 
@@ -279,8 +285,8 @@ public class EllipseWrapper extends GenericShapeWrapper<EllipseData> {
             }
             p1.setTransform(toAWTTransform());
             p2.setTransform(toAWTTransform());
-            java.awt.geom.Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
-            java.awt.geom.Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape1 = p1.createTransformedAWTShape().getBounds2D();
+            Rectangle2D shape2 = p2.createTransformedAWTShape().getBounds2D();
 
             double x1 = shape1.getX();
             double y1 = shape1.getY();

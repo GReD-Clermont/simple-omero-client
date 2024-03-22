@@ -65,7 +65,8 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
     throws ServerError, DSOutOfServiceException, IOException {
         final int inc = 262144;
 
-        RawFileStorePrx store = client.getGateway().getRawFileService(client.getCtx());
+        RawFileStorePrx store = client.getGateway()
+                                      .getRawFileService(client.getCtx());
         store.setFileId(this.getFileID());
 
         long size = getFileSize();
@@ -186,15 +187,18 @@ public class FileAnnotationWrapper extends GenericAnnotationWrapper<FileAnnotati
 
         RawFileStorePrx store;
         try (FileOutputStream stream = new FileOutputStream(file)) {
+            String error = "Could not create RawFileService";
             store = ExceptionHandler.of(client, c -> writeFile(c, stream))
-                                    .handleServiceOrServer("Could not create RawFileService")
+                                    .handleServiceOrServer(error)
                                     .rethrow(IOException.class)
                                     .get();
         }
 
         if (store != null) {
             ExceptionHandler.ofConsumer(store, RawFileStorePrx::close)
-                            .rethrow(ServerError.class, OMEROServerError::new, "Could not close RawFileService")
+                            .rethrow(ServerError.class,
+                                     OMEROServerError::new,
+                                     "Could not close RawFileService")
                             .rethrow();
         }
 

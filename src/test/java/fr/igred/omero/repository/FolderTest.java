@@ -263,7 +263,10 @@ class FolderTest extends UserTest {
     void testAddAndRemoveTagFromFolder() throws Exception {
         FolderWrapper folder = new FolderWrapper(client, "Test1");
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, "Dataset tag", "tag attached to a folder");
+        String name = "Folder tag";
+        String desc = "tag attached to a folder";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
 
         folder.link(client, tag);
 

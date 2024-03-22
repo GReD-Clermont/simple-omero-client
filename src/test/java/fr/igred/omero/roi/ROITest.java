@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -50,7 +50,7 @@ class ROITest extends UserTest {
             roiWrapper.addShape(rectangle);
         }
 
-        roiWrapper = image.saveROIs(client, Collections.singletonList(roiWrapper)).get(0);
+        roiWrapper = image.saveROIs(client, singletonList(roiWrapper)).get(0);
         roiWrapper.addTag(client, "ROI Tag", "ROI tag test");
 
         List<TagAnnotationWrapper> tags = roiWrapper.getTags(client);
