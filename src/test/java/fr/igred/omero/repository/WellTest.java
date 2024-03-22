@@ -49,6 +49,25 @@ class WellTest extends UserTest {
 
 
     @Test
+    void testAddAndRemoveTagFromWell() throws Exception {
+        WellWrapper well = client.getWell(2L);
+
+        String name = "Well tag";
+        String desc = "tag attached to a well";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        well.link(client, tag);
+        List<TagAnnotationWrapper> tags = well.getTags(client);
+        well.unlink(client, tag);
+        List<TagAnnotationWrapper> removedTags = well.getTags(client);
+        client.delete(tag);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, removedTags.size());
+    }
+
+
+    @Test
     void testGetWellSamples() throws Exception {
         WellWrapper             well    = client.getWell(1L);
         List<WellSampleWrapper> samples = well.getWellSamples();

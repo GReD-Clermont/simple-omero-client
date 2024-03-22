@@ -100,6 +100,27 @@ class PlateAcquisitionTest extends UserTest {
 
 
     @Test
+    void testAddAndRemoveTagFromPlateAcquisition() throws Exception {
+        PlateWrapper plate = client.getPlate(PLATE1.id);
+
+        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+
+        String name = "Plate acq. tag";
+        String desc = "tag attached to a plate acq.";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        acq.link(client, tag);
+        List<TagAnnotationWrapper> tags = acq.getTags(client);
+        acq.unlink(client, tag);
+        List<TagAnnotationWrapper> removedTags = acq.getTags(client);
+        client.delete(tag);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, removedTags.size());
+    }
+
+
+    @Test
     void testSetName() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 

@@ -18,6 +18,7 @@
 package fr.igred.omero.repository;
 
 
+import fr.igred.omero.GatewayWrapper;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import org.junit.jupiter.api.Test;
@@ -87,6 +88,25 @@ class ScreenTest extends UserTest {
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());
+    }
+
+
+    @Test
+    void testAddAndRemoveTagFromScreen() throws Exception {
+        ScreenWrapper screen = client.getScreen(SCREEN2.id);
+
+        String name = "Screen tag";
+        String desc = "tag attached to a screen";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        screen.link(client, tag);
+        List<TagAnnotationWrapper> tags = screen.getTags(client);
+        screen.unlink(client, tag);
+        List<TagAnnotationWrapper> removedTags = screen.getTags(client);
+        client.delete(tag);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, removedTags.size());
     }
 
 
@@ -248,7 +268,7 @@ class ScreenTest extends UserTest {
         client.delete(wells);
         client.delete(plates);
 
-        screen.refresh(client);
+        screen.refresh((GatewayWrapper) client);
         List<PlateWrapper> endPlates = screen.getPlates();
 
         client.delete(screen);

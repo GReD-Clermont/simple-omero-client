@@ -103,6 +103,25 @@ class PlateTest extends UserTest {
 
 
     @Test
+    void testAddAndRemoveTagFromPlate() throws Exception {
+        PlateWrapper plate = client.getPlate(PLATE2.id);
+
+        String name = "Plate tag";
+        String desc = "tag attached to a plate";
+
+        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        plate.link(client, tag);
+        List<TagAnnotationWrapper> tags = plate.getTags(client);
+        plate.unlink(client, tag);
+        List<TagAnnotationWrapper> removedTags = plate.getTags(client);
+        client.delete(tag);
+
+        assertEquals(1, tags.size());
+        assertEquals(0, removedTags.size());
+    }
+
+
+    @Test
     void testSetName() throws Exception {
         PlateWrapper plate = client.getPlate(PLATE1.id);
 
