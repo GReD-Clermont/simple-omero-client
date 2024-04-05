@@ -29,7 +29,6 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.repository.GenericRepositoryObjectWrapper.ReplacePolicy;
-import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
@@ -39,7 +38,6 @@ import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TagAnnotationData;
 import omero.model.IObject;
-import omero.model.NamedValue;
 import omero.model.TagAnnotationI;
 import omero.sys.ParametersI;
 
@@ -366,9 +364,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
      */
     public void addKeyValuePair(Client client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
-        List<NamedValue>     kv  = singletonList(new NamedValue(key, value));
-        MapAnnotationWrapper pkv = new MapAnnotationWrapper(kv);
-        pkv.setNameSpace(NSCLIENTMAPANNOTATION.value);
+        MapAnnotationWrapper pkv = new MapAnnotationWrapper(key, value);
         link(client, pkv);
     }
 
