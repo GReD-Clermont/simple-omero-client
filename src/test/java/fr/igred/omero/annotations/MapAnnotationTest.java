@@ -19,9 +19,15 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
+import omero.model.NamedValue;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -59,6 +65,50 @@ class MapAnnotationTest extends UserTest {
 
         List<MapAnnotationWrapper> maps = client.getMapAnnotations(key, val);
         assertEquals(1, maps.size());
+    }
+
+
+    @Test
+    void testGetContentAsMap() throws Exception {
+        MapAnnotationWrapper      map     = client.getMapAnnotation(4L);
+        Map<String, List<String>> content = map.getContentAsMap();
+        assertEquals("testValue1", content.get("testKey1").get(0));
+        assertEquals("20", content.get("testKey2").get(0));
+    }
+
+
+    @Test
+    void testGetContentAsString() throws Exception {
+        MapAnnotationWrapper map = client.getMapAnnotation(4L);
+
+        String expected = "testKey1=testValue1;testKey2=20";
+        assertEquals(expected, map.getContentAsString());
+    }
+
+
+    @Test
+    void testSetContent() throws Exception {
+        MapAnnotationWrapper map     = client.getMapAnnotation(4L);
+        List<NamedValue>     content = map.getContent();
+
+        Collection<Entry<String, String>> pairs = new ArrayList<>(2);
+        pairs.add(new SimpleEntry<>("testKey2", "testValue2"));
+        pairs.add(new SimpleEntry<>("testKey3", "testValue3"));
+
+        map.setContent(pairs);
+        map.saveAndUpdate(client);
+
+        int    size     = map.getContent().size();
+        String expected = "testKey2=testValue2;testKey3=testValue3";
+        String actual   = map.getContentAsString();
+
+        map.setContent(content);
+        map.saveAndUpdate(client);
+
+        assertEquals(2, size);
+        assertEquals(expected, actual);
+        assertEquals("testKey1", map.getContent().get(0).name);
+        assertEquals("testValue1", map.getContent().get(0).value);
     }
 
 }
