@@ -552,6 +552,7 @@ public class ExceptionHandler<T> {
     @FunctionalInterface
     public interface OMEROFunction<T, R> extends ThrowingFunction<T, R, Exception> {
 
+        @Override
         R apply(T t) throws DSOutOfServiceException, DSAccessException, ServerError;
 
     }
