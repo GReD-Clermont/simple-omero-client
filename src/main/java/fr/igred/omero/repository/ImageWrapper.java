@@ -121,17 +121,23 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         calibration.setXUnit(positionX.getSymbol());
         calibration.setYUnit(positionY.getSymbol());
         calibration.setZUnit(positionZ.getSymbol());
-        calibration.xOrigin = positionX.getValue();
-        calibration.yOrigin = positionY.getValue();
-        calibration.zOrigin = positionZ.getValue();
         if (spacingX != null) {
+            calibration.setXUnit(spacingX.getSymbol());
             calibration.pixelWidth = spacingX.getValue();
+            // positionX and spacingX should use the same unit
+            calibration.xOrigin = -positionX.getValue() / calibration.pixelWidth;
         }
         if (spacingY != null) {
+            calibration.setYUnit(spacingY.getSymbol());
             calibration.pixelHeight = spacingY.getValue();
+            // positionY and spacingY should use the same unit
+            calibration.yOrigin = -positionY.getValue() / calibration.pixelHeight;
         }
         if (spacingZ != null) {
+            calibration.setZUnit(spacingZ.getSymbol());
             calibration.pixelDepth = spacingZ.getValue();
+            // positionZ and spacingZ should use the same unit
+            calibration.zOrigin = -positionZ.getValue() / calibration.pixelDepth;
         }
         if (!Double.isNaN(stepT.getValue())) {
             calibration.setTimeUnit(stepT.getSymbol());
@@ -737,6 +743,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
         Calibration calibration = imp.getCalibration();
         setCalibration(pixels, calibration);
+        calibration.xOrigin -= startX;
+        calibration.yOrigin -= startY;
+        calibration.zOrigin -= startZ;
         imp.setCalibration(calibration);
 
         boolean isFloat = FormatTools.isFloatingPoint(pixelType);
@@ -794,6 +803,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         imp.setPosition(1);
         if (IJ.getVersion().compareTo("1.53a") >= 0) {
             imp.setProp(IJ_ID_PROPERTY, getId());
+            imp.setProp("OFFSET_X", startX);
+            imp.setProp("OFFSET_Y", startY);
+            imp.setProp("OFFSET_C", startC);
+            imp.setProp("OFFSET_Z", startZ);
+            imp.setProp("OFFSET_T", startT);
         }
         return imp;
     }
