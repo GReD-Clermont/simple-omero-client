@@ -372,6 +372,7 @@ class ImageTest extends UserTest {
         assertEquals(xOrigin, imp.getCalibration().xOrigin, DOUBLE_PRECISION * abs(xOrigin));
         assertEquals(yOrigin, imp.getCalibration().yOrigin, DOUBLE_PRECISION * abs(yOrigin));
         assertEquals(zOrigin, imp.getCalibration().zOrigin, DOUBLE_PRECISION * -zOrigin);
+        assertEquals(xBounds[0], Double.parseDouble(imp.getProp("IMAGE_POS_X")), DOUBLE_PRECISION * xBounds[0]);
         assertEquals("µm", imp.getCalibration().getUnit());
         assertEquals("µm", imp.getCalibration().getZUnit());
         assertEquals("ms", imp.getCalibration().getTimeUnit());
