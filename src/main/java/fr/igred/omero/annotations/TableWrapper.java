@@ -881,8 +881,10 @@ public class TableWrapper {
             truncateRow();
         }
 
-        Collection<Integer> emptyColumns = getEmptyStringColumns();
-        emptyColumns.forEach(this::removeColumn);
+        ArrayList<Integer> emptyColumns = new ArrayList<>(getEmptyStringColumns());
+        for(int i = 0; i <emptyColumns.size(); i++){
+            removeColumn(emptyColumns.get(i)-i);
+        }
 
         return new TableData(columns, data);
     }
