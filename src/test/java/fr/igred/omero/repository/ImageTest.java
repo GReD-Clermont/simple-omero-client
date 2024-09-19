@@ -53,6 +53,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static java.lang.Math.abs;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -147,9 +150,17 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testGetKeyValuePair1() throws Exception {
+    void testGetKeyValuePair0() throws Exception {
         ImageWrapper        image = client.getImage(IMAGE1.id);
         Map<String, String> pairs = image.getKeyValuePairs(client);
+        assertEquals(2, pairs.size());
+    }
+
+
+    @Test
+    void testGetKeyValuePair1() throws Exception {
+        ImageWrapper                    image = client.getImage(IMAGE1.id);
+        List<Map.Entry<String, String>> pairs = image.getKeyValuePairsAsList(client);
         assertEquals(2, pairs.size());
     }
 

@@ -133,10 +133,7 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
      * Gets the List of NamedValue contained in the map annotation.
      *
      * @return MapAnnotationData content.
-     *
-     * @deprecated This method will be removed in a future version.
      */
-    @Deprecated
     @SuppressWarnings("unchecked")
     public List<NamedValue> getContent() {
         return (List<NamedValue>) data.getContent();
