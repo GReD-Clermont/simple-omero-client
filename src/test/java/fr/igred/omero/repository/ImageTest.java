@@ -756,6 +756,24 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetOriginalPaths() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        List<String> paths = image.getOriginalPaths(client);
+        assertEquals(2, paths.size());
+        assertTrue(paths.get(0).startsWith("tmp"));
+    }
+
+
+    @Test
+    void testGetManagedRepositoriesPaths() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        List<String> paths = image.getManagedRepositoriesPaths(client);
+        assertEquals(2, paths.size());
+        assertTrue(paths.get(0).startsWith(USER1.name + "_" + USER1.id));
+    }
+
+
+    @Test
     void testDownload() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
         List<File>   files = image.download(client, ".");

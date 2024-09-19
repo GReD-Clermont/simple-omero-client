@@ -998,6 +998,46 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Returns the original file paths where the image was imported from.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<String> getOriginalPaths(Client client)
+    throws ExecutionException, AccessException, ServiceException {
+        String error = "Cannot get managed repositories paths for " + this;
+        return call(client.getMetadata(),
+                    m -> m.getOriginalPaths(client.getCtx(), data),
+                    error);
+    }
+
+
+    /**
+     * Returns the file paths of the image in the managed repository.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<String> getManagedRepositoriesPaths(Client client)
+    throws ExecutionException, AccessException, ServiceException {
+        String error = "Cannot get managed repositories paths for " + this;
+        return call(client.getMetadata(),
+                    m -> m.getManagedRepositoriesPaths(client.getCtx(), data),
+                    error);
+    }
+
+
+    /**
      * Downloads the original files from the server.
      *
      * @param client The client handling the connection.
