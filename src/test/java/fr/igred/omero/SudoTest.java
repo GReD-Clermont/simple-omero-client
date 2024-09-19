@@ -78,6 +78,7 @@ class SudoTest extends BasicTest {
             test.disconnect();
             root.disconnect();
         } catch (RuntimeException ignored) {
+            // IGNORED
         }
 
         assertNotEquals(0, images.size());

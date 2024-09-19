@@ -241,6 +241,7 @@ class WrapperTest extends BasicTest {
 
         @Override
         public void setContent(Object content) {
+            // DO NOTHING FOR THIS FAKE OBJECT
         }
 
 

@@ -20,7 +20,6 @@ package fr.igred.omero.meta;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.PixelsWrapper;
-import ome.units.UNITS;
 import omero.model.Length;
 import omero.model.Time;
 import org.junit.jupiter.api.Test;
