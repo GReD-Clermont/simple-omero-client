@@ -264,6 +264,16 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
 
     /**
+     * Returns the series.
+     *
+     * @return See above.
+     */
+    public int getSeries() {
+        return data.getSeries();
+    }
+
+
+    /**
      * Returns the type of annotation link for this object.
      *
      * @return See above.

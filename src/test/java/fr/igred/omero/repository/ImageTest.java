@@ -660,6 +660,12 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetSeries() throws Exception {
+        assertEquals(0, client.getImage(IMAGE1.id).getSeries());
+    }
+
+
+    @Test
     void testGetChannel() throws Exception {
         ChannelWrapper channel = client.getImage(IMAGE1.id)
                                        .getChannels(client)
