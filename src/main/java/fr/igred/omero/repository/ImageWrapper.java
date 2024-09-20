@@ -1010,7 +1010,7 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public List<String> getOriginalPaths(Client client)
     throws ExecutionException, AccessException, ServiceException {
-        String error = "Cannot get managed repositories paths for " + this;
+        String error = "Cannot get original paths for " + this;
         return call(client.getMetadata(),
                     m -> m.getOriginalPaths(client.getCtx(), data),
                     error);
