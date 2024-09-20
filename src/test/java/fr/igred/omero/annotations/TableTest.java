@@ -62,9 +62,58 @@ class TableTest extends UserTest {
         }
 
         assertEquals(images.get(0).asDataObject(), table.getData(0, 0));
-        assertEquals(images.get(1).getName(), table.getData(0, 1));
+        assertEquals(images.get(1).getName(), table.getData(1, 1));
 
         dataset.addTable(client, table);
+
+        List<TableWrapper> tables = dataset.getTables(client);
+        client.deleteTables(tables);
+        List<TableWrapper> noTables = dataset.getTables(client);
+
+        assertEquals(1, tables.size());
+        assertEquals(0, noTables.size());
+    }
+
+
+    @Test
+    void testCreateTableWithEmptyColumns() throws Exception {
+        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+
+        List<ImageWrapper> images = dataset.getImages(client);
+
+        TableWrapper table = new TableWrapper(4, "TableTest");
+
+        assertEquals(4, table.getColumnCount());
+
+        table.setColumn(0, "Image", ImageData.class);
+        table.setColumn(1, "Condition", String.class);
+        table.setColumn(2, "Name", String.class);
+        table.setColumn(3, "Phenotype", String.class);
+        assertEquals("Image", table.getColumnName(0));
+        assertEquals("Condition", table.getColumnName(1));
+        assertEquals("Name", table.getColumnName(2));
+        assertEquals("Phenotype", table.getColumnName(3));
+        assertSame(ImageData.class, table.getColumnType(0));
+
+        table.setRowCount(images.size());
+
+        assertEquals(images.size(), table.getRowCount());
+
+        for (ImageWrapper image : images) {
+            assertFalse(table.isComplete());
+            table.addRow(image.asDataObject(), "", image.getName(), "");
+        }
+
+        assertEquals(images.get(0).asDataObject(), table.getData(0, 0));
+        assertEquals("", table.getData(0, 1));
+        assertEquals(images.get(1).getName(), table.getData(1, 2));
+        assertEquals("", table.getData(0, 3));
+
+        dataset.addTable(client, table);
+
+        assertEquals(2, table.getColumnCount());
+        assertEquals(images.get(0).asDataObject(), table.getData(0, 0));
+        assertEquals(images.get(1).getName(), table.getData(1, 1));
 
         List<TableWrapper> tables = dataset.getTables(client);
         client.deleteTables(tables);

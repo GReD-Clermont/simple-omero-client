@@ -61,6 +61,7 @@ class ConnectionTest extends BasicTest {
         try {
             testRoot.disconnect();
         } catch (RuntimeException ignored) {
+            // IGNORED
         }
         assertEquals(0L, id);
         assertEquals(GROUP1.id, groupId);
@@ -81,6 +82,7 @@ class ConnectionTest extends BasicTest {
         try {
             testUser.disconnect();
         } catch (RuntimeException ignored) {
+            // IGNORED
         }
         assertEquals(USER1.id, id);
         assertEquals(GROUP1.id, groupId);

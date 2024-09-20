@@ -52,6 +52,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -146,9 +147,17 @@ class ImageTest extends UserTest {
 
 
     @Test
-    void testGetKeyValuePair1() throws Exception {
+    void testGetKeyValuePair0() throws Exception {
         ImageWrapper        image = client.getImage(IMAGE1.id);
         Map<String, String> pairs = image.getKeyValuePairs(client);
+        assertEquals(2, pairs.size());
+    }
+
+
+    @Test
+    void testGetKeyValuePair1() throws Exception {
+        ImageWrapper                    image = client.getImage(IMAGE1.id);
+        List<Map.Entry<String, String>> pairs = image.getKeyValuePairsAsList(client);
         assertEquals(2, pairs.size());
     }
 
@@ -321,8 +330,8 @@ class ImageTest extends UserTest {
         final double pixSize  = 0.5;
         final double pixDepth = 1.5;
         final double deltaT   = 150;
-        final double xyOrigin = 100;
-        final double zOrigin  = 20;
+        final double xyOrigin = -100.0d / pixSize;
+        final double zOrigin  = -20.0d / pixDepth;
 
         int[] xBounds = {0, 2};
         int[] yBounds = {0, 2};
@@ -338,6 +347,9 @@ class ImageTest extends UserTest {
         yBounds[1] = SECURE_RANDOM.nextInt(highXY - yBounds[0]) + yBounds[0] + 5;
         cBounds[1] = SECURE_RANDOM.nextInt(3 - cBounds[0]) + cBounds[0] + 2;
         tBounds[1] = SECURE_RANDOM.nextInt(5 - tBounds[0]) + tBounds[0] + 2;
+
+        double xOrigin = xyOrigin - xBounds[0];
+        double yOrigin = xyOrigin - yBounds[0];
 
         String fake     = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
         File   fakeFile = createFile(fake);
@@ -365,9 +377,10 @@ class ImageTest extends UserTest {
         assertEquals(pixDepth, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
         // Round numbers because rounding errors happen when converting units
         assertEquals(deltaT, imp.getCalibration().frameInterval, DOUBLE_PRECISION * deltaT);
-        assertEquals(xyOrigin, imp.getCalibration().xOrigin, DOUBLE_PRECISION * xyOrigin);
-        assertEquals(xyOrigin, imp.getCalibration().yOrigin, DOUBLE_PRECISION * xyOrigin);
-        assertEquals(zOrigin, imp.getCalibration().zOrigin, DOUBLE_PRECISION * zOrigin);
+        assertEquals(xOrigin, imp.getCalibration().xOrigin, DOUBLE_PRECISION * abs(xOrigin));
+        assertEquals(yOrigin, imp.getCalibration().yOrigin, DOUBLE_PRECISION * abs(yOrigin));
+        assertEquals(zOrigin, imp.getCalibration().zOrigin, DOUBLE_PRECISION * -zOrigin);
+        assertEquals(xBounds[0], Double.parseDouble(imp.getProp("IMAGE_POS_X")), DOUBLE_PRECISION * xBounds[0]);
         assertEquals("µm", imp.getCalibration().getUnit());
         assertEquals("µm", imp.getCalibration().getZUnit());
         assertEquals("ms", imp.getCalibration().getTimeUnit());
@@ -647,6 +660,12 @@ class ImageTest extends UserTest {
 
 
     @Test
+    void testGetSeries() throws Exception {
+        assertEquals(0, client.getImage(IMAGE1.id).getSeries());
+    }
+
+
+    @Test
     void testGetChannel() throws Exception {
         ChannelWrapper channel = client.getImage(IMAGE1.id)
                                        .getChannels(client)
@@ -733,6 +752,24 @@ class ImageTest extends UserTest {
         assertNotNull(thumbnail);
         assertEquals(size, thumbnail.getWidth());
         assertEquals(size, thumbnail.getHeight());
+    }
+
+
+    @Test
+    void testGetOriginalPaths() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        List<String> paths = image.getOriginalPaths(client);
+        assertEquals(2, paths.size());
+        assertTrue(paths.get(0).startsWith("tmp"));
+    }
+
+
+    @Test
+    void testGetManagedRepositoriesPaths() throws Exception {
+        ImageWrapper image = client.getImage(IMAGE1.id);
+        List<String> paths = image.getManagedRepositoriesPaths(client);
+        assertEquals(2, paths.size());
+        assertTrue(paths.get(0).startsWith(USER1.name + "_" + USER1.id));
     }
 
 

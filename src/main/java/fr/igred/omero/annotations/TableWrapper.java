@@ -42,6 +42,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -516,7 +517,7 @@ public class TableWrapper {
      */
     private Collection<Integer> getEmptyStringColumns() {
         Collection<Integer> emptyColumns = new ArrayList<>(0);
-        for (int j = 0; j < columns.length; j++) {
+        for (int j = columns.length - 1; j >= 0; j--) {
             TableDataColumn column = columns[j];
             if (column.getType().equals(String.class)) {
                 boolean empty = true;
@@ -881,7 +882,8 @@ public class TableWrapper {
             truncateRow();
         }
 
-        Collection<Integer> emptyColumns = getEmptyStringColumns();
+        List<Integer> emptyColumns = new ArrayList<>(getEmptyStringColumns());
+        emptyColumns.sort(Collections.reverseOrder());
         emptyColumns.forEach(this::removeColumn);
 
         return new TableData(columns, data);

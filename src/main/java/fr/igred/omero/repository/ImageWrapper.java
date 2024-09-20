@@ -121,17 +121,26 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         calibration.setXUnit(positionX.getSymbol());
         calibration.setYUnit(positionY.getSymbol());
         calibration.setZUnit(positionZ.getSymbol());
-        calibration.xOrigin = positionX.getValue();
-        calibration.yOrigin = positionY.getValue();
-        calibration.zOrigin = positionZ.getValue();
+        calibration.xOrigin = -positionX.getValue();
+        calibration.yOrigin = -positionY.getValue();
+        calibration.zOrigin = -positionZ.getValue();
         if (spacingX != null) {
+            calibration.setXUnit(spacingX.getSymbol());
             calibration.pixelWidth = spacingX.getValue();
+            // positionX and spacingX should use the same unit
+            calibration.xOrigin /= calibration.pixelWidth;
         }
         if (spacingY != null) {
+            calibration.setYUnit(spacingY.getSymbol());
             calibration.pixelHeight = spacingY.getValue();
+            // positionY and spacingY should use the same unit
+            calibration.yOrigin /= calibration.pixelHeight;
         }
         if (spacingZ != null) {
+            calibration.setZUnit(spacingZ.getSymbol());
             calibration.pixelDepth = spacingZ.getValue();
+            // positionZ and spacingZ should use the same unit
+            calibration.zOrigin /= calibration.pixelDepth;
         }
         if (!Double.isNaN(stepT.getValue())) {
             calibration.setTimeUnit(stepT.getSymbol());
@@ -251,6 +260,16 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
      */
     public String getFormat() {
         return data.getFormat();
+    }
+
+
+    /**
+     * Returns the series.
+     *
+     * @return See above.
+     */
+    public int getSeries() {
+        return data.getSeries();
     }
 
 
@@ -737,6 +756,9 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
 
         Calibration calibration = imp.getCalibration();
         setCalibration(pixels, calibration);
+        calibration.xOrigin -= startX;
+        calibration.yOrigin -= startY;
+        calibration.zOrigin -= startZ;
         imp.setCalibration(calibration);
 
         boolean isFloat = FormatTools.isFloatingPoint(pixelType);
@@ -794,6 +816,11 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
         imp.setPosition(1);
         if (IJ.getVersion().compareTo("1.53a") >= 0) {
             imp.setProp(IJ_ID_PROPERTY, getId());
+            imp.setProp("IMAGE_POS_X", startX);
+            imp.setProp("IMAGE_POS_Y", startY);
+            imp.setProp("IMAGE_POS_C", startC);
+            imp.setProp("IMAGE_POS_Z", startZ);
+            imp.setProp("IMAGE_POS_T", startT);
         }
         return imp;
     }
@@ -967,6 +994,46 @@ public class ImageWrapper extends GenericRepositoryObjectWrapper<ImageData> {
             }
         }
         return thumbnail;
+    }
+
+
+    /**
+     * Returns the original file paths where the image was imported from.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<String> getOriginalPaths(Client client)
+    throws ExecutionException, AccessException, ServiceException {
+        String error = "Cannot get original paths for " + this;
+        return call(client.getMetadata(),
+                    m -> m.getOriginalPaths(client.getCtx(), data),
+                    error);
+    }
+
+
+    /**
+     * Returns the file paths of the image in the managed repository.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public List<String> getManagedRepositoriesPaths(Client client)
+    throws ExecutionException, AccessException, ServiceException {
+        String error = "Cannot get managed repositories paths for " + this;
+        return call(client.getMetadata(),
+                    m -> m.getManagedRepositoriesPaths(client.getCtx(), data),
+                    error);
     }
 
 

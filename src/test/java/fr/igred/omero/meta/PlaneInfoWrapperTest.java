@@ -20,7 +20,6 @@ package fr.igred.omero.meta;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.repository.PixelsWrapper;
-import ome.units.UNITS;
 import omero.model.Length;
 import omero.model.Time;
 import org.junit.jupiter.api.Test;
@@ -67,11 +66,9 @@ class PlaneInfoWrapperTest extends UserTest {
         pixels.loadPlanesInfo(client);
         List<PlaneInfoWrapper> planes = pixels.getPlanesInfo();
 
-        Length positionX = getMinPosition(planes,
-                                          PlaneInfoWrapper::getPositionX,
-                                          UNITS.NANOMETER);
-        assertEquals(100000, positionX.getValue());
-        assertEquals("nm", positionX.getSymbol());
+        Length posX = getMinPosition(planes, PlaneInfoWrapper::getPositionX);
+        assertEquals(0.1, posX.getValue());
+        assertEquals("mm", posX.getSymbol());
     }
 
 }

@@ -35,6 +35,7 @@ import java.util.function.Function;
 
 import static java.lang.Double.NaN;
 import static ome.formats.model.UnitsFactory.convertTime;
+import static ome.units.UNITS.MICROMETER;
 import static ome.units.UNITS.SECOND;
 
 
@@ -149,6 +150,28 @@ public class PlaneInfoWrapper extends GenericObjectWrapper<PlaneInfoData> {
                                .min()
                                .orElse(0.0d);
         return new LengthI(pos, unit);
+    }
+
+
+    /**
+     * Retrieves the min value for the specified getter in a PlaneInfoWrapper collection.
+     *
+     * @param planesInfo A collection of PlaneInfoWrappers.
+     * @param getter     The getter function to use.
+     *
+     * @return See above.
+     */
+    public static Length getMinPosition(Collection<? extends PlaneInfoWrapper> planesInfo,
+                                        Function<? super PlaneInfoWrapper, ? extends Length> getter) {
+        Unit<ome.units.quantity.Length> unit;
+        unit = planesInfo.stream()
+                         .map(getter)
+                         .map(UnitsFactory::convertLength)
+                         .filter(Objects::nonNull)
+                         .map(ome.units.quantity.Length::unit)
+                         .findFirst()
+                         .orElse(MICROMETER);
+        return getMinPosition(planesInfo, getter, unit);
     }
 
 

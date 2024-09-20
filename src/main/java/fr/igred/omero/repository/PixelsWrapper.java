@@ -31,6 +31,7 @@ import omero.gateway.model.PixelsData;
 import omero.gateway.model.PlaneInfoData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Time;
 
 import java.util.ArrayList;
@@ -39,8 +40,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.exception.ExceptionHandler.call;
+import static fr.igred.omero.meta.PlaneInfoWrapper.getMinPosition;
 import static ome.formats.model.UnitsFactory.convertLength;
-import static ome.units.UNITS.MICROMETER;
 
 
 /**
@@ -238,50 +239,71 @@ public class PixelsWrapper extends GenericObjectWrapper<PixelsData> {
 
 
     /**
-     * Retrieves the X stage position.
+     * Retrieves the X stage position, using the same unit as {@link #getPixelSizeX()} if possible.
      * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
      *
      * @return See above.
      */
     public Length getPositionX() {
-        ome.units.quantity.Length pixSizeX = convertLength(getPixelSizeX());
+        Length x = getMinPosition(planesInfo, PlaneInfoWrapper::getPositionX);
 
-        Unit<ome.units.quantity.Length> unit = pixSizeX == null ? MICROMETER : pixSizeX.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo,
-                                               PlaneInfoWrapper::getPositionX,
-                                               unit);
+        ome.units.quantity.Length pixSizeX = convertLength(getPixelSizeX());
+        ome.units.quantity.Length posX     = convertLength(x);
+
+        if (pixSizeX != null) {
+            Unit<ome.units.quantity.Length> unit = pixSizeX.unit();
+            if (posX.value(unit) != null) {
+                x = new LengthI(posX.value(unit).doubleValue(), unit);
+            }
+        }
+
+        return x;
     }
 
 
     /**
-     * Retrieves the Y stage position.
+     * Retrieves the Y stage position, using the same unit as {@link #getPixelSizeY()} if possible.
      * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
      *
      * @return See above.
      */
     public Length getPositionY() {
-        ome.units.quantity.Length pixSizeY = convertLength(getPixelSizeY());
+        Length y = getMinPosition(planesInfo, PlaneInfoWrapper::getPositionY);
 
-        Unit<ome.units.quantity.Length> unit = pixSizeY == null ? MICROMETER : pixSizeY.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo,
-                                               PlaneInfoWrapper::getPositionY,
-                                               unit);
+        ome.units.quantity.Length pixSizeY = convertLength(getPixelSizeY());
+        ome.units.quantity.Length posY     = convertLength(y);
+
+        if (pixSizeY != null) {
+            Unit<ome.units.quantity.Length> unit = pixSizeY.unit();
+            if (posY.value(unit) != null) {
+                y = new LengthI(posY.value(unit).doubleValue(), unit);
+            }
+        }
+
+        return y;
     }
 
 
     /**
-     * Retrieves the Z stage position.
+     * Retrieves the Z stage position, using the same unit as {@link #getPixelSizeZ()} if possible.
      * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
      *
      * @return See above.
      */
     public Length getPositionZ() {
-        ome.units.quantity.Length pixSizeZ = convertLength(getPixelSizeZ());
+        Length z = getMinPosition(planesInfo, PlaneInfoWrapper::getPositionZ);
 
-        Unit<ome.units.quantity.Length> unit = pixSizeZ == null ? MICROMETER : pixSizeZ.unit();
-        return PlaneInfoWrapper.getMinPosition(planesInfo,
-                                               PlaneInfoWrapper::getPositionZ,
-                                               unit);
+        ome.units.quantity.Length pixSizeZ = convertLength(getPixelSizeZ());
+        ome.units.quantity.Length posZ     = convertLength(z);
+
+        if (pixSizeZ != null) {
+            Unit<ome.units.quantity.Length> unit = pixSizeZ.unit();
+            if (posZ.value(unit) != null) {
+                z = new LengthI(posZ.value(unit).doubleValue(), unit);
+            }
+        }
+
+        return z;
     }
 
 

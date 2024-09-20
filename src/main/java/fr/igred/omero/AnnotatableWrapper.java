@@ -391,6 +391,29 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends GenericOb
 
 
     /**
+     * Gets the List of Key-Value pairs associated to an object.
+     *
+     * @param client The client handling the connection.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     *
+     * @deprecated This method will be renamed to {@link #getKeyValuePairs(Client)} ()} in a future version.
+     */
+    @Deprecated
+    public List<Map.Entry<String, String>> getKeyValuePairsAsList(Client client)
+    throws ServiceException, AccessException, ExecutionException {
+        return getMapAnnotations(client).stream()
+                                        .map(MapAnnotationWrapper::getContentAsEntryList)
+                                        .flatMap(List::stream)
+                                        .collect(toList());
+    }
+
+
+    /**
      * Gets the value from a Key-Value pair associated to the object.
      *
      * @param client The client handling the connection.
