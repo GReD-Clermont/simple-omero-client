@@ -27,6 +27,7 @@ import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.util.ReplacePolicy;
 import omero.RLong;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
