@@ -20,9 +20,9 @@ package fr.igred.omero.annotations;
 
 import fr.igred.omero.UserTest;
 import fr.igred.omero.containers.DatasetWrapper;
+import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.screen.PlateWrapper;
-import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.WellWrapper;
 import org.junit.jupiter.api.Test;

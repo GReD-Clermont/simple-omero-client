@@ -19,12 +19,12 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.containers.FolderWrapper;
-import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
+import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import omero.gateway.model.ProjectData;

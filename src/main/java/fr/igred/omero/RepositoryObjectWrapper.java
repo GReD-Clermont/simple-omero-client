@@ -78,7 +78,8 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      *
      * @return The list of imported pixels.
      */
-    private static List<Pixels> importCandidates(DataObject target, ImportLibrary library, ImportConfig config, ImportCandidates candidates) {
+    private static List<Pixels> importCandidates(DataObject target, ImportLibrary library, ImportConfig config,
+                                                 ImportCandidates candidates) {
         List<Pixels> pixels = new ArrayList<>(0);
 
         ExecutorService threadPool = Executors.newFixedThreadPool(config.parallelUpload.get());

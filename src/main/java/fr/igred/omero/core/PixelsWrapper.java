@@ -18,8 +18,8 @@
 package fr.igred.omero.core;
 
 
-import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -38,8 +38,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.exception.ExceptionHandler.call;
 import static fr.igred.omero.core.PlaneInfoWrapper.getMinPosition;
+import static fr.igred.omero.exception.ExceptionHandler.call;
 import static ome.formats.model.UnitsFactory.convertLength;
 
 
