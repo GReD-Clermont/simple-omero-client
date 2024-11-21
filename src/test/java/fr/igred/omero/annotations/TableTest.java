@@ -19,8 +19,8 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.ImageWrapper;
+import fr.igred.omero.containers.DatasetWrapper;
+import fr.igred.omero.core.ImageWrapper;
 import omero.gateway.model.ImageData;
 import org.junit.jupiter.api.Test;
 
@@ -188,7 +188,7 @@ class TableTest extends UserTest {
 
         List<TableWrapper> tables = dataset.getTables(client);
         for (TableWrapper table : tables) {
-            client.delete(table);
+            client.deleteTable(table);
         }
         List<TableWrapper> noTables = dataset.getTables(client);
 
@@ -256,7 +256,7 @@ class TableTest extends UserTest {
         table.setColumn(1, "Name", String.class);
         table.setRowCount(images.size());
         assertThrows(IllegalArgumentException.class,
-                     () -> images.forEach(i -> table.addRow(i.asImageData())));
+                     () -> images.forEach(i -> table.addRow(i.asDataObject())));
     }
 
 }

@@ -18,11 +18,11 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Client;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.client.Client;
+import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.repository.ImageWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import ij.gui.Roi;
 import ij.macro.Variable;
@@ -137,7 +137,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois)
+    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -157,7 +157,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois,
+    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
@@ -409,11 +409,11 @@ public class TableWrapper {
 
         Map<Long, ROIData> id2roi = rois.stream()
                                         .collect(toMap(ROIWrapper::getId,
-                                                       GenericObjectWrapper::asDataObject));
+                                                       ObjectWrapper::asDataObject));
         Map<String, ROIData> name2roi = rois.stream()
                                             .filter(r -> !r.getName().isEmpty())
                                             .collect(toMap(ROIWrapper::getName,
-                                                           GenericObjectWrapper::asDataObject,
+                                                           ObjectWrapper::asDataObject,
                                                            (x1, x2) -> x1));
 
         Map<String, ROIData> label2roi = ijRois.stream()
@@ -579,7 +579,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois)
+    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -599,7 +599,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, List<? extends Roi> ijRois,
+    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);

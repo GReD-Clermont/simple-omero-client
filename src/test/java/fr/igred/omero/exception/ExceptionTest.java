@@ -19,7 +19,7 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Client;
 import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -221,9 +221,12 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testExceptionHandlerDSAccess() {
-        Throwable t = new DSAccessException("Test", null);
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
         assertThrows(AccessException.class,
-                     () -> ExceptionHandler.handleException(t, "Great"));
+                     () -> eh.rethrow(DSAccessException.class,
+                                      AccessException::new,
+                                      "Access"));
     }
 
 
@@ -237,38 +240,14 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
-    void testExceptionHandlerServerError() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class,
-                     () -> ExceptionHandler.handleException(t, "Great"));
-    }
-
-
-    @Test
-    void testExceptionHandlerServiceOrServerError() {
-        Throwable t = new ServerError(null);
-        assertThrows(OMEROServerError.class,
-                     () -> ExceptionHandler.handleServiceOrServer(t, "Great"));
-    }
-
-
-    @Test
     void testExceptionHandlerDSOutOfService() {
-        Throwable t = new DSOutOfServiceException(null);
-        assertThrows(ServiceException.class,
-                     () -> ExceptionHandler.handleException(t, "Great"));
-    }
-
-
-    @Test
-    void testExceptionHandlerDSOutOfService2() {
         String    msg   = "Unknown Error";
         Exception cause = null;
         Exception e     = new DSOutOfServiceException(msg, cause);
 
         ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
         assertThrows(ServiceException.class,
-                     () -> eh.handleOMEROException("Service to Service"));
+                     () -> eh.handleOMEROException("Service"));
     }
 
 
@@ -340,23 +319,12 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
-    void testExceptionHandlerRethrowNotException() {
-        Throwable t = new Exception("Nothing");
-        assertDoesNotThrow(() -> ExceptionHandler.handleException(t, "Great"));
-    }
-
-
-    @Test
-    void testExceptionHandlerRethrowNotServer() {
-        Throwable t = new ServerError(null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrAccess(t, "Great"));
-    }
-
-
-    @Test
     void testExceptionHandlerRethrowNot() {
-        Throwable t = new DSAccessException("Test", null);
-        assertDoesNotThrow(() -> ExceptionHandler.handleServiceOrServer(t, "Great"));
+        Exception           e  = new DSAccessException("Test", null);
+        ExceptionHandler<?> eh = ExceptionHandler.of(e, ExceptionTest::thrower);
+        assertDoesNotThrow(() -> eh.rethrow(DSOutOfServiceException.class,
+                                            ServiceException::new,
+                                            "Not service"));
     }
 
 

@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.toList;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
  * <p> Wraps function calls to the MapAnnotationData contained.
  */
-public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotationData> {
+public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
 
     /**
      * The name space used to identify MapAnnotations created be the user
@@ -52,21 +52,6 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
      */
     public MapAnnotationWrapper(MapAnnotationData data) {
         super(data);
-    }
-
-
-    /**
-     * Constructor of the MapAnnotationWrapper class. Sets the content of the MapAnnotationData
-     *
-     * @param result List of NamedValue(Key-Value pair).
-     *
-     * @deprecated This constructor will be removed in a future version.
-     * <p>Use {@link #MapAnnotationWrapper(Collection)} instead.
-     */
-    @Deprecated
-    public MapAnnotationWrapper(List<NamedValue> result) {
-        super(new MapAnnotationData());
-        data.setContent(result);
     }
 
 
@@ -130,26 +115,15 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
 
 
     /**
-     * Gets the List of NamedValue contained in the map annotation.
+     * Gets the List of Key-Value pairs contained in the map annotation.
      *
      * @return MapAnnotationData content.
      */
     @SuppressWarnings("unchecked")
-    public List<NamedValue> getContent() {
-        return (List<NamedValue>) data.getContent();
-    }
-
-
-    /**
-     * Sets the content of the map annotation.
-     *
-     * @param result List of NamedValue(Key-Value pair).
-     *
-     * @deprecated This method will be replaced by {@link #setContent(Collection)} in a future version.
-     */
-    @Deprecated
-    public void setContent(List<NamedValue> result) {
-        data.setContent(result);
+    public List<Entry<String, String>> getContent() {
+        return ((Collection<NamedValue>) data.getContent()).stream()
+                                                           .map(MapAnnotationWrapper::toMapEntry)
+                                                           .collect(toList());
     }
 
 
@@ -167,32 +141,14 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
 
 
     /**
-     * Gets the List of Key-Value pairs contained in the map annotation.
-     *
-     * @return MapAnnotationData content.
-     *
-     * @deprecated This method will be renamed to {@link #getContent()} in a future version.
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public List<Entry<String, String>> getContentAsEntryList() {
-        return ((Collection<NamedValue>) data.getContent()).stream()
-                                                           .map(MapAnnotationWrapper::toMapEntry)
-                                                           .collect(toList());
-    }
-
-
-    /**
      * Gets the List of Key-Value pairs contained in the map annotation as a map.
-     * <p>As keys may not be unique, the map contains values as a list.</p>
      *
      * @return See above.
      */
     public Map<String, List<String>> getContentAsMap() {
-        return this.getContentAsEntryList()
+        return this.getContent()
                    .stream()
-                   .collect(groupingBy(Entry::getKey,
-                                       mapping(Entry::getValue, toList())));
+                   .collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
     }
 
 
@@ -203,17 +159,6 @@ public class MapAnnotationWrapper extends GenericAnnotationWrapper<MapAnnotation
      */
     public String getContentAsString() {
         return data.getContentAsString();
-    }
-
-
-    /**
-     * @return the {@link MapAnnotationData} contained.
-     *
-     * @deprecated Gets the MapAnnotationData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public MapAnnotationData asMapAnnotationData() {
-        return data;
     }
 
 }

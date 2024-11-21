@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData object.
  * <p> Wraps function calls to the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotationData> {
+public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
 
     /**
      * The name space used to indicate that the tag is used a tag set.
@@ -106,17 +106,6 @@ public class TagAnnotationWrapper extends GenericAnnotationWrapper<TagAnnotation
     @SuppressWarnings("ClassReferencesSubclass")
     public TagSetWrapper toTagSet() {
         return new TagSetWrapper(data);
-    }
-
-
-    /**
-     * @return the {@link TagAnnotationData} contained.
-     *
-     * @deprecated Gets the TagAnnotationData contained. Use {@link #asDataObject()} instead.
-     */
-    @Deprecated
-    public TagAnnotationData asTagAnnotationData() {
-        return data;
     }
 
 }

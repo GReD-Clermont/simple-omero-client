@@ -19,30 +19,30 @@ package fr.igred.omero.util;
 
 
 import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.GenericObjectWrapper;
+import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.GenericAnnotationWrapper;
+import fr.igred.omero.annotations.AnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.annotations.TextualAnnotationWrapper;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
-import fr.igred.omero.meta.PlaneInfoWrapper;
-import fr.igred.omero.repository.ChannelWrapper;
-import fr.igred.omero.repository.DatasetWrapper;
-import fr.igred.omero.repository.FolderWrapper;
-import fr.igred.omero.repository.GenericRepositoryObjectWrapper;
-import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.repository.PixelsWrapper;
-import fr.igred.omero.repository.PlateAcquisitionWrapper;
-import fr.igred.omero.repository.PlateWrapper;
-import fr.igred.omero.repository.ProjectWrapper;
-import fr.igred.omero.repository.ScreenWrapper;
-import fr.igred.omero.repository.WellSampleWrapper;
-import fr.igred.omero.repository.WellWrapper;
+import fr.igred.omero.core.PlaneInfoWrapper;
+import fr.igred.omero.core.ChannelWrapper;
+import fr.igred.omero.containers.DatasetWrapper;
+import fr.igred.omero.containers.FolderWrapper;
+import fr.igred.omero.RepositoryObjectWrapper;
+import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.PixelsWrapper;
+import fr.igred.omero.screen.PlateAcquisitionWrapper;
+import fr.igred.omero.screen.PlateWrapper;
+import fr.igred.omero.containers.ProjectWrapper;
+import fr.igred.omero.screen.ScreenWrapper;
+import fr.igred.omero.screen.WellSampleWrapper;
+import fr.igred.omero.screen.WellWrapper;
 import fr.igred.omero.roi.EllipseWrapper;
-import fr.igred.omero.roi.GenericShapeWrapper;
+import fr.igred.omero.roi.ShapeWrapper;
 import fr.igred.omero.roi.LineWrapper;
 import fr.igred.omero.roi.MaskWrapper;
 import fr.igred.omero.roi.PointWrapper;
@@ -110,7 +110,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends ShapeData, U extends GenericShapeWrapper<? extends T>> U wrap(T object) {
+    public static <T extends ShapeData, U extends ShapeWrapper<? extends T>> U wrap(T object) {
         U converted;
 
         if (object instanceof RectangleData) {
@@ -146,7 +146,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends AnnotationData, U extends GenericAnnotationWrapper<? extends T>> U wrap(T object) {
+    public static <T extends AnnotationData, U extends AnnotationWrapper<? extends T>> U wrap(T object) {
         U converted;
 
         if (object instanceof FileAnnotationData) {
@@ -200,7 +200,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends GenericRepositoryObjectWrapper<? extends T>>
+    public static <T extends DataObject, U extends RepositoryObjectWrapper<? extends T>>
     U wrapRepositoryObject(T object) {
         U converted;
 
@@ -229,7 +229,7 @@ public final class Wrapper {
 
 
     /**
-     * Converts (wraps) a DataObject to a GenericObjectWrapper.
+     * Converts (wraps) a DataObject to a ObjectWrapper.
      *
      * @param object The object to convert.
      * @param <T>    The DataObject type.
@@ -237,7 +237,7 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends GenericObjectWrapper<? extends T>> U wrap(T object) {
+    public static <T extends DataObject, U extends ObjectWrapper<? extends T>> U wrap(T object) {
         U converted;
         if (object instanceof AnnotationData) {
             converted = (U) wrap((AnnotationData) object);

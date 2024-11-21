@@ -25,7 +25,7 @@ import omero.gateway.model.RatingAnnotationData;
  * Class containing a RatingAnnotationData object.
  * <p> Wraps function calls to the RatingAnnotationData contained.
  */
-public class RatingAnnotationWrapper extends GenericAnnotationWrapper<RatingAnnotationData> {
+public class RatingAnnotationWrapper extends AnnotationWrapper<RatingAnnotationData> {
 
     /** Indicates the object is not rated. */
     public static final int LEVEL_ZERO = RatingAnnotationData.LEVEL_ZERO;

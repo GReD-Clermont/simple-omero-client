@@ -19,24 +19,25 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.repository.FolderWrapper;
-import fr.igred.omero.repository.ImageWrapper;
-import fr.igred.omero.repository.ProjectWrapper;
+import fr.igred.omero.containers.FolderWrapper;
+import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
 import omero.gateway.model.ProjectData;
-import omero.model.NamedValue;
 import omero.model.ProjectI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static java.lang.String.format;
@@ -64,7 +65,7 @@ class AccessExceptionTest extends BasicTest {
             client.connect(HOST, PORT, USER1.name, password, GROUP1.id);
             assertEquals(USER1.id, client.getId(), "Wrong user");
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
-            sudo = client.sudoGetUser("testUser2");
+            sudo = client.sudo("testUser2");
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
             sudo   = null;
             failed = true;
@@ -176,10 +177,9 @@ class AccessExceptionTest extends BasicTest {
     }
 
 
-    // This test returns a ServiceException for a "security violation".
     @Test
     void testSudoFailGetDatasets() {
-        assertThrows(ServiceException.class, () -> sudo.getDatasets());
+        assertThrows(AccessException.class, () -> sudo.getDatasets());
     }
 
 
@@ -222,13 +222,13 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetAllTags() {
-        assertThrows(ServiceException.class, () -> sudo.getTags());
+        assertThrows(AccessException.class, () -> sudo.getTags());
     }
 
 
     @Test
     void testSudoFailGetTag() {
-        assertThrows(ServiceException.class, () -> sudo.getTag(TAG1.id));
+        assertThrows(AccessException.class, () -> sudo.getTag(TAG1.id));
     }
 
 
@@ -250,19 +250,19 @@ class AccessExceptionTest extends BasicTest {
     void testSudoFailAddKVPair() throws Exception {
         ImageWrapper image = client.getImage(IMAGE1.id);
 
-        List<NamedValue> result1 = new ArrayList<>(2);
-        result1.add(new NamedValue("Test result1", "Value Test"));
-        result1.add(new NamedValue("Test2 result1", "Value Test2"));
+        List<Map.Entry<String, String>> result1 = new ArrayList<>(2);
+        result1.add(new AbstractMap.SimpleEntry<>("Test result1", "Value Test"));
+        result1.add(new AbstractMap.SimpleEntry<>("Test2 result1", "Value Test2"));
 
         MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class,
-                     () -> image.addMapAnnotation(sudo, mapAnnotation1));
+                     () -> image.link(sudo, mapAnnotation1));
     }
 
 
     @Test
     void testSudoFail() {
-        assertThrows(AccessException.class, () -> sudo.sudoGetUser(ROOT.name));
+        assertThrows(AccessException.class, () -> sudo.sudo(ROOT.name));
     }
 
 

@@ -18,10 +18,9 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.Browser;
-import fr.igred.omero.Client;
+import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.OMEROServerError;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
 import omero.model.AnnotationAnnotationLink;
@@ -85,13 +84,11 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      *
      * @return See above.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public List<TagAnnotationWrapper> getTags(Browser browser)
-    throws ExecutionException, AccessException, ServiceException, OMEROServerError {
+    throws AccessException, ServiceException {
         reload(browser);
         return getTags();
     }
@@ -139,13 +136,11 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      *
      * @param browser The data browser.
      *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     * @throws OMEROServerError   Server error.
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
     public void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException, OMEROServerError {
+    throws ServiceException, AccessException {
         String query = "select t from TagAnnotation as t" +
                        " left outer join fetch t.annotationLinks as l" +
                        " left outer join fetch l.child as a" +
