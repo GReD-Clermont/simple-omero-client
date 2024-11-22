@@ -92,8 +92,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <license.licenseName>gpl_v2</license.licenseName>
         <license.copyrightOwners>GReD</license.copyrightOwners>
-        <!-- User surefire 3.0.0 for JUnit5. -->
-        <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
     </properties>
 
     <dependencyManagement>
