@@ -28,7 +28,7 @@ import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.RepositoryObjectWrapper.ReplacePolicy;
+import fr.igred.omero.util.ReplacePolicy;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;

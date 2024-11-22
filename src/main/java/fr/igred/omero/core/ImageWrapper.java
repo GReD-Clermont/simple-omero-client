@@ -18,23 +18,23 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.PixelsWrapper.Bounds;
-import fr.igred.omero.core.PixelsWrapper.Coordinates;
+import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.WellSampleWrapper;
 import fr.igred.omero.screen.WellWrapper;
-import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.util.Bounds;
+import fr.igred.omero.util.Coordinates;
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;

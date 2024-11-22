@@ -18,14 +18,14 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.AnnotationData;

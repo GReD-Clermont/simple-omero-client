@@ -18,16 +18,16 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.Client;
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
+import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.exception.AccessException;
+import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
-import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.WellWrapper;
 import omero.RLong;

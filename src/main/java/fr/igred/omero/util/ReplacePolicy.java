@@ -14,7 +14,20 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
+package fr.igred.omero.util;
+
+
 /**
- * This package contains classes to handle images and their content, such as pixels, channels or planes.
+ * Policy to specify how to handle objects when they are replaced.
  */
-package fr.igred.omero.core;
+public enum ReplacePolicy {
+    /** Unlink objects only */
+    UNLINK,
+
+    /** Delete all objects */
+    DELETE,
+
+    /** Delete orphaned objects */
+    DELETE_ORPHANED
+}
