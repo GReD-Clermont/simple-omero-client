@@ -818,7 +818,7 @@ public interface Browser {
      */
     default FolderWrapper getFolder(long id)
     throws ServiceException, AccessException, ExecutionException {
-        List<FolderWrapper> folders = loadFolders(id);
+        List<FolderWrapper> folders = getFolders(id);
         if (folders.isEmpty()) {
             String msg = format("Folder %d doesn't exist in this context", id);
             throw new NoSuchElementException(msg);
@@ -866,7 +866,7 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<FolderWrapper> loadFolders(Long... ids)
+    List<FolderWrapper> getFolders(Long... ids)
     throws ServiceException, AccessException, ExecutionException;
 
 

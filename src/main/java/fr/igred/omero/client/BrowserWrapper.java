@@ -530,7 +530,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<FolderWrapper> loadFolders(Long... ids)
+    public List<FolderWrapper> getFolders(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
         Collection<FolderData> folders = call(getBrowseFacility(),

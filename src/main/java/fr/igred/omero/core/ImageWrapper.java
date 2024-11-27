@@ -621,7 +621,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
                             .stream()
                             .map(o -> o.getId().getValue())
                             .toArray(Long[]::new);
-        return browser.loadFolders(ids);
+        return browser.getFolders(ids);
     }
 
 

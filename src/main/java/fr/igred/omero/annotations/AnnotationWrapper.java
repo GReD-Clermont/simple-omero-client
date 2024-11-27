@@ -307,7 +307,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return browser.loadFolders(ids);
+        return browser.getFolders(ids);
     }
 
 
