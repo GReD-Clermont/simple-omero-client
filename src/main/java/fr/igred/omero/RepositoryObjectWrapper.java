@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BrowserWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -248,7 +248,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public abstract void reload(Browser browser)
+    public abstract void reload(BrowserWrapper browser)
     throws ServiceException, AccessException, ExecutionException;
 
 }

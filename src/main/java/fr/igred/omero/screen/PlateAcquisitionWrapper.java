@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BrowserWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -226,7 +226,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<WellSampleWrapper> getWellSamples(Browser browser)
+    public List<WellSampleWrapper> getWellSamples(BrowserWrapper browser)
     throws AccessException, ServiceException {
         reload(browser);
         return getWellSamples();
@@ -332,7 +332,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException  Cannot access data.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BrowserWrapper browser)
     throws ServiceException, AccessException {
         String query = "select pa from PlateAcquisition as pa " +
                        " left outer join fetch pa.plate as p" +

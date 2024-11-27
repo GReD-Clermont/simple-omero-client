@@ -21,7 +21,7 @@ package fr.igred.omero.containers;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BrowserWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -432,7 +432,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BrowserWrapper browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     bf -> bf.getProjects(browser.getCtx(),

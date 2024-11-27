@@ -67,17 +67,17 @@ import static java.util.Objects.requireNonNull;
 /**
  * Abstract class to browse data on an OMERO server in a given {@link SecurityContext} and wrap DataObjects.
  */
-public abstract class Browser extends GatewayWrapper {
+public abstract class BrowserWrapper extends GatewayWrapper {
 
 
     /**
-     * Constructor of the Browser class.
+     * Constructor of the BrowserWrapper class.
      *
      * @param gateway The gateway
      * @param ctx     The security context
      * @param user    The user
      */
-    protected Browser(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    protected BrowserWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
     }
 

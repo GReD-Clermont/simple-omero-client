@@ -20,7 +20,7 @@ package fr.igred.omero.core;
 
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BrowserWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
@@ -1012,7 +1012,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BrowserWrapper browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     b -> b.getImage(browser.getCtx(), getId()),

@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BrowserWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.core.ImageWrapper;
@@ -319,7 +319,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BrowserWrapper browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     bf -> bf.getScreens(browser.getCtx(),

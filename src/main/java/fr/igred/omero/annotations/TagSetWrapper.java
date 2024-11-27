@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BrowserWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -87,7 +87,7 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<TagAnnotationWrapper> getTags(Browser browser)
+    public List<TagAnnotationWrapper> getTags(BrowserWrapper browser)
     throws AccessException, ServiceException {
         reload(browser);
         return getTags();
@@ -139,7 +139,7 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public void reload(Browser browser)
+    public void reload(BrowserWrapper browser)
     throws ServiceException, AccessException {
         String query = "select t from TagAnnotation as t" +
                        " left outer join fetch t.annotationLinks as l" +
