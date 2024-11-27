@@ -55,7 +55,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper {
+public abstract class GatewayWrapper extends BrowserWrapper {
 
     /** Number of requested import stores */
     private final AtomicInteger storeUses = new AtomicInteger(0);
@@ -424,25 +424,6 @@ public abstract class GatewayWrapper {
         if (remainingStores <= 0) {
             closeImportStoreLocked();
         }
-    }
-
-
-    /**
-     * Finds objects on OMERO through a database query.
-     *
-     * @param query The database query.
-     *
-     * @return A list of OMERO objects.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     */
-    public List<IObject> findByQuery(String query)
-    throws ServiceException, AccessException {
-        return call(gateway,
-                    g -> g.getQueryService(ctx)
-                          .findAllByQuery(query, null),
-                    "Query failed: " + query);
     }
 
 

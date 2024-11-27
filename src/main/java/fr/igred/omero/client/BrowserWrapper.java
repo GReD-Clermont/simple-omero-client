@@ -33,8 +33,10 @@ import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.WellWrapper;
 import omero.RLong;
-import omero.gateway.Gateway;
+import omero.api.IQueryPrx;
 import omero.gateway.SecurityContext;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.MetadataFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
@@ -67,19 +69,78 @@ import static java.util.Objects.requireNonNull;
 /**
  * Abstract class to browse data on an OMERO server in a given {@link SecurityContext} and wrap DataObjects.
  */
-public abstract class BrowserWrapper extends GatewayWrapper {
+public abstract class BrowserWrapper {
 
 
     /**
-     * Constructor of the BrowserWrapper class.
-     *
-     * @param gateway The gateway
-     * @param ctx     The security context
-     * @param user    The user
+     * Abstract constructor of the BrowserWrapper class.
      */
-    protected BrowserWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
-        super(gateway, ctx, user);
+    protected BrowserWrapper() {
     }
+
+
+    /**
+     * Returns the current user.
+     *
+     * @return See above.
+     */
+    protected abstract ExperimenterWrapper getUser();
+
+    /**
+     * Returns the current {@link SecurityContext}.
+     *
+     * @return See above
+     */
+    abstract SecurityContext getCtx();
+
+
+    /**
+     * Gets the {@link BrowseFacility} used to access the data from OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    abstract BrowseFacility getBrowseFacility() throws ExecutionException;
+
+
+    /**
+     * Gets the {@link MetadataFacility} used to retrieve annotations from OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
+     */
+    abstract MetadataFacility getMetadata() throws ExecutionException;
+
+
+    /**
+     * Finds objects on OMERO through a database query.
+     *
+     * @param query The database query.
+     *
+     * @return A list of OMERO objects.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     */
+    public List<IObject> findByQuery(String query)
+    throws ServiceException, AccessException {
+        return call(getQueryService(),
+                qs -> qs.findAllByQuery(query, null),
+                "Query failed: " + query);
+    }
+
+
+    /**
+     * Returns the {@link IQueryPrx} used to find objects on OMERO.
+     *
+     * @return See above.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
+     */
+    abstract IQueryPrx getQueryService() throws ServiceException, AccessException;
 
 
     /**
@@ -971,9 +1032,8 @@ public abstract class BrowserWrapper extends GatewayWrapper {
     public List<TagAnnotationWrapper> getTags()
     throws AccessException, ServiceException {
         String klass = TagAnnotation.class.getSimpleName();
-        List<IObject> os = call(getGateway(),
-                                g -> g.getQueryService(getCtx())
-                                      .findAll(klass, null),
+        List<IObject> os = call(getQueryService(),
+                       qs -> qs.findAll(klass, null),
                                 "Cannot get tags");
         return os.stream()
                  .map(TagAnnotation.class::cast)
@@ -1016,9 +1076,8 @@ public abstract class BrowserWrapper extends GatewayWrapper {
      */
     public TagAnnotationWrapper getTag(Long id)
     throws AccessException, ServiceException {
-        IObject o = call(getGateway(),
-                         g -> g.getQueryService(getCtx())
-                               .find(TagAnnotation.class.getSimpleName(), id),
+        IObject o = call(getQueryService(),
+                         qs -> qs.find(TagAnnotation.class.getSimpleName(), id),
                          "Cannot get tag ID: " + id);
         TagAnnotationData tag;
         if (o == null) {
@@ -1042,9 +1101,8 @@ public abstract class BrowserWrapper extends GatewayWrapper {
     public List<MapAnnotationWrapper> getMapAnnotations()
     throws AccessException, ServiceException {
         String klass = omero.model.MapAnnotation.class.getSimpleName();
-        List<IObject> os = call(getGateway(),
-                                g -> g.getQueryService(getCtx())
-                                      .findAll(klass, null),
+        List<IObject> os = call(getQueryService(),
+                                qs -> qs.findAll(klass, null),
                                 "Cannot get map annotations");
         return os.stream()
                  .map(omero.model.MapAnnotation.class::cast)
