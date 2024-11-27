@@ -289,7 +289,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser client)
     throws AccessException, ServiceException, ExecutionException {
         reload(client);
         return getImages();

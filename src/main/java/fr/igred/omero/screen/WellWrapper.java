@@ -20,7 +20,6 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -131,7 +130,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         reload(client);
         return getPlate().getScreens(client);
@@ -159,7 +158,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         reload(client);
         return client.getPlate(getPlate().getId()).getPlateAcquisitions();

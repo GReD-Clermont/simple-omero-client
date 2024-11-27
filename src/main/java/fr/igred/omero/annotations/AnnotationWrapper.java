@@ -19,7 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -120,7 +120,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public int countAnnotationLinks(Client client)
+    public int countAnnotationLinks(Browser client)
     throws ServiceException, AccessException {
         String q = "select link.parent from ome.model.IAnnotationLink link" +
                    " where link.child.id=" + getId();
@@ -139,7 +139,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(Client client)
+    public List<ProjectWrapper> getProjects(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(client, ProjectWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -162,7 +162,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(Client client)
+    public List<DatasetWrapper> getDatasets(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(client, DatasetWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -185,7 +185,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(client, ImageWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -208,7 +208,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(client, ScreenWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -231,7 +231,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client)
+    public List<PlateWrapper> getPlates(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(client, PlateWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -253,7 +253,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser client)
     throws ServiceException, AccessException {
         List<IObject> os = getLinks(client,
                                     PlateAcquisitionWrapper.ANNOTATION_LINK);
@@ -276,7 +276,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client)
+    public List<WellWrapper> getWells(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(client, WellWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -299,7 +299,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FolderWrapper> getFolders(Client client)
+    public List<FolderWrapper> getFolders(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(client, FolderWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -322,7 +322,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    private List<IObject> getLinks(Client client, String linkType)
+    private List<IObject> getLinks(Browser client, String linkType)
     throws ServiceException, AccessException {
         return client.findByQuery("select link.parent from " + linkType +
                                   " link where link.child = " + getId());

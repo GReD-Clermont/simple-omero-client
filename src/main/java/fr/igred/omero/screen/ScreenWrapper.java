@@ -170,7 +170,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         reload(client);
         return getPlates().stream()
@@ -196,7 +196,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client)
+    public List<WellWrapper> getWells(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<PlateWrapper>            plates = getPlates();
         Collection<List<WellWrapper>> wells  = new ArrayList<>(plates.size());
@@ -218,7 +218,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<PlateWrapper>             plates = getPlates();
         Collection<List<ImageWrapper>> images = new ArrayList<>(plates.size());

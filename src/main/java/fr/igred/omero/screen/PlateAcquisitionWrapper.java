@@ -160,7 +160,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         PlateWrapper plate = client.getPlate(getRefPlateId());
         return plate.getScreens(client);
@@ -178,7 +178,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client)
+    public List<PlateWrapper> getPlates(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return client.getPlates(getRefPlateId());
     }
@@ -195,7 +195,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client)
+    public List<WellWrapper> getWells(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return getPlates(client).iterator().next().getWells(client);
     }
@@ -255,7 +255,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser client)
     throws ServiceException, AccessException {
         return getWellSamples(client).stream()
                                      .map(WellSampleWrapper::getImage)

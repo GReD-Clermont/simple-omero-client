@@ -236,7 +236,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> projectIds = singletonList(getId());
         Collection<ImageData> images = call(client.getBrowseFacility(),
@@ -259,7 +259,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client, String name)
+    public List<ImageWrapper> getImages(Browser client, String name)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
@@ -284,7 +284,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client, String datasetName, String imageName)
+    public List<ImageWrapper> getImages(Browser client, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets(datasetName);
 
@@ -313,7 +313,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesLike(Client client, String motif)
+    public List<ImageWrapper> getImagesLike(Browser client, String motif)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
@@ -337,7 +337,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Client client, TagAnnotationWrapper tag)
+    public List<ImageWrapper> getImagesTagged(Browser client, TagAnnotationWrapper tag)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
@@ -361,7 +361,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesTagged(Client client, Long tagId)
+    public List<ImageWrapper> getImagesTagged(Browser client, Long tagId)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
@@ -385,7 +385,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesWithKey(Client client, String key)
+    public List<ImageWrapper> getImagesWithKey(Browser client, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 
@@ -410,7 +410,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImagesWithKeyValuePair(Client client, String key, String value)
+    public List<ImageWrapper> getImagesWithKeyValuePair(Browser client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetWrapper> datasets = getDatasets();
 

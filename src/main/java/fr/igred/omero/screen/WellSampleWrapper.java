@@ -20,7 +20,6 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -64,7 +63,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return getWell(client).getScreens(client);
     }
@@ -81,7 +80,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Client client)
+    public List<PlateWrapper> getPlates(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(client).getPlate());
     }
@@ -108,7 +107,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Client client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return getWell(client).getPlateAcquisitions(client);
     }
@@ -125,7 +124,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public WellWrapper getWell(Client client)
+    public WellWrapper getWell(Browser client)
     throws AccessException, ServiceException, ExecutionException {
         return client.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }

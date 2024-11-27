@@ -21,7 +21,6 @@ package fr.igred.omero.screen;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -130,7 +129,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Client client)
+    public List<ScreenWrapper> getScreens(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         String query = "select link.parent from ScreenPlateLink as link" +
                        " where link.child=" + getId();
@@ -164,7 +163,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Client client)
+    public List<WellWrapper> getWells(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = call(client.getBrowseFacility(),
                                           bf -> bf.getWells(client.getCtx(),
@@ -190,7 +189,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Client client)
+    public List<ImageWrapper> getImages(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return getWells(client).stream()
                                .map(WellWrapper::getImages)

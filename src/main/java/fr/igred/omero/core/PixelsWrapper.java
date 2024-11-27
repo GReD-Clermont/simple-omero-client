@@ -19,6 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -26,6 +27,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
 import ome.units.unit.Unit;
+import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.model.PixelsData;
@@ -145,7 +147,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void loadPlanesInfo(Client client)
+    public void loadPlanesInfo(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<PlaneInfoData> planes = call(client.getMetadata(),
                                           m -> m.getPlaneInfos(client.getCtx(),
@@ -156,7 +158,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
 
 
     /**
-     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Client) loaded} first).
+     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Browser) loaded} first).
      *
      * @return See above.
      */
@@ -217,7 +219,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
 
     /**
      * Computes the mean time interval from the planes deltaTs.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -228,7 +230,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
 
     /**
      * Computes the mean exposure time for a given channel from the planes exposureTime.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @param channel The channel index.
      *
@@ -241,7 +243,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
 
     /**
      * Retrieves the X stage position, using the same unit as {@link #getPixelSizeX()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -264,7 +266,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
 
     /**
      * Retrieves the Y stage position, using the same unit as {@link #getPixelSizeY()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -287,7 +289,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
 
     /**
      * Retrieves the Z stage position, using the same unit as {@link #getPixelSizeZ()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Client) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -479,7 +481,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
         double[][] tile = ExceptionHandler.of(this,
-                                              t -> t.getTileUnchecked(client, start, width, height))
+                                              t -> t.getTileUnchecked(client.getCtx(), start, width, height))
                                           .rethrow(DataSourceException.class,
                                                    AccessException::new,
                                                    "Cannot read tile")
@@ -495,7 +497,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * Gets the tile at the specified position, with the defined width and height.
      * <p>The {@link #rawDataFacility} has to be created first.</p>
      *
-     * @param client The client handling the connection.
+     * @param ctx    The {@link SecurityContext}.
      * @param start  Start position of the tile.
      * @param width  Width of the tile.
      * @param height Height of the tile.
@@ -504,7 +506,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      */
-    private double[][] getTileUnchecked(Client client, Coordinates start, int width, int height)
+    private double[][] getTileUnchecked(SecurityContext ctx, Coordinates start, int width, int height)
     throws DataSourceException {
         double[][] tile = new double[height][width];
 
@@ -516,7 +518,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.getY(); relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int         sizeY = Math.min(MAX_DIST, height - relY);
-                Plane2D     p     = rawDataFacility.getTile(client.getCtx(), data, z, t, c, x, y, sizeX, sizeY);
+                Plane2D     p     = rawDataFacility.getTile(ctx, data, z, t, c, x, y, sizeX, sizeY);
                 Coordinates pos   = new Coordinates(relX, relY, c, z, t);
                 copy(tile, p, pos, sizeX, sizeY);
             }
@@ -619,7 +621,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
         byte[] tile = ExceptionHandler.of(this,
-                                          t -> t.getRawTileUnchecked(client, start, width, height, bpp))
+                                          t -> t.getRawTileUnchecked(client.getCtx(), start, width, height, bpp))
                                       .rethrow(DataSourceException.class,
                                                AccessException::new,
                                                "Cannot read raw tile")
@@ -635,7 +637,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * Gets the tile at the specified position, with the defined width and height.
      * <p>The {@link #rawDataFacility} has to be created first.</p>
      *
-     * @param client The client handling the connection.
+     * @param ctx    The {@link SecurityContext}.
      * @param start  Start position of the tile.
      * @param width  Width of the tile.
      * @param height Height of the tile.
@@ -645,7 +647,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      */
-    private byte[] getRawTileUnchecked(Client client, Coordinates start, int width, int height, int bpp)
+    private byte[] getRawTileUnchecked(SecurityContext ctx, Coordinates start, int width, int height, int bpp)
     throws DataSourceException {
         byte[] tile = new byte[height * width * bpp];
 
@@ -657,7 +659,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
             int sizeX = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.getY(); relY < height; relY += MAX_DIST, y += MAX_DIST) {
                 int         sizeY = Math.min(MAX_DIST, height - relY);
-                Plane2D     p     = rawDataFacility.getTile(client.getCtx(), data, z, t, c, x, y, sizeX, sizeY);
+                Plane2D     p     = rawDataFacility.getTile(ctx, data, z, t, c, x, y, sizeX, sizeY);
                 Coordinates pos   = new Coordinates(relX, relY, c, z, t);
                 copy(tile, p, pos, sizeX, sizeY, width, bpp);
             }

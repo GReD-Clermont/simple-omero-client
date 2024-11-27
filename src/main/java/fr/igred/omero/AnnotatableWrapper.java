@@ -25,6 +25,7 @@ import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
+import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -96,7 +97,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends AnnotationWrapper<?>> boolean isLinked(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> boolean isLinked(Browser client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         return getAnnotations(client).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
@@ -249,7 +250,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TagAnnotationWrapper> getTags(Client client)
+    public List<TagAnnotationWrapper> getTags(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(TagAnnotationData.class);
 
@@ -280,7 +281,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<MapAnnotationWrapper> getMapAnnotations(Client client)
+    public List<MapAnnotationWrapper> getMapAnnotations(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(MapAnnotationData.class);
         List<AnnotationData> annotations = call(client.getMetadata(),
@@ -329,7 +330,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Map.Entry<String, String>> getKeyValuePairs(Client client)
+    public List<Map.Entry<String, String>> getKeyValuePairs(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(client).stream()
                                         .map(MapAnnotationWrapper::getContent)
@@ -351,7 +352,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public List<String> getValues(Client client, String key)
+    public List<String> getValues(Browser client, String key)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(client).stream()
                                         .map(MapAnnotationWrapper::getContentAsMap)
@@ -374,7 +375,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<RatingAnnotationWrapper> getRatings(Client client, List<Long> userIds)
+    private List<RatingAnnotationWrapper> getRatings(Browser client, List<Long> userIds)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot retrieve rating annotations from " + this;
 
@@ -407,7 +408,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<RatingAnnotationWrapper> getRatings(Client client)
+    public List<RatingAnnotationWrapper> getRatings(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         return getRatings(client, null);
     }
@@ -456,7 +457,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public int getMyRating(Client client)
+    public int getMyRating(Browser client)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> userIds = singletonList(client.getCtx().getExperimenter());
 
@@ -714,7 +715,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FileAnnotationWrapper> getFileAnnotations(Client client)
+    public List<FileAnnotationWrapper> getFileAnnotations(Browser client)
     throws ExecutionException, ServiceException, AccessException {
         String error = "Cannot retrieve file annotations from " + this;
 
@@ -832,7 +833,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<AnnotationData> getAnnotationData(Client client)
+    private List<AnnotationData> getAnnotationData(Browser client)
     throws AccessException, ServiceException, ExecutionException {
         return call(client.getMetadata(),
                     m -> m.getAnnotations(client.getCtx(), data),
@@ -851,7 +852,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public AnnotationList getAnnotations(Client client)
+    public AnnotationList getAnnotations(Browser client)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> annotationData = getAnnotationData(client);
 
