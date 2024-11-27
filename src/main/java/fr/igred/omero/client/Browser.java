@@ -534,8 +534,17 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<ImageWrapper> getImages(String projectName, String datasetName, String imageName)
+    throws ServiceException, AccessException, ExecutionException {
+        List<ProjectWrapper> projects = getProjects(projectName);
+
+        Collection<List<ImageWrapper>> lists = new ArrayList<>(projects.size());
+        for (ProjectWrapper project : projects) {
+            lists.add(project.getImages(this, datasetName, imageName));
+        }
+
+        return flatten(lists);
+    }
 
 
     /**
@@ -549,8 +558,10 @@ public interface Browser {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<ImageWrapper> getImages(AnnotationWrapper<?> annotation)
-    throws ServiceException, AccessException, ExecutionException;
+    default List<ImageWrapper> getImages(AnnotationWrapper<?> annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        return annotation.getImages(this);
+    }
 
 
     /**
