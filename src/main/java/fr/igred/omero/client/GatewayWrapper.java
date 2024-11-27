@@ -55,7 +55,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper implements Browser{
+public abstract class GatewayWrapper extends BrowserWrapper {
 
     /** Number of requested import stores */
     private final AtomicInteger storeUses = new AtomicInteger(0);
