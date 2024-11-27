@@ -55,7 +55,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper {
+public abstract class GatewayWrapper implements Browser{
 
     /** Number of requested import stores */
     private final AtomicInteger storeUses = new AtomicInteger(0);
@@ -133,6 +133,7 @@ public abstract class GatewayWrapper {
      *
      * @return The current user.
      */
+    @Override
     public ExperimenterWrapper getUser() {
         return user;
     }
@@ -143,6 +144,7 @@ public abstract class GatewayWrapper {
      *
      * @return the {@link SecurityContext} of the user.
      */
+    @Override
     public SecurityContext getCtx() {
         return ctx;
     }
@@ -318,6 +320,7 @@ public abstract class GatewayWrapper {
      *
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public BrowseFacility getBrowseFacility() throws ExecutionException {
         return gateway.getFacility(BrowseFacility.class);
     }
@@ -329,13 +332,14 @@ public abstract class GatewayWrapper {
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException  Cannot access data.
      */
-    public IQueryPrx getQueryService() throws ServiceException {
-        return ExceptionHandler.of(gateway, g -> g.getQueryService(ctx))
-                               .rethrow(DSOutOfServiceException.class,
-                                        ServiceException::new,
-                                        "Could not retrieve Query Service")
-                               .get();
+    @Override
+    public IQueryPrx getQueryService()
+    throws ServiceException, AccessException {
+        return call(gateway,
+                    g -> g.getQueryService(ctx),
+                    "Could not retrieve Query Service");
     }
 
 
@@ -346,6 +350,7 @@ public abstract class GatewayWrapper {
      *
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
      */
+    @Override
     public MetadataFacility getMetadata() throws ExecutionException {
         return gateway.getFacility(MetadataFacility.class);
     }
@@ -424,25 +429,6 @@ public abstract class GatewayWrapper {
         if (remainingStores <= 0) {
             closeImportStoreLocked();
         }
-    }
-
-
-    /**
-     * Finds objects on OMERO through a database query.
-     *
-     * @param query The database query.
-     *
-     * @return A list of OMERO objects.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     */
-    public List<IObject> findByQuery(String query)
-    throws ServiceException, AccessException {
-        return call(gateway,
-                    g -> g.getQueryService(ctx)
-                          .findAllByQuery(query, null),
-                    "Query failed: " + query);
     }
 
 
