@@ -828,7 +828,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     public List<ChannelWrapper> getChannels(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get the channel name for " + this;
-        List<ChannelData> channels = call(browser.getMetadata(),
+        List<ChannelData> channels = call(browser.getMetadataFacility(),
                                           m -> m.getChannelData(browser.getCtx(),
                                                                 getId()),
                                           error);
@@ -956,7 +956,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     public List<String> getOriginalPaths(Browser browser)
     throws ExecutionException, AccessException, ServiceException {
         String error = "Cannot get original paths for " + this;
-        return call(browser.getMetadata(),
+        return call(browser.getMetadataFacility(),
                     m -> m.getOriginalPaths(browser.getCtx(), data),
                     error);
     }
@@ -976,7 +976,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
     public List<String> getManagedRepositoriesPaths(Browser browser)
     throws ExecutionException, AccessException, ServiceException {
         String error = "Cannot get managed repositories paths for " + this;
-        return call(browser.getMetadata(),
+        return call(browser.getMetadataFacility(),
                     m -> m.getManagedRepositoriesPaths(browser.getCtx(), data),
                     error);
     }

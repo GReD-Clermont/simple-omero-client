@@ -254,7 +254,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = call(browser.getMetadata(),
+        List<AnnotationData> annotations = call(browser.getMetadataFacility(),
                                                 m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
@@ -284,7 +284,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     public List<MapAnnotationWrapper> getMapAnnotations(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(MapAnnotationData.class);
-        List<AnnotationData> annotations = call(browser.getMetadata(),
+        List<AnnotationData> annotations = call(browser.getMetadataFacility(),
                                                 m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
@@ -381,7 +381,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
 
         List<Class<? extends AnnotationData>> types = singletonList(RatingAnnotationData.class);
 
-        List<AnnotationData> annotations = call(browser.getMetadata(),
+        List<AnnotationData> annotations = call(browser.getMetadataFacility(),
                                                 m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
@@ -721,7 +721,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
 
         List<Class<? extends AnnotationData>> types = singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = call(browser.getMetadata(),
+        List<AnnotationData> annotations = call(browser.getMetadataFacility(),
                                                 m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
@@ -835,7 +835,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      */
     private List<AnnotationData> getAnnotationData(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return call(browser.getMetadata(),
+        return call(browser.getMetadataFacility(),
                     m -> m.getAnnotations(browser.getCtx(), data),
                     "Cannot get annotations from " + this);
     }

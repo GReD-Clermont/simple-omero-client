@@ -351,7 +351,7 @@ public abstract class GatewayWrapper extends BrowserWrapper {
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
      */
     @Override
-    public MetadataFacility getMetadata() throws ExecutionException {
+    public MetadataFacility getMetadataFacility() throws ExecutionException {
         return gateway.getFacility(MetadataFacility.class);
     }
 

@@ -149,7 +149,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      */
     public void loadPlanesInfo(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = call(browser.getMetadata(),
+        List<PlaneInfoData> planes = call(browser.getMetadataFacility(),
                                           m -> m.getPlaneInfos(browser.getCtx(),
                                                                data),
                                           "Cannot retrieve planes info.");
