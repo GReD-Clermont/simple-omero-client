@@ -141,16 +141,16 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
     /**
      * Loads the planes information.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void loadPlanesInfo(Browser client)
+    public void loadPlanesInfo(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<PlaneInfoData> planes = call(client.getMetadata(),
-                                          m -> m.getPlaneInfos(client.getCtx(),
+        List<PlaneInfoData> planes = call(browser.getMetadata(),
+                                          m -> m.getPlaneInfos(browser.getCtx(),
                                                                data),
                                           "Cannot retrieve planes info.");
         planesInfo = wrap(planes, PlaneInfoWrapper::new);

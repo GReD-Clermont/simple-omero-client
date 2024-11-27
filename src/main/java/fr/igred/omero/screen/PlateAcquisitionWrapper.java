@@ -152,7 +152,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
     /**
      * Retrieves the screens containing the parent plates.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -160,17 +160,17 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Browser client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        PlateWrapper plate = client.getPlate(getRefPlateId());
-        return plate.getScreens(client);
+        PlateWrapper plate = browser.getPlate(getRefPlateId());
+        return plate.getScreens(browser);
     }
 
 
     /**
      * Returns the (updated) parent plate as a singleton list.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -178,16 +178,16 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Browser client)
+    public List<PlateWrapper> getPlates(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return client.getPlates(getRefPlateId());
+        return browser.getPlates(getRefPlateId());
     }
 
 
     /**
      * Retrieves the wells contained in the parent plate.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -195,9 +195,9 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Browser client)
+    public List<WellWrapper> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getPlates(client).iterator().next().getWells(client);
+        return getPlates(browser).iterator().next().getWells(browser);
     }
 
 
@@ -248,18 +248,18 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
     /**
      * Retrieves the images contained in the wells in the parent plate.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<ImageWrapper> getImages(Browser client)
+    public List<ImageWrapper> getImages(Browser browser)
     throws ServiceException, AccessException {
-        return getWellSamples(client).stream()
-                                     .map(WellSampleWrapper::getImage)
-                                     .collect(Collectors.toList());
+        return getWellSamples(browser).stream()
+                                      .map(WellSampleWrapper::getImage)
+                                      .collect(Collectors.toList());
     }
 
 

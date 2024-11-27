@@ -87,7 +87,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Checks if a specific annotation is linked to the object.
      *
-     * @param client     The client handling the connection.
+     * @param browser    The data browser.
      * @param annotation Annotation to be checked.
      * @param <A>        The type of the annotation.
      *
@@ -97,9 +97,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends AnnotationWrapper<?>> boolean isLinked(Browser client, A annotation)
+    public <A extends AnnotationWrapper<?>> boolean isLinked(Browser browser, A annotation)
     throws ServiceException, AccessException, ExecutionException {
-        return getAnnotations(client).stream().anyMatch(a -> a.getId() == annotation.getId());
+        return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
 
 
@@ -242,7 +242,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Gets all tags linked to an object in OMERO, if possible.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -250,12 +250,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TagAnnotationWrapper> getTags(Browser client)
+    public List<TagAnnotationWrapper> getTags(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(TagAnnotationData.class);
 
-        List<AnnotationData> annotations = call(client.getMetadata(),
-                                                m -> m.getAnnotations(client.getCtx(),
+        List<AnnotationData> annotations = call(browser.getMetadata(),
+                                                m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
                                                                       null),
@@ -273,7 +273,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Gets all map annotations linked to an object in OMERO, if possible.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -281,11 +281,11 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<MapAnnotationWrapper> getMapAnnotations(Browser client)
+    public List<MapAnnotationWrapper> getMapAnnotations(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(MapAnnotationData.class);
-        List<AnnotationData> annotations = call(client.getMetadata(),
-                                                m -> m.getAnnotations(client.getCtx(),
+        List<AnnotationData> annotations = call(browser.getMetadata(),
+                                                m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
                                                                       null),
@@ -322,7 +322,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Gets the List of Key-Value pairs associated to an object.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -330,20 +330,20 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<Map.Entry<String, String>> getKeyValuePairs(Browser client)
+    public List<Map.Entry<String, String>> getKeyValuePairs(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getMapAnnotations(client).stream()
-                                        .map(MapAnnotationWrapper::getContent)
-                                        .flatMap(List::stream)
-                                        .collect(toList());
+        return getMapAnnotations(browser).stream()
+                                         .map(MapAnnotationWrapper::getContent)
+                                         .flatMap(List::stream)
+                                         .collect(toList());
     }
 
 
     /**
      * Gets the value from a Key-Value pair associated to the object.
      *
-     * @param client The client handling the connection.
-     * @param key    Key researched.
+     * @param browser The data browser.
+     * @param key     Key researched.
      *
      * @return Value associated to the key.
      *
@@ -352,21 +352,21 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    public List<String> getValues(Browser client, String key)
+    public List<String> getValues(Browser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
-        return getMapAnnotations(client).stream()
-                                        .map(MapAnnotationWrapper::getContentAsMap)
-                                        .map(kv -> kv.get(key))
-                                        .filter(Objects::nonNull)
-                                        .flatMap(List::stream)
-                                        .collect(toList());
+        return getMapAnnotations(browser).stream()
+                                         .map(MapAnnotationWrapper::getContentAsMap)
+                                         .map(kv -> kv.get(key))
+                                         .filter(Objects::nonNull)
+                                         .flatMap(List::stream)
+                                         .collect(toList());
     }
 
 
     /**
      * Returns all the ratings from the specified user IDs for this object.
      *
-     * @param client  The client handling the connection.
+     * @param browser The data browser.
      * @param userIds List of user IDs (can be null, i. e. all users).
      *
      * @return See above.
@@ -375,14 +375,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<RatingAnnotationWrapper> getRatings(Browser client, List<Long> userIds)
+    private List<RatingAnnotationWrapper> getRatings(Browser browser, List<Long> userIds)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot retrieve rating annotations from " + this;
 
         List<Class<? extends AnnotationData>> types = singletonList(RatingAnnotationData.class);
 
-        List<AnnotationData> annotations = call(client.getMetadata(),
-                                                m -> m.getAnnotations(client.getCtx(),
+        List<AnnotationData> annotations = call(browser.getMetadata(),
+                                                m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
                                                                       userIds),
@@ -400,7 +400,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Returns all the ratings from all users for this object.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -408,9 +408,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<RatingAnnotationWrapper> getRatings(Browser client)
+    public List<RatingAnnotationWrapper> getRatings(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getRatings(client, null);
+        return getRatings(browser, null);
     }
 
 
@@ -449,7 +449,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Returns the user rating for this object (averaged if multiple ratings are linked).
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -457,11 +457,11 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public int getMyRating(Browser client)
+    public int getMyRating(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<Long> userIds = singletonList(client.getCtx().getExperimenter());
+        List<Long> userIds = singletonList(browser.getCtx().getExperimenter());
 
-        List<RatingAnnotationWrapper> ratings = getRatings(client, userIds);
+        List<RatingAnnotationWrapper> ratings = getRatings(browser, userIds);
         int                           score   = 0;
         for (RatingAnnotationWrapper rate : ratings) {
             score += rate.getRating();
@@ -707,7 +707,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Returns the file annotations
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return The list of tile annotations.
      *
@@ -715,14 +715,14 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FileAnnotationWrapper> getFileAnnotations(Browser client)
+    public List<FileAnnotationWrapper> getFileAnnotations(Browser browser)
     throws ExecutionException, ServiceException, AccessException {
         String error = "Cannot retrieve file annotations from " + this;
 
         List<Class<? extends AnnotationData>> types = singletonList(FileAnnotationData.class);
 
-        List<AnnotationData> annotations = call(client.getMetadata(),
-                                                m -> m.getAnnotations(client.getCtx(),
+        List<AnnotationData> annotations = call(browser.getMetadata(),
+                                                m -> m.getAnnotations(browser.getCtx(),
                                                                       data,
                                                                       types,
                                                                       null),
@@ -825,7 +825,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Retrieves annotations linked to the object.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return A list of annotations, as AnnotationData.
      *
@@ -833,10 +833,10 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    private List<AnnotationData> getAnnotationData(Browser client)
+    private List<AnnotationData> getAnnotationData(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return call(client.getMetadata(),
-                    m -> m.getAnnotations(client.getCtx(), data),
+        return call(browser.getMetadata(),
+                    m -> m.getAnnotations(browser.getCtx(), data),
                     "Cannot get annotations from " + this);
     }
 
@@ -844,7 +844,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     /**
      * Retrieves annotations linked to the object (of known types).
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return A list of annotations.
      *
@@ -852,9 +852,9 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public AnnotationList getAnnotations(Browser client)
+    public AnnotationList getAnnotations(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> annotationData = getAnnotationData(client);
+        List<AnnotationData> annotationData = getAnnotationData(browser);
 
         AnnotationList annotations = new AnnotationList(annotationData.size());
         annotationData.forEach(annotations::add);

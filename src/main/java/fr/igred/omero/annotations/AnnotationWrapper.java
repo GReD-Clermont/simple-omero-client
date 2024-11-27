@@ -113,25 +113,25 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     /**
      * Returns the number of annotations links for this object.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public int countAnnotationLinks(Browser client)
+    public int countAnnotationLinks(Browser browser)
     throws ServiceException, AccessException {
         String q = "select link.parent from ome.model.IAnnotationLink link" +
                    " where link.child.id=" + getId();
-        return client.findByQuery(q).size();
+        return browser.findByQuery(q).size();
     }
 
 
     /**
      * Gets all projects with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -139,22 +139,22 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ProjectWrapper> getProjects(Browser client)
+    public List<ProjectWrapper> getProjects(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = getLinks(client, ProjectWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(browser, ProjectWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
                        .map(IObject::getId)
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return client.getProjects(ids);
+        return browser.getProjects(ids);
     }
 
 
     /**
      * Gets all datasets with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -162,22 +162,22 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<DatasetWrapper> getDatasets(Browser client)
+    public List<DatasetWrapper> getDatasets(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = getLinks(client, DatasetWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(browser, DatasetWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
                        .map(IObject::getId)
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return client.getDatasets(ids);
+        return browser.getDatasets(ids);
     }
 
 
     /**
      * Gets all images with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -185,22 +185,22 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser client)
+    public List<ImageWrapper> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = getLinks(client, ImageWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(browser, ImageWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
                        .map(IObject::getId)
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return client.getImages(ids);
+        return browser.getImages(ids);
     }
 
 
     /**
      * Gets all screens with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -208,22 +208,22 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Browser client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = getLinks(client, ScreenWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(browser, ScreenWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
                        .map(IObject::getId)
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return client.getScreens(ids);
+        return browser.getScreens(ids);
     }
 
 
     /**
      * Gets all plates with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -231,31 +231,31 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateWrapper> getPlates(Browser client)
+    public List<PlateWrapper> getPlates(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = getLinks(client, PlateWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(browser, PlateWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
                        .map(IObject::getId)
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return client.getPlates(ids);
+        return browser.getPlates(ids);
     }
 
 
     /**
      * Gets all plate acquisitions with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException {
-        List<IObject> os = getLinks(client,
+        List<IObject> os = getLinks(browser,
                                     PlateAcquisitionWrapper.ANNOTATION_LINK);
         return os.stream()
                  .map(omero.model.PlateAcquisition.class::cast)
@@ -268,7 +268,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
     /**
      * Gets all wells with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -276,22 +276,22 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Browser client)
+    public List<WellWrapper> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = getLinks(client, WellWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(browser, WellWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
                        .map(IObject::getId)
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return client.getWells(ids);
+        return browser.getWells(ids);
     }
 
 
     /**
      * Gets all folders with this annotation from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -299,22 +299,22 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FolderWrapper> getFolders(Browser client)
+    public List<FolderWrapper> getFolders(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        List<IObject> os = getLinks(client, FolderWrapper.ANNOTATION_LINK);
+        List<IObject> os = getLinks(browser, FolderWrapper.ANNOTATION_LINK);
         Long[] ids = os.stream()
                        .map(IObject::getId)
                        .map(RLong::getValue)
                        .sorted()
                        .toArray(Long[]::new);
-        return client.loadFolders(ids);
+        return browser.loadFolders(ids);
     }
 
 
     /**
      * Retrieves all links of the given type.
      *
-     * @param client   The client handling the connection.
+     * @param browser  The data browser.
      * @param linkType The link type.
      *
      * @return The list of linked objects.
@@ -322,10 +322,10 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    private List<IObject> getLinks(Browser client, String linkType)
+    private List<IObject> getLinks(Browser browser, String linkType)
     throws ServiceException, AccessException {
-        return client.findByQuery("select link.parent from " + linkType +
-                                  " link where link.child = " + getId());
+        return browser.findByQuery("select link.parent from " + linkType +
+                                   " link where link.child = " + getId());
     }
 
 }

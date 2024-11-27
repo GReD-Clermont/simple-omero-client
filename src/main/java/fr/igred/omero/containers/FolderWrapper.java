@@ -281,7 +281,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Retrieves the images contained in this folder.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -289,9 +289,9 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser client)
+    public List<ImageWrapper> getImages(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
-        reload(client);
+        reload(browser);
         return getImages();
     }
 

@@ -121,7 +121,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
     /**
      * Retrieves the screens containing this plate.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -129,16 +129,16 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Browser client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
         String query = "select link.parent from ScreenPlateLink as link" +
                        " where link.child=" + getId();
-        List<IObject> os = client.findByQuery(query);
-        return client.getScreens(os.stream()
-                                   .map(IObject::getId)
-                                   .map(RLong::getValue)
-                                   .distinct()
-                                   .toArray(Long[]::new));
+        List<IObject> os = browser.findByQuery(query);
+        return browser.getScreens(os.stream()
+                                    .map(IObject::getId)
+                                    .map(RLong::getValue)
+                                    .distinct()
+                                    .toArray(Long[]::new));
     }
 
 
@@ -155,7 +155,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
     /**
      * Gets all wells in the plate available from OMERO.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -163,10 +163,10 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<WellWrapper> getWells(Browser client)
+    public List<WellWrapper> getWells(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<WellData> wells = call(client.getBrowseFacility(),
-                                          bf -> bf.getWells(client.getCtx(),
+        Collection<WellData> wells = call(browser.getBrowseFacility(),
+                                          bf -> bf.getWells(browser.getCtx(),
                                                             data.getId()),
                                           "Cannot get wells from " + this);
 
@@ -181,7 +181,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
     /**
      * Returns the images contained in the wells of this plate.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -189,17 +189,17 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ImageWrapper> getImages(Browser client)
+    public List<ImageWrapper> getImages(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        return getWells(client).stream()
-                               .map(WellWrapper::getImages)
-                               .flatMap(Collection::stream)
-                               .collect(toMap(ObjectWrapper::getId,
-                                              i -> i, (i1, i2) -> i1))
-                               .values()
-                               .stream()
-                               .sorted(Comparator.comparing(ObjectWrapper::getId))
-                               .collect(Collectors.toList());
+        return getWells(browser).stream()
+                                .map(WellWrapper::getImages)
+                                .flatMap(Collection::stream)
+                                .collect(toMap(ObjectWrapper::getId,
+                                               i -> i, (i1, i2) -> i1))
+                                .values()
+                                .stream()
+                                .sorted(Comparator.comparing(ObjectWrapper::getId))
+                                .collect(Collectors.toList());
     }
 
 
@@ -324,7 +324,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> {
     /**
      * Reloads the plate from OMERO.
      *
-     * @param browser The client handling the connection.
+     * @param browser The data browser.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.

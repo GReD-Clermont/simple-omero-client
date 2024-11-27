@@ -122,7 +122,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
     /**
      * Reloads this well and retrieves the screens containing it.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above
      *
@@ -130,10 +130,10 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ScreenWrapper> getScreens(Browser client)
+    public List<ScreenWrapper> getScreens(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        reload(client);
-        return getPlate().getScreens(client);
+        reload(browser);
+        return getPlate().getScreens(browser);
     }
 
 
@@ -150,7 +150,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
     /**
      * Reloads this well and returns the plate acquisitions linked to it.
      *
-     * @param client The client handling the connection.
+     * @param browser The data browser.
      *
      * @return See above.
      *
@@ -158,10 +158,10 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser client)
+    public List<PlateAcquisitionWrapper> getPlateAcquisitions(Browser browser)
     throws ServiceException, AccessException, ExecutionException {
-        reload(client);
-        return client.getPlate(getPlate().getId()).getPlateAcquisitions();
+        reload(browser);
+        return browser.getPlate(getPlate().getId()).getPlateAcquisitions();
     }
 
 
