@@ -19,7 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
@@ -60,7 +60,7 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagSetWrapper(Client dm, String name, String description)
+    public TagSetWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         this(new TagAnnotationData(name, description));
         super.saveAndUpdate(dm);
@@ -104,7 +104,7 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void link(Client dm, TagAnnotationWrapper tag)
+    public void link(DataManager dm, TagAnnotationWrapper tag)
     throws AccessException, ServiceException, ExecutionException {
         AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
         link.setParent(new TagAnnotationI(getId(), false));
@@ -123,7 +123,7 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void link(Client dm, TagAnnotationWrapper... tags)
+    public void link(DataManager dm, TagAnnotationWrapper... tags)
     throws AccessException, ServiceException, ExecutionException {
         for (TagAnnotationWrapper tag : tags) {
             link(dm, tag);

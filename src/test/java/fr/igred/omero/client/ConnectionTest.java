@@ -31,8 +31,8 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testDisconnect() {
-        String expected = "GatewayWrapper{host=null, groupID=-1, userID=-1, connected=false}";
-        Client testRoot = new GatewayWrapper();
+        String      expected = "GatewayWrapper{host=null, groupID=-1, userID=-1, connected=false}";
+        DataManager testRoot = new GatewayWrapper();
         testRoot.disconnect();
         assertFalse(testRoot.isConnected());
         assertEquals(expected, testRoot.toString());
@@ -41,10 +41,10 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testSessionConnect() throws ServiceException {
-        Client client1 = new GatewayWrapper();
+        DataManager client1 = new GatewayWrapper();
         client1.connect(HOST, PORT, USER1.name, "password".toCharArray());
-        String sessionId = client1.getSessionId();
-        Client client2   = new GatewayWrapper();
+        String      sessionId = client1.getSessionId();
+        DataManager client2   = new GatewayWrapper();
         client2.connect(HOST, PORT, sessionId);
         assertEquals(client1.getUser().getId(), client2.getUser().getId());
         client1.disconnect();
@@ -54,8 +54,8 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testRootConnection() throws ServiceException {
-        char[] password = "omero".toCharArray();
-        Client testRoot = new GatewayWrapper();
+        char[]      password = "omero".toCharArray();
+        DataManager testRoot = new GatewayWrapper();
         testRoot.connect(HOST, PORT, ROOT.name, password, GROUP1.id);
         long id      = testRoot.getId();
         long groupId = testRoot.getCurrentGroupId();
@@ -74,7 +74,7 @@ class ConnectionTest extends BasicTest {
         String template = "GatewayWrapper{host=%s, groupID=%d, userID=%s, connected=true}";
         String toString = String.format(template, HOST, GROUP1.id, USER1.id);
 
-        Client testUser = new GatewayWrapper();
+        DataManager testUser = new GatewayWrapper();
         assertFalse(testUser.isConnected());
         testUser.connect(HOST, PORT, USER1.name, "password".toCharArray());
         assertEquals(toString, testUser.toString());

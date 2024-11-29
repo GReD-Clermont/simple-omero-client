@@ -19,7 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -137,7 +137,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
+    public TableWrapper(DataManager client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -157,7 +157,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
+    public TableWrapper(DataManager client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);
@@ -579,7 +579,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
+    public void addRows(DataManager client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
     }
@@ -599,7 +599,7 @@ public class TableWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
+    public void addRows(DataManager client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROIWrapper.checkProperty(roiProperty);

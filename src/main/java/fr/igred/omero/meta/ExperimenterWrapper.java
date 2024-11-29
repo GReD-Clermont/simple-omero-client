@@ -19,7 +19,7 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ExperimenterData;
@@ -225,7 +225,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
     /**
      * Returns {@code true} if the user is a full admin.
      *
-     * @param client {@link Client} that handles the connection
+     * @param client {@link DataManager} that handles the connection
      *
      * @return See above.
      *
@@ -233,7 +233,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public boolean isAdmin(Client client)
+    public boolean isAdmin(DataManager client)
     throws ServiceException, AccessException, ExecutionException {
         return !call(client.getAdminFacility(),
                      a -> a.getAdminPrivileges(client.getCtx(), data),

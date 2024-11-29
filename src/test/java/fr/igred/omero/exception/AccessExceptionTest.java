@@ -21,7 +21,7 @@ package fr.igred.omero.exception;
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -53,8 +53,8 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class AccessExceptionTest extends BasicTest {
 
-    protected Client client;
-    protected Client sudo;
+    protected DataManager client;
+    protected DataManager sudo;
 
 
     @BeforeEach

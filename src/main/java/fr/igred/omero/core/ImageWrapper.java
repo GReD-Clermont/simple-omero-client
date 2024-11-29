@@ -21,7 +21,7 @@ package fr.igred.omero.core;
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -166,7 +166,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server error.
      */
-    private byte[] getThumbnailBytes(Client client, int size)
+    private byte[] getThumbnailBytes(DataManager client, int size)
     throws DSOutOfServiceException, ServerError {
         PixelsWrapper pixels = getPixels();
 
@@ -516,7 +516,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> saveROIs(Client client, Collection<? extends ROIWrapper> rois)
+    public List<ROIWrapper> saveROIs(DataManager client, Collection<? extends ROIWrapper> rois)
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
         List<ROIData> roisData = rois.stream()
@@ -544,7 +544,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> saveROIs(Client client, ROIWrapper... rois)
+    public List<ROIWrapper> saveROIs(DataManager client, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
         return saveROIs(client, Arrays.asList(rois));
     }
@@ -561,7 +561,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> getROIs(Client client)
+    public List<ROIWrapper> getROIs(DataManager client)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIResult> roiResults = call(client.getRoiFacility(),
                                           rf -> rf.loadROIs(client.getCtx(),
@@ -590,7 +590,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FolderWrapper> getROIFolders(Client client)
+    public List<FolderWrapper> getROIFolders(DataManager client)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FolderData> folders = call(client.getRoiFacility(),
                                               rf -> rf.getROIFolders(client.getCtx(),
@@ -647,7 +647,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client)
+    public ImagePlus toImagePlus(DataManager client)
     throws ServiceException, AccessException, ExecutionException {
         return toImagePlus(client, null, null, null, null, null);
     }
@@ -669,7 +669,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client,
+    public ImagePlus toImagePlus(DataManager client,
                                  int[] xBounds,
                                  int[] yBounds,
                                  int[] cBounds,
@@ -784,7 +784,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client, ROIWrapper roi)
+    public ImagePlus toImagePlus(DataManager client, ROIWrapper roi)
     throws ServiceException, AccessException, ExecutionException {
         return toImagePlus(client, roi.getBounds());
     }
@@ -802,7 +802,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ImagePlus toImagePlus(Client client, Bounds bounds)
+    public ImagePlus toImagePlus(DataManager client, Bounds bounds)
     throws ServiceException, AccessException, ExecutionException {
         int[] x = {bounds.getStart().getX(), bounds.getEnd().getX()};
         int[] y = {bounds.getStart().getY(), bounds.getEnd().getY()};
@@ -887,7 +887,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public Color getChannelColor(Client client, int index)
+    public Color getChannelColor(DataManager client, int index)
     throws ServiceException, AccessException, ExecutionException {
         long  pixelsId = data.getDefaultPixels().getId();
         Color color    = getChannelImportedColor(client, index);
@@ -925,7 +925,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    public BufferedImage getThumbnail(Client client, int size)
+    public BufferedImage getThumbnail(DataManager client, int size)
     throws ServiceException, AccessException, IOException {
         BufferedImage thumbnail = null;
 
@@ -994,7 +994,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<File> download(Client client, String path)
+    public List<File> download(DataManager client, String path)
     throws ServiceException, AccessException, ExecutionException {
         return call(client.getGateway().getFacility(TransferFacility.class),
                     t -> t.downloadImage(client.getCtx(), path, getId()),
