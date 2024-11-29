@@ -41,6 +41,7 @@ import omero.model.IObject;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -51,11 +52,11 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
- * Basic class, contains the gateway, the security context, and multiple facilities.
+ * Basic class, containing the gateway, the security context, and the current user.
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper extends BrowserWrapper {
+public class GatewayWrapper extends Client {
 
     /** Number of requested import stores */
     private final AtomicInteger storeUses = new AtomicInteger(0);
@@ -74,14 +75,22 @@ public abstract class GatewayWrapper extends BrowserWrapper {
 
 
     /**
-     * Abstract constructor of the GatewayWrapper class.
+     * Constructor of the GatewayWrapper class. Initializes the gateway.
+     */
+    public GatewayWrapper() {
+        this(null, null, null);
+    }
+
+
+    /**
+     * Constructor of the GatewayWrapper class.
      * <p> Null arguments will be replaced with default empty objects.
      *
      * @param gateway The Gateway.
      * @param ctx     The Security Context.
      * @param user    The connected user.
      */
-    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    public GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
         this.user    = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
         this.ctx     = ctx != null ? ctx : new SecurityContext(-1);
@@ -529,6 +538,32 @@ public abstract class GatewayWrapper extends BrowserWrapper {
 
 
     /**
+     * Gets the client associated with the username in the parameters. The user calling this function needs to have
+     * administrator rights. All action realized with the client returned will be considered as his.
+     *
+     * @param username Username of user.
+     *
+     * @return The client corresponding to the new user.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException The requested user does not exist.
+     */
+    public Client sudo(String username)
+    throws ServiceException, AccessException, ExecutionException {
+        ExperimenterWrapper sudoUser = getUser(username);
+        long                groupId  = sudoUser.getDefaultGroup().getId();
+
+        SecurityContext context = new SecurityContext(groupId);
+        context.setExperimenter(sudoUser.asDataObject());
+        context.sudo();
+
+        return new GatewayWrapper(this.gateway, context, sudoUser);
+    }
+
+
+    /**
      * Overridden to return the host name, the group ID, the username and the connection status.
      *
      * @return See above.
@@ -545,4 +580,3 @@ public abstract class GatewayWrapper extends BrowserWrapper {
     }
 
 }
-

@@ -37,7 +37,7 @@ class SudoTest extends BasicTest {
 
     @Test
     void testSudoDisconnect() throws Exception {
-        Client root = new Client();
+        Client root = new GatewayWrapper();
         root.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
 
         Client test = root.sudo(USER1.name);
@@ -51,7 +51,7 @@ class SudoTest extends BasicTest {
 
     @Test
     void testSudoTag() throws Exception {
-        Client root = new Client();
+        Client root = new GatewayWrapper();
         root.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
 
         Client test = root.sudo(USER1.name);
@@ -93,7 +93,7 @@ class SudoTest extends BasicTest {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
         char[] password = "password4".toCharArray();
 
-        Client client4 = new Client();
+        Client client4 = new GatewayWrapper();
         client4.connect(HOST, PORT, "testUser4", password, 6L);
         assertEquals(5L, client4.getId());
 

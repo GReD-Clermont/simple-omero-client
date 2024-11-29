@@ -26,13 +26,19 @@ import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
+import ome.formats.OMEROMetadataStoreClient;
 import omero.ApiUsageException;
 import omero.gateway.Gateway;
-import omero.gateway.SecurityContext;
+import omero.gateway.LoginCredentials;
+import omero.gateway.facility.AdminFacility;
+import omero.gateway.facility.DataManagerFacility;
+import omero.gateway.facility.ROIFacility;
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.model.IObject;
 
 import java.util.Collection;
 import java.util.List;
@@ -45,31 +51,64 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
- * Basic class, contains the gateway, the security context, and multiple facilities.
- * <p>
- * Allows the user to connect to OMERO and browse through all the data accessible to the user.
+ * Abstract client to connect to OMERO, browse through all the data accessible to the user and modify it.
  */
-public class Client extends GatewayWrapper {
+public abstract class Client extends BrowserWrapper {
 
 
     /**
-     * Constructor of the Client class. Initializes the gateway.
+     * Abstract constructor of the Client class.
      */
-    public Client() {
-        this(null, null, null);
+    protected Client() {
     }
 
 
-    /**
-     * Constructor of the Client class.
-     *
-     * @param gateway The gateway
-     * @param ctx     The security context
-     * @param user    The user
-     */
-    public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
-        super(gateway, ctx, user);
-    }
+    public abstract Gateway getGateway();
+
+
+    public abstract long getId();
+
+
+    public abstract long getCurrentGroupId();
+
+
+    public abstract String getSessionId() throws ServiceException;
+
+
+    public abstract boolean isConnected();
+
+
+    public abstract void connect(String hostname, int port, String sessionId)
+    throws ServiceException;
+
+
+    public abstract void connect(String hostname, int port, String username, char[] password, Long groupID)
+    throws ServiceException;
+
+
+    public abstract void connect(String hostname, int port, String username, char[] password)
+    throws ServiceException;
+
+
+    public abstract void connect(LoginCredentials credentials) throws ServiceException;
+
+
+    public abstract void disconnect();
+
+
+    public abstract void switchGroup(long groupId);
+
+
+    public abstract DataManagerFacility getDm() throws ExecutionException;
+
+
+    public abstract ROIFacility getRoiFacility() throws ExecutionException;
+
+
+    public abstract TablesFacility getTablesFacility() throws ExecutionException;
+
+
+    public abstract AdminFacility getAdminFacility() throws ExecutionException;
 
 
     /**
@@ -279,6 +318,33 @@ public class Client extends GatewayWrapper {
     }
 
 
+    public abstract OMEROMetadataStoreClient getImportStore()
+    throws ServiceException;
+
+
+    public abstract void closeImport();
+
+
+    public abstract IObject save(IObject object)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    public abstract void delete(IObject object)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
+    public abstract void delete(List<IObject> objects)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
+    public abstract void deleteFile(Long id)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
+    public abstract void deleteFiles(Long... ids)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
     /**
      * Gets the client associated with the username in the parameters. The user calling this function needs to have
      * administrator rights. All action realized with the client returned will be considered as his.
@@ -292,16 +358,7 @@ public class Client extends GatewayWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public Client sudo(String username)
-    throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
-        long                groupId  = sudoUser.getDefaultGroup().getId();
-
-        SecurityContext context = new SecurityContext(groupId);
-        context.setExperimenter(sudoUser.asDataObject());
-        context.sudo();
-
-        return new Client(this.getGateway(), context, sudoUser);
-    }
+    public abstract Client sudo(String username)
+    throws ServiceException, AccessException, ExecutionException;
 
 }
