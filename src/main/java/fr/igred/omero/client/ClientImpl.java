@@ -49,7 +49,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public class ClientImpl extends GatewayWrapper {
+public class ClientImpl extends Client {
 
 
     /**

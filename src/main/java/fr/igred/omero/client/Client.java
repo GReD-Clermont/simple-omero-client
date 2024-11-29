@@ -55,7 +55,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public abstract class GatewayWrapper extends BrowserWrapper {
+public abstract class Client extends BrowserWrapper {
 
     /** Number of requested import stores */
     private final AtomicInteger storeUses = new AtomicInteger(0);
@@ -74,14 +74,14 @@ public abstract class GatewayWrapper extends BrowserWrapper {
 
 
     /**
-     * Abstract constructor of the GatewayWrapper class.
+     * Abstract constructor of the Client class.
      * <p> Null arguments will be replaced with default empty objects.
      *
      * @param gateway The Gateway.
      * @param ctx     The Security Context.
      * @param user    The connected user.
      */
-    protected GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    protected Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
         this.user    = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
         this.ctx     = ctx != null ? ctx : new SecurityContext(-1);
@@ -413,7 +413,7 @@ public abstract class GatewayWrapper extends BrowserWrapper {
      */
     public OMEROMetadataStoreClient getImportStore() throws ServiceException {
         storeUses.incrementAndGet();
-        return ExceptionHandler.of(this, GatewayWrapper::getImportStoreLocked)
+        return ExceptionHandler.of(this, Client::getImportStoreLocked)
                                .rethrow(DSOutOfServiceException.class,
                                         ServiceException::new,
                                         "Could not retrieve import store")
