@@ -31,8 +31,8 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testDisconnect() {
-        String expected = "Client{host=null, groupID=-1, userID=-1, connected=false}";
-        Client testRoot = new Client();
+        String     expected = "ClientImpl{host=null, groupID=-1, userID=-1, connected=false}";
+        ClientImpl testRoot = new ClientImpl();
         testRoot.disconnect();
         assertFalse(testRoot.isConnected());
         assertEquals(expected, testRoot.toString());
@@ -41,10 +41,10 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testSessionConnect() throws ServiceException {
-        Client client1 = new Client();
+        ClientImpl client1 = new ClientImpl();
         client1.connect(HOST, PORT, USER1.name, "password".toCharArray());
-        String sessionId = client1.getSessionId();
-        Client client2   = new Client();
+        String     sessionId = client1.getSessionId();
+        ClientImpl client2   = new ClientImpl();
         client2.connect(HOST, PORT, sessionId);
         assertEquals(client1.getUser().getId(), client2.getUser().getId());
         client1.disconnect();
@@ -54,8 +54,8 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testRootConnection() throws ServiceException {
-        char[] password = "omero".toCharArray();
-        Client testRoot = new Client();
+        char[]     password = "omero".toCharArray();
+        ClientImpl testRoot = new ClientImpl();
         testRoot.connect(HOST, PORT, ROOT.name, password, GROUP1.id);
         long id      = testRoot.getId();
         long groupId = testRoot.getCurrentGroupId();
@@ -71,10 +71,10 @@ class ConnectionTest extends BasicTest {
 
     @Test
     void testUserConnection() throws ServiceException {
-        String template = "Client{host=%s, groupID=%d, userID=%s, connected=true}";
+        String template = "ClientImpl{host=%s, groupID=%d, userID=%s, connected=true}";
         String toString = String.format(template, HOST, GROUP1.id, USER1.id);
 
-        Client testUser = new Client();
+        ClientImpl testUser = new ClientImpl();
         assertFalse(testUser.isConnected());
         testUser.connect(HOST, PORT, USER1.name, "password".toCharArray());
         assertEquals(toString, testUser.toString());

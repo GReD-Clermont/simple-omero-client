@@ -22,7 +22,7 @@ import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ClientImpl;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -73,7 +73,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectWrapper(Client client, String name, String description)
+    public ProjectWrapper(ClientImpl client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ProjectData());
         data.setName(name);
@@ -175,7 +175,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(Client client, String name, String description)
+    public DatasetWrapper addDataset(ClientImpl client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         DatasetWrapper dataset = new DatasetWrapper(name, description);
         dataset.saveAndUpdate(client);
@@ -195,7 +195,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(Client client, DatasetWrapper dataset)
+    public DatasetWrapper addDataset(ClientImpl client, DatasetWrapper dataset)
     throws ServiceException, AccessException, ExecutionException {
         dataset.saveAndUpdate(client);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
@@ -218,7 +218,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void removeDataset(Client client, DatasetWrapper dataset)
+    public void removeDataset(ClientImpl client, DatasetWrapper dataset)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, "ProjectDatasetLink", dataset.getId());
         reload(client);

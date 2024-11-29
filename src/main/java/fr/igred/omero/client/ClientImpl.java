@@ -49,25 +49,25 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public class Client extends GatewayWrapper {
+public class ClientImpl extends GatewayWrapper {
 
 
     /**
-     * Constructor of the Client class. Initializes the gateway.
+     * Constructor of the ClientImpl class. Initializes the gateway.
      */
-    public Client() {
+    public ClientImpl() {
         this(null, null, null);
     }
 
 
     /**
-     * Constructor of the Client class.
+     * Constructor of the ClientImpl class.
      *
      * @param gateway The gateway
      * @param ctx     The security context
      * @param user    The user
      */
-    public Client(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    public ClientImpl(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
         super(gateway, ctx, user);
     }
 
@@ -292,7 +292,7 @@ public class Client extends GatewayWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public Client sudo(String username)
+    public ClientImpl sudo(String username)
     throws ServiceException, AccessException, ExecutionException {
         ExperimenterWrapper sudoUser = getUser(username);
         long                groupId  = sudoUser.getDefaultGroup().getId();
@@ -301,7 +301,7 @@ public class Client extends GatewayWrapper {
         context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
 
-        return new Client(this.getGateway(), context, sudoUser);
+        return new ClientImpl(this.getGateway(), context, sudoUser);
     }
 
 }

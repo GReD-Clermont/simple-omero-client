@@ -20,7 +20,7 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ClientImpl;
 import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -61,7 +61,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ScreenWrapper(Client client, String name, String description)
+    public ScreenWrapper(ClientImpl client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ScreenData());
         data.setName(name);

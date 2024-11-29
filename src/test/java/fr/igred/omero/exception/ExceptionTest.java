@@ -19,7 +19,7 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ClientImpl;
 import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -49,8 +49,8 @@ class ExceptionTest extends BasicTest {
     @Test
     void testConnectionErrorUsername() {
         String username = "badUser";
-        char[] pw       = "badPassword".toCharArray();
-        Client client   = new Client();
+        char[]     pw     = "badPassword".toCharArray();
+        ClientImpl client = new ClientImpl();
         assertThrows(ServiceException.class,
                      () -> client.connect(HOST, PORT, username, pw, GROUP1.id));
     }
@@ -58,8 +58,8 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorPassword() {
-        char[] pw   = "badPassword".toCharArray();
-        Client root = new Client();
+        char[]     pw   = "badPassword".toCharArray();
+        ClientImpl root = new ClientImpl();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, PORT, ROOT.name, pw, GROUP1.id));
     }
@@ -68,8 +68,8 @@ class ExceptionTest extends BasicTest {
     @Test
     void testConnectionErrorHost() {
         String host = "127.0.0.1";
-        char[] pw   = "omero".toCharArray();
-        Client root = new Client();
+        char[]     pw   = "omero".toCharArray();
+        ClientImpl root = new ClientImpl();
         assertThrows(ServiceException.class,
                      () -> root.connect(host, PORT, ROOT.name, pw, GROUP1.id));
     }
@@ -78,8 +78,8 @@ class ExceptionTest extends BasicTest {
     @Test
     void testConnectionErrorPort() {
         final int port = 5000;
-        char[]    pw   = "omero".toCharArray();
-        Client    root = new Client();
+        char[]     pw   = "omero".toCharArray();
+        ClientImpl root = new ClientImpl();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, port, ROOT.name, pw, GROUP1.id));
     }
@@ -90,7 +90,7 @@ class ExceptionTest extends BasicTest {
         final long badGroup = 200L;
         char[]     pw       = "password".toCharArray();
 
-        Client clientNoSuchGroup = new Client();
+        ClientImpl clientNoSuchGroup = new ClientImpl();
         clientNoSuchGroup.connect(HOST, PORT, USER1.name, pw, badGroup);
         assertEquals(USER1.id, clientNoSuchGroup.getId());
         assertEquals(GROUP1.id, clientNoSuchGroup.getCurrentGroupId());
@@ -101,7 +101,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorNotInGroup() throws ServiceException {
         char[] pw = "password".toCharArray();
 
-        Client clientWrongGroup = new Client();
+        ClientImpl clientWrongGroup = new ClientImpl();
         clientWrongGroup.connect(HOST, PORT, USER1.name, pw, 0L);
         assertEquals(USER1.id, clientWrongGroup.getId());
         assertEquals(GROUP1.id, clientWrongGroup.getCurrentGroupId());
@@ -112,8 +112,8 @@ class ExceptionTest extends BasicTest {
     void testGetSingleProjectError() throws Exception {
         final long badProject = 333L;
 
-        boolean exception = false;
-        Client  client    = new Client();
+        boolean    exception = false;
+        ClientImpl client    = new ClientImpl();
         try {
             client.connect(HOST, PORT, USER1.name, "password".toCharArray());
             client.getProject(badProject);
@@ -130,8 +130,8 @@ class ExceptionTest extends BasicTest {
         final long badImage = 200L;
         char[]     pw       = "password".toCharArray();
 
-        boolean exception = false;
-        Client  client    = new Client();
+        boolean    exception = false;
+        ClientImpl client    = new ClientImpl();
         client.connect(HOST, PORT, USER1.name, pw, GROUP1.id);
         assertEquals(USER1.id, client.getId());
 
@@ -150,8 +150,8 @@ class ExceptionTest extends BasicTest {
         final long badImage = -5L;
         char[]     pw       = "password".toCharArray();
 
-        boolean exception = false;
-        Client  client    = new Client();
+        boolean    exception = false;
+        ClientImpl client    = new ClientImpl();
         client.connect(HOST, PORT, USER1.name, pw, GROUP1.id);
         assertEquals(USER1.id, client.getId());
 
@@ -170,8 +170,8 @@ class ExceptionTest extends BasicTest {
         final long badScreen = 333L;
         char[]     pw        = "password".toCharArray();
 
-        boolean exception = false;
-        Client  client    = new Client();
+        boolean    exception = false;
+        ClientImpl client    = new ClientImpl();
         try {
             client.connect(HOST, PORT, USER1.name, pw);
             client.getScreen(badScreen);
@@ -188,8 +188,8 @@ class ExceptionTest extends BasicTest {
         final long badPlate = 333L;
         char[]     pw       = "password".toCharArray();
 
-        boolean exception = false;
-        Client  client    = new Client();
+        boolean    exception = false;
+        ClientImpl client    = new ClientImpl();
         try {
             client.connect(HOST, PORT, USER1.name, pw);
             client.getPlate(badPlate);
@@ -206,8 +206,8 @@ class ExceptionTest extends BasicTest {
         final long badWell = 333L;
         char[]     pw      = "password".toCharArray();
 
-        boolean exception = false;
-        Client  client    = new Client();
+        boolean    exception = false;
+        ClientImpl client    = new ClientImpl();
         try {
             client.connect(HOST, PORT, USER1.name, pw);
             client.getWell(badWell);

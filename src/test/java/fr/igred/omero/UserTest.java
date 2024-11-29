@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ClientImpl;
 import fr.igred.omero.exception.ServiceException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public abstract class UserTest extends BasicTest {
 
-    protected final Client client = new Client();
+    protected final ClientImpl client = new ClientImpl();
 
 
     @BeforeEach

@@ -21,7 +21,7 @@ package fr.igred.omero.exception;
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ClientImpl;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.core.ImageWrapper;
@@ -52,14 +52,14 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class AccessExceptionTest extends BasicTest {
 
-    protected Client client;
-    protected Client sudo;
+    protected ClientImpl client;
+    protected ClientImpl sudo;
 
 
     @BeforeEach
     void setUp() {
         boolean failed = false;
-        client = new Client();
+        client = new ClientImpl();
         try {
             char[] password = "password".toCharArray();
             client.connect(HOST, PORT, USER1.name, password, GROUP1.id);
