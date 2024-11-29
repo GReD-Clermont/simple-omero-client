@@ -20,10 +20,9 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.AnnotatableWrapper;
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
-import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
@@ -451,14 +450,11 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      *
      * @throws AccessException  Cannot access data.
      * @throws ServiceException Cannot connect to OMERO.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void saveROI(Client client)
-    throws AccessException, ServiceException {
-        Roi roi = (Roi) ExceptionHandler.of(client.getGateway(),
-                                            g -> g.getUpdateService(client.getCtx())
-                                                  .saveAndReturnObject(data.asIObject()))
-                                        .handleOMEROException("Cannot save ROI")
-                                        .get();
+    public void saveROI(DataManager client)
+    throws AccessException, ServiceException, ExecutionException {
+        Roi roi = (Roi) client.save(data.asIObject());
         data = new ROIData(roi);
     }
 
@@ -586,7 +582,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected <A extends AnnotationData> void link(Client client, A annotation)
+    protected <A extends AnnotationData> void link(DataManager client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         RoiAnnotationLink link = new RoiAnnotationLinkI();
         link.setChild(annotation.asAnnotation());

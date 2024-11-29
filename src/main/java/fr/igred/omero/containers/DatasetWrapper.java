@@ -23,6 +23,7 @@ import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -373,7 +374,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(Client client, Iterable<? extends ImageWrapper> images)
+    public void addImages(DataManager client, Iterable<? extends ImageWrapper> images)
     throws ServiceException, AccessException, ExecutionException {
         for (ImageWrapper image : images) {
             addImage(client, image);
@@ -391,7 +392,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImage(Client client, ImageWrapper image)
+    public void addImage(DataManager client, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.asDataObject().asImage());

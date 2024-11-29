@@ -27,6 +27,7 @@ import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
@@ -114,7 +115,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    protected <A extends AnnotationData> void link(Client client, A annotation)
+    protected <A extends AnnotationData> void link(DataManager client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
         call(client.getDMFacility(),
@@ -134,7 +135,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public <A extends AnnotationWrapper<?>> void link(Client client, A annotation)
+    public <A extends AnnotationWrapper<?>> void link(DataManager client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         if (!(annotation instanceof TagAnnotationWrapper) || !((TagAnnotationWrapper) annotation).isTagSet()) {
             link(client, annotation.asDataObject());
@@ -155,7 +156,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void link(Client client, AnnotationWrapper<?>... annotations)
+    public void link(DataManager client, AnnotationWrapper<?>... annotations)
     throws ServiceException, AccessException, ExecutionException {
         for (AnnotationWrapper<?> annotation : annotations) {
             link(client, annotation);
@@ -195,7 +196,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTag(Client client, String name, String description)
+    public void addTag(DataManager client, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationWrapper tag = new TagAnnotationWrapper(new TagAnnotationData(name));
         tag.setDescription(description);
@@ -213,7 +214,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTag(Client client, Long id)
+    public void addTag(DataManager client, Long id)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
         TagAnnotationData tagData = new TagAnnotationData(tag);
@@ -231,7 +232,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTags(Client client, Long... ids)
+    public void addTags(DataManager client, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         for (Long id : ids) {
             addTag(client, id);
@@ -312,7 +313,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addKeyValuePair(Client client, String key, String value)
+    public void addKeyValuePair(DataManager client, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         MapAnnotationWrapper pkv = new MapAnnotationWrapper(key, value);
         link(client, pkv);
@@ -480,7 +481,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addTable(Client client, TableWrapper table)
+    public void addTable(DataManager client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot add table to " + this;
 
@@ -571,7 +572,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper getTable(Client client, Long fileId)
+    public TableWrapper getTable(DataManager client, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData info = call(client.getTablesFacility(),
                               tf -> tf.getTableInfo(client.getCtx(), fileId),
@@ -606,7 +607,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<TableWrapper> getTables(Client client)
+    public List<TableWrapper> getTables(DataManager client)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FileAnnotationData> tables = call(client.getTablesFacility(),
                                                      tf -> tf.getAvailableTables(client.getCtx(), data),
@@ -634,7 +635,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    public long addFile(Client client, File file)
+    public long addFile(DataManager client, File file)
     throws ExecutionException, InterruptedException {
         String name = file.getName();
         return client.getDMFacility()

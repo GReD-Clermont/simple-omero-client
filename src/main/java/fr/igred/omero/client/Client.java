@@ -18,9 +18,6 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.TableWrapper;
-import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -42,11 +39,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
-import omero.model.FileAnnotationI;
-import omero.model.IObject;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -59,7 +52,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
 /**
  * Client interface to connect to OMERO, browse through all the data accessible to the user and modify it.
  */
-public interface Client extends Browser {
+public interface Client extends Browser, DataManager {
 
 
     /**
@@ -293,87 +286,6 @@ public interface Client extends Browser {
 
 
     /**
-     * Deletes multiple objects from OMERO.
-     *
-     * @param objects The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    default void delete(Collection<? extends ObjectWrapper<?>> objects)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        for (ObjectWrapper<?> object : objects) {
-            if (object instanceof FolderWrapper) {
-                ((FolderWrapper) object).unlinkAllROIs(this);
-            }
-        }
-        if (!objects.isEmpty()) {
-            delete(objects.stream()
-                          .map(o -> o.asDataObject().asIObject())
-                          .collect(Collectors.toList()));
-        }
-    }
-
-
-    /**
-     * Deletes an object from OMERO.
-     * <p> Make sure a folder is loaded before deleting it.
-     *
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    default void delete(ObjectWrapper<?> object)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        if (object instanceof FolderWrapper) {
-            ((FolderWrapper) object).unlinkAllROIs(this);
-        }
-        delete(object.asDataObject().asIObject());
-    }
-
-
-    /**
-     * Deletes a table from OMERO.
-     *
-     * @param table Table to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException ID not defined.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    default void deleteTable(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        deleteFile(table.getId());
-    }
-
-
-    /**
-     * Deletes tables from OMERO.
-     *
-     * @param tables List of tables to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException ID not defined.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    default void deleteTables(Collection<? extends TableWrapper> tables)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        deleteFiles(tables.stream()
-                          .map(TableWrapper::getId)
-                          .toArray(Long[]::new));
-    }
-
-
-    /**
      * Returns the user which matches the username.
      *
      * @param username The name of the user.
@@ -515,102 +427,6 @@ public interface Client extends Browser {
      */
     default void closeImport() {
         getGateway().closeImport(getCtx(), null);
-    }
-
-
-    /**
-     * Saves an object on OMERO.
-     *
-     * @param object The OMERO object.
-     *
-     * @return The saved OMERO object
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    default IObject save(IObject object)
-    throws ServiceException, AccessException, ExecutionException {
-        return call(getDMFacility(),
-                    d -> d.saveAndReturnObject(getCtx(), object),
-                    "Cannot save object");
-    }
-
-
-    /**
-     * Deletes an object from OMERO.
-     *
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    default void delete(IObject object)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDMFacility(),
-                                    d -> d.delete(getCtx(), object).loop(10, wait))
-                        .rethrow(InterruptedException.class)
-                        .handleOMEROException("Cannot delete object")
-                        .rethrow();
-    }
-
-
-    /**
-     * Deletes multiple objects from OMERO.
-     *
-     * @param objects The OMERO objects.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    default void delete(List<IObject> objects)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDMFacility(),
-                                    d -> d.delete(getCtx(), objects).loop(10, wait))
-                        .rethrow(InterruptedException.class)
-                        .handleOMEROException("Cannot delete objects")
-                        .rethrow();
-    }
-
-
-    /**
-     * Deletes a file from OMERO
-     *
-     * @param id ID of the file to delete.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    default void deleteFile(Long id)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        deleteFiles(id);
-    }
-
-
-    /**
-     * Deletes files from OMERO.
-     *
-     * @param ids List of files IDs to delete.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
-     */
-    default void deleteFiles(Long... ids)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        List<IObject> files = Arrays.stream(ids)
-                                    .map(id -> new FileAnnotationI(id, false))
-                                    .collect(Collectors.toList());
-        delete(files);
     }
 
 

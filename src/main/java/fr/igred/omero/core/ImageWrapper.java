@@ -22,6 +22,7 @@ import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -516,7 +517,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> saveROIs(Client client, Collection<? extends ROIWrapper> rois)
+    public List<ROIWrapper> saveROIs(DataManager client, Collection<? extends ROIWrapper> rois)
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
         List<ROIData> roisData = rois.stream()
@@ -544,7 +545,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> saveROIs(Client client, ROIWrapper... rois)
+    public List<ROIWrapper> saveROIs(DataManager client, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
         return saveROIs(client, Arrays.asList(rois));
     }
@@ -561,7 +562,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> getROIs(Client client)
+    public List<ROIWrapper> getROIs(DataManager client)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIResult> roiResults = call(client.getRoiFacility(),
                                           rf -> rf.loadROIs(client.getCtx(),
@@ -590,7 +591,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<FolderWrapper> getROIFolders(Client client)
+    public List<FolderWrapper> getROIFolders(DataManager client)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FolderData> folders = call(client.getRoiFacility(),
                                               rf -> rf.getROIFolders(client.getCtx(),
