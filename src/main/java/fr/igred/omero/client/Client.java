@@ -57,16 +57,9 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
- * Abstract client to connect to OMERO, browse through all the data accessible to the user and modify it.
+ * Client interface to connect to OMERO, browse through all the data accessible to the user and modify it.
  */
-public abstract class Client extends BrowserWrapper {
-
-
-    /**
-     * Abstract constructor of the Client class.
-     */
-    protected Client() {
-    }
+public interface Client extends Browser {
 
 
     /**
@@ -74,7 +67,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @return The Gateway.
      */
-    public abstract Gateway getGateway();
+    Gateway getGateway();
 
 
     /**
@@ -82,7 +75,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @return The user ID.
      */
-    public long getId() {
+    default long getId() {
         return getUser().getId();
     }
 
@@ -92,7 +85,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @return The group ID.
      */
-    public long getCurrentGroupId() {
+    default long getCurrentGroupId() {
         return getCtx().getGroupID();
     }
 
@@ -104,7 +97,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ServiceException If the connection is broken, or not logged in
      */
-    public String getSessionId() throws ServiceException {
+    default String getSessionId() throws ServiceException {
         return ExceptionHandler.of(getGateway(),
                                    g -> g.getSessionId(getUser().asDataObject()))
                                .rethrow(DSOutOfServiceException.class,
@@ -119,7 +112,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @return See above.
      */
-    public boolean isConnected() {
+    default boolean isConnected() {
         return getGateway().isConnected();
     }
 
@@ -133,7 +126,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public void connect(String hostname, int port, String sessionId)
+    default void connect(String hostname, int port, String sessionId)
     throws ServiceException {
         connect(new LoginCredentials(sessionId, sessionId, hostname, port));
     }
@@ -152,7 +145,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public void connect(String hostname, int port, String username, char[] password, Long groupID)
+    default void connect(String hostname, int port, String username, char[] password, Long groupID)
     throws ServiceException {
         LoginCredentials cred = new LoginCredentials(username,
                                                      String.valueOf(password),
@@ -175,7 +168,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public void connect(String hostname, int port, String username, char[] password)
+    default void connect(String hostname, int port, String username, char[] password)
     throws ServiceException {
         connect(new LoginCredentials(username,
                                      String.valueOf(password),
@@ -187,17 +180,17 @@ public abstract class Client extends BrowserWrapper {
     /**
      * Connects the user to OMERO. Gets the SecurityContext and the BrowseFacility.
      *
-     * @param cred User credentials.
+     * @param credentials User credentials.
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public abstract void connect(LoginCredentials cred) throws ServiceException;
+    void connect(LoginCredentials credentials) throws ServiceException;
 
 
     /**
      * Disconnects the user
      */
-    public abstract void disconnect();
+    void disconnect();
 
 
     /**
@@ -205,7 +198,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @param groupId The group ID.
      */
-    public abstract void switchGroup(long groupId);
+    void switchGroup(long groupId);
 
 
     /**
@@ -216,7 +209,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public BrowseFacility getBrowseFacility() throws ExecutionException {
+    default BrowseFacility getBrowseFacility() throws ExecutionException {
         return getGateway().getFacility(BrowseFacility.class);
     }
 
@@ -230,7 +223,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws AccessException  Cannot access data.
      */
     @Override
-    public IQueryPrx getQueryService()
+    default IQueryPrx getQueryService()
     throws ServiceException, AccessException {
         return call(getGateway(),
                     g -> g.getQueryService(getCtx()),
@@ -246,7 +239,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException If the MetadataFacility can't be retrieved or instantiated.
      */
     @Override
-    public MetadataFacility getMetadataFacility() throws ExecutionException {
+    default MetadataFacility getMetadataFacility() throws ExecutionException {
         return getGateway().getFacility(MetadataFacility.class);
     }
 
@@ -258,7 +251,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
-    public DataManagerFacility getDm() throws ExecutionException {
+    default DataManagerFacility getDm() throws ExecutionException {
         return getGateway().getFacility(DataManagerFacility.class);
     }
 
@@ -270,7 +263,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    public ROIFacility getRoiFacility() throws ExecutionException {
+    default ROIFacility getRoiFacility() throws ExecutionException {
         return getGateway().getFacility(ROIFacility.class);
     }
 
@@ -282,7 +275,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
      */
-    public TablesFacility getTablesFacility() throws ExecutionException {
+    default TablesFacility getTablesFacility() throws ExecutionException {
         return getGateway().getFacility(TablesFacility.class);
     }
 
@@ -294,7 +287,7 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
      */
-    public AdminFacility getAdminFacility() throws ExecutionException {
+    default AdminFacility getAdminFacility() throws ExecutionException {
         return getGateway().getFacility(AdminFacility.class);
     }
 
@@ -309,7 +302,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(Collection<? extends ObjectWrapper<?>> objects)
+    default void delete(Collection<? extends ObjectWrapper<?>> objects)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         for (ObjectWrapper<?> object : objects) {
             if (object instanceof FolderWrapper) {
@@ -335,7 +328,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(ObjectWrapper<?> object)
+    default void delete(ObjectWrapper<?> object)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         if (object instanceof FolderWrapper) {
             ((FolderWrapper) object).unlinkAllROIs(this);
@@ -355,7 +348,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws IllegalArgumentException ID not defined.
      * @throws InterruptedException     If block(long) does not return.
      */
-    public void deleteTable(TableWrapper table)
+    default void deleteTable(TableWrapper table)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFile(table.getId());
     }
@@ -372,7 +365,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws IllegalArgumentException ID not defined.
      * @throws InterruptedException     If block(long) does not return.
      */
-    public void deleteTables(Collection<? extends TableWrapper> tables)
+    default void deleteTables(Collection<? extends TableWrapper> tables)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFiles(tables.stream()
                           .map(TableWrapper::getId)
@@ -392,7 +385,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user cannot be found.
      */
-    public ExperimenterWrapper getUser(String username)
+    default ExperimenterWrapper getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
         ExperimenterData user = call(getAdminFacility(),
                                      a -> a.lookupExperimenter(getCtx(),
@@ -418,7 +411,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException The requested user cannot be found.
      */
-    public ExperimenterWrapper getUser(long userId)
+    default ExperimenterWrapper getUser(long userId)
     throws ServiceException, AccessException {
         Experimenter user = ExceptionHandler.of(getGateway(),
                                                 g -> g.getAdminService(getCtx())
@@ -444,7 +437,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested group cannot be found.
      */
-    public GroupWrapper getGroup(String groupName)
+    default GroupWrapper getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
         GroupData group = call(getAdminFacility(),
                                a -> a.lookupGroup(getCtx(), groupName),
@@ -469,7 +462,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException The requested group cannot be found.
      */
-    public GroupWrapper getGroup(long groupId)
+    default GroupWrapper getGroup(long groupId)
     throws ServiceException, AccessException {
         ExperimenterGroup group = ExceptionHandler.of(getGateway(),
                                                       g -> g.getAdminService(getCtx())
@@ -491,7 +484,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public List<GroupWrapper> getGroups()
+    default List<GroupWrapper> getGroups()
     throws ServiceException, AccessException {
         String error = "Cannot retrieve the groups on OMERO";
         List<ExperimenterGroup> groups = call(getGateway(),
@@ -513,14 +506,14 @@ public abstract class Client extends BrowserWrapper {
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
-    public abstract OMEROMetadataStoreClient getImportStore()
+    OMEROMetadataStoreClient getImportStore()
     throws ServiceException;
 
 
     /**
      * Closes the import store.
      */
-    public void closeImport() {
+    default void closeImport() {
         getGateway().closeImport(getCtx(), null);
     }
 
@@ -536,7 +529,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public IObject save(IObject object)
+    default IObject save(IObject object)
     throws ServiceException, AccessException, ExecutionException {
         return call(getDm(),
                     d -> d.saveAndReturnObject(getCtx(), object),
@@ -554,7 +547,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(IObject object)
+    default void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         final long wait = 500L;
         ExceptionHandler.ofConsumer(getDm(),
@@ -575,7 +568,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void delete(List<IObject> objects)
+    default void delete(List<IObject> objects)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         final long wait = 500L;
         ExceptionHandler.ofConsumer(getDm(),
@@ -596,7 +589,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void deleteFile(Long id)
+    default void deleteFile(Long id)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFiles(id);
     }
@@ -612,7 +605,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    public void deleteFiles(Long... ids)
+    default void deleteFiles(Long... ids)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         List<IObject> files = Arrays.stream(ids)
                                     .map(id -> new FileAnnotationI(id, false))
@@ -622,10 +615,11 @@ public abstract class Client extends BrowserWrapper {
 
 
     /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
+     * Returns a Client associated with the provided username.
+     * <p>The user calling this function needs to have administrator rights.
+     * <p>All actions realized with the returned Client will be considered as his.
      *
-     * @param username Username of user.
+     * @param username The username.
      *
      * @return The client corresponding to the new user.
      *
@@ -634,7 +628,7 @@ public abstract class Client extends BrowserWrapper {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public abstract Client sudo(String username)
+    Client sudo(String username)
     throws ServiceException, AccessException, ExecutionException;
 
 }

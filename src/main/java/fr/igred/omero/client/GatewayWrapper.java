@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public class GatewayWrapper extends Client {
+public class GatewayWrapper extends BrowserWrapper implements Client {
 
     /** Number of requested import stores */
     private final AtomicInteger storeUses = new AtomicInteger(0);
@@ -73,7 +73,7 @@ public class GatewayWrapper extends Client {
      * Constructor of the GatewayWrapper class.
      * <p> Null arguments will be replaced with default empty objects.
      *
-     * @param gateway The Gateway.
+     * @param gateway The {@link Gateway}.
      * @param ctx     The Security Context.
      * @param user    The connected user.
      */
@@ -117,7 +117,7 @@ public class GatewayWrapper extends Client {
     private void closeImportStoreLocked() {
         if (storeLock.tryLock()) {
             try {
-                super.closeImport();
+                Client.super.closeImport();
             } finally {
                 storeLock.unlock();
             }
@@ -150,22 +150,22 @@ public class GatewayWrapper extends Client {
     /**
      * Connects the user to OMERO. Gets the SecurityContext and the BrowseFacility.
      *
-     * @param cred User credential.
+     * @param credentials User credentials.
      *
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Override
-    public void connect(LoginCredentials cred) throws ServiceException {
+    public void connect(LoginCredentials credentials) throws ServiceException {
         disconnect();
 
         try {
-            this.user = new ExperimenterWrapper(gateway.connect(cred));
+            this.user = new ExperimenterWrapper(gateway.connect(credentials));
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
         this.ctx = new SecurityContext(user.getGroupId());
         this.ctx.setExperimenter(this.user.asDataObject());
-        this.ctx.setServerInformation(cred.getServer());
+        this.ctx.setServerInformation(credentials.getServer());
     }
 
 
@@ -237,10 +237,11 @@ public class GatewayWrapper extends Client {
 
 
     /**
-     * Gets the client associated with the username in the parameters. The user calling this function needs to have
-     * administrator rights. All action realized with the client returned will be considered as his.
+     * Returns a Client associated with the given username.
+     * <p> All actions realized with the returned Client will be considered as his.
+     * <p> The user calling this function needs to have administrator rights.
      *
-     * @param username Username of user.
+     * @param username The username.
      *
      * @return The client corresponding to the new user.
      *
@@ -259,7 +260,7 @@ public class GatewayWrapper extends Client {
         context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
 
-        return new GatewayWrapper(this.gateway, context, sudoUser);
+        return new GatewayWrapper(gateway, context, sudoUser);
     }
 
 
