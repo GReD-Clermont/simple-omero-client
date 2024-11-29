@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.GatewayWrapper;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
@@ -213,7 +213,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(GatewayWrapper client)
+    public void saveAndUpdate(Client client)
     throws ExecutionException, ServiceException, AccessException {
         data = (T) call(client.getDm(),
                         d -> d.saveAndReturnObject(client.getCtx(), data),

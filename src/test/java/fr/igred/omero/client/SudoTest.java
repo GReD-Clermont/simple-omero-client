@@ -37,10 +37,10 @@ class SudoTest extends BasicTest {
 
     @Test
     void testSudoDisconnect() throws Exception {
-        GatewayWrapper root = new GatewayWrapper();
+        Client root = new GatewayWrapper();
         root.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
 
-        GatewayWrapper test = root.sudo(USER1.name);
+        Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
         test.disconnect();
         assertTrue(root.isConnected(), "root has been disconnected by sudo context");
@@ -51,10 +51,10 @@ class SudoTest extends BasicTest {
 
     @Test
     void testSudoTag() throws Exception {
-        GatewayWrapper root = new GatewayWrapper();
+        Client root = new GatewayWrapper();
         root.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
 
-        GatewayWrapper test = root.sudo(USER1.name);
+        Client test = root.sudo(USER1.name);
         assertEquals(USER1.id, test.getId());
         TagAnnotationWrapper tag = new TagAnnotationWrapper(test, "Tag", "This is a tag");
 
@@ -93,11 +93,11 @@ class SudoTest extends BasicTest {
         String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=512.fake";
         char[] password = "password4".toCharArray();
 
-        GatewayWrapper client4 = new GatewayWrapper();
+        Client client4 = new GatewayWrapper();
         client4.connect(HOST, PORT, "testUser4", password, 6L);
         assertEquals(5L, client4.getId());
 
-        GatewayWrapper client3 = client4.sudo("testUser3");
+        Client client3 = client4.sudo("testUser3");
         assertEquals(4L, client3.getId());
         client3.switchGroup(6L);
 

@@ -20,7 +20,6 @@ package fr.igred.omero;
 
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.client.GatewayWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -233,7 +232,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @SuppressWarnings("MethodOverloadsMethodOfSuperclass")
-    public void copyAnnotationLinks(GatewayWrapper client, RepositoryObjectWrapper<?> object)
+    public void copyAnnotationLinks(Client client, RepositoryObjectWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
         super.copyAnnotationLinks(client, object);
     }

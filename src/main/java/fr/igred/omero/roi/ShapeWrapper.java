@@ -19,7 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.client.GatewayWrapper;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import ij.ImagePlus;
@@ -617,7 +617,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends AnnotationData> void link(GatewayWrapper client, A annotation)
+    public <A extends AnnotationData> void link(Client client, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         ShapeAnnotationLink link = new ShapeAnnotationLinkI();
         link.setChild(annotation.asAnnotation());

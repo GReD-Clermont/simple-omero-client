@@ -20,7 +20,7 @@ package fr.igred.omero.core;
 
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.GatewayWrapper;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -370,7 +370,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      *
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    boolean createRawDataFacility(GatewayWrapper client) throws ExecutionException {
+    boolean createRawDataFacility(Client client) throws ExecutionException {
         boolean created = false;
         if (rawDataFacility == null) {
             rawDataFacility = client.getGateway()
@@ -400,7 +400,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public double[][][][][] getAllPixels(GatewayWrapper client)
+    public double[][][][][] getAllPixels(Client client)
     throws AccessException, ExecutionException {
         return getAllPixels(client, null, null, null, null, null);
     }
@@ -421,7 +421,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public double[][][][][] getAllPixels(GatewayWrapper client,
+    public double[][][][][] getAllPixels(Client client,
                                          int[] xBounds,
                                          int[] yBounds,
                                          int[] cBounds,
@@ -477,7 +477,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    double[][] getTile(GatewayWrapper client, Coordinates start, int width, int height)
+    double[][] getTile(Client client, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
         double[][] tile = ExceptionHandler.of(this,
@@ -538,7 +538,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public byte[][][][] getRawPixels(GatewayWrapper client, int bpp)
+    public byte[][][][] getRawPixels(Client client, int bpp)
     throws AccessException, ExecutionException {
         return getRawPixels(client, null, null, null, null, null, bpp);
     }
@@ -560,7 +560,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public byte[][][][] getRawPixels(GatewayWrapper client,
+    public byte[][][][] getRawPixels(Client client,
                                      int[] xBounds,
                                      int[] yBounds,
                                      int[] cBounds,
@@ -617,7 +617,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    byte[] getRawTile(GatewayWrapper client, Coordinates start, int width, int height, int bpp)
+    byte[] getRawTile(Client client, Coordinates start, int width, int height, int bpp)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(client);
         byte[] tile = ExceptionHandler.of(this,

@@ -18,10 +18,13 @@
 package fr.igred.omero.client;
 
 
+import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.GroupWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
@@ -40,7 +43,9 @@ import omero.model.FileAnnotationI;
 import omero.model.IObject;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -404,6 +409,42 @@ public abstract class Client extends BrowserWrapper {
     }
 
 
+    public abstract void delete(Collection<? extends ObjectWrapper<?>> objects)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
+    public abstract void delete(ObjectWrapper<?> object)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
+    public abstract void deleteTable(TableWrapper table)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
+    public abstract void deleteTables(Collection<? extends TableWrapper> tables)
+    throws ServiceException, AccessException, ExecutionException, InterruptedException;
+
+
+    public abstract ExperimenterWrapper getUser(String username)
+    throws ExecutionException, ServiceException, AccessException;
+
+
+    public abstract ExperimenterWrapper getUser(long userId)
+    throws ServiceException, AccessException;
+
+
+    public abstract GroupWrapper getGroup(String groupName)
+    throws ExecutionException, ServiceException, AccessException;
+
+
+    public abstract GroupWrapper getGroup(long groupId)
+    throws ServiceException, AccessException;
+
+
+    public abstract List<GroupWrapper> getGroups()
+    throws ServiceException, AccessException;
+
+
     /**
      * Creates or recycles the import store.
      *
@@ -529,6 +570,23 @@ public abstract class Client extends BrowserWrapper {
 
 
     /**
+     * Gets the client associated with the username in the parameters. The user calling this function needs to have
+     * administrator rights. All action realized with the client returned will be considered as his.
+     *
+     * @param username Username of user.
+     *
+     * @return The client corresponding to the new user.
+     *
+     * @throws ServiceException       Cannot connect to OMERO.
+     * @throws AccessException        Cannot access data.
+     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
+     * @throws NoSuchElementException The requested user does not exist.
+     */
+    public abstract Client sudo(String username)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
      * Overridden to return the host name, the group ID, the username and the connection status.
      *
      * @return See above.
@@ -545,4 +603,3 @@ public abstract class Client extends BrowserWrapper {
     }
 
 }
-
