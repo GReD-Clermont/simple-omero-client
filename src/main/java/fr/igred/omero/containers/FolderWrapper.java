@@ -89,18 +89,18 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Constructor of the FolderWrapper class. Save the folder in OMERO
      *
-     * @param client The client handling the connection.
-     * @param name   Name of the folder.
+     * @param conn The connection handler.
+     * @param name Name of the folder.
      *
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    public FolderWrapper(ConnectionHandler client, String name)
+    public FolderWrapper(ConnectionHandler conn, String name)
     throws ServiceException, AccessException {
         super(new FolderData());
         data.setName(name);
-        Folder f = (Folder) ExceptionHandler.of(client.getGateway(),
-                                                g -> g.getUpdateService(client.getCtx())
+        Folder f = (Folder) ExceptionHandler.of(conn.getGateway(),
+                                                g -> g.getUpdateService(conn.getCtx())
                                                       .saveAndReturnObject(data.asIObject()))
                                             .handleServerAndService("Could not create Folder with name: " + name)
                                             .get();
@@ -122,7 +122,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Adds an annotation to the object in OMERO, if possible.
      *
-     * @param client     The client handling the connection.
+     * @param dm         The data manager.
      * @param annotation Annotation to be added.
      * @param <A>        The type of the annotation.
      *
@@ -131,12 +131,12 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected <A extends AnnotationData> void link(DataManager client, A annotation)
+    protected <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent(data.asFolder());
-        client.save(link);
+        dm.save(link);
     }
 
 
@@ -241,14 +241,14 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Links images to the folder in OMERO.
      *
-     * @param client The client handling the connection.
+     * @param dm     The data manager.
      * @param images Images to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(DataManager client, ImageWrapper... images)
+    public void addImages(DataManager dm, ImageWrapper... images)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> links = new ArrayList<>(images.length);
         List<Long> linkedIds = getImages().stream()
@@ -262,8 +262,8 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
                 links.add(link);
             }
         }
-        ExceptionHandler.of(client.getDMFacility(),
-                            d -> d.saveAndReturnObject(client.getCtx(), links, null, null))
+        ExceptionHandler.of(dm.getDMFacility(),
+                            d -> d.saveAndReturnObject(dm.getCtx(), links, null, null))
                         .handleOMEROException("Cannot save links.")
                         .rethrow();
     }
@@ -300,7 +300,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Adds ROIs to the folder and associate them to the provided image ID.
      *
-     * @param client  The client handling the connection.
+     * @param dm      The data manager.
      * @param imageId The image ID.
      * @param rois    ROIs to add.
      *
@@ -308,14 +308,14 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    public void addROIs(DataManager client, long imageId, ROIWrapper... rois)
+    public void addROIs(DataManager dm, long imageId, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
                                       .map(ObjectWrapper::asDataObject)
                                       .collect(toList());
-        ROIFacility roiFac = client.getRoiFacility();
+        ROIFacility roiFac = dm.getRoiFacility();
         ExceptionHandler.of(roiFac,
-                            rf -> rf.addRoisToFolders(client.getCtx(),
+                            rf -> rf.addRoisToFolders(dm.getCtx(),
                                                       imageId,
                                                       roiData,
                                                       singletonList(data)))
@@ -327,24 +327,24 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Adds ROIs to the folder and associate them to the provided image.
      *
-     * @param client The client handling the connection.
-     * @param image  The image.
-     * @param rois   ROIs to add.
+     * @param dm    The data manager.
+     * @param image The image.
+     * @param rois  ROIs to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    public void addROIs(DataManager client, ImageWrapper image, ROIWrapper... rois)
+    public void addROIs(DataManager dm, ImageWrapper image, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
-        addROIs(client, image.getId(), rois);
+        addROIs(dm, image.getId(), rois);
     }
 
 
     /**
      * Gets the ROIs contained in the folder associated with the provided image ID.
      *
-     * @param client  The client handling the connection.
+     * @param dm      The data manager.
      * @param imageId The image.
      *
      * @return See above.
@@ -353,10 +353,10 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> getROIs(DataManager client, long imageId)
+    public List<ROIWrapper> getROIs(DataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<ROIResult> roiResults = call(client.getRoiFacility(),
-                                                rf -> rf.loadROIsForFolder(client.getCtx(),
+        Collection<ROIResult> roiResults = call(dm.getRoiFacility(),
+                                                rf -> rf.loadROIsForFolder(dm.getCtx(),
                                                                            imageId,
                                                                            data.getId()),
                                                 "Cannot get ROIs from " + this);
@@ -375,8 +375,8 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
     /**
      * Gets the ROIs contained in the folder associated with the provided image.
      *
-     * @param client The client handling the connection.
-     * @param image  The image.
+     * @param dm    The data manager.
+     * @param image The image.
      *
      * @return See above.
      *
@@ -384,9 +384,9 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<ROIWrapper> getROIs(DataManager client, ImageWrapper image)
+    public List<ROIWrapper> getROIs(DataManager dm, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
-        return getROIs(client, image.getId());
+        return getROIs(dm, image.getId());
     }
 
 
@@ -394,16 +394,16 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * Unlink all ROIs associated to the provided image ID from the folder.
      * <p> ROIs are now linked to the image directly.
      *
-     * @param client  The client handling the connection.
+     * @param dm      The data manager.
      * @param imageId The image ID.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkAllROIs(DataManager client, long imageId)
+    public void unlinkAllROIs(DataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException {
-        unlinkROIs(client, getROIs(client, imageId));
+        unlinkROIs(dm, getROIs(dm, imageId));
     }
 
 
@@ -411,16 +411,16 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * Unlink all ROIs associated to the provided image from the folder.
      * <p> ROIs are now linked to the image directly.
      *
-     * @param client The client handling the connection.
-     * @param image  The image.
+     * @param dm    The data manager.
+     * @param image The image.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkAllROIs(DataManager client, ImageWrapper image)
+    public void unlinkAllROIs(DataManager dm, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
-        unlinkAllROIs(client, image.getId());
+        unlinkAllROIs(dm, image.getId());
     }
 
 
@@ -429,16 +429,16 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * <p> The folder must be loaded beforehand. </p>
      * <p> ROIs are now linked to their images directly.</p>
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkAllROIs(DataManager client)
+    public void unlinkAllROIs(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ROIWrapper> rois = wrap(data.copyROILinks(), ROIWrapper::new);
-        unlinkROIs(client, rois.toArray(EMPTY_ROI_ARRAY));
+        unlinkROIs(dm, rois.toArray(EMPTY_ROI_ARRAY));
     }
 
 
@@ -446,16 +446,16 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * Unlink ROIs from the folder.
      * <p> The ROIs are now linked to the image directly.
      *
-     * @param client The data manager.
-     * @param rois   ROI to unlink.
+     * @param dm   The data manager.
+     * @param rois ROI to unlink.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkROIs(DataManager client, ROIWrapper... rois)
+    public void unlinkROIs(DataManager dm, ROIWrapper... rois)
     throws ServiceException, AccessException, ExecutionException {
-        unlinkROIs(client, Arrays.asList(rois));
+        unlinkROIs(dm, Arrays.asList(rois));
     }
 
 
@@ -463,20 +463,20 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
      * Unlink ROIs from the folder.
      * <p> The ROIs are now linked to the image directly.
      *
-     * @param client The data manager.
-     * @param rois   ROI to unlink.
+     * @param dm   The data manager.
+     * @param rois ROI to unlink.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void unlinkROIs(DataManager client, Collection<? extends ROIWrapper> rois)
+    public void unlinkROIs(DataManager dm, Collection<? extends ROIWrapper> rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = rois.stream()
                                     .map(ROIWrapper::asDataObject)
                                     .collect(toList());
-        ExceptionHandler.ofConsumer(client.getRoiFacility(),
-                                    rf -> rf.removeRoisFromFolders(client.getCtx(),
+        ExceptionHandler.ofConsumer(dm.getRoiFacility(),
+                                    rf -> rf.removeRoisFromFolders(dm.getCtx(),
                                                                    -1L,
                                                                    roiData,
                                                                    singletonList(data)))

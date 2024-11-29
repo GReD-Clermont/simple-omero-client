@@ -446,15 +446,15 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     /**
      * Saves the ROI.
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
-     * @throws AccessException  Cannot access data.
-     * @throws ServiceException Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void saveROI(DataManager client)
+    public void saveROI(DataManager dm)
     throws AccessException, ServiceException, ExecutionException {
-        Roi roi = (Roi) client.save(data.asIObject());
+        Roi roi = (Roi) dm.save(data.asIObject());
         data = new ROIData(roi);
     }
 
@@ -573,7 +573,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
     /**
      * Attach an {@link AnnotationData} to this object.
      *
-     * @param client     The client handling the connection.
+     * @param dm         The data manager.
      * @param annotation The {@link AnnotationData}.
      * @param <A>        The type of the annotation.
      *
@@ -582,12 +582,12 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected <A extends AnnotationData> void link(DataManager client, A annotation)
+    protected <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         RoiAnnotationLink link = new RoiAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((Roi) data.asIObject());
-        client.save(link);
+        dm.save(link);
     }
 
 }

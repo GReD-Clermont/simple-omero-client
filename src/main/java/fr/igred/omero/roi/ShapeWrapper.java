@@ -608,7 +608,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
     /**
      * Attach an {@link AnnotationData} to this object.
      *
-     * @param client     The client handling the connection.
+     * @param dm         The data manager.
      * @param annotation The {@link AnnotationData}.
      * @param <A>        The type of the annotation.
      *
@@ -617,12 +617,12 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public <A extends AnnotationData> void link(DataManager client, A annotation)
+    public <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         ShapeAnnotationLink link = new ShapeAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.Shape) data.asIObject());
-        client.save(link);
+        dm.save(link);
     }
 
 }

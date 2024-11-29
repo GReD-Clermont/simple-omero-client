@@ -368,17 +368,17 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
     /**
      * Adds a list of image to the dataset in OMERO.
      *
-     * @param client The client handling the connection.
+     * @param dm     The data manager.
      * @param images Image to add to the dataset.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImages(DataManager client, Iterable<? extends ImageWrapper> images)
+    public void addImages(DataManager dm, Iterable<? extends ImageWrapper> images)
     throws ServiceException, AccessException, ExecutionException {
         for (ImageWrapper image : images) {
-            addImage(client, image);
+            addImage(dm, image);
         }
     }
 
@@ -386,19 +386,19 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
     /**
      * Adds a single image to the dataset in OMERO
      *
-     * @param client The client handling the connection.
-     * @param image  Image to add.
+     * @param dm    The data manager.
+     * @param image Image to add.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addImage(DataManager client, ImageWrapper image)
+    public void addImage(DataManager dm, ImageWrapper image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.asDataObject().asImage());
         link.setParent(new DatasetI(data.getId(), false));
-        client.save(link);
+        dm.save(link);
     }
 
 
@@ -422,8 +422,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
     /**
      * Imports all images candidates in the paths to the dataset in OMERO.
      *
-     * @param client The client handling the connection.
-     * @param paths  Paths to the image files on the computer.
+     * @param conn  The connection handler.
+     * @param paths Paths to the image files on the computer.
      *
      * @return If the import did not exit because of an error.
      *
@@ -431,16 +431,16 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    public boolean importImages(ConnectionHandler client, String... paths)
+    public boolean importImages(ConnectionHandler conn, String... paths)
     throws ServiceException, AccessException, IOException {
-        return importImages(client, 1, paths);
+        return importImages(conn, 1, paths);
     }
 
 
     /**
      * Imports all images candidates in the paths to the dataset in OMERO.
      *
-     * @param client  The client handling the connection.
+     * @param conn    The connection handler.
      * @param threads The number of threads (same value used for filesets and uploads).
      * @param paths   Paths to the image files on the computer.
      *
@@ -450,17 +450,17 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    public boolean importImages(ConnectionHandler client, int threads, String... paths)
+    public boolean importImages(ConnectionHandler conn, int threads, String... paths)
     throws ServiceException, AccessException, IOException {
-        return importImages(client, data, threads, paths);
+        return importImages(conn, data, threads, paths);
     }
 
 
     /**
      * Imports one image file to the dataset in OMERO.
      *
-     * @param client The client handling the connection.
-     * @param path   Path to the image file on the computer.
+     * @param conn The connection handler.
+     * @param path Path to the image file on the computer.
      *
      * @return The list of IDs of the newly imported images.
      *
@@ -468,9 +468,9 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    public List<Long> importImage(ConnectionHandler client, String path)
+    public List<Long> importImage(ConnectionHandler conn, String path)
     throws ServiceException, AccessException, IOException {
-        return importImage(client, data, path);
+        return importImage(conn, data, path);
     }
 
 

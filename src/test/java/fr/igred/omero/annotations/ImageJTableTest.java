@@ -61,7 +61,7 @@ class ImageJTableTest extends UserTest {
     protected ImageWrapper image = new ImageWrapper(new ImageData());
 
 
-    private static List<ROIWrapper> createAndSaveROI(DataManager client, ImageWrapper image, String name)
+    private static List<ROIWrapper> createAndSaveROI(DataManager dm, ImageWrapper image, String name)
     throws AccessException, ServiceException, ExecutionException {
         ROIWrapper roi = new ROIWrapper();
         roi.setImage(image);
@@ -77,8 +77,8 @@ class ImageJTableTest extends UserTest {
         if (name != null && !name.trim().isEmpty()) {
             roi.setName(name);
         }
-        image.saveROIs(client, roi);
-        return image.getROIs(client);
+        image.saveROIs(dm, roi);
+        return image.getROIs(dm);
     }
 
 

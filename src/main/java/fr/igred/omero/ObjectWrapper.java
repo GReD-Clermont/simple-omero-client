@@ -206,17 +206,17 @@ public abstract class ObjectWrapper<T extends DataObject> {
     /**
      * Saves and updates object.
      *
-     * @param client The client handling the connection.
+     * @param dm The data manager.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(DataManager client)
+    public void saveAndUpdate(DataManager dm)
     throws ExecutionException, ServiceException, AccessException {
-        data = (T) call(client.getDMFacility(),
-                        d -> d.saveAndReturnObject(client.getCtx(), data),
+        data = (T) call(dm.getDMFacility(),
+                        d -> d.saveAndReturnObject(dm.getCtx(), data),
                         "Cannot save and update object.");
     }
 

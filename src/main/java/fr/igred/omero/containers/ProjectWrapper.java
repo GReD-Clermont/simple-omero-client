@@ -66,7 +66,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
     /**
      * Constructor of the ProjectWrapper class. Creates a new project and save it to OMERO.
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Project name.
      * @param description Project description.
      *
@@ -74,12 +74,12 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectWrapper(DataManager client, String name, String description)
+    public ProjectWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ProjectData());
         data.setName(name);
         data.setDescription(description);
-        super.saveAndUpdate(client);
+        super.saveAndUpdate(dm);
     }
 
 
@@ -166,7 +166,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * Creates a dataset and adds it to the project in OMERO.
      * <p>The project needs to be reloaded afterwards to list the new dataset.</p>
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Dataset name.
      * @param description Dataset description.
      *
@@ -176,18 +176,18 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(DataManager client, String name, String description)
+    public DatasetWrapper addDataset(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         DatasetWrapper dataset = new DatasetWrapper(name, description);
-        dataset.saveAndUpdate(client);
-        return addDataset(client, dataset);
+        dataset.saveAndUpdate(dm);
+        return addDataset(dm, dataset);
     }
 
 
     /**
      * Adds a dataset to the project in OMERO.
      *
-     * @param client  The client handling the connection.
+     * @param dm      The data manager.
      * @param dataset Dataset to be added.
      *
      * @return The object saved in OMERO.
@@ -196,14 +196,14 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public DatasetWrapper addDataset(DataManager client, DatasetWrapper dataset)
+    public DatasetWrapper addDataset(DataManager dm, DatasetWrapper dataset)
     throws ServiceException, AccessException, ExecutionException {
-        dataset.saveAndUpdate(client);
+        dataset.saveAndUpdate(dm);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.setChild(dataset.asDataObject().asDataset());
         link.setParent(data.asProject());
 
-        client.save(link);
+        dm.save(link);
         return dataset;
     }
 

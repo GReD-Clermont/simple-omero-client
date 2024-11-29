@@ -112,7 +112,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
     /**
      * Imports all images candidates in the paths to the target in OMERO.
      *
-     * @param client  The client handling the connection.
+     * @param conn    The connection handler.
      * @param target  The import target.
      * @param threads The number of threads (same value used for filesets and uploads).
      * @param paths   Paths to the image files on the computer.
@@ -123,19 +123,19 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    protected static boolean importImages(ConnectionHandler client, DataObject target, int threads, String... paths)
+    protected static boolean importImages(ConnectionHandler conn, DataObject target, int threads, String... paths)
     throws ServiceException, AccessException, IOException {
         boolean success;
 
         ImportConfig config = new ImportConfig();
         String       type   = PojoMapper.getGraphType(target.getClass());
         config.target.set(type + ":" + target.getId());
-        config.username.set(client.getUser().getUserName());
-        config.email.set(client.getUser().getEmail());
+        config.username.set(conn.getUser().getUserName());
+        config.email.set(conn.getUser().getEmail());
         config.parallelFileset.set(threads);
         config.parallelUpload.set(threads);
 
-        OMEROMetadataStoreClient store = client.getImportStore();
+        OMEROMetadataStoreClient store = conn.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             ExceptionHandler.ofConsumer(store, s -> s.logVersionInfo(config.getIniVersionNumber()))
                             .handleServerAndService("Cannot log version information during import.")
@@ -150,7 +150,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
             ImportCandidates candidates = new ImportCandidates(reader, paths, handler);
             success = library.importCandidates(config, candidates);
         } finally {
-            client.closeImport();
+            conn.closeImport();
         }
 
         return success;
@@ -160,7 +160,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
     /**
      * Imports one image file to the target in OMERO.
      *
-     * @param client The client handling the connection.
+     * @param conn   The connection handler.
      * @param target The import target.
      * @param path   Path to the image file on the computer.
      *
@@ -170,17 +170,17 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    protected static List<Long> importImage(ConnectionHandler client, DataObject target, String path)
+    protected static List<Long> importImage(ConnectionHandler conn, DataObject target, String path)
     throws ServiceException, AccessException, IOException {
         ImportConfig config = new ImportConfig();
         String       type   = PojoMapper.getGraphType(target.getClass());
         config.target.set(type + ":" + target.getId());
-        config.username.set(client.getUser().getUserName());
-        config.email.set(client.getUser().getEmail());
+        config.username.set(conn.getUser().getUserName());
+        config.email.set(conn.getUser().getEmail());
 
         Collection<Pixels> pixels;
 
-        OMEROMetadataStoreClient store = client.getImportStore();
+        OMEROMetadataStoreClient store = conn.getImportStore();
         try (OMEROWrapper reader = new OMEROWrapper(config)) {
             ExceptionHandler.ofConsumer(store, s -> s.logVersionInfo(config.getIniVersionNumber()))
                             .handleServerAndService("Cannot log version information during import.")
@@ -195,7 +195,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
             ImportCandidates candidates = new ImportCandidates(reader, new String[]{path}, handler);
             pixels = importCandidates(target, library, config, candidates);
         } finally {
-            client.closeImport();
+            conn.closeImport();
         }
 
         return pixels.stream()

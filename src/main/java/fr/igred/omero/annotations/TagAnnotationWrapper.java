@@ -51,7 +51,7 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
     /**
      * Constructor of the TagAnnotationWrapper class. Creates the tag and saves it to OMERO.
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Annotation name.
      * @param description Tag description.
      *
@@ -59,10 +59,10 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagAnnotationWrapper(DataManager client, String name, String description)
+    public TagAnnotationWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new TagAnnotationData(name, description));
-        super.saveAndUpdate(client);
+        super.saveAndUpdate(dm);
     }
 
 

@@ -53,7 +53,7 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     /**
      * Constructor of the ScreenWrapper class. Creates a new screen and saves it to OMERO.
      *
-     * @param client      The client handling the connection.
+     * @param dm          The data manager.
      * @param name        Screen name.
      * @param description Screen description.
      *
@@ -61,12 +61,12 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ScreenWrapper(DataManager client, String name, String description)
+    public ScreenWrapper(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ScreenData());
         data.setName(name);
         data.setDescription(description);
-        super.saveAndUpdate(client);
+        super.saveAndUpdate(dm);
     }
 
 
@@ -333,8 +333,8 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
     /**
      * Imports all images candidates in the paths to the screen in OMERO.
      *
-     * @param client The client handling the connection.
-     * @param paths  Paths to the image files on the computer.
+     * @param conn  The connection handler.
+     * @param paths Paths to the image files on the computer.
      *
      * @return If the import did not exit because of an error.
      *
@@ -342,16 +342,16 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    public boolean importImages(ConnectionHandler client, String... paths)
+    public boolean importImages(ConnectionHandler conn, String... paths)
     throws ServiceException, AccessException, IOException {
-        return importImages(client, 1, paths);
+        return importImages(conn, 1, paths);
     }
 
 
     /**
      * Imports all images candidates in the paths to the screen in OMERO.
      *
-     * @param client  The client handling the connection.
+     * @param conn    The connection handler.
      * @param threads The number of threads (same value used for filesets and uploads).
      * @param paths   Paths to the image files on the computer.
      *
@@ -361,17 +361,17 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    public boolean importImages(ConnectionHandler client, int threads, String... paths)
+    public boolean importImages(ConnectionHandler conn, int threads, String... paths)
     throws ServiceException, AccessException, IOException {
-        return importImages(client, data, threads, paths);
+        return importImages(conn, data, threads, paths);
     }
 
 
     /**
      * Imports one image file to the screen in OMERO.
      *
-     * @param client The client handling the connection.
-     * @param path   Path to the image file on the computer.
+     * @param conn The connection handler.
+     * @param path Path to the image file on the computer.
      *
      * @return The list of IDs of the newly imported images.
      *
@@ -379,9 +379,9 @@ public class ScreenWrapper extends RepositoryObjectWrapper<ScreenData> {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    public List<Long> importImage(ConnectionHandler client, String path)
+    public List<Long> importImage(ConnectionHandler conn, String path)
     throws ServiceException, AccessException, IOException {
-        return importImage(client, data, path);
+        return importImage(conn, data, path);
     }
 
 }

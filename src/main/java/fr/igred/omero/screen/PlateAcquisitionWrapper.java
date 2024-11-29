@@ -131,7 +131,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
     /**
      * Adds a tag to the object in OMERO, if possible.
      *
-     * @param client     The client handling the connection.
+     * @param dm         The data manager.
      * @param annotation Tag to be added.
      * @param <A>        The type of the annotation.
      *
@@ -140,12 +140,12 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    protected <A extends AnnotationData> void link(DataManager client, A annotation)
+    protected <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.PlateAcquisition) data.asIObject());
-        client.save(link);
+        dm.save(link);
     }
 
 
