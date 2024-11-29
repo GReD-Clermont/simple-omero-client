@@ -57,9 +57,9 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
 
 
 /**
- * Client interface to connect to OMERO, browse through all the data accessible to the user and modify it.
+ * AdminManager interface to connect to OMERO, browse through all the data accessible to the user and modify it.
  */
-public interface Client extends Browser {
+public interface AdminManager extends Browser {
 
 
     /**
@@ -615,9 +615,9 @@ public interface Client extends Browser {
 
 
     /**
-     * Returns a Client associated with the provided username.
+     * Returns a AdminManager associated with the provided username.
      * <p>The user calling this function needs to have administrator rights.
-     * <p>All actions realized with the returned Client will be considered as his.
+     * <p>All actions realized with the returned AdminManager will be considered as his.
      *
      * @param username The username.
      *
@@ -628,7 +628,7 @@ public interface Client extends Browser {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    Client sudo(String username)
+    AdminManager sudo(String username)
     throws ServiceException, AccessException, ExecutionException;
 
 }

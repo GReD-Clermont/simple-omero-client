@@ -18,8 +18,8 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.client.AdminManager;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -122,7 +122,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    protected static boolean importImages(Client client, DataObject target, int threads, String... paths)
+    protected static boolean importImages(AdminManager client, DataObject target, int threads, String... paths)
     throws ServiceException, AccessException, IOException {
         boolean success;
 
@@ -169,7 +169,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    protected static List<Long> importImage(Client client, DataObject target, String path)
+    protected static List<Long> importImage(AdminManager client, DataObject target, String path)
     throws ServiceException, AccessException, IOException {
         ImportConfig config = new ImportConfig();
         String       type   = PojoMapper.getGraphType(target.getClass());
@@ -232,7 +232,7 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @SuppressWarnings("MethodOverloadsMethodOfSuperclass")
-    public void copyAnnotationLinks(Client client, RepositoryObjectWrapper<?> object)
+    public void copyAnnotationLinks(AdminManager client, RepositoryObjectWrapper<?> object)
     throws AccessException, ServiceException, ExecutionException {
         super.copyAnnotationLinks(client, object);
     }
