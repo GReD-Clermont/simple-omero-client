@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
-public class GatewayWrapper extends BrowserWrapper implements Client {
+public class GatewayWrapper extends BrowserWrapper implements ConnectionHandler {
 
     /** Number of requested import stores */
     private final AtomicInteger storeUses = new AtomicInteger(0);
@@ -117,7 +117,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
     private void closeImportStoreLocked() {
         if (storeLock.tryLock()) {
             try {
-                Client.super.closeImport();
+                ConnectionHandler.super.closeImport();
             } finally {
                 storeLock.unlock();
             }
@@ -237,8 +237,8 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
 
 
     /**
-     * Returns a Client associated with the given username.
-     * <p> All actions realized with the returned Client will be considered as his.
+     * Returns a ConnectionHandler associated with the given username.
+     * <p> All actions realized with the returned ConnectionHandler will be considered as his.
      * <p> The user calling this function needs to have administrator rights.
      *
      * @param username The username.
@@ -251,7 +251,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
      * @throws NoSuchElementException The requested user does not exist.
      */
     @Override
-    public Client sudo(String username)
+    public ConnectionHandler sudo(String username)
     throws ServiceException, AccessException, ExecutionException {
         ExperimenterWrapper sudoUser = getUser(username);
         long                groupId  = sudoUser.getDefaultGroup().getId();
