@@ -19,6 +19,7 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.client.AdminManager;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -233,7 +234,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public boolean isAdmin(Client client)
+    public boolean isAdmin(AdminManager client)
     throws ServiceException, AccessException, ExecutionException {
         return !call(client.getAdminFacility(),
                      a -> a.getAdminPrivileges(client.getCtx(), data),
