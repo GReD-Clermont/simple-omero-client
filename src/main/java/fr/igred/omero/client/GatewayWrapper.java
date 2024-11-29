@@ -18,38 +18,47 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.TableWrapper;
-import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
-import fr.igred.omero.meta.GroupWrapper;
-import omero.ApiUsageException;
+import ome.formats.OMEROMetadataStoreClient;
 import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
+import omero.gateway.ServerInformation;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.GroupData;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
+import omero.log.SimpleLogger;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static fr.igred.omero.exception.ExceptionHandler.call;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * Basic class, contains the gateway, the security context, and multiple facilities.
+ * Basic class, containing the gateway, the security context, and the current user.
  * <p>
  * Allows the user to connect to OMERO and browse through all the data accessible to the user.
  */
 public class GatewayWrapper extends Client {
+
+    /** Number of requested import stores */
+    private final AtomicInteger storeUses = new AtomicInteger(0);
+
+    /** Import store lock */
+    private final Lock storeLock = new ReentrantLock(true);
+
+    /** Gateway linking the code to OMERO, only linked to one group. */
+    private Gateway gateway;
+
+    /** Security context of the user, contains the permissions of the user in this group. */
+    private SecurityContext ctx;
+
+    /** User */
+    private ExperimenterWrapper user;
 
 
     /**
@@ -62,220 +71,168 @@ public class GatewayWrapper extends Client {
 
     /**
      * Constructor of the GatewayWrapper class.
+     * <p> Null arguments will be replaced with default empty objects.
      *
-     * @param gateway The gateway
-     * @param ctx     The security context
-     * @param user    The user
+     * @param gateway The Gateway.
+     * @param ctx     The Security Context.
+     * @param user    The connected user.
      */
     public GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
-        super(gateway, ctx, user);
+        this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
+        this.user    = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
+        this.ctx     = ctx != null ? ctx : new SecurityContext(-1);
     }
 
 
     /**
-     * Deletes multiple objects from OMERO.
+     * Returns the Gateway.
      *
-     * @param objects The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
+     * @return The Gateway.
      */
-    public void delete(Collection<? extends ObjectWrapper<?>> objects)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        for (ObjectWrapper<?> object : objects) {
-            if (object instanceof FolderWrapper) {
-                ((FolderWrapper) object).unlinkAllROIs(this);
+    @Override
+    public Gateway getGateway() {
+        return gateway;
+    }
+
+
+    /**
+     * Retrieves the shared import store in a thread-safe way.
+     *
+     * @throws DSOutOfServiceException If the connection is broken, or not logged in.
+     */
+    private OMEROMetadataStoreClient getImportStoreLocked()
+    throws DSOutOfServiceException {
+        storeLock.lock();
+        try {
+            return gateway.getImportStore(ctx);
+        } finally {
+            storeLock.unlock();
+        }
+    }
+
+
+    /**
+     * Closes the import store in a thread-safe manner.
+     */
+    private void closeImportStoreLocked() {
+        if (storeLock.tryLock()) {
+            try {
+                super.closeImport();
+            } finally {
+                storeLock.unlock();
             }
         }
-        if (!objects.isEmpty()) {
-            delete(objects.stream()
-                          .map(o -> o.asDataObject().asIObject())
-                          .collect(Collectors.toList()));
+    }
+
+
+    /**
+     * Returns the current user.
+     *
+     * @return The current user.
+     */
+    @Override
+    public ExperimenterWrapper getUser() {
+        return user;
+    }
+
+
+    /**
+     * Contains the permissions of the user in the group.
+     *
+     * @return the {@link SecurityContext} of the user.
+     */
+    @Override
+    public SecurityContext getCtx() {
+        return ctx;
+    }
+
+
+    /**
+     * Connects the user to OMERO. Gets the SecurityContext and the BrowseFacility.
+     *
+     * @param cred User credential.
+     *
+     * @throws ServiceException Cannot connect to OMERO.
+     */
+    @Override
+    public void connect(LoginCredentials cred) throws ServiceException {
+        disconnect();
+
+        try {
+            this.user = new ExperimenterWrapper(gateway.connect(cred));
+        } catch (DSOutOfServiceException oos) {
+            throw new ServiceException(oos, oos.getConnectionStatus());
+        }
+        this.ctx = new SecurityContext(user.getGroupId());
+        this.ctx.setExperimenter(this.user.asDataObject());
+        this.ctx.setServerInformation(cred.getServer());
+    }
+
+
+    /**
+     * Disconnects the user
+     */
+    @Override
+    public void disconnect() {
+        if (isConnected()) {
+            boolean sudo = ctx.isSudo();
+            storeUses.set(0);
+            closeImport();
+            user = new ExperimenterWrapper(new ExperimenterData());
+            ctx  = new SecurityContext(-1);
+            ctx.setExperimenter(user.asDataObject());
+            if (sudo) {
+                gateway = new Gateway(gateway.getLogger());
+            } else {
+                gateway.disconnect();
+            }
         }
     }
 
 
     /**
-     * Deletes an object from OMERO.
-     * <p> Make sure a folder is loaded before deleting it.
+     * Change the current group used by the current user;
      *
-     * @param object The OMERO object.
-     *
-     * @throws ServiceException     Cannot connect to OMERO.
-     * @throws AccessException      Cannot access data.
-     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
-     * @throws InterruptedException If block(long) does not return.
+     * @param groupId The group ID.
      */
-    public void delete(ObjectWrapper<?> object)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        if (object instanceof FolderWrapper) {
-            ((FolderWrapper) object).unlinkAllROIs(this);
-        }
-        delete(object.asDataObject().asIObject());
-    }
-
-
-    /**
-     * Deletes a table from OMERO.
-     *
-     * @param table Table to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException ID not defined.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteTable(TableWrapper table)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        deleteFile(table.getId());
-    }
-
-
-    /**
-     * Deletes tables from OMERO.
-     *
-     * @param tables List of tables to delete.
-     *
-     * @throws ServiceException         Cannot connect to OMERO.
-     * @throws AccessException          Cannot access data.
-     * @throws ExecutionException       A Facility can't be retrieved or instantiated.
-     * @throws IllegalArgumentException ID not defined.
-     * @throws InterruptedException     If block(long) does not return.
-     */
-    public void deleteTables(Collection<? extends TableWrapper> tables)
-    throws ServiceException, AccessException, ExecutionException, InterruptedException {
-        deleteFiles(tables.stream()
-                          .map(TableWrapper::getId)
-                          .toArray(Long[]::new));
-    }
-
-
-    /**
-     * Returns the user which matches the username.
-     *
-     * @param username The name of the user.
-     *
-     * @return The user matching the username, or null if it does not exist.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested user cannot be found.
-     */
-    public ExperimenterWrapper getUser(String username)
-    throws ExecutionException, ServiceException, AccessException {
-        ExperimenterData user = call(getAdminFacility(),
-                                     a -> a.lookupExperimenter(getCtx(),
-                                                               username),
-                                     "Cannot retrieve user: " + username);
-        if (user != null) {
-            return new ExperimenterWrapper(user);
-        } else {
-            String msg = String.format("User not found: %s", username);
-            throw new NoSuchElementException(msg);
+    @Override
+    public void switchGroup(long groupId) {
+        boolean sudo = ctx.isSudo();
+        ctx = new SecurityContext(groupId);
+        ctx.setExperimenter(user.asDataObject());
+        if (sudo) {
+            ctx.sudo();
         }
     }
 
 
     /**
-     * Returns the user which matches the user ID.
-     *
-     * @param userId The ID of the user.
-     *
-     * @return The user matching the user ID, or null if it does not exist.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException The requested user cannot be found.
-     */
-    public ExperimenterWrapper getUser(long userId)
-    throws ServiceException, AccessException {
-        Experimenter user = ExceptionHandler.of(getGateway(),
-                                                g -> g.getAdminService(getCtx())
-                                                      .getExperimenter(userId))
-                                            .rethrow(ApiUsageException.class,
-                                                     (m, e) -> new NoSuchElementException(m),
-                                                     "User not found: " + userId)
-                                            .handleOMEROException("Cannot retrieve user: " + userId)
-                                            .get();
-        return new ExperimenterWrapper(new ExperimenterData(user));
-    }
-
-
-    /**
-     * Returns the group which matches the name.
-     *
-     * @param groupName The name of the group.
-     *
-     * @return The group with the appropriate name, if it exists.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws ExecutionException     A Facility can't be retrieved or instantiated.
-     * @throws NoSuchElementException The requested group cannot be found.
-     */
-    public GroupWrapper getGroup(String groupName)
-    throws ExecutionException, ServiceException, AccessException {
-        GroupData group = call(getAdminFacility(),
-                               a -> a.lookupGroup(getCtx(), groupName),
-                               "Cannot retrieve group: " + groupName);
-        if (group != null) {
-            return new GroupWrapper(group);
-        } else {
-            String msg = String.format("Group not found: %s", groupName);
-            throw new NoSuchElementException(msg);
-        }
-    }
-
-
-    /**
-     * Returns the group which matches the group ID.
-     *
-     * @param groupId The ID of the group.
-     *
-     * @return The group with the appropriate group ID, if it exists.
-     *
-     * @throws ServiceException       Cannot connect to OMERO.
-     * @throws AccessException        Cannot access data.
-     * @throws NoSuchElementException The requested group cannot be found.
-     */
-    public GroupWrapper getGroup(long groupId)
-    throws ServiceException, AccessException {
-        ExperimenterGroup group = ExceptionHandler.of(getGateway(),
-                                                      g -> g.getAdminService(getCtx())
-                                                            .getGroup(groupId))
-                                                  .rethrow(ApiUsageException.class,
-                                                           (m, e) -> new NoSuchElementException(m),
-                                                           "Group not found: " + groupId)
-                                                  .handleOMEROException("Cannot retrieve group: " + groupId)
-                                                  .get();
-        return new GroupWrapper(new GroupData(group));
-    }
-
-
-    /**
-     * Returns all the groups on OMERO.
+     * Creates or recycles the import store.
      *
      * @return See above.
      *
      * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
      */
-    public List<GroupWrapper> getGroups()
-    throws ServiceException, AccessException {
-        String error = "Cannot retrieve the groups on OMERO";
-        List<ExperimenterGroup> groups = call(getGateway(),
-                                              g -> g.getAdminService(getCtx())
-                                                    .lookupGroups(),
-                                              error);
-        return groups.stream()
-                     .filter(Objects::nonNull)
-                     .map(GroupData::new)
-                     .map(GroupWrapper::new)
-                     .collect(Collectors.toList());
+    @Override
+    public OMEROMetadataStoreClient getImportStore() throws ServiceException {
+        storeUses.incrementAndGet();
+        return ExceptionHandler.of(this, GatewayWrapper::getImportStoreLocked)
+                               .rethrow(DSOutOfServiceException.class,
+                                        ServiceException::new,
+                                        "Could not retrieve import store")
+                               .get();
+    }
+
+
+    /**
+     * Closes the import store.
+     */
+    @Override
+    public void closeImport() {
+        int remainingStores = storeUses.decrementAndGet();
+        if (remainingStores <= 0) {
+            closeImportStoreLocked();
+        }
     }
 
 
@@ -292,7 +249,8 @@ public class GatewayWrapper extends Client {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
-    public GatewayWrapper sudo(String username)
+    @Override
+    public Client sudo(String username)
     throws ServiceException, AccessException, ExecutionException {
         ExperimenterWrapper sudoUser = getUser(username);
         long                groupId  = sudoUser.getDefaultGroup().getId();
@@ -301,7 +259,26 @@ public class GatewayWrapper extends Client {
         context.setExperimenter(sudoUser.asDataObject());
         context.sudo();
 
-        return new GatewayWrapper(this.getGateway(), context, sudoUser);
+        return new GatewayWrapper(this.gateway, context, sudoUser);
+    }
+
+
+    /**
+     * Overridden to return the host name, the group ID, the username and the connection status.
+     *
+     * @return See above.
+     */
+    @Override
+    public String toString() {
+        ServerInformation serverInfo = ctx.getServerInformation();
+
+        String host = serverInfo != null ? serverInfo.getHost() : "null";
+        return String.format("%s{host=%s, groupID=%d, userID=%d, connected=%b}",
+                             getClass().getSimpleName(),
+                             host,
+                             ctx.getGroupID(),
+                             user.getId(),
+                             gateway.isConnected());
     }
 
 }
