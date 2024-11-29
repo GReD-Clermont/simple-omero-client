@@ -251,7 +251,7 @@ public interface Client extends Browser {
      *
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
-    default DataManagerFacility getDm() throws ExecutionException {
+    default DataManagerFacility getDMFacility() throws ExecutionException {
         return getGateway().getFacility(DataManagerFacility.class);
     }
 
@@ -531,7 +531,7 @@ public interface Client extends Browser {
      */
     default IObject save(IObject object)
     throws ServiceException, AccessException, ExecutionException {
-        return call(getDm(),
+        return call(getDMFacility(),
                     d -> d.saveAndReturnObject(getCtx(), object),
                     "Cannot save object");
     }
@@ -550,7 +550,7 @@ public interface Client extends Browser {
     default void delete(IObject object)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(),
+        ExceptionHandler.ofConsumer(getDMFacility(),
                                     d -> d.delete(getCtx(), object).loop(10, wait))
                         .rethrow(InterruptedException.class)
                         .handleOMEROException("Cannot delete object")
@@ -571,7 +571,7 @@ public interface Client extends Browser {
     default void delete(List<IObject> objects)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         final long wait = 500L;
-        ExceptionHandler.ofConsumer(getDm(),
+        ExceptionHandler.ofConsumer(getDMFacility(),
                                     d -> d.delete(getCtx(), objects).loop(10, wait))
                         .rethrow(InterruptedException.class)
                         .handleOMEROException("Cannot delete objects")

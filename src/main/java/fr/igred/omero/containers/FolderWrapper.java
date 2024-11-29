@@ -261,7 +261,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> {
                 links.add(link);
             }
         }
-        ExceptionHandler.of(client.getDm(),
+        ExceptionHandler.of(client.getDMFacility(),
                             d -> d.saveAndReturnObject(client.getCtx(), links, null, null))
                         .handleOMEROException("Cannot save links.")
                         .rethrow();

@@ -215,7 +215,7 @@ public abstract class ObjectWrapper<T extends DataObject> {
     @SuppressWarnings("unchecked")
     public void saveAndUpdate(Client client)
     throws ExecutionException, ServiceException, AccessException {
-        data = (T) call(client.getDm(),
+        data = (T) call(client.getDMFacility(),
                         d -> d.saveAndReturnObject(client.getCtx(), data),
                         "Cannot save and update object.");
     }
