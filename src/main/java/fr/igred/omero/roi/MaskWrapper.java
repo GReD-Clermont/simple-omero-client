@@ -143,7 +143,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> implements Mask {
     /**
      * Sets the x-coordinate top-left corner of an untransformed mask.
      *
-     * @param x The value to set.
+     * @param x See above.
      */
     @Override
     public void setX(double x) {
