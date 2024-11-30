@@ -18,8 +18,6 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -43,7 +41,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -56,7 +53,8 @@ import static java.util.stream.Collectors.toList;
  *
  * @param <T> Subclass of {@link DataObject}
  */
-public abstract class RepositoryObjectWrapper<T extends DataObject> extends AnnotatableWrapper<T> {
+public abstract class RepositoryObjectWrapper<T extends DataObject>
+extends AnnotatableWrapper<T> implements RepositoryObject {
 
     /**
      * Constructor of the class RepositoryObjectWrapper.
@@ -203,52 +201,5 @@ public abstract class RepositoryObjectWrapper<T extends DataObject> extends Anno
                      .distinct()
                      .collect(toList());
     }
-
-
-    /**
-     * Gets the object name.
-     *
-     * @return See above.
-     */
-    public abstract String getName();
-
-
-    /**
-     * Gets the object description
-     *
-     * @return See above.
-     */
-    public abstract String getDescription();
-
-
-    /**
-     * Copies annotation links from some other object to this one.
-     * <p>Kept for API compatibility purposes.</p>
-     *
-     * @param client The client handling the connection.
-     * @param object Other repository object to copy annotations from.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @SuppressWarnings("MethodOverloadsMethodOfSuperclass")
-    public void copyAnnotationLinks(Client client, RepositoryObjectWrapper<?> object)
-    throws AccessException, ServiceException, ExecutionException {
-        super.copyAnnotationLinks(client, object);
-    }
-
-
-    /**
-     * Reloads the object from OMERO.
-     *
-     * @param browser The data browser.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public abstract void reload(Browser browser)
-    throws ServiceException, AccessException, ExecutionException;
 
 }

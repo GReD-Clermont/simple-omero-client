@@ -36,14 +36,14 @@ class MapAnnotationTest extends UserTest {
 
     @Test
     void testGetAllMapAnnotations() throws Exception {
-        List<MapAnnotationWrapper> maps = client.getMapAnnotations();
+        List<MapAnnotation> maps = client.getMapAnnotations();
         assertEquals(2, maps.size());
     }
 
 
     @Test
     void testGetSingleMapAnnotation() throws Exception {
-        MapAnnotationWrapper map = client.getMapAnnotation(4L);
+        MapAnnotation map = client.getMapAnnotation(4L);
         assertEquals("testKey1", map.getContent().get(0).getKey());
         assertEquals("testValue1", map.getContent().get(0).getValue());
     }
@@ -51,7 +51,7 @@ class MapAnnotationTest extends UserTest {
 
     @Test
     void testGetSingleMapAnnotationByKey() throws Exception {
-        List<MapAnnotationWrapper> maps = client.getMapAnnotations("testKey1");
+        List<MapAnnotation> maps = client.getMapAnnotations("testKey1");
         assertEquals(2, maps.size());
         assertEquals("testValue1", maps.get(0).getContent().get(0).getValue());
     }
@@ -62,14 +62,14 @@ class MapAnnotationTest extends UserTest {
         String key = "testKey1";
         String val = "testValue1";
 
-        List<MapAnnotationWrapper> maps = client.getMapAnnotations(key, val);
+        List<MapAnnotation> maps = client.getMapAnnotations(key, val);
         assertEquals(1, maps.size());
     }
 
 
     @Test
     void testGetContentAsMap() throws Exception {
-        MapAnnotationWrapper      map     = client.getMapAnnotation(4L);
+        MapAnnotation             map     = client.getMapAnnotation(4L);
         Map<String, List<String>> content = map.getContentAsMap();
         assertEquals("testValue1", content.get("testKey1").get(0));
         assertEquals("20", content.get("testKey2").get(0));
@@ -78,7 +78,7 @@ class MapAnnotationTest extends UserTest {
 
     @Test
     void testGetContentAsString() throws Exception {
-        MapAnnotationWrapper map = client.getMapAnnotation(4L);
+        MapAnnotation map = client.getMapAnnotation(4L);
 
         String expected = "testKey1=testValue1;testKey2=20";
         assertEquals(expected, map.getContentAsString());
@@ -87,7 +87,7 @@ class MapAnnotationTest extends UserTest {
 
     @Test
     void testSetContent() throws Exception {
-        MapAnnotationWrapper        map     = client.getMapAnnotation(4L);
+        MapAnnotation               map     = client.getMapAnnotation(4L);
         List<Entry<String, String>> content = map.getContent();
 
         Collection<Entry<String, String>> pairs = new ArrayList<>(2);

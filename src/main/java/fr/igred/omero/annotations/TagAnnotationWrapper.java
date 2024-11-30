@@ -30,13 +30,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData object.
  * <p> Wraps function calls to the TagAnnotationData contained.
  */
-public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
-
-    /**
-     * The name space used to indicate that the tag is used a tag set.
-     */
-    public static final String NS_TAGSET = TagAnnotationData.INSIGHT_TAGSET_NS;
-
+public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> implements TagAnnotation {
 
     /**
      * Constructor of the TagAnnotationWrapper class.
@@ -52,7 +46,7 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
      * Constructor of the TagAnnotationWrapper class. Creates the tag and saves it to OMERO.
      *
      * @param dm          The data manager.
-     * @param name        Annotation name.
+     * @param name        Tag name.
      * @param description Tag description.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -71,6 +65,7 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
      *
      * @return See above.
      */
+    @Override
     public String getName() {
         return data.getTagValue();
     }
@@ -83,18 +78,9 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setTagValue(name);
-    }
-
-
-    /**
-     * Returns whether this tag is a TagSet or not.
-     *
-     * @return {@code true} if this tag is a tag set, {@code false} otherwise.
-     */
-    public boolean isTagSet() {
-        return NS_TAGSET.equals(getNameSpace());
     }
 
 
@@ -103,8 +89,8 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> {
      *
      * @return See above.
      */
-    @SuppressWarnings("ClassReferencesSubclass")
-    public TagSetWrapper toTagSet() {
+    @Override
+    public TagSet toTagSet() {
         return new TagSetWrapper(data);
     }
 

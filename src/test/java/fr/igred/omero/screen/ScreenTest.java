@@ -19,8 +19,9 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -36,55 +37,55 @@ class ScreenTest extends UserTest {
 
     @Test
     void testGetPlateAcquisitions() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN2.id);
+        Screen screen = client.getScreen(SCREEN2.id);
         assertEquals(2, screen.getPlateAcquisitions(client).size());
     }
 
 
     @Test
     void testGetWells() throws Exception {
-        ScreenWrapper     screen = client.getScreen(SCREEN2.id);
-        List<WellWrapper> wells  = screen.getWells(client);
+        Screen     screen = client.getScreen(SCREEN2.id);
+        List<Well> wells  = screen.getWells(client);
         assertEquals(8, wells.size());
     }
 
 
     @Test
     void testGetImages() throws Exception {
-        ScreenWrapper      screen = client.getScreen(SCREEN2.id);
-        List<ImageWrapper> images = screen.getImages(client);
+        Screen      screen = client.getScreen(SCREEN2.id);
+        List<Image> images = screen.getImages(client);
         assertEquals(16, images.size());
     }
 
 
     @Test
     void testGetPlatesFromScreen() throws Exception {
-        ScreenWrapper      screen = client.getScreen(SCREEN2.id);
-        List<PlateWrapper> plates = screen.getPlates();
+        Screen      screen = client.getScreen(SCREEN2.id);
+        List<Plate> plates = screen.getPlates();
         assertEquals(2, plates.size());
     }
 
 
     @Test
     void testGetPlatesFromScreen2() throws Exception {
-        ScreenWrapper      screen = client.getScreen(SCREEN2.id);
-        List<PlateWrapper> plates = screen.getPlates("Plate Name 1");
+        Screen      screen = client.getScreen(SCREEN2.id);
+        List<Plate> plates = screen.getPlates("Plate Name 1");
         assertEquals(1, plates.size());
     }
 
 
     @Test
     void testAddTagToScreen() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN2.id);
+        Screen screen = client.getScreen(SCREEN2.id);
 
         String name = "Screen tag";
         String desc = "tag attached to a screen";
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        TagAnnotation tag = new TagAnnotationWrapper(client, name, desc);
         screen.link(client, tag);
-        List<TagAnnotationWrapper> tags = screen.getTags(client);
+        List<TagAnnotation> tags = screen.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> checkTags = screen.getTags(client);
+        List<TagAnnotation> checkTags = screen.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());
@@ -93,16 +94,16 @@ class ScreenTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromScreen() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN2.id);
+        Screen screen = client.getScreen(SCREEN2.id);
 
         String name = "Screen tag";
         String desc = "tag attached to a screen";
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        TagAnnotation tag = new TagAnnotationWrapper(client, name, desc);
         screen.link(client, tag);
-        List<TagAnnotationWrapper> tags = screen.getTags(client);
+        List<TagAnnotation> tags = screen.getTags(client);
         screen.unlink(client, tag);
-        List<TagAnnotationWrapper> removedTags = screen.getTags(client);
+        List<TagAnnotation> removedTags = screen.getTags(client);
         client.delete(tag);
 
         assertEquals(1, tags.size());
@@ -112,7 +113,7 @@ class ScreenTest extends UserTest {
 
     @Test
     void testSetName() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN1.id);
+        Screen screen = client.getScreen(SCREEN1.id);
 
         String name  = screen.getName();
         String name2 = "New name";
@@ -128,7 +129,7 @@ class ScreenTest extends UserTest {
 
     @Test
     void testSetDescription() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN1.id);
+        Screen screen = client.getScreen(SCREEN1.id);
 
         String description = screen.getDescription();
 
@@ -145,7 +146,7 @@ class ScreenTest extends UserTest {
 
     @Test
     void testSetProtocolDescription() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN1.id);
+        Screen screen = client.getScreen(SCREEN1.id);
 
         String description = "Protocol Description Test";
         screen.setProtocolDescription(description);
@@ -156,7 +157,7 @@ class ScreenTest extends UserTest {
 
     @Test
     void testSetProtocolIdentifier() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN1.id);
+        Screen screen = client.getScreen(SCREEN1.id);
 
         String identifier = "Protocol Identifier Test";
         screen.setProtocolIdentifier(identifier);
@@ -167,7 +168,7 @@ class ScreenTest extends UserTest {
 
     @Test
     void testSetReagentSetDescription() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN1.id);
+        Screen screen = client.getScreen(SCREEN1.id);
 
         String description = "Reagent Description Test";
         screen.setReagentSetDescription(description);
@@ -178,7 +179,7 @@ class ScreenTest extends UserTest {
 
     @Test
     void testSetReagentSetIdentifier() throws Exception {
-        ScreenWrapper screen = client.getScreen(SCREEN1.id);
+        Screen screen = client.getScreen(SCREEN1.id);
 
         String identifier = "Reagent Identifier Test";
         screen.setReagentSetIdentifier(identifier);
@@ -198,7 +199,7 @@ class ScreenTest extends UserTest {
         String name = "Import";
         String desc = "test-import";
 
-        ScreenWrapper screen = new ScreenWrapper(client, name, desc);
+        Screen screen = new ScreenWrapper(client, name, desc);
 
         boolean imported = screen.importImages(client, f1.getAbsolutePath(), f2.getAbsolutePath());
         screen.reload(client);
@@ -206,19 +207,19 @@ class ScreenTest extends UserTest {
         removeFile(f1);
         removeFile(f2);
 
-        List<PlateWrapper> plates = screen.getPlates();
+        List<Plate> plates = screen.getPlates();
         assertEquals(2, plates.size());
-        List<WellWrapper> wells = plates.get(0).getWells(client);
+        List<Well> wells = plates.get(0).getWells(client);
         wells.addAll(plates.get(1).getWells(client));
         assertEquals(13, wells.size());
-        List<WellSampleWrapper> samples = wells.stream()
-                                               .map(WellWrapper::getWellSamples)
-                                               .flatMap(List::stream)
-                                               .collect(Collectors.toList());
+        List<WellSample> samples = wells.stream()
+                                        .map(Well::getWellSamples)
+                                        .flatMap(List::stream)
+                                        .collect(Collectors.toList());
         assertEquals(44, samples.size());
-        List<ImageWrapper> images = samples.stream()
-                                           .map(WellSampleWrapper::getImage)
-                                           .collect(Collectors.toList());
+        List<Image> images = samples.stream()
+                                    .map(WellSample::getImage)
+                                    .collect(Collectors.toList());
 
         client.delete(images);
         client.delete(samples);
@@ -242,25 +243,25 @@ class ScreenTest extends UserTest {
         String name = "Import";
         String desc = "test-import";
 
-        ScreenWrapper screen = new ScreenWrapper(client, name, desc);
+        Screen screen = new ScreenWrapper(client, name, desc);
 
         List<Long> ids = screen.importImage(client, file.getAbsolutePath());
         screen.reload(client);
 
         removeFile(file);
 
-        List<PlateWrapper> plates = screen.getPlates();
+        List<Plate> plates = screen.getPlates();
         assertEquals(1, plates.size());
-        List<WellWrapper> wells = plates.get(0).getWells(client);
+        List<Well> wells = plates.get(0).getWells(client);
         assertEquals(4, wells.size());
-        List<WellSampleWrapper> samples = wells.stream()
-                                               .map(WellWrapper::getWellSamples)
-                                               .flatMap(List::stream)
-                                               .collect(Collectors.toList());
+        List<WellSample> samples = wells.stream()
+                                        .map(Well::getWellSamples)
+                                        .flatMap(List::stream)
+                                        .collect(Collectors.toList());
         assertEquals(8, samples.size());
-        List<ImageWrapper> images = samples.stream()
-                                           .map(WellSampleWrapper::getImage)
-                                           .collect(Collectors.toList());
+        List<Image> images = samples.stream()
+                                    .map(WellSample::getImage)
+                                    .collect(Collectors.toList());
 
         assertEquals(images.size(), ids.size());
         client.delete(images);
@@ -269,7 +270,7 @@ class ScreenTest extends UserTest {
         client.delete(plates);
 
         screen.reload(client);
-        List<PlateWrapper> endPlates = screen.getPlates();
+        List<Plate> endPlates = screen.getPlates();
 
         client.delete(screen);
 

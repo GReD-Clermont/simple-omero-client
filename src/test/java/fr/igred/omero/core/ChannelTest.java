@@ -32,7 +32,7 @@ class ChannelTest extends BasicTest {
 
     @Test
     void testChannelNoRGBA() {
-        ChannelWrapper channel = new ChannelWrapper(new ChannelData(0));
+        Channel channel = new ChannelWrapper(new ChannelData(0));
         assertEquals(Color.WHITE, channel.getColor());
     }
 

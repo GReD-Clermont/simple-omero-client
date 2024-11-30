@@ -21,6 +21,7 @@ package fr.igred.omero.client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.meta.Experimenter;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.gateway.Gateway;
@@ -58,7 +59,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
     private SecurityContext ctx;
 
     /** User */
-    private ExperimenterWrapper user;
+    private Experimenter user;
 
 
     /**
@@ -77,7 +78,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
      * @param ctx     The Security Context.
      * @param user    The connected user.
      */
-    public GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    public GatewayWrapper(Gateway gateway, SecurityContext ctx, Experimenter user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
         this.user    = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
         this.ctx     = ctx != null ? ctx : new SecurityContext(-1);
@@ -131,7 +132,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
      * @return The current user.
      */
     @Override
-    public ExperimenterWrapper getUser() {
+    public Experimenter getUser() {
         return user;
     }
 
@@ -253,8 +254,8 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
     @Override
     public Client sudo(String username)
     throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
-        long                groupId  = sudoUser.getDefaultGroup().getId();
+        Experimenter sudoUser = getUser(username);
+        long         groupId  = sudoUser.getDefaultGroup().getId();
 
         SecurityContext context = new SecurityContext(groupId);
         context.setExperimenter(sudoUser.asDataObject());

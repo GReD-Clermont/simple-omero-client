@@ -21,14 +21,12 @@ package fr.igred.omero.roi;
 import ij.gui.PointRoi;
 import omero.gateway.model.PointData;
 
-import java.awt.geom.Path2D;
-
 
 /**
  * Class containing an PointData.
  * <p> Wraps function calls to the PointData contained.
  */
-public class PointWrapper extends ShapeWrapper<PointData> {
+public class PointWrapper extends ShapeWrapper<PointData> implements Point {
 
 
     /**
@@ -83,23 +81,11 @@ public class PointWrapper extends ShapeWrapper<PointData> {
 
 
     /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        Path2D point = new Path2D.Double();
-        point.moveTo(getX(), getY());
-        return point;
-    }
-
-
-    /**
      * Returns the x-coordinate of the shape.
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -110,6 +96,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -120,6 +107,7 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -130,52 +118,9 @@ public class PointWrapper extends ShapeWrapper<PointData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
-    }
-
-
-    /**
-     * Sets the coordinates the PointData shape.
-     *
-     * @param x x-coordinate of the PointData shape.
-     * @param y y-coordinate of the PointData shape.
-     */
-    public void setCoordinates(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-
-    /**
-     * Gets the coordinates of the PointData shape.
-     *
-     * @return Array of coordinates containing {X,Y}.
-     */
-    public double[] getCoordinates() {
-        double[] coordinates = new double[2];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the PointData shape.
-     *
-     * @param coordinates Array of coordinates containing {X,Y}.
-     */
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            String msg = "PointData cannot set null coordinates.";
-            throw new IllegalArgumentException(msg);
-        } else if (coordinates.length == 2) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-        } else {
-            String msg = "2 coordinates required for PointData.";
-            throw new IllegalArgumentException(msg);
-        }
     }
 
 
