@@ -20,7 +20,7 @@ The main entry point is the Client class, which can be used to retrieve, save or
 <p>To use it, a connection has to be established first:
 
 ```java
-Client client = new Client();
+Client client = new GatewayWrapper();
 client.connect("host", 4064, "username", password, groupId);
 ```
 
