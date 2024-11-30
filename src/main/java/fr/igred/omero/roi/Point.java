@@ -26,7 +26,7 @@ import java.awt.geom.Path2D;
 /**
  * Interface to handle Point shapes on OMERO.
  */
-public interface Point extends Shape {
+public interface Point extends Shape, Punctual {
 
     /**
      * Returns an {@link PointData} corresponding to the handled object.
@@ -49,80 +49,5 @@ public interface Point extends Shape {
         return point;
     }
 
-
-    /**
-     * Returns the x-coordinate of the shape.
-     *
-     * @return See above.
-     */
-    double getX();
-
-
-    /**
-     * Sets the x-coordinate of the shape.
-     *
-     * @param x See above.
-     */
-    void setX(double x);
-
-
-    /**
-     * Returns the y coordinate of the shape.
-     *
-     * @return See above.
-     */
-    double getY();
-
-
-    /**
-     * Sets the y-coordinate of the shape.
-     *
-     * @param y See above.
-     */
-    void setY(double y);
-
-
-    /**
-     * Sets the coordinates the PointData shape.
-     *
-     * @param x x-coordinate of the PointData shape.
-     * @param y y-coordinate of the PointData shape.
-     */
-    default void setCoordinates(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-
-    /**
-     * Gets the coordinates of the PointData shape.
-     *
-     * @return Array of coordinates containing {X,Y}.
-     */
-    default double[] getCoordinates() {
-        double[] coordinates = new double[2];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the PointData shape.
-     *
-     * @param coordinates Array of coordinates containing {X,Y}.
-     */
-    default void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            String msg = "PointData cannot set null coordinates.";
-            throw new IllegalArgumentException(msg);
-        } else if (coordinates.length == 2) {
-            setX(coordinates[0]);
-            setY(coordinates[1]);
-        } else {
-            String msg = "2 coordinates required for PointData.";
-            throw new IllegalArgumentException(msg);
-        }
-    }
 
 }

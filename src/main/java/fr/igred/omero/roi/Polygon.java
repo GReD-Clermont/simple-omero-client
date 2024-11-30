@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Interface to handle Polygon shapes on OMERO.
  */
-public interface Polygon extends Shape {
+public interface Polygon extends Shape, Polylineal {
 
     /**
      * Returns an {@link PolygonData} corresponding to the handled object.
@@ -58,22 +58,6 @@ public interface Polygon extends Shape {
         }
         return polygon;
     }
-
-
-    /**
-     * Returns the points in the Polygon.
-     *
-     * @return See above.
-     */
-    List<Point2D.Double> getPoints();
-
-
-    /**
-     * Sets the points in the polyline.
-     *
-     * @param points The points to set.
-     */
-    void setPoints(List<Point2D.Double> points);
 
 
     /**
