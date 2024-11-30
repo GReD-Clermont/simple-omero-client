@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
-/** List of AnnotationWrapper objects */
-public class AnnotationList extends ArrayList<AnnotationWrapper<?>> {
+/** List of Annotation objects */
+public class AnnotationList extends ArrayList<Annotation<?>> {
 
 
     private static final long serialVersionUID = 8792604507462788823L;
@@ -57,11 +57,11 @@ public class AnnotationList extends ArrayList<AnnotationWrapper<?>> {
      * Gets a list of elements from this list whose class is specified.
      *
      * @param clazz Class of the wanted elements.
-     * @param <T>   Subclass of AnnotationWrapper.
+     * @param <T>   Subclass of Annotation.
      *
      * @return See above.
      */
-    public <T extends AnnotationWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
+    public <T extends Annotation<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance)
                        .map(clazz::cast)
                        .collect(Collectors.toList());

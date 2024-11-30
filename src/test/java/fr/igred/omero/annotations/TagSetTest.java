@@ -33,7 +33,7 @@ class TagSetTest extends UserTest {
         String name = "tagset";
         String desc = "tagset description";
 
-        TagAnnotationWrapper tagSet = new TagSetWrapper(client, name, desc);
+        TagAnnotation tagSet = new TagSet(client, name, desc);
         client.delete(tagSet);
         assertTrue(tagSet.isTagSet());
     }
@@ -44,7 +44,7 @@ class TagSetTest extends UserTest {
         String name = "tagset";
         String desc = "LinkTagSet";
 
-        TagSetWrapper tagSet = new TagSetWrapper(client, name, desc);
+        TagSet tagSet = new TagSet(client, name, desc);
         tagSet.link(client, client.getTag(1L), client.getTag(2L));
         int nTags = tagSet.getTags(client).size();
         client.delete(tagSet);

@@ -18,39 +18,39 @@
 package fr.igred.omero.util;
 
 
-import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.annotations.AnnotationWrapper;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
-import fr.igred.omero.annotations.RatingAnnotationWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.annotations.TextualAnnotationWrapper;
-import fr.igred.omero.containers.DatasetWrapper;
-import fr.igred.omero.containers.FolderWrapper;
-import fr.igred.omero.containers.ProjectWrapper;
-import fr.igred.omero.core.ChannelWrapper;
-import fr.igred.omero.core.ImageWrapper;
-import fr.igred.omero.core.PixelsWrapper;
-import fr.igred.omero.core.PlaneInfoWrapper;
-import fr.igred.omero.meta.ExperimenterWrapper;
-import fr.igred.omero.meta.GroupWrapper;
-import fr.igred.omero.roi.EllipseWrapper;
-import fr.igred.omero.roi.LineWrapper;
-import fr.igred.omero.roi.MaskWrapper;
-import fr.igred.omero.roi.PointWrapper;
-import fr.igred.omero.roi.PolygonWrapper;
-import fr.igred.omero.roi.PolylineWrapper;
-import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.roi.RectangleWrapper;
-import fr.igred.omero.roi.ShapeWrapper;
-import fr.igred.omero.roi.TextWrapper;
-import fr.igred.omero.screen.PlateAcquisitionWrapper;
-import fr.igred.omero.screen.PlateWrapper;
-import fr.igred.omero.screen.ScreenWrapper;
-import fr.igred.omero.screen.WellSampleWrapper;
-import fr.igred.omero.screen.WellWrapper;
+import fr.igred.omero.Annotatable;
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
+import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.FileAnnotation;
+import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.RatingAnnotation;
+import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.annotations.TextualAnnotation;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.Project;
+import fr.igred.omero.core.Channel;
+import fr.igred.omero.core.Image;
+import fr.igred.omero.core.Pixels;
+import fr.igred.omero.core.PlaneInfo;
+import fr.igred.omero.meta.Experimenter;
+import fr.igred.omero.meta.Group;
+import fr.igred.omero.roi.Ellipse;
+import fr.igred.omero.roi.Line;
+import fr.igred.omero.roi.Mask;
+import fr.igred.omero.roi.Point;
+import fr.igred.omero.roi.Polygon;
+import fr.igred.omero.roi.Polyline;
+import fr.igred.omero.roi.ROI;
+import fr.igred.omero.roi.Rectangle;
+import fr.igred.omero.roi.Shape;
+import fr.igred.omero.roi.Text;
+import fr.igred.omero.screen.Plate;
+import fr.igred.omero.screen.PlateAcquisition;
+import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.Well;
+import fr.igred.omero.screen.WellSample;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
@@ -110,25 +110,25 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends ShapeData, U extends ShapeWrapper<? extends T>> U wrap(T object) {
+    public static <T extends ShapeData, U extends Shape<? extends T>> U wrap(T object) {
         U converted;
 
         if (object instanceof RectangleData) {
-            converted = (U) new RectangleWrapper((RectangleData) object);
+            converted = (U) new Rectangle((RectangleData) object);
         } else if (object instanceof PolygonData) {
-            converted = (U) new PolygonWrapper((PolygonData) object);
+            converted = (U) new Polygon((PolygonData) object);
         } else if (object instanceof PolylineData) {
-            converted = (U) new PolylineWrapper((PolylineData) object);
+            converted = (U) new Polyline((PolylineData) object);
         } else if (object instanceof EllipseData) {
-            converted = (U) new EllipseWrapper((EllipseData) object);
+            converted = (U) new Ellipse((EllipseData) object);
         } else if (object instanceof PointData) {
-            converted = (U) new PointWrapper((PointData) object);
+            converted = (U) new Point((PointData) object);
         } else if (object instanceof LineData) {
-            converted = (U) new LineWrapper((LineData) object);
+            converted = (U) new Line((LineData) object);
         } else if (object instanceof TextData) {
-            converted = (U) new TextWrapper((TextData) object);
+            converted = (U) new Text((TextData) object);
         } else if (object instanceof MaskData) {
-            converted = (U) new MaskWrapper((MaskData) object);
+            converted = (U) new Mask((MaskData) object);
         } else {
             String msg = format(UNKNOWN_TYPE, object.getClass().getName());
             throw new IllegalArgumentException(msg);
@@ -146,19 +146,19 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends AnnotationData, U extends AnnotationWrapper<? extends T>> U wrap(T object) {
+    public static <T extends AnnotationData, U extends Annotation<? extends T>> U wrap(T object) {
         U converted;
 
         if (object instanceof FileAnnotationData) {
-            converted = (U) new FileAnnotationWrapper((FileAnnotationData) object);
+            converted = (U) new FileAnnotation((FileAnnotationData) object);
         } else if (object instanceof MapAnnotationData) {
-            converted = (U) new MapAnnotationWrapper((MapAnnotationData) object);
+            converted = (U) new MapAnnotation((MapAnnotationData) object);
         } else if (object instanceof TagAnnotationData) {
-            converted = (U) new TagAnnotationWrapper((TagAnnotationData) object);
+            converted = (U) new TagAnnotation((TagAnnotationData) object);
         } else if (object instanceof RatingAnnotationData) {
-            converted = (U) new RatingAnnotationWrapper((RatingAnnotationData) object);
+            converted = (U) new RatingAnnotation((RatingAnnotationData) object);
         } else if (object instanceof TextualAnnotationData) {
-            converted = (U) new TextualAnnotationWrapper((TextualAnnotationData) object);
+            converted = (U) new TextualAnnotation((TextualAnnotationData) object);
         } else {
             String msg = format(UNKNOWN_TYPE, object.getClass().getName());
             throw new IllegalArgumentException(msg);
@@ -176,14 +176,14 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends AnnotatableWrapper<? extends T>>
+    public static <T extends DataObject, U extends Annotatable<? extends T>>
     U wrapAnnotatableObject(T object) {
         U converted;
 
         if (object instanceof ShapeData) {
             converted = (U) wrap((ShapeData) object);
         } else if (object instanceof ROIData) {
-            converted = (U) new ROIWrapper((ROIData) object);
+            converted = (U) new ROI((ROIData) object);
         } else {
             converted = (U) wrapRepositoryObject(object);
         }
@@ -200,26 +200,26 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends RepositoryObjectWrapper<? extends T>>
+    public static <T extends DataObject, U extends RepositoryObject<? extends T>>
     U wrapRepositoryObject(T object) {
         U converted;
 
         if (object instanceof ProjectData) {
-            converted = (U) new ProjectWrapper((ProjectData) object);
+            converted = (U) new Project((ProjectData) object);
         } else if (object instanceof DatasetData) {
-            converted = (U) new DatasetWrapper((DatasetData) object);
+            converted = (U) new Dataset((DatasetData) object);
         } else if (object instanceof ImageData) {
-            converted = (U) new ImageWrapper((ImageData) object);
+            converted = (U) new Image((ImageData) object);
         } else if (object instanceof ScreenData) {
-            converted = (U) new ScreenWrapper((ScreenData) object);
+            converted = (U) new Screen((ScreenData) object);
         } else if (object instanceof PlateData) {
-            converted = (U) new PlateWrapper((PlateData) object);
+            converted = (U) new Plate((PlateData) object);
         } else if (object instanceof PlateAcquisitionData) {
-            converted = (U) new PlateAcquisitionWrapper((PlateAcquisitionData) object);
+            converted = (U) new PlateAcquisition((PlateAcquisitionData) object);
         } else if (object instanceof WellData) {
-            converted = (U) new WellWrapper((WellData) object);
+            converted = (U) new Well((WellData) object);
         } else if (object instanceof FolderData) {
-            converted = (U) new FolderWrapper((FolderData) object);
+            converted = (U) new Folder((FolderData) object);
         } else {
             String msg = format(UNKNOWN_TYPE, object.getClass().getName());
             throw new IllegalArgumentException(msg);
@@ -229,7 +229,7 @@ public final class Wrapper {
 
 
     /**
-     * Converts (wraps) a DataObject to a ObjectWrapper.
+     * Converts (wraps) a DataObject to a RemoteObject.
      *
      * @param object The object to convert.
      * @param <T>    The DataObject type.
@@ -237,22 +237,22 @@ public final class Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends ObjectWrapper<? extends T>> U wrap(T object) {
+    public static <T extends DataObject, U extends RemoteObject<? extends T>> U wrap(T object) {
         U converted;
         if (object instanceof AnnotationData) {
             converted = (U) wrap((AnnotationData) object);
         } else if (object instanceof PixelsData) {
-            converted = (U) new PixelsWrapper((PixelsData) object);
+            converted = (U) new Pixels((PixelsData) object);
         } else if (object instanceof PlaneInfoData) {
-            converted = (U) new PlaneInfoWrapper((PlaneInfoData) object);
+            converted = (U) new PlaneInfo((PlaneInfoData) object);
         } else if (object instanceof WellSampleData) {
-            converted = (U) new WellSampleWrapper((WellSampleData) object);
+            converted = (U) new WellSample((WellSampleData) object);
         } else if (object instanceof ExperimenterData) {
-            converted = (U) new ExperimenterWrapper((ExperimenterData) object);
+            converted = (U) new Experimenter((ExperimenterData) object);
         } else if (object instanceof GroupData) {
-            converted = (U) new GroupWrapper((GroupData) object);
+            converted = (U) new Group((GroupData) object);
         } else if (object instanceof ChannelData) {
-            converted = (U) new ChannelWrapper((ChannelData) object);
+            converted = (U) new Channel((ChannelData) object);
         } else {
             converted = (U) wrapAnnotatableObject(object);
         }

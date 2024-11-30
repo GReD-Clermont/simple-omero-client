@@ -19,8 +19,8 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.containers.DatasetWrapper;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.core.Image;
 import omero.gateway.model.RatingAnnotationData;
 import org.junit.jupiter.api.Test;
 
@@ -35,14 +35,14 @@ class RatingAnnotationTest extends UserTest {
 
     @Test
     void testAddRating1() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
-        int          score = 5;
+        Image image = client.getImage(IMAGE1.id);
+        int   score = 5;
 
-        RatingAnnotationWrapper rating = new RatingAnnotationWrapper(score);
+        RatingAnnotation rating = new RatingAnnotation(score);
         image.link(client, rating);
 
-        List<RatingAnnotationWrapper> ratings = image.getAnnotations(client)
-                                                     .getElementsOf(RatingAnnotationWrapper.class);
+        List<RatingAnnotation> ratings = image.getAnnotations(client)
+                                              .getElementsOf(RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -52,15 +52,15 @@ class RatingAnnotationTest extends UserTest {
 
     @Test
     void testAddRating2() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
-        int          score = 3;
+        Image image = client.getImage(IMAGE1.id);
+        int   score = 3;
 
-        RatingAnnotationWrapper rating = new RatingAnnotationWrapper(new RatingAnnotationData());
+        RatingAnnotation rating = new RatingAnnotation(new RatingAnnotationData());
         rating.setRating(score);
         image.link(client, rating);
 
-        List<RatingAnnotationWrapper> ratings = image.getAnnotations(client)
-                                                     .getElementsOf(RatingAnnotationWrapper.class);
+        List<RatingAnnotation> ratings = image.getAnnotations(client)
+                                              .getElementsOf(RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -70,8 +70,8 @@ class RatingAnnotationTest extends UserTest {
 
     @Test
     void testRate1() throws Exception {
-        ImageWrapper image  = client.getImage(IMAGE1.id);
-        int          score1 = 4;
+        Image image  = client.getImage(IMAGE1.id);
+        int   score1 = 4;
         int          score2 = 3;
 
         image.rate(client, score1);
@@ -79,8 +79,8 @@ class RatingAnnotationTest extends UserTest {
         image.rate(client, score2);
         int rating2 = image.getMyRating(client);
 
-        List<RatingAnnotationWrapper> ratings = image.getAnnotations(client)
-                                                     .getElementsOf(RatingAnnotationWrapper.class);
+        List<RatingAnnotation> ratings = image.getAnnotations(client)
+                                              .getElementsOf(RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -91,14 +91,14 @@ class RatingAnnotationTest extends UserTest {
 
     @Test
     void testRate2() throws Exception {
-        ImageWrapper image  = client.getImage(IMAGE1.id);
-        int          score0 = 1;
+        Image image  = client.getImage(IMAGE1.id);
+        int   score0 = 1;
         int          score1 = 2;
         int          score2 = 3;
 
-        RatingAnnotationWrapper rating1 = new RatingAnnotationWrapper(new RatingAnnotationData());
+        RatingAnnotation rating1 = new RatingAnnotation(new RatingAnnotationData());
         rating1.setRating(score0);
-        RatingAnnotationWrapper rating2 = new RatingAnnotationWrapper(new RatingAnnotationData());
+        RatingAnnotation rating2 = new RatingAnnotation(new RatingAnnotationData());
         rating1.setRating(score1);
         image.link(client, rating1);
         image.link(client, rating2);
@@ -106,8 +106,8 @@ class RatingAnnotationTest extends UserTest {
         image.rate(client, score2);
         int myRating2 = image.getMyRating(client);
 
-        List<RatingAnnotationWrapper> ratings = image.getAnnotations(client)
-                                                     .getElementsOf(RatingAnnotationWrapper.class);
+        List<RatingAnnotation> ratings = image.getAnnotations(client)
+                                              .getElementsOf(RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -118,8 +118,8 @@ class RatingAnnotationTest extends UserTest {
 
     @Test
     void testRate3() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
-        int            score1  = 4;
+        Dataset dataset = client.getDataset(DATASET1.id);
+        int     score1  = 4;
         int            score2  = 3;
 
         dataset.rate(client, score1);
@@ -127,8 +127,8 @@ class RatingAnnotationTest extends UserTest {
         dataset.rate(client, score2);
         int rating2 = dataset.getMyRating(client);
 
-        List<RatingAnnotationWrapper> ratings = dataset.getAnnotations(client)
-                                                       .getElementsOf(RatingAnnotationWrapper.class);
+        List<RatingAnnotation> ratings = dataset.getAnnotations(client)
+                                                .getElementsOf(RatingAnnotation.class);
         client.delete(ratings);
 
         assertEquals(1, ratings.size());
@@ -139,8 +139,8 @@ class RatingAnnotationTest extends UserTest {
 
     @Test
     void testGetRatings() throws Exception {
-        DatasetWrapper                dataset = client.getDataset(DATASET1.id);
-        List<RatingAnnotationWrapper> ratings = dataset.getRatings(client);
+        Dataset                dataset = client.getDataset(DATASET1.id);
+        List<RatingAnnotation> ratings = dataset.getRatings(client);
         assertTrue(ratings.isEmpty());
     }
 

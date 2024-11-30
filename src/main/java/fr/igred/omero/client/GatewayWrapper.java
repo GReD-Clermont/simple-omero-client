@@ -21,7 +21,7 @@ package fr.igred.omero.client;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.Experimenter;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
@@ -58,7 +58,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
     private SecurityContext ctx;
 
     /** User */
-    private ExperimenterWrapper user;
+    private Experimenter user;
 
 
     /**
@@ -77,9 +77,9 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
      * @param ctx     The Security Context.
      * @param user    The connected user.
      */
-    public GatewayWrapper(Gateway gateway, SecurityContext ctx, ExperimenterWrapper user) {
+    public GatewayWrapper(Gateway gateway, SecurityContext ctx, Experimenter user) {
         this.gateway = gateway != null ? gateway : new Gateway(new SimpleLogger());
-        this.user    = user != null ? user : new ExperimenterWrapper(new ExperimenterData());
+        this.user    = user != null ? user : new Experimenter(new ExperimenterData());
         this.ctx     = ctx != null ? ctx : new SecurityContext(-1);
     }
 
@@ -131,7 +131,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
      * @return The current user.
      */
     @Override
-    public ExperimenterWrapper getUser() {
+    public Experimenter getUser() {
         return user;
     }
 
@@ -159,7 +159,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
         disconnect();
 
         try {
-            this.user = new ExperimenterWrapper(gateway.connect(credentials));
+            this.user = new Experimenter(gateway.connect(credentials));
         } catch (DSOutOfServiceException oos) {
             throw new ServiceException(oos, oos.getConnectionStatus());
         }
@@ -178,7 +178,7 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
             boolean sudo = ctx.isSudo();
             storeUses.set(0);
             closeImport();
-            user = new ExperimenterWrapper(new ExperimenterData());
+            user = new Experimenter(new ExperimenterData());
             ctx  = new SecurityContext(-1);
             ctx.setExperimenter(user.asDataObject());
             if (sudo) {
@@ -253,8 +253,8 @@ public class GatewayWrapper extends BrowserWrapper implements Client {
     @Override
     public Client sudo(String username)
     throws ServiceException, AccessException, ExecutionException {
-        ExperimenterWrapper sudoUser = getUser(username);
-        long                groupId  = sudoUser.getDefaultGroup().getId();
+        Experimenter sudoUser = getUser(username);
+        long         groupId  = sudoUser.getDefaultGroup().getId();
 
         SecurityContext context = new SecurityContext(groupId);
         context.setExperimenter(sudoUser.asDataObject());

@@ -18,19 +18,19 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.containers.DatasetWrapper;
-import fr.igred.omero.containers.FolderWrapper;
-import fr.igred.omero.containers.ProjectWrapper;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.annotations.MapAnnotation;
+import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.containers.Folder;
+import fr.igred.omero.containers.Project;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.meta.ExperimenterWrapper;
-import fr.igred.omero.screen.PlateWrapper;
-import fr.igred.omero.screen.ScreenWrapper;
-import fr.igred.omero.screen.WellWrapper;
+import fr.igred.omero.meta.Experimenter;
+import fr.igred.omero.screen.Plate;
+import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.Well;
 import omero.gateway.SecurityContext;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FolderData;
@@ -42,7 +42,6 @@ import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.WellData;
 import omero.model.IObject;
-import omero.model.TagAnnotation;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,7 +51,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static fr.igred.omero.ObjectWrapper.wrap;
+import static fr.igred.omero.RemoteObject.wrap;
 import static fr.igred.omero.exception.ExceptionHandler.call;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -84,14 +83,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ProjectWrapper> getProjects(Long... ids)
+    public List<Project> getProjects(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectData> projects = call(getBrowseFacility(),
                                                 bf -> bf.getProjects(getCtx(),
                                                                      asList(ids)),
                                                 "Cannot get projects with IDs: "
                                                 + Arrays.toString(ids));
-        return wrap(projects, ProjectWrapper::new);
+        return wrap(projects, Project::new);
     }
 
 
@@ -105,12 +104,12 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ProjectWrapper> getProjects()
+    public List<Project> getProjects()
     throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectData> projects = call(getBrowseFacility(),
                                                 bf -> bf.getProjects(getCtx()),
                                                 "Cannot get projects");
-        return wrap(projects, ProjectWrapper::new);
+        return wrap(projects, Project::new);
     }
 
 
@@ -126,7 +125,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ProjectWrapper> getProjects(ExperimenterWrapper experimenter)
+    public List<Project> getProjects(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
         long exId = experimenter.getId();
         Collection<ProjectData> projects = call(getBrowseFacility(),
@@ -134,7 +133,7 @@ public abstract class BrowserWrapper implements Browser {
                                                                      exId),
                                                 "Cannot get projects for user "
                                                 + experimenter);
-        return wrap(projects, ProjectWrapper::new);
+        return wrap(projects, Project::new);
     }
 
 
@@ -150,14 +149,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ProjectWrapper> getProjects(String name)
+    public List<Project> getProjects(String name)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ProjectData> projects = call(getBrowseFacility(),
                                                 bf -> bf.getProjects(getCtx(),
                                                                      name),
                                                 "Cannot get projects with name: "
                                                 + name);
-        return wrap(projects, ProjectWrapper::new);
+        return wrap(projects, Project::new);
     }
 
 
@@ -173,14 +172,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<DatasetWrapper> getDatasets(Long... ids)
+    public List<Dataset> getDatasets(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         Collection<DatasetData> datasets = call(getBrowseFacility(),
                                                 bf -> bf.getDatasets(getCtx(),
                                                                      asList(ids)),
                                                 "Cannot get datasets with IDs: "
                                                 + Arrays.toString(ids));
-        return wrap(datasets, DatasetWrapper::new);
+        return wrap(datasets, Dataset::new);
     }
 
 
@@ -196,14 +195,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<DatasetWrapper> getDatasets(String name)
+    public List<Dataset> getDatasets(String name)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get datasets with name: " + name;
         Collection<DatasetData> datasets = call(getBrowseFacility(),
                                                 bf -> bf.getDatasets(getCtx(),
                                                                      name),
                                                 error);
-        return wrap(datasets, DatasetWrapper::new);
+        return wrap(datasets, Dataset::new);
     }
 
 
@@ -220,7 +219,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
     @Override
-    public ImageWrapper getImage(Long id)
+    public Image getImage(Long id)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get image with ID: " + id;
         ImageData image = call(getBrowseFacility(),
@@ -230,7 +229,7 @@ public abstract class BrowserWrapper implements Browser {
             String msg = format("Image %d doesn't exist in this context", id);
             throw new NoSuchElementException(msg);
         }
-        return new ImageWrapper(image);
+        return new Image(image);
     }
 
 
@@ -246,14 +245,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ImageWrapper> getImages(Long... ids)
+    public List<Image> getImages(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with IDs: " + Arrays.toString(ids);
         Collection<ImageData> images = call(getBrowseFacility(),
                                             bf -> bf.getImages(getCtx(),
                                                                asList(ids)),
                                             error);
-        return wrap(images, ImageWrapper::new);
+        return wrap(images, Image::new);
     }
 
 
@@ -267,12 +266,12 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ImageWrapper> getImages()
+    public List<Image> getImages()
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = call(getBrowseFacility(),
                                             bf -> bf.getUserImages(getCtx()),
                                             "Cannot get images");
-        return wrap(images, ImageWrapper::new);
+        return wrap(images, Image::new);
     }
 
 
@@ -288,14 +287,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ImageWrapper> getImages(String name)
+    public List<Image> getImages(String name)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with name: " + name;
         Collection<ImageData> images = call(getBrowseFacility(),
                                             bf -> bf.getImages(getCtx(), name),
                                             error);
         images.removeIf(image -> !image.getName().equals(name));
-        return wrap(images, ImageWrapper::new);
+        return wrap(images, Image::new);
     }
 
 
@@ -311,14 +310,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ImageWrapper> getOrphanedImages(ExperimenterWrapper experimenter)
+    public List<Image> getOrphanedImages(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
         long exId = experimenter.getId();
         Collection<ImageData> images = call(getBrowseFacility(),
                                             bf -> bf.getOrphanedImages(getCtx(),
                                                                        exId),
                                             "Cannot get orphaned images");
-        return wrap(images, ImageWrapper::new);
+        return wrap(images, Image::new);
     }
 
 
@@ -334,14 +333,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ScreenWrapper> getScreens(Long... ids)
+    public List<Screen> getScreens(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ScreenData> screens = call(getBrowseFacility(),
                                               bf -> bf.getScreens(getCtx(),
                                                                   asList(ids)),
                                               "Cannot get screens with IDs: "
                                               + Arrays.toString(ids));
-        return wrap(screens, ScreenWrapper::new);
+        return wrap(screens, Screen::new);
     }
 
 
@@ -355,12 +354,12 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ScreenWrapper> getScreens()
+    public List<Screen> getScreens()
     throws ServiceException, AccessException, ExecutionException {
         Collection<ScreenData> screens = call(getBrowseFacility(),
                                               bf -> bf.getScreens(getCtx()),
                                               "Cannot get screens");
-        return wrap(screens, ScreenWrapper::new);
+        return wrap(screens, Screen::new);
     }
 
 
@@ -376,7 +375,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ScreenWrapper> getScreens(ExperimenterWrapper experimenter)
+    public List<Screen> getScreens(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
         String error = format("Cannot get screens for user %s", experimenter);
         long   exId  = experimenter.getId();
@@ -384,7 +383,7 @@ public abstract class BrowserWrapper implements Browser {
                                               bf -> bf.getScreens(getCtx(),
                                                                   exId),
                                               error);
-        return wrap(screens, ScreenWrapper::new);
+        return wrap(screens, Screen::new);
     }
 
 
@@ -400,14 +399,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<PlateWrapper> getPlates(Long... ids)
+    public List<Plate> getPlates(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         Collection<PlateData> plates = call(getBrowseFacility(),
                                             bf -> bf.getPlates(getCtx(),
                                                                asList(ids)),
                                             "Cannot get plates with IDs: "
                                             + Arrays.toString(ids));
-        return wrap(plates, PlateWrapper::new);
+        return wrap(plates, Plate::new);
     }
 
 
@@ -421,12 +420,12 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<PlateWrapper> getPlates()
+    public List<Plate> getPlates()
     throws ServiceException, AccessException, ExecutionException {
         Collection<PlateData> plates = call(getBrowseFacility(),
                                             bf -> bf.getPlates(getCtx()),
                                             "Cannot get plates");
-        return wrap(plates, PlateWrapper::new);
+        return wrap(plates, Plate::new);
     }
 
 
@@ -442,14 +441,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<PlateWrapper> getPlates(ExperimenterWrapper experimenter)
+    public List<Plate> getPlates(Experimenter experimenter)
     throws ServiceException, AccessException, ExecutionException {
         long exId = experimenter.getId();
         Collection<PlateData> plates = call(getBrowseFacility(),
                                             bf -> bf.getPlates(getCtx(), exId),
                                             "Cannot get plates for user "
                                             + experimenter);
-        return wrap(plates, PlateWrapper::new);
+        return wrap(plates, Plate::new);
     }
 
 
@@ -465,14 +464,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<WellWrapper> getWells(Long... ids)
+    public List<Well> getWells(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = call(getBrowseFacility(),
                                           bf -> bf.getWells(getCtx(),
                                                             asList(ids)),
                                           "Cannot get wells with IDs: "
                                           + Arrays.toString(ids));
-        return wrap(wells, WellWrapper::new);
+        return wrap(wells, Well::new);
     }
 
 
@@ -486,12 +485,12 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<FolderWrapper> getFolders()
+    public List<Folder> getFolders()
     throws ExecutionException, AccessException, ServiceException {
         Collection<FolderData> folders = call(getBrowseFacility(),
                                               b -> b.getFolders(getCtx()),
                                               "Cannot get folders");
-        return wrap(folders, FolderWrapper::new);
+        return wrap(folders, Folder::new);
     }
 
 
@@ -507,14 +506,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<FolderWrapper> getFolders(ExperimenterWrapper experimenter)
+    public List<Folder> getFolders(Experimenter experimenter)
     throws ExecutionException, AccessException, ServiceException {
         String error = format("Cannot get folders for user %s", experimenter);
         long   exId  = experimenter.getId();
         Collection<FolderData> folders = call(getBrowseFacility(),
                                               b -> b.getFolders(getCtx(), exId),
                                               error);
-        return wrap(folders, FolderWrapper::new);
+        return wrap(folders, Folder::new);
     }
 
 
@@ -530,14 +529,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<FolderWrapper> getFolders(Long... ids)
+    public List<Folder> getFolders(Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get folders with IDs: " + Arrays.toString(ids);
         Collection<FolderData> folders = call(getBrowseFacility(),
                                               bf -> bf.loadFolders(getCtx(),
                                                                    asList(ids)),
                                               error);
-        return wrap(folders, FolderWrapper::new);
+        return wrap(folders, Folder::new);
     }
 
 
@@ -550,17 +549,17 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Override
-    public List<TagAnnotationWrapper> getTags()
+    public List<TagAnnotation> getTags()
     throws AccessException, ServiceException {
-        String klass = TagAnnotation.class.getSimpleName();
+        String klass = omero.model.TagAnnotation.class.getSimpleName();
         List<IObject> os = call(getQueryService(),
                                 qs -> qs.findAll(klass, null),
                                 "Cannot get tags");
         return os.stream()
-                 .map(TagAnnotation.class::cast)
+                 .map(omero.model.TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
-                 .map(TagAnnotationWrapper::new)
-                 .sorted(Comparator.comparing(ObjectWrapper::getId))
+                 .map(TagAnnotation::new)
+                 .sorted(Comparator.comparing(RemoteObject::getId))
                  .collect(Collectors.toList());
     }
 
@@ -577,19 +576,19 @@ public abstract class BrowserWrapper implements Browser {
      * @throws NoSuchElementException No element with this ID.
      */
     @Override
-    public TagAnnotationWrapper getTag(Long id)
+    public TagAnnotation getTag(Long id)
     throws AccessException, ServiceException {
         IObject o = call(getQueryService(),
-                         qs -> qs.find(TagAnnotation.class.getSimpleName(), id),
+                         qs -> qs.find(omero.model.TagAnnotation.class.getSimpleName(), id),
                          "Cannot get tag ID: " + id);
         TagAnnotationData tag;
         if (o == null) {
             String msg = format("Tag %d doesn't exist in this context", id);
             throw new NoSuchElementException(msg);
         } else {
-            tag = new TagAnnotationData((TagAnnotation) requireNonNull(o));
+            tag = new TagAnnotationData((omero.model.TagAnnotation) requireNonNull(o));
         }
-        return new TagAnnotationWrapper(tag);
+        return new TagAnnotation(tag);
     }
 
 
@@ -602,7 +601,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Override
-    public List<MapAnnotationWrapper> getMapAnnotations()
+    public List<MapAnnotation> getMapAnnotations()
     throws AccessException, ServiceException {
         String klass = omero.model.MapAnnotation.class.getSimpleName();
         List<IObject> os = call(getQueryService(),
@@ -611,8 +610,8 @@ public abstract class BrowserWrapper implements Browser {
         return os.stream()
                  .map(omero.model.MapAnnotation.class::cast)
                  .map(MapAnnotationData::new)
-                 .map(MapAnnotationWrapper::new)
-                 .sorted(Comparator.comparing(ObjectWrapper::getId))
+                 .map(MapAnnotation::new)
+                 .sorted(Comparator.comparing(RemoteObject::getId))
                  .collect(Collectors.toList());
     }
 
@@ -628,7 +627,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Override
-    public List<MapAnnotationWrapper> getMapAnnotations(String key)
+    public List<MapAnnotation> getMapAnnotations(String key)
     throws AccessException, ServiceException {
         String template = "select m from MapAnnotation as m" +
                           " join m.mapValue as mv" +
@@ -637,8 +636,8 @@ public abstract class BrowserWrapper implements Browser {
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
-                             .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(ObjectWrapper::getId))
+                             .map(MapAnnotation::new)
+                             .sorted(Comparator.comparing(RemoteObject::getId))
                              .collect(Collectors.toList());
     }
 
@@ -655,7 +654,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Override
-    public List<MapAnnotationWrapper> getMapAnnotations(String key, String value)
+    public List<MapAnnotation> getMapAnnotations(String key, String value)
     throws AccessException, ServiceException {
         String template = "select m from MapAnnotation as m" +
                           " join m.mapValue as mv" +
@@ -664,8 +663,8 @@ public abstract class BrowserWrapper implements Browser {
         return findByQuery(q).stream()
                              .map(omero.model.MapAnnotation.class::cast)
                              .map(MapAnnotationData::new)
-                             .map(MapAnnotationWrapper::new)
-                             .sorted(Comparator.comparing(ObjectWrapper::getId))
+                             .map(MapAnnotation::new)
+                             .sorted(Comparator.comparing(RemoteObject::getId))
                              .collect(Collectors.toList());
     }
 
@@ -682,7 +681,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public MapAnnotationWrapper getMapAnnotation(Long id)
+    public MapAnnotation getMapAnnotation(Long id)
     throws ServiceException, ExecutionException, AccessException {
         MapAnnotationData kv = call(getBrowseFacility(),
                                     b -> b.findObject(getCtx(),
@@ -690,7 +689,7 @@ public abstract class BrowserWrapper implements Browser {
                                                       id),
                                     "Cannot get map annotation with ID: " + id);
 
-        return new MapAnnotationWrapper(kv);
+        return new MapAnnotation(kv);
     }
 
 }

@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import static fr.igred.omero.util.Wrapper.wrap;
 
 
-/** List of ShapeWrapper objects */
-public class ShapeList extends ArrayList<ShapeWrapper<?>> {
+/** List of Shape objects */
+public class ShapeList extends ArrayList<Shape<?>> {
 
 
     private static final long serialVersionUID = -5942132062803749727L;
@@ -57,11 +57,11 @@ public class ShapeList extends ArrayList<ShapeWrapper<?>> {
      * Gets a list of elements from this list whose class is specified.
      *
      * @param clazz Class of the wanted elements.
-     * @param <T>   Subclass of ShapeWrapper.
+     * @param <T>   Subclass of Shape.
      *
      * @return See above.
      */
-    public <T extends ShapeWrapper<?>> List<T> getElementsOf(Class<? extends T> clazz) {
+    public <T extends Shape<?>> List<T> getElementsOf(Class<? extends T> clazz) {
         return stream().filter(clazz::isInstance)
                        .map(clazz::cast)
                        .collect(Collectors.toList());

@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,9 +33,9 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetScreens() throws Exception {
-        WellWrapper         well    = client.getWell(1L);
-        WellSampleWrapper   sample  = well.getWellSamples().get(0);
-        List<ScreenWrapper> screens = sample.getScreens(client);
+        Well         well    = client.getWell(1L);
+        WellSample   sample  = well.getWellSamples().get(0);
+        List<Screen> screens = sample.getScreens(client);
         assertEquals(1, screens.size());
         assertEquals(SCREEN1.id, screens.get(0).getId());
     }
@@ -43,9 +43,9 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetPlates() throws Exception {
-        WellWrapper        well   = client.getWell(1L);
-        WellSampleWrapper  sample = well.getWellSamples().get(0);
-        List<PlateWrapper> plates = sample.getPlates(client);
+        Well        well   = client.getWell(1L);
+        WellSample  sample = well.getWellSamples().get(0);
+        List<Plate> plates = sample.getPlates(client);
         assertEquals(1, plates.size());
         assertEquals(well.getPlate().getId(), plates.get(0).getId());
     }
@@ -53,18 +53,18 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetPlateAcquisition() throws Exception {
-        PlateWrapper            plate  = client.getPlate(1L);
-        PlateAcquisitionWrapper acq    = plate.getPlateAcquisitions().get(0);
-        WellSampleWrapper       sample = acq.getWellSamples(client).get(0);
+        Plate            plate  = client.getPlate(1L);
+        PlateAcquisition acq    = plate.getPlateAcquisitions().get(0);
+        WellSample       sample = acq.getWellSamples(client).get(0);
         assertEquals(acq.getId(), sample.getPlateAcquisition().getId());
     }
 
 
     @Test
     void testGetPlateAcquisitions() throws Exception {
-        WellWrapper                   well   = client.getWell(1L);
-        WellSampleWrapper             sample = well.getWellSamples().get(0);
-        List<PlateAcquisitionWrapper> acqs   = sample.getPlateAcquisitions(client);
+        Well                   well   = client.getWell(1L);
+        WellSample             sample = well.getWellSamples().get(0);
+        List<PlateAcquisition> acqs   = sample.getPlateAcquisitions(client);
         assertEquals(2, acqs.size());
     }
 
@@ -73,12 +73,12 @@ class WellSampleTest extends UserTest {
     void testGetImage() throws Exception {
         final String name = "screen1.fake [screen1 2]";
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
-        WellWrapper  well  = plate.getWells(client).get(0);
+        Plate plate = client.getPlate(PLATE1.id);
+        Well  well  = plate.getWells(client).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(1);
+        WellSample sample = well.getWellSamples().get(1);
 
-        ImageWrapper image = sample.getImage();
+        Image image = sample.getImage();
 
         assertFalse(image.isOrphaned(client));
         assertEquals(name, image.getName());
@@ -87,9 +87,9 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetWell() throws Exception {
-        final long        wellId = 1L;
-        WellWrapper       well   = client.getWell(wellId);
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        final long wellId = 1L;
+        Well       well   = client.getWell(wellId);
+        WellSample sample = well.getWellSamples().get(0);
 
         assertEquals(wellId, sample.getWell(client).getId());
     }
@@ -97,18 +97,18 @@ class WellSampleTest extends UserTest {
 
     @Test
     void testGetPositionX() throws Exception {
-        WellWrapper well = client.getWells(1L).get(0);
+        Well well = client.getWells(1L).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        WellSample sample = well.getWellSamples().get(0);
         assertEquals(0.0, sample.getPositionX(null).getValue(), Double.MIN_VALUE);
     }
 
 
     @Test
     void testGetPositionY() throws Exception {
-        WellWrapper well = client.getWells(1L).get(0);
+        Well well = client.getWells(1L).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        WellSample sample = well.getWellSamples().get(0);
         assertEquals(1.0, sample.getPositionY(null).getValue(), Double.MIN_VALUE);
     }
 
@@ -117,9 +117,9 @@ class WellSampleTest extends UserTest {
     void testGetStartTime() throws Exception {
         final long time = 1146766431000L;
 
-        WellWrapper well = client.getWells(1L).get(0);
+        Well well = client.getWells(1L).get(0);
 
-        WellSampleWrapper sample = well.getWellSamples().get(0);
+        WellSample sample = well.getWellSamples().get(0);
         assertEquals(time, sample.getStartTime());
     }
 

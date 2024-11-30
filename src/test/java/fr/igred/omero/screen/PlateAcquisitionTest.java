@@ -19,8 +19,8 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
+import fr.igred.omero.core.Image;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,65 +33,65 @@ class PlateAcquisitionTest extends UserTest {
 
     @Test
     void testGetScreens() throws Exception {
-        PlateWrapper            plate   = client.getPlate(PLATE1.id);
-        PlateAcquisitionWrapper acq     = plate.getPlateAcquisitions().get(0);
-        List<ScreenWrapper>     screens = acq.getScreens(client);
+        Plate            plate   = client.getPlate(PLATE1.id);
+        PlateAcquisition acq     = plate.getPlateAcquisitions().get(0);
+        List<Screen>     screens = acq.getScreens(client);
         assertEquals(1, screens.size());
     }
 
 
     @Test
     void testGetPlates() throws Exception {
-        PlateWrapper            plate = client.getPlate(PLATE1.id);
-        PlateAcquisitionWrapper acq   = plate.getPlateAcquisitions().get(0);
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
         assertEquals(PLATE1.id, acq.getPlates(client).get(0).getId());
     }
 
 
     @Test
     void testGetWells() throws Exception {
-        PlateWrapper            plate = client.getPlate(PLATE1.id);
-        PlateAcquisitionWrapper acq   = plate.getPlateAcquisitions().get(0);
-        List<WellWrapper>       wells = acq.getWells(client);
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
+        List<Well>       wells = acq.getWells(client);
         assertEquals(9, wells.size());
     }
 
 
     @Test
     void testGetImages1() throws Exception {
-        PlateWrapper            plate  = client.getPlate(PLATE1.id);
-        PlateAcquisitionWrapper acq    = plate.getPlateAcquisitions().get(0);
-        List<ImageWrapper>      images = acq.getImages(client);
+        Plate            plate  = client.getPlate(PLATE1.id);
+        PlateAcquisition acq    = plate.getPlateAcquisitions().get(0);
+        List<Image>      images = acq.getImages(client);
         assertEquals(18, images.size());
     }
 
 
     @Test
     void testGetImages2() throws Exception {
-        PlateWrapper            plate = client.getPlate(PLATE1.id);
-        PlateAcquisitionWrapper acq   = plate.getPlateAcquisitions().get(0);
+        Plate            plate = client.getPlate(PLATE1.id);
+        PlateAcquisition acq   = plate.getPlateAcquisitions().get(0);
         acq.reload(client);
-        List<ImageWrapper> images = acq.getImages();
+        List<Image> images = acq.getImages();
         assertEquals(18, images.size());
     }
 
 
     @Test
     void testAddTagToPlateAcquisition() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
 
         String name = "Plate acq. tag";
         String desc = "tag attached to a plate acq.";
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        TagAnnotation tag = new TagAnnotation(client, name, desc);
         acq.link(client, tag);
 
-        List<PlateAcquisitionWrapper> taggedAcqs = tag.getPlateAcquisitions(client);
-        List<TagAnnotationWrapper>    tags       = acq.getTags(client);
+        List<PlateAcquisition> taggedAcqs = tag.getPlateAcquisitions(client);
+        List<TagAnnotation>    tags       = acq.getTags(client);
         client.delete(tag);
-        List<TagAnnotationWrapper> checkTags = acq.getTags(client);
+        List<TagAnnotation> checkTags = acq.getTags(client);
 
         assertEquals(1, tags.size());
         assertEquals(0, checkTags.size());
@@ -102,18 +102,18 @@ class PlateAcquisitionTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromPlateAcquisition() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
 
         String name = "Plate acq. tag";
         String desc = "tag attached to a plate acq.";
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        TagAnnotation tag = new TagAnnotation(client, name, desc);
         acq.link(client, tag);
-        List<TagAnnotationWrapper> tags = acq.getTags(client);
+        List<TagAnnotation> tags = acq.getTags(client);
         acq.unlink(client, tag);
-        List<TagAnnotationWrapper> removedTags = acq.getTags(client);
+        List<TagAnnotation> removedTags = acq.getTags(client);
         client.delete(tag);
 
         assertEquals(1, tags.size());
@@ -123,9 +123,9 @@ class PlateAcquisitionTest extends UserTest {
 
     @Test
     void testSetName() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
 
         String name  = acq.getName();
         String name2 = "New name";
@@ -147,9 +147,9 @@ class PlateAcquisitionTest extends UserTest {
 
     @Test
     void testSetDescription() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
 
         String name  = acq.getDescription();
         String name2 = "New description";
@@ -171,18 +171,18 @@ class PlateAcquisitionTest extends UserTest {
 
     @Test
     void testGetLabel() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
         assertEquals(acq.getName(), acq.getLabel());
     }
 
 
     @Test
     void testGetRefPlateId() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
         assertEquals(1, acq.getRefPlateId());
         acq.setRefPlateId(-1L);
         // Saving does not work: "acq.saveAndUpdate(client);" does nothing
@@ -194,9 +194,9 @@ class PlateAcquisitionTest extends UserTest {
     void testGetStartTime() throws Exception {
         final long time = 1146766431000L;
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
         assertEquals(time, acq.getStartTime().getTime());
     }
 
@@ -205,18 +205,18 @@ class PlateAcquisitionTest extends UserTest {
     void testGetEndTime() throws Exception {
         final long time = 1146766431000L;
 
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
         assertEquals(time, acq.getEndTime().getTime());
     }
 
 
     @Test
     void testGetMaximumFieldCount() throws Exception {
-        PlateWrapper plate = client.getPlate(PLATE1.id);
+        Plate plate = client.getPlate(PLATE1.id);
 
-        PlateAcquisitionWrapper acq = plate.getPlateAcquisitions().get(0);
+        PlateAcquisition acq = plate.getPlateAcquisitions().get(0);
         assertEquals(-1, acq.getMaximumFieldCount());
     }
 

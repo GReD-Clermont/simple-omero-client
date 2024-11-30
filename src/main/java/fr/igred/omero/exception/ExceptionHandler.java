@@ -44,7 +44,7 @@ public class ExceptionHandler<T> {
     /**
      * Private class constructor.
      *
-     * @param value     Object to process.
+     * @param value     RemoteObject to process.
      * @param exception Caught exception.
      */
     protected ExceptionHandler(T value, Exception exception) {
@@ -111,7 +111,7 @@ public class ExceptionHandler<T> {
      *
      * @param <I>    Input argument type.
      * @param <R>    Returned object type.
-     * @param input  Object to process.
+     * @param input  RemoteObject to process.
      * @param mapper Lambda to apply on object.
      *
      * @return ExceptionHandler wrapping the returned object.
@@ -135,7 +135,7 @@ public class ExceptionHandler<T> {
      * Creates an ExceptionHandler from an object and a function with no return value.
      *
      * @param <I>      Input argument type.
-     * @param input    Object to process.
+     * @param input    RemoteObject to process.
      * @param consumer Lambda to apply on object.
      *
      * @return ExceptionHandler wrapping the object to process.
@@ -174,7 +174,7 @@ public class ExceptionHandler<T> {
      *
      * @param <I>     Input argument type.
      * @param <R>     Returned object type.
-     * @param input   Object to process.
+     * @param input   RemoteObject to process.
      * @param mapper  Lambda to apply on object.
      * @param message The message, if an exception is thrown.
      *

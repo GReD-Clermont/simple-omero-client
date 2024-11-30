@@ -18,12 +18,12 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.ObjectWrapper;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.ROI;
 import ij.gui.Roi;
 import ij.macro.Variable;
 import ij.measure.ResultsTable;
@@ -73,7 +73,7 @@ public class TableWrapper {
     private TableDataColumn[] columns;
 
     /** Content of the table */
-    private Object[][] data;
+    private java.lang.Object[][] data;
 
     /** Number of column in the table */
     private int columnCount;
@@ -104,7 +104,7 @@ public class TableWrapper {
         this.columnCount = columnCount;
         this.name        = name;
         columns          = new TableDataColumn[columnCount];
-        data             = new Object[columnCount][0];
+        data             = new java.lang.Object[columnCount][0];
         rowCount         = 0;
         row              = 0;
     }
@@ -139,7 +139,7 @@ public class TableWrapper {
      */
     public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        this(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
     }
 
 
@@ -150,7 +150,7 @@ public class TableWrapper {
      * @param results     An ImageJ results table.
      * @param imageId     An image ID.
      * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY} if
+     * @param roiProperty The Roi property storing the local index/label. Defaults to {@link ROI#IJ_PROPERTY} if
      *                    null or empty.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -160,7 +160,7 @@ public class TableWrapper {
     public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROIWrapper.checkProperty(roiProperty);
+        roiProperty = ROI.checkProperty(roiProperty);
 
         ResultsTable rt = (ResultsTable) results.clone();
         this.fileId   = null;
@@ -169,9 +169,9 @@ public class TableWrapper {
 
         int offset = 0;
 
-        ImageWrapper image = new ImageWrapper(null);
+        Image image = new Image(null);
 
-        List<ROIWrapper> rois = new ArrayList<>(0);
+        List<ROI> rois = new ArrayList<>(0);
 
         if (imageId != null) {
             image = client.getImage(imageId);
@@ -190,7 +190,7 @@ public class TableWrapper {
         int nColumns = headings.length;
         this.columnCount = nColumns + offset;
         columns          = new TableDataColumn[columnCount];
-        data             = new Object[columnCount][];
+        data             = new java.lang.Object[columnCount][];
 
         if (offset > 0) {
             createColumn(0, IMAGE, ImageData.class);
@@ -387,7 +387,7 @@ public class TableWrapper {
 
     /**
      * Creates a ROIData column.
-     * <p>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
+     * <p>A column named either {@code roiProperty} or {@link ROI#ijIDProperty(String roiProperty)} is
      * expected. It will look for the ROI OMERO ID in the latter, or for the local label/index, the OMERO ID, the names
      * or the shape names in the former.
      * <p>If neither column is present, it will check the {@value LABEL} column for the ROI names inside.
@@ -400,20 +400,20 @@ public class TableWrapper {
      * @return An ROIData column.
      */
     private static ROIData[] createROIColumn(ResultsTable results,
-                                             Collection<? extends ROIWrapper> rois,
+                                             Collection<? extends ROI> rois,
                                              Collection<? extends Roi> ijRois,
                                              String roiProperty) {
-        String roiIdProperty = ROIWrapper.ijIDProperty(roiProperty);
+        String roiIdProperty = ROI.ijIDProperty(roiProperty);
 
         ROIData[] roiColumn = EMPTY_ROI;
 
         Map<Long, ROIData> id2roi = rois.stream()
-                                        .collect(toMap(ROIWrapper::getId,
-                                                       ObjectWrapper::asDataObject));
+                                        .collect(toMap(ROI::getId,
+                                                       RemoteObject::asDataObject));
         Map<String, ROIData> name2roi = rois.stream()
                                             .filter(r -> !r.getName().isEmpty())
-                                            .collect(toMap(ROIWrapper::getName,
-                                                           ObjectWrapper::asDataObject,
+                                            .collect(toMap(ROI::getName,
+                                                           RemoteObject::asDataObject,
                                                            (x1, x2) -> x1));
 
         Map<String, ROIData> label2roi = ijRois.stream()
@@ -546,8 +546,8 @@ public class TableWrapper {
         if (index < columnCount) {
             columnCount--;
             int               length     = columnCount - index;
-            TableDataColumn[] newColumns = new TableDataColumn[columnCount];
-            Object[][]        newData    = new Object[columnCount][];
+            TableDataColumn[]    newColumns = new TableDataColumn[columnCount];
+            java.lang.Object[][] newData    = new java.lang.Object[columnCount][];
             System.arraycopy(columns, 0, newColumns, 0, index);
             System.arraycopy(columns, index + 1, newColumns, index, length);
             System.arraycopy(data, 0, newData, 0, index);
@@ -581,7 +581,7 @@ public class TableWrapper {
      */
     public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this.addRows(client, results, imageId, ijRois, ROIWrapper.IJ_PROPERTY);
+        this.addRows(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
     }
 
 
@@ -592,7 +592,7 @@ public class TableWrapper {
      * @param results     An ImageJ results table.
      * @param imageId     An image ID.
      * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY}
+     * @param roiProperty The Roi property storing the local ROI index/label. Defaults to {@link ROI#IJ_PROPERTY}
      *                    if null or empty.
      *
      * @throws ServiceException   Cannot connect to OMERO.
@@ -602,13 +602,13 @@ public class TableWrapper {
     public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
                         String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROIWrapper.checkProperty(roiProperty);
+        roiProperty = ROI.checkProperty(roiProperty);
 
         ResultsTable rt = (ResultsTable) results.clone();
 
-        ImageWrapper image = new ImageWrapper(null);
+        Image image = new Image(null);
 
-        List<ROIWrapper> rois = new ArrayList<>(0);
+        List<ROI> rois = new ArrayList<>(0);
 
         int offset = 0;
         if (imageId != null) {
@@ -669,7 +669,7 @@ public class TableWrapper {
      *
      * @return the value contained in the table.
      */
-    public Object[][] getData() {
+    public java.lang.Object[][] getData() {
         return data.clone();
     }
 
@@ -682,7 +682,7 @@ public class TableWrapper {
      *
      * @return the value at position data[y][x].
      */
-    public Object getData(int x, int y) {
+    public java.lang.Object getData(int x, int y) {
         return data[y][x];
     }
 
@@ -798,7 +798,7 @@ public class TableWrapper {
      */
     public void setRowCount(int rowCount) {
         if (rowCount != this.rowCount) {
-            Object[][] temp = new Object[columnCount][rowCount];
+            java.lang.Object[][] temp = new java.lang.Object[columnCount][rowCount];
             if (data != null) {
                 row = Math.min(rowCount, row);
                 for (int j = 0; j < columnCount; j++) {
@@ -843,10 +843,10 @@ public class TableWrapper {
      * @throws IndexOutOfBoundsException Table is not initialized or already full.
      * @throws IllegalArgumentException  Incorrect argument number.
      */
-    public void addRow(Object... os) {
+    public void addRow(java.lang.Object... os) {
         if (row < rowCount && os.length == columnCount) {
             for (int i = 0; i < os.length; i++) {
-                Object o = os[i];
+                java.lang.Object o = os[i];
                 data[i][row] = o;
             }
             row++;
@@ -924,7 +924,7 @@ public class TableWrapper {
             for (int i = 0; i < rowCount; i++) {
                 sb.append(sol);
                 for (int j = 0; j < columnCount; j++) {
-                    Object value = data[j][i];
+                    java.lang.Object value = data[j][i];
                     if (DataObject.class.isAssignableFrom(columns[j].getType())) {
                         value = ((DataObject) value).getId();
                     }
