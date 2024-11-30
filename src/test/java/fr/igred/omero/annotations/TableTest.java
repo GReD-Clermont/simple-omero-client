@@ -19,8 +19,8 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.containers.DatasetWrapper;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.containers.Dataset;
+import fr.igred.omero.core.Image;
 import omero.gateway.model.ImageData;
 import org.junit.jupiter.api.Test;
 
@@ -38,9 +38,9 @@ class TableTest extends UserTest {
 
     @Test
     void testCreateTable() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+        Dataset dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImages(client);
+        List<Image> images = dataset.getImages(client);
 
         TableWrapper table = new TableWrapper(2, "TableTest");
 
@@ -56,7 +56,7 @@ class TableTest extends UserTest {
 
         assertEquals(images.size(), table.getRowCount());
 
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             assertFalse(table.isComplete());
             table.addRow(image.asDataObject(), image.getName());
         }
@@ -77,9 +77,9 @@ class TableTest extends UserTest {
 
     @Test
     void testCreateTableWithEmptyColumns() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+        Dataset dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImages(client);
+        List<Image> images = dataset.getImages(client);
 
         TableWrapper table = new TableWrapper(4, "TableTest");
 
@@ -99,7 +99,7 @@ class TableTest extends UserTest {
 
         assertEquals(images.size(), table.getRowCount());
 
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             assertFalse(table.isComplete());
             table.addRow(image.asDataObject(), "", image.getName(), "");
         }
@@ -126,9 +126,9 @@ class TableTest extends UserTest {
 
     @Test
     void testReplaceTable() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+        Dataset dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImages(client);
+        List<Image> images = dataset.getImages(client);
 
         TableWrapper table1 = new TableWrapper(2, "TableTest");
 
@@ -144,7 +144,7 @@ class TableTest extends UserTest {
 
         assertEquals(images.size(), table1.getRowCount());
 
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             assertFalse(table1.isComplete());
             table1.addRow(image.asDataObject(), image.getName());
         }
@@ -160,7 +160,7 @@ class TableTest extends UserTest {
         table2.setColumn(1, "Description", String.class);
         table2.setRowCount(images.size());
         boolean untouched = true;
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             assertFalse(table2.isComplete());
             String description = image.getDescription();
             if (untouched && description == null) {
@@ -176,7 +176,7 @@ class TableTest extends UserTest {
         table3.setColumn(0, "Image", ImageData.class);
         table3.setColumn(1, "Name", String.class);
         table3.setRowCount(images.size());
-        for (ImageWrapper image : images) {
+        for (Image image : images) {
             assertFalse(table3.isComplete());
             table3.addRow(image.asDataObject(), "Test name");
         }
@@ -200,9 +200,9 @@ class TableTest extends UserTest {
 
     @Test
     void testErrorTableFull() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+        Dataset dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImages(client);
+        List<Image> images = dataset.getImages(client);
 
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setName("TableTestNewName");
@@ -232,9 +232,9 @@ class TableTest extends UserTest {
 
     @Test
     void testErrorTableUninitialized() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+        Dataset dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImages(client);
+        List<Image> images = dataset.getImages(client);
 
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
@@ -247,9 +247,9 @@ class TableTest extends UserTest {
 
     @Test
     void testErrorTableNotEnoughArgs() throws Exception {
-        DatasetWrapper dataset = client.getDataset(DATASET1.id);
+        Dataset dataset = client.getDataset(DATASET1.id);
 
-        List<ImageWrapper> images = dataset.getImages(client);
+        List<Image> images = dataset.getImages(client);
 
         TableWrapper table = new TableWrapper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);

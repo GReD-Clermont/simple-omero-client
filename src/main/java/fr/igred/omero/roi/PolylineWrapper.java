@@ -21,7 +21,6 @@ package fr.igred.omero.roi;
 import ij.gui.Roi;
 import omero.gateway.model.PolylineData;
 
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +31,7 @@ import java.util.stream.IntStream;
  * Class containing an PolylineData.
  * <p> Wraps function calls to the PolylineData contained.
  */
-public class PolylineWrapper extends ShapeWrapper<PolylineData> {
+public class PolylineWrapper extends ShapeWrapper<PolylineData> implements Polyline {
 
 
     /**
@@ -106,30 +105,11 @@ public class PolylineWrapper extends ShapeWrapper<PolylineData> {
 
 
     /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        Path2D polyline = new Path2D.Double();
-
-        List<Point2D.Double> points = getPoints();
-        if (!points.isEmpty()) {
-            polyline.moveTo(points.get(0).x, points.get(0).y);
-            for (int i = 1; i < points.size(); i++) {
-                polyline.lineTo(points.get(i).x, points.get(i).y);
-            }
-        }
-        return polyline;
-    }
-
-
-    /**
      * Returns the points in the Polyline.
      *
      * @return See above.
      */
+    @Override
     public List<Point2D.Double> getPoints() {
         return data.getPoints();
     }
@@ -140,6 +120,7 @@ public class PolylineWrapper extends ShapeWrapper<PolylineData> {
      *
      * @param points The points to set.
      */
+    @Override
     public void setPoints(List<Point2D.Double> points) {
         data.setPoints(points);
     }

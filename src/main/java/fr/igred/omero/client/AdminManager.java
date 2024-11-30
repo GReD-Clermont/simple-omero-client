@@ -22,6 +22,7 @@ import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.ExperimenterWrapper;
+import fr.igred.omero.meta.Group;
 import fr.igred.omero.meta.GroupWrapper;
 import omero.ApiUsageException;
 import omero.api.IAdminPrx;
@@ -87,7 +88,7 @@ public interface AdminManager {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user cannot be found.
      */
-    default ExperimenterWrapper getUser(String username)
+    default fr.igred.omero.meta.Experimenter getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
         ExperimenterData user = call(getAdminFacility(),
                                      a -> a.lookupExperimenter(getCtx(),
@@ -113,7 +114,7 @@ public interface AdminManager {
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException The requested user cannot be found.
      */
-    default ExperimenterWrapper getUser(long userId)
+    default fr.igred.omero.meta.Experimenter getUser(long userId)
     throws ServiceException, AccessException {
         Experimenter user = ExceptionHandler.of(getAdminService(),
                                                 a -> a.getExperimenter(userId))
@@ -138,7 +139,7 @@ public interface AdminManager {
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested group cannot be found.
      */
-    default GroupWrapper getGroup(String groupName)
+    default Group getGroup(String groupName)
     throws ExecutionException, ServiceException, AccessException {
         GroupData group = call(getAdminFacility(),
                                a -> a.lookupGroup(getCtx(), groupName),
@@ -163,7 +164,7 @@ public interface AdminManager {
      * @throws AccessException        Cannot access data.
      * @throws NoSuchElementException The requested group cannot be found.
      */
-    default GroupWrapper getGroup(long groupId)
+    default Group getGroup(long groupId)
     throws ServiceException, AccessException {
         ExperimenterGroup group = ExceptionHandler.of(getAdminService(),
                                                       a -> a.getGroup(groupId))
@@ -184,7 +185,7 @@ public interface AdminManager {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<GroupWrapper> getGroups()
+    default List<Group> getGroups()
     throws ServiceException, AccessException {
         String error = "Cannot retrieve the groups on OMERO";
         List<ExperimenterGroup> groups = call(getAdminService(),

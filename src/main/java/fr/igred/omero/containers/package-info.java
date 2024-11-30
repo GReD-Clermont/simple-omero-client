@@ -15,8 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains classes related to the hierarchical organization for images.
- * <p> This includes containers (such as screens or projects for example), as well as data contained within images
- * (e.g. pixels and channels).
+ * This package contains interfaces and classes related to the hierarchical organization for images,
+ * <p> e.g. containers (projects, datasets and folders).
  */
 package fr.igred.omero.containers;

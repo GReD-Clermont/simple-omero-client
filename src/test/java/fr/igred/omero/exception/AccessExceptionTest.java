@@ -19,14 +19,20 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
+import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.GatewayWrapper;
+import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.FolderWrapper;
+import fr.igred.omero.containers.Project;
 import fr.igred.omero.containers.ProjectWrapper;
-import fr.igred.omero.core.ImageWrapper;
+import fr.igred.omero.core.Image;
+import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
+import fr.igred.omero.roi.Rectangle;
 import fr.igred.omero.roi.RectangleWrapper;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectI;
@@ -68,7 +74,7 @@ class AccessExceptionTest extends BasicTest {
             assertEquals(GROUP1.id, client.getCurrentGroupId(), "Wrong group");
             sudo = client.sudo("testUser2");
         } catch (AccessException | ServiceException | ExecutionException | RuntimeException e) {
-            sudo   = null;
+            sudo = null;
             failed = true;
             String template = "%sConnection failed.%s";
             logger.log(SEVERE, format(template, ANSI_RED, ANSI_RESET), e);
@@ -95,7 +101,7 @@ class AccessExceptionTest extends BasicTest {
         client.connect(HOST, PORT, ROOT.name, "omero".toCharArray(), GROUP1.id);
         assertEquals(0L, client.getId());
 
-        ImageWrapper image = client.getImage(IMAGE2.id);
+        Image image = client.getImage(IMAGE2.id);
         assertFalse(image.canLink());
         assertFalse(image.canAnnotate());
         assertTrue(image.canEdit());
@@ -106,7 +112,7 @@ class AccessExceptionTest extends BasicTest {
         String name = "image tag";
         String desc = "tag attached to an image";
 
-        TagAnnotationWrapper tag = new TagAnnotationWrapper(client, name, desc);
+        TagAnnotation tag = new TagAnnotationWrapper(client, name, desc);
 
         try {
             image.link(client, tag);
@@ -121,12 +127,12 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testFolderAddROIWithoutImage() throws Exception {
-        FolderWrapper folder = new FolderWrapper(client, "Test1");
+        Folder folder = new FolderWrapper(client, "Test1");
 
-        RectangleWrapper rectangle = new RectangleWrapper(0, 0, 10, 10);
+        Rectangle rectangle = new RectangleWrapper(0, 0, 10, 10);
         rectangle.setCZT(0, 0, 0);
 
-        ROIWrapper roi = new ROIWrapper();
+        ROI roi = new ROIWrapper();
         roi.addShape(rectangle);
         roi.saveROI(client);
 
@@ -157,9 +163,9 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailDeleteProject() {
-        ProjectI       projectI    = new ProjectI(PROJECT1.id, false);
-        ProjectData    projectData = new ProjectData(projectI);
-        ProjectWrapper project     = new ProjectWrapper(projectData);
+        ProjectI    projectI    = new ProjectI(PROJECT1.id, false);
+        ProjectData projectData = new ProjectData(projectI);
+        Project     project     = new ProjectWrapper(projectData);
         assertThrows(AccessException.class, () -> sudo.delete(project));
     }
 
@@ -171,7 +177,7 @@ class AccessExceptionTest extends BasicTest {
         ProjectData projectData1 = new ProjectData(projectI1);
         ProjectData projectData2 = new ProjectData(projectI2);
 
-        Collection<ProjectWrapper> projects = new ArrayList<>(2);
+        Collection<Project> projects = new ArrayList<>(2);
         projects.add(new ProjectWrapper(projectData1));
         projects.add(new ProjectWrapper(projectData2));
         assertThrows(AccessException.class, () -> sudo.delete(projects));
@@ -235,27 +241,27 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailGetImageTag() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertThrows(AccessException.class, () -> image.getTags(sudo));
     }
 
 
     @Test
     void testSudoFailGetKVPairs() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
         assertThrows(AccessException.class, () -> image.getKeyValuePairs(sudo));
     }
 
 
     @Test
     void testSudoFailAddKVPair() throws Exception {
-        ImageWrapper image = client.getImage(IMAGE1.id);
+        Image image = client.getImage(IMAGE1.id);
 
         List<Map.Entry<String, String>> result1 = new ArrayList<>(2);
         result1.add(new AbstractMap.SimpleEntry<>("Test result1", "Value Test"));
         result1.add(new AbstractMap.SimpleEntry<>("Test2 result1", "Value Test2"));
 
-        MapAnnotationWrapper mapAnnotation1 = new MapAnnotationWrapper(result1);
+        MapAnnotation mapAnnotation1 = new MapAnnotationWrapper(result1);
         assertThrows(AccessException.class,
                      () -> image.link(sudo, mapAnnotation1));
     }

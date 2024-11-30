@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains classes to handle images and their content, such as pixels, channels or planes.
+ * This package contains interfaces and classes to handle images and their content, such as pixels, channels or planes.
  */
 package fr.igred.omero.core;
