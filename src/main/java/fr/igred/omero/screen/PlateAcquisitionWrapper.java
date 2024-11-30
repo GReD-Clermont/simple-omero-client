@@ -20,21 +20,15 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.DataManager;
-import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import omero.gateway.model.AnnotationData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.WellSampleData;
 import omero.model.IObject;
-import omero.model.PlateAcquisitionAnnotationLink;
-import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model._PlateAcquisitionOperationsNC;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 
@@ -42,10 +36,7 @@ import java.util.stream.Collectors;
  * Class containing a PlateAcquisitionData object.
  * <p> Wraps function calls to the PlateAcquisitionData contained.
  */
-public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> {
-
-    /** Annotation link name for this type of object */
-    public static final String ANNOTATION_LINK = "PlateAcquisitionAnnotationLink";
+public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquisitionData> implements PlateAcquisition {
 
 
     /**
@@ -102,6 +93,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @throws IllegalArgumentException If the name is {@code null}.
      */
+    @Override
     public void setName(String name) {
         data.setName(name);
     }
@@ -123,81 +115,9 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param description The description of the plate acquisition.
      */
+    @Override
     public void setDescription(String description) {
         data.setDescription(description);
-    }
-
-
-    /**
-     * Adds a tag to the object in OMERO, if possible.
-     *
-     * @param dm         The data manager.
-     * @param annotation Tag to be added.
-     * @param <A>        The type of the annotation.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    protected <A extends AnnotationData> void link(DataManager dm, A annotation)
-    throws ServiceException, AccessException, ExecutionException {
-        PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
-        link.setChild(annotation.asAnnotation());
-        link.setParent((omero.model.PlateAcquisition) data.asIObject());
-        dm.save(link);
-    }
-
-
-    /**
-     * Retrieves the screens containing the parent plates.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<ScreenWrapper> getScreens(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        PlateWrapper plate = browser.getPlate(getRefPlateId());
-        return plate.getScreens(browser);
-    }
-
-
-    /**
-     * Returns the (updated) parent plate as a singleton list.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<PlateWrapper> getPlates(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return browser.getPlates(getRefPlateId());
-    }
-
-
-    /**
-     * Retrieves the wells contained in the parent plate.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public List<WellWrapper> getWells(Browser browser)
-    throws ServiceException, AccessException, ExecutionException {
-        return getPlates(browser).iterator().next().getWells(browser);
     }
 
 
@@ -206,7 +126,8 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
-    public List<WellSampleWrapper> getWellSamples() {
+    @Override
+    public List<WellSample> getWellSamples() {
         _PlateAcquisitionOperationsNC pa = (_PlateAcquisitionOperationsNC) data.asIObject();
         return pa.copyWellSample()
                  .stream()
@@ -217,57 +138,11 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
 
 
     /**
-     * Retrieves the well samples for this plate acquisition from OMERO and updates the object.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     */
-    public List<WellSampleWrapper> getWellSamples(Browser browser)
-    throws AccessException, ServiceException {
-        reload(browser);
-        return getWellSamples();
-    }
-
-
-    /**
-     * Retrieves the images contained in the well samples.
-     *
-     * @return See above
-     */
-    public List<ImageWrapper> getImages() {
-        return getWellSamples().stream()
-                               .map(WellSampleWrapper::getImage)
-                               .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Retrieves the images contained in the wells in the parent plate.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     */
-    public List<ImageWrapper> getImages(Browser browser)
-    throws ServiceException, AccessException {
-        return getWellSamples(browser).stream()
-                                      .map(WellSampleWrapper::getImage)
-                                      .collect(Collectors.toList());
-    }
-
-
-    /**
      * Returns the label associated to the plate acquisition.
      *
      * @return See above.
      */
+    @Override
     public String getLabel() {
         return data.getLabel();
     }
@@ -278,6 +153,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public long getRefPlateId() {
         return data.getRefPlateId();
     }
@@ -288,6 +164,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @param refPlateId The value to set.
      */
+    @Override
     public void setRefPlateId(long refPlateId) {
         data.setRefPlateId(refPlateId);
     }
@@ -298,6 +175,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public Timestamp getStartTime() {
         return data.getStartTime();
     }
@@ -308,6 +186,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public Timestamp getEndTime() {
         return data.getEndTime();
     }
@@ -318,6 +197,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      *
      * @return See above.
      */
+    @Override
     public int getMaximumFieldCount() {
         return data.getMaximumFieldCount();
     }

@@ -23,10 +23,7 @@ import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
-import omero.model.AnnotationAnnotationLink;
-import omero.model.AnnotationAnnotationLinkI;
 import omero.model.IObject;
-import omero.model.TagAnnotationI;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +33,7 @@ import java.util.concurrent.ExecutionException;
  * Class containing a TagAnnotationData object with a namespace set to {@link #NS_TAGSET}.
  * <p> Wraps function calls to the TagAnnotationData contained.
  */
-public class TagSetWrapper extends TagAnnotationWrapper {
+public class TagSetWrapper extends TagAnnotationWrapper implements TagSet {
 
     /**
      * Constructor of the TagSetWrapper class.
@@ -72,62 +69,9 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      *
      * @return See above.
      */
-    public List<TagAnnotationWrapper> getTags() {
+    @Override
+    public List<TagAnnotation> getTags() {
         return wrap(data.getTags(), TagAnnotationWrapper::new);
-    }
-
-
-    /**
-     * Reloads the tag set and returns the corresponding list of tags.
-     *
-     * @param browser The data browser.
-     *
-     * @return See above.
-     *
-     * @throws ServiceException Cannot connect to OMERO.
-     * @throws AccessException  Cannot access data.
-     */
-    public List<TagAnnotationWrapper> getTags(Browser browser)
-    throws AccessException, ServiceException {
-        reload(browser);
-        return getTags();
-    }
-
-
-    /**
-     * Links a tag to this tag set.
-     *
-     * @param dm  The data manager.
-     * @param tag The tag.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void link(DataManager dm, TagAnnotationWrapper tag)
-    throws AccessException, ServiceException, ExecutionException {
-        AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
-        link.setParent(new TagAnnotationI(getId(), false));
-        link.setChild(tag.asDataObject().asAnnotation());
-        dm.save(link);
-    }
-
-
-    /**
-     * Links multiple tags to this tag set.
-     *
-     * @param dm   The data manager.
-     * @param tags The tags.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void link(DataManager dm, TagAnnotationWrapper... tags)
-    throws AccessException, ServiceException, ExecutionException {
-        for (TagAnnotationWrapper tag : tags) {
-            link(dm, tag);
-        }
     }
 
 
@@ -139,6 +83,7 @@ public class TagSetWrapper extends TagAnnotationWrapper {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
+    @Override
     public void reload(Browser browser)
     throws ServiceException, AccessException {
         String query = "select t from TagAnnotation as t" +
