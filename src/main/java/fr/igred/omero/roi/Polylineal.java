@@ -18,35 +18,28 @@
 package fr.igred.omero.roi;
 
 
-import omero.gateway.model.TextData;
-
-import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.util.List;
 
 
 /**
- * Interface to handle Text shapes on OMERO.
+ * Interface for polylineal shapes.
  */
-public interface Text extends Shape, Punctual {
+public interface Polylineal {
 
     /**
-     * Returns an {@link TextData} corresponding to the handled object.
+     * Returns the points in the polygonal shape.
      *
      * @return See above.
      */
-    @Override
-    TextData asDataObject();
+    List<Point2D.Double> getPoints();
 
 
     /**
-     * Converts the shape to an {@link java.awt.Shape}.
+     * Sets the points in the polygonal shape.
      *
-     * @return The converted AWT Shape.
+     * @param points The points to set.
      */
-    @Override
-    default java.awt.Shape toAWTShape() {
-        Path2D point = new Path2D.Double();
-        point.moveTo(getX(), getY());
-        return point;
-    }
+    void setPoints(List<Point2D.Double> points);
 
 }
