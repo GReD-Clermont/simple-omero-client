@@ -24,7 +24,7 @@ import omero.gateway.model.TagAnnotationData;
 /**
  * Interface to handle Tag Annotations on OMERO.
  */
-public interface TagAnnotation extends Annotation {
+public interface TagAnnotation extends TagSetConverter, Annotation {
 
     /**
      * The name space used to indicate that the tag is used a tag set.
@@ -67,13 +67,5 @@ public interface TagAnnotation extends Annotation {
     default boolean isTagSet() {
         return NS_TAGSET.equals(getNameSpace());
     }
-
-
-    /**
-     * Converts this tag annotation to a tag set.
-     *
-     * @return See above.
-     */
-    TagSet toTagSet();
 
 }
