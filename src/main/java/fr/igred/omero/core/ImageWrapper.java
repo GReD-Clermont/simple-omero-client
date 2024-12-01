@@ -22,6 +22,7 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.FolderWrapper;
@@ -143,15 +144,15 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * Retrieves the image thumbnail of the specified size as a byte array.
      * <p>If the image is not square, the size will be the longest side.
      *
-     * @param client The client handling the connection.
-     * @param size   The thumbnail size.
+     * @param conn The connection handler.
+     * @param size The thumbnail size.
      *
      * @return The thumbnail pixels as a byte array.
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server error.
      */
-    private byte[] getThumbnailBytes(Client client, int size)
+    private byte[] getThumbnailBytes(ConnectionHandler conn, int size)
     throws DSOutOfServiceException, ServerError {
         Pixels pixels = getPixels();
 
@@ -166,7 +167,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
         ThumbnailStorePrx store = null;
         byte[]            array;
         try {
-            store = client.getGateway().getThumbnailService(client.getCtx());
+            store = conn.getGateway().getThumbnailService(conn.getCtx());
             store.setPixelsId(pixels.getId());
             array = store.getThumbnail(rint(width), rint(height));
         } finally {
@@ -527,8 +528,8 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * Retrieves the image thumbnail of the specified size.
      * <p>If the image is not square, the size will be the longest side.
      *
-     * @param client The client handling the connection.
-     * @param size   The thumbnail size.
+     * @param conn The connection handler.
+     * @param size The thumbnail size.
      *
      * @return The thumbnail as a {@link BufferedImage}.
      *
@@ -537,11 +538,11 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws IOException      Cannot read thumbnail from store.
      */
     @Override
-    public BufferedImage getThumbnail(Client client, int size)
+    public BufferedImage getThumbnail(ConnectionHandler conn, int size)
     throws ServiceException, AccessException, IOException {
         BufferedImage thumbnail = null;
 
-        byte[] arr = call(client,
+        byte[] arr = call(conn,
                           c -> getThumbnailBytes(c, size),
                           "Error retrieving thumbnail.");
         if (arr != null) {
@@ -599,8 +600,8 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
     /**
      * Downloads the original files from the server.
      *
-     * @param client The client handling the connection.
-     * @param path   Path to the file.
+     * @param conn The connection handler.
+     * @param path Path to the file.
      *
      * @return See above.
      *
@@ -609,10 +610,10 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<File> download(Client client, String path)
+    public List<File> download(ConnectionHandler conn, String path)
     throws ServiceException, AccessException, ExecutionException {
-        return call(client.getGateway().getFacility(TransferFacility.class),
-                    t -> t.downloadImage(client.getCtx(), path, getId()),
+        return call(conn.getGateway().getFacility(TransferFacility.class),
+                    t -> t.downloadImage(conn.getCtx(), path, getId()),
                     "Could not download image " + getId());
     }
 

@@ -21,6 +21,7 @@ package fr.igred.omero.core;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
@@ -616,8 +617,8 @@ public interface Image extends RepositoryObject {
      * Retrieves the image thumbnail of the specified size.
      * <p>If the image is not square, the size will be the longest side.
      *
-     * @param client The client handling the connection.
-     * @param size   The thumbnail size.
+     * @param conn The connection handler.
+     * @param size The thumbnail size.
      *
      * @return The thumbnail as a {@link BufferedImage}.
      *
@@ -625,7 +626,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    BufferedImage getThumbnail(Client client, int size)
+    BufferedImage getThumbnail(ConnectionHandler conn, int size)
     throws ServiceException, AccessException, IOException;
 
 
@@ -662,8 +663,8 @@ public interface Image extends RepositoryObject {
     /**
      * Downloads the original files from the server.
      *
-     * @param client The client handling the connection.
-     * @param path   Path to the file.
+     * @param conn The connection handler.
+     * @param path Path to the file.
      *
      * @return See above.
      *
@@ -671,7 +672,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<File> download(Client client, String path)
+    List<File> download(ConnectionHandler conn, String path)
     throws ServiceException, AccessException, ExecutionException;
 
 }

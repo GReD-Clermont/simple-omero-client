@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -51,7 +51,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
     /**
      * Writes this file annotation to the specified {@link FileOutputStream}.
      *
-     * @param client The client handling the connection.
+     * @param conn   The connection handler.
      * @param stream The {@link FileOutputStream} where the data will be written.
      *
      * @return The {@link RawFileStorePrx} used to read the file annotation.
@@ -60,12 +60,12 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws IOException             Cannot write to the file.
      */
-    private RawFileStorePrx writeFile(Client client, FileOutputStream stream)
+    private RawFileStorePrx writeFile(ConnectionHandler conn, FileOutputStream stream)
     throws ServerError, DSOutOfServiceException, IOException {
         final int inc = 262144;
 
-        RawFileStorePrx store = client.getGateway()
-                                      .getRawFileService(client.getCtx());
+        RawFileStorePrx store = conn.getGateway()
+                                    .getRawFileService(conn.getCtx());
         store.setFileId(this.getFileID());
 
         long size = getFileSize();
@@ -180,8 +180,8 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
     /**
      * Returns the original file.
      *
-     * @param client The client handling the connection.
-     * @param path   The path where the file will be saved.
+     * @param conn The connection handler.
+     * @param path The path where the file will be saved.
      *
      * @return See above.
      *
@@ -190,14 +190,14 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      * @throws IOException      Cannot write to the file.
      */
     @Override
-    public File getFile(Client client, String path)
+    public File getFile(ConnectionHandler conn, String path)
     throws ServiceException, AccessException, IOException {
         File file = new File(path);
 
         RawFileStorePrx store;
         try (FileOutputStream stream = new FileOutputStream(file)) {
             String error = "Could not create RawFileService";
-            store = ExceptionHandler.of(client, c -> writeFile(c, stream))
+            store = ExceptionHandler.of(conn, c -> writeFile(c, stream))
                                     .handleOMEROException(error)
                                     .rethrow(IOException.class)
                                     .get();
