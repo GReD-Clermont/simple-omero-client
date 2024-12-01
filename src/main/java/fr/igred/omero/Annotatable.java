@@ -26,7 +26,7 @@ import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.BasicDataManager;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
@@ -68,7 +68,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default  <A extends Annotation> boolean isLinked(BasicBrowser browser, A annotation)
+    default <A extends Annotation> boolean isLinked(BasicBrowser browser, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
@@ -144,7 +144,8 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void linkIfNotLinked(Client client, Annotation... annotations)
+    default <C extends BasicBrowser & BasicDataManager>
+    void linkIfNotLinked(C client, Annotation... annotations)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> annotationIds = getAnnotationData(client).stream()
                                                             .map(DataObject::getId)
@@ -336,7 +337,7 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    void rate(Client client, int rating)
+    <C extends BasicBrowser & DataManager> void rate(C client, int rating)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
@@ -405,7 +406,8 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    <C extends BasicBrowser & BasicDataManager>
+    void addAndReplaceTable(C client, TableWrapper table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
@@ -421,7 +423,8 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    default void addAndReplaceTable(Client client, TableWrapper table)
+    default <C extends BasicBrowser & BasicDataManager>
+    void addAndReplaceTable(C client, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
     }
@@ -506,7 +509,8 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
+    <C extends BasicBrowser & BasicDataManager>
+    long addAndReplaceFile(C client, File file, ReplacePolicy policy)
     throws ExecutionException, InterruptedException, AccessException, ServiceException;
 
 
@@ -524,7 +528,8 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    default long addAndReplaceFile(Client client, File file)
+    default <C extends BasicBrowser & BasicDataManager>
+    long addAndReplaceFile(C client, File file)
     throws ExecutionException, InterruptedException, AccessException, ServiceException {
         return addAndReplaceFile(client, file, ReplacePolicy.DELETE_ORPHANED);
     }
@@ -557,7 +562,8 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    <A extends Annotation> void unlink(Client client, A annotation)
+    <A extends Annotation, C extends BasicBrowser & BasicDataManager>
+    void unlink(C client, A annotation)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
@@ -573,7 +579,8 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    <A extends Annotation> void unlink(Client client, Collection<A> annotations)
+    <A extends Annotation, C extends BasicBrowser & BasicDataManager>
+    void unlink(C client, Collection<A> annotations)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
@@ -621,7 +628,8 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void copyAnnotationLinks(Client client, Annotatable object)
+    default <C extends BasicBrowser & BasicDataManager>
+    void copyAnnotationLinks(C client, Annotatable object)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> newAnnotations = object.getAnnotationData(client);
         List<AnnotationData> oldAnnotations = this.getAnnotationData(client);

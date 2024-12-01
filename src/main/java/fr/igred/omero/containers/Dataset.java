@@ -23,8 +23,8 @@ import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.BasicDataManager;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.core.ImageWrapper;
@@ -353,7 +353,7 @@ public interface Dataset extends RepositoryObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    void removeImage(Client client, Image image)
+    <C extends BasicBrowser & BasicDataManager> void removeImage(C client, Image image)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
@@ -423,9 +423,10 @@ public interface Dataset extends RepositoryObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    default List<Image> replaceImages(Client client,
-                                      Collection<? extends Image> oldImages,
-                                      Image newImage)
+    default <C extends ContainersBrowser & BasicDataManager>
+    List<Image> replaceImages(C client,
+                              Collection<? extends Image> oldImages,
+                              Image newImage)
     throws AccessException, ServiceException, ExecutionException, InterruptedException {
         Collection<String> descriptions = new ArrayList<>(oldImages.size() + 1);
         List<Image>        orphaned     = new ArrayList<>(oldImages.size());
@@ -468,7 +469,8 @@ public interface Dataset extends RepositoryObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
+    <C extends ImageBrowser & DataManager & ConnectionHandler & ContainersBrowser>
+    List<Long> importAndReplaceImages(C client, String path, ReplacePolicy policy)
     throws ServiceException, AccessException, IOException, ExecutionException, InterruptedException;
 
 
@@ -487,7 +489,8 @@ public interface Dataset extends RepositoryObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    default List<Long> importAndReplaceImages(Client client, String path)
+    default <C extends ImageBrowser & DataManager & ConnectionHandler & ContainersBrowser>
+    List<Long> importAndReplaceImages(C client, String path)
     throws ServiceException, AccessException, IOException, ExecutionException, InterruptedException {
         return importAndReplaceImages(client, path, ReplacePolicy.UNLINK);
     }

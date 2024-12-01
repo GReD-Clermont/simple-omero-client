@@ -21,9 +21,11 @@ package fr.igred.omero.containers;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.BasicBrowser;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.ConnectionHandler;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
+import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -176,7 +178,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    public void removeImage(Client client, Image image)
+    public <C extends BasicBrowser & BasicDataManager>
+    void removeImage(C client, Image image)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, "DatasetImageLink", image.getId());
     }
@@ -238,7 +241,8 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    public List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
+    public <C extends ImageBrowser & DataManager & ConnectionHandler & ContainersBrowser>
+    List<Long> importAndReplaceImages(C client, String path, ReplacePolicy policy)
     throws ServiceException, AccessException, IOException, ExecutionException, InterruptedException {
         List<Long> ids    = importImage(client, path);
         Long[]     newIds = ids.toArray(LONGS);

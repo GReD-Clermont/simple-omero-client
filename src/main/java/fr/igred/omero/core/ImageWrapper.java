@@ -22,7 +22,6 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.BasicDataManager;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.FolderWrapper;
@@ -395,12 +394,13 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public ImagePlus toImagePlus(Client client,
-                                 int[] xBounds,
-                                 int[] yBounds,
-                                 int[] cBounds,
-                                 int[] zBounds,
-                                 int[] tBounds)
+    public <C extends BasicBrowser & ConnectionHandler>
+    ImagePlus toImagePlus(C client,
+                          int[] xBounds,
+                          int[] yBounds,
+                          int[] cBounds,
+                          int[] zBounds,
+                          int[] tBounds)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = getPixels();
         pixels.loadPlanesInfo(client);

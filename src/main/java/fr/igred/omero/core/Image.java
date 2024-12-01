@@ -21,7 +21,6 @@ package fr.igred.omero.core;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.BasicDataManager;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.containers.ContainersBrowser;
 import fr.igred.omero.containers.Dataset;
@@ -454,7 +453,8 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default ImagePlus toImagePlus(Client client)
+    default <C extends BasicBrowser & ConnectionHandler>
+    ImagePlus toImagePlus(C client)
     throws ServiceException, AccessException, ExecutionException {
         return toImagePlus(client, null, null, null, null, null);
     }
@@ -476,7 +476,8 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    ImagePlus toImagePlus(Client client,
+    <C extends BasicBrowser & ConnectionHandler>
+    ImagePlus toImagePlus(C client,
                           int[] xBounds,
                           int[] yBounds,
                           int[] cBounds,
@@ -497,7 +498,8 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default ImagePlus toImagePlus(Client client, ROI roi)
+    default <C extends BasicBrowser & ConnectionHandler>
+    ImagePlus toImagePlus(C client, ROI roi)
     throws ServiceException, AccessException, ExecutionException {
         return toImagePlus(client, roi.getBounds());
     }
@@ -515,7 +517,8 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default ImagePlus toImagePlus(Client client, Bounds bounds)
+    default <C extends BasicBrowser & ConnectionHandler>
+    ImagePlus toImagePlus(C client, Bounds bounds)
     throws ServiceException, AccessException, ExecutionException {
         int[] x = {bounds.getStart().getX(), bounds.getEnd().getX()};
         int[] y = {bounds.getStart().getY(), bounds.getEnd().getY()};
@@ -590,7 +593,8 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default Color getChannelColor(Client client, int index)
+    default <C extends BasicBrowser & ConnectionHandler>
+    Color getChannelColor(C client, int index)
     throws ServiceException, AccessException, ExecutionException {
         long  pixelsId = getPixels().getId();
         Color color    = getChannelImportedColor(client, index);

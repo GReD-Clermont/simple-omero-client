@@ -21,7 +21,6 @@ package fr.igred.omero.containers;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.BasicDataManager;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -178,7 +177,8 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    public void removeDataset(Client client, Dataset dataset)
+    public <C extends BasicBrowser & BasicDataManager>
+    void removeDataset(C client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, "ProjectDatasetLink", dataset.getId());
         reload(client);

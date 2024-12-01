@@ -30,7 +30,7 @@ import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.BasicDataManager;
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
@@ -253,7 +253,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      */
     @Override
-    public void rate(Client client, int rating)
+    public <C extends BasicBrowser & DataManager>
+    void rate(C client, int rating)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         List<Long> userIds = singletonList(client.getCtx().getExperimenter());
 
@@ -311,7 +312,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      */
     @Override
-    public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    public <C extends BasicBrowser & BasicDataManager>
+    void addAndReplaceTable(C client, TableWrapper table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         String error = "Cannot add table to " + this;
         Collection<FileAnnotation> tables = wrap(call(client.getTablesFacility(),
@@ -384,7 +386,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      */
     @Override
-    public long addAndReplaceFile(Client client, File file, ReplacePolicy policy)
+    public <C extends BasicBrowser & BasicDataManager> long addAndReplaceFile(C client, File file, ReplacePolicy policy)
     throws ExecutionException, InterruptedException, AccessException, ServiceException {
         List<FileAnnotation> files = getFileAnnotations(client);
 
@@ -457,7 +459,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    public <A extends Annotation> void unlink(Client client, A annotation)
+    public <A extends Annotation, C extends BasicBrowser & BasicDataManager> void unlink(C client, A annotation)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLink(client, annotationLinkType(), annotation.getId());
     }
@@ -476,7 +478,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException If block(long) does not return.
      */
     @Override
-    public <A extends Annotation> void unlink(Client client, Collection<A> annotations)
+    public <A extends Annotation, C extends BasicBrowser & BasicDataManager>
+    void unlink(C client, Collection<A> annotations)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLinks(client,
                     annotationLinkType(),
@@ -498,7 +501,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    protected void removeLinks(Client client, String linkType, Collection<Long> childIds)
+    protected <C extends BasicBrowser & BasicDataManager> void removeLinks(C client, String linkType,
+                                                                           Collection<Long> childIds)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         String template = "select link from %s link" +
                           " where link.parent = %d" +
@@ -506,9 +510,8 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
         String      query = String.format(template, linkType, getId());
         ParametersI param = new ParametersI();
         param.addIds(childIds);
-        List<IObject> os = call(client.getGateway(),
-                                g -> g.getQueryService(client.getCtx())
-                                      .findAllByQuery(query, param),
+        List<IObject> os = call(client.getQueryService(),
+                                qs -> qs.findAllByQuery(query, param),
                                 "Cannot get links from " + this);
         client.delete(os);
     }
@@ -526,7 +529,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    protected void removeLink(Client client, String linkType, long childId)
+    protected <C extends BasicBrowser & BasicDataManager> void removeLink(C client, String linkType, long childId)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLinks(client, linkType, singletonList(childId));
     }

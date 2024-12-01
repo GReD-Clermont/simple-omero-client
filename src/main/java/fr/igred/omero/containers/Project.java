@@ -23,7 +23,6 @@ import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.BasicDataManager;
-import fr.igred.omero.client.Client;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.exception.AccessException;
@@ -154,7 +153,8 @@ public interface Project extends RepositoryObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException If block(long) does not return.
      */
-    void removeDataset(Client client, Dataset dataset)
+    <C extends BasicBrowser & BasicDataManager>
+    void removeDataset(C client, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
