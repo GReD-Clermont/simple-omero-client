@@ -35,6 +35,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -81,9 +82,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return A list of shapes.
      */
-    static ShapeList fromImageJ(ij.gui.Roi ijRoi) {
-        ShapeList list = new ShapeList();
-        int       type = ijRoi.getType();
+    static List<Shape> fromImageJ(ij.gui.Roi ijRoi) {
+        List<Shape> list = new ArrayList<>(ijRoi.size());
+        int         type = ijRoi.getType();
         switch (type) {
             case Roi.FREEROI:
             case Roi.TRACED_ROI:
@@ -488,7 +489,6 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      *
      * @return The bounding box.
      */
-    @SuppressWarnings("ClassReferencesSubclass")
     @Override
     public Rectangle getBoundingBox() {
         Rectangle2D rectangle = createTransformedAWTShape().getBounds2D();

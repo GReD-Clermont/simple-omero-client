@@ -19,7 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.annotations.AnnotationList;
+import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
@@ -153,7 +153,7 @@ class ImageTest extends UserTest {
 
     @Test
     void testGetAnnotations() throws Exception {
-        AnnotationList annotations = client.getImage(IMAGE1.id).getAnnotations(client);
+        List<Annotation> annotations = client.getImage(IMAGE1.id).getAnnotations(client);
         assertEquals(3, annotations.size());
     }
 

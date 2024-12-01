@@ -23,6 +23,7 @@ import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
+import fr.igred.omero.util.Wrapper;
 import ij.gui.PointRoi;
 import ij.gui.ShapeRoi;
 import omero.RString;
@@ -33,7 +34,6 @@ import omero.model._RoiOperationsNC;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -222,13 +222,8 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
      * @return list of shape contained in the ROIData.
      */
     @Override
-    public ShapeList getShapes() {
-        List<ShapeData> shapeData = data.getShapes();
-        ShapeList       shapes    = new ShapeList(shapeData.size());
-        shapeData.stream()
-                 .sorted(Comparator.comparing(ShapeData::getId))
-                 .forEachOrdered(shapes::add);
-        return shapes;
+    public List<Shape> getShapes() {
+        return wrap(data.getShapes(), Wrapper::wrap);
     }
 
 
@@ -298,7 +293,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
         String ijNameProperty = ROI.ijNameProperty(property);
         String roiID          = String.valueOf(getId());
 
-        ShapeList shapes = getShapes();
+        List<Shape> shapes = getShapes();
 
         Map<String, List<Shape>> sameSlice = shapes.stream()
                                                    .collect(groupingBy(Shape::getCZT,
