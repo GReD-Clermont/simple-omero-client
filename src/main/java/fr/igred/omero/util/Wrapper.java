@@ -18,10 +18,10 @@
 package fr.igred.omero.util;
 
 
-import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.annotations.AnnotationWrapper;
+import fr.igred.omero.Annotatable;
+import fr.igred.omero.RemoteObject;
+import fr.igred.omero.RepositoryObject;
+import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
@@ -44,7 +44,7 @@ import fr.igred.omero.roi.PolygonWrapper;
 import fr.igred.omero.roi.PolylineWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
-import fr.igred.omero.roi.ShapeWrapper;
+import fr.igred.omero.roi.Shape;
 import fr.igred.omero.roi.TextWrapper;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
@@ -90,7 +90,6 @@ import static java.lang.String.format;
  * Utility class to convert DataObjects dynamically.
  */
 @SuppressWarnings({"OverlyCoupledClass",
-                   "unchecked",
                    "IfStatementWithTooManyBranches"})
 public final class Wrapper {
 
@@ -106,29 +105,28 @@ public final class Wrapper {
      *
      * @param object The object to convert.
      * @param <T>    The ShapeData type.
-     * @param <U>    The Shape type.
      *
      * @return See above.
      */
-    public static <T extends ShapeData, U extends ShapeWrapper<? extends T>> U wrap(T object) {
-        U converted;
+    public static <T extends ShapeData> Shape wrap(T object) {
+        Shape converted;
 
         if (object instanceof RectangleData) {
-            converted = (U) new RectangleWrapper((RectangleData) object);
+            converted = new RectangleWrapper((RectangleData) object);
         } else if (object instanceof PolygonData) {
-            converted = (U) new PolygonWrapper((PolygonData) object);
+            converted = new PolygonWrapper((PolygonData) object);
         } else if (object instanceof PolylineData) {
-            converted = (U) new PolylineWrapper((PolylineData) object);
+            converted = new PolylineWrapper((PolylineData) object);
         } else if (object instanceof EllipseData) {
-            converted = (U) new EllipseWrapper((EllipseData) object);
+            converted = new EllipseWrapper((EllipseData) object);
         } else if (object instanceof PointData) {
-            converted = (U) new PointWrapper((PointData) object);
+            converted = new PointWrapper((PointData) object);
         } else if (object instanceof LineData) {
-            converted = (U) new LineWrapper((LineData) object);
+            converted = new LineWrapper((LineData) object);
         } else if (object instanceof TextData) {
-            converted = (U) new TextWrapper((TextData) object);
+            converted = new TextWrapper((TextData) object);
         } else if (object instanceof MaskData) {
-            converted = (U) new MaskWrapper((MaskData) object);
+            converted = new MaskWrapper((MaskData) object);
         } else {
             String msg = format(UNKNOWN_TYPE, object.getClass().getName());
             throw new IllegalArgumentException(msg);
@@ -142,23 +140,21 @@ public final class Wrapper {
      *
      * @param object The object to convert.
      * @param <T>    The AnnotationData type.
-     * @param <U>    The Annotation type.
      *
      * @return See above.
      */
-    public static <T extends AnnotationData, U extends AnnotationWrapper<? extends T>> U wrap(T object) {
-        U converted;
-
+    public static <T extends AnnotationData> Annotation wrap(T object) {
+        Annotation converted;
         if (object instanceof FileAnnotationData) {
-            converted = (U) new FileAnnotationWrapper((FileAnnotationData) object);
+            converted = new FileAnnotationWrapper((FileAnnotationData) object);
         } else if (object instanceof MapAnnotationData) {
-            converted = (U) new MapAnnotationWrapper((MapAnnotationData) object);
+            converted = new MapAnnotationWrapper((MapAnnotationData) object);
         } else if (object instanceof TagAnnotationData) {
-            converted = (U) new TagAnnotationWrapper((TagAnnotationData) object);
+            converted = new TagAnnotationWrapper((TagAnnotationData) object);
         } else if (object instanceof RatingAnnotationData) {
-            converted = (U) new RatingAnnotationWrapper((RatingAnnotationData) object);
+            converted = new RatingAnnotationWrapper((RatingAnnotationData) object);
         } else if (object instanceof TextualAnnotationData) {
-            converted = (U) new TextualAnnotationWrapper((TextualAnnotationData) object);
+            converted = new TextualAnnotationWrapper((TextualAnnotationData) object);
         } else {
             String msg = format(UNKNOWN_TYPE, object.getClass().getName());
             throw new IllegalArgumentException(msg);
@@ -172,20 +168,17 @@ public final class Wrapper {
      *
      * @param object The object to convert.
      * @param <T>    The DataObject type.
-     * @param <U>    The Annotatable type.
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends AnnotatableWrapper<? extends T>>
-    U wrapAnnotatableObject(T object) {
-        U converted;
-
+    public static <T extends DataObject> Annotatable wrapAnnotatableObject(T object) {
+        Annotatable converted;
         if (object instanceof ShapeData) {
-            converted = (U) wrap((ShapeData) object);
+            converted = wrap((ShapeData) object);
         } else if (object instanceof ROIData) {
-            converted = (U) new ROIWrapper((ROIData) object);
+            converted = new ROIWrapper((ROIData) object);
         } else {
-            converted = (U) wrapRepositoryObject(object);
+            converted = wrapRepositoryObject(object);
         }
         return converted;
     }
@@ -196,30 +189,28 @@ public final class Wrapper {
      *
      * @param object The object to convert.
      * @param <T>    The DataObject type.
-     * @param <U>    The RepositoryObject type.
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends RepositoryObjectWrapper<? extends T>>
-    U wrapRepositoryObject(T object) {
-        U converted;
+    public static <T extends DataObject> RepositoryObject wrapRepositoryObject(T object) {
+        RepositoryObject converted;
 
         if (object instanceof ProjectData) {
-            converted = (U) new ProjectWrapper((ProjectData) object);
+            converted = new ProjectWrapper((ProjectData) object);
         } else if (object instanceof DatasetData) {
-            converted = (U) new DatasetWrapper((DatasetData) object);
+            converted = new DatasetWrapper((DatasetData) object);
         } else if (object instanceof ImageData) {
-            converted = (U) new ImageWrapper((ImageData) object);
+            converted = new ImageWrapper((ImageData) object);
         } else if (object instanceof ScreenData) {
-            converted = (U) new ScreenWrapper((ScreenData) object);
+            converted = new ScreenWrapper((ScreenData) object);
         } else if (object instanceof PlateData) {
-            converted = (U) new PlateWrapper((PlateData) object);
+            converted = new PlateWrapper((PlateData) object);
         } else if (object instanceof PlateAcquisitionData) {
-            converted = (U) new PlateAcquisitionWrapper((PlateAcquisitionData) object);
+            converted = new PlateAcquisitionWrapper((PlateAcquisitionData) object);
         } else if (object instanceof WellData) {
-            converted = (U) new WellWrapper((WellData) object);
+            converted = new WellWrapper((WellData) object);
         } else if (object instanceof FolderData) {
-            converted = (U) new FolderWrapper((FolderData) object);
+            converted = new FolderWrapper((FolderData) object);
         } else {
             String msg = format(UNKNOWN_TYPE, object.getClass().getName());
             throw new IllegalArgumentException(msg);
@@ -233,28 +224,27 @@ public final class Wrapper {
      *
      * @param object The object to convert.
      * @param <T>    The DataObject type.
-     * @param <U>    The RemoteObject type.
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends ObjectWrapper<? extends T>> U wrap(T object) {
-        U converted;
+    public static <T extends DataObject> RemoteObject wrap(T object) {
+        RemoteObject converted;
         if (object instanceof AnnotationData) {
-            converted = (U) wrap((AnnotationData) object);
+            converted = wrap((AnnotationData) object);
         } else if (object instanceof PixelsData) {
-            converted = (U) new PixelsWrapper((PixelsData) object);
+            converted = new PixelsWrapper((PixelsData) object);
         } else if (object instanceof PlaneInfoData) {
-            converted = (U) new PlaneInfoWrapper((PlaneInfoData) object);
+            converted = new PlaneInfoWrapper((PlaneInfoData) object);
         } else if (object instanceof WellSampleData) {
-            converted = (U) new WellSampleWrapper((WellSampleData) object);
+            converted = new WellSampleWrapper((WellSampleData) object);
         } else if (object instanceof ExperimenterData) {
-            converted = (U) new ExperimenterWrapper((ExperimenterData) object);
+            converted = new ExperimenterWrapper((ExperimenterData) object);
         } else if (object instanceof GroupData) {
-            converted = (U) new GroupWrapper((GroupData) object);
+            converted = new GroupWrapper((GroupData) object);
         } else if (object instanceof ChannelData) {
-            converted = (U) new ChannelWrapper((ChannelData) object);
+            converted = new ChannelWrapper((ChannelData) object);
         } else {
-            converted = (U) wrapAnnotatableObject(object);
+            converted = wrapAnnotatableObject(object);
         }
         return converted;
     }
