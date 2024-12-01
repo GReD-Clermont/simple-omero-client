@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static fr.igred.omero.RemoteObject.getElementsOf;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -264,15 +265,15 @@ class ROITest extends UserTest {
         image.saveROIs(client, roiWrapper);
 
         List<ROI>       rois       = image.getROIs(client);
-        ShapeList       shapes     = rois.get(0).getShapes();
-        List<Point>     points     = shapes.getElementsOf(Point.class);
-        List<Text>      texts      = shapes.getElementsOf(Text.class);
-        List<Rectangle> rectangles = shapes.getElementsOf(Rectangle.class);
-        List<Mask>      masks      = shapes.getElementsOf(Mask.class);
-        List<Ellipse>   ellipses   = shapes.getElementsOf(Ellipse.class);
-        List<Line>      lines      = shapes.getElementsOf(Line.class);
-        List<Polyline>  polylines  = shapes.getElementsOf(Polyline.class);
-        List<Polygon>   polygons   = shapes.getElementsOf(Polygon.class);
+        List<Shape>     shapes     = rois.get(0).getShapes();
+        List<Point>     points     = getElementsOf(shapes, Point.class);
+        List<Text>      texts      = getElementsOf(shapes, Text.class);
+        List<Rectangle> rectangles = getElementsOf(shapes, Rectangle.class);
+        List<Mask>      masks      = getElementsOf(shapes, Mask.class);
+        List<Ellipse>   ellipses   = getElementsOf(shapes, Ellipse.class);
+        List<Line>      lines      = getElementsOf(shapes, Line.class);
+        List<Polyline>  polylines  = getElementsOf(shapes, Polyline.class);
+        List<Polygon>   polygons   = getElementsOf(shapes, Polygon.class);
 
         assertEquals(1, rois.size());
         assertEquals(8, shapes.size());

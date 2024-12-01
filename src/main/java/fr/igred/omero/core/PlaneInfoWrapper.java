@@ -24,6 +24,10 @@ import omero.model.Length;
 import omero.model.Time;
 
 
+/**
+ * Class containing a PlaneInfoData object.
+ * <p> Wraps function calls to the PlaneInfoData contained.
+ */
 public class PlaneInfoWrapper extends ObjectWrapper<PlaneInfoData> implements PlaneInfo {
 
     /**

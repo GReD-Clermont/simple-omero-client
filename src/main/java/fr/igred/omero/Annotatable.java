@@ -19,7 +19,6 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.Annotation;
-import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.RatingAnnotation;
@@ -69,8 +68,10 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    <A extends Annotation> boolean isLinked(Browser browser, A annotation)
-    throws ServiceException, AccessException, ExecutionException;
+    default  <A extends Annotation> boolean isLinked(Browser browser, A annotation)
+    throws ServiceException, AccessException, ExecutionException {
+        return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
+    }
 
 
     /**
@@ -606,14 +607,8 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default AnnotationList getAnnotations(Browser browser)
-    throws AccessException, ServiceException, ExecutionException {
-        List<AnnotationData> annotationData = getAnnotationData(browser);
-
-        AnnotationList annotations = new AnnotationList(annotationData.size());
-        annotationData.forEach(annotations::add);
-        return annotations;
-    }
+    List<Annotation> getAnnotations(Browser browser)
+    throws AccessException, ServiceException, ExecutionException;
 
 
     /**

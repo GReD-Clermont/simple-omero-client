@@ -34,6 +34,7 @@ import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
+import fr.igred.omero.util.Wrapper;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
@@ -81,26 +82,6 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @return See above.
      */
     protected abstract String annotationLinkType();
-
-
-    /**
-     * Checks if a specific annotation is linked to the object.
-     *
-     * @param browser    The data browser.
-     * @param annotation Annotation to be checked.
-     * @param <A>        The type of the annotation.
-     *
-     * @return True if the object is linked to the given annotation, false otherwise.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @Override
-    public <A extends Annotation> boolean isLinked(Browser browser, A annotation)
-    throws ServiceException, AccessException, ExecutionException {
-        return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
-    }
 
 
     /**
@@ -548,6 +529,24 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     protected void removeLink(Client client, String linkType, long childId)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         removeLinks(client, linkType, singletonList(childId));
+    }
+
+
+    /**
+     * Retrieves annotations linked to the object (of known types).
+     *
+     * @param browser The data browser.
+     *
+     * @return A list of annotations.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public List<Annotation> getAnnotations(Browser browser)
+    throws AccessException, ServiceException, ExecutionException {
+        return wrap(getAnnotationData(browser), Wrapper::wrap);
     }
 
 }
