@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.PlateAcquisitionData;
@@ -212,7 +212,7 @@ public class PlateAcquisitionWrapper extends RepositoryObjectWrapper<PlateAcquis
      * @throws AccessException  Cannot access data.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException {
         String query = "select pa from PlateAcquisition as pa " +
                        " left outer join fetch pa.plate as p" +

@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObject;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
@@ -107,7 +107,7 @@ public interface Screen extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    default List<PlateAcquisition> getPlateAcquisitions(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         reload(browser);
         return getPlates().stream()
@@ -133,7 +133,7 @@ public interface Screen extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Well> getWells(Browser browser)
+    default List<Well> getWells(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Plate>            plates = getPlates();
         Collection<List<Well>> wells  = new ArrayList<>(plates.size());
@@ -155,7 +155,7 @@ public interface Screen extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Browser browser)
+    default List<Image> getImages(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Plate>             plates = getPlates();
         Collection<List<Image>> images = new ArrayList<>(plates.size());

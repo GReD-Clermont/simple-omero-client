@@ -19,7 +19,6 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObject;
-import fr.igred.omero.client.Browser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -67,7 +66,7 @@ public interface Well extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Screen> getScreens(Browser browser)
+    default List<Screen> getScreens(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         reload(browser);
         return getPlate().getScreens(browser);
@@ -93,7 +92,7 @@ public interface Well extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    default List<PlateAcquisition> getPlateAcquisitions(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         reload(browser);
         return browser.getPlate(getPlate().getId()).getPlateAcquisitions();

@@ -24,9 +24,9 @@ import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.RatingAnnotation;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
@@ -68,7 +68,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default  <A extends Annotation> boolean isLinked(Browser browser, A annotation)
+    default  <A extends Annotation> boolean isLinked(BasicBrowser browser, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         return getAnnotations(browser).stream().anyMatch(a -> a.getId() == annotation.getId());
     }
@@ -85,7 +85,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default <A extends AnnotationData> void link(DataManager dm, A annotation)
+    default <A extends AnnotationData> void link(BasicDataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
         call(dm.getDMFacility(),
@@ -105,7 +105,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default <A extends Annotation> void link(DataManager dm, A annotation)
+    default <A extends Annotation> void link(BasicDataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         if (!(annotation instanceof TagAnnotation) || !((TagAnnotation) annotation).isTagSet()) {
             link(dm, annotation.asDataObject());
@@ -126,7 +126,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void link(DataManager dm, Annotation... annotations)
+    default void link(BasicDataManager dm, Annotation... annotations)
     throws ServiceException, AccessException, ExecutionException {
         for (Annotation annotation : annotations) {
             link(dm, annotation);
@@ -166,7 +166,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void addTag(DataManager dm, String name, String description)
+    void addTag(BasicDataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -180,7 +180,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void addTag(DataManager dm, Long id)
+    void addTag(BasicDataManager dm, Long id)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -194,7 +194,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addTags(DataManager dm, Long... ids)
+    default void addTags(BasicDataManager dm, Long... ids)
     throws ServiceException, AccessException, ExecutionException {
         for (Long id : ids) {
             addTag(dm, id);
@@ -213,7 +213,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<TagAnnotation> getTags(Browser browser)
+    List<TagAnnotation> getTags(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -228,7 +228,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<MapAnnotation> getMapAnnotations(Browser browser)
+    List<MapAnnotation> getMapAnnotations(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -243,7 +243,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void addKeyValuePair(DataManager dm, String key, String value)
+    void addKeyValuePair(BasicDataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -258,7 +258,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Map.Entry<String, String>> getKeyValuePairs(Browser browser)
+    default List<Map.Entry<String, String>> getKeyValuePairs(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(browser).stream()
                                          .map(MapAnnotation::getContent)
@@ -280,7 +280,7 @@ public interface Annotatable extends RemoteObject {
      * @throws NoSuchElementException Key not found.
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      */
-    default List<String> getValues(Browser browser, String key)
+    default List<String> getValues(BasicBrowser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         return getMapAnnotations(browser).stream()
                                          .map(MapAnnotation::getContentAsMap)
@@ -303,7 +303,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<RatingAnnotation> getRatings(Browser browser, List<Long> userIds)
+    List<RatingAnnotation> getRatings(BasicBrowser browser, List<Long> userIds)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -318,7 +318,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<RatingAnnotation> getRatings(Browser browser)
+    default List<RatingAnnotation> getRatings(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getRatings(browser, null);
     }
@@ -351,7 +351,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    int getMyRating(Browser browser)
+    int getMyRating(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -365,7 +365,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addTable(DataManager dm, TableWrapper table)
+    default void addTable(BasicDataManager dm, TableWrapper table)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot add table to " + this;
 
@@ -439,7 +439,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    TableWrapper getTable(DataManager dm, Long fileId)
+    TableWrapper getTable(BasicDataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -454,7 +454,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<TableWrapper> getTables(DataManager dm)
+    default List<TableWrapper> getTables(BasicDataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FileAnnotationData> tables = call(dm.getTablesFacility(),
                                                      tf -> tf.getAvailableTables(dm.getCtx(), asDataObject()),
@@ -482,7 +482,7 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    default long addFile(DataManager dm, File file)
+    default long addFile(BasicDataManager dm, File file)
     throws ExecutionException, InterruptedException {
         String name = file.getName();
         return dm.getDMFacility()
@@ -541,7 +541,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<FileAnnotation> getFileAnnotations(Browser browser)
+    List<FileAnnotation> getFileAnnotations(BasicBrowser browser)
     throws ExecutionException, ServiceException, AccessException;
 
 
@@ -588,7 +588,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<AnnotationData> getAnnotationData(Browser browser)
+    default List<AnnotationData> getAnnotationData(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         return call(browser.getMetadataFacility(),
                     m -> m.getAnnotations(browser.getCtx(), asDataObject()),
@@ -607,7 +607,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Annotation> getAnnotations(Browser browser)
+    List<Annotation> getAnnotations(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException;
 
 

@@ -28,9 +28,9 @@ import fr.igred.omero.annotations.RatingAnnotationWrapper;
 import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
@@ -96,7 +96,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void addTag(DataManager dm, String name, String description)
+    public void addTag(BasicDataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotation tag = new TagAnnotationWrapper(new TagAnnotationData(name));
         tag.setDescription(description);
@@ -115,7 +115,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void addTag(DataManager dm, Long id)
+    public void addTag(BasicDataManager dm, Long id)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotationI    tag     = new TagAnnotationI(id, false);
         TagAnnotationData tagData = new TagAnnotationData(tag);
@@ -135,7 +135,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<TagAnnotation> getTags(Browser browser)
+    public List<TagAnnotation> getTags(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(TagAnnotationData.class);
 
@@ -167,7 +167,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<MapAnnotation> getMapAnnotations(Browser browser)
+    public List<MapAnnotation> getMapAnnotations(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Class<? extends AnnotationData>> types = singletonList(MapAnnotationData.class);
         List<AnnotationData> annotations = call(browser.getMetadataFacility(),
@@ -199,7 +199,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void addKeyValuePair(DataManager dm, String key, String value)
+    public void addKeyValuePair(BasicDataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         MapAnnotation pkv = new MapAnnotationWrapper(key, value);
         link(dm, pkv);
@@ -218,7 +218,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public List<RatingAnnotation> getRatings(Browser browser, List<Long> userIds)
+    public List<RatingAnnotation> getRatings(BasicBrowser browser, List<Long> userIds)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot retrieve rating annotations from " + this;
 
@@ -285,7 +285,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public int getMyRating(Browser browser)
+    public int getMyRating(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> userIds = singletonList(browser.getCtx().getExperimenter());
 
@@ -345,7 +345,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public TableWrapper getTable(DataManager dm, Long fileId)
+    public TableWrapper getTable(BasicDataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData info = call(dm.getTablesFacility(),
                               tf -> tf.getTableInfo(dm.getCtx(), fileId),
@@ -423,7 +423,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<FileAnnotation> getFileAnnotations(Browser browser)
+    public List<FileAnnotation> getFileAnnotations(BasicBrowser browser)
     throws ExecutionException, ServiceException, AccessException {
         String error = "Cannot retrieve file annotations from " + this;
 
@@ -544,7 +544,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Annotation> getAnnotations(Browser browser)
+    public List<Annotation> getAnnotations(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         return wrap(getAnnotationData(browser), Wrapper::wrap);
     }

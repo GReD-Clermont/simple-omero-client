@@ -19,7 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.AnnotatableWrapper;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -272,7 +272,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void saveROI(DataManager dm)
+    public void saveROI(BasicDataManager dm)
     throws AccessException, ServiceException, ExecutionException {
         Roi roi = (Roi) dm.save(data.asIObject());
         data = new ROIData(roi);

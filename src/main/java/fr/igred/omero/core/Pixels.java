@@ -19,7 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -54,12 +54,12 @@ public interface Pixels extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void loadPlanesInfo(Browser browser)
+    void loadPlanesInfo(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
     /**
-     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Browser) loaded} first).
+     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(BasicBrowser) loaded} first).
      *
      * @return See above.
      */
@@ -108,7 +108,7 @@ public interface Pixels extends RemoteObject {
 
     /**
      * Computes the mean time interval from the planes deltaTs.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -117,7 +117,7 @@ public interface Pixels extends RemoteObject {
 
     /**
      * Computes the mean exposure time for a given channel from the planes exposureTime.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @param channel The channel index.
      *
@@ -128,7 +128,7 @@ public interface Pixels extends RemoteObject {
 
     /**
      * Retrieves the X stage position, using the same unit as {@link #getPixelSizeX()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -137,7 +137,7 @@ public interface Pixels extends RemoteObject {
 
     /**
      * Retrieves the Y stage position, using the same unit as {@link #getPixelSizeY()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -146,7 +146,7 @@ public interface Pixels extends RemoteObject {
 
     /**
      * Retrieves the Z stage position, using the same unit as {@link #getPixelSizeZ()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */

@@ -20,10 +20,10 @@ package fr.igred.omero.core;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -299,7 +299,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ROI> saveROIs(DataManager dm, Collection<? extends ROI> rois)
+    public List<ROI> saveROIs(BasicDataManager dm, Collection<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException {
         rois.forEach(r -> r.setImage(this));
         List<ROIData> roisData = rois.stream()
@@ -326,7 +326,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ROI> getROIs(DataManager dm)
+    public List<ROI> getROIs(BasicDataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIResult> roiResults = call(dm.getRoiFacility(),
                                           rf -> rf.loadROIs(dm.getCtx(),
@@ -356,7 +356,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Folder> getROIFolders(DataManager dm)
+    public List<Folder> getROIFolders(BasicDataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FolderData> folders = call(dm.getRoiFacility(),
                                               rf -> rf.getROIFolders(dm.getCtx(),
@@ -510,7 +510,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Channel> getChannels(Browser browser)
+    public List<Channel> getChannels(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get the channel name for " + this;
         List<ChannelData> channels = call(browser.getMetadataFacility(),
@@ -567,7 +567,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<String> getOriginalPaths(Browser browser)
+    public List<String> getOriginalPaths(BasicBrowser browser)
     throws ExecutionException, AccessException, ServiceException {
         String error = "Cannot get original paths for " + this;
         return call(browser.getMetadataFacility(),
@@ -588,7 +588,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<String> getManagedRepositoriesPaths(Browser browser)
+    public List<String> getManagedRepositoriesPaths(BasicBrowser browser)
     throws ExecutionException, AccessException, ServiceException {
         String error = "Cannot get managed repositories paths for " + this;
         return call(browser.getMetadataFacility(),
@@ -628,7 +628,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     b -> b.getImage(browser.getCtx(), getId()),

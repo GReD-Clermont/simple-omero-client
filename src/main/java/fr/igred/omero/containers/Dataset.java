@@ -21,11 +21,12 @@ package fr.igred.omero.containers;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.annotations.TagAnnotation;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
+import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -101,7 +102,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Project> getProjects(Browser browser)
+    default List<Project> getProjects(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         String query = "select link.parent from ProjectDatasetLink as link" +
                        " where link.child=" + getId();
@@ -133,7 +134,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Browser browser)
+    List<Image> getImages(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -149,7 +150,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Browser browser, String name)
+    default List<Image> getImages(BasicBrowser browser, String name)
     throws ServiceException, AccessException, ExecutionException {
         List<Image> images = getImages(browser);
         images.removeIf(image -> !image.getName().equals(name));
@@ -169,7 +170,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesLike(Browser browser, String motif)
+    default List<Image> getImagesLike(BasicBrowser browser, String motif)
     throws ServiceException, AccessException, ExecutionException {
         List<Image> images = getImages(browser);
 
@@ -191,7 +192,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
+    default List<Image> getImagesTagged(ImageBrowser browser, TagAnnotation tag)
     throws ServiceException, AccessException, ExecutionException {
         return getImagesTagged(browser, tag.getId());
     }
@@ -209,7 +210,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesTagged(Browser browser, Long tagId)
+    default List<Image> getImagesTagged(ImageBrowser browser, Long tagId)
     throws ServiceException, AccessException, ExecutionException {
         Long[] ids = browser.findByQuery("select link.parent" +
                                          " from ImageAnnotationLink link" +
@@ -240,7 +241,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesWithKey(Browser browser, String key)
+    default List<Image> getImagesWithKey(BasicBrowser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot get images with key \"" + key + "\" from " + this;
         Collection<ImageData> images = call(browser.getBrowseFacility(),
@@ -279,7 +280,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
+    default List<Image> getImagesWithKeyValuePair(BasicBrowser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = call(browser.getBrowseFacility(),
                                             bf -> bf.getImagesForDatasets(browser.getCtx(),
@@ -314,7 +315,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addImages(DataManager dm, Iterable<? extends Image> images)
+    default void addImages(BasicDataManager dm, Iterable<? extends Image> images)
     throws ServiceException, AccessException, ExecutionException {
         for (Image image : images) {
             addImage(dm, image);
@@ -332,7 +333,7 @@ public interface Dataset extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addImage(DataManager dm, Image image)
+    default void addImage(BasicDataManager dm, Image image)
     throws ServiceException, AccessException, ExecutionException {
         DatasetImageLink link = new DatasetImageLinkI();
         link.setChild(image.asDataObject().asImage());
@@ -502,7 +503,7 @@ public interface Dataset extends RepositoryObject {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    void reload(Browser browser)
+    void reload(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 }

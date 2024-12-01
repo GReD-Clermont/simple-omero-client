@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.WellData;
@@ -290,7 +290,7 @@ public class WellWrapper extends RepositoryObjectWrapper<WellData> implements We
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     bf -> bf.getWells(browser.getCtx(),

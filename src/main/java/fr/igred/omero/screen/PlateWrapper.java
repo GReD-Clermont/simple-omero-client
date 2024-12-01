@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import ome.model.units.BigResult;
@@ -135,7 +135,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Browser browser)
+    public List<Well> getWells(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         Collection<WellData> wells = call(browser.getBrowseFacility(),
                                           bf -> bf.getWells(browser.getCtx(),
@@ -289,7 +289,7 @@ public class PlateWrapper extends RepositoryObjectWrapper<PlateData> implements 
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     bf -> bf.getPlates(browser.getCtx(), singletonList(getId()))

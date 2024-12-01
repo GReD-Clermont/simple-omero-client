@@ -19,7 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.Annotatable;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import ij.gui.Roi;
@@ -278,7 +278,7 @@ public interface Shape extends Annotatable {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    default <A extends AnnotationData> void link(DataManager dm, A annotation)
+    default <A extends AnnotationData> void link(BasicDataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         ShapeAnnotationLink link = new ShapeAnnotationLinkI();
         link.setChild(annotation.asAnnotation());

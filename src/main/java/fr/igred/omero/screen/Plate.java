@@ -20,7 +20,7 @@ package fr.igred.omero.screen;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -87,7 +87,7 @@ public interface Plate extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Screen> getScreens(Browser browser)
+    default List<Screen> getScreens(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         String query = "select link.parent from ScreenPlateLink as link" +
                        " where link.child=" + getId();
@@ -119,7 +119,7 @@ public interface Plate extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Well> getWells(Browser browser)
+    List<Well> getWells(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -134,7 +134,7 @@ public interface Plate extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Browser browser)
+    default List<Image> getImages(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWells(browser).stream()
                                 .map(Well::getImages)

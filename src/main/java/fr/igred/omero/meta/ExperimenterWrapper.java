@@ -19,7 +19,6 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.AdminManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ExperimenterData;
@@ -251,7 +250,7 @@ public class ExperimenterWrapper extends ObjectWrapper<ExperimenterData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public boolean isAdmin(AdminManager admin)
+    public boolean isAdmin(BasicAdmin admin)
     throws ServiceException, AccessException, ExecutionException {
         return !call(admin.getAdminFacility(),
                      a -> a.getAdminPrivileges(admin.getCtx(), data),

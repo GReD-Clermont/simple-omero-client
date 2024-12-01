@@ -20,7 +20,7 @@ package fr.igred.omero.containers;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.core.Image;
@@ -154,7 +154,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Browser browser)
+    public List<Image> getImages(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ImageData> images = call(browser.getBrowseFacility(),
                                             bf -> bf.getImagesForDatasets(browser.getCtx(),
@@ -284,7 +284,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     bf -> bf.getDatasets(browser.getCtx(),

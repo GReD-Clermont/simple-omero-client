@@ -20,8 +20,8 @@ package fr.igred.omero.containers;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
-import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -77,7 +77,7 @@ public interface Folder extends RepositoryObject {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    default <A extends AnnotationData> void link(DataManager dm, A annotation)
+    default <A extends AnnotationData> void link(BasicDataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
@@ -154,7 +154,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addImages(DataManager dm, Image... images)
+    default void addImages(BasicDataManager dm, Image... images)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> links = new ArrayList<>(images.length);
         List<Long> linkedIds = getImages().stream()
@@ -194,7 +194,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Browser browser)
+    default List<Image> getImages(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         reload(browser);
         return getImages();
@@ -212,7 +212,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    default void addROIs(DataManager dm, long imageId, ROI... rois)
+    default void addROIs(BasicDataManager dm, long imageId, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = Arrays.stream(rois)
                                       .map(ROI::asDataObject)
@@ -239,7 +239,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
-    default void addROIs(DataManager dm, Image image, ROI... rois)
+    default void addROIs(BasicDataManager dm, Image image, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         addROIs(dm, image.getId(), rois);
     }
@@ -257,7 +257,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<ROI> getROIs(DataManager dm, long imageId)
+    List<ROI> getROIs(BasicDataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -273,7 +273,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<ROI> getROIs(DataManager dm, Image image)
+    default List<ROI> getROIs(BasicDataManager dm, Image image)
     throws ServiceException, AccessException, ExecutionException {
         return getROIs(dm, image.getId());
     }
@@ -290,7 +290,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void unlinkAllROIs(DataManager dm, long imageId)
+    default void unlinkAllROIs(BasicDataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException {
         unlinkROIs(dm, getROIs(dm, imageId));
     }
@@ -307,7 +307,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void unlinkAllROIs(DataManager dm, Image image)
+    default void unlinkAllROIs(BasicDataManager dm, Image image)
     throws ServiceException, AccessException, ExecutionException {
         unlinkAllROIs(dm, image.getId());
     }
@@ -324,7 +324,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void unlinkAllROIs(DataManager dm)
+    void unlinkAllROIs(BasicDataManager dm)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -339,7 +339,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void unlinkROIs(DataManager dm, ROI... rois)
+    default void unlinkROIs(BasicDataManager dm, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         unlinkROIs(dm, Arrays.asList(rois));
     }
@@ -356,7 +356,7 @@ public interface Folder extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void unlinkROIs(DataManager dm, Collection<? extends ROI> rois)
+    default void unlinkROIs(BasicDataManager dm, Collection<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException {
         List<ROIData> roiData = rois.stream()
                                     .map(ROI::asDataObject)

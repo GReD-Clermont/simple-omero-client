@@ -19,16 +19,19 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.containers.ContainersBrowser;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.Project;
 import fr.igred.omero.core.Image;
+import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.screen.Plate;
 import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.ScreenBrowser;
 import fr.igred.omero.screen.Well;
 import omero.gateway.model.AnnotationData;
 
@@ -102,7 +105,7 @@ public interface Annotation extends RemoteObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default int countAnnotationLinks(Browser browser)
+    default int countAnnotationLinks(BasicBrowser browser)
     throws ServiceException, AccessException {
         String q = "select link.parent from ome.model.IAnnotationLink link" +
                    " where link.child.id=" + getId();
@@ -121,7 +124,7 @@ public interface Annotation extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Project> getProjects(Browser browser)
+    List<Project> getProjects(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -136,7 +139,7 @@ public interface Annotation extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Dataset> getDatasets(Browser browser)
+    List<Dataset> getDatasets(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -151,7 +154,7 @@ public interface Annotation extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Browser browser)
+    List<Image> getImages(ImageBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -166,7 +169,7 @@ public interface Annotation extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Screen> getScreens(Browser browser)
+    List<Screen> getScreens(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -181,7 +184,7 @@ public interface Annotation extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Plate> getPlates(Browser browser)
+    List<Plate> getPlates(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -195,7 +198,7 @@ public interface Annotation extends RemoteObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    List<PlateAcquisition> getPlateAcquisitions(BasicBrowser browser)
     throws ServiceException, AccessException;
 
 
@@ -210,7 +213,7 @@ public interface Annotation extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Well> getWells(Browser browser)
+    List<Well> getWells(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -225,7 +228,7 @@ public interface Annotation extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Folder> getFolders(Browser browser)
+    List<Folder> getFolders(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 }

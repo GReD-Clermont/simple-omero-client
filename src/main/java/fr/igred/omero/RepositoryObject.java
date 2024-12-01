@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 
@@ -55,7 +55,7 @@ public interface RepositoryObject extends Annotatable {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void reload(Browser browser)
+    void reload(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 }

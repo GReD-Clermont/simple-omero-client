@@ -19,7 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -148,7 +148,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void loadPlanesInfo(Browser browser)
+    public void loadPlanesInfo(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<PlaneInfoData> planes = call(browser.getMetadataFacility(),
                                           m -> m.getPlaneInfos(browser.getCtx(),
@@ -159,7 +159,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
 
     /**
-     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(Browser) loaded} first).
+     * Retrieves the planes information (which need to be {@link #loadPlanesInfo(BasicBrowser) loaded} first).
      *
      * @return See above.
      */
@@ -226,7 +226,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Computes the mean time interval from the planes deltaTs.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -238,7 +238,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Computes the mean exposure time for a given channel from the planes exposureTime.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @param channel The channel index.
      *
@@ -252,7 +252,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Retrieves the X stage position, using the same unit as {@link #getPixelSizeX()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -276,7 +276,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Retrieves the Y stage position, using the same unit as {@link #getPixelSizeY()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */
@@ -300,7 +300,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
     /**
      * Retrieves the Z stage position, using the same unit as {@link #getPixelSizeZ()} if possible.
-     * <p>Planes information needs to be {@link #loadPlanesInfo(Browser) loaded} first.</p>
+     * <p>Planes information needs to be {@link #loadPlanesInfo(BasicBrowser) loaded} first.</p>
      *
      * @return See above.
      */

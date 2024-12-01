@@ -19,10 +19,11 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.RepositoryObject;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.containers.ContainersBrowser;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.Project;
@@ -32,6 +33,7 @@ import fr.igred.omero.roi.ROI;
 import fr.igred.omero.screen.Plate;
 import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.ScreenBrowser;
 import fr.igred.omero.screen.Well;
 import fr.igred.omero.screen.WellSample;
 import fr.igred.omero.util.Bounds;
@@ -135,7 +137,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Project> getProjects(Browser browser)
+    default List<Project> getProjects(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Dataset>       datasets = getDatasets(browser);
         Collection<Project> projects = new ArrayList<>(datasets.size());
@@ -157,7 +159,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Dataset> getDatasets(Browser browser)
+    default List<Dataset> getDatasets(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         String query = "select link.parent from DatasetImageLink as link" +
                        " where link.child=" + getId();
@@ -190,7 +192,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<WellSample> getWellSamples(Browser browser)
+    default List<WellSample> getWellSamples(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         reload(browser);
         List<WellSample> samples = getWellSamples();
@@ -212,7 +214,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Well> getWells(Browser browser)
+    default List<Well> getWells(ScreenBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         List<WellSample> wellSamples = getWellSamples(browser);
 
@@ -235,7 +237,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    default List<PlateAcquisition> getPlateAcquisitions(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         List<WellSample> wellSamples = getWellSamples(browser);
 
@@ -258,7 +260,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Plate> getPlates(Browser browser)
+    default List<Plate> getPlates(ScreenBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         return distinct(getWells(browser).stream()
                                          .map(Well::getPlate)
@@ -277,7 +279,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Screen> getScreens(Browser browser)
+    default List<Screen> getScreens(ScreenBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         List<Plate> plates = getPlates(browser);
 
@@ -299,7 +301,7 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default boolean isOrphaned(Browser browser)
+    default boolean isOrphaned(BasicBrowser browser)
     throws ServiceException, AccessException {
         String dsQuery = "select link.parent from DatasetImageLink link" +
                          " where link.child=" + getId();
@@ -322,7 +324,7 @@ public interface Image extends RepositoryObject {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getFilesetImages(Browser browser)
+    default List<Image> getFilesetImages(ImageBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         List<Image> related = new ArrayList<>(0);
         if (asDataObject().isFSImage()) {
@@ -355,7 +357,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<ROI> saveROIs(DataManager dm, Collection<? extends ROI> rois)
+    List<ROI> saveROIs(BasicDataManager dm, Collection<? extends ROI> rois)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -372,7 +374,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<ROI> saveROIs(DataManager dm, ROI... rois)
+    default List<ROI> saveROIs(BasicDataManager dm, ROI... rois)
     throws ServiceException, AccessException, ExecutionException {
         return saveROIs(dm, Arrays.asList(rois));
     }
@@ -389,7 +391,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<ROI> getROIs(DataManager dm)
+    List<ROI> getROIs(BasicDataManager dm)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -404,7 +406,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Folder> getROIFolders(DataManager dm)
+    List<Folder> getROIFolders(BasicDataManager dm)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -419,7 +421,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Folder> getFolders(Browser browser)
+    default List<Folder> getFolders(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         String template = "select link.parent from FolderImageLink as link" +
                           " where link.child.id=%d";
@@ -536,7 +538,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Channel> getChannels(Browser browser)
+    List<Channel> getChannels(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -552,7 +554,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default String getChannelName(Browser browser, int index)
+    default String getChannelName(BasicBrowser browser, int index)
     throws ServiceException, AccessException, ExecutionException {
         return getChannels(browser).get(index).getChannelLabeling();
     }
@@ -570,7 +572,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default Color getChannelImportedColor(Browser browser, int index)
+    default Color getChannelImportedColor(BasicBrowser browser, int index)
     throws ServiceException, AccessException, ExecutionException {
         return getChannels(browser).get(index).getColor();
     }
@@ -641,7 +643,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<String> getOriginalPaths(Browser browser)
+    List<String> getOriginalPaths(BasicBrowser browser)
     throws ExecutionException, AccessException, ServiceException;
 
 
@@ -656,7 +658,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<String> getManagedRepositoriesPaths(Browser browser)
+    List<String> getManagedRepositoriesPaths(BasicBrowser browser)
     throws ExecutionException, AccessException, ServiceException;
 
 

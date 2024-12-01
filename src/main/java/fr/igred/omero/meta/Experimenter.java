@@ -19,7 +19,6 @@ package fr.igred.omero.meta;
 
 
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.client.AdminManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ExperimenterData;
@@ -193,7 +192,7 @@ public interface Experimenter extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    boolean isAdmin(AdminManager admin)
+    boolean isAdmin(BasicAdmin admin)
     throws ServiceException, AccessException, ExecutionException;
 
 }

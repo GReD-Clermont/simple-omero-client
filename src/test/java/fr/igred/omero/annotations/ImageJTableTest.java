@@ -19,7 +19,7 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -64,7 +64,7 @@ class ImageJTableTest extends UserTest {
     protected Image image = new ImageWrapper(new ImageData());
 
 
-    private static List<ROI> createAndSaveROI(DataManager dm, Image image, String name)
+    private static List<ROI> createAndSaveROI(BasicDataManager dm, Image image, String name)
     throws AccessException, ServiceException, ExecutionException {
         ROI roi = new ROIWrapper();
         roi.setImage(image);

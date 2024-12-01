@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -132,7 +132,7 @@ public class WellSampleWrapper extends ObjectWrapper<WellSampleData> implements 
      * @throws AccessException  Cannot access data.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException {
         String query = "select ws from WellSample as ws" +
                        " left outer join fetch ws.plateAcquisition as pa" +

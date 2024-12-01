@@ -19,8 +19,8 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
@@ -100,7 +100,7 @@ public interface TagSet extends RemoteObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<TagAnnotation> getTags(Browser browser)
+    default List<TagAnnotation> getTags(BasicBrowser browser)
     throws AccessException, ServiceException {
         reload(browser);
         return getTags();
@@ -117,7 +117,7 @@ public interface TagSet extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void link(DataManager dm, TagAnnotation tag)
+    default void link(BasicDataManager dm, TagAnnotation tag)
     throws AccessException, ServiceException, ExecutionException {
         AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
         link.setParent(new TagAnnotationI(getId(), false));
@@ -136,7 +136,7 @@ public interface TagSet extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void link(DataManager dm, TagAnnotation... tags)
+    default void link(BasicDataManager dm, TagAnnotation... tags)
     throws AccessException, ServiceException, ExecutionException {
         for (TagAnnotation tag : tags) {
             link(dm, tag);
@@ -152,7 +152,7 @@ public interface TagSet extends RemoteObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    void reload(Browser browser)
+    void reload(BasicBrowser browser)
     throws ServiceException, AccessException;
 
 }

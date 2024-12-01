@@ -19,7 +19,7 @@ package fr.igred.omero.roi;
 
 
 import fr.igred.omero.Annotatable;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -299,7 +299,7 @@ public interface ROI extends Annotatable {
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void saveROI(DataManager dm)
+    void saveROI(BasicDataManager dm)
     throws AccessException, ServiceException, ExecutionException;
 
 
@@ -365,7 +365,7 @@ public interface ROI extends Annotatable {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    default <A extends AnnotationData> void link(DataManager dm, A annotation)
+    default <A extends AnnotationData> void link(BasicDataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         RoiAnnotationLink link = new RoiAnnotationLinkI();
         link.setChild(annotation.asAnnotation());

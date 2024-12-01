@@ -27,7 +27,6 @@ import fr.igred.omero.meta.GroupWrapper;
 import omero.ApiUsageException;
 import omero.api.IAdminPrx;
 import omero.gateway.SecurityContext;
-import omero.gateway.facility.AdminFacility;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.model.Experimenter;
@@ -45,35 +44,7 @@ import static fr.igred.omero.exception.ExceptionHandler.call;
 /**
  * Interface to handle admin functions on an OMERO server in a given {@link SecurityContext}.
  */
-public interface AdminManager {
-
-    /**
-     * Returns the current {@link SecurityContext}.
-     *
-     * @return See above
-     */
-    SecurityContext getCtx();
-
-
-    /**
-     * Gets the {@link AdminFacility} to use admin specific function.
-     *
-     * @return See above.
-     *
-     * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
-     */
-    AdminFacility getAdminFacility() throws ExecutionException;
-
-
-    /**
-     * Returns the {@link IAdminPrx} to use admin specific function.
-     *
-     * @return See above.
-     *
-     * @throws AccessException  Cannot access data.
-     * @throws ServiceException Cannot connect to OMERO.
-     */
-    IAdminPrx getAdminService() throws AccessException, ServiceException;
+public interface AdminManager extends fr.igred.omero.meta.BasicAdmin {
 
 
     /**

@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
@@ -53,7 +53,7 @@ public class TagAnnotationWrapper extends AnnotationWrapper<TagAnnotationData> i
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagAnnotationWrapper(DataManager dm, String name, String description)
+    public TagAnnotationWrapper(BasicDataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new TagAnnotationData(name, description));
         super.saveAndUpdate(dm);

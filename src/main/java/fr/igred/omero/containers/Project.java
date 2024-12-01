@@ -21,10 +21,11 @@ package fr.igred.omero.containers;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.annotations.TagAnnotation;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
+import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.ProjectData;
@@ -114,7 +115,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Dataset addDataset(DataManager dm, String name, String description)
+    Dataset addDataset(BasicDataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -130,7 +131,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default Dataset addDataset(DataManager dm, Dataset dataset)
+    default Dataset addDataset(BasicDataManager dm, Dataset dataset)
     throws ServiceException, AccessException, ExecutionException {
         dataset.saveAndUpdate(dm);
         ProjectDatasetLink link = new ProjectDatasetLinkI();
@@ -168,7 +169,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    List<Image> getImages(Browser browser)
+    List<Image> getImages(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -184,7 +185,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Browser browser, String name)
+    default List<Image> getImages(BasicBrowser browser, String name)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -209,7 +210,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImages(Browser browser, String datasetName, String imageName)
+    default List<Image> getImages(BasicBrowser browser, String datasetName, String imageName)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets(datasetName);
 
@@ -238,7 +239,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesLike(Browser browser, String motif)
+    default List<Image> getImagesLike(BasicBrowser browser, String motif)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -262,7 +263,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesTagged(Browser browser, TagAnnotation tag)
+    default List<Image> getImagesTagged(ImageBrowser browser, TagAnnotation tag)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -286,7 +287,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesTagged(Browser browser, Long tagId)
+    default List<Image> getImagesTagged(ImageBrowser browser, Long tagId)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -310,7 +311,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesWithKey(Browser browser, String key)
+    default List<Image> getImagesWithKey(BasicBrowser browser, String key)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 
@@ -335,7 +336,7 @@ public interface Project extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Image> getImagesWithKeyValuePair(Browser browser, String key, String value)
+    default List<Image> getImagesWithKeyValuePair(BasicBrowser browser, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         Collection<Dataset> datasets = getDatasets();
 

@@ -19,17 +19,20 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.ObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.containers.ContainersBrowser;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.Project;
 import fr.igred.omero.core.Image;
+import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.screen.Plate;
 import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.Screen;
+import fr.igred.omero.screen.ScreenBrowser;
 import fr.igred.omero.screen.Well;
 import omero.RLong;
 import omero.gateway.model.AnnotationData;
@@ -128,7 +131,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Project> getProjects(Browser browser)
+    public List<Project> getProjects(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(browser, Project.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -152,7 +155,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Dataset> getDatasets(Browser browser)
+    public List<Dataset> getDatasets(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(browser, Dataset.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -176,7 +179,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Browser browser)
+    public List<Image> getImages(ImageBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(browser, Image.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -200,7 +203,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Screen> getScreens(Browser browser)
+    public List<Screen> getScreens(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(browser, Screen.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -224,7 +227,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Plate> getPlates(Browser browser)
+    public List<Plate> getPlates(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(browser, Plate.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -247,7 +250,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws AccessException  Cannot access data.
      */
     @Override
-    public List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    public List<PlateAcquisition> getPlateAcquisitions(BasicBrowser browser)
     throws ServiceException, AccessException {
         List<IObject> os = getLinks(browser,
                                     PlateAcquisition.ANNOTATION_LINK);
@@ -271,7 +274,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Well> getWells(Browser browser)
+    public List<Well> getWells(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(browser, Well.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -295,7 +298,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Folder> getFolders(Browser browser)
+    public List<Folder> getFolders(ContainersBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<IObject> os = getLinks(browser, Folder.ANNOTATION_LINK);
         Long[] ids = os.stream()
@@ -318,7 +321,7 @@ public abstract class AnnotationWrapper<T extends AnnotationData> extends Object
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    private List<IObject> getLinks(Browser browser, String linkType)
+    private List<IObject> getLinks(BasicBrowser browser, String linkType)
     throws ServiceException, AccessException {
         return browser.findByQuery("select link.parent from " + linkType +
                                    " link where link.child = " + getId());

@@ -20,9 +20,9 @@ package fr.igred.omero.containers;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.ConnectionHandler;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -238,7 +238,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<ROI> getROIs(DataManager dm, long imageId)
+    public List<ROI> getROIs(BasicDataManager dm, long imageId)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ROIResult> roiResults = call(dm.getRoiFacility(),
                                                 rf -> rf.loadROIsForFolder(dm.getCtx(),
@@ -269,7 +269,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void unlinkAllROIs(DataManager dm)
+    public void unlinkAllROIs(BasicDataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ROI> rois = wrap(data.copyROILinks(), ROIWrapper::new);
         unlinkROIs(dm, rois.toArray(EMPTY_ROI_ARRAY));
@@ -286,7 +286,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     bf -> bf.loadFolders(browser.getCtx(),

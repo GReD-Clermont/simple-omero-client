@@ -19,7 +19,7 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -58,7 +58,7 @@ public interface WellSample extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Screen> getScreens(Browser browser)
+    default List<Screen> getScreens(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWell(browser).getScreens(browser);
     }
@@ -75,7 +75,7 @@ public interface WellSample extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Plate> getPlates(Browser browser)
+    default List<Plate> getPlates(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return Collections.singletonList(getWell(browser).getPlate());
     }
@@ -100,7 +100,7 @@ public interface WellSample extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<PlateAcquisition> getPlateAcquisitions(Browser browser)
+    default List<PlateAcquisition> getPlateAcquisitions(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getWell(browser).getPlateAcquisitions(browser);
     }
@@ -117,7 +117,7 @@ public interface WellSample extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default Well getWell(Browser browser)
+    default Well getWell(ScreenBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
         return browser.getWell(asDataObject().asWellSample().getWell().getId().getValue());
     }
@@ -179,7 +179,7 @@ public interface WellSample extends RemoteObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    void reload(Browser browser)
+    void reload(BasicBrowser browser)
     throws ServiceException, AccessException;
 
 }

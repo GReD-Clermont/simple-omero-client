@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
@@ -181,7 +181,7 @@ public abstract class ObjectWrapper<T extends DataObject> implements RemoteObjec
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void saveAndUpdate(DataManager dm)
+    public void saveAndUpdate(BasicDataManager dm)
     throws ExecutionException, ServiceException, AccessException {
         data = (T) call(dm.getDMFacility(),
                         d -> d.saveAndReturnObject(dm.getCtx(), data),

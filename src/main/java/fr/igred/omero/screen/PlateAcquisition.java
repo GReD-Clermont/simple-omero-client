@@ -19,8 +19,8 @@ package fr.igred.omero.screen;
 
 
 import fr.igred.omero.RepositoryObject;
-import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -83,7 +83,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    default <A extends AnnotationData> void link(DataManager dm, A annotation)
+    default <A extends AnnotationData> void link(BasicDataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
@@ -103,7 +103,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Screen> getScreens(Browser browser)
+    default List<Screen> getScreens(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         Plate plate = browser.getPlate(getRefPlateId());
         return plate.getScreens(browser);
@@ -121,7 +121,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Plate> getPlates(Browser browser)
+    default List<Plate> getPlates(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return browser.getPlates(getRefPlateId());
     }
@@ -138,7 +138,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<Well> getWells(Browser browser)
+    default List<Well> getWells(ScreenBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         return getPlates(browser).iterator().next().getWells(browser);
     }
@@ -162,7 +162,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<WellSample> getWellSamples(Browser browser)
+    default List<WellSample> getWellSamples(BasicBrowser browser)
     throws AccessException, ServiceException {
         reload(browser);
         return getWellSamples();
@@ -191,7 +191,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws ServiceException Cannot connect to OMERO.
      * @throws AccessException  Cannot access data.
      */
-    default List<Image> getImages(Browser browser)
+    default List<Image> getImages(BasicBrowser browser)
     throws ServiceException, AccessException {
         return getWellSamples(browser).stream()
                                       .map(WellSample::getImage)
@@ -256,7 +256,7 @@ public interface PlateAcquisition extends RepositoryObject {
      * @throws AccessException  Cannot access data.
      */
     @Override
-    void reload(Browser browser)
+    void reload(BasicBrowser browser)
     throws ServiceException, AccessException;
 
 }

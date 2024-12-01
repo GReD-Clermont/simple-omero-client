@@ -18,7 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.meta.Experimenter;
@@ -155,7 +155,7 @@ public interface RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void saveAndUpdate(DataManager dm)
+    void saveAndUpdate(BasicDataManager dm)
     throws ExecutionException, ServiceException, AccessException;
 
 

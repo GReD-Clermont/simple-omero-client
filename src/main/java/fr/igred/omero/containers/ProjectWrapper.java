@@ -19,9 +19,9 @@ package fr.igred.omero.containers;
 
 
 import fr.igred.omero.RepositoryObjectWrapper;
-import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.client.Client;
-import fr.igred.omero.client.DataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
@@ -66,7 +66,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public ProjectWrapper(DataManager dm, String name, String description)
+    public ProjectWrapper(BasicDataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         super(new ProjectData());
         data.setName(name);
@@ -158,7 +158,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public Dataset addDataset(DataManager dm, String name, String description)
+    public Dataset addDataset(BasicDataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         Dataset dataset = new DatasetWrapper(name, description);
         dataset.saveAndUpdate(dm);
@@ -197,7 +197,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public List<Image> getImages(Browser browser)
+    public List<Image> getImages(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         List<Long> projectIds = singletonList(getId());
         Collection<ImageData> images = call(browser.getBrowseFacility(),
@@ -218,7 +218,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException, ExecutionException {
         data = call(browser.getBrowseFacility(),
                     bf -> bf.getProjects(browser.getCtx(),

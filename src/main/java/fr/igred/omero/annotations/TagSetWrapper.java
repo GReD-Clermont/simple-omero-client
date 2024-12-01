@@ -18,8 +18,8 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.Browser;
-import fr.igred.omero.client.DataManager;
+import fr.igred.omero.client.BasicBrowser;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import omero.gateway.model.TagAnnotationData;
@@ -57,7 +57,7 @@ public class TagSetWrapper extends TagAnnotationWrapper implements TagSet {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TagSetWrapper(DataManager dm, String name, String description)
+    public TagSetWrapper(BasicDataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         this(new TagAnnotationData(name, description));
         super.saveAndUpdate(dm);
@@ -84,7 +84,7 @@ public class TagSetWrapper extends TagAnnotationWrapper implements TagSet {
      * @throws AccessException  Cannot access data.
      */
     @Override
-    public void reload(Browser browser)
+    public void reload(BasicBrowser browser)
     throws ServiceException, AccessException {
         String query = "select t from TagAnnotation as t" +
                        " left outer join fetch t.annotationLinks as l" +
