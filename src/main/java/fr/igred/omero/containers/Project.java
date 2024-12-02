@@ -147,6 +147,7 @@ public interface Project extends RepositoryObject {
      *
      * @param client  The client handling the connection.
      * @param dataset Dataset to remove.
+     * @param <C>     The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.

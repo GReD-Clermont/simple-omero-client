@@ -171,6 +171,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      *
      * @param client The client handling the connection.
      * @param image  Image to remove.
+     * @param <C>    The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -231,6 +232,7 @@ public class DatasetWrapper extends RepositoryObjectWrapper<DatasetData> impleme
      * @param client The client handling the connection.
      * @param path   Path to the image on the computer.
      * @param policy Whether older images should be unlinked, deleted or deleted only if they become orphaned.
+     * @param <C>    The type of the client.
      *
      * @return The list of IDs of the newly imported images.
      *

@@ -386,6 +386,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
      * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
      * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
+     * @param <C>     The type of the client.
      *
      * @return an ImagePlus from the ij library.
      *

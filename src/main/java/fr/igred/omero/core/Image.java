@@ -446,6 +446,7 @@ public interface Image extends RepositoryObject {
      * the ij library to use this function
      *
      * @param client The client handling the connection.
+     * @param <C>    The type of the client.
      *
      * @return ImagePlus generated from the current image.
      *
@@ -469,6 +470,7 @@ public interface Image extends RepositoryObject {
      * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
      * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
      * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
+     * @param <C>     The type of the client.
      *
      * @return an ImagePlus from the ij library.
      *
@@ -491,6 +493,7 @@ public interface Image extends RepositoryObject {
      *
      * @param client The client handling the connection.
      * @param roi    The ROI.
+     * @param <C>    The type of the client.
      *
      * @return an ImagePlus from the ij library.
      *
@@ -510,6 +513,7 @@ public interface Image extends RepositoryObject {
      *
      * @param client The client handling the connection.
      * @param bounds The bounds.
+     * @param <C>    The type of the client.
      *
      * @return an ImagePlus from the ij library.
      *
@@ -586,6 +590,7 @@ public interface Image extends RepositoryObject {
      *
      * @param client The client handling the connection.
      * @param index  Channel number.
+     * @param <C>    The type of the client.
      *
      * @return Color of the channel.
      *

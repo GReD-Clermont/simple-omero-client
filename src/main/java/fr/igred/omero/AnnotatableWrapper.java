@@ -246,6 +246,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      *
      * @param client The client handling the connection.
      * @param rating The rating.
+     * @param <C>    The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -305,6 +306,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @param client The client handling the connection.
      * @param table  Table to add to the object.
      * @param policy Whether older tables should be unlinked, deleted or deleted only if they become orphaned.
+     * @param <C>    The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -377,6 +379,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @param client The client handling the connection.
      * @param file   File to add.
      * @param policy Whether older files should be unlinked, deleted or deleted only if they become orphaned.
+     * @param <C>    The type of the client.
      *
      * @return ID of the file created in OMERO.
      *
@@ -495,6 +498,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @param client   The client handling the connection.
      * @param linkType The link type.
      * @param childIds List of link child IDs.
+     * @param <C>      The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -523,6 +527,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @param client   The client handling the connection.
      * @param linkType The link type.
      * @param childId  Link child ID.
+     * @param <C>      The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.

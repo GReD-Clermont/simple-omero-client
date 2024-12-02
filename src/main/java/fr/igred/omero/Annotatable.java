@@ -139,6 +139,7 @@ public interface Annotatable extends RemoteObject {
      *
      * @param client      The client handling the connection.
      * @param annotations Annotations to add.
+     * @param <C>         The type of the client.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
@@ -296,7 +297,7 @@ public interface Annotatable extends RemoteObject {
      * Returns all the ratings from the specified user IDs for this object.
      *
      * @param browser The data browser.
-     * @param userIds List of user IDs (can be null, i. e. all users).
+     * @param userIds List of user IDs (can be null, i.e. all users).
      *
      * @return See above.
      *
@@ -331,6 +332,7 @@ public interface Annotatable extends RemoteObject {
      *
      * @param client The client handling the connection.
      * @param rating The rating.
+     * @param <C>    The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -400,6 +402,7 @@ public interface Annotatable extends RemoteObject {
      * @param client The client handling the connection.
      * @param table  Table to add to the object.
      * @param policy Whether older tables should be unlinked, deleted or deleted only if they become orphaned.
+     * @param <C>    The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -417,6 +420,7 @@ public interface Annotatable extends RemoteObject {
      *
      * @param client The client handling the connection.
      * @param table  Table to add to the object.
+     * @param <C>    The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -501,6 +505,7 @@ public interface Annotatable extends RemoteObject {
      * @param client The client handling the connection.
      * @param file   File to add.
      * @param policy Whether older files should be unlinked, deleted or deleted only if they become orphaned.
+     * @param <C>    The type of the client.
      *
      * @return ID of the file created in OMERO.
      *
@@ -520,6 +525,7 @@ public interface Annotatable extends RemoteObject {
      *
      * @param client The client handling the connection.
      * @param file   File to add.
+     * @param <C>    The type of the client.
      *
      * @return ID of the file created in OMERO.
      *
@@ -556,6 +562,7 @@ public interface Annotatable extends RemoteObject {
      * @param client     The client handling the connection.
      * @param annotation An annotation.
      * @param <A>        The type of the annotation.
+     * @param <C>        The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -573,6 +580,7 @@ public interface Annotatable extends RemoteObject {
      * @param client      The client handling the connection.
      * @param annotations List of annotations
      * @param <A>         The type of the annotation.
+     * @param <C>         The type of the client.
      *
      * @throws ServiceException     Cannot connect to OMERO.
      * @throws AccessException      Cannot access data.
@@ -623,6 +631,7 @@ public interface Annotatable extends RemoteObject {
      *
      * @param client The client handling the connection.
      * @param object Other annotated object to copy annotations from.
+     * @param <C>    The type of the client.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
