@@ -18,8 +18,9 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.core.Image;
+import fr.igred.omero.core.ImageBrowser;
 import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
@@ -133,12 +134,14 @@ public class TableWrapper {
      * @param results An ImageJ results table.
      * @param imageId An image ID.
      * @param ijRois  A list of ImageJ Rois.
+     * @param <C>     The type of the client.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
+    public <C extends BasicDataManager & ImageBrowser>
+    TableWrapper(C client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
     }
@@ -153,13 +156,14 @@ public class TableWrapper {
      * @param ijRois      A list of ImageJ Rois.
      * @param roiProperty The Roi property storing the local index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY} if
      *                    null or empty.
+     * @param <C>         The type of the client.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableWrapper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
-                        String roiProperty)
+    public <C extends BasicDataManager & ImageBrowser>
+    TableWrapper(C client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois, String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROI.checkProperty(roiProperty);
 
@@ -575,12 +579,14 @@ public class TableWrapper {
      * @param results An ImageJ results table.
      * @param imageId An image ID.
      * @param ijRois  A list of ImageJ Rois.
+     * @param <C>     The type of the client.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
+    public <C extends BasicDataManager & ImageBrowser>
+    void addRows(C client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this.addRows(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
     }
@@ -595,13 +601,14 @@ public class TableWrapper {
      * @param ijRois      A list of ImageJ Rois.
      * @param roiProperty The Roi property storing the local ROI index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY}
      *                    if null or empty.
+     * @param <C>         The type of the client.
      *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
-                        String roiProperty)
+    public <C extends BasicDataManager & ImageBrowser>
+    void addRows(C client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois, String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROI.checkProperty(roiProperty);
 
