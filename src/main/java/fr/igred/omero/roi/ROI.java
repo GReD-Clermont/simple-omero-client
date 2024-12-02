@@ -20,11 +20,11 @@ package fr.igred.omero.roi;
 
 import fr.igred.omero.Annotatable;
 import fr.igred.omero.client.BasicDataManager;
+import fr.igred.omero.core.Bounds;
+import fr.igred.omero.core.Coordinates;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.util.Bounds;
-import fr.igred.omero.util.Coordinates;
 import ij.IJ;
 import ij.gui.Roi;
 import omero.gateway.model.AnnotationData;

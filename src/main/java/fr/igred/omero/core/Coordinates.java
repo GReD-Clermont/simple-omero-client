@@ -15,7 +15,7 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.util;
+package fr.igred.omero.core;
 
 
 /** Class containing 5D pixel coordinates */

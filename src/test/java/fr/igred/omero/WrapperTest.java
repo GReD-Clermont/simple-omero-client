@@ -15,11 +15,9 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.util;
+package fr.igred.omero;
 
 
-import fr.igred.omero.BasicTest;
-import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
@@ -90,7 +88,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static fr.igred.omero.util.Wrapper.wrap;
+import static fr.igred.omero.Wrapper.wrap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Named.named;
@@ -193,6 +192,12 @@ class WrapperTest extends BasicTest {
     void testWrapWrongAnnotationData() {
         AnnotationData object = new WrongAnnotationData();
         assertThrows(IllegalArgumentException.class, () -> wrap(object));
+    }
+
+
+    @Test
+    void testToString() {
+        assertEquals("Wrapper{IMAGE}", Wrapper.IMAGE.toString());
     }
 
 

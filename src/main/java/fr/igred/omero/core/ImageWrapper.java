@@ -31,8 +31,6 @@ import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.screen.WellSample;
 import fr.igred.omero.screen.WellSampleWrapper;
-import fr.igred.omero.util.Bounds;
-import fr.igred.omero.util.Coordinates;
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;

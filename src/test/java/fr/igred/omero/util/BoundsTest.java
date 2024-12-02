@@ -2,6 +2,8 @@ package fr.igred.omero.util;
 
 
 import fr.igred.omero.BasicTest;
+import fr.igred.omero.core.Bounds;
+import fr.igred.omero.core.Coordinates;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

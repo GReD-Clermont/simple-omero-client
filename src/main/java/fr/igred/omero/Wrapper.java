@@ -15,10 +15,9 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package fr.igred.omero.util;
+package fr.igred.omero;
 
 
-import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
@@ -49,37 +48,7 @@ import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.WellSampleWrapper;
 import fr.igred.omero.screen.WellWrapper;
-import omero.gateway.model.AnnotationData;
-import omero.gateway.model.ChannelData;
-import omero.gateway.model.DataObject;
-import omero.gateway.model.DatasetData;
-import omero.gateway.model.EllipseData;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.FolderData;
-import omero.gateway.model.GroupData;
-import omero.gateway.model.ImageData;
-import omero.gateway.model.LineData;
-import omero.gateway.model.MapAnnotationData;
-import omero.gateway.model.MaskData;
-import omero.gateway.model.PixelsData;
-import omero.gateway.model.PlaneInfoData;
-import omero.gateway.model.PlateAcquisitionData;
-import omero.gateway.model.PlateData;
-import omero.gateway.model.PointData;
-import omero.gateway.model.PolygonData;
-import omero.gateway.model.PolylineData;
-import omero.gateway.model.ProjectData;
-import omero.gateway.model.ROIData;
-import omero.gateway.model.RatingAnnotationData;
-import omero.gateway.model.RectangleData;
-import omero.gateway.model.ScreenData;
-import omero.gateway.model.ShapeData;
-import omero.gateway.model.TagAnnotationData;
-import omero.gateway.model.TextData;
-import omero.gateway.model.TextualAnnotationData;
-import omero.gateway.model.WellData;
-import omero.gateway.model.WellSampleData;
+import omero.gateway.model.*;
 
 import java.util.function.Function;
 
@@ -215,6 +184,12 @@ public enum Wrapper {
     public static <T extends DataObject, U extends RemoteObject> U wrap(T object) {
         Converter<T, U> converter = getConverter(object);
         return converter.convert(object);
+    }
+
+
+    @Override
+    public String toString() {
+        return format("Wrapper{%s}", name());
     }
 
 

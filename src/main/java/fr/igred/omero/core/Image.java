@@ -35,7 +35,6 @@ import fr.igred.omero.screen.Screen;
 import fr.igred.omero.screen.ScreenBrowser;
 import fr.igred.omero.screen.Well;
 import fr.igred.omero.screen.WellSample;
-import fr.igred.omero.util.Bounds;
 import ij.ImagePlus;
 import omero.RLong;
 import omero.ServerError;
