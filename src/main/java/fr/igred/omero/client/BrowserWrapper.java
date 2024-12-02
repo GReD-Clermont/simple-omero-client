@@ -21,6 +21,7 @@ package fr.igred.omero.client;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
+import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.DatasetWrapper;
@@ -50,7 +51,6 @@ import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.WellData;
 import omero.model.IObject;
-import omero.model.TagAnnotation;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -558,14 +558,14 @@ public abstract class BrowserWrapper implements Browser {
      * @throws ServiceException Cannot connect to OMERO.
      */
     @Override
-    public List<fr.igred.omero.annotations.TagAnnotation> getTags()
+    public List<TagAnnotation> getTags()
     throws AccessException, ServiceException {
-        String klass = TagAnnotation.class.getSimpleName();
+        String klass = omero.model.TagAnnotation.class.getSimpleName();
         List<IObject> os = call(getQueryService(),
                                 qs -> qs.findAll(klass, null),
                                 "Cannot get tags");
         return os.stream()
-                 .map(TagAnnotation.class::cast)
+                 .map(omero.model.TagAnnotation.class::cast)
                  .map(TagAnnotationData::new)
                  .map(TagAnnotationWrapper::new)
                  .sorted(Comparator.comparing(RemoteObject::getId))
@@ -585,7 +585,7 @@ public abstract class BrowserWrapper implements Browser {
      * @throws NoSuchElementException No element with this ID.
      */
     @Override
-    public TagAnnotationWrapper getTag(Long id)
+    public TagAnnotation getTag(Long id)
     throws AccessException, ServiceException {
         IObject o = call(getQueryService(),
                          qs -> qs.find(TagAnnotation.class.getSimpleName(), id),
@@ -595,7 +595,7 @@ public abstract class BrowserWrapper implements Browser {
             String msg = format("Tag %d doesn't exist in this context", id);
             throw new NoSuchElementException(msg);
         } else {
-            tag = new TagAnnotationData((TagAnnotation) requireNonNull(o));
+            tag = new TagAnnotationData((omero.model.TagAnnotation) requireNonNull(o));
         }
         return new TagAnnotationWrapper(tag);
     }

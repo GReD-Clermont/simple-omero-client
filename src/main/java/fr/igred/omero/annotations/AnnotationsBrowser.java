@@ -56,7 +56,7 @@ public interface AnnotationsBrowser extends BasicBrowser {
      * @throws ServiceException       Cannot connect to OMERO.
      * @throws NoSuchElementException No element with this ID.
      */
-    TagAnnotationWrapper getTag(Long id)
+    TagAnnotation getTag(Long id)
     throws AccessException, ServiceException;
 
 
