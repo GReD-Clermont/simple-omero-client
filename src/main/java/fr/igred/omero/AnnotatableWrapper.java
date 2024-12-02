@@ -19,6 +19,7 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.Annotation;
+import fr.igred.omero.annotations.AnnotationsWrapper;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -552,7 +553,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
     @Override
     public List<Annotation> getAnnotations(BasicBrowser browser)
     throws AccessException, ServiceException, ExecutionException {
-        return wrap(getAnnotationData(browser), Wrapper::wrap);
+        return wrap(getAnnotationData(browser), AnnotationsWrapper::wrap);
     }
 
 }

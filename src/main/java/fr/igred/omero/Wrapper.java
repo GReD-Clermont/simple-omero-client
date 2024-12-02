@@ -18,12 +18,7 @@
 package fr.igred.omero;
 
 
-import fr.igred.omero.annotations.Annotation;
-import fr.igred.omero.annotations.FileAnnotationWrapper;
-import fr.igred.omero.annotations.MapAnnotationWrapper;
-import fr.igred.omero.annotations.RatingAnnotationWrapper;
-import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.annotations.TextualAnnotationWrapper;
+import fr.igred.omero.annotations.AnnotationsWrapper;
 import fr.igred.omero.containers.DatasetWrapper;
 import fr.igred.omero.containers.FolderWrapper;
 import fr.igred.omero.containers.ProjectWrapper;
@@ -33,22 +28,31 @@ import fr.igred.omero.core.PixelsWrapper;
 import fr.igred.omero.core.PlaneInfoWrapper;
 import fr.igred.omero.meta.ExperimenterWrapper;
 import fr.igred.omero.meta.GroupWrapper;
-import fr.igred.omero.roi.EllipseWrapper;
-import fr.igred.omero.roi.LineWrapper;
-import fr.igred.omero.roi.MaskWrapper;
-import fr.igred.omero.roi.PointWrapper;
-import fr.igred.omero.roi.PolygonWrapper;
-import fr.igred.omero.roi.PolylineWrapper;
 import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.roi.RectangleWrapper;
-import fr.igred.omero.roi.Shape;
-import fr.igred.omero.roi.TextWrapper;
+import fr.igred.omero.roi.ShapesWrapper;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.WellSampleWrapper;
 import fr.igred.omero.screen.WellWrapper;
-import omero.gateway.model.*;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlaneInfoData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 import java.util.function.Function;
 
@@ -59,72 +63,84 @@ import static java.lang.String.format;
  * Utility class to convert DataObjects dynamically.
  */
 public enum Wrapper {
-    /** Containers */
+    /**
+     * Shapes
+     */
+    SHAPE(ShapeData.class, ShapesWrapper::wrap),
+    /**
+     * Annotations
+     */
+    ANNOTATION(AnnotationData.class, AnnotationsWrapper::wrap),
+    /**
+     * Containers
+     */
     FOLDER(FolderData.class, FolderWrapper::new),
     PROJECT(ProjectData.class, ProjectWrapper::new),
     DATASET(DatasetData.class, DatasetWrapper::new),
-    /** Screen */
+    /**
+     * Screen
+     */
     SCREEN(ScreenData.class, ScreenWrapper::new),
     PLATE(PlateData.class, PlateWrapper::new),
     PLATEACQUISITION(PlateAcquisitionData.class, PlateAcquisitionWrapper::new),
     WELLSAMPLE(WellSampleData.class, WellSampleWrapper::new),
     WELL(WellData.class, WellWrapper::new),
-    /** Core */
+    /**
+     * Core
+     */
     IMAGE(ImageData.class, ImageWrapper::new),
     PIXELS(PixelsData.class, PixelsWrapper::new),
     PLANEINFO(PlaneInfoData.class, PlaneInfoWrapper::new),
     CHANNEL(ChannelData.class, ChannelWrapper::new),
-    /** ROI */
+    /**
+     * ROI
+     */
     ROI(ROIData.class, ROIWrapper::new),
-    /** Shapes */
-    RECTANGLE(RectangleData.class, RectangleWrapper::new),
-    POLYGON(PolygonData.class, PolygonWrapper::new),
-    POLYLINE(PolylineData.class, PolylineWrapper::new),
-    ELLIPSE(EllipseData.class, EllipseWrapper::new),
-    POINT(PointData.class, PointWrapper::new),
-    LINE(LineData.class, LineWrapper::new),
-    TEXT(TextData.class, TextWrapper::new),
-    MASK(MaskData.class, MaskWrapper::new),
-    /** Annotations */
-    FILEANNOTATION(FileAnnotationData.class, FileAnnotationWrapper::new),
-    MAPANNOTATION(MapAnnotationData.class, MapAnnotationWrapper::new),
-    TAGANNOTATION(TagAnnotationData.class, TagAnnotationWrapper::new),
-    RATINGANNOTATION(RatingAnnotationData.class, RatingAnnotationWrapper::new),
-    TEXTUALANNOTATION(TextualAnnotationData.class, TextualAnnotationWrapper::new),
-    /** Meta */
+    /**
+     * Meta
+     */
     EXPERIMENTER(ExperimenterData.class, ExperimenterWrapper::new),
     GROUP(GroupData.class, GroupWrapper::new);
 
-    /** Error message for unknown type. */
+    /**
+     * Error message for unknown type.
+     */
     private static final String UNKNOWN_TYPE = "Unknown type: %s";
 
-    /** The converter to convert the DataObject to a RemoteObject. */
+    /**
+     * The converter to convert the DataObject to a RemoteObject.
+     */
     private final Converter<? extends DataObject, ? extends RemoteObject> converter;
 
 
-    /** Constructor of the Wrappers enum. */
-    <T extends DataObject, U extends RemoteObject> Wrapper(Class<T> klazz, Function<T, U> mapper) {
+    /**
+     * Constructor of the Wrappers enum.
+     */
+    <T extends DataObject, U extends ObjectWrapper<? extends T>>
+    Wrapper(Class<T> klazz, Function<T, U> mapper) {
         converter = new Converter<>(klazz, mapper);
     }
-
 
     /**
      * Returns the Wrapper enum from a given class.
      *
-     * @param klazz The class to get the Wrapper enum from.
+     * @param object The object to convert.
      *
      * @return See above.
      */
-    private static Wrapper fromClass(Class<? extends DataObject> klazz) {
+    private static Wrapper fromObject(DataObject object) {
         for (Wrapper c : values()) {
-            if (c.converter.getKlazz().equals(klazz)) {
+            if (c.isWrapperFor(object)) {
                 return c;
             }
         }
-        String msg = format(UNKNOWN_TYPE, klazz.getName());
-        throw new IllegalArgumentException(msg);
+        if (object == null) {
+            throw new IllegalArgumentException("Object is null");
+        } else {
+            String msg = format(UNKNOWN_TYPE, object.getClass().getName());
+            throw new IllegalArgumentException(msg);
+        }
     }
-
 
     /**
      * Returns the converter to convert the DataObject to a RemoteObject.
@@ -135,42 +151,12 @@ public enum Wrapper {
      *
      * @return See above.
      */
-    private static <T extends DataObject, U extends RemoteObject>
+    private static <T extends DataObject, U extends ObjectWrapper<T>>
     Converter<T, U> getConverter(T object) {
-        Wrapper c = fromClass(object.getClass());
+        Wrapper c = fromObject(object);
         //noinspection unchecked
         return (Converter<T, U>) c.converter;
     }
-
-
-    /**
-     * Converts (wraps) a ShapeData object to a Shape object.
-     *
-     * @param object The object to convert.
-     * @param <T>    The ShapeData type.
-     * @param <U>    The Shape type.
-     *
-     * @return See above.
-     */
-    public static <T extends ShapeData, U extends Shape> U wrap(T object) {
-        Converter<T, U> converter = getConverter(object);
-        return converter.convert(object);
-    }
-
-
-    /**
-     * Converts (wraps) an AnnotationData object to an Annotation object.
-     *
-     * @param object The object to convert.
-     * @param <T>    The AnnotationData type.
-     *
-     * @return See above.
-     */
-    public static <T extends AnnotationData> Annotation wrap(T object) {
-        Converter<T, Annotation> converter = getConverter(object);
-        return converter.convert(object);
-    }
-
 
     /**
      * Converts (wraps) a DataObject to a ObjectWrapper.
@@ -181,17 +167,26 @@ public enum Wrapper {
      *
      * @return See above.
      */
-    public static <T extends DataObject, U extends RemoteObject> U wrap(T object) {
+    public static <T extends DataObject, U extends ObjectWrapper<T>> U wrap(T object) {
         Converter<T, U> converter = getConverter(object);
         return converter.convert(object);
     }
 
+    /**
+     * Returns whether the provided object can be wrapped by the current wrapper.
+     *
+     * @param target The object to compare.
+     *
+     * @return See above.
+     */
+    boolean isWrapperFor(DataObject target) {
+        return converter.canConvert(target);
+    }
 
     @Override
     public String toString() {
         return format("Wrapper{%s}", name());
     }
-
 
     /**
      * Converter class to convert DataObjects to RemoteObjects.
@@ -201,12 +196,15 @@ public enum Wrapper {
      */
     private static class Converter<T extends DataObject, U extends RemoteObject> {
 
-        /** The class of the DataObject. */
+        /**
+         * The class of the DataObject.
+         */
         private final Class<T> klazz;
 
-        /** The function to convert the DataObject to a RemoteObject. */
+        /**
+         * The function to convert the DataObject to a RemoteObject.
+         */
         private final Function<? super T, ? extends U> mapper;
-
 
         /**
          * Constructor of the Converter class.
@@ -219,7 +217,6 @@ public enum Wrapper {
             this.klazz  = klazz;
         }
 
-
         /**
          * Converts the DataObject to a RemoteObject.
          *
@@ -231,14 +228,15 @@ public enum Wrapper {
             return mapper.apply(object);
         }
 
-
         /**
-         * Returns the class of the DataObject.
+         * Returns whether the provided object can be converted.
+         *
+         * @param target The object to compare.
          *
          * @return See above.
          */
-        Class<T> getKlazz() {
-            return klazz;
+        boolean canConvert(DataObject target) {
+            return this.klazz.isInstance(target);
         }
 
     }

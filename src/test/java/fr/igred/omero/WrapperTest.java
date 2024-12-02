@@ -18,6 +18,7 @@
 package fr.igred.omero;
 
 
+import fr.igred.omero.annotations.AnnotationsWrapper;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
@@ -40,6 +41,7 @@ import fr.igred.omero.roi.PolygonWrapper;
 import fr.igred.omero.roi.PolylineWrapper;
 import fr.igred.omero.roi.ROIWrapper;
 import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.ShapesWrapper;
 import fr.igred.omero.roi.TextWrapper;
 import fr.igred.omero.screen.PlateAcquisitionWrapper;
 import fr.igred.omero.screen.PlateWrapper;
@@ -106,14 +108,17 @@ class WrapperTest extends BasicTest {
                 //arguments(named("FileAnnotationData", FileAnnotationData.class, FileAnnotationWrapper.class),
                 //arguments(named("TagAnnotationData", TagAnnotationData.class, TagAnnotationWrapper.class),
                 //arguments(named("TextualAnnotationData", TextualAnnotationData.class), TextualAnnotationWrapper.class),
-                arguments(named("RatingAnnotationData", RatingAnnotationData.class), RatingAnnotationWrapper.class),
-                arguments(named("MapAnnotationData", MapAnnotationData.class), MapAnnotationWrapper.class),
+                arguments(named("RatingAnnotationData", RatingAnnotationData.class),
+                          RatingAnnotationWrapper.class),
+                arguments(named("MapAnnotationData", MapAnnotationData.class),
+                          MapAnnotationWrapper.class),
                 arguments(named("ProjectData", ProjectData.class), ProjectWrapper.class),
                 arguments(named("DatasetData", DatasetData.class), DatasetWrapper.class),
                 arguments(named("ImageData", ImageData.class), ImageWrapper.class),
                 arguments(named("ScreenData", ScreenData.class), ScreenWrapper.class),
                 arguments(named("PlateData", PlateData.class), PlateWrapper.class),
-                arguments(named("PlateAcquisitionData", PlateAcquisitionData.class), PlateAcquisitionWrapper.class),
+                arguments(named("PlateAcquisitionData", PlateAcquisitionData.class),
+                          PlateAcquisitionWrapper.class),
                 arguments(named("WellData", WellData.class), WellWrapper.class),
                 arguments(named("FolderData", FolderData.class), FolderWrapper.class),
                 arguments(named("RectangleData", RectangleData.class), RectangleWrapper.class),
@@ -128,7 +133,8 @@ class WrapperTest extends BasicTest {
                 arguments(named("ROIData", ROIData.class), ROIWrapper.class),
                 arguments(named("PlaneInfoData", PlaneInfoData.class), PlaneInfoWrapper.class),
                 arguments(named("WellSampleData", WellSampleData.class), WellSampleWrapper.class),
-                arguments(named("ExperimenterData", ExperimenterData.class), ExperimenterWrapper.class),
+                arguments(named("ExperimenterData", ExperimenterData.class),
+                          ExperimenterWrapper.class),
                 arguments(named("GroupData", GroupData.class), GroupWrapper.class)
         );
     }
@@ -136,7 +142,8 @@ class WrapperTest extends BasicTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("classes")
-    <T extends DataObject, U extends ObjectWrapper<? extends T>> void testWrap(Class<T> input, Class<U> output)
+    <T extends DataObject, U extends ObjectWrapper<T>> void testWrap(Class<T> input,
+                                                                     Class<U> output)
     throws Exception {
         T object = input.getConstructor().newInstance();
         U result = wrap(object);
@@ -175,6 +182,12 @@ class WrapperTest extends BasicTest {
 
 
     @Test
+    void testWrapNull() {
+        assertThrows(IllegalArgumentException.class, () -> wrap(null));
+    }
+
+
+    @Test
     void testWrapWrongDataObject() {
         DataObject object = new WrongDataObject();
         assertThrows(IllegalArgumentException.class, () -> wrap(object));
@@ -196,8 +209,21 @@ class WrapperTest extends BasicTest {
 
 
     @Test
-    void testToString() {
+    void testToString1() {
         assertEquals("Wrapper{IMAGE}", Wrapper.IMAGE.toString());
+    }
+
+
+    @Test
+    void testToString2() {
+        assertEquals("ShapesWrapper{RECTANGLE}", ShapesWrapper.RECTANGLE.toString());
+    }
+
+
+    @Test
+    void testToString3() {
+        assertEquals("AnnotationsWrapper{TAGANNOTATION}",
+                     AnnotationsWrapper.TAGANNOTATION.toString());
     }
 
 

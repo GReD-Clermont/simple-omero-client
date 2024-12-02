@@ -23,7 +23,6 @@ import fr.igred.omero.client.BasicDataManager;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
-import fr.igred.omero.Wrapper;
 import ij.gui.PointRoi;
 import ij.gui.ShapeRoi;
 import omero.RString;
@@ -223,7 +222,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
      */
     @Override
     public List<Shape> getShapes() {
-        return wrap(data.getShapes(), Wrapper::wrap);
+        return wrap(data.getShapes(), ShapesWrapper::wrap);
     }
 
 
