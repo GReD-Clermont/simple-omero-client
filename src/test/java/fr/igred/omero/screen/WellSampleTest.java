@@ -100,7 +100,7 @@ class WellSampleTest extends UserTest {
         WellWrapper well = client.getWells(1L).get(0);
 
         WellSampleWrapper sample = well.getWellSamples().get(0);
-        assertEquals(0.0, sample.getPositionX(null).getValue(), Double.MIN_VALUE);
+        assertEquals(0.0, sample.getPositionX(null).getValue(), DOUBLE_PRECISION);
     }
 
 
@@ -109,7 +109,7 @@ class WellSampleTest extends UserTest {
         WellWrapper well = client.getWells(1L).get(0);
 
         WellSampleWrapper sample = well.getWellSamples().get(0);
-        assertEquals(1.0, sample.getPositionY(null).getValue(), Double.MIN_VALUE);
+        assertEquals(1.0, sample.getPositionY(null).getValue(), DOUBLE_PRECISION);
     }
 
 

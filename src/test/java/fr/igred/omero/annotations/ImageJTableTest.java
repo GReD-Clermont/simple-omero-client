@@ -168,7 +168,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(roiId, ((DataObject) data[1][0]).getId());
         assertEquals(label, data[2][0]);
-        assertEquals(VOLUME1, (Double) data[3][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[3][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[4][0]);
         assertEquals(label, data[5][0]);
         assertNotNull(fileId);
@@ -202,7 +202,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(roiId, ((DataObject) data[1][0]).getId());
         assertEquals(label, data[2][0]);
-        assertEquals(VOLUME1, (Double) data[3][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[3][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[4][0]);
         assertEquals(label, data[5][0]);
         assertEquals(label, data[6][0]);
@@ -234,7 +234,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(roiId, ((DataObject) data[1][0]).getId());
         assertEquals(label, data[2][0]);
-        assertEquals(VOLUME1, (Double) data[3][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[3][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[4][0]);
         assertNotNull(fileId);
     }
@@ -263,7 +263,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(1, rowCount);
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(roiId, ((DataObject) data[1][0]).getId());
-        assertEquals(VOLUME1, (Double) data[2][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[2][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[3][0]);
         assertEquals(label, data[4][0]);
         assertNotNull(fileId);
@@ -291,7 +291,7 @@ class ImageJTableTest extends UserTest {
 
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(label, data[1][0]);
-        assertEquals(VOLUME1, (Double) data[2][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[2][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[3][0]);
         assertEquals(0, noTables.size());
     }
@@ -321,11 +321,11 @@ class ImageJTableTest extends UserTest {
 
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(label, data[1][0]);
-        assertEquals(VOLUME1, (Double) data[2][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[2][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[3][0]);
         assertEquals(IMAGE_ID, ((DataObject) data[0][1]).getId());
         assertEquals(label, data[1][1]);
-        assertEquals(VOLUME2, (Double) data[2][1], Double.MIN_VALUE);
+        assertEquals(VOLUME2, (Double) data[2][1], DOUBLE_PRECISION);
         assertEquals(UNIT2, data[3][1]);
         assertEquals(0, noTables.size());
     }
@@ -359,12 +359,12 @@ class ImageJTableTest extends UserTest {
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(roiId, ((DataObject) data[1][0]).getId());
         assertEquals(label, data[2][0]);
-        assertEquals(VOLUME1, (Double) data[3][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[3][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[4][0]);
         assertEquals(IMAGE_ID, ((DataObject) data[0][1]).getId());
         assertEquals(roiId, ((DataObject) data[1][1]).getId());
         assertEquals(label, data[2][1]);
-        assertEquals(VOLUME2, (Double) data[3][1], Double.MIN_VALUE);
+        assertEquals(VOLUME2, (Double) data[3][1], DOUBLE_PRECISION);
         assertEquals(UNIT2, data[4][1]);
         assertNotNull(fileId);
     }
@@ -398,12 +398,12 @@ class ImageJTableTest extends UserTest {
         assertEquals(2, rowCount);
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(label, data[1][0]);
-        assertEquals(VOLUME1, (Double) data[2][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[2][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[3][0]);
         assertEquals(local.getName(), data[4][0]);
         assertEquals(IMAGE_ID, ((DataObject) data[0][1]).getId());
         assertEquals(label, data[1][1]);
-        assertEquals(VOLUME2, (Double) data[2][1], Double.MIN_VALUE);
+        assertEquals(VOLUME2, (Double) data[2][1], DOUBLE_PRECISION);
         assertEquals(UNIT2, data[3][1]);
         assertEquals(ijRois.get(0).getName(), data[4][1]);
         assertNotNull(fileId);
@@ -437,11 +437,11 @@ class ImageJTableTest extends UserTest {
         assertEquals(2, rowCount);
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(label1, data[1][0]);
-        assertEquals(VOLUME1, (Double) data[2][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[2][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[3][0]);
         assertEquals(IMAGE_ID, ((DataObject) data[0][1]).getId());
         assertEquals(label2, data[1][1]);
-        assertEquals(VOLUME2, (Double) data[2][1], Double.MIN_VALUE);
+        assertEquals(VOLUME2, (Double) data[2][1], DOUBLE_PRECISION);
         assertEquals(UNIT2, data[3][1]);
         assertNotNull(fileId);
     }
@@ -497,12 +497,12 @@ class ImageJTableTest extends UserTest {
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(newROIs.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(label1, data[2][0]);
-        assertEquals(VOLUME1, (Double) data[3][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[3][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[4][0]);
         assertEquals(IMAGE_ID, ((DataObject) data[0][1]).getId());
         assertEquals(newROIs.get(1).getId(), ((DataObject) data[1][1]).getId());
         assertEquals(label2, data[2][1]);
-        assertEquals(VOLUME2, (Double) data[3][1], Double.MIN_VALUE);
+        assertEquals(VOLUME2, (Double) data[3][1], DOUBLE_PRECISION);
         assertEquals(UNIT2, data[4][1]);
         assertNotNull(fileId);
     }
@@ -560,12 +560,12 @@ class ImageJTableTest extends UserTest {
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(label1, data[2][0]);
-        assertEquals(VOLUME1, (Double) data[3][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[3][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[4][0]);
         assertEquals(IMAGE_ID, ((DataObject) data[0][1]).getId());
         assertEquals(rois.get(1).getId(), ((DataObject) data[1][1]).getId());
         assertEquals(label2, data[2][1]);
-        assertEquals(VOLUME2, (Double) data[3][1], Double.MIN_VALUE);
+        assertEquals(VOLUME2, (Double) data[3][1], DOUBLE_PRECISION);
         assertEquals(UNIT2, data[4][1]);
         assertNotNull(fileId);
     }
@@ -620,7 +620,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(1, rowCount);
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(label, data[1][0]);
-        assertEquals(VOLUME1, (Double) data[2][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[2][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[3][0]);
         assertEquals(label, data[4][0]);
         assertEquals(1.0, data[5][0]);
@@ -652,7 +652,7 @@ class ImageJTableTest extends UserTest {
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(rois.get(0).getId(), ((DataObject) data[1][0]).getId());
         assertEquals(label, data[2][0]);
-        assertEquals(VOLUME1, (Double) data[3][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[3][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[4][0]);
         assertEquals(label, data[5][0]);
         assertNotNull(fileId);
@@ -687,11 +687,11 @@ class ImageJTableTest extends UserTest {
 
         assertEquals(IMAGE_ID, ((DataObject) data[0][0]).getId());
         assertEquals(label, data[1][0]);
-        assertEquals(VOLUME1, (Double) data[2][0], Double.MIN_VALUE);
+        assertEquals(VOLUME1, (Double) data[2][0], DOUBLE_PRECISION);
         assertEquals(UNIT1, data[3][0]);
         assertEquals(IMAGE_ID, ((DataObject) data[0][1]).getId());
         assertEquals(label, data[1][1]);
-        assertEquals(Double.NaN, (Double) data[2][1], Double.MIN_VALUE);
+        assertEquals(Double.NaN, (Double) data[2][1], DOUBLE_PRECISION);
         assertEquals("50", data[3][1]);
         assertEquals(0, noTables.size());
     }

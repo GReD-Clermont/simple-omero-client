@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static java.lang.Double.MIN_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -222,7 +221,7 @@ class PlateTest extends UserTest {
     void testGetWellOriginX() throws Exception {
         final double origin = 0.0d;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
-        assertEquals(origin, plate.getWellOriginX(null).getValue(), MIN_VALUE);
+        assertEquals(origin, plate.getWellOriginX(null).getValue(), DOUBLE_PRECISION);
     }
 
 
@@ -230,7 +229,7 @@ class PlateTest extends UserTest {
     void testGetWellOriginY() throws Exception {
         final double origin = 1.0d;
         PlateWrapper plate  = client.getPlate(PLATE1.id);
-        assertEquals(origin, plate.getWellOriginY(null).getValue(), MIN_VALUE);
+        assertEquals(origin, plate.getWellOriginY(null).getValue(), DOUBLE_PRECISION);
     }
 
 

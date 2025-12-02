@@ -62,7 +62,7 @@ class ShapeTest extends BasicTest {
             differences += abs(checkCoordinates[i] - pointCoordinates[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
         assertEquals(text, point.getText());
     }
 
@@ -88,8 +88,8 @@ class ShapeTest extends BasicTest {
             differences += abs(checkCoordinates[i] - textCoordinates[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
-        assertEquals(font, fontSize, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
+        assertEquals(font, fontSize, DOUBLE_PRECISION);
         assertEquals(value, text.getText());
     }
 
@@ -108,7 +108,7 @@ class ShapeTest extends BasicTest {
             differences += abs(checkCoordinates[i] - rectangleCoordinates[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -140,7 +140,7 @@ class ShapeTest extends BasicTest {
         int t2 = rectangle.getT();
         differences += abs(c2 - c) + abs(z2 - z) + abs(t2 - t);
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
         assertEquals(text, rectangle.getText());
     }
 
@@ -159,7 +159,7 @@ class ShapeTest extends BasicTest {
             differences += abs(checkCoordinates[i] - maskCoordinates[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -216,7 +216,7 @@ class ShapeTest extends BasicTest {
             differences += abs(checkCoordinates[i] - ellipseCoordinates[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
         assertEquals(stroke, ellipse.getStroke());
         assertEquals(fill, ellipse.getFill());
         assertEquals(text, ellipse.getText());
@@ -242,7 +242,7 @@ class ShapeTest extends BasicTest {
             differences += abs(checkCoordinates[i] - lineCoordinates[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
         assertEquals(text, line.getText());
     }
 
@@ -264,7 +264,7 @@ class ShapeTest extends BasicTest {
             differences += abs(checkCoordinates[i] - lineCoordinates[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -329,7 +329,7 @@ class ShapeTest extends BasicTest {
             differences += abs(coordinates1[i] - coordinates2[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -349,7 +349,7 @@ class ShapeTest extends BasicTest {
             differences += abs(coordinates1[i] - coordinates2[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
         assertEquals(text1.getText(), text2.getText());
     }
 
@@ -370,7 +370,7 @@ class ShapeTest extends BasicTest {
             differences += abs(coordinates1[i] - coordinates2[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -390,7 +390,7 @@ class ShapeTest extends BasicTest {
             differences += abs(coordinates1[i] - coordinates2[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -419,7 +419,7 @@ class ShapeTest extends BasicTest {
             differences += abs(checkValues2[i] - checkValues1[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -439,7 +439,7 @@ class ShapeTest extends BasicTest {
             differences += abs(coordinates1[i] - coordinates2[i]);
         }
 
-        assertEquals(0, differences, Double.MIN_VALUE);
+        assertEquals(0, differences, DOUBLE_PRECISION);
     }
 
 
@@ -549,8 +549,8 @@ class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
-            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
+            assertEquals(pos1[0], pos2[0], DOUBLE_PRECISION);
+            assertEquals(pos1[1], pos2[1], DOUBLE_PRECISION);
             pi.next();
             pi2.next();
         }
@@ -585,8 +585,8 @@ class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
-            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
+            assertEquals(pos1[0], pos2[0], DOUBLE_PRECISION);
+            assertEquals(pos1[1], pos2[1], DOUBLE_PRECISION);
             pi.next();
             pi2.next();
         }
@@ -609,8 +609,8 @@ class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
-            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
+            assertEquals(pos1[0], pos2[0], DOUBLE_PRECISION);
+            assertEquals(pos1[1], pos2[1], DOUBLE_PRECISION);
             pi.next();
             pi2.next();
         }
@@ -633,8 +633,8 @@ class ShapeTest extends BasicTest {
             double[] pos1 = new double[2];
             double[] pos2 = new double[2];
             assertEquals(pi.currentSegment(pos1), pi.currentSegment(pos2));
-            assertEquals(pos1[0], pos2[0], Double.MIN_VALUE);
-            assertEquals(pos1[1], pos2[1], Double.MIN_VALUE);
+            assertEquals(pos1[0], pos2[0], DOUBLE_PRECISION);
+            assertEquals(pos1[1], pos2[1], DOUBLE_PRECISION);
             pi.next();
             pi2.next();
         }
@@ -675,7 +675,7 @@ class ShapeTest extends BasicTest {
         double[] coordinates2 = shape.getBoundingBox().getCoordinates();
 
         for (int i = 0; i < 4; i++) {
-            assertEquals(coordinates1[i], coordinates2[i], Double.MIN_VALUE);
+            assertEquals(coordinates1[i], coordinates2[i], DOUBLE_PRECISION);
         }
     }
 
@@ -689,7 +689,7 @@ class ShapeTest extends BasicTest {
         double[] coordinates2 = shape.getBoundingBox().getCoordinates();
 
         for (int i = 0; i < 4; i++) {
-            assertEquals(coordinates1[i], coordinates2[i], Double.MIN_VALUE);
+            assertEquals(coordinates1[i], coordinates2[i], DOUBLE_PRECISION);
         }
     }
 

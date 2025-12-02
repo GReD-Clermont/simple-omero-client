@@ -379,9 +379,9 @@ class ImageTest extends UserTest {
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
         ImageStatistics stats      = difference.getStatistics();
 
-        assertEquals(pixSize, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
-        assertEquals(pixSize, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
-        assertEquals(pixDepth, imp.getCalibration().pixelDepth, Double.MIN_VALUE);
+        assertEquals(pixSize, imp.getCalibration().pixelHeight, DOUBLE_PRECISION);
+        assertEquals(pixSize, imp.getCalibration().pixelWidth, DOUBLE_PRECISION);
+        assertEquals(pixDepth, imp.getCalibration().pixelDepth, DOUBLE_PRECISION);
         // Round numbers because rounding errors happen when converting units
         assertEquals(deltaT, imp.getCalibration().frameInterval, DOUBLE_PRECISION * deltaT);
         assertEquals(xOrigin, imp.getCalibration().xOrigin, DOUBLE_PRECISION * abs(xOrigin));
