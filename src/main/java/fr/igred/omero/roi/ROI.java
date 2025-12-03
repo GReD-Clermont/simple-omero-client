@@ -261,7 +261,7 @@ public interface ROI extends Annotatable {
      *
      * @return list of shape contained in the ROIData.
      */
-    ShapeList getShapes();
+    List<Shape> getShapes();
 
 
     /**

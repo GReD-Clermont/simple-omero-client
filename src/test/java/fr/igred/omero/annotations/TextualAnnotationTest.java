@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static fr.igred.omero.RemoteObject.getElementsOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -39,9 +40,9 @@ class TextualAnnotationTest extends UserTest {
         TextualAnnotation text = new TextualAnnotationWrapper(test);
         image.link(client, text);
 
-        AnnotationList annotations = image.getAnnotations(client);
+        List<Annotation> annotations = image.getAnnotations(client);
 
-        List<TextualAnnotation> texts = annotations.getElementsOf(TextualAnnotation.class);
+        List<TextualAnnotation> texts = getElementsOf(annotations, TextualAnnotationWrapper.class);
         client.delete(texts);
 
         assertEquals(1, texts.size());
@@ -58,9 +59,9 @@ class TextualAnnotationTest extends UserTest {
         TextualAnnotation text = new TextualAnnotationWrapper("New");
         text.setText(test);
         image.link(client, text);
-        AnnotationList annotations = image.getAnnotations(client);
+        List<Annotation> annotations = image.getAnnotations(client);
 
-        List<TextualAnnotation> texts = annotations.getElementsOf(TextualAnnotation.class);
+        List<TextualAnnotation> texts = getElementsOf(annotations, TextualAnnotationWrapper.class);
         client.delete(texts);
 
         assertEquals(1, texts.size());

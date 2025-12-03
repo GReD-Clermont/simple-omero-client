@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 
@@ -38,6 +38,26 @@ import static java.util.stream.Collectors.toMap;
  * Generic interface to handle OMERO objects.
  */
 public interface RemoteObject {
+
+
+    /**
+     * Gets a list of elements of the specified class from a collection of RemoteObjects.
+     *
+     * @param clazz      Class of the wanted elements.
+     * @param collection The collection of RemoteObjects
+     * @param <U>        Subclass of RemoteObject.
+     * @param <V>        Subclass of U.
+     *
+     * @return See above.
+     */
+    static <U extends RemoteObject, V extends U> List<V> getElementsOf(Collection<? extends U> collection,
+                                                                       Class<? extends V> clazz) {
+        return collection.stream()
+                         .filter(clazz::isInstance)
+                         .map(clazz::cast)
+                         .collect(toList());
+    }
+
 
     /**
      * Only keeps objects with different IDs in a collection.
@@ -53,7 +73,7 @@ public interface RemoteObject {
                       .values()
                       .stream()
                       .sorted(Comparator.comparing(U::getId))
-                      .collect(Collectors.toList());
+                      .collect(toList());
     }
 
 
@@ -73,7 +93,7 @@ public interface RemoteObject {
                     .values()
                     .stream()
                     .sorted(Comparator.comparing(U::getId))
-                    .collect(Collectors.toList());
+                    .collect(toList());
     }
 
 

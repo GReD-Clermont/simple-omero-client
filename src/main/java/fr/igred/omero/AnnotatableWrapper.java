@@ -19,7 +19,6 @@ package fr.igred.omero;
 
 
 import fr.igred.omero.annotations.Annotation;
-import fr.igred.omero.annotations.AnnotationList;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.FileAnnotationWrapper;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -35,6 +34,7 @@ import fr.igred.omero.client.DataManager;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.ReplacePolicy;
+import fr.igred.omero.util.Wrapper;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
@@ -47,6 +47,7 @@ import omero.model.TagAnnotationI;
 import omero.sys.ParametersI;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -564,12 +565,12 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public AnnotationList getAnnotations(Browser browser)
+    public List<Annotation> getAnnotations(Browser browser)
     throws AccessException, ServiceException, ExecutionException {
         List<AnnotationData> annotationData = getAnnotationData(browser);
 
-        AnnotationList annotations = new AnnotationList(annotationData.size());
-        annotationData.forEach(annotations::add);
+        List<Annotation> annotations = new ArrayList<>(annotationData.size());
+        annotationData.forEach(a -> annotations.add(Wrapper.wrap(a)));
         return annotations;
     }
 
