@@ -28,6 +28,7 @@ import omero.ServerError;
 import omero.SessionException;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
@@ -53,15 +54,15 @@ class ExceptionTest extends BasicTest {
         String username = "badUser";
         char[] pw       = "badPassword".toCharArray();
 
-        ConnectionHandler client = new GatewayWrapper();
+        ConnectionHandler conn = new GatewayWrapper();
         assertThrows(ServiceException.class,
-                     () -> client.connect(HOST, PORT, username, pw, GROUP1.id));
+                     () -> conn.connect(HOST, PORT, username, pw, GROUP1.id));
     }
 
 
     @Test
     void testConnectionErrorPassword() {
-        char[] pw   = "badPassword".toCharArray();
+        char[] pw = "badPassword".toCharArray();
 
         ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
@@ -92,6 +93,7 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
+    @Disabled("Disabled because of change to circumvent connection issue with Gateway >= 5.9.1")
     void testConnectionErrorGroupNotExist() throws ServiceException {
         final long badGroup = 200L;
         char[]     pw       = "password".toCharArray();
@@ -104,6 +106,7 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
+    @Disabled("Disabled because of change to circumvent connection issue with Gateway >= 5.9.1")
     void testConnectionErrorNotInGroup() throws ServiceException {
         char[] pw = "password".toCharArray();
 

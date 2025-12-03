@@ -144,6 +144,13 @@ class AccessExceptionTest extends BasicTest {
 
 
     @Test
+    void testSwitchGroupFailGetProjects() {
+        client.switchGroup(200L);
+        assertThrows(AccessException.class, () -> client.getProjects());
+    }
+
+
+    @Test
     void testSudoFailGetProjects() {
         assertThrows(AccessException.class, () -> sudo.getProjects());
     }

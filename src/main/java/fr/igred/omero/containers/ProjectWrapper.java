@@ -100,9 +100,9 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
 
 
     /**
-     * Gets the project description
+     * Gets the project description.
      *
-     * @return The project description.
+     * @return See above.
      */
     @Override
     public String getDescription() {
@@ -135,7 +135,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
     /**
      * Gets all the datasets in the project available from OMERO.
      *
-     * @return Collection of DatasetWrapper.
+     * @return Collection of Datasets.
      */
     @Override
     public List<Dataset> getDatasets() {

@@ -122,7 +122,9 @@ public interface ConnectionHandler {
      */
     default void connect(String hostname, int port, String sessionId)
     throws ServiceException {
-        connect(new LoginCredentials(sessionId, sessionId, hostname, port));
+        LoginCredentials cred = new LoginCredentials(sessionId, sessionId, hostname, port);
+        cred.setGroupID(-1L);
+        connect(cred);
     }
 
 
@@ -145,8 +147,9 @@ public interface ConnectionHandler {
                                                      valueOf(password),
                                                      hostname,
                                                      port);
-        cred.setGroupID(groupID);
+        cred.setGroupID(-1L);
         connect(cred);
+        switchGroup(groupID);
     }
 
 
@@ -164,10 +167,12 @@ public interface ConnectionHandler {
      */
     default void connect(String hostname, int port, String username, char[] password)
     throws ServiceException {
-        connect(new LoginCredentials(username,
-                                     valueOf(password),
-                                     hostname,
-                                     port));
+        LoginCredentials cred = new LoginCredentials(username,
+                                                     valueOf(password),
+                                                     hostname,
+                                                     port);
+        cred.setGroupID(-1L);
+        connect(cred);
     }
 
 
