@@ -21,6 +21,7 @@ package fr.igred.omero.core;
 import fr.igred.omero.RepositoryObject;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.Folder;
@@ -627,7 +628,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    BufferedImage getThumbnail(Client client, int size)
+    BufferedImage getThumbnail(ConnectionHandler client, int size)
     throws ServiceException, AccessException, IOException;
 
 
@@ -673,7 +674,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<File> download(Client client, String path)
+    default List<File> download(ConnectionHandler client, String path)
     throws ServiceException, AccessException, ExecutionException {
         return call(client.getGateway().getFacility(TransferFacility.class),
                     t -> t.downloadImage(client.getCtx(), path, getId()),

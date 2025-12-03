@@ -18,7 +18,7 @@
 package fr.igred.omero.annotations;
 
 
-import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
@@ -60,7 +60,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws IOException             Cannot write to the file.
      */
-    private RawFileStorePrx writeFile(Client client, FileOutputStream stream)
+    private RawFileStorePrx writeFile(ConnectionHandler client, FileOutputStream stream)
     throws ServerError, DSOutOfServiceException, IOException {
         final int inc = 262144;
 
@@ -190,7 +190,7 @@ public class FileAnnotationWrapper extends AnnotationWrapper<FileAnnotationData>
      * @throws IOException      Cannot write to the file.
      */
     @Override
-    public File getFile(Client client, String path)
+    public File getFile(ConnectionHandler client, String path)
     throws ServiceException, AccessException, IOException {
         File file = new File(path);
 

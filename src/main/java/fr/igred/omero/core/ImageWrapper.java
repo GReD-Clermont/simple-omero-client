@@ -22,6 +22,7 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.RepositoryObjectWrapper;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.DataManager;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.containers.FolderWrapper;
@@ -149,7 +150,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server error.
      */
-    private byte[] getThumbnailBytes(Client client, int size)
+    private byte[] getThumbnailBytes(ConnectionHandler client, int size)
     throws DSOutOfServiceException, ServerError {
         Pixels pixels = getPixels();
 
@@ -535,7 +536,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws IOException      Cannot read thumbnail from store.
      */
     @Override
-    public BufferedImage getThumbnail(Client client, int size)
+    public BufferedImage getThumbnail(ConnectionHandler client, int size)
     throws ServiceException, AccessException, IOException {
         BufferedImage thumbnail = null;
 
