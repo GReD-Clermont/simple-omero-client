@@ -21,8 +21,6 @@ package fr.igred.omero.roi;
 import ij.gui.Roi;
 import omero.gateway.model.PolygonData;
 
-import java.awt.Shape;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +31,7 @@ import java.util.stream.IntStream;
  * Class containing an PolygonData.
  * <p> Wraps function calls to the PolygonData contained.
  */
-public class PolygonWrapper extends ShapeWrapper<PolygonData> {
+public class PolygonWrapper extends ShapeWrapper<PolygonData> implements Polygon {
 
 
     /**
@@ -107,41 +105,22 @@ public class PolygonWrapper extends ShapeWrapper<PolygonData> {
 
 
     /**
-     * Converts the shape to an {@link Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        Path2D polygon = new Path2D.Double();
-
-        List<Point2D.Double> points = getPoints();
-        if (!points.isEmpty()) {
-            polygon.moveTo(points.get(0).x, points.get(0).y);
-            for (int i = 1; i < points.size(); i++) {
-                polygon.lineTo(points.get(i).x, points.get(i).y);
-            }
-            polygon.closePath();
-        }
-        return polygon;
-    }
-
-
-    /**
      * Returns the points in the Polygon.
      *
      * @return See above.
      */
+    @Override
     public List<Point2D.Double> getPoints() {
         return data.getPoints();
     }
 
 
     /**
-     * Sets the points in the polyline.
+     * Sets the points in the Polygon.
      *
      * @param points The points to set.
      */
+    @Override
     public void setPoints(List<Point2D.Double> points) {
         data.setPoints(points);
     }
@@ -152,6 +131,7 @@ public class PolygonWrapper extends ShapeWrapper<PolygonData> {
      *
      * @return See above.
      */
+    @Override
     public List<Integer> getMaskPoints() {
         return data.getMaskPoints();
     }

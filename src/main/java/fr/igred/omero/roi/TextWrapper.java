@@ -21,14 +21,12 @@ package fr.igred.omero.roi;
 import ij.gui.TextRoi;
 import omero.gateway.model.TextData;
 
-import java.awt.geom.Path2D;
-
 
 /**
  * Class containing an TextData.
  * <p> Wraps function calls to the TextData contained.
  */
-public class TextWrapper extends ShapeWrapper<TextData> {
+public class TextWrapper extends ShapeWrapper<TextData> implements Text {
 
 
     /**
@@ -95,23 +93,11 @@ public class TextWrapper extends ShapeWrapper<TextData> {
 
 
     /**
-     * Converts the shape to an {@link java.awt.Shape}.
-     *
-     * @return The converted AWT Shape.
-     */
-    @Override
-    public java.awt.Shape toAWTShape() {
-        Path2D point = new Path2D.Double();
-        point.moveTo(getX(), getY());
-        return point;
-    }
-
-
-    /**
      * Returns the x-coordinate of the shape.
      *
      * @return See above.
      */
+    @Override
     public double getX() {
         return data.getX();
     }
@@ -122,6 +108,7 @@ public class TextWrapper extends ShapeWrapper<TextData> {
      *
      * @param x See above.
      */
+    @Override
     public void setX(double x) {
         data.setX(x);
     }
@@ -132,6 +119,7 @@ public class TextWrapper extends ShapeWrapper<TextData> {
      *
      * @return See above.
      */
+    @Override
     public double getY() {
         return data.getY();
     }
@@ -142,52 +130,9 @@ public class TextWrapper extends ShapeWrapper<TextData> {
      *
      * @param y See above.
      */
+    @Override
     public void setY(double y) {
         data.setY(y);
-    }
-
-
-    /**
-     * Sets the coordinates of the TextData shape.
-     *
-     * @param x x-coordinate of the TextData shape.
-     * @param y y-coordinate of the TextData shape.
-     */
-    public void setCoordinates(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-
-    /**
-     * Gets the coordinates of the TextData shape.
-     *
-     * @return Array of coordinates containing {X,Y}.
-     */
-    public double[] getCoordinates() {
-        double[] coordinates = new double[2];
-        coordinates[0] = getX();
-        coordinates[1] = getY();
-        return coordinates;
-    }
-
-
-    /**
-     * Sets the coordinates of the TextData object.
-     *
-     * @param coordinates Array of coordinates containing {X,Y}.
-     */
-    public void setCoordinates(double[] coordinates) {
-        if (coordinates == null) {
-            String msg = "TextData cannot set null coordinates.";
-            throw new IllegalArgumentException(msg);
-        } else if (coordinates.length == 2) {
-            data.setX(coordinates[0]);
-            data.setY(coordinates[1]);
-        } else {
-            String msg = "2 coordinates required for TextData.";
-            throw new IllegalArgumentException(msg);
-        }
     }
 
 

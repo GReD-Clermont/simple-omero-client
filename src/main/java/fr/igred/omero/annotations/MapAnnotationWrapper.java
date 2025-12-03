@@ -25,11 +25,8 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 
@@ -37,12 +34,7 @@ import static java.util.stream.Collectors.toList;
  * Class containing a MapAnnotationData, a MapAnnotationData contains a list of NamedValue(Key-Value pair).
  * <p> Wraps function calls to the MapAnnotationData contained.
  */
-public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
-
-    /**
-     * The name space used to identify MapAnnotations created be the user
-     */
-    public static final String NS_USER_CREATED = MapAnnotationData.NS_CLIENT_CREATED;
+public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> implements MapAnnotation {
 
 
     /**
@@ -120,6 +112,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      * @return MapAnnotationData content.
      */
     @SuppressWarnings("unchecked")
+    @Override
     public List<Entry<String, String>> getContent() {
         return ((Collection<NamedValue>) data.getContent()).stream()
                                                            .map(MapAnnotationWrapper::toMapEntry)
@@ -132,6 +125,7 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
      *
      * @param pairs Collection of Key-Value pairs.
      */
+    @Override
     public void setContent(Collection<? extends Entry<String, String>> pairs) {
         List<NamedValue> nv = pairs.stream()
                                    .map(MapAnnotationWrapper::toNamedValue)
@@ -141,22 +135,11 @@ public class MapAnnotationWrapper extends AnnotationWrapper<MapAnnotationData> {
 
 
     /**
-     * Gets the List of Key-Value pairs contained in the map annotation as a map.
-     *
-     * @return See above.
-     */
-    public Map<String, List<String>> getContentAsMap() {
-        return this.getContent()
-                   .stream()
-                   .collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
-    }
-
-
-    /**
      * Gets the content of the map annotation as a string.
      *
      * @return See above.
      */
+    @Override
     public String getContentAsString() {
         return data.getContentAsString();
     }

@@ -15,6 +15,6 @@
  * Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 /**
- * This package contains wrapper classes for annotations.
+ * This package contains interfaces and classes for handling annotations.
  */
 package fr.igred.omero.annotations;

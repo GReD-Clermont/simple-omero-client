@@ -33,6 +33,8 @@ import static java.lang.String.format;
 
 /**
  * Class to handle and convert OMERO exceptions.
+ *
+ * @param <T> The type of the contained object.
  */
 @SuppressWarnings("ReturnOfThis")
 public class ExceptionHandler<T> {
@@ -357,6 +359,8 @@ public class ExceptionHandler<T> {
 
 
     /**
+     * Interface for a function that can throw exceptions.
+     *
      * @param <T> The input type.
      * @param <R> The output type.
      * @param <E> The exception type.
@@ -385,6 +389,8 @@ public class ExceptionHandler<T> {
 
 
     /**
+     * Interface for a consumer function that can throw exceptions.
+     *
      * @param <T> The input type.
      * @param <E> The exception type.
      */
@@ -397,6 +403,8 @@ public class ExceptionHandler<T> {
 
 
     /**
+     * Interface for a function that wraps an exception.
+     *
      * @param <T> The input exception type.
      * @param <E> The wrapped exception type.
      */
