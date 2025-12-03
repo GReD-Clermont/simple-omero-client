@@ -18,6 +18,7 @@
 package fr.igred.omero.client;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.containers.Dataset;
 import fr.igred.omero.containers.DatasetWrapper;
@@ -89,7 +90,7 @@ class ClientTest extends UserTest {
     void testCreateAndDeleteProject() throws Exception {
         String name = "Foo project";
 
-        Project project = new ProjectWrapper(client, name, "");
+        RemoteObject project = new ProjectWrapper(client, name, "");
 
         long id = project.getId();
         assertEquals(name, client.getProject(id).getName());

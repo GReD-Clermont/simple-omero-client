@@ -20,6 +20,7 @@ package fr.igred.omero.exception;
 
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.client.Client;
+import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.GatewayWrapper;
 import omero.ResourceError;
 import omero.SecurityViolation;
@@ -51,7 +52,8 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorUsername() {
         String username = "badUser";
         char[] pw       = "badPassword".toCharArray();
-        Client client   = new GatewayWrapper();
+
+        ConnectionHandler client = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> client.connect(HOST, PORT, username, pw, GROUP1.id));
     }
@@ -60,7 +62,8 @@ class ExceptionTest extends BasicTest {
     @Test
     void testConnectionErrorPassword() {
         char[] pw   = "badPassword".toCharArray();
-        Client root = new GatewayWrapper();
+
+        ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, PORT, ROOT.name, pw, GROUP1.id));
     }
@@ -70,7 +73,8 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorHost() {
         String host = "127.0.0.1";
         char[] pw   = "omero".toCharArray();
-        Client root = new GatewayWrapper();
+
+        ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> root.connect(host, PORT, ROOT.name, pw, GROUP1.id));
     }
@@ -80,7 +84,8 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorPort() {
         final int port = 5000;
         char[]    pw   = "omero".toCharArray();
-        Client    root = new GatewayWrapper();
+
+        ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,
                      () -> root.connect(HOST, port, ROOT.name, pw, GROUP1.id));
     }
@@ -91,7 +96,7 @@ class ExceptionTest extends BasicTest {
         final long badGroup = 200L;
         char[]     pw       = "password".toCharArray();
 
-        Client clientNoSuchGroup = new GatewayWrapper();
+        ConnectionHandler clientNoSuchGroup = new GatewayWrapper();
         clientNoSuchGroup.connect(HOST, PORT, USER1.name, pw, badGroup);
         assertEquals(USER1.id, clientNoSuchGroup.getId());
         assertEquals(GROUP1.id, clientNoSuchGroup.getCurrentGroupId());
@@ -102,7 +107,7 @@ class ExceptionTest extends BasicTest {
     void testConnectionErrorNotInGroup() throws ServiceException {
         char[] pw = "password".toCharArray();
 
-        Client clientWrongGroup = new GatewayWrapper();
+        ConnectionHandler clientWrongGroup = new GatewayWrapper();
         clientWrongGroup.connect(HOST, PORT, USER1.name, pw, 0L);
         assertEquals(USER1.id, clientWrongGroup.getId());
         assertEquals(GROUP1.id, clientWrongGroup.getCurrentGroupId());

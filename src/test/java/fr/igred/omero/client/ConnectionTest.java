@@ -32,7 +32,8 @@ class ConnectionTest extends BasicTest {
     @Test
     void testDisconnect() {
         String expected = "GatewayWrapper{host=null, groupID=-1, userID=-1, connected=false}";
-        Client testRoot = new GatewayWrapper();
+
+        ConnectionHandler testRoot = new GatewayWrapper();
         testRoot.disconnect();
         assertFalse(testRoot.isConnected());
         assertEquals(expected, testRoot.toString());
@@ -55,7 +56,8 @@ class ConnectionTest extends BasicTest {
     @Test
     void testRootConnection() throws ServiceException {
         char[] password = "omero".toCharArray();
-        Client testRoot = new GatewayWrapper();
+
+        ConnectionHandler testRoot = new GatewayWrapper();
         testRoot.connect(HOST, PORT, ROOT.name, password, GROUP1.id);
         long id      = testRoot.getId();
         long groupId = testRoot.getCurrentGroupId();
@@ -74,7 +76,7 @@ class ConnectionTest extends BasicTest {
         String template = "GatewayWrapper{host=%s, groupID=%d, userID=%s, connected=true}";
         String toString = String.format(template, HOST, GROUP1.id, USER1.id);
 
-        Client testUser = new GatewayWrapper();
+        ConnectionHandler testUser = new GatewayWrapper();
         assertFalse(testUser.isConnected());
         testUser.connect(HOST, PORT, USER1.name, "password".toCharArray());
         assertEquals(toString, testUser.toString());

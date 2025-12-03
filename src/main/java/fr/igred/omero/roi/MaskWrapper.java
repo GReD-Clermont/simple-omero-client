@@ -301,8 +301,8 @@ public class MaskWrapper extends ShapeWrapper<MaskData> implements Mask {
             imgRoi.setOpacity(getFill().getAlpha() / MAX_UINT8);
             roi = imgRoi;
         } else {
-            Point p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            Point p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 

@@ -201,8 +201,8 @@ public class LineWrapper extends ShapeWrapper<LineData> implements fr.igred.omer
      */
     @Override
     public Roi toImageJ() {
-        Point           p1        = new PointWrapper(getX1(), getY1());
-        Point           p2        = new PointWrapper(getX2(), getY2());
+        Shape           p1        = new PointWrapper(getX1(), getY1());
+        Shape           p2        = new PointWrapper(getX2(), getY2());
         AffineTransform transform = toAWTTransform();
         if (transform != null) {
             p1.setTransform(transform);

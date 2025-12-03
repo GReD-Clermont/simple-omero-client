@@ -19,6 +19,7 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.BasicTest;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
@@ -32,8 +33,8 @@ import fr.igred.omero.containers.ProjectWrapper;
 import fr.igred.omero.core.Image;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.roi.Rectangle;
 import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import omero.gateway.model.ProjectData;
 import omero.model.ProjectI;
 import org.junit.jupiter.api.AfterEach;
@@ -129,7 +130,7 @@ class AccessExceptionTest extends BasicTest {
     void testFolderAddROIWithoutImage() throws Exception {
         Folder folder = new FolderWrapper(client, "Test1");
 
-        Rectangle rectangle = new RectangleWrapper(0, 0, 10, 10);
+        Shape rectangle = new RectangleWrapper(0, 0, 10, 10);
         rectangle.setCZT(0, 0, 0);
 
         ROI roi = new ROIWrapper();
@@ -163,9 +164,9 @@ class AccessExceptionTest extends BasicTest {
 
     @Test
     void testSudoFailDeleteProject() {
-        ProjectI    projectI    = new ProjectI(PROJECT1.id, false);
-        ProjectData projectData = new ProjectData(projectI);
-        Project     project     = new ProjectWrapper(projectData);
+        ProjectI     projectI    = new ProjectI(PROJECT1.id, false);
+        ProjectData  projectData = new ProjectData(projectI);
+        RemoteObject project     = new ProjectWrapper(projectData);
         assertThrows(AccessException.class, () -> sudo.delete(project));
     }
 

@@ -18,6 +18,8 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.Annotatable;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -126,7 +128,7 @@ class ProjectTest extends UserTest {
         String name = "Project tag";
         String desc = "tag attached to a project";
 
-        TagAnnotation tag = new TagAnnotationWrapper(client, name, desc);
+        RemoteObject tag = new TagAnnotationWrapper(client, name, desc);
 
         project.addTag(client, tag.getId());
         List<TagAnnotation> tags = project.getTags(client);
@@ -146,10 +148,10 @@ class ProjectTest extends UserTest {
         String[] names = {name + " 1", name + " 2", name + " 3", name + " 4"};
         String   desc  = "tag attached to a project";
 
-        TagAnnotation tag1 = new TagAnnotationWrapper(client, names[0], desc);
-        TagAnnotation tag2 = new TagAnnotationWrapper(client, names[1], desc);
-        TagAnnotation tag3 = new TagAnnotationWrapper(client, names[2], desc);
-        TagAnnotation tag4 = new TagAnnotationWrapper(client, names[3], desc);
+        RemoteObject tag1 = new TagAnnotationWrapper(client, names[0], desc);
+        RemoteObject tag2 = new TagAnnotationWrapper(client, names[1], desc);
+        RemoteObject tag3 = new TagAnnotationWrapper(client, names[2], desc);
+        RemoteObject tag4 = new TagAnnotationWrapper(client, names[3], desc);
 
         project.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = project.getTags(client);
@@ -329,8 +331,8 @@ class ProjectTest extends UserTest {
         String p2name = "CopyTest";
         String p2desc = "Copy annotations";
 
-        Project project1 = client.getProject(PROJECT1.id);
-        Project project2 = new ProjectWrapper(client, p2name, p2desc);
+        Project     project1 = client.getProject(PROJECT1.id);
+        Annotatable project2 = new ProjectWrapper(client, p2name, p2desc);
 
         File file = createRandomFile("test_project.txt");
 
@@ -386,8 +388,8 @@ class ProjectTest extends UserTest {
         String p2name = "CopyTest";
         String p2desc = "Copy annotations";
 
-        Project project1 = client.getProject(PROJECT1.id);
-        Project project2 = new ProjectWrapper(client, p2name, p2desc);
+        Project     project1 = client.getProject(PROJECT1.id);
+        Annotatable project2 = new ProjectWrapper(client, p2name, p2desc);
 
         File file = createRandomFile("test_project.txt");
 
@@ -415,8 +417,8 @@ class ProjectTest extends UserTest {
         String name = "ReplaceTest";
         String desc = "Replace file annotation";
 
-        Project project1 = new ProjectWrapper(client, name + "1", desc);
-        Project project2 = new ProjectWrapper(client, name + "2", desc);
+        Annotatable project1 = new ProjectWrapper(client, name + "1", desc);
+        Annotatable project2 = new ProjectWrapper(client, name + "2", desc);
 
         File file = createRandomFile("test_project.txt");
 
@@ -441,8 +443,8 @@ class ProjectTest extends UserTest {
         String name = "ReplaceTest";
         String desc = "Replace file annotation";
 
-        Project project1 = new ProjectWrapper(client, name + "1", desc);
-        Project project2 = new ProjectWrapper(client, name + "2", desc);
+        Annotatable project1 = new ProjectWrapper(client, name + "1", desc);
+        Annotatable project2 = new ProjectWrapper(client, name + "2", desc);
 
         File file = createRandomFile("test_project.txt");
 
@@ -466,8 +468,8 @@ class ProjectTest extends UserTest {
         String name = "ReplaceTest";
         String desc = "Replace file annotation";
 
-        Project project1 = new ProjectWrapper(client, name + "1", desc);
-        Project project2 = new ProjectWrapper(client, name + "2", desc);
+        Annotatable project1 = new ProjectWrapper(client, name + "1", desc);
+        Annotatable project2 = new ProjectWrapper(client, name + "2", desc);
 
         File file = createRandomFile("test_project.txt");
 
@@ -492,7 +494,7 @@ class ProjectTest extends UserTest {
         String name = "ReplaceTest";
         String desc = "Replace file annotation";
 
-        Project project = new ProjectWrapper(client, name, desc);
+        Annotatable project = new ProjectWrapper(client, name, desc);
 
         File file = createRandomFile("test_project.txt");
 

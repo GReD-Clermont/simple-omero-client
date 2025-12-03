@@ -18,6 +18,7 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -170,7 +171,7 @@ class DatasetTest extends UserTest {
         String name = "Dataset tag";
         String desc = "tag attached to a dataset";
 
-        TagAnnotation tag = new TagAnnotationWrapper(client, name, desc);
+        RemoteObject tag = new TagAnnotationWrapper(client, name, desc);
 
         long tagId = tag.getId();
         dataset.addTag(client, tagId);
@@ -189,10 +190,10 @@ class DatasetTest extends UserTest {
         String[] names = {name + " 1", name + " 2", name + " 3", name + " 4"};
         String   desc  = "tag attached to a project";
 
-        TagAnnotation tag1 = new TagAnnotationWrapper(client, names[0], desc);
-        TagAnnotation tag2 = new TagAnnotationWrapper(client, names[1], desc);
-        TagAnnotation tag3 = new TagAnnotationWrapper(client, names[2], desc);
-        TagAnnotation tag4 = new TagAnnotationWrapper(client, names[3], desc);
+        RemoteObject tag1 = new TagAnnotationWrapper(client, names[0], desc);
+        RemoteObject tag2 = new TagAnnotationWrapper(client, names[1], desc);
+        RemoteObject tag3 = new TagAnnotationWrapper(client, names[2], desc);
+        RemoteObject tag4 = new TagAnnotationWrapper(client, names[3], desc);
 
         dataset.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
 
@@ -393,7 +394,7 @@ class DatasetTest extends UserTest {
         String name = "To delete";
         String desc = "Dataset which will be deleted";
 
-        Dataset dataset = new DatasetWrapper(name, desc);
+        RemoteObject dataset = new DatasetWrapper(name, desc);
         dataset.saveAndUpdate(client);
         long id = dataset.getId();
 

@@ -18,6 +18,8 @@
 package fr.igred.omero.containers;
 
 
+import fr.igred.omero.Annotatable;
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -89,7 +91,7 @@ class FolderTest extends UserTest {
 
     @Test
     void testTagFolder() throws Exception {
-        Folder               folder = new FolderWrapper(client, "Test");
+        Annotatable   folder = new FolderWrapper(client, "Test");
         TagAnnotation tag    = new TagAnnotationWrapper(client, "Folder test", "Folder tag");
         folder.link(client, tag);
 
@@ -108,7 +110,7 @@ class FolderTest extends UserTest {
 
     @Test
     void testGetDeletedFolder() throws Exception {
-        Folder folder = new FolderWrapper(client, "Test");
+        RemoteObject folder = new FolderWrapper(client, "Test");
         assertEquals(1, client.getFolders().size());
         assertEquals(1, client.getFolders(client.getUser()).size());
 
@@ -266,7 +268,7 @@ class FolderTest extends UserTest {
 
     @Test
     void testAddAndRemoveTagFromFolder() throws Exception {
-        Folder folder = new FolderWrapper(client, "Test1");
+        Annotatable folder = new FolderWrapper(client, "Test1");
 
         String name = "Folder tag";
         String desc = "tag attached to a folder";

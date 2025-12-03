@@ -133,16 +133,16 @@ class ROI2ImageJTest extends BasicTest {
         AffineTransform transform = new AffineTransform();
         transform.rotate(Math.PI / 4);
 
-        Point point = new PointWrapper(1, 1);
+        Shape point = new PointWrapper(1, 1);
         point.setCZT(0, 0, 0);
 
-        Text text = new TextWrapper("Text", 2, 2);
+        Shape text = new TextWrapper("Text", 2, 2);
         text.setCZT(0, 0, 1);
 
-        Rectangle rectangle = new RectangleWrapper(3, 3, 10, 10);
+        Shape rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
-        Rectangle rectangle2 = new RectangleWrapper(3, 3, 10, 10);
+        Shape rectangle2 = new RectangleWrapper(3, 3, 10, 10);
         rectangle2.setCZT(0, 0, 2);
         rectangle.setTransform(transform);
 
@@ -151,22 +151,22 @@ class ROI2ImageJTest extends BasicTest {
         mask.setCZT(1, 0, 0);
         mask.setTransform(transform);
 
-        Ellipse ellipse = new EllipseWrapper(5, 5, 4, 4);
+        Shape ellipse = new EllipseWrapper(5, 5, 4, 4);
         ellipse.setCZT(1, 0, 1);
 
-        Ellipse ellipse2 = new EllipseWrapper(5, 5, 4, 4);
+        Shape ellipse2 = new EllipseWrapper(5, 5, 4, 4);
         ellipse2.setCZT(1, 0, 2);
         ellipse2.setTransform(transform);
 
-        fr.igred.omero.roi.Line line = new LineWrapper(0, 0, 10, 10);
+        Shape line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 3);
         line.asDataObject().getShapeSettings().setMarkerStart(fr.igred.omero.roi.Line.ARROW);
 
-        fr.igred.omero.roi.Line line2 = new LineWrapper(0, 0, 10, 10);
+        Shape line2 = new LineWrapper(0, 0, 10, 10);
         line2.setCZT(1, 0, 4);
         line2.setTransform(transform);
 
-        fr.igred.omero.roi.Line line3 = new LineWrapper(2, 2, 3, 4);
+        Shape line3 = new LineWrapper(2, 2, 3, 4);
         line3.setCZT(1, 0, 5);
         line3.asDataObject().getShapeSettings().setMarkerStart(fr.igred.omero.roi.Line.ARROW);
         line3.asDataObject().getShapeSettings().setMarkerEnd(fr.igred.omero.roi.Line.ARROW);
@@ -180,10 +180,10 @@ class ROI2ImageJTest extends BasicTest {
         points2D.add(p2);
         points2D.add(p3);
 
-        Polyline polyline = new PolylineWrapper(points2D);
+        Shape polyline = new PolylineWrapper(points2D);
         polyline.setCZT(1, 1, 0);
 
-        Polygon polygon = new PolygonWrapper(points2D);
+        Shape polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
         ROI roiWrapper1 = new ROIWrapper();

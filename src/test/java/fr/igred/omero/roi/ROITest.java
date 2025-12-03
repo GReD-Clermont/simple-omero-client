@@ -218,23 +218,23 @@ class ROITest extends UserTest {
     void testROIAllShapes() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        Point point = new PointWrapper(1, 1);
+        Shape point = new PointWrapper(1, 1);
         point.setCZT(0, 0, 0);
 
-        Text text = new TextWrapper("Text", 2, 2);
+        Shape text = new TextWrapper("Text", 2, 2);
         text.setCZT(0, 0, 1);
 
-        Rectangle rectangle = new RectangleWrapper(3, 3, 10, 10);
+        Shape rectangle = new RectangleWrapper(3, 3, 10, 10);
         rectangle.setCZT(0, 0, 2);
 
         Mask mask = new MaskWrapper();
         mask.setCoordinates(4, 4, 9, 9);
         mask.setCZT(1, 0, 0);
 
-        Ellipse ellipse = new EllipseWrapper(5, 5, 4, 4);
+        Shape ellipse = new EllipseWrapper(5, 5, 4, 4);
         ellipse.setCZT(1, 0, 1);
 
-        Line line = new LineWrapper(0, 0, 10, 10);
+        Shape line = new LineWrapper(0, 0, 10, 10);
         line.setCZT(1, 0, 2);
 
         List<Point2D.Double> points2D = new ArrayList<>(3);
@@ -246,10 +246,10 @@ class ROITest extends UserTest {
         points2D.add(p2);
         points2D.add(p3);
 
-        Polyline polyline = new PolylineWrapper(points2D);
+        Shape polyline = new PolylineWrapper(points2D);
         polyline.setCZT(1, 1, 0);
 
-        Polygon polygon = new PolygonWrapper(points2D);
+        Shape polygon = new PolygonWrapper(points2D);
         polygon.setCZT(1, 1, 1);
 
         ROI roiWrapper = new ROIWrapper();

@@ -18,6 +18,7 @@
 package fr.igred.omero.core;
 
 
+import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotation;
@@ -25,12 +26,11 @@ import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
-import fr.igred.omero.roi.Ellipse;
 import fr.igred.omero.roi.EllipseWrapper;
 import fr.igred.omero.roi.ROI;
 import fr.igred.omero.roi.ROIWrapper;
-import fr.igred.omero.roi.Rectangle;
 import fr.igred.omero.roi.RectangleWrapper;
+import fr.igred.omero.roi.Shape;
 import fr.igred.omero.screen.PlateAcquisition;
 import fr.igred.omero.screen.Well;
 import fr.igred.omero.screen.WellSample;
@@ -482,7 +482,7 @@ class ImageTest extends UserTest {
         String name = "image tag";
         String desc = "tag attached to an image";
 
-        TagAnnotation tag = new TagAnnotationWrapper(client, name, desc);
+        RemoteObject tag = new TagAnnotationWrapper(client, name, desc);
 
         image.addTag(client, tag.getId());
 
@@ -503,10 +503,10 @@ class ImageTest extends UserTest {
         String[] names = {name + " 1", name + " 2", name + " 3", name + " 4"};
         String   desc  = "tag attached to a project";
 
-        TagAnnotation tag1 = new TagAnnotationWrapper(client, names[0], desc);
-        TagAnnotation tag2 = new TagAnnotationWrapper(client, names[1], desc);
-        TagAnnotation tag3 = new TagAnnotationWrapper(client, names[2], desc);
-        TagAnnotation tag4 = new TagAnnotationWrapper(client, names[3], desc);
+        RemoteObject tag1 = new TagAnnotationWrapper(client, names[0], desc);
+        RemoteObject tag2 = new TagAnnotationWrapper(client, names[1], desc);
+        RemoteObject tag3 = new TagAnnotationWrapper(client, names[2], desc);
+        RemoteObject tag4 = new TagAnnotationWrapper(client, names[3], desc);
 
         image.addTags(client, tag1.getId(), tag2.getId(), tag3.getId(), tag4.getId());
         List<TagAnnotation> tags = image.getTags(client);
@@ -722,10 +722,10 @@ class ImageTest extends UserTest {
     void testGetCropFromROI() throws Exception {
         Image image = client.getImage(IMAGE1.id);
 
-        Rectangle rectangle = new RectangleWrapper(30, 30, 20, 20);
+        Shape rectangle = new RectangleWrapper(30, 30, 20, 20);
         rectangle.setCZT(1, 1, 2);
 
-        Ellipse ellipse = new EllipseWrapper(50, 50, 20, 40);
+        Shape ellipse = new EllipseWrapper(50, 50, 20, 40);
         ellipse.setCZT(1, 0, 1);
 
         int[] xBounds = {30, 69};

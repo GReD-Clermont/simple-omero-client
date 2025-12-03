@@ -29,7 +29,7 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testPointNullCoordinates() {
-        Point point = new PointWrapper();
+        Punctual point = new PointWrapper();
         assertThrows(IllegalArgumentException.class,
                      () -> point.setCoordinates(null));
     }
@@ -37,7 +37,7 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testTextNullCoordinates() {
-        Text text = new TextWrapper();
+        Punctual text = new TextWrapper();
         assertThrows(IllegalArgumentException.class,
                      () -> text.setCoordinates(null));
     }
@@ -45,7 +45,7 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testRectangleNullCoordinates() {
-        Rectangle rectangle = new RectangleWrapper();
+        Rectangular rectangle = new RectangleWrapper();
         assertThrows(IllegalArgumentException.class,
                      () -> rectangle.setCoordinates(null));
     }
@@ -53,7 +53,7 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testMaskNullCoordinates() {
-        Mask mask = new MaskWrapper();
+        Rectangular mask = new MaskWrapper();
         assertThrows(IllegalArgumentException.class,
                      () -> mask.setCoordinates(null));
     }
@@ -77,7 +77,7 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testPointWrongCoordinates() {
-        Point    point       = new PointWrapper();
+        Punctual point       = new PointWrapper();
         double[] coordinates = {2, 2, 4, 4};
         assertThrows(IllegalArgumentException.class,
                      () -> point.setCoordinates(coordinates));
@@ -86,7 +86,7 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testTextWrongCoordinates() {
-        Text     text        = new TextWrapper();
+        Punctual text        = new TextWrapper();
         double[] coordinates = {2, 2, 4, 4};
         assertThrows(IllegalArgumentException.class,
                      () -> text.setCoordinates(coordinates));
@@ -95,8 +95,8 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testRectangleWrongCoordinates() {
-        Rectangle rectangle   = new RectangleWrapper();
-        double[]  coordinates = {2, 2};
+        Rectangular rectangle   = new RectangleWrapper();
+        double[]    coordinates = {2, 2};
         assertThrows(IllegalArgumentException.class,
                      () -> rectangle.setCoordinates(coordinates));
     }
@@ -104,8 +104,8 @@ class ShapeErrorTest extends BasicTest {
 
     @Test
     void testMaskWrongCoordinates() {
-        Mask     mask        = new MaskWrapper();
-        double[] coordinates = {2, 2};
+        Rectangular mask        = new MaskWrapper();
+        double[]    coordinates = {2, 2};
         assertThrows(IllegalArgumentException.class,
                      () -> mask.setCoordinates(coordinates));
     }

@@ -91,8 +91,7 @@ public interface AdminManager {
     default fr.igred.omero.meta.Experimenter getUser(String username)
     throws ExecutionException, ServiceException, AccessException {
         ExperimenterData user = call(getAdminFacility(),
-                                     a -> a.lookupExperimenter(getCtx(),
-                                                               username),
+                                     a -> a.lookupExperimenter(getCtx(), username),
                                      "Cannot retrieve user: " + username);
         if (user != null) {
             return new ExperimenterWrapper(user);

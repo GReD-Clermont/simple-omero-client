@@ -202,8 +202,8 @@ public class RectangleWrapper extends ShapeWrapper<RectangleData> implements Rec
         if (transform.getType() == AffineTransform.TYPE_IDENTITY) {
             roi = new ij.gui.Roi(getX(), getY(), getWidth(), getHeight());
         } else {
-            Point p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
-            Point p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
+            Shape p1 = new PointWrapper(getX(), getY() + getHeight() / 2);
+            Shape p2 = new PointWrapper(getX() + getWidth(), getY() + getHeight() / 2);
             p1.setTransform(transform);
             p2.setTransform(transform);
 
