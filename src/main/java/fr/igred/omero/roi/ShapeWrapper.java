@@ -64,6 +64,9 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
     /** Transparent color */
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
+    /** Value of PI in degrees */
+    private static final double PI_IN_DEGREES = 180.0;
+
 
     /**
      * Constructor of the ShapeWrapper class using a ShapeData.
@@ -72,6 +75,30 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      */
     protected ShapeWrapper(T s) {
         super(s);
+    }
+
+
+    /**
+     * Converts degrees to radians.
+     *
+     * @param angdeg Angle in degrees.
+     *
+     * @return Angle in radians.
+     */
+    protected static Double toRadians(double angdeg) {
+        return StrictMath.PI * angdeg / PI_IN_DEGREES;
+    }
+
+
+    /**
+     * Converts radians to degrees.
+     *
+     * @param angrad Angle in radians.
+     *
+     * @return Angle in degrees.
+     */
+    protected static Double toDegrees(double angrad) {
+        return PI_IN_DEGREES * angrad / StrictMath.PI;
     }
 
 
@@ -241,7 +268,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
         data.getShapeSettings().setFontFamily(font.getFamily());
 
         // Angle is negative and in degrees in IJ
-        double angle = StrictMath.toRadians(-text.getAngle());
+        double angle = toRadians(-text.getAngle());
         double x     = text.getBounds().getX();
         double y     = text.getBounds().getY();
 
@@ -282,7 +309,7 @@ public abstract class ShapeWrapper<T extends ShapeData> extends AnnotatableWrapp
      */
     private void copyToIJTextRoi(ij.gui.TextRoi text) {
         // Set negative angle in degrees for IJ
-        double angle = -StrictMath.toDegrees(extractAngle(toAWTTransform()));
+        double angle = -toDegrees(extractAngle(toAWTTransform()));
         text.setAngle(angle);
 
         String fontFamily = data.getShapeSettings().getFontFamily();

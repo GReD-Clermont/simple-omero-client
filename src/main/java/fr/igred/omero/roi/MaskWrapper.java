@@ -86,7 +86,7 @@ public class MaskWrapper extends ShapeWrapper<MaskData> implements Mask {
         data.getShapeSettings().setFill(new Color(r, g, b, a));
 
         // Always 0 as long as ImageRoi::getAngle() method is not updated
-        double          angle     = StrictMath.toRadians(-imageRoi.getAngle());
+        double          angle     = toRadians(-imageRoi.getAngle());
         AffineTransform transform = new AffineTransform();
         transform.rotate(angle, imageRoi.getXBase(), imageRoi.getYBase());
         super.setTransform(transform);
