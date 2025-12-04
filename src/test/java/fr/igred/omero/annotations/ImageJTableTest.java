@@ -157,8 +157,8 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image", 0, label);
         results.setValue(ROI.IJ_PROPERTY, 0, "ROI_1");
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -192,8 +192,8 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image_Name", 0, label);
         results.setValue(property, 0, rois.get(0).getId());
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, property);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois, property);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -225,8 +225,8 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable(label, VOLUME1, UNIT1);
         results.setValue(ROI.ijIDProperty(null), 0, rois.get(0).getId());
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -256,8 +256,8 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable("", VOLUME1, UNIT1);
         results.setValue("Image", 0, label);
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -284,7 +284,7 @@ class ImageJTableTest extends UserTest {
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, VOLUME1, UNIT1);
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        ROIColumn    builder = new ROIColumn(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
         Table        table   = builder.createTable();
         image.addTable(client, table);
 
@@ -314,7 +314,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label, VOLUME1, UNIT1);
         ResultsTable results2 = createOneRowResultsTable(label, VOLUME2, UNIT2);
 
-        TableBuilder builder = new TableBuilder(client, results1, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        ROIColumn builder = new ROIColumn(client, results1, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
         builder.addRows(client, results2, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
         Table table = builder.createTable();
         image.addTable(client, table);
@@ -353,7 +353,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results2 = createOneRowResultsTable(label, VOLUME2, UNIT2);
         results2.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
 
-        TableBuilder builder = new TableBuilder(client, results1, IMAGE_ID, ijRois);
+        ROIColumn builder = new ROIColumn(client, results1, IMAGE_ID, ijRois);
         builder.addRows(client, results2, IMAGE_ID, ijRois);
         Table table = builder.createTable();
         image.addTable(client, table);
@@ -396,8 +396,8 @@ class ImageJTableTest extends UserTest {
         results.setValue(ROI.IJ_PROPERTY, 0, local.getName());
         results.setValue(ROI.IJ_PROPERTY, 1, ijRois.get(0).getName());
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -436,8 +436,8 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable(label1, VOLUME1, UNIT1);
         addRowToResultsTable(results, label2, VOLUME2, UNIT2);
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -495,7 +495,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable res1 = createOneRowResultsTable(label1, VOLUME1, UNIT1);
         ResultsTable res2 = createOneRowResultsTable(label2, VOLUME2, UNIT2);
 
-        TableBuilder builder = new TableBuilder(client, res1, IMAGE_ID, ijRois);
+        ROIColumn builder = new ROIColumn(client, res1, IMAGE_ID, ijRois);
         builder.addRows(client, res2, IMAGE_ID, ijRois);
         Table table = builder.createTable();
         image.addTable(client, table);
@@ -559,7 +559,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable res1 = createOneRowResultsTable(label1, VOLUME1, UNIT1);
         ResultsTable res2 = createOneRowResultsTable(label2, VOLUME2, UNIT2);
 
-        TableBuilder builder = new TableBuilder(client, res1, IMAGE_ID, ijRois);
+        ROIColumn builder = new ROIColumn(client, res1, IMAGE_ID, ijRois);
         builder.addRows(client, res2, IMAGE_ID, ijRois);
         Table table = builder.createTable();
         image.addTable(client, table);
@@ -596,7 +596,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label, VOLUME1, UNIT1);
         ResultsTable results2 = createOneRowResultsTable(label, VOLUME2, null);
 
-        TableBuilder table = new TableBuilder(client, results1, IMAGE_ID, ijRois);
+        ROIColumn table = new ROIColumn(client, results1, IMAGE_ID, ijRois);
         try {
             table.addRows(client, results2, IMAGE_ID, ijRois);
         } catch (IllegalArgumentException e) {
@@ -622,8 +622,8 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image", 0, label);
         results.setValue(ROI.IJ_PROPERTY, 0, 1);
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -654,8 +654,8 @@ class ImageJTableTest extends UserTest {
         results.setValue("Image", 0, label);
         results.setValue(ROI.IJ_PROPERTY, 0, 1.0d);
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
-        Table        table   = builder.createTable();
+        ROIColumn builder = new ROIColumn(client, results, IMAGE_ID, ijRois);
+        Table     table   = builder.createTable();
         image.addTable(client, table);
 
         long       rowCount = table.getNumberOfRows();
@@ -689,8 +689,8 @@ class ImageJTableTest extends UserTest {
         results2.setValue("Volume Unit", 0, UNIT2);
         results2.setValue("Volume", 0, VOLUME2);
 
-        TableBuilder builder = new TableBuilder(client, results1, IMAGE_ID, ijRois,
-                                                ROI.IJ_PROPERTY);
+        ROIColumn builder = new ROIColumn(client, results1, IMAGE_ID, ijRois,
+                                          ROI.IJ_PROPERTY);
         builder.addRows(client, results2, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
         Table table = builder.createTable();
         image.addTable(client, table);
@@ -731,7 +731,7 @@ class ImageJTableTest extends UserTest {
         results2.setValue(ROI.IJ_PROPERTY, 0, ijRois.get(0).getName());
         results2.setValue("Removed", 0, "");
 
-        TableBuilder table = new TableBuilder(client, results1, IMAGE_ID, ijRois);
+        ROIColumn table = new ROIColumn(client, results1, IMAGE_ID, ijRois);
         table.addRows(client, results2, IMAGE_ID, ijRois);
         table.createTable();
 
@@ -798,7 +798,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable res1 = createOneRowResultsTable(label1, VOLUME1, UNIT1);
         ResultsTable res2 = createOneRowResultsTable(label2, VOLUME2, UNIT2);
 
-        TableBuilder table = new TableBuilder(client, res1, IMAGE_ID, ijRois);
+        ROIColumn table = new ROIColumn(client, res1, IMAGE_ID, ijRois);
 
         assertThrows(IllegalArgumentException.class,
                      () -> table.addRows(client, res2, null, ijRois));
