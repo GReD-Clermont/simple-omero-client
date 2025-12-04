@@ -19,7 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.UserTest;
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.TableBuilder;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.containers.Dataset;
@@ -117,7 +117,7 @@ class ImageImportTest extends UserTest {
         Folder imgFolder = new FolderWrapper(client, "ReplaceTestImageFolder");
         imgFolder.addImages(client, image2);
 
-        TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
+        TableBuilder table = new TableBuilder(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
         table.setRowCount(1);
         table.addRow("Annotation");
@@ -202,7 +202,7 @@ class ImageImportTest extends UserTest {
         Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.addROIs(client, image2, roi);
 
-        TableWrapper table = new TableWrapper(1, "ReplaceTestTable");
+        TableBuilder table = new TableBuilder(1, "ReplaceTestTable");
         table.setColumn(0, "Name", String.class);
         table.setRowCount(1);
         table.addRow("Annotation");

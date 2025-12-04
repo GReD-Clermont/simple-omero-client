@@ -25,7 +25,7 @@ import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotation;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.TableBuilder;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Browser;
@@ -332,7 +332,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      */
     @Override
-    public void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    public void addAndReplaceTable(Client client, TableBuilder table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         String error = "Cannot add table to " + this;
         Collection<FileAnnotation> tables = wrap(call(client.getTablesFacility(),
@@ -366,7 +366,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public TableWrapper getTable(DataManager dm, Long fileId)
+    public TableBuilder getTable(DataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData info = call(dm.getTablesFacility(),
                               tf -> tf.getTableInfo(dm.getCtx(), fileId),
@@ -384,7 +384,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
                                    .findFirst()
                                    .orElse(null),
                            "Cannot get table name from " + this);
-        TableWrapper result = new TableWrapper(Objects.requireNonNull(table));
+        TableBuilder result = new TableBuilder(Objects.requireNonNull(table));
         result.setName(name);
         return result;
     }

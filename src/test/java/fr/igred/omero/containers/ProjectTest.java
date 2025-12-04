@@ -23,7 +23,7 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.TableBuilder;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.core.Image;
@@ -347,7 +347,7 @@ class ProjectTest extends UserTest {
         project1.link(client, tag);
         project1.addKeyValuePair(client, "CopyTest", "Annotation");
 
-        TableWrapper table = new TableWrapper(1, "CopyTest");
+        TableBuilder table = new TableBuilder(1, "CopyTest");
         table.setColumn(0, "Name", String.class);
         table.setRowCount(1);
         table.addRow("Annotation");

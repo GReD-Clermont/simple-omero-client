@@ -22,7 +22,7 @@ import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.RatingAnnotation;
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.TableBuilder;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -363,7 +363,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addTable(DataManager dm, TableWrapper table)
+    default void addTable(DataManager dm, TableBuilder table)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot add table to " + this;
 
@@ -403,7 +403,7 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    void addAndReplaceTable(Client client, TableWrapper table, ReplacePolicy policy)
+    void addAndReplaceTable(Client client, TableBuilder table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
@@ -419,7 +419,7 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    default void addAndReplaceTable(Client client, TableWrapper table)
+    default void addAndReplaceTable(Client client, TableBuilder table)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
     }
@@ -437,7 +437,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    TableWrapper getTable(DataManager dm, Long fileId)
+    TableBuilder getTable(DataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -452,17 +452,17 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<TableWrapper> getTables(DataManager dm)
+    default List<TableBuilder> getTables(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         Collection<FileAnnotationData> tables = call(dm.getTablesFacility(),
                                                      tf -> tf.getAvailableTables(dm.getCtx(), asDataObject()),
                                                      "Cannot get tables from " + this);
 
-        List<TableWrapper> tablesWrapper = new ArrayList<>(tables.size());
+        List<TableBuilder> tablesWrapper = new ArrayList<>(tables.size());
         for (FileAnnotationData table : tables) {
-            TableWrapper tableWrapper = getTable(dm, table.getFileID());
-            tableWrapper.setId(table.getId());
-            tablesWrapper.add(tableWrapper);
+            TableBuilder tableBuilder = getTable(dm, table.getFileID());
+            tableBuilder.setId(table.getId());
+            tablesWrapper.add(tableBuilder);
         }
 
         return tablesWrapper;

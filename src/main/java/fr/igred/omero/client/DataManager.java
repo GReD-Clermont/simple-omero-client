@@ -19,7 +19,7 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.TableBuilder;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -139,7 +139,7 @@ public interface DataManager {
      * @throws IllegalArgumentException ID not defined.
      * @throws InterruptedException     If block(long) does not return.
      */
-    default void deleteTable(TableWrapper table)
+    default void deleteTable(TableBuilder table)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFile(table.getId());
     }
@@ -156,10 +156,10 @@ public interface DataManager {
      * @throws IllegalArgumentException ID not defined.
      * @throws InterruptedException     If block(long) does not return.
      */
-    default void deleteTables(Collection<? extends TableWrapper> tables)
+    default void deleteTables(Collection<? extends TableBuilder> tables)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFiles(tables.stream()
-                          .map(TableWrapper::getId)
+                          .map(TableBuilder::getId)
                           .toArray(Long[]::new));
     }
 
