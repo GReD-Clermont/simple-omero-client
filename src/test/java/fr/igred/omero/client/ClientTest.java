@@ -46,6 +46,24 @@ class ClientTest extends UserTest {
 
 
     @Test
+    void testFindObject() throws Exception {
+        client.switchGroup(GROUP2.id);
+        Project project = client.findObject(Project.class, PROJECT1.id);
+        client.switchGroup(GROUP1.id);
+        assertEquals(PROJECT1.id, project.getId());
+    }
+
+
+    @Test
+    void testFindObjectWrapper() throws Exception {
+        client.switchGroup(GROUP2.id);
+        Project project = client.findObject(ProjectWrapper.class, PROJECT1.id);
+        client.switchGroup(GROUP1.id);
+        assertEquals(PROJECT1.id, project.getId());
+    }
+
+
+    @Test
     void testProjectBasic() throws Exception {
         Project project = client.getProject(PROJECT1.id);
         assertEquals(PROJECT1.id, project.getId());
@@ -208,22 +226,20 @@ class ClientTest extends UserTest {
 
     @Test
     void testSwitchGroup() {
-        final long newGroupId = 4L;
-        client.switchGroup(newGroupId);
+        client.switchGroup(GROUP2.id);
         long actualGroupId = client.getCurrentGroupId();
-        assertEquals(newGroupId, actualGroupId);
+        assertEquals(GROUP2.id, actualGroupId);
     }
 
 
     @Test
     void testSwitchGroupAndImport() throws Exception {
-        final long newGroupId = 4L;
-
-        String filename = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=256.fake";
+        String filename
+                = "8bit-unsigned&pixelType=uint8&sizeZ=3&sizeC=5&sizeT=7&sizeX=256&sizeY=256.fake";
 
         File file = createFile(filename);
 
-        client.switchGroup(newGroupId);
+        client.switchGroup(GROUP2.id);
 
         Dataset dataset = new DatasetWrapper("test", "");
         dataset.saveAndUpdate(client);

@@ -40,6 +40,7 @@ import fr.igred.omero.screen.Screen;
 import fr.igred.omero.screen.ScreenWrapper;
 import fr.igred.omero.screen.Well;
 import fr.igred.omero.screen.WellWrapper;
+import fr.igred.omero.util.Wrapper;
 import omero.gateway.SecurityContext;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FolderData;
@@ -50,6 +51,7 @@ import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.WellData;
+import omero.gateway.util.PojoMapper;
 import omero.model.IObject;
 
 import java.util.Arrays;
@@ -77,6 +79,36 @@ public abstract class BrowserWrapper implements Browser {
      * Abstract constructor of the BrowserWrapper class.
      */
     protected BrowserWrapper() {
+    }
+
+
+    /**
+     * Finds an object of the specified class, with the specified id in all OMERO groups.
+     *
+     * @param klass The object class.
+     * @param id    The object id.
+     * @param <T>   The type of object.
+     *
+     * @return The found object.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    @Override
+    public <T extends RemoteObject> T findObject(Class<T> klass, long id)
+    throws ServiceException, AccessException, ExecutionException {
+        String klassName = klass.getSimpleName();
+        if (klassName.endsWith("Wrapper")) {
+            klassName = klassName.substring(0, klassName.length() - "Wrapper".length());
+        }
+        String searchedKlass = klassName;
+        String error = format("Could not find object of class %s with id %d", searchedKlass, id);
+        IObject obj = call(getBrowseFacility(),
+                           bf -> bf.findIObject(getCtx(), searchedKlass, id, true),
+                           error);
+        //noinspection unchecked
+        return (T) Wrapper.wrap(PojoMapper.asDataObject(obj));
     }
 
 

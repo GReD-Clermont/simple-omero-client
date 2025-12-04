@@ -124,6 +124,23 @@ public interface Browser {
 
 
     /**
+     * Finds an object of the specified class, with the specified id in all available OMERO groups.
+     *
+     * @param klass The object class.
+     * @param id    The object id.
+     * @param <T>   The type of object.
+     *
+     * @return The found object.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    <T extends RemoteObject> T findObject(Class<T> klass, long id)
+    throws ServiceException, AccessException, ExecutionException;
+
+
+    /**
      * Gets the project with the specified id from OMERO.
      *
      * @param id ID of the project.
