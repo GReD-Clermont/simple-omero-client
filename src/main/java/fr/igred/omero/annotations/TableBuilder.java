@@ -46,7 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.annotations.ROIColumn.createROIColumn;
+import static fr.igred.omero.annotations.ROIColumnHelper.createROIColumn;
 import static fr.igred.omero.annotations.ResultsTableHelper.IMAGE;
 import static fr.igred.omero.annotations.ResultsTableHelper.LABEL;
 import static fr.igred.omero.annotations.ResultsTableHelper.isColumnNumeric;
