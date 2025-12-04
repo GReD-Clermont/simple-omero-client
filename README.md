@@ -64,9 +64,10 @@ List<String> values = dataset.getValues(client, "key");
 * #### Tables:
 
 ```java
-TableWrapper table = new TableWrapper(columnCount, "name");
+TableBuilder builder = new TableBuilder(columnCount, "name");
+Table table = builder.createTable();
 dataset.addTable(client, table);
-List<TableWrapper> tables = dataset.getTables(client);
+List<Table> tables = dataset.getTables(client);
 ```
 
 * #### Files:
@@ -140,7 +141,8 @@ Rows can also be linked (optionally) to ROIs on OMERO by having a column identif
 an argument:
 
 ```java
-TableWrapper table = new TableWrapper(client, resultsTable, imageId, ijRois, property);
+TableBuilder builder = new TableBuilder(client, resultsTable, imageId, ijRois, property);
+Table table = builder.createTable();
 ```
 
 Each row will have the image ID in a column named "Image", and the ROI IDs in a "ROI" column.
@@ -159,10 +161,10 @@ However, for ROIs to be linked, several conditions have to be fulfilled:
         1. The ROI name.
         2. The name of a shape from the ROI.
 
-Rows can be added the same way to the table:
+Rows can be added the same way to the table using the TableBuilder:
 
 ```java
-table.addRows(client, resultsTable2, imageId2, ijRois2, property);
+builder.addRows(client, resultsTable2, imageId2, ijRois2, property);
 ```
 
 ## License
