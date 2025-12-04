@@ -23,7 +23,7 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
-import fr.igred.omero.annotations.ResultsTableHelper;
+import fr.igred.omero.annotations.ROIColumn;
 import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -348,7 +348,7 @@ class ProjectTest extends UserTest {
         project1.link(client, tag);
         project1.addKeyValuePair(client, "CopyTest", "Annotation");
 
-        ResultsTableHelper builder = new ResultsTableHelper(1, "CopyTest");
+        ROIColumn builder = new ROIColumn(1, "CopyTest");
         builder.setColumn(0, "Name", String.class);
         builder.setRowCount(1);
         builder.addRow("Annotation");
