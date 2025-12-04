@@ -88,12 +88,6 @@ public class TableBuilder {
     /** Name of the table */
     private String name;
 
-    /** File ID of the table */
-    private Long fileId = -1L;
-
-    /** ID of the table */
-    private Long id = -1L;
-
 
     /**
      * Constructor of the class TableBuilder
@@ -164,7 +158,6 @@ public class TableBuilder {
         roiProperty = ROI.checkProperty(roiProperty);
 
         ResultsTable rt = (ResultsTable) results.clone();
-        this.fileId   = null;
         this.name     = rt.getTitle();
         this.rowCount = rt.size();
 
@@ -564,7 +557,7 @@ public class TableBuilder {
      */
     @Override
     public String toString() {
-        return String.format("%s (id=%d)", getClass().getSimpleName(), id);
+        return String.format("%s (name=%s)", getClass().getSimpleName(), name);
     }
 
 
@@ -685,46 +678,6 @@ public class TableBuilder {
      */
     public Object getData(int x, int y) {
         return data[y][x];
-    }
-
-
-    /**
-     * Returns the fileId of the table.
-     *
-     * @return See above.
-     */
-    public Long getFileId() {
-        return fileId;
-    }
-
-
-    /**
-     * Sets the fileId of the table.
-     *
-     * @param fileId New fileId.
-     */
-    public void setFileId(Long fileId) {
-        this.fileId = fileId;
-    }
-
-
-    /**
-     * Returns the table ID.
-     *
-     * @return See above.
-     */
-    public Long getId() {
-        return id;
-    }
-
-
-    /**
-     * Sets the id of the table.
-     *
-     * @param id New id.
-     */
-    public void setId(Long id) {
-        this.id = id;
     }
 
 
@@ -878,7 +831,7 @@ public class TableBuilder {
      *
      * @return See above.
      */
-    public TableData createTable() {
+    public Table createTable() {
         if (!isComplete()) {
             truncateRow();
         }
@@ -887,7 +840,7 @@ public class TableBuilder {
         emptyColumns.sort(Collections.reverseOrder());
         emptyColumns.forEach(this::removeColumn);
 
-        return new TableData(columns, data);
+        return new TableWrapper(new TableData(columns, data), name);
     }
 
 

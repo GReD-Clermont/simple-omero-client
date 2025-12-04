@@ -22,7 +22,7 @@ import fr.igred.omero.annotations.Annotation;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.RatingAnnotation;
-import fr.igred.omero.annotations.TableBuilder;
+import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.client.Browser;
 import fr.igred.omero.client.Client;
@@ -363,7 +363,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default void addTable(DataManager dm, TableBuilder table)
+    default void addTable(DataManager dm, Table table)
     throws ServiceException, AccessException, ExecutionException {
         String error = "Cannot add table to " + this;
 
@@ -372,7 +372,7 @@ public interface Annotatable extends RemoteObject {
                                    tf -> tf.addTable(dm.getCtx(),
                                                      asDataObject(),
                                                      table.getName(),
-                                                     table.createTable()),
+                                                     table.getTableData()),
                                    error);
 
         Collection<FileAnnotationData> tables = call(tablesFacility,
@@ -387,7 +387,7 @@ public interface Annotatable extends RemoteObject {
                         .max()
                         .orElse(-1L);
         table.setId(id);
-        table.setFileId(tableData.getOriginalFileId());
+        table.setOriginalFileId(tableData.getOriginalFileId());
     }
 
 
@@ -403,7 +403,7 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    void addAndReplaceTable(Client client, TableBuilder table, ReplacePolicy policy)
+    void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException;
 
 
@@ -419,7 +419,7 @@ public interface Annotatable extends RemoteObject {
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    default void addAndReplaceTable(Client client, TableBuilder table)
+    default void addAndReplaceTable(Client client, Table table)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         addAndReplaceTable(client, table, ReplacePolicy.DELETE_ORPHANED);
     }
@@ -437,7 +437,7 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    TableBuilder getTable(DataManager dm, Long fileId)
+    Table getTable(DataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -452,20 +452,21 @@ public interface Annotatable extends RemoteObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<TableBuilder> getTables(DataManager dm)
+    default List<Table> getTables(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
-        Collection<FileAnnotationData> tables = call(dm.getTablesFacility(),
-                                                     tf -> tf.getAvailableTables(dm.getCtx(), asDataObject()),
-                                                     "Cannot get tables from " + this);
+        Collection<FileAnnotationData> files = call(dm.getTablesFacility(),
+                                                    tf -> tf.getAvailableTables(dm.getCtx(),
+                                                                                asDataObject()),
+                                                    "Cannot get tables from " + this);
 
-        List<TableBuilder> tablesWrapper = new ArrayList<>(tables.size());
-        for (FileAnnotationData table : tables) {
-            TableBuilder tableBuilder = getTable(dm, table.getFileID());
-            tableBuilder.setId(table.getId());
-            tablesWrapper.add(tableBuilder);
+        List<Table> tables = new ArrayList<>(files.size());
+        for (FileAnnotationData file : files) {
+            Table table = getTable(dm, file.getFileID());
+            table.setId(file.getId());
+            tables.add(table);
         }
 
-        return tablesWrapper;
+        return tables;
     }
 
 

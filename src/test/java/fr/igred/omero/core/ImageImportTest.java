@@ -19,6 +19,7 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.annotations.Table;
 import fr.igred.omero.annotations.TableBuilder;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
@@ -117,10 +118,11 @@ class ImageImportTest extends UserTest {
         Folder imgFolder = new FolderWrapper(client, "ReplaceTestImageFolder");
         imgFolder.addImages(client, image2);
 
-        TableBuilder table = new TableBuilder(1, "ReplaceTestTable");
-        table.setColumn(0, "Name", String.class);
-        table.setRowCount(1);
-        table.addRow("Annotation");
+        TableBuilder builder = new TableBuilder(1, "ReplaceTestTable");
+        builder.setColumn(0, "Name", String.class);
+        builder.setRowCount(1);
+        builder.addRow("Annotation");
+        Table table = builder.createTable();
         image1.addTable(client, table);
         image2.addTable(client, table);
 
@@ -202,10 +204,11 @@ class ImageImportTest extends UserTest {
         Folder folder = new FolderWrapper(client, "ReplaceTestFolder");
         folder.addROIs(client, image2, roi);
 
-        TableBuilder table = new TableBuilder(1, "ReplaceTestTable");
-        table.setColumn(0, "Name", String.class);
-        table.setRowCount(1);
-        table.addRow("Annotation");
+        TableBuilder builder = new TableBuilder(1, "ReplaceTestTable");
+        builder.setColumn(0, "Name", String.class);
+        builder.setRowCount(1);
+        builder.addRow("Annotation");
+        Table table = builder.createTable();
         image1.addTable(client, table);
         image2.addTable(client, table);
 

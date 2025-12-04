@@ -40,6 +40,8 @@ public interface Table {
 
     /**
      * Set the name of the table.
+     *
+     * @param name See above.
      */
     void setName(String name);
 
@@ -52,6 +54,8 @@ public interface Table {
 
     /**
      * Set the ID of the table.
+     *
+     * @param id See above.
      */
     void setId(long id);
 

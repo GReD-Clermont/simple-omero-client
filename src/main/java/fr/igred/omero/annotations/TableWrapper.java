@@ -47,16 +47,11 @@ public class TableWrapper implements Table {
      * Constructor of the TableWrapper class.
      *
      * @param tableData TableData to wrap.
+     * @param name      Name of the table.
      */
     public TableWrapper(TableData tableData, String name) {
         this(tableData);
         this.name = name;
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        return tableData.equals(obj);
     }
 
 
@@ -90,6 +85,8 @@ public class TableWrapper implements Table {
 
     /**
      * Set the name of the table.
+     *
+     * @param name See above.
      */
     @Override
     public void setName(String name) {
@@ -110,6 +107,8 @@ public class TableWrapper implements Table {
 
     /**
      * Set the ID of the table.
+     *
+     * @param id See above.
      */
     @Override
     public void setId(long id) {

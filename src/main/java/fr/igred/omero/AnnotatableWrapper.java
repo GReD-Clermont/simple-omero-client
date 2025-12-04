@@ -25,7 +25,8 @@ import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
 import fr.igred.omero.annotations.RatingAnnotation;
 import fr.igred.omero.annotations.RatingAnnotationWrapper;
-import fr.igred.omero.annotations.TableBuilder;
+import fr.igred.omero.annotations.Table;
+import fr.igred.omero.annotations.TableWrapper;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.client.Browser;
@@ -42,6 +43,7 @@ import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TagAnnotationData;
+import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.TagAnnotationI;
 import omero.sys.ParametersI;
@@ -332,7 +334,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws InterruptedException The thread was interrupted.
      */
     @Override
-    public void addAndReplaceTable(Client client, TableBuilder table, ReplacePolicy policy)
+    public void addAndReplaceTable(Client client, Table table, ReplacePolicy policy)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         String error = "Cannot add table to " + this;
         Collection<FileAnnotation> tables = wrap(call(client.getTablesFacility(),
@@ -366,7 +368,7 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public TableBuilder getTable(DataManager dm, Long fileId)
+    public Table getTable(DataManager dm, Long fileId)
     throws ServiceException, AccessException, ExecutionException {
         TableData info = call(dm.getTablesFacility(),
                               tf -> tf.getTableInfo(dm.getCtx(), fileId),
@@ -376,16 +378,18 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
                                tf -> tf.getTable(dm.getCtx(), fileId,
                                                  0, nRows - 1),
                                "Cannot get table from " + this);
-        String name = call(dm.getTablesFacility(),
-                           tf -> tf.getAvailableTables(dm.getCtx(), data)
-                                   .stream()
-                                   .filter(t -> t.getFileID() == fileId)
-                                   .map(FileAnnotationData::getDescription)
-                                   .findFirst()
-                                   .orElse(null),
-                           "Cannot get table name from " + this);
-        TableBuilder result = new TableBuilder(Objects.requireNonNull(table));
-        result.setName(name);
+        FileAnnotationData f = call(dm.getTablesFacility(),
+                                    tf -> tf.getAvailableTables(dm.getCtx(), data)
+                                            .stream()
+                                            .filter(t -> t.getFileID() == fileId)
+                                            .findFirst()
+                                            .orElse(new FileAnnotationData(new FileAnnotationI())),
+                                    "Cannot get table name from " + this);
+        String name   = f.getDescription();
+        long   id     = f.getId();
+        Table  result = new TableWrapper(Objects.requireNonNull(table), name);
+        result.setOriginalFileId(fileId);
+        result.setId(id);
         return result;
     }
 
