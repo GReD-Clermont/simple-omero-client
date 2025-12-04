@@ -86,9 +86,10 @@ public interface Annotatable extends RemoteObject {
     default <A extends AnnotationData> void link(DataManager dm, A annotation)
     throws ServiceException, AccessException, ExecutionException {
         String error = String.format("Cannot add %s to %s", annotation, this);
-        call(dm.getDMFacility(),
-             d -> d.attachAnnotation(dm.getCtx(), annotation, asDataObject()),
-             error);
+        AnnotationData ann = call(dm.getDMFacility(),
+                                  d -> d.attachAnnotation(dm.getCtx(), annotation, asDataObject()),
+                                  error);
+        annotation.setId(ann.getId());
     }
 
 

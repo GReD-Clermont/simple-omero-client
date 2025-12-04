@@ -283,7 +283,8 @@ public interface Shape extends Annotatable {
         ShapeAnnotationLink link = new ShapeAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.Shape) asDataObject().asIObject());
-        dm.save(link);
+        long id = ((ShapeAnnotationLink) dm.save(link)).getChild().getId().getValue();
+        annotation.setId(id);
     }
 
 }

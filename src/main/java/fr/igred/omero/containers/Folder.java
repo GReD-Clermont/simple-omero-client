@@ -82,7 +82,8 @@ public interface Folder extends RepositoryObject {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent(asDataObject().asFolder());
-        dm.save(link);
+        long id = ((FolderAnnotationLink) dm.save(link)).getChild().getId().getValue();
+        annotation.setId(id);
     }
 
 
