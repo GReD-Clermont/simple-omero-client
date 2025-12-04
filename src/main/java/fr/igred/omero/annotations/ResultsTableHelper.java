@@ -61,7 +61,7 @@ import static java.util.stream.Collectors.toMap;
  * be altered.
  * <p> To get the TableData corresponding to the elements contained use createTable.
  */
-public class TableBuilder {
+public class ResultsTableHelper {
 
     /** Empty ROI array */
     private static final ROIData[] EMPTY_ROI = new ROIData[0];
@@ -90,12 +90,12 @@ public class TableBuilder {
 
 
     /**
-     * Constructor of the class TableBuilder
+     * Constructor of the class ResultsTableHelper
      *
      * @param columnCount Number of column in the table.
      * @param name        Name of the table.
      */
-    public TableBuilder(int columnCount, String name) {
+    public ResultsTableHelper(int columnCount, String name) {
         this.columnCount = columnCount;
         this.name        = name;
         columns          = new TableDataColumn[columnCount];
@@ -106,11 +106,11 @@ public class TableBuilder {
 
 
     /**
-     * Constructor of the class TableBuilder. Uses an already existing table to create.
+     * Constructor of the class ResultsTableHelper. Uses an already existing table to create.
      *
      * @param table The table.
      */
-    public TableBuilder(TableData table) {
+    public ResultsTableHelper(TableData table) {
         this.columns = table.getColumns();
         columnCount  = columns.length;
         data         = table.getData();
@@ -121,7 +121,7 @@ public class TableBuilder {
 
 
     /**
-     * Constructor of the class TableBuilder. Uses an ImageJ {@link ResultsTable} to create.
+     * Constructor of the class ResultsTableHelper. Uses an ImageJ {@link ResultsTable} to create.
      *
      * @param client  The client handling the connection.
      * @param results An ImageJ results table.
@@ -132,14 +132,14 @@ public class TableBuilder {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableBuilder(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
+    public ResultsTableHelper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
         this(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
     }
 
 
     /**
-     * Constructor of the class TableBuilder. Uses an ImageJ {@link ResultsTable} to create.
+     * Constructor of the class ResultsTableHelper. Uses an ImageJ {@link ResultsTable} to create.
      *
      * @param client      The client handling the connection.
      * @param results     An ImageJ results table.
@@ -152,8 +152,8 @@ public class TableBuilder {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    public TableBuilder(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
-                        String roiProperty)
+    public ResultsTableHelper(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
+                              String roiProperty)
     throws ServiceException, AccessException, ExecutionException {
         roiProperty = ROI.checkProperty(roiProperty);
 

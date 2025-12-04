@@ -42,7 +42,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableBuilder builder = new TableBuilder(2, "TableTest");
+        ResultsTableHelper builder = new ResultsTableHelper(2, "TableTest");
 
         assertEquals(2, builder.getColumnCount());
 
@@ -92,7 +92,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableBuilder builder = new TableBuilder(4, "TableTest");
+        ResultsTableHelper builder = new ResultsTableHelper(4, "TableTest");
 
         assertEquals(4, builder.getColumnCount());
 
@@ -142,7 +142,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableBuilder builder1 = new TableBuilder(2, "TableTest");
+        ResultsTableHelper builder1 = new ResultsTableHelper(2, "TableTest");
 
         assertEquals(2, builder1.getColumnCount());
 
@@ -168,7 +168,7 @@ class TableTest extends UserTest {
         dataset.addTable(client, table1);
         long tableId1 = table1.getId();
 
-        TableBuilder builder2 = new TableBuilder(2, "TableTest 2");
+        ResultsTableHelper builder2 = new ResultsTableHelper(2, "TableTest 2");
         builder2.setColumn(0, "Image", ImageData.class);
         builder2.setColumn(1, "Description", String.class);
         builder2.setRowCount(images.size());
@@ -186,7 +186,7 @@ class TableTest extends UserTest {
         dataset.addTable(client, table2);
         long tableId2 = table2.getId();
 
-        TableBuilder builder3 = new TableBuilder(2, "TableTest");
+        ResultsTableHelper builder3 = new ResultsTableHelper(2, "TableTest");
         builder3.setColumn(0, "Image", ImageData.class);
         builder3.setColumn(1, "Name", String.class);
         builder3.setRowCount(images.size());
@@ -219,7 +219,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableBuilder table = new TableBuilder(2, "TableTest");
+        ResultsTableHelper table = new ResultsTableHelper(2, "TableTest");
         table.setName("TableTestNewName");
 
         assertEquals("TableTestNewName", table.getName());
@@ -237,7 +237,7 @@ class TableTest extends UserTest {
 
     @Test
     void testErrorTableColumn() {
-        TableBuilder table = new TableBuilder(2, "TableTest");
+        ResultsTableHelper table = new ResultsTableHelper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
@@ -251,7 +251,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableBuilder table = new TableBuilder(2, "TableTest");
+        ResultsTableHelper table = new ResultsTableHelper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
@@ -266,7 +266,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableBuilder table = new TableBuilder(2, "TableTest");
+        ResultsTableHelper table = new ResultsTableHelper(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         table.setRowCount(images.size());
