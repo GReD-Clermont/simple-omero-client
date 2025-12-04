@@ -61,6 +61,21 @@ public class TableWrapper implements Table {
     }
 
 
+    @Override
+    public boolean equals(Object object) {
+        return tableData.equals(object);
+    }
+
+
+    /**
+     * Overridden to return the name of the class and the object id.
+     */
+    @Override
+    public String toString() {
+        return String.format("%s (name=%d)", getClass().getSimpleName(), id);
+    }
+
+
     /**
      * Get the TableData object.
      *

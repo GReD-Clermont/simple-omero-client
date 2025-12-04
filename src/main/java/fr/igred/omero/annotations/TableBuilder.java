@@ -290,7 +290,7 @@ public class TableBuilder {
 
 
     /**
-     * Overridden to return the name of the class and the object id.
+     * Overridden to return the name of the class and the object name.
      */
     @Override
     public String toString() {
