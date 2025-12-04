@@ -83,6 +83,12 @@ class TableTest extends UserTest {
         assertEquals(table.getOriginalFileId(), newTable.getOriginalFileId());
         assertEquals(table.isCompleted(), newTable.isCompleted());
         assertEquals(table.isEmpty(), newTable.isEmpty());
+
+        TableBuilder noBuilder = new TableBuilder(newTable.getTableData());
+        Table sameTable = noBuilder.createTable();
+        sameTable.setNumberOfRows(5000);
+        sameTable.setCompleted();
+        assertEquals(newTable.getNumberOfRows(), sameTable.getNumberOfRows());
     }
 
 
