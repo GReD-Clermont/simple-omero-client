@@ -610,7 +610,7 @@ class ImageTest extends UserTest {
         Image image = client.getImage(IMAGE1.id);
 
         File file = createRandomFile("test_image.txt");
-        long id   = image.addFile(client, file);
+        long id   = image.addFile(client, file).getId();
 
         List<FileAnnotation> files = image.getFileAnnotations(client);
         for (FileAnnotation fileAnn : files) {

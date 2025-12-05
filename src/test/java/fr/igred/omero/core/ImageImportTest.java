@@ -93,7 +93,7 @@ class ImageImportTest extends UserTest {
         image1.link(client, tag1);
         image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
-        long fileId = image1.addFile(client, file);
+        long fileId = image1.addFile(client, file).getId();
         removeFile(file);
         assertNotEquals(0L, fileId);
 
@@ -181,7 +181,7 @@ class ImageImportTest extends UserTest {
         image1.link(client, tag1);
         image1.addKeyValuePair(client, "Map", "ReplaceTest");
 
-        long fileId = image1.addFile(client, file);
+        long fileId = image1.addFile(client, file).getId();
         removeFile(file);
         assertNotEquals(0L, fileId);
 

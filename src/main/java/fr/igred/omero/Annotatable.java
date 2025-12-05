@@ -161,11 +161,13 @@ public interface Annotatable extends RemoteObject {
      * @param name        Tag Name.
      * @param description Tag description.
      *
+     * @return The newly created tag.
+     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void addTag(DataManager dm, String name, String description)
+    TagAnnotation addTag(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -238,11 +240,13 @@ public interface Annotatable extends RemoteObject {
      * @param key   Name of the key.
      * @param value Value associated to the key.
      *
+     * @return The newly created key-value pair.
+     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    void addKeyValuePair(DataManager dm, String key, String value)
+    MapAnnotation addKeyValuePair(DataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException;
 
 
@@ -477,19 +481,13 @@ public interface Annotatable extends RemoteObject {
      * @param dm   The data manager.
      * @param file File to add.
      *
-     * @return ID of the file created in OMERO.
+     * @return The newly created file annotation.
      *
      * @throws ExecutionException   A Facility can't be retrieved or instantiated.
      * @throws InterruptedException The thread was interrupted.
      */
-    default long addFile(DataManager dm, File file)
-    throws ExecutionException, InterruptedException {
-        String name = file.getName();
-        return dm.getDMFacility()
-                 .attachFile(dm.getCtx(), file, null, "", name, asDataObject())
-                 .get()
-                 .getId();
-    }
+    FileAnnotation addFile(DataManager dm, File file)
+    throws ExecutionException, InterruptedException;
 
 
     /**
