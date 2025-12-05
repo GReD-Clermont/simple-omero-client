@@ -88,7 +88,8 @@ public interface PlateAcquisition extends RepositoryObject {
         PlateAcquisitionAnnotationLink link = new PlateAcquisitionAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.PlateAcquisition) asDataObject().asIObject());
-        dm.save(link);
+        link = (PlateAcquisitionAnnotationLink) dm.save(link);
+        annotation.setId(link.getChild().getId().getValue());
     }
 
 

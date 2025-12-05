@@ -112,12 +112,13 @@ class ProjectTest extends UserTest {
 
         Project project = client.getProject(PROJECT1.id);
 
-        project.addTag(client, name, desc);
+        TagAnnotation tag = project.addTag(client, name, desc);
         List<TagAnnotation> tags = client.getTags(name);
         client.delete(tags.get(0));
         List<TagAnnotation> endTags = client.getTags(name);
 
         assertEquals(1, tags.size());
+        assertEquals(tag.getId(), tags.get(0).getId());
         assertEquals(0, endTags.size());
     }
 
@@ -337,7 +338,7 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        long fileId = project1.addFile(client, file);
+        long fileId = project1.addFile(client, file).getId();
         removeFile(file);
         assertNotEquals(0L, fileId);
 
@@ -395,7 +396,8 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        long fileId = project1.addFile(client, file);
+        FileAnnotation fileAnn = project1.addFile(client, file);
+        long fileId = fileAnn.getId();
         removeFile(file);
         assertNotEquals(0L, fileId);
 
@@ -407,7 +409,7 @@ class ProjectTest extends UserTest {
         }
         assertEquals(1, project2.getFileAnnotations(client).size());
 
-        client.deleteFile(fileId);
+        client.delete(fileAnn);
         client.delete(project2);
 
         assertNotEquals(0L, fileId);
@@ -424,7 +426,7 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        long fileId1 = project1.addFile(client, file);
+        long fileId1 = project1.addFile(client, file).getId();
         assertEquals(1, project1.getFileAnnotations(client).size());
         project2.link(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file);
@@ -450,7 +452,7 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        long fileId1 = project1.addFile(client, file);
+        long fileId1 = project1.addFile(client, file).getId();
         assertEquals(1, project1.getFileAnnotations(client).size());
         project2.link(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file, DELETE);
@@ -475,7 +477,7 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        long fileId1 = project1.addFile(client, file);
+        long fileId1 = project1.addFile(client, file).getId();
         assertEquals(1, project1.getFileAnnotations(client).size());
         project2.link(client, project1.getFileAnnotations(client).get(0));
         long fileId2 = project1.addAndReplaceFile(client, file, DELETE_ORPHANED);
@@ -500,7 +502,7 @@ class ProjectTest extends UserTest {
 
         File file = createRandomFile("test_project.txt");
 
-        long fileId1 = project.addFile(client, file);
+        long fileId1 = project.addFile(client, file).getId();
         assertEquals(1, project.getFileAnnotations(client).size());
         long fileId2 = project.addAndReplaceFile(client, file, DELETE_ORPHANED);
         assertEquals(1, project.getFileAnnotations(client).size());

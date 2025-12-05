@@ -370,7 +370,8 @@ public interface ROI extends Annotatable {
         RoiAnnotationLink link = new RoiAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.Roi) asDataObject().asIObject());
-        dm.save(link);
+        long id = ((RoiAnnotationLink) dm.save(link)).getChild().getId().getValue();
+        annotation.setId(id);
     }
 
 }

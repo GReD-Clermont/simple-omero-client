@@ -114,16 +114,19 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @param name        Tag Name.
      * @param description Tag description.
      *
+     * @return The newly created tag.
+     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void addTag(DataManager dm, String name, String description)
+    public TagAnnotation addTag(DataManager dm, String name, String description)
     throws ServiceException, AccessException, ExecutionException {
         TagAnnotation tag = new TagAnnotationWrapper(new TagAnnotationData(name));
         tag.setDescription(description);
         link(dm, tag);
+        return tag;
     }
 
 
@@ -217,15 +220,18 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
      * @param key   Name of the key.
      * @param value Value associated to the key.
      *
+     * @return The newly created key-value pair.
+     *
      * @throws ServiceException   Cannot connect to OMERO.
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public void addKeyValuePair(DataManager dm, String key, String value)
+    public MapAnnotation addKeyValuePair(DataManager dm, String key, String value)
     throws ServiceException, AccessException, ExecutionException {
         MapAnnotation pkv = new MapAnnotationWrapper(key, value);
         link(dm, pkv);
+        return pkv;
     }
 
 
@@ -391,6 +397,28 @@ public abstract class AnnotatableWrapper<T extends DataObject> extends ObjectWra
         result.setOriginalFileId(fileId);
         result.setId(id);
         return result;
+    }
+
+
+    /**
+     * Uploads a file and links it to the object
+     *
+     * @param dm   The data manager.
+     * @param file File to add.
+     *
+     * @return The newly created file annotation.
+     *
+     * @throws ExecutionException   A Facility can't be retrieved or instantiated.
+     * @throws InterruptedException The thread was interrupted.
+     */
+    @Override
+    public FileAnnotation addFile(DataManager dm, File file)
+    throws ExecutionException, InterruptedException {
+        String name = file.getName();
+        FileAnnotationData ann = dm.getDMFacility()
+                                   .attachFile(dm.getCtx(), file, null, "", name, data)
+                                   .get();
+        return new FileAnnotationWrapper(ann);
     }
 
 

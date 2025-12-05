@@ -350,7 +350,7 @@ class DatasetTest extends UserTest {
         Dataset dataset = client.getDataset(DATASET1.id);
 
         File file = createRandomFile("test_dataset.txt");
-        long id   = dataset.addFile(client, file);
+        long id   = dataset.addFile(client, file).getId();
         removeFile(file);
         client.deleteFile(id);
         assertNotEquals(0L, id);
