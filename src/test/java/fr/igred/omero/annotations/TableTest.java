@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -42,36 +42,53 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        TableBuilder builder = new TableBuilder(2, "TableTest");
 
-        assertEquals(2, table.getColumnCount());
+        assertEquals(2, builder.getColumnCount());
 
-        table.setColumn(0, "Image", ImageData.class);
-        table.setColumn(1, "Name", String.class);
-        assertEquals("Image", table.getColumnName(0));
-        assertEquals("Name", table.getColumnName(1));
-        assertSame(ImageData.class, table.getColumnType(0));
+        builder.setColumn(0, "Image", ImageData.class);
+        builder.setColumn(1, "Name", String.class);
+        assertEquals("Image", builder.getColumnName(0));
+        assertEquals("Name", builder.getColumnName(1));
+        assertSame(ImageData.class, builder.getColumnType(0));
 
-        table.setRowCount(images.size());
+        builder.setRowCount(images.size());
 
-        assertEquals(images.size(), table.getRowCount());
+        assertEquals(images.size(), builder.getRowCount());
 
         for (Image image : images) {
-            assertFalse(table.isComplete());
-            table.addRow(image.asDataObject(), image.getName());
+            assertFalse(builder.isComplete());
+            builder.addRow(image.asDataObject(), image.getName());
         }
 
-        assertEquals(images.get(0).asDataObject(), table.getData(0, 0));
-        assertEquals(images.get(1).getName(), table.getData(1, 1));
+        assertEquals(images.get(0).asDataObject(), builder.getData(0, 0));
+        assertEquals(images.get(1).getName(), builder.getData(1, 1));
 
+        Table table = builder.createTable();
         dataset.addTable(client, table);
 
-        List<TableWrapper> tables = dataset.getTables(client);
+        List<Table> tables = dataset.getTables(client);
         client.deleteTables(tables);
-        List<TableWrapper> noTables = dataset.getTables(client);
+        List<Table> noTables = dataset.getTables(client);
 
         assertEquals(1, tables.size());
         assertEquals(0, noTables.size());
+
+        Table newTable = tables.get(0);
+        assertEquals(builder.getName(), newTable.getName());
+        assertEquals(table.getName(), newTable.getName());
+        assertEquals(table.hashCode(), newTable.hashCode());
+        assertEquals(table.getNumberOfRows(), newTable.getNumberOfRows());
+        assertEquals(table.getOffset(), newTable.getOffset());
+        assertEquals(table.getOriginalFileId(), newTable.getOriginalFileId());
+        assertEquals(table.isCompleted(), newTable.isCompleted());
+        assertEquals(table.isEmpty(), newTable.isEmpty());
+
+        TableBuilder noBuilder = new TableBuilder(newTable.getTableData());
+        Table sameTable = noBuilder.createTable();
+        sameTable.setNumberOfRows(5000);
+        sameTable.setCompleted();
+        assertEquals(newTable.getNumberOfRows(), sameTable.getNumberOfRows());
     }
 
 
@@ -81,43 +98,44 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(4, "TableTest");
+        TableBuilder builder = new TableBuilder(4, "TableTest");
 
-        assertEquals(4, table.getColumnCount());
+        assertEquals(4, builder.getColumnCount());
 
-        table.setColumn(0, "Image", ImageData.class);
-        table.setColumn(1, "Condition", String.class);
-        table.setColumn(2, "Name", String.class);
-        table.setColumn(3, "Phenotype", String.class);
-        assertEquals("Image", table.getColumnName(0));
-        assertEquals("Condition", table.getColumnName(1));
-        assertEquals("Name", table.getColumnName(2));
-        assertEquals("Phenotype", table.getColumnName(3));
-        assertSame(ImageData.class, table.getColumnType(0));
+        builder.setColumn(0, "Image", ImageData.class);
+        builder.setColumn(1, "Condition", String.class);
+        builder.setColumn(2, "Name", String.class);
+        builder.setColumn(3, "Phenotype", String.class);
+        assertEquals("Image", builder.getColumnName(0));
+        assertEquals("Condition", builder.getColumnName(1));
+        assertEquals("Name", builder.getColumnName(2));
+        assertEquals("Phenotype", builder.getColumnName(3));
+        assertSame(ImageData.class, builder.getColumnType(0));
 
-        table.setRowCount(images.size());
+        builder.setRowCount(images.size());
 
-        assertEquals(images.size(), table.getRowCount());
+        assertEquals(images.size(), builder.getRowCount());
 
         for (Image image : images) {
-            assertFalse(table.isComplete());
-            table.addRow(image.asDataObject(), "", image.getName(), "");
+            assertFalse(builder.isComplete());
+            builder.addRow(image.asDataObject(), "", image.getName(), "");
         }
 
-        assertEquals(images.get(0).asDataObject(), table.getData(0, 0));
-        assertEquals("", table.getData(0, 1));
-        assertEquals(images.get(1).getName(), table.getData(1, 2));
-        assertEquals("", table.getData(0, 3));
+        assertEquals(images.get(0).asDataObject(), builder.getData(0, 0));
+        assertEquals("", builder.getData(0, 1));
+        assertEquals(images.get(1).getName(), builder.getData(1, 2));
+        assertEquals("", builder.getData(0, 3));
 
+        Table table = builder.createTable();
         dataset.addTable(client, table);
 
-        assertEquals(2, table.getColumnCount());
-        assertEquals(images.get(0).asDataObject(), table.getData(0, 0));
-        assertEquals(images.get(1).getName(), table.getData(1, 1));
+        assertEquals(2, builder.getColumnCount());
+        assertEquals(images.get(0).asDataObject(), builder.getData(0, 0));
+        assertEquals(images.get(1).getName(), builder.getData(1, 1));
 
-        List<TableWrapper> tables = dataset.getTables(client);
+        List<Table> tables = dataset.getTables(client);
         client.deleteTables(tables);
-        List<TableWrapper> noTables = dataset.getTables(client);
+        List<Table> noTables = dataset.getTables(client);
 
         assertEquals(1, tables.size());
         assertEquals(0, noTables.size());
@@ -130,69 +148,72 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableWrapper table1 = new TableWrapper(2, "TableTest");
+        TableBuilder builder1 = new TableBuilder(2, "TableTest");
 
-        assertEquals(2, table1.getColumnCount());
+        assertEquals(2, builder1.getColumnCount());
 
-        table1.setColumn(0, "Image", ImageData.class);
-        table1.setColumn(1, "Name", String.class);
-        assertEquals("Image", table1.getColumnName(0));
-        assertEquals("Name", table1.getColumnName(1));
-        assertSame(ImageData.class, table1.getColumnType(0));
+        builder1.setColumn(0, "Image", ImageData.class);
+        builder1.setColumn(1, "Name", String.class);
+        assertEquals("Image", builder1.getColumnName(0));
+        assertEquals("Name", builder1.getColumnName(1));
+        assertSame(ImageData.class, builder1.getColumnType(0));
 
-        table1.setRowCount(images.size());
+        builder1.setRowCount(images.size());
 
-        assertEquals(images.size(), table1.getRowCount());
+        assertEquals(images.size(), builder1.getRowCount());
 
         for (Image image : images) {
-            assertFalse(table1.isComplete());
-            table1.addRow(image.asDataObject(), image.getName());
+            assertFalse(builder1.isComplete());
+            builder1.addRow(image.asDataObject(), image.getName());
         }
 
-        assertEquals(images.get(0).asDataObject(), table1.getData(0, 0));
-        assertEquals(images.get(1).getName(), table1.getData(0, 1));
+        assertEquals(images.get(0).asDataObject(), builder1.getData(0, 0));
+        assertEquals(images.get(1).getName(), builder1.getData(0, 1));
 
+        Table table1 = builder1.createTable();
         dataset.addTable(client, table1);
         long tableId1 = table1.getId();
 
-        TableWrapper table2 = new TableWrapper(2, "TableTest 2");
-        table2.setColumn(0, "Image", ImageData.class);
-        table2.setColumn(1, "Description", String.class);
-        table2.setRowCount(images.size());
+        TableBuilder builder2 = new TableBuilder(2, "TableTest 2");
+        builder2.setColumn(0, "Image", ImageData.class);
+        builder2.setColumn(1, "Description", String.class);
+        builder2.setRowCount(images.size());
         boolean untouched = true;
         for (Image image : images) {
-            assertFalse(table2.isComplete());
+            assertFalse(builder2.isComplete());
             String description = image.getDescription();
             if (untouched && description == null) {
                 description = "";
                 untouched   = false;
             }
-            table2.addRow(image.asDataObject(), description);
+            builder2.addRow(image.asDataObject(), description);
         }
+        Table table2 = builder2.createTable();
         dataset.addTable(client, table2);
         long tableId2 = table2.getId();
 
-        TableWrapper table3 = new TableWrapper(2, "TableTest");
-        table3.setColumn(0, "Image", ImageData.class);
-        table3.setColumn(1, "Name", String.class);
-        table3.setRowCount(images.size());
+        TableBuilder builder3 = new TableBuilder(2, "TableTest");
+        builder3.setColumn(0, "Image", ImageData.class);
+        builder3.setColumn(1, "Name", String.class);
+        builder3.setRowCount(images.size());
         for (Image image : images) {
-            assertFalse(table3.isComplete());
-            table3.addRow(image.asDataObject(), "Test name");
+            assertFalse(builder3.isComplete());
+            builder3.addRow(image.asDataObject(), "Test name");
         }
+        Table table3 = builder3.createTable();
         dataset.addAndReplaceTable(client, table3);
         long tableId3 = table3.getId();
 
         assertNotEquals(tableId1, tableId3);
         assertNotEquals(tableId2, tableId3);
 
-        List<TableWrapper> tables = dataset.getTables(client);
-        for (TableWrapper table : tables) {
+        List<Table> tables = dataset.getTables(client);
+        for (Table table : tables) {
             client.deleteTable(table);
         }
-        List<TableWrapper> noTables = dataset.getTables(client);
+        List<Table> noTables = dataset.getTables(client);
 
-        assertEquals(1, table2.getColumnCount());
+        assertEquals(1, builder2.getColumnCount());
         assertEquals(2, tables.size());
         assertEquals(0, noTables.size());
     }
@@ -204,7 +225,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        TableBuilder table = new TableBuilder(2, "TableTest");
         table.setName("TableTestNewName");
 
         assertEquals("TableTestNewName", table.getName());
@@ -222,7 +243,7 @@ class TableTest extends UserTest {
 
     @Test
     void testErrorTableColumn() {
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        TableBuilder table = new TableBuilder(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
@@ -236,7 +257,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        TableBuilder table = new TableBuilder(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         assertThrows(IndexOutOfBoundsException.class,
@@ -251,7 +272,7 @@ class TableTest extends UserTest {
 
         List<Image> images = dataset.getImages(client);
 
-        TableWrapper table = new TableWrapper(2, "TableTest");
+        TableBuilder table = new TableBuilder(2, "TableTest");
         table.setColumn(0, "Image", ImageData.class);
         table.setColumn(1, "Name", String.class);
         table.setRowCount(images.size());

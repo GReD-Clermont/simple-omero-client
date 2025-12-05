@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,7 @@ package fr.igred.omero.client;
 
 
 import fr.igred.omero.RemoteObject;
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.Table;
 import fr.igred.omero.containers.Folder;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
@@ -139,7 +139,7 @@ public interface DataManager {
      * @throws IllegalArgumentException ID not defined.
      * @throws InterruptedException     If block(long) does not return.
      */
-    default void deleteTable(TableWrapper table)
+    default void deleteTable(Table table)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFile(table.getId());
     }
@@ -156,10 +156,10 @@ public interface DataManager {
      * @throws IllegalArgumentException ID not defined.
      * @throws InterruptedException     If block(long) does not return.
      */
-    default void deleteTables(Collection<? extends TableWrapper> tables)
+    default void deleteTables(Collection<? extends Table> tables)
     throws ServiceException, AccessException, ExecutionException, InterruptedException {
         deleteFiles(tables.stream()
-                          .map(TableWrapper::getId)
+                          .map(Table::getId)
                           .toArray(Long[]::new));
     }
 

@@ -142,3 +142,11 @@ MAP2=$(omero obj new MapAnnotation)
 omero obj map-set "$MAP2" mapValue testKey1 testValue2
 omero obj map-set "$MAP2" mapValue testKey2 30
 omero obj new ImageAnnotationLink parent="$IMAGE2" child="$MAP2"
+omero quit
+
+omero login testUser3@localhost -w password3 -g testGroup2
+PROJECT3=$(omero obj new Project name=TestProject3)
+DATASET5=$(omero obj new Dataset name=TestDataset5)
+omero obj new ProjectDatasetLink parent="$PROJECT3" child="$DATASET5"
+omero import --output=ids "$WORKDIR/image1.fake" -T "$DATASET5"
+omero quit

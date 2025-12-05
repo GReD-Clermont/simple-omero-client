@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -53,6 +53,7 @@ public abstract class BasicTest {
     protected static final TestObject ROOT   = new TestObject(0L, "root", null);
     protected static final TestObject USER1  = new TestObject(2L, "testUser", null);
     protected static final TestObject GROUP1 = new TestObject(3L, "testGroup", null);
+    protected static final TestObject GROUP2 = new TestObject(4L, "testGroup1", null);
 
     protected static final TestObject PROJECT1 = new TestObject(1L, "TestProject", "description");
     protected static final TestObject DATASET1 = new TestObject(1L, "TestDataset", "description");

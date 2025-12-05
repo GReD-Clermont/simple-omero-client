@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -23,7 +23,8 @@ import fr.igred.omero.RemoteObject;
 import fr.igred.omero.UserTest;
 import fr.igred.omero.annotations.FileAnnotation;
 import fr.igred.omero.annotations.MapAnnotation;
-import fr.igred.omero.annotations.TableWrapper;
+import fr.igred.omero.annotations.Table;
+import fr.igred.omero.annotations.TableBuilder;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.core.Image;
@@ -347,10 +348,11 @@ class ProjectTest extends UserTest {
         project1.link(client, tag);
         project1.addKeyValuePair(client, "CopyTest", "Annotation");
 
-        TableWrapper table = new TableWrapper(1, "CopyTest");
-        table.setColumn(0, "Name", String.class);
-        table.setRowCount(1);
-        table.addRow("Annotation");
+        TableBuilder builder = new TableBuilder(1, "CopyTest");
+        builder.setColumn(0, "Name", String.class);
+        builder.setRowCount(1);
+        builder.addRow("Annotation");
+        Table table = builder.createTable();
         project1.addTable(client, table);
 
         project2.copyAnnotationLinks(client, project1);

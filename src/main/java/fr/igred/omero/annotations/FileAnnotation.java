@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -116,8 +116,8 @@ public interface FileAnnotation extends Annotation {
     /**
      * Returns the original file.
      *
-     * @param client The client handling the connection.
-     * @param path   The path where the file will be saved.
+     * @param conn The connection handler.
+     * @param path The path where the file will be saved.
      *
      * @return See above.
      *
@@ -125,7 +125,7 @@ public interface FileAnnotation extends Annotation {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot write to the file.
      */
-    File getFile(ConnectionHandler client, String path)
+    File getFile(ConnectionHandler conn, String path)
     throws ServiceException, AccessException, IOException;
 
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -100,9 +100,9 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
 
 
     /**
-     * Gets the project description
+     * Gets the project description.
      *
-     * @return The project description.
+     * @return See above.
      */
     @Override
     public String getDescription() {
@@ -135,7 +135,7 @@ public class ProjectWrapper extends RepositoryObjectWrapper<ProjectData> impleme
     /**
      * Gets all the datasets in the project available from OMERO.
      *
-     * @return Collection of DatasetWrapper.
+     * @return Collection of Datasets.
      */
     @Override
     public List<Dataset> getDatasets() {

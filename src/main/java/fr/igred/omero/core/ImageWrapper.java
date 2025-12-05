@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -142,15 +142,15 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * Retrieves the image thumbnail of the specified size as a byte array.
      * <p>If the image is not square, the size will be the longest side.
      *
-     * @param client The client handling the connection.
-     * @param size   The thumbnail size.
+     * @param conn The connection handler.
+     * @param size The thumbnail size.
      *
      * @return The thumbnail pixels as a byte array.
      *
      * @throws DSOutOfServiceException Cannot connect to OMERO.
      * @throws ServerError             Server error.
      */
-    private byte[] getThumbnailBytes(ConnectionHandler client, int size)
+    private byte[] getThumbnailBytes(ConnectionHandler conn, int size)
     throws DSOutOfServiceException, ServerError {
         Pixels pixels = getPixels();
 
@@ -165,7 +165,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
         ThumbnailStorePrx store = null;
         byte[]            array;
         try {
-            store = client.getGateway().getThumbnailService(client.getCtx());
+            store = conn.getGateway().getThumbnailService(conn.getCtx());
             store.setPixelsId(pixels.getId());
             array = store.getThumbnail(rint(width), rint(height));
         } finally {
@@ -526,7 +526,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * Retrieves the image thumbnail of the specified size.
      * <p>If the image is not square, the size will be the longest side.
      *
-     * @param client The client handling the connection.
+     * @param conn The connection handler.
      * @param size   The thumbnail size.
      *
      * @return The thumbnail as a {@link BufferedImage}.
@@ -536,11 +536,11 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws IOException      Cannot read thumbnail from store.
      */
     @Override
-    public BufferedImage getThumbnail(ConnectionHandler client, int size)
+    public BufferedImage getThumbnail(ConnectionHandler conn, int size)
     throws ServiceException, AccessException, IOException {
         BufferedImage thumbnail = null;
 
-        byte[] arr = call(client,
+        byte[] arr = call(conn,
                           c -> getThumbnailBytes(c, size),
                           "Error retrieving thumbnail.");
         if (arr != null) {

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -121,6 +121,23 @@ public interface Browser {
                     qs -> qs.findAllByQuery(query, null),
                     "Query failed: " + query);
     }
+
+
+    /**
+     * Finds an object of the specified class, with the specified id in all available OMERO groups.
+     *
+     * @param klass The object class.
+     * @param id    The object id.
+     * @param <T>   The type of object.
+     *
+     * @return The found object.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    Cannot access data.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    <T extends RemoteObject> T findObject(Class<T> klass, long id)
+    throws ServiceException, AccessException, ExecutionException;
 
 
     /**

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@
 package fr.igred.omero.exception;
 
 
+import fr.igred.omero.Annotatable;
 import fr.igred.omero.BasicTest;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.MapAnnotation;
@@ -140,6 +141,25 @@ class AccessExceptionTest extends BasicTest {
         assertThrows(AccessException.class,
                      () -> folder.addROIs(client, -1L, roi));
         client.delete(folder);
+    }
+
+
+    @Test
+    void testFindUnavailableObject() {
+        assertThrows(AccessException.class, () -> client.findObject(Project.class, 3L));
+    }
+
+
+    @Test
+    void testFindAnnotatable() {
+        assertThrows(AccessException.class, () -> client.findObject(Annotatable.class, 1L));
+    }
+
+
+    @Test
+    void testSwitchGroupFailGetProjects() {
+        client.switchGroup(200L);
+        assertThrows(AccessException.class, () -> client.getProjects());
     }
 
 

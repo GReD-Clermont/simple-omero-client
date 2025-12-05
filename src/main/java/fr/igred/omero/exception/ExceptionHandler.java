@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -368,6 +368,15 @@ public class ExceptionHandler<T> {
     @FunctionalInterface
     public interface ThrowingFunction<T, R, E extends Throwable> {
 
+        /**
+         * Applies the function to the given input.
+         *
+         * @param t The input.
+         *
+         * @return The output.
+         *
+         * @throws E Exception thrown by the function.
+         */
         R apply(T t) throws E;
 
     }
@@ -397,6 +406,13 @@ public class ExceptionHandler<T> {
     @FunctionalInterface
     public interface ThrowingConsumer<T, E extends Throwable> {
 
+        /**
+         * Applies the function to the given input.
+         *
+         * @param t The input.
+         *
+         * @throws E Exception thrown by the function.
+         */
         void apply(T t) throws E;
 
     }
@@ -411,6 +427,14 @@ public class ExceptionHandler<T> {
     @FunctionalInterface
     public interface ExceptionWrapper<T, E extends Throwable> {
 
+        /**
+         * Applies the function to the given input.
+         *
+         * @param message The error message.
+         * @param t       The input exception.
+         *
+         * @return The wrapped exception.
+         */
         E apply(String message, T t);
 
     }

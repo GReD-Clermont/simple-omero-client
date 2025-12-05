@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 GReD
+ *  Copyright (C) 2020-2025 GReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -619,8 +619,8 @@ public interface Image extends RepositoryObject {
      * Retrieves the image thumbnail of the specified size.
      * <p>If the image is not square, the size will be the longest side.
      *
-     * @param client The client handling the connection.
-     * @param size   The thumbnail size.
+     * @param conn The connection handler.
+     * @param size The thumbnail size.
      *
      * @return The thumbnail as a {@link BufferedImage}.
      *
@@ -628,7 +628,7 @@ public interface Image extends RepositoryObject {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read thumbnail from store.
      */
-    BufferedImage getThumbnail(ConnectionHandler client, int size)
+    BufferedImage getThumbnail(ConnectionHandler conn, int size)
     throws ServiceException, AccessException, IOException;
 
 
@@ -665,8 +665,8 @@ public interface Image extends RepositoryObject {
     /**
      * Downloads the original files from the server.
      *
-     * @param client The client handling the connection.
-     * @param path   Path to the file.
+     * @param conn The connection handler.
+     * @param path Path to the file.
      *
      * @return See above.
      *
@@ -674,10 +674,10 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    Cannot access data.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    default List<File> download(ConnectionHandler client, String path)
+    default List<File> download(ConnectionHandler conn, String path)
     throws ServiceException, AccessException, ExecutionException {
-        return call(client.getGateway().getFacility(TransferFacility.class),
-                    t -> t.downloadImage(client.getCtx(), path, getId()),
+        return call(conn.getGateway().getFacility(TransferFacility.class),
+                    t -> t.downloadImage(conn.getCtx(), path, getId()),
                     "Could not download image " + getId());
     }
 
