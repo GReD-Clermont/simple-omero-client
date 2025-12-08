@@ -38,7 +38,7 @@ touch "$WORKDIR/image1.fake"
         echo "PositionYUnit_$i=mm"
         echo "PositionZUnit_$i=mm"
     done
-} > "$WORKDIR/image1.fake.ini"
+} 1> "$WORKDIR/image1.fake.ini" 2> /dev/null
 
 touch "$WORKDIR/image2.fake"
 {
@@ -48,7 +48,7 @@ touch "$WORKDIR/image2.fake"
     echo "sizeC=5"
     echo "sizeZ=2"
     echo "sizeT=7"
-} > "$WORKDIR/image2.fake.ini"
+} 1> "$WORKDIR/image2.fake.ini" 2> /dev/null
 
 # create fake screens
 touch "$WORKDIR/screen1.fake"
@@ -59,7 +59,7 @@ touch "$WORKDIR/screen1.fake"
     echo "plateRows=3"
     echo "plateCols=3"
     echo "fields=2"
-} > "$WORKDIR/screen1.fake.ini"
+} 1> "$WORKDIR/screen1.fake.ini" 2> /dev/null
 
 touch "$WORKDIR/screen2.fake"
 {
@@ -69,7 +69,7 @@ touch "$WORKDIR/screen2.fake"
     echo "plateRows=2"
     echo "plateCols=2"
     echo "fields=2"
-} > "$WORKDIR/screen2.fake.ini"
+} 1> "$WORKDIR/screen2.fake.ini" 2> /dev/null
 
 export PATH=$PATH:${OMERO_DIST}/bin
 
