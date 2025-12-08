@@ -154,6 +154,20 @@ public interface Pixels extends RemoteObject {
 
 
     /**
+     * Retrieves the available resolution levels for this image.
+     *
+     * @param conn The connection handler.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the resolution descriptions.
+     */
+    List<ResolutionLevel> getResolutionLevels(ConnectionHandler conn)
+    throws ExecutionException, AccessException;
+
+
+    /**
      * Gets the size of the image on the X axis
      *
      * @return Size of the image on the X axis.

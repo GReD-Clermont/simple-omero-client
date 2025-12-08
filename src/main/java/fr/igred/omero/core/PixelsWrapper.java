@@ -27,6 +27,7 @@ import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
 import ome.units.unit.Unit;
+import omero.api.ResolutionDescription;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
@@ -135,6 +136,26 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
             b[1] = bounds[1] >= b[0] && bounds[1] <= b[1] ? bounds[1] : b[1];
         }
         return b;
+    }
+
+
+    /**
+     * Retrieves the resolution descriptions.
+     *
+     * @param conn The connection handler.
+     *
+     * @return See above.
+     *
+     * @throws AccessException If an error occurs while retrieving the resolution descriptions.
+     */
+    private List<ResolutionDescription> getResolutionDescriptions(ConnectionHandler conn)
+    throws AccessException {
+        return ExceptionHandler.of(rawDataFacility,
+                                   rf -> rf.getResolutionDescriptions(conn.getCtx(), data))
+                               .rethrow(DataSourceException.class,
+                                        AccessException::new,
+                                        "Cannot get resolution descriptions")
+                               .get();
     }
 
 
@@ -319,6 +340,36 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         }
 
         return z;
+    }
+
+
+    /**
+     * Retrieves the available resolution levels for this image.
+     *
+     * @param conn The connection handler.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the resolution descriptions.
+     */
+    public List<ResolutionLevel> getResolutionLevels(ConnectionHandler conn)
+    throws ExecutionException, AccessException {
+        boolean rdf = createRawDataFacility(conn);
+        try {
+            List<ResolutionDescription> desc = getResolutionDescriptions(conn);
+
+            List<ResolutionLevel> res = new ArrayList<>(desc.size());
+            for (int i = 0; i < desc.size(); i++) {
+                ResolutionDescription d = desc.get(i);
+                res.add(new ResolutionLevel(i, d.sizeX, d.sizeY));
+            }
+            return res;
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
+        }
     }
 
 

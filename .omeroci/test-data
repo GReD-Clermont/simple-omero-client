@@ -24,6 +24,7 @@ touch "$WORKDIR/image1.fake"
     echo "physicalSizeY=0.5µm"
     echo "physicalSizeZ=1.5µm"
     echo "acquisitionDate=2020-04-01_20-04-01"
+    echo "resolutions=3"
     echo "[series_0]"
     for i in {0..104}; do
         echo "DeltaT_$i=$((10 * $i))"

@@ -21,11 +21,29 @@ package fr.igred.omero.core;
 import fr.igred.omero.UserTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 class PixelsTest extends UserTest {
+
+
+    @Test
+    void testGetResolutions() throws Exception {
+        final int sizeX = 512;
+        final int sizeY = 512;
+
+        Image                 image       = client.getImage(IMAGE1.id);
+        Pixels                pixels      = image.getPixels();
+        List<ResolutionLevel> resolutions = pixels.getResolutionLevels(client);
+
+        assertEquals(3, resolutions.size());
+        assertEquals(2, resolutions.get(2).getLevel());
+        assertEquals(sizeX / 4, resolutions.get(2).getSizeX());
+        assertEquals(sizeY / 4, resolutions.get(2).getSizeY());
+    }
 
 
     @Test
