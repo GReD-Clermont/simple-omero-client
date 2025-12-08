@@ -443,7 +443,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         if (rawDataFacility == null) {
             rawDataFacility = conn.getGateway()
                                   .getFacility(RawDataFacility.class);
-            created = true;
+            created         = true;
         }
         return created;
     }
@@ -482,38 +482,39 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
                                          int[] tBounds)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(conn);
-        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
+        try {
+            Bounds lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
-        Coordinates start = lim.getStart();
-        Coordinates size  = lim.getSize();
+            Coordinates start = lim.getStart();
+            Coordinates size  = lim.getSize();
 
-        int x0 = start.getX();
-        int y0 = start.getY();
-        int sx = size.getX();
-        int sy = size.getY();
+            int x0 = start.getX();
+            int y0 = start.getY();
+            int sx = size.getX();
+            int sy = size.getY();
 
-        int startC = start.getC();
-        int startZ = start.getZ();
-        int startT = start.getT();
-        int sizeC  = size.getC();
-        int sizeZ  = size.getZ();
-        int sizeT  = size.getT();
+            int startC = start.getC();
+            int startZ = start.getZ();
+            int startT = start.getT();
+            int sizeC  = size.getC();
+            int sizeZ  = size.getZ();
+            int sizeT  = size.getT();
 
-        double[][][][][] tab = new double[sizeT][sizeZ][sizeC][][];
-
-        for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
-            for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
-                for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
-                    Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
-                    tab[t][z][c] = getTile(conn, pos, sx, sy);
+            double[][][][][] tab = new double[sizeT][sizeZ][sizeC][][];
+            for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
+                for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
+                    for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
+                        Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+                        tab[t][z][c] = getTile(conn, pos, sx, sy);
+                    }
                 }
             }
+            return tab;
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-
-        if (rdf) {
-            destroyRawDataFacility();
-        }
-        return tab;
     }
 
 
@@ -533,16 +534,18 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
     double[][] getTile(ConnectionHandler conn, Coordinates start, int width, int height)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(conn);
-        double[][] tile = ExceptionHandler.of(this,
-                                              t -> t.getTileUnchecked(conn.getCtx(), start, width, height))
-                                          .rethrow(DataSourceException.class,
-                                                   AccessException::new,
-                                                   "Cannot read tile")
-                                          .get();
-        if (rdf) {
-            destroyRawDataFacility();
+        try {
+            return ExceptionHandler.of(this,
+                                       t -> t.getTileUnchecked(conn.getCtx(), start, width, height))
+                                   .rethrow(DataSourceException.class,
+                                            AccessException::new,
+                                            "Cannot read tile")
+                                   .get();
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-        return tile;
     }
 
 
@@ -606,37 +609,39 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
                                      int bpp)
     throws ExecutionException, AccessException {
         boolean rdf = createRawDataFacility(conn);
-        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
+        try {
+            Bounds lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
-        Coordinates start = lim.getStart();
-        Coordinates size  = lim.getSize();
+            Coordinates start = lim.getStart();
+            Coordinates size  = lim.getSize();
 
-        int x0     = start.getX();
-        int y0     = start.getY();
-        int startC = start.getC();
-        int startZ = start.getZ();
-        int startT = start.getT();
+            int x0     = start.getX();
+            int y0     = start.getY();
+            int startC = start.getC();
+            int startZ = start.getZ();
+            int startT = start.getT();
 
-        int sx    = size.getX();
-        int sy    = size.getY();
-        int sizeC = size.getC();
-        int sizeZ = size.getZ();
-        int sizeT = size.getT();
+            int sx    = size.getX();
+            int sy    = size.getY();
+            int sizeC = size.getC();
+            int sizeZ = size.getZ();
+            int sizeT = size.getT();
 
-        byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][];
-
-        for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
-            for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
-                for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
-                    Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
-                    bytes[t][z][c] = getRawTile(conn, pos, sx, sy, bpp);
+            byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][];
+            for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
+                for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
+                    for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
+                        Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+                        bytes[t][z][c] = getRawTile(conn, pos, sx, sy, bpp);
+                    }
                 }
             }
+            return bytes;
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-        if (rdf) {
-            destroyRawDataFacility();
-        }
-        return bytes;
     }
 
 
@@ -657,16 +662,19 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
     byte[] getRawTile(ConnectionHandler conn, Coordinates start, int width, int height, int bpp)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(conn);
-        byte[] tile = ExceptionHandler.of(this,
-                                          t -> t.getRawTileUnchecked(conn.getCtx(), start, width, height, bpp))
-                                      .rethrow(DataSourceException.class,
-                                               AccessException::new,
-                                               "Cannot read raw tile")
-                                      .get();
-        if (rdf) {
-            destroyRawDataFacility();
+        try {
+            return ExceptionHandler.of(this,
+                                       t -> t.getRawTileUnchecked(conn.getCtx(), start, width,
+                                                                  height, bpp))
+                                   .rethrow(DataSourceException.class,
+                                            AccessException::new,
+                                            "Cannot read raw tile")
+                                   .get();
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-        return tile;
     }
 
 
