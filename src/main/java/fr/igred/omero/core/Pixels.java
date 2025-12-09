@@ -301,8 +301,9 @@ public interface Pixels extends RemoteObject {
     /**
      * Returns an array containing the value for each voxel corresponding to the bounds
      *
-     * @param conn    The connection handler.
-     * @param bounds The bounds from which the pixels should be retrieved.
+     * @param conn     The connection handler.
+     * @param bounds   The bounds from which the pixels should be retrieved.
+     * @param resLevel The resolution level to retrieve the pixels from.
      *
      * @return Array containing the value for each voxel of the image.
      *
@@ -344,7 +345,8 @@ public interface Pixels extends RemoteObject {
      */
     default byte[][][][] getRawPixels(ConnectionHandler conn, int bpp, int resLevel)
     throws ExecutionException, AccessException {
-        return getRawPixels(conn, null, null, null, null, null, bpp, resLevel);
+        Bounds lim = getBounds(null, null, null, null, null);
+        return getRawPixels(conn, lim, bpp, resLevel);
     }
 
 
@@ -372,39 +374,8 @@ public interface Pixels extends RemoteObject {
                                       int[] tBounds,
                                       int bpp)
     throws ExecutionException, AccessException {
-        return getRawPixels(conn, xBounds, yBounds, cBounds, zBounds, tBounds, bpp, -1);
-    }
-
-
-    /**
-     * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
-     *
-     * @param conn     The connection handler.
-     * @param xBounds  Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds  Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds  Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds  Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds  Array containing the T bounds from which the pixels should be retrieved.
-     * @param bpp      Bytes per pixels of the image.
-     * @param resLevel The resolution level to retrieve the pixels from.
-     *
-     * @return a table of bytes containing the pixel values
-     *
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    @SuppressWarnings("MethodWithTooManyParameters")
-    default byte[][][][] getRawPixels(ConnectionHandler conn,
-                                      int[] xBounds,
-                                      int[] yBounds,
-                                      int[] cBounds,
-                                      int[] zBounds,
-                                      int[] tBounds,
-                                      int bpp,
-                                      int resLevel)
-    throws ExecutionException, AccessException {
         Bounds lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
-        return getRawPixels(conn, lim, bpp, resLevel);
+        return getRawPixels(conn, lim, bpp, -1);
     }
 
 

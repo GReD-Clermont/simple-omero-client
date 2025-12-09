@@ -19,11 +19,13 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static fr.igred.omero.util.Bounds.getBounds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -151,7 +153,9 @@ class PixelsTest extends UserTest {
         int[] zBounds = {0, 2};
         int[] tBounds = {0, 2};
 
-        byte[][][][] value = pixels.getRawPixels(client, xBounds, yBounds, cBounds, zBounds, tBounds, 1, 1);
+        Bounds bounds = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
+
+        byte[][][][] value = pixels.getRawPixels(client, bounds, 1, 1);
 
         assertEquals(3 * 256, value[0][0][0].length);
         assertEquals(3, value[0][0].length);
