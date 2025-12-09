@@ -20,10 +20,12 @@ package fr.igred.omero.core;
 
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.Bounds;
+import ij.ImagePlus;
 import omero.gateway.model.PixelsData;
 import omero.model.Length;
 import omero.model.Time;
@@ -394,5 +396,23 @@ public interface Pixels extends RemoteObject {
      */
     byte[][][][] getRawPixels(ConnectionHandler conn, Bounds bounds, int bpp, int resLevel)
     throws ExecutionException, AccessException;
+
+
+
+
+    /**
+     * Creates an ImagePlus within the specified boundaries, at the given resolution level.
+     *
+     * @param client   The client handling the connection.
+     * @param limits   The boundaries.
+     * @param resLevel The resolution level to retrieve.
+     *
+     * @return An ImagePlus from the IJ library.
+     *
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    ImagePlus toImagePlus(Client client, Bounds limits, int resLevel)
+    throws AccessException, ExecutionException, ServiceException;
 
 }

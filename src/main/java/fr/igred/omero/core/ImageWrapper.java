@@ -37,11 +37,7 @@ import fr.igred.omero.util.Coordinates;
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
-import ij.measure.Calibration;
-import ij.process.ImageProcessor;
 import ij.process.LUT;
-import loci.formats.FormatTools;
 import omero.ServerError;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -51,8 +47,6 @@ import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 import omero.gateway.model.WellSampleData;
-import omero.model.Length;
-import omero.model.Time;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -66,9 +60,7 @@ import java.util.stream.Collectors;
 
 import static fr.igred.omero.RemoteObject.distinct;
 import static fr.igred.omero.exception.ExceptionHandler.call;
-import static fr.igred.omero.util.Bounds.getBounds;
 import static java.util.Comparator.comparing;
-import static loci.common.DataTools.makeDataArray;
 import static omero.rtypes.rint;
 
 
@@ -86,61 +78,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      */
     public ImageWrapper(ImageData image) {
         super(image);
-    }
-
-
-    /**
-     * Sets the calibration. Planes information has to be loaded first.
-     *
-     * @param pixels      The pixels.
-     * @param calibration The ImageJ calibration.
-     * @param xFactor     The factor to apply to X spacing.
-     * @param yFactor     The factor to apply to Y spacing.
-     */
-    private static void setCalibration(Pixels pixels,
-                                       Calibration calibration,
-                                       double xFactor,
-                                       double yFactor) {
-        Length positionX = pixels.getPositionX();
-        Length positionY = pixels.getPositionY();
-        Length positionZ = pixels.getPositionZ();
-        Length spacingX  = pixels.getPixelSizeX();
-        Length spacingY  = pixels.getPixelSizeY();
-        Length spacingZ  = pixels.getPixelSizeZ();
-        Time   stepT     = pixels.getTimeIncrement();
-
-        if (stepT == null) {
-            stepT = pixels.getMeanTimeInterval();
-        }
-
-        calibration.setXUnit(positionX.getSymbol());
-        calibration.setYUnit(positionY.getSymbol());
-        calibration.setZUnit(positionZ.getSymbol());
-        calibration.xOrigin = -positionX.getValue();
-        calibration.yOrigin = -positionY.getValue();
-        calibration.zOrigin = -positionZ.getValue();
-        if (spacingX != null) {
-            calibration.setXUnit(spacingX.getSymbol());
-            calibration.pixelWidth = xFactor * spacingX.getValue();
-            // positionX and spacingX should use the same unit
-            calibration.xOrigin /= calibration.pixelWidth;
-        }
-        if (spacingY != null) {
-            calibration.setYUnit(spacingY.getSymbol());
-            calibration.pixelHeight = yFactor * spacingY.getValue();
-            // positionY and spacingY should use the same unit
-            calibration.yOrigin /= calibration.pixelHeight;
-        }
-        if (spacingZ != null) {
-            calibration.setZUnit(spacingZ.getSymbol());
-            calibration.pixelDepth = spacingZ.getValue();
-            // positionZ and spacingZ should use the same unit
-            calibration.zOrigin /= calibration.pixelDepth;
-        }
-        if (!Double.isNaN(stepT.getValue())) {
-            calibration.setTimeUnit(stepT.getSymbol());
-            calibration.frameInterval = stepT.getValue();
-        }
     }
 
 
@@ -383,14 +320,10 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
 
 
     /**
-     * Gets the ImagePlus from the image within the specified boundaries.
+     * Creates an ImagePlus from the specified pixels within the specified boundaries.
      *
      * @param client   The client handling the connection.
-     * @param xBounds  Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds  Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds  Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds  Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds  Array containing the T bounds from which the pixels should be retrieved.
+     * @param bounds   The boundaries.
      * @param resLevel The resolution level to retrieve.
      *
      * @return an ImagePlus from the ij library.
@@ -399,122 +332,29 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    @Override
-    public ImagePlus toImagePlus(Client client,
-                                 int[] xBounds,
-                                 int[] yBounds,
-                                 int[] cBounds,
-                                 int[] zBounds,
-                                 int[] tBounds,
-                                 int resLevel)
+    public ImagePlus toImagePlus(Client client, Bounds bounds, int resLevel)
     throws ServiceException, AccessException, ExecutionException {
         PixelsWrapper pixels = getPixels();
         pixels.loadPlanesInfo(client);
 
-        boolean createdRDF = pixels.createRawDataFacility(client);
-        try {
-            Bounds lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
-            return createImagePlus(client, pixels, lim, resLevel);
-        } finally {
-            if (createdRDF) {
-                pixels.destroyRawDataFacility();
-            }
-        }
-    }
+        ImagePlus imp = pixels.toImagePlus(client, bounds, resLevel);
 
+        // SizeX and SizeY don't matter here, only sizeC is of interest
+        int sizeX = pixels.getSizeX();
+        int sizeY = pixels.getSizeY();
+        int sizeC = pixels.getSizeC();
+        int sizeZ = pixels.getSizeZ();
+        int sizeT = pixels.getSizeT();
 
-    /**
-     * Creates an ImagePlus from the specified pixels, with loaded planes info and raw data facility, within the specified boundaries.
-     *
-     * @param client   The client handling the connection.
-     * @param pixels   The pixels.
-     * @param limits   The boundaries.
-     * @param resLevel The resolution level to retrieve.
-     *
-     * @return an ImagePlus from the ij library.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    private ImagePlus createImagePlus(Client client, PixelsWrapper pixels, Bounds limits,
-                                      int resLevel)
-    throws ServiceException, AccessException, ExecutionException {
-        int         lvl  = pixels.checkResolutionLevel(client, resLevel);
-        Coordinates size = pixels.getSize(client, lvl);
+        Coordinates size = new Coordinates(sizeX, sizeY, sizeC, sizeZ, sizeT);
 
-        Bounds bounds = limits.checkBounds(size);
+        Bounds checked = bounds.checkBounds(size);
 
-        double xFactor = (double) size.getX() / pixels.getSizeX();
-        double yFactor = (double) size.getY() / pixels.getSizeY();
-
-        int startX = bounds.getStart().getX();
-        int startY = bounds.getStart().getY();
-        int startC = bounds.getStart().getC();
-        int startZ = bounds.getStart().getZ();
-        int startT = bounds.getStart().getT();
-
-        int sizeX = bounds.getSize().getX();
-        int sizeY = bounds.getSize().getY();
-        int sizeC = bounds.getSize().getC();
-        int sizeZ = bounds.getSize().getZ();
-        int sizeT = bounds.getSize().getT();
-
-        int pixelType = FormatTools.pixelTypeFromString(pixels.getPixelType());
-        int bpp       = FormatTools.getBytesPerPixel(pixelType);
-
-        ImagePlus imp = IJ.createHyperStack(getName(), sizeX, sizeY, sizeC, sizeZ, sizeT, bpp * 8);
-
-        Calibration calibration = imp.getCalibration();
-        setCalibration(pixels, calibration, xFactor, yFactor);
-        calibration.xOrigin -= startX;
-        calibration.yOrigin -= startY;
-        calibration.zOrigin -= startZ;
-        imp.setCalibration(calibration);
-
-        boolean isFloat = FormatTools.isFloatingPoint(pixelType);
-
-        ImageStack stack = imp.getImageStack();
-
-        double min = imp.getProcessor().getMin();
-        double max = 0;
-
-        int progressTotal = imp.getStackSize();
-        IJ.showProgress(0, progressTotal);
-        for (int t = 0; t < sizeT; t++) {
-            int posT = t + startT;
-            for (int z = 0; z < sizeZ; z++) {
-                int posZ = z + startZ;
-                for (int c = 0; c < sizeC; c++) {
-                    int posC = c + startC;
-
-                    Coordinates pos = new Coordinates(startX, startY, posC, posZ, posT);
-
-                    byte[] tiles = pixels.getRawTile(client, pos, sizeX, sizeY, bpp, lvl);
-
-                    int n = imp.getStackIndex(c + 1, z + 1, t + 1);
-                    stack.setPixels(makeDataArray(tiles, bpp, isFloat, false), n);
-                    ImageProcessor ip = stack.getProcessor(n);
-                    ip.resetMinAndMax();
-
-                    max = Math.max(ip.getMax(), max);
-                    min = Math.min(ip.getMin(), min);
-
-                    stack.setProcessor(ip, n);
-                    IJ.showProgress(n, progressTotal);
-                }
-            }
-        }
-
-        imp.setStack(stack);
-        imp.setOpenAsHyperStack(true);
-        imp.setDisplayMode(IJ.COMPOSITE);
-
-        imp.getProcessor().setMinAndMax(min, max);
+        int c0 = checked.getStart().getC();
 
         LUT[] luts = imp.getLuts();
-        for (int c = 0; c < sizeC; ++c) {
-            luts[c] = LUT.createLutFromColor(getChannelColor(client, startC + c));
+        for (int c = 0; c < imp.getNChannels(); ++c) {
+            luts[c] = LUT.createLutFromColor(getChannelColor(client, c0 + c));
             imp.setC(c + 1);
             imp.setLut(luts[c]);
         }
@@ -524,11 +364,6 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
         imp.setPosition(1);
         if (IJ.getVersion().compareTo("1.53a") >= 0) {
             imp.setProp(IJ_ID_PROPERTY, getId());
-            imp.setProp("IMAGE_POS_X", startX);
-            imp.setProp("IMAGE_POS_Y", startY);
-            imp.setProp("IMAGE_POS_C", startC);
-            imp.setProp("IMAGE_POS_Z", startZ);
-            imp.setProp("IMAGE_POS_T", startT);
         }
         return imp;
     }

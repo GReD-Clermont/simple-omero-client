@@ -20,12 +20,19 @@ package fr.igred.omero.core;
 
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.measure.Calibration;
+import ij.process.ImageProcessor;
+import loci.formats.FormatTools;
 import ome.units.unit.Unit;
 import omero.api.ResolutionDescription;
 import omero.gateway.SecurityContext;
@@ -45,6 +52,7 @@ import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.core.PlaneInfo.getMinPosition;
 import static fr.igred.omero.exception.ExceptionHandler.call;
+import static loci.common.DataTools.makeDataArray;
 import static ome.formats.model.UnitsFactory.convertLength;
 
 
@@ -751,6 +759,170 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
             }
         }
         return tile;
+    }
+
+
+    /**
+     * Creates an ImagePlus within the specified boundaries, at the given resolution level.
+     *
+     * @param client   The client handling the connection.
+     * @param limits   The boundaries.
+     * @param resLevel The resolution level to retrieve.
+     *
+     * @return An ImagePlus from the IJ library.
+     *
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    public ImagePlus toImagePlus(Client client, Bounds limits, int resLevel)
+    throws AccessException, ExecutionException, ServiceException {
+        loadPlanesInfo(client);
+
+        boolean rdf = createRawDataFacility(client);
+
+        int lvl = checkResolutionLevel(client, resLevel);
+
+        Coordinates size   = getSize(client, lvl);
+        Bounds      bounds = limits.checkBounds(size);
+
+        double xFactor = (double) size.getX() / getSizeX();
+        double yFactor = (double) size.getY() / getSizeY();
+
+        int x0 = bounds.getStart().getX();
+        int y0 = bounds.getStart().getY();
+        int c0 = bounds.getStart().getC();
+        int z0 = bounds.getStart().getZ();
+        int t0 = bounds.getStart().getT();
+
+        int sx = bounds.getSize().getX();
+        int sy = bounds.getSize().getY();
+        int nc = bounds.getSize().getC();
+        int nz = bounds.getSize().getZ();
+        int nt = bounds.getSize().getT();
+
+        int pixelType = FormatTools.pixelTypeFromString(data.getPixelType());
+        int bpp       = FormatTools.getBytesPerPixel(pixelType);
+
+        String name = String.valueOf(getId());
+        if(data.getImage() != null) {
+            name = data.getImage().getName();
+        }
+
+        ImagePlus imp = IJ.createHyperStack(name, sx, sy, nc, nz, nt, bpp * 8);
+
+        Calibration calibration = imp.getCalibration();
+        setCalibration(calibration, xFactor, yFactor);
+        calibration.xOrigin -= x0;
+        calibration.yOrigin -= y0;
+        calibration.zOrigin -= z0;
+        imp.setCalibration(calibration);
+
+        boolean isFloat = FormatTools.isFloatingPoint(pixelType);
+
+        ImageStack stack = imp.getImageStack();
+
+        double min = imp.getProcessor().getMin();
+        double max = 0;
+
+        int progressTotal = imp.getStackSize();
+        IJ.showProgress(0, progressTotal);
+        try {
+            for (int t = 0; t < nt; t++) {
+                int posT = t + t0;
+                for (int z = 0; z < nz; z++) {
+                    int posZ = z + z0;
+                    for (int c = 0; c < nc; c++) {
+                        int posC = c + c0;
+
+                        Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+
+                        byte[] tiles = getRawTile(client, pos, sx, sy, bpp, lvl);
+
+                        int n = imp.getStackIndex(c + 1, z + 1, t + 1);
+                        stack.setPixels(makeDataArray(tiles, bpp, isFloat, false), n);
+                        ImageProcessor ip = stack.getProcessor(n);
+                        ip.resetMinAndMax();
+
+                        max = Math.max(ip.getMax(), max);
+                        min = Math.min(ip.getMin(), min);
+
+                        stack.setProcessor(ip, n);
+                        IJ.showProgress(n, progressTotal);
+                    }
+                }
+            }
+        } finally {
+            IJ.showProgress(progressTotal, progressTotal);
+            if (rdf) {
+                destroyRawDataFacility();
+            }
+        }
+
+        imp.setStack(stack);
+        imp.setOpenAsHyperStack(true);
+        imp.setDisplayMode(IJ.COMPOSITE);
+
+        imp.getProcessor().setMinAndMax(min, max);
+        imp.setPosition(1);
+        if (IJ.getVersion().compareTo("1.53a") >= 0) {
+            imp.setProp("IMAGE_POS_X", x0);
+            imp.setProp("IMAGE_POS_Y", y0);
+            imp.setProp("IMAGE_POS_C", c0);
+            imp.setProp("IMAGE_POS_Z", z0);
+            imp.setProp("IMAGE_POS_T", t0);
+        }
+        return imp;
+    }
+
+
+    /**
+     * Sets the calibration. Planes information has to be loaded first.
+     *
+     * @param calibration The ImageJ calibration.
+     * @param xFactor     The factor to apply to X spacing.
+     * @param yFactor     The factor to apply to Y spacing.
+     */
+    private void setCalibration(Calibration calibration, double xFactor, double yFactor) {
+        Length positionX = getPositionX();
+        Length positionY = getPositionY();
+        Length positionZ = getPositionZ();
+        Length spacingX  = getPixelSizeX();
+        Length spacingY  = getPixelSizeY();
+        Length spacingZ  = getPixelSizeZ();
+        Time   stepT     = getTimeIncrement();
+
+        if (stepT == null) {
+            stepT = getMeanTimeInterval();
+        }
+
+        calibration.setXUnit(positionX.getSymbol());
+        calibration.setYUnit(positionY.getSymbol());
+        calibration.setZUnit(positionZ.getSymbol());
+        calibration.xOrigin = -positionX.getValue();
+        calibration.yOrigin = -positionY.getValue();
+        calibration.zOrigin = -positionZ.getValue();
+        if (spacingX != null) {
+            calibration.setXUnit(spacingX.getSymbol());
+            calibration.pixelWidth = xFactor * spacingX.getValue();
+            // positionX and spacingX should use the same unit
+            calibration.xOrigin /= calibration.pixelWidth;
+        }
+        if (spacingY != null) {
+            calibration.setYUnit(spacingY.getSymbol());
+            calibration.pixelHeight = yFactor * spacingY.getValue();
+            // positionY and spacingY should use the same unit
+            calibration.yOrigin /= calibration.pixelHeight;
+        }
+        if (spacingZ != null) {
+            calibration.setZUnit(spacingZ.getSymbol());
+            calibration.pixelDepth = spacingZ.getValue();
+            // positionZ and spacingZ should use the same unit
+            calibration.zOrigin /= calibration.pixelDepth;
+        }
+        if (!Double.isNaN(stepT.getValue())) {
+            calibration.setTimeUnit(stepT.getSymbol());
+            calibration.frameInterval = stepT.getValue();
+        }
     }
 
 }

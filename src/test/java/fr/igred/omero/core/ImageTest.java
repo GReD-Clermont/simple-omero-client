@@ -420,6 +420,7 @@ class ImageTest extends UserTest {
 
         assertEquals(0, (int) stats.max);
         assertEquals(String.valueOf(IMAGE2.id), imp.getProp(Image.IJ_ID_PROPERTY));
+        assertEquals(IMAGE2.name, imp.getTitle());
     }
 
 
