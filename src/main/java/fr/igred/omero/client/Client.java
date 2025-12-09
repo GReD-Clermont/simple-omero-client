@@ -107,6 +107,7 @@ public interface Client extends AdminManager, Browser, ConnectionHandler, DataMa
      *
      * @throws ExecutionException If the DataManagerFacility can't be retrieved or instantiated.
      */
+    @Override
     default DataManagerFacility getDMFacility() throws ExecutionException {
         return getGateway().getFacility(DataManagerFacility.class);
     }
@@ -119,6 +120,7 @@ public interface Client extends AdminManager, Browser, ConnectionHandler, DataMa
      *
      * @throws ExecutionException If the ROIFacility can't be retrieved or instantiated.
      */
+    @Override
     default ROIFacility getRoiFacility() throws ExecutionException {
         return getGateway().getFacility(ROIFacility.class);
     }
@@ -131,6 +133,7 @@ public interface Client extends AdminManager, Browser, ConnectionHandler, DataMa
      *
      * @throws ExecutionException If the TablesFacility can't be retrieved or instantiated.
      */
+    @Override
     default TablesFacility getTablesFacility() throws ExecutionException {
         return getGateway().getFacility(TablesFacility.class);
     }
@@ -143,6 +146,7 @@ public interface Client extends AdminManager, Browser, ConnectionHandler, DataMa
      *
      * @throws ExecutionException If the AdminFacility can't be retrieved or instantiated.
      */
+    @Override
     default AdminFacility getAdminFacility() throws ExecutionException {
         return getGateway().getFacility(AdminFacility.class);
     }
@@ -162,6 +166,7 @@ public interface Client extends AdminManager, Browser, ConnectionHandler, DataMa
      * @throws ExecutionException     A Facility can't be retrieved or instantiated.
      * @throws NoSuchElementException The requested user does not exist.
      */
+    @Override
     Client sudo(String username)
     throws ServiceException, AccessException, ExecutionException;
 
