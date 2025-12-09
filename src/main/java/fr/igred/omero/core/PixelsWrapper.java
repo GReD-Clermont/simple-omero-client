@@ -509,6 +509,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public double[][][][][] getAllPixels(ConnectionHandler conn, Bounds bounds, int resLevel)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(conn);
@@ -774,6 +775,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
+    @Override
     public ImagePlus toImagePlus(Client client, Bounds limits, int resLevel)
     throws AccessException, ExecutionException, ServiceException {
         loadPlanesInfo(client);
