@@ -38,7 +38,7 @@ public class ResolutionLevel {
      * @param sizeX Size in X of the resolution.
      * @param sizeY Size in Y of the resolution.
      */
-    public ResolutionLevel(int level, int sizeX, int sizeY) {
+    ResolutionLevel(int level, int sizeX, int sizeY) {
         this.level = level;
         this.sizeX = sizeX;
         this.sizeY = sizeY;
