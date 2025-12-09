@@ -439,6 +439,8 @@ class ImageTest extends UserTest {
 
         Image image = client.getImage(IMAGE1.id);
 
+        double pixSize = image.getPixels().getPixelSizeX().getValue();
+
         ImagePlus imp = image.toImagePlus(client, level);
 
         ImageCalculator calculator = new ImageCalculator();
@@ -451,6 +453,7 @@ class ImageTest extends UserTest {
 
         // Compare IDs
         assertEquals(String.valueOf(IMAGE1.id), imp.getProp(Image.IJ_ID_PROPERTY));
+        assertEquals(2 * pixSize, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
 
         // A difference of 1 is found for some reason
         assertEquals(1, (int) stats.max);

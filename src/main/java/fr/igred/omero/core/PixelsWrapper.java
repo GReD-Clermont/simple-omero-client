@@ -905,13 +905,13 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         calibration.zOrigin = -positionZ.getValue();
         if (spacingX != null) {
             calibration.setXUnit(spacingX.getSymbol());
-            calibration.pixelWidth = xFactor * spacingX.getValue();
+            calibration.pixelWidth = spacingX.getValue() / xFactor;
             // positionX and spacingX should use the same unit
             calibration.xOrigin /= calibration.pixelWidth;
         }
         if (spacingY != null) {
             calibration.setYUnit(spacingY.getSymbol());
-            calibration.pixelHeight = yFactor * spacingY.getValue();
+            calibration.pixelHeight = spacingY.getValue() / yFactor;
             // positionY and spacingY should use the same unit
             calibration.yOrigin /= calibration.pixelHeight;
         }
