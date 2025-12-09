@@ -38,7 +38,9 @@ import ij.ImagePlus;
 import ij.plugin.Duplicator;
 import ij.plugin.ImageCalculator;
 import ij.process.ImageStatistics;
+import ij.process.StackStatistics;
 import loci.plugins.BF;
+import loci.plugins.in.ImporterOptions;
 import omero.constants.metadata.NSCLIENTMAPANNOTATION;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MapAnnotationData;
@@ -382,7 +384,7 @@ class ImageTest extends UserTest {
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", crop, imp);
-        ImageStatistics stats      = difference.getStatistics();
+        ImageStatistics stats      = new StackStatistics(difference);
 
         assertEquals(pixSize, imp.getCalibration().pixelHeight, Double.MIN_VALUE);
         assertEquals(pixSize, imp.getCalibration().pixelWidth, Double.MIN_VALUE);
@@ -414,11 +416,43 @@ class ImageTest extends UserTest {
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", reference, imp);
-        ImageStatistics stats      = difference.getStatistics();
+        ImageStatistics stats      = new StackStatistics(difference);
 
         assertEquals(0, (int) stats.max);
-        assertEquals(String.valueOf(IMAGE2.id),
-                     imp.getProp(Image.IJ_ID_PROPERTY));
+        assertEquals(String.valueOf(IMAGE2.id), imp.getProp(Image.IJ_ID_PROPERTY));
+    }
+
+
+    @Test
+    void testToImagePlusSubRes() throws Exception {
+        String fake     = "8bit-unsigned&pixelType=uint8&resolutions=3&sizeZ=3&sizeC=5&sizeT=7&sizeX=512&sizeY=512.fake";
+        File   fakeFile = createFile(fake);
+
+        int level = 1;
+
+        ImporterOptions options = new ImporterOptions();
+        options.setId(fakeFile.getAbsolutePath());
+        options.setSeriesOn(level, true);
+        ImagePlus reference = BF.openImagePlus(options)[0];
+        removeFile(fakeFile);
+
+        Image image = client.getImage(IMAGE1.id);
+
+        ImagePlus imp = image.toImagePlus(client, level);
+
+        ImageCalculator calculator = new ImageCalculator();
+        ImagePlus       difference = calculator.run("difference create stack", reference, imp);
+        ImageStatistics stats      = new StackStatistics(difference);
+
+        // Compare width and height
+        assertEquals(reference.getWidth(), imp.getWidth());
+        assertEquals(reference.getWidth(), imp.getWidth());
+
+        // Compare IDs
+        assertEquals(String.valueOf(IMAGE1.id), imp.getProp(Image.IJ_ID_PROPERTY));
+
+        // A difference of 1 is found for some reason
+        assertEquals(1, (int) stats.max);
     }
 
 
@@ -744,7 +778,7 @@ class ImageTest extends UserTest {
 
         ImageCalculator calculator = new ImageCalculator();
         ImagePlus       difference = calculator.run("difference create stack", imp1, imp2);
-        ImageStatistics stats      = difference.getStatistics();
+        ImageStatistics stats      = new StackStatistics(difference);
 
         assertEquals(0, (int) stats.max);
         assertEquals(imp1.getWidth(), imp2.getWidth());
