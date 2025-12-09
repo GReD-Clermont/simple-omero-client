@@ -19,13 +19,34 @@ package fr.igred.omero.core;
 
 
 import fr.igred.omero.UserTest;
+import fr.igred.omero.util.Bounds;
+import fr.igred.omero.util.Coordinates;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static fr.igred.omero.util.Bounds.getBounds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 class PixelsTest extends UserTest {
+
+
+    @Test
+    void testGetResolutions() throws Exception {
+        final int sizeX = 512;
+        final int sizeY = 512;
+
+        Image                 image       = client.getImage(IMAGE1.id);
+        Pixels                pixels      = image.getPixels();
+        List<ResolutionLevel> resolutions = pixels.getResolutionLevels(client);
+
+        assertEquals(3, resolutions.size());
+        assertEquals(2, resolutions.get(2).getLevel());
+        assertEquals(sizeX / 4, resolutions.get(2).getSizeX());
+        assertEquals(sizeY / 4, resolutions.get(2).getSizeY());
+    }
 
 
     @Test
@@ -97,6 +118,100 @@ class PixelsTest extends UserTest {
         assertEquals(3, value[0][0].length);
         assertEquals(3, value[0].length);
         assertEquals(3, value.length);
+    }
+
+
+    @Test
+    void testGetRawDataBoundSubRes1() throws Exception {
+        Image  image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
+
+        int[] xBounds = {-1, 2};
+        int[] yBounds = {0, 512};
+        int[] cBounds = {0, 2};
+        int[] zBounds = {0, 2};
+        int[] tBounds = {0, 2};
+
+        double[][][][][] value = pixels.getAllPixels(client, xBounds, yBounds, cBounds, zBounds, tBounds, 1);
+
+        assertEquals(3, value[0][0][0][0].length);
+        assertEquals(256, value[0][0][0].length);
+        assertEquals(3, value[0][0].length);
+        assertEquals(3, value[0].length);
+        assertEquals(3, value.length);
+    }
+
+
+    @Test
+    void testGetRawDataBoundSubRes2() throws Exception {
+        Image  image  = client.getImage(IMAGE1.id);
+        Pixels pixels = image.getPixels();
+
+        int[] xBounds = {-1, 2};
+        int[] yBounds = {0, 512};
+        int[] cBounds = {0, 2};
+        int[] zBounds = {0, 2};
+        int[] tBounds = {0, 2};
+
+        Bounds bounds = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
+
+        byte[][][][] value = pixels.getRawPixels(client, bounds, 1, 1);
+
+        assertEquals(3 * 256, value[0][0][0].length);
+        assertEquals(3, value[0][0].length);
+        assertEquals(3, value[0].length);
+        assertEquals(3, value.length);
+    }
+
+
+    @Test
+    void testGetRawDataSubRes1() throws Exception {
+        Image  image = client.getImage(IMAGE1.id);
+        Pixels pix   = image.getPixels();
+
+        PixelsWrapper pixels = new PixelsWrapper(pix.asDataObject());
+
+        int level = 1;
+
+        Coordinates size  = pixels.getSize(client, level);
+        int         sizeX = size.getX();
+        int         sizeY = size.getY();
+        int         sizeZ = size.getZ();
+        int         sizeC = size.getC();
+        int         sizeT = size.getT();
+
+        double[][][][][] value = pixels.getAllPixels(client, level);
+
+        assertEquals(sizeX, value[0][0][0][0].length);
+        assertEquals(sizeY, value[0][0][0].length);
+        assertEquals(sizeC, value[0][0].length);
+        assertEquals(sizeZ, value[0].length);
+        assertEquals(sizeT, value.length);
+    }
+
+
+    @Test
+    void testGetRawDataSubRes2() throws Exception {
+        Image  image = client.getImage(IMAGE1.id);
+        Pixels pix   = image.getPixels();
+
+        PixelsWrapper pixels = new PixelsWrapper(pix.asDataObject());
+
+        int level = 1;
+
+        Coordinates size  = pixels.getSize(client, level);
+        int         sizeX = size.getX();
+        int         sizeY = size.getY();
+        int         sizeZ = size.getZ();
+        int         sizeC = size.getC();
+        int         sizeT = size.getT();
+
+        byte[][][][] value = pixels.getRawPixels(client, 1, level);
+
+        assertEquals(sizeX * sizeY, value[0][0][0].length);
+        assertEquals(sizeC, value[0][0].length);
+        assertEquals(sizeZ, value[0].length);
+        assertEquals(sizeT, value.length);
     }
 
 

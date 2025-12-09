@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 import static fr.igred.omero.RemoteObject.distinct;
 import static fr.igred.omero.RemoteObject.flatten;
 import static fr.igred.omero.exception.ExceptionHandler.call;
+import static fr.igred.omero.util.Bounds.getBounds;
 import static java.util.logging.Level.WARNING;
 
 
@@ -439,7 +440,7 @@ public interface Image extends RepositoryObject {
      *
      * @return See above.
      */
-    PixelsWrapper getPixels();
+    Pixels getPixels();
 
 
     /**
@@ -463,6 +464,24 @@ public interface Image extends RepositoryObject {
     /**
      * Gets the ImagePlus from the image within the specified boundaries.
      *
+     * @param client   The client handling the connection.
+     * @param resLevel The resolution level to retrieve.
+     *
+     * @return an ImagePlus from the ij library.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default ImagePlus toImagePlus(Client client, int resLevel)
+    throws ServiceException, AccessException, ExecutionException {
+        return toImagePlus(client, null, null, null, null, null, resLevel);
+    }
+
+
+    /**
+     * Gets the ImagePlus from the image within the specified boundaries.
+     *
      * @param client  The client handling the connection.
      * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
      * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
@@ -476,12 +495,61 @@ public interface Image extends RepositoryObject {
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    ImagePlus toImagePlus(Client client,
-                          int[] xBounds,
-                          int[] yBounds,
-                          int[] cBounds,
-                          int[] zBounds,
-                          int[] tBounds)
+    default ImagePlus toImagePlus(Client client,
+                                  int[] xBounds,
+                                  int[] yBounds,
+                                  int[] cBounds,
+                                  int[] zBounds,
+                                  int[] tBounds)
+    throws ServiceException, AccessException, ExecutionException {
+        return toImagePlus(client, xBounds, yBounds, cBounds, zBounds, tBounds, -1);
+    }
+
+
+    /**
+     * Gets the ImagePlus from the image within the specified boundaries, at the specified resolution level.
+     *
+     * @param client   The client handling the connection.
+     * @param xBounds  Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds  Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds  Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds  Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds  Array containing the T bounds from which the pixels should be retrieved.
+     * @param resLevel The resolution level to retrieve.
+     *
+     * @return an ImagePlus from the ij library.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    default ImagePlus toImagePlus(Client client,
+                                  int[] xBounds,
+                                  int[] yBounds,
+                                  int[] cBounds,
+                                  int[] zBounds,
+                                  int[] tBounds,
+                                  int resLevel)
+    throws ServiceException, AccessException, ExecutionException {
+        Bounds lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
+        return toImagePlus(client, lim, resLevel);
+    }
+
+
+    /**
+     * Creates an ImagePlus from the specified pixels within the specified boundaries, at the specified resolution level.
+     *
+     * @param client   The client handling the connection.
+     * @param bounds   The boundaries.
+     * @param resLevel The resolution level to retrieve.
+     *
+     * @return an ImagePlus from the ij library.
+     *
+     * @throws ServiceException   Cannot connect to OMERO.
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    ImagePlus toImagePlus(Client client, Bounds bounds, int resLevel)
     throws ServiceException, AccessException, ExecutionException;
 
 

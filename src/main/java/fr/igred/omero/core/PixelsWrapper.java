@@ -20,13 +20,21 @@ package fr.igred.omero.core;
 
 import fr.igred.omero.ObjectWrapper;
 import fr.igred.omero.client.Browser;
+import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ExceptionHandler;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.util.Bounds;
 import fr.igred.omero.util.Coordinates;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.measure.Calibration;
+import ij.process.ImageProcessor;
+import loci.formats.FormatTools;
 import ome.units.unit.Unit;
+import omero.api.ResolutionDescription;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.facility.RawDataFacility;
@@ -44,6 +52,7 @@ import java.util.concurrent.ExecutionException;
 
 import static fr.igred.omero.core.PlaneInfo.getMinPosition;
 import static fr.igred.omero.exception.ExceptionHandler.call;
+import static loci.common.DataTools.makeDataArray;
 import static ome.formats.model.UnitsFactory.convertLength;
 
 
@@ -119,22 +128,22 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
 
     /**
-     * Checks bounds.
-     * <br>If the lower bound is outside [0 - imageSize-1], the resulting value will be 0.
-     * <br>Conversely, if the higher bound is outside [0 - imageSize-1], the resulting value will be imageSize-1.
+     * Retrieves the resolution descriptions.
      *
-     * @param bounds    Array containing the specified bounds for 1 coordinate.
-     * @param imageSize Size of the image (in the corresponding dimension).
+     * @param conn The connection handler.
      *
-     * @return New array with valid bounds.
+     * @return See above.
+     *
+     * @throws AccessException If an error occurs while retrieving the resolution descriptions.
      */
-    private static int[] checkBounds(int[] bounds, int imageSize) {
-        int[] b = {0, imageSize - 1};
-        if (bounds != null && bounds.length > 1) {
-            b[0] = bounds[0] >= b[0] && bounds[0] <= b[1] ? bounds[0] : b[0];
-            b[1] = bounds[1] >= b[0] && bounds[1] <= b[1] ? bounds[1] : b[1];
-        }
-        return b;
+    private List<ResolutionDescription> getResolutionDescriptions(ConnectionHandler conn)
+    throws AccessException {
+        return ExceptionHandler.of(rawDataFacility,
+                                   rf -> rf.getResolutionDescriptions(conn.getCtx(), data))
+                               .rethrow(DataSourceException.class,
+                                        AccessException::new,
+                                        "Cannot get resolution descriptions")
+                               .get();
     }
 
 
@@ -323,6 +332,37 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
 
     /**
+     * Retrieves the available resolution levels for this image.
+     *
+     * @param conn The connection handler.
+     *
+     * @return See above.
+     *
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws AccessException    If an error occurs while retrieving the resolution descriptions.
+     */
+    @Override
+    public List<ResolutionLevel> getResolutionLevels(ConnectionHandler conn)
+    throws ExecutionException, AccessException {
+        boolean rdf = createRawDataFacility(conn);
+        try {
+            List<ResolutionDescription> desc = getResolutionDescriptions(conn);
+
+            List<ResolutionLevel> res = new ArrayList<>(desc.size());
+            for (int i = 0; i < desc.size(); i++) {
+                ResolutionDescription d = desc.get(i);
+                res.add(new ResolutionLevel(i, d.sizeX, d.sizeY));
+            }
+            return res;
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
+        }
+    }
+
+
+    /**
      * Gets the size of the image on the X axis
      *
      * @return Size of the image on the X axis.
@@ -392,7 +432,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         if (rawDataFacility == null) {
             rawDataFacility = conn.getGateway()
                                   .getFacility(RawDataFacility.class);
-            created = true;
+            created         = true;
         }
         return created;
     }
@@ -408,14 +448,61 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
 
     /**
+     * Returns the image size at the specified resolution level.
+     *
+     * @param conn     The connection handler.
+     * @param resLevel The resolution level.
+     *
+     * @return See above.
+     *
+     * @throws AccessException    If an error occurs while retrieving the resolution descriptions.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    Coordinates getSize(ConnectionHandler conn, int resLevel)
+    throws AccessException, ExecutionException {
+        int sx = getSizeX();
+        int sy = getSizeY();
+        if (resLevel >= 0) {
+            List<ResolutionLevel> resLevels = getResolutionLevels(conn);
+            if (resLevel < resLevels.size()) {
+                ResolutionLevel res = resLevels.get(resLevel);
+                sx = res.getSizeX();
+                sy = res.getSizeY();
+            }
+        }
+        return new Coordinates(sx, sy, getSizeC(), getSizeZ(), getSizeT());
+    }
+
+
+    /**
+     * Checks that the resolution level is valid.
+     *
+     * @param conn     The connection handler.
+     * @param resLevel The resolution level.
+     *
+     * @return The resolution level if it is valid, -1 otherwise.
+     *
+     * @throws AccessException    If an error occurs while retrieving the resolution descriptions.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     */
+    int checkResolutionLevel(ConnectionHandler conn, int resLevel)
+    throws AccessException, ExecutionException {
+        int level = -1;
+        if (resLevel >= 0) {
+            List<ResolutionLevel> resLevels = getResolutionLevels(conn);
+            if (resLevel < resLevels.size()) {
+                level = resLevel;
+            }
+        }
+        return level;
+    }
+
+
+    /**
      * Returns an array containing the value for each voxel corresponding to the bounds
      *
-     * @param conn    The connection handler.
-     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
+     * @param conn   The connection handler.
+     * @param bounds The bounds from which the pixels should be retrieved.
      *
      * @return Array containing the value for each voxel of the image.
      *
@@ -423,18 +510,16 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public double[][][][][] getAllPixels(ConnectionHandler conn,
-                                         int[] xBounds,
-                                         int[] yBounds,
-                                         int[] cBounds,
-                                         int[] zBounds,
-                                         int[] tBounds)
+    public double[][][][][] getAllPixels(ConnectionHandler conn, Bounds bounds, int resLevel)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(conn);
-        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
-        Coordinates start = lim.getStart();
-        Coordinates size  = lim.getSize();
+        int         lvl     = checkResolutionLevel(conn, resLevel);
+        Coordinates imgSize = getSize(conn, lvl);
+        Bounds      checked = bounds.checkBounds(imgSize);
+
+        Coordinates start = checked.getStart();
+        Coordinates size  = checked.getSize();
 
         int x0 = start.getX();
         int y0 = start.getY();
@@ -448,21 +533,22 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         int sizeZ  = size.getZ();
         int sizeT  = size.getT();
 
-        double[][][][][] tab = new double[sizeT][sizeZ][sizeC][][];
-
-        for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
-            for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
-                for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
-                    Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
-                    tab[t][z][c] = getTile(conn, pos, sx, sy);
+        try {
+            double[][][][][] tab = new double[sizeT][sizeZ][sizeC][][];
+            for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
+                for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
+                    for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
+                        Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+                        tab[t][z][c] = getTile(conn, pos, sx, sy, lvl);
+                    }
                 }
             }
+            return tab;
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-
-        if (rdf) {
-            destroyRawDataFacility();
-        }
-        return tab;
     }
 
 
@@ -473,25 +559,28 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @param start  Start position of the tile.
      * @param width  Width of the tile.
      * @param height Height of the tile.
+     * @param resLvl The resolution level to retrieve the pixels from.
      *
      * @return 2D array containing tile pixel values (as double).
      *
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    double[][] getTile(ConnectionHandler conn, Coordinates start, int width, int height)
+    double[][] getTile(ConnectionHandler conn, Coordinates start, int width, int height, int resLvl)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(conn);
-        double[][] tile = ExceptionHandler.of(this,
-                                              t -> t.getTileUnchecked(conn.getCtx(), start, width, height))
-                                          .rethrow(DataSourceException.class,
-                                                   AccessException::new,
-                                                   "Cannot read tile")
-                                          .get();
-        if (rdf) {
-            destroyRawDataFacility();
+        try {
+            return ExceptionHandler.of(conn.getCtx(),
+                                       cx -> getTileUnchecked(cx, start, width, height, resLvl))
+                                   .rethrow(DataSourceException.class,
+                                            AccessException::new,
+                                            "Cannot read tile")
+                                   .get();
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-        return tile;
     }
 
 
@@ -503,12 +592,17 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @param start  Start position of the tile.
      * @param width  Width of the tile.
      * @param height Height of the tile.
+     * @param resLvl The resolution level to retrieve the pixels from.
      *
      * @return 2D array containing tile pixel values (as double).
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      */
-    private double[][] getTileUnchecked(SecurityContext ctx, Coordinates start, int width, int height)
+    private double[][] getTileUnchecked(SecurityContext ctx,
+                                        Coordinates start,
+                                        int width,
+                                        int height,
+                                        int resLvl)
     throws DataSourceException {
         double[][] tile = new double[height][width];
 
@@ -517,12 +611,12 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         int t = start.getT();
 
         for (int relX = 0, x = start.getX(); relX < width; relX += MAX_DIST, x += MAX_DIST) {
-            int sizeX = Math.min(MAX_DIST, width - relX);
+            int w = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.getY(); relY < height; relY += MAX_DIST, y += MAX_DIST) {
-                int         sizeY = Math.min(MAX_DIST, height - relY);
-                Plane2D     p     = rawDataFacility.getTile(ctx, data, z, t, c, x, y, sizeX, sizeY);
-                Coordinates pos   = new Coordinates(relX, relY, c, z, t);
-                copy(tile, p, pos, sizeX, sizeY);
+                int         h   = Math.min(MAX_DIST, height - relY);
+                Plane2D     p   = rawDataFacility.getTile(ctx, data, z, t, c, x, y, w, h, resLvl);
+                Coordinates pos = new Coordinates(relX, relY, c, z, t);
+                copy(tile, p, pos, w, h);
             }
         }
         return tile;
@@ -532,13 +626,10 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
     /**
      * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
      *
-     * @param conn    The connection handler.
-     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
-     * @param bpp     Bytes per pixels of the image.
+     * @param conn     The connection handler.
+     * @param bounds   The bounds from which the pixels should be retrieved.
+     * @param bpp      Bytes per pixels of the image.
+     * @param resLevel The resolution level to retrieve the pixels from.
      *
      * @return a table of bytes containing the pixel values
      *
@@ -546,19 +637,16 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     @Override
-    public byte[][][][] getRawPixels(ConnectionHandler conn,
-                                     int[] xBounds,
-                                     int[] yBounds,
-                                     int[] cBounds,
-                                     int[] zBounds,
-                                     int[] tBounds,
-                                     int bpp)
+    public byte[][][][] getRawPixels(ConnectionHandler conn, Bounds bounds, int bpp, int resLevel)
     throws ExecutionException, AccessException {
         boolean rdf = createRawDataFacility(conn);
-        Bounds  lim = getBounds(xBounds, yBounds, cBounds, zBounds, tBounds);
 
-        Coordinates start = lim.getStart();
-        Coordinates size  = lim.getSize();
+        int         lvl     = checkResolutionLevel(conn, resLevel);
+        Coordinates imgSize = getSize(conn, lvl);
+        Bounds      checked = bounds.checkBounds(imgSize);
+
+        Coordinates start = checked.getStart();
+        Coordinates size  = checked.getSize();
 
         int x0     = start.getX();
         int y0     = start.getY();
@@ -572,50 +660,65 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         int sizeZ = size.getZ();
         int sizeT = size.getT();
 
-        byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][];
-
-        for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
-            for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
-                for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
-                    Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
-                    bytes[t][z][c] = getRawTile(conn, pos, sx, sy, bpp);
+        try {
+            byte[][][][] bytes = new byte[sizeT][sizeZ][sizeC][];
+            for (int t = 0, posT = startT; t < sizeT; t++, posT++) {
+                for (int z = 0, posZ = startZ; z < sizeZ; z++, posZ++) {
+                    for (int c = 0, posC = startC; c < sizeC; c++, posC++) {
+                        Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+                        bytes[t][z][c] = getRawTile(conn, pos, sx, sy, bpp, lvl);
+                    }
                 }
             }
+            return bytes;
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-        if (rdf) {
-            destroyRawDataFacility();
-        }
-        return bytes;
     }
 
 
     /**
      * Gets the tile at the specified position, with the defined width and height.
      *
-     * @param conn   The connection handler.
-     * @param start  Start position of the tile.
-     * @param width  Width of the tile.
-     * @param height Height of the tile.
-     * @param bpp    Bytes per pixels of the image.
+     * @param conn     The connection handler.
+     * @param start    Start position of the tile.
+     * @param width    Width of the tile.
+     * @param height   Height of the tile.
+     * @param bpp      Bytes per pixels of the image.
+     * @param resLevel The resolution level.
      *
      * @return Array of bytes containing the pixel values.
      *
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    byte[] getRawTile(ConnectionHandler conn, Coordinates start, int width, int height, int bpp)
+    byte[] getRawTile(ConnectionHandler conn,
+                      Coordinates start,
+                      int width,
+                      int height,
+                      int bpp,
+                      int resLevel)
     throws AccessException, ExecutionException {
         boolean rdf = createRawDataFacility(conn);
-        byte[] tile = ExceptionHandler.of(this,
-                                          t -> t.getRawTileUnchecked(conn.getCtx(), start, width, height, bpp))
-                                      .rethrow(DataSourceException.class,
-                                               AccessException::new,
-                                               "Cannot read raw tile")
-                                      .get();
-        if (rdf) {
-            destroyRawDataFacility();
+        try {
+            return ExceptionHandler.of(conn.getCtx(),
+                                       cx -> getRawTileUnchecked(cx,
+                                                                 start,
+                                                                 width,
+                                                                 height,
+                                                                 bpp,
+                                                                 resLevel))
+                                   .rethrow(DataSourceException.class,
+                                            AccessException::new,
+                                            "Cannot read raw tile")
+                                   .get();
+        } finally {
+            if (rdf) {
+                destroyRawDataFacility();
+            }
         }
-        return tile;
     }
 
 
@@ -623,17 +726,23 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      * Gets the tile at the specified position, with the defined width and height.
      * <p>The {@link #rawDataFacility} has to be created first.</p>
      *
-     * @param ctx    The {@link SecurityContext}.
-     * @param start  Start position of the tile.
-     * @param width  Width of the tile.
-     * @param height Height of the tile.
-     * @param bpp    Bytes per pixels of the image.
+     * @param ctx      The {@link SecurityContext}.
+     * @param start    Start position of the tile.
+     * @param width    Width of the tile.
+     * @param height   Height of the tile.
+     * @param bpp      Bytes per pixels of the image.
+     * @param resLevel Resolution level
      *
      * @return Array of bytes containing the pixel values.
      *
      * @throws DataSourceException If an error occurs while retrieving the plane data from the pixels source.
      */
-    private byte[] getRawTileUnchecked(SecurityContext ctx, Coordinates start, int width, int height, int bpp)
+    private byte[] getRawTileUnchecked(SecurityContext ctx,
+                                       Coordinates start,
+                                       int width,
+                                       int height,
+                                       int bpp,
+                                       int resLevel)
     throws DataSourceException {
         byte[] tile = new byte[height * width * bpp];
 
@@ -642,12 +751,12 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         int t = start.getT();
 
         for (int relX = 0, x = start.getX(); relX < width; relX += MAX_DIST, x += MAX_DIST) {
-            int sizeX = Math.min(MAX_DIST, width - relX);
+            int w = Math.min(MAX_DIST, width - relX);
             for (int relY = 0, y = start.getY(); relY < height; relY += MAX_DIST, y += MAX_DIST) {
-                int         sizeY = Math.min(MAX_DIST, height - relY);
-                Plane2D     p     = rawDataFacility.getTile(ctx, data, z, t, c, x, y, sizeX, sizeY);
-                Coordinates pos   = new Coordinates(relX, relY, c, z, t);
-                copy(tile, p, pos, sizeX, sizeY, width, bpp);
+                int         h   = Math.min(MAX_DIST, height - relY);
+                Plane2D     p   = rawDataFacility.getTile(ctx, data, z, t, c, x, y, w, h, resLevel);
+                Coordinates pos = new Coordinates(relX, relY, c, z, t);
+                copy(tile, p, pos, w, h, width, bpp);
             }
         }
         return tile;
@@ -655,34 +764,167 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
 
 
     /**
-     * Checks all bounds
+     * Creates an ImagePlus within the specified boundaries, at the given resolution level.
      *
-     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
+     * @param client   The client handling the connection.
+     * @param limits   The boundaries.
+     * @param resLevel The resolution level to retrieve.
      *
-     * @return 5D bounds.
+     * @return An ImagePlus from the IJ library.
+     *
+     * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
+     * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
-    Bounds getBounds(int[] xBounds, int[] yBounds, int[] cBounds, int[] zBounds, int[] tBounds) {
-        int[][] limits = new int[5][2];
-        limits[0] = checkBounds(xBounds, data.getSizeX());
-        limits[1] = checkBounds(yBounds, data.getSizeY());
-        limits[2] = checkBounds(cBounds, data.getSizeC());
-        limits[3] = checkBounds(zBounds, data.getSizeZ());
-        limits[4] = checkBounds(tBounds, data.getSizeT());
-        Coordinates start = new Coordinates(limits[0][0],
-                                            limits[1][0],
-                                            limits[2][0],
-                                            limits[3][0],
-                                            limits[4][0]);
-        Coordinates end = new Coordinates(limits[0][1],
-                                          limits[1][1],
-                                          limits[2][1],
-                                          limits[3][1],
-                                          limits[4][1]);
-        return new Bounds(start, end);
+    @Override
+    public ImagePlus toImagePlus(Client client, Bounds limits, int resLevel)
+    throws AccessException, ExecutionException, ServiceException {
+        loadPlanesInfo(client);
+
+        boolean rdf = createRawDataFacility(client);
+
+        int lvl = checkResolutionLevel(client, resLevel);
+
+        Coordinates size   = getSize(client, lvl);
+        Bounds      bounds = limits.checkBounds(size);
+
+        double xFactor = (double) size.getX() / getSizeX();
+        double yFactor = (double) size.getY() / getSizeY();
+
+        int x0 = bounds.getStart().getX();
+        int y0 = bounds.getStart().getY();
+        int c0 = bounds.getStart().getC();
+        int z0 = bounds.getStart().getZ();
+        int t0 = bounds.getStart().getT();
+
+        int sx = bounds.getSize().getX();
+        int sy = bounds.getSize().getY();
+        int nc = bounds.getSize().getC();
+        int nz = bounds.getSize().getZ();
+        int nt = bounds.getSize().getT();
+
+        int pixelType = FormatTools.pixelTypeFromString(data.getPixelType());
+        int bpp       = FormatTools.getBytesPerPixel(pixelType);
+
+        String name = String.valueOf(getId());
+        if (data.getImage() != null) {
+            name = data.getImage().getName();
+        }
+
+        ImagePlus imp = IJ.createHyperStack(name, sx, sy, nc, nz, nt, bpp * 8);
+
+        Calibration calibration = imp.getCalibration();
+        setCalibration(calibration, xFactor, yFactor);
+        calibration.xOrigin -= x0;
+        calibration.yOrigin -= y0;
+        calibration.zOrigin -= z0;
+        imp.setCalibration(calibration);
+
+        boolean isFloat = FormatTools.isFloatingPoint(pixelType);
+
+        ImageStack stack = imp.getImageStack();
+
+        double min = imp.getProcessor().getMin();
+        double max = 0;
+
+        int progressTotal = imp.getStackSize();
+        IJ.showProgress(0, progressTotal);
+        try {
+            for (int t = 0; t < nt; t++) {
+                int posT = t + t0;
+                for (int z = 0; z < nz; z++) {
+                    int posZ = z + z0;
+                    for (int c = 0; c < nc; c++) {
+                        int posC = c + c0;
+
+                        Coordinates pos = new Coordinates(x0, y0, posC, posZ, posT);
+
+                        byte[] tiles = getRawTile(client, pos, sx, sy, bpp, lvl);
+
+                        int n = imp.getStackIndex(c + 1, z + 1, t + 1);
+                        stack.setPixels(makeDataArray(tiles, bpp, isFloat, false), n);
+                        ImageProcessor ip = stack.getProcessor(n);
+                        ip.resetMinAndMax();
+
+                        max = Math.max(ip.getMax(), max);
+                        min = Math.min(ip.getMin(), min);
+
+                        stack.setProcessor(ip, n);
+                        IJ.showProgress(n, progressTotal);
+                    }
+                }
+            }
+        } finally {
+            IJ.showProgress(progressTotal, progressTotal);
+            if (rdf) {
+                destroyRawDataFacility();
+            }
+        }
+
+        imp.setStack(stack);
+        imp.setOpenAsHyperStack(true);
+        imp.setDisplayMode(IJ.COMPOSITE);
+
+        imp.getProcessor().setMinAndMax(min, max);
+        imp.setPosition(1);
+        if (IJ.getVersion().compareTo("1.53a") >= 0) {
+            imp.setProp("IMAGE_POS_X", x0);
+            imp.setProp("IMAGE_POS_Y", y0);
+            imp.setProp("IMAGE_POS_C", c0);
+            imp.setProp("IMAGE_POS_Z", z0);
+            imp.setProp("IMAGE_POS_T", t0);
+        }
+        return imp;
+    }
+
+
+    /**
+     * Sets the calibration. Planes information has to be loaded first.
+     *
+     * @param calibration The ImageJ calibration.
+     * @param xFactor     The factor to apply to X spacing.
+     * @param yFactor     The factor to apply to Y spacing.
+     */
+    private void setCalibration(Calibration calibration, double xFactor, double yFactor) {
+        Length positionX = getPositionX();
+        Length positionY = getPositionY();
+        Length positionZ = getPositionZ();
+        Length spacingX  = getPixelSizeX();
+        Length spacingY  = getPixelSizeY();
+        Length spacingZ  = getPixelSizeZ();
+        Time   stepT     = getTimeIncrement();
+
+        if (stepT == null) {
+            stepT = getMeanTimeInterval();
+        }
+
+        calibration.setXUnit(positionX.getSymbol());
+        calibration.setYUnit(positionY.getSymbol());
+        calibration.setZUnit(positionZ.getSymbol());
+        calibration.xOrigin = -positionX.getValue();
+        calibration.yOrigin = -positionY.getValue();
+        calibration.zOrigin = -positionZ.getValue();
+        if (spacingX != null) {
+            calibration.setXUnit(spacingX.getSymbol());
+            calibration.pixelWidth = spacingX.getValue() / xFactor;
+            // positionX and spacingX should use the same unit
+            calibration.xOrigin /= calibration.pixelWidth;
+        }
+        if (spacingY != null) {
+            calibration.setYUnit(spacingY.getSymbol());
+            calibration.pixelHeight = spacingY.getValue() / yFactor;
+            // positionY and spacingY should use the same unit
+            calibration.yOrigin /= calibration.pixelHeight;
+        }
+        if (spacingZ != null) {
+            calibration.setZUnit(spacingZ.getSymbol());
+            calibration.pixelDepth = spacingZ.getValue();
+            // positionZ and spacingZ should use the same unit
+            calibration.zOrigin /= calibration.pixelDepth;
+        }
+        if (!Double.isNaN(stepT.getValue())) {
+            calibration.setTimeUnit(stepT.getSymbol());
+            calibration.frameInterval = stepT.getValue();
+        }
     }
 
 }
