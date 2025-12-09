@@ -400,7 +400,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
      * <p>If the image is not square, the size will be the longest side.
      *
      * @param conn The connection handler.
-     * @param size   The thumbnail size.
+     * @param size The thumbnail size.
      *
      * @return The thumbnail as a {@link BufferedImage}.
      *

@@ -47,11 +47,11 @@ public class Bounds {
      * Creates Bounds object from given bounds arrays, set values to -1 when array size is lesser than 2.
      * Bounds can then be checked against image size using {@link #checkBounds(Coordinates)}.
      *
-     * @param xBounds   Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds   Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds   Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds   Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds   Array containing the T bounds from which the pixels should be retrieved.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
      *
      * @return 5D bounds.
      */
@@ -77,6 +77,24 @@ public class Bounds {
                                           limits[3][1],
                                           limits[4][1]);
         return new Bounds(start, end);
+    }
+
+
+    /**
+     * Checks if bound arrays are valid (not null and length >= 2).
+     * <br>If not, sets both bounds to -1 (indicating full range).
+     *
+     * @param bounds Array containing the specified bounds for 1 coordinate.
+     *
+     * @return New array with bounds.
+     */
+    private static int[] checkBounds(int[] bounds) {
+        int[] b = {-1, -1};
+        if (bounds != null && bounds.length > 1) {
+            b[0] = bounds[0] >= 0 ? bounds[0] : b[0];
+            b[1] = bounds[1] >= 0 ? bounds[1] : b[1];
+        }
+        return b;
     }
 
 
@@ -110,24 +128,6 @@ public class Bounds {
             b[i][1] = b[i][1] >= b[i][0] && b[i][1] <= l[i][1] ? b[i][1] : l[i][1];
         }
         return getBounds(b[0], b[1], b[2], b[3], b[4]);
-    }
-
-
-    /**
-     * Checks if bound arrays are valid (not null and length >= 2).
-     * <br>If not, sets both bounds to -1 (indicating full range).
-     *
-     * @param bounds    Array containing the specified bounds for 1 coordinate.
-     *
-     * @return New array with bounds.
-     */
-    private static int[] checkBounds(int[] bounds) {
-        int[] b = {-1, -1};
-        if (bounds != null && bounds.length > 1) {
-            b[0] = bounds[0] >= 0 ? bounds[0] : b[0];
-            b[1] = bounds[1] >= 0 ? bounds[1] : b[1];
-        }
-        return b;
     }
 
 

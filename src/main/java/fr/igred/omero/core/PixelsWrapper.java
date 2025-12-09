@@ -804,7 +804,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
         int bpp       = FormatTools.getBytesPerPixel(pixelType);
 
         String name = String.valueOf(getId());
-        if(data.getImage() != null) {
+        if (data.getImage() != null) {
             name = data.getImage().getName();
         }
 

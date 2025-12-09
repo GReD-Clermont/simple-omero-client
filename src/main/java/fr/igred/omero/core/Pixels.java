@@ -355,13 +355,13 @@ public interface Pixels extends RemoteObject {
     /**
      * Returns an array containing the raw values for each voxel for each plane corresponding to the bounds
      *
-     * @param conn     The connection handler.
-     * @param xBounds  Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds  Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds  Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds  Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds  Array containing the T bounds from which the pixels should be retrieved.
-     * @param bpp      Bytes per pixels of the image.
+     * @param conn    The connection handler.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
+     * @param bpp     Bytes per pixels of the image.
      *
      * @return a table of bytes containing the pixel values
      *
@@ -396,8 +396,6 @@ public interface Pixels extends RemoteObject {
      */
     byte[][][][] getRawPixels(ConnectionHandler conn, Bounds bounds, int bpp, int resLevel)
     throws ExecutionException, AccessException;
-
-
 
 
     /**

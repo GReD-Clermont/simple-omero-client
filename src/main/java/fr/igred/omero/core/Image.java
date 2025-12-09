@@ -482,12 +482,12 @@ public interface Image extends RepositoryObject {
     /**
      * Gets the ImagePlus from the image within the specified boundaries.
      *
-     * @param client   The client handling the connection.
-     * @param xBounds  Array containing the X bounds from which the pixels should be retrieved.
-     * @param yBounds  Array containing the Y bounds from which the pixels should be retrieved.
-     * @param cBounds  Array containing the C bounds from which the pixels should be retrieved.
-     * @param zBounds  Array containing the Z bounds from which the pixels should be retrieved.
-     * @param tBounds  Array containing the T bounds from which the pixels should be retrieved.
+     * @param client  The client handling the connection.
+     * @param xBounds Array containing the X bounds from which the pixels should be retrieved.
+     * @param yBounds Array containing the Y bounds from which the pixels should be retrieved.
+     * @param cBounds Array containing the C bounds from which the pixels should be retrieved.
+     * @param zBounds Array containing the Z bounds from which the pixels should be retrieved.
+     * @param tBounds Array containing the T bounds from which the pixels should be retrieved.
      *
      * @return an ImagePlus from the ij library.
      *
@@ -496,11 +496,11 @@ public interface Image extends RepositoryObject {
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
      */
     default ImagePlus toImagePlus(Client client,
-                          int[] xBounds,
-                          int[] yBounds,
-                          int[] cBounds,
-                          int[] zBounds,
-                          int[] tBounds)
+                                  int[] xBounds,
+                                  int[] yBounds,
+                                  int[] cBounds,
+                                  int[] zBounds,
+                                  int[] tBounds)
     throws ServiceException, AccessException, ExecutionException {
         return toImagePlus(client, xBounds, yBounds, cBounds, zBounds, tBounds, -1);
     }
