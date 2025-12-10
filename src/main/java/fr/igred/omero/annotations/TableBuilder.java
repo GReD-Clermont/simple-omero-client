@@ -20,7 +20,6 @@ package fr.igred.omero.annotations;
 
 import fr.igred.omero.client.Client;
 import fr.igred.omero.core.Image;
-import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
@@ -155,12 +154,13 @@ public class TableBuilder {
 
         int offset = 0;
 
-        Image image = new ImageWrapper(null);
+        ImageData imgData = null;
 
         List<ROI> rois = new ArrayList<>(0);
 
         if (imageId != null) {
-            image = client.getImage(imageId);
+            Image image = client.getImage(imageId);
+            imgData = image.asDataObject();
             rois  = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
@@ -181,7 +181,7 @@ public class TableBuilder {
         if (offset > 0) {
             createColumn(0, IMAGE, ImageData.class);
             data[0] = new ImageData[rowCount];
-            Arrays.fill(data[0], image.asDataObject());
+            Arrays.fill(data[0], imgData);
         }
         if (offset > 1) {
             createColumn(1, roiProperty, ROIData.class);
@@ -337,13 +337,14 @@ public class TableBuilder {
 
         ResultsTable rt = (ResultsTable) results.clone();
 
-        Image image = new ImageWrapper(null);
+        ImageData imgData = null;
 
         List<ROI> rois = new ArrayList<>(0);
 
         int offset = 0;
         if (imageId != null) {
-            image = client.getImage(imageId);
+            Image image = client.getImage(imageId);
+            imgData = image.asDataObject();
             rois  = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
@@ -365,7 +366,7 @@ public class TableBuilder {
         setRowCount(rowCount + n);
 
         if (offset > 0) {
-            Arrays.fill(data[0], row, row + n, image.asDataObject());
+            Arrays.fill(data[0], row, row + n, imgData);
         }
         if (offset > 1) {
             System.arraycopy(roiColumn, 0, data[1], row, n);
