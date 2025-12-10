@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Double.NaN;
+import static java.lang.Double.isNaN;
+import static java.lang.String.valueOf;
 
 
 /**
@@ -49,7 +51,8 @@ final class ResultsTableHelper {
      * Rename the {@value IMAGE} column if it already exists to:
      * <ul>
      *     <li>"{@value LABEL} if the column does not exist</li>
-     *     <li>{@code "Image_column_" + columnNumber} otherwise</li>
+     *     <li>{@value IMAGE} + {@code "_Name"} if it does not exist but {@value LABEL} does</li>
+     *     <li>{@value IMAGE} + {@code "_column_" + columnNumber} otherwise</li>
      * </ul>
      *
      * @param results The ResultsTable to process.
@@ -57,13 +60,17 @@ final class ResultsTableHelper {
     static void renameImageColumn(ResultsTable results) {
         if (results.columnExists(IMAGE)) {
             List<String> headings = Arrays.asList(results.getHeadings());
+
+            String newName;
             if (!headings.contains(LABEL)) {
-                results.renameColumn(IMAGE, LABEL);
+                newName = LABEL;
             } else if (!results.columnExists(IMAGE + "_Name")) {
-                results.renameColumn(IMAGE, IMAGE + "_Name");
+                newName = IMAGE + "_Name";
             } else {
-                results.renameColumn(IMAGE, IMAGE + "_column_" + results.getColumnIndex(IMAGE));
+                newName = IMAGE + "_column_" + results.getColumnIndex(IMAGE);
             }
+
+            results.renameColumn(IMAGE, newName);
         }
     }
 
@@ -77,9 +84,20 @@ final class ResultsTableHelper {
      */
     static boolean isColumnNumeric(Variable[] resultsColumn) {
         return Arrays.stream(resultsColumn)
-                     .map(v -> !Double.isNaN(v.getValue())
-                               || v.toString().equals(String.valueOf(NaN)))
+                     .map(ResultsTableHelper::isNumeric)
                      .reduce(Boolean::logicalOr).orElse(false);
+    }
+
+
+    /**
+     * Checks if a Variable is numeric or not.
+     *
+     * @param v An ImageJ Variable.
+     *
+     * @return Whether the Variable holds a numeric value or not.
+     */
+    static boolean isNumeric(Variable v) {
+        return !isNaN(v.getValue()) || v.toString().equals(valueOf(NaN));
     }
 
 }
