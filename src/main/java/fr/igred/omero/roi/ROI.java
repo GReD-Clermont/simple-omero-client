@@ -53,80 +53,36 @@ public interface ROI extends Annotatable {
     /** Annotation link name for this type of object */
     String ANNOTATION_LINK = "RoiAnnotationLink";
 
-    /** Default IJ property to store ROI local labels / indices. */
+    /** IJ property to store ROI local label / index. */
     String IJ_PROPERTY = "ROI";
 
+    /** IJ property to store ROI ID. */
+    String IJ_ID_PROPERTY = IJ_PROPERTY + "_ID";
 
-    /**
-     * Checks the provided property.
-     *
-     * @param property The property where the 4D ROI local index/label is stored.
-     *
-     * @return The property, or the default value {@link #IJ_PROPERTY} (= {@value IJ_PROPERTY}) if it is null or empty.
-     */
-    static String checkProperty(String property) {
-        if (property == null || property.trim().isEmpty()) {
-            return IJ_PROPERTY;
-        } else {
-            return property;
-        }
-    }
-
-
-    /**
-     * Returns the ID property corresponding to the input local index/label property (appends "_ID" to said property).
-     *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
-     *                 null or empty.
-     *
-     * @return See above.
-     */
-    static String ijIDProperty(String property) {
-        property = checkProperty(property);
-        return property + "_ID";
-    }
-
-
-    /**
-     * Returns the ID property corresponding to the input local index/label property (appends "_NAME" to said
-     * property).
-     *
-     * @param property The property where the 4D ROI local index/label is stored. Defaults to {@value IJ_PROPERTY} if
-     *                 null or empty.
-     *
-     * @return See above.
-     */
-    static String ijNameProperty(String property) {
-        property = checkProperty(property);
-        return property + "_NAME";
-    }
+    /** IJ property to store ROI name. */
+    String IJ_NAME_PROPERTY = IJ_PROPERTY + "_NAME";
 
 
     /**
      * Converts an ImageJ list of ROIs to a list of OMERO ROIs using the provided constructor and shape converter.
      *
      * @param ijRois      A list of ImageJ ROIs.
-     * @param property    The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if
-     *                    null or empty.
      * @param constructor A constructor to create ROI instances.
      * @param converter   A function to convert an IJ Roi to a list of OMERO Shapes.
      *
      * @return The converted list of OMERO ROIs.
      */
     static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois,
-                                String property,
                                 Supplier<? extends ROI> constructor,
                                 Function<? super Roi, ? extends List<? extends Shape>> converter) {
-        property = checkProperty(property);
-
         Map<String, ROI>    rois4D = new TreeMap<>();
         Map<String, String> names  = new TreeMap<>();
 
         Map<Integer, ROI> shape2roi = new TreeMap<>();
 
         for (int i = 0; i < ijRois.size(); i++) {
-            String value = ijRois.get(i).getProperty(property);
-            String name  = ijRois.get(i).getProperty(ijNameProperty(property));
+            String value = ijRois.get(i).getProperty(IJ_PROPERTY);
+            String name  = ijRois.get(i).getProperty(IJ_NAME_PROPERTY);
 
             ROI roi;
             if (value != null && !value.trim().isEmpty()) {
@@ -155,21 +111,7 @@ public interface ROI extends Annotatable {
      * @return The converted list of ImageJ ROIs.
      */
     static List<Roi> toImageJ(Collection<? extends ROI> rois) {
-        return toImageJ(rois, IJ_PROPERTY);
-    }
-
-
-    /**
-     * Converts an OMERO list of ROIs to a list of ImageJ ROIs
-     *
-     * @param rois     A list of OMERO ROIs.
-     * @param property The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if null
-     *                 or empty.
-     *
-     * @return The converted list of ImageJ ROIs.
-     */
-    static List<Roi> toImageJ(Collection<? extends ROI> rois, String property) {
-        return toImageJ(rois, property, true);
+        return toImageJ(rois, true);
     }
 
 
@@ -177,14 +119,11 @@ public interface ROI extends Annotatable {
      * Converts an OMERO list of ROIs to a list of ImageJ ROIs
      *
      * @param rois      A list of OMERO ROIs.
-     * @param property  The property used to store the 4D ROI local labels/IDs. Defaults to {@value IJ_PROPERTY} if null
-     *                  or empty.
      * @param groupRois Whether ImageJ Rois belonging to the same OMERO ROI should be grouped or not.
      *
      * @return The converted list of ImageJ ROIs.
      */
-    static List<Roi> toImageJ(Collection<? extends ROI> rois, String property, boolean groupRois) {
-        property = checkProperty(property);
+    static List<Roi> toImageJ(Collection<? extends ROI> rois, boolean groupRois) {
         final int maxGroups = 255;
         groupRois = groupRois && rois.size() < maxGroups && IJ.getVersion().compareTo("1.52t") >= 0;
 
@@ -199,10 +138,10 @@ public interface ROI extends Annotatable {
         for (ROI roi : rois) {
             String name = roi.getName();
 
-            List<Roi> shapes = roi.toImageJ(property);
+            List<Roi> shapes = roi.toImageJ();
             for (Roi r : shapes) {
-                r.setProperty(property, String.valueOf(index));
-                r.setProperty(ijNameProperty(property), name);
+                r.setProperty(IJ_PROPERTY, String.valueOf(index));
+                r.setProperty(IJ_NAME_PROPERTY, name);
                 if (groupRois) {
                     r.setGroup(index);
                 }
@@ -337,21 +276,9 @@ public interface ROI extends Annotatable {
     /**
      * Converts the ROI to a list of ImageJ ROIs.
      *
-     * @return A list of ROIs.
+     * @return A list of ImageJ ROIs.
      */
-    default List<ij.gui.Roi> toImageJ() {
-        return toImageJ(IJ_PROPERTY);
-    }
-
-
-    /**
-     * Converts the ROI to a list of ImageJ ROIs.
-     *
-     * @param property The property where the 4D ROI local index will be stored.
-     *
-     * @return A list of ROIs.
-     */
-    List<Roi> toImageJ(String property);
+    List<Roi> toImageJ();
 
 
     /**

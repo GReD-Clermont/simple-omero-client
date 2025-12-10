@@ -90,23 +90,7 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
      * @return The converted list of OMERO ROIs.
      */
     public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois) {
-        return fromImageJ(ijRois, IJ_PROPERTY);
-    }
-
-
-    /**
-     * Converts an ImageJ list of ROIs to a list of OMERO ROIs
-     *
-     * @param ijRois   A list of ImageJ ROIs.
-     * @param property The property used to store the 4D ROI local index/label. Defaults to {@value IJ_PROPERTY} if null
-     *                 or empty.
-     *
-     * @return The converted list of OMERO ROIs.
-     */
-    public static List<ROI> fromImageJ(List<? extends ij.gui.Roi> ijRois, String property) {
-        return ROI.fromImageJ(ijRois, property,
-                              ROIWrapper::new,
-                              ShapeWrapper::fromImageJ);
+        return ROI.fromImageJ(ijRois, ROIWrapper::new, ShapeWrapper::fromImageJ);
     }
 
 
@@ -282,16 +266,11 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
     /**
      * Converts the ROI to a list of ImageJ ROIs.
      *
-     * @param property The property where the 4D ROI local index will be stored.
-     *
      * @return A list of ROIs.
      */
     @Override
-    public List<ij.gui.Roi> toImageJ(String property) {
-        property = ROI.checkProperty(property);
-        String ijIDProperty   = ROI.ijIDProperty(property);
-        String ijNameProperty = ROI.ijNameProperty(property);
-        String roiID          = String.valueOf(getId());
+    public List<ij.gui.Roi> toImageJ() {
+        String roiID = String.valueOf(getId());
 
         List<Shape> shapes = getShapes();
 
@@ -333,8 +312,8 @@ public class ROIWrapper extends AnnotatableWrapper<ROIData> implements ROI {
                  .forEachOrdered(rois::add);
 
             // Add properties
-            rois.forEach(r -> r.setProperty(ijIDProperty, roiID));
-            rois.forEach(r -> r.setProperty(ijNameProperty, getName()));
+            rois.forEach(r -> r.setProperty(IJ_ID_PROPERTY, roiID));
+            rois.forEach(r -> r.setProperty(IJ_NAME_PROPERTY, getName()));
         }
         return rois;
     }

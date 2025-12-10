@@ -23,7 +23,6 @@ import fr.igred.omero.core.Image;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
-import fr.igred.omero.roi.ROIWrapper;
 import ij.gui.Roi;
 import ij.macro.Variable;
 import ij.measure.ResultsTable;
@@ -125,29 +124,6 @@ public class TableBuilder {
      */
     public TableBuilder(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
-    }
-
-
-    /**
-     * Constructor of the class TableBuilder. Uses an ImageJ {@link ResultsTable} to create.
-     *
-     * @param client      The client handling the connection.
-     * @param results     An ImageJ results table.
-     * @param imageId     An image ID.
-     * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY} if
-     *                    null or empty.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public TableBuilder(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
-                        String roiProperty)
-    throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROI.checkProperty(roiProperty);
-
         ResultsTable rt = (ResultsTable) results.clone();
         this.name     = rt.getTitle();
         this.rowCount = rt.size();
@@ -161,11 +137,11 @@ public class TableBuilder {
         if (imageId != null) {
             Image image = client.getImage(imageId);
             imgData = image.asDataObject();
-            rois  = image.getROIs(client);
+            rois    = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
         }
-        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois);
         if (roiColumn.length > 0) {
             offset++;
         }
@@ -184,7 +160,7 @@ public class TableBuilder {
             Arrays.fill(data[0], imgData);
         }
         if (offset > 1) {
-            createColumn(1, roiProperty, ROIData.class);
+            createColumn(1, ROI.IJ_PROPERTY, ROIData.class);
             data[1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
@@ -312,29 +288,6 @@ public class TableBuilder {
      */
     public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this.addRows(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
-    }
-
-
-    /**
-     * Adds rows from an ImageJ {@link ResultsTable}.
-     *
-     * @param client      The client handling the connection.
-     * @param results     An ImageJ results table.
-     * @param imageId     An image ID.
-     * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY}
-     *                    if null or empty.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
-                        String roiProperty)
-    throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROI.checkProperty(roiProperty);
-
         ResultsTable rt = (ResultsTable) results.clone();
 
         ImageData imgData = null;
@@ -345,11 +298,11 @@ public class TableBuilder {
         if (imageId != null) {
             Image image = client.getImage(imageId);
             imgData = image.asDataObject();
-            rois  = image.getROIs(client);
+            rois    = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
         }
-        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois);
         if (roiColumn.length > 0) {
             offset++;
         }

@@ -251,7 +251,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRectangle);
-        ROI roi = ROIWrapper.fromImageJ(roiList, null).get(0);
+        ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         Rectangle newRectangle = getElementsOf(roi.getShapes(), Rectangle.class).get(0);
 
@@ -281,7 +281,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijArrow);
-        ROI roi = ROIWrapper.fromImageJ(roiList, "").get(0);
+        ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         fr.igred.omero.roi.Line newArrow = getElementsOf(roi.getShapes(), Line.class).get(0);
 
@@ -312,7 +312,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijLine);
-        ROI roi = ROIWrapper.fromImageJ(roiList, ROI.IJ_PROPERTY).get(0);
+        ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         fr.igred.omero.roi.Line newLine = getElementsOf(roi.getShapes(), Line.class).get(0);
 
@@ -524,7 +524,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRoi);
-        ROI roi = ROIWrapper.fromImageJ(roiList, null).get(0);
+        ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         Rectangle newRectangle = getElementsOf(roi.getShapes(), Rectangle.class).get(0);
 
@@ -548,7 +548,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRoi);
-        ROI roi = ROIWrapper.fromImageJ(roiList, null).get(0);
+        ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         Rectangle newRectangle = getElementsOf(roi.getShapes(), Rectangle.class).get(0);
 
@@ -572,7 +572,7 @@ class ROI2ImageJTest extends BasicTest {
 
         List<Roi> roiList = new ArrayList<>(1);
         roiList.add(ijRoi);
-        ROI roi = ROIWrapper.fromImageJ(roiList, null).get(0);
+        ROI roi = ROIWrapper.fromImageJ(roiList).get(0);
 
         Rectangle newRectangle = getElementsOf(roi.getShapes(), Rectangle.class).get(0);
 
