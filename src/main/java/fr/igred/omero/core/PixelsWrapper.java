@@ -774,6 +774,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      *
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
      */
     @Override
     public ImagePlus toImagePlus(Client client, Bounds limits, int resLevel)

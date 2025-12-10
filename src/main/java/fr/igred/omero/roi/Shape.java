@@ -44,7 +44,7 @@ public interface Shape extends Annotatable {
     /** Annotation link name for this type of object */
     String ANNOTATION_LINK = "ShapeAnnotationLink";
 
-    /** Default IJ property to store shape ID. */
+    /** IJ property to store shape ID. */
     String IJ_ID_PROPERTY = "SHAPE_ID";
 
 

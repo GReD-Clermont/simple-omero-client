@@ -72,7 +72,7 @@ public interface Image extends RepositoryObject {
     /** Annotation link name for this type of object */
     String ANNOTATION_LINK = "ImageAnnotationLink";
 
-    /** Default IJ property to store image ID. */
+    /** IJ property to store image ID. */
     String IJ_ID_PROPERTY = "IMAGE_ID";
 
 

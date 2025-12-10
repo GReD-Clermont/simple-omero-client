@@ -409,6 +409,7 @@ public interface Pixels extends RemoteObject {
      *
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
      */
     ImagePlus toImagePlus(Client client, Bounds limits, int resLevel)
     throws AccessException, ExecutionException, ServiceException;
