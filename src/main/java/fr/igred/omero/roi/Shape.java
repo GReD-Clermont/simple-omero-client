@@ -28,6 +28,7 @@ import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
 import omero.model.ShapeAnnotationLink;
 import omero.model.ShapeAnnotationLinkI;
+import omero.model._ShapeAnnotationLinkOperationsNC;
 
 import java.awt.Color;
 import java.util.concurrent.ExecutionException;
@@ -283,7 +284,7 @@ public interface Shape extends Annotatable {
         ShapeAnnotationLink link = new ShapeAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.Shape) asDataObject().asIObject());
-        long id = ((ShapeAnnotationLink) dm.save(link)).getChild().getId().getValue();
+        long id = ((_ShapeAnnotationLinkOperationsNC) dm.save(link)).getChild().getId().getValue();
         annotation.setId(id);
     }
 

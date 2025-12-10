@@ -36,6 +36,7 @@ import omero.model.FolderAnnotationLinkI;
 import omero.model.FolderImageLink;
 import omero.model.FolderImageLinkI;
 import omero.model.IObject;
+import omero.model._FolderAnnotationLinkOperationsNC;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +83,7 @@ public interface Folder extends RepositoryObject {
         FolderAnnotationLink link = new FolderAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent(asDataObject().asFolder());
-        long id = ((FolderAnnotationLink) dm.save(link)).getChild().getId().getValue();
+        long id = ((_FolderAnnotationLinkOperationsNC) dm.save(link)).getChild().getId().getValue();
         annotation.setId(id);
     }
 

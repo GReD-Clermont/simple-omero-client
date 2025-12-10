@@ -32,6 +32,7 @@ import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.model.RoiAnnotationLink;
 import omero.model.RoiAnnotationLinkI;
+import omero.model._RoiAnnotationLinkOperationsNC;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -370,7 +371,7 @@ public interface ROI extends Annotatable {
         RoiAnnotationLink link = new RoiAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.Roi) asDataObject().asIObject());
-        long id = ((RoiAnnotationLink) dm.save(link)).getChild().getId().getValue();
+        long id = ((_RoiAnnotationLinkOperationsNC) dm.save(link)).getChild().getId().getValue();
         annotation.setId(id);
     }
 
