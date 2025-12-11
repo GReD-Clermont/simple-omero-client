@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  * Helper class to create a ROIData column from an ImageJ ResultsTable.
  */
-final class ROIColumnHelper {
+final class DataColumnsHelper {
 
     /** Empty ROI array */
     private static final ROIData[] EMPTY_ROI = new ROIData[0];
@@ -48,7 +48,7 @@ final class ROIColumnHelper {
     /**
      * Default constructor: private to prevent instantiation
      */
-    private ROIColumnHelper() {
+    private DataColumnsHelper() {
         // Prevent instantiation
     }
 
