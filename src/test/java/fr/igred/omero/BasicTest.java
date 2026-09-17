@@ -24,13 +24,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.newOutputStream;
 import static java.util.logging.Logger.getLogger;
 
 
@@ -90,8 +91,8 @@ public abstract class BasicTest {
         File   file  = createFile(filename);
         byte[] array = new byte[size];
         SECURE_RANDOM.nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(Files.newOutputStream(file.toPath()), false, "UTF-8")) {
+        String generatedString = new String(array, UTF_8);
+        try (PrintStream out = new PrintStream(newOutputStream(file.toPath()), false, UTF_8)) {
             out.print(generatedString);
         }
         return file;

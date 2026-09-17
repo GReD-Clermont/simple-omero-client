@@ -91,7 +91,7 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
 
         logFile = new PrintStream(Files.newOutputStream(file.toPath()),
                                   false,
-                                  UTF_8.name());
+                                  UTF_8);
     }
 
 

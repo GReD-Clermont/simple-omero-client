@@ -33,9 +33,8 @@ import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -541,11 +540,10 @@ public class TableBuilder {
      * @param path      The path to the file where the table will be saved.
      * @param delimiter The character used to specify the boundary between columns.
      *
-     * @throws FileNotFoundException        The requested file cannot be written.
-     * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
+     * @throws IOException Cannot write to the specified file.
      */
     public void saveAs(String path, char delimiter)
-    throws FileNotFoundException, UnsupportedEncodingException {
+    throws IOException {
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);
         formatter.setGroupingUsed(false);
@@ -557,7 +555,7 @@ public class TableBuilder {
         String sol = "\"";
         String sep = String.format("\"%c\"", delimiter);
         String eol = String.format("\"%n");
-        try (PrintWriter stream = new PrintWriter(file, UTF_8.name())) {
+        try (PrintWriter stream = new PrintWriter(file, UTF_8)) {
             sb.append(sol);
             for (int j = 0; j < columnCount; j++) {
                 sb.append(columns[j].getName());
