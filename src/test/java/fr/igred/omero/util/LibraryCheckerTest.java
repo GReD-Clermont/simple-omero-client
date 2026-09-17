@@ -55,7 +55,7 @@ class LibraryCheckerTest extends BasicTest {
     void checkUnavailableLibraries(String excluded) {
         //noinspection ClassLoaderInstantiation
         try (URLClassLoader testClassLoader = new TestClassLoader(excluded)) {
-            Class<?> checker = testClassLoader.loadClass("fr.igred.omero.util.LibraryChecker");
+            Class<?> checker = testClassLoader.loadClass(LibraryChecker.class.getName());
             Method   check   = checker.getMethod("areRequirementsAvailable");
             assertFalse((Boolean) check.invoke(null), "Libraries are available");
         } catch (ClassNotFoundException | NoSuchMethodException e) {
