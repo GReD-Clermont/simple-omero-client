@@ -52,10 +52,6 @@ import static java.util.stream.Collectors.toList;
  */
 public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implements fr.igred.omero.containers.Folder {
 
-    /** Empty ROI array for fast list conversion */
-    private static final ROI[] EMPTY_ROI_ARRAY = new ROI[0];
-
-
     /**
      * Constructor of the FolderWrapper class.
      *
@@ -272,7 +268,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     public void unlinkAllROIs(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ROI> rois = wrap(data.copyROILinks(), ROIWrapper::new);
-        unlinkROIs(dm, rois.toArray(EMPTY_ROI_ARRAY));
+        unlinkROIs(dm, rois.toArray(ROI[]::new));
     }
 
 

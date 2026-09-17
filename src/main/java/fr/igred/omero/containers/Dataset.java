@@ -419,7 +419,7 @@ public interface Dataset extends RepositoryObject {
     default List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
     throws ServiceException, AccessException, IOException, ExecutionException, InterruptedException {
         List<Long> ids    = importImage(client, path);
-        Long[]     newIds = ids.toArray(new Long[0]);
+        Long[]     newIds = ids.toArray(Long[]::new);
 
         List<Image>       newImages = client.getImages(newIds);
         Collection<Image> toDelete  = new ArrayList<>(newImages.size());
