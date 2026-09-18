@@ -18,8 +18,18 @@
 package fr.igred.omero.annotations;
 
 
+import omero.gateway.model.DataObject;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.text.NumberFormat;
+import java.util.StringJoiner;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.newBufferedWriter;
 
 
 public interface Table {
@@ -155,6 +165,55 @@ public interface Table {
      */
     default TableDataColumn[] getColumns() {
         return getTableData().getColumns();
+    }
+
+
+    /**
+     * Saves the current table as a character-delimited text file.
+     *
+     * @param path      The path to the file where the table will be saved.
+     * @param delimiter The character used to specify the boundary between columns.
+     *
+     * @throws IOException Cannot write to the specified file.
+     */
+    default void saveAs(String path, char delimiter)
+    throws IOException {
+        NumberFormat formatter = NumberFormat.getInstance();
+        formatter.setMaximumFractionDigits(4);
+        formatter.setGroupingUsed(false);
+
+        try (BufferedWriter writer = newBufferedWriter(Path.of(path), UTF_8)) {
+            var  data        = getData();
+            var  columns     = getColumns();
+            int  columnCount = columns.length;
+            long rowCount    = columnCount > 0 ? data[0].length : 0;
+
+            String quote = "\"";
+            String sep   = String.format("%s%c%s", quote, delimiter, quote);
+
+            StringJoiner headers = new StringJoiner(sep, quote, quote);
+            for (var col : columns) {
+                headers.add(col.getName());
+            }
+            writer.write(headers.toString());
+            writer.newLine();
+
+            for (int i = 0; i < rowCount; i++) {
+                StringJoiner line = new StringJoiner(sep, quote, quote);
+                for (int j = 0; j < columnCount; j++) {
+                    Object value = data[j][i];
+                    if (DataObject.class.isAssignableFrom(columns[j].getType())) {
+                        value = ((DataObject) value).getId();
+                    }
+                    if (value instanceof Number) {
+                        value = formatter.format(value);
+                    }
+                    line.add(String.valueOf(value));
+                }
+                writer.write(line.toString());
+                writer.newLine();
+            }
+        }
     }
 
 }

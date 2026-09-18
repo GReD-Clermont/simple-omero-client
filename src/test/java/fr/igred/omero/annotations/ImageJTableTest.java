@@ -731,12 +731,12 @@ class ImageJTableTest extends UserTest {
 
         TableBuilder table = new TableBuilder(client, results1, IMAGE_ID, ijRois);
         table.addRows(client, results2, IMAGE_ID, ijRois);
-        table.createTable();
+        Table t = table.createTable();
 
         @SuppressWarnings("MagicCharacter")
         char delimiter = '\t';
         String filename = "file.csv";
-        table.saveAs(filename, delimiter);
+        t.saveAs(filename, delimiter);
 
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);

@@ -26,16 +26,11 @@ import fr.igred.omero.roi.ROI;
 import ij.gui.Roi;
 import ij.macro.Variable;
 import ij.measure.ResultsTable;
-import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +43,6 @@ import static fr.igred.omero.annotations.ResultsTableHelper.IMAGE;
 import static fr.igred.omero.annotations.ResultsTableHelper.LABEL;
 import static fr.igred.omero.annotations.ResultsTableHelper.isColumnNumeric;
 import static fr.igred.omero.annotations.ResultsTableHelper.renameImageColumn;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 /**
@@ -531,58 +525,6 @@ public class TableBuilder {
         emptyColumns.forEach(this::removeColumn);
 
         return new TableWrapper(new TableData(columns, data), name);
-    }
-
-
-    /**
-     * Saves the current table as a character-delimited text file.
-     *
-     * @param path      The path to the file where the table will be saved.
-     * @param delimiter The character used to specify the boundary between columns.
-     *
-     * @throws IOException Cannot write to the specified file.
-     */
-    public void saveAs(String path, char delimiter)
-    throws IOException {
-        NumberFormat formatter = NumberFormat.getInstance();
-        formatter.setMaximumFractionDigits(4);
-        formatter.setGroupingUsed(false);
-
-        StringBuilder sb = new StringBuilder(10 * columnCount * rowCount);
-
-        File file = new File(path);
-
-        String sol = "\"";
-        String sep = String.format("\"%c\"", delimiter);
-        String eol = String.format("\"%n");
-        try (PrintWriter stream = new PrintWriter(file, UTF_8)) {
-            sb.append(sol);
-            for (int j = 0; j < columnCount; j++) {
-                sb.append(columns[j].getName());
-                if (j != columnCount - 1) {
-                    sb.append(sep);
-                }
-            }
-            sb.append(eol);
-            for (int i = 0; i < rowCount; i++) {
-                sb.append(sol);
-                for (int j = 0; j < columnCount; j++) {
-                    Object value = data[j][i];
-                    if (DataObject.class.isAssignableFrom(columns[j].getType())) {
-                        value = ((DataObject) value).getId();
-                    }
-                    if (value instanceof Number) {
-                        value = formatter.format(value);
-                    }
-                    sb.append(value);
-                    if (j != columnCount - 1) {
-                        sb.append(sep);
-                    }
-                }
-                sb.append(eol);
-            }
-            stream.write(sb.toString());
-        }
     }
 
 }
