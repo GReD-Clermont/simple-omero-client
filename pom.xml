@@ -96,16 +96,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Pulled transitively via bio-formats: declared at runtime scope so it stays off the
+            compile/javadoc classpath: its jar has a class in the default package, which the javadoc
+            tool cannot place on the JDK 9+ module path ("Unable to derive module descriptor"). -->
             <dependency>
-                <groupId>org.openmicroscopy</groupId>
-                <artifactId>omero-model</artifactId>
-                <version>${omero-model.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>net.jcip</groupId>
-                        <artifactId>jcip-annotations</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>ome</groupId>
+                <artifactId>turbojpeg</artifactId>
+                <version>${bio-formats.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
