@@ -92,10 +92,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <license.licenseName>gpl_v2</license.licenseName>
         <license.copyrightOwners>GReD</license.copyrightOwners>
+        <testcontainers.version>2.0.5</testcontainers.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- Pulled transitively via bio-formats: declared at runtime scope so it stays off the
             compile/javadoc classpath: its jar has a class in the default package, which the javadoc
             tool cannot place on the JDK 9+ module path ("Unable to derive module descriptor"). -->
@@ -146,6 +154,12 @@
         <dependency>
             <groupId>ome</groupId>
             <artifactId>bio-formats_plugins</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

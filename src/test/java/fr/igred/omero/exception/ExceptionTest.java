@@ -18,7 +18,7 @@
 package fr.igred.omero.exception;
 
 
-import fr.igred.omero.BasicTest;
+import fr.igred.omero.IntegrationTest;
 import fr.igred.omero.client.Client;
 import fr.igred.omero.client.ConnectionHandler;
 import fr.igred.omero.client.GatewayWrapper;
@@ -31,6 +31,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.security.SecureRandom;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -39,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class ExceptionTest extends BasicTest {
+class ExceptionTest extends IntegrationTest {
 
     private static <E extends Exception> Exception thrower(E t) throws E {
         if (t != null) {
@@ -71,6 +72,7 @@ class ExceptionTest extends BasicTest {
 
 
     @Test
+    @Disabled("Disabled because host is now localhost")
     void testConnectionErrorHost() {
         String host = "127.0.0.1";
         char[] pw   = "omero".toCharArray();
@@ -83,8 +85,8 @@ class ExceptionTest extends BasicTest {
 
     @Test
     void testConnectionErrorPort() {
-        final int port = 5000;
-        char[]    pw   = "omero".toCharArray();
+        int    port = new SecureRandom().nextInt(1024);
+        char[] pw   = "omero".toCharArray();
 
         ConnectionHandler root = new GatewayWrapper();
         assertThrows(ServiceException.class,

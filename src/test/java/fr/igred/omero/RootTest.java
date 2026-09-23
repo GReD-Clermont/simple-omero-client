@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 
-public abstract class RootTest extends BasicTest {
+public abstract class RootTest extends IntegrationTest {
 
     protected final Client client = new GatewayWrapper();
 

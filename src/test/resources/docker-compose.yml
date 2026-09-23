@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  database:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: omero
+      POSTGRES_PASSWORD: omero
+      POSTGRES_DB: omero
+  omero-server:
+    image: openmicroscopy/omero-server:latest
+    depends_on:
+      - database
+    ports:
+      - "4063"
+      - "4064"
+    environment:
+      CONFIG_omero_db_name: omero
+      CONFIG_omero_db_user: omero
+      CONFIG_omero_db_pass: omero
+      CONFIG_omero_db_host: database
+      ROOTPASS: omero
+    volumes:
+      - ./populate.sh:/tmp/populate.sh
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/omero/server/OMERO.server/bin/omero admin status"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
