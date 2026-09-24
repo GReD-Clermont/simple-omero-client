@@ -31,7 +31,6 @@ import omero.gateway.exception.DSOutOfServiceException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.security.SecureRandom;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -85,7 +84,7 @@ class ExceptionTest extends IntegrationTest {
 
     @Test
     void testConnectionErrorPort() {
-        int    port = new SecureRandom().nextInt(1024);
+        int    port = SECURE_RANDOM.nextInt(1024);
         char[] pw   = "omero".toCharArray();
 
         ConnectionHandler root = new GatewayWrapper();
