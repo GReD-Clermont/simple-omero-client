@@ -18,13 +18,14 @@
 package fr.igred.omero;
 
 
-import org.testcontainers.containers.ComposeContainer;
-import org.testcontainers.containers.Container;
+import org.testcontainers.Testcontainers;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.MountableFile;
+import org.testcontainers.utility.TestcontainersConfiguration;
 
-import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -48,20 +49,23 @@ public abstract class IntegrationTest extends BasicTest {
     protected static final TestObject TAG1     = new TestObject(1L, "tag1", "description");
     protected static final TestObject TAG2     = new TestObject(2L, "tag2", "");
 
-    protected static final File COMPOSE_FILE = new File("src" + File.separator +
-                                                        "test" + File.separator +
-                                                        "resources" + File.separator +
-                                                        "docker-compose.yml");
-
-    protected static final ComposeContainer CONTAINER = new ComposeContainer(COMPOSE_FILE);
-
     protected static final String HOST;
     protected static final int    PORT;
 
+    private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16");
+    @SuppressWarnings("HardcodedFileSeparator")
+    private static final GenericContainer<?> OMERO    = new GenericContainer<>("openmicroscopy/omero-server:latest");
+
+    private static final String INIT_SCRIPT = "populate.sh";
+    @SuppressWarnings("HardcodedFileSeparator")
+    private static final String INIT_PATH   = "/tmp/" + INIT_SCRIPT;
+
+    private static final boolean REUSE = TestcontainersConfiguration.getInstance().environmentSupportsReuse();
+
     static {
         start();
-        PORT = CONTAINER.getServicePort("omero-server", 4064);
-        HOST = CONTAINER.getServiceHost("omero-server", 4064);
+        PORT = OMERO.getMappedPort(4064);
+        HOST = OMERO.getHost();
         populate();
     }
 
@@ -70,12 +74,40 @@ public abstract class IntegrationTest extends BasicTest {
      * Starts the Docker Compose environment and waits for the OMERO server to be ready.
      */
     private static void start() {
-        logger.log(Level.INFO, "Starting Docker Compose environment...");
-        // Wait for the OMERO server to be ready before populating data
-        CONTAINER.withExposedService("omero-server", 4064,
-                                     Wait.forHealthcheck()
-                                         .withStartupTimeout(Duration.ofMinutes(5)));
-        CONTAINER.start();
+        String dbName = "omero";
+        String dbUser = "omero";
+        String dbPass = "omero";
+
+        String postgresHost = "postgres";
+        String omeroHost    = "omero";
+
+        //noinspection HardcodedFileSeparator
+        String startupCheckCmd = "/opt/omero/server/OMERO.server/bin/omero admin status";
+
+        logger.log(Level.INFO, "Starting Postgres container...");
+        POSTGRES.withDatabaseName(dbName)
+                .withNetworkAliases(postgresHost)
+                .withUsername(dbUser)
+                .withPassword(dbPass)
+                .withReuse(REUSE);
+        POSTGRES.start();
+
+        Integer postgresPort = POSTGRES.getMappedPort(5432);
+        Testcontainers.exposeHostPorts(postgresPort);
+
+        logger.log(Level.INFO, "Starting OMERO container...");
+        OMERO.dependsOn(POSTGRES)
+             .withNetworkAliases(omeroHost)
+             .withCopyFileToContainer(MountableFile.forClasspathResource(INIT_SCRIPT), INIT_PATH)
+             .withEnv("CONFIG_omero_db_name", dbName)
+             .withEnv("CONFIG_omero_db_user", dbUser)
+             .withEnv("CONFIG_omero_db_pass", dbPass)
+             .withEnv("CONFIG_omero_db_host", postgresHost)
+             .withExposedPorts(4064)
+             .waitingFor(Wait.forSuccessfulCommand(startupCheckCmd))
+             .withReuse(REUSE);
+        OMERO.addLink(POSTGRES, postgresHost);
+        OMERO.start();
     }
 
 
@@ -84,19 +116,25 @@ public abstract class IntegrationTest extends BasicTest {
      */
     private static void populate() {
         boolean populated = false;
-        logger.log(Level.INFO, "Populating OMERO...");
+        //noinspection HardcodedFileSeparator
+        String witnessFile = "/tmp/.populated";
         try {
-            //noinspection HardcodedFileSeparator
-            Container.ExecResult result = CONTAINER.getContainerByServiceName("omero-server")
-                                                   .orElseThrow()
-                                                   .execInContainer("sh", "/tmp/populate.sh");
-            if (result.getExitCode() == 0) {
+            var initCheck = OMERO.execInContainer("test", "-f", witnessFile);
+            if (initCheck.getExitCode() == 0) {
                 populated = true;
-                logger.log(Level.INFO, "Initialization successful!");
+                logger.log(Level.CONFIG, "OMERO is already populated.");
+            } else {
+                logger.log(Level.INFO, "Populating OMERO...");
+                var result = OMERO.execInContainer("sh", INIT_PATH);
+                if (result.getExitCode() == 0) {
+                    populated = true;
+                    OMERO.execInContainer("touch", witnessFile);
+                    logger.log(Level.INFO, "Initialization successful!");
+                }
+                logger.log(Level.CONFIG, "Stdout: {0}", result.getStdout());
             }
-            logger.log(Level.CONFIG, "Stdout: {0}", result.getStdout());
         } catch (IOException | InterruptedException e) {
-            logger.log(Level.SEVERE, "Initialization failed!", e);
+            logger.log(Level.SEVERE, "Init command failed!", e);
         }
         assumeTrue(populated, "Initialization failed!");
     }
