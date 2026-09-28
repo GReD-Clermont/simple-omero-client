@@ -19,7 +19,7 @@ package fr.igred.omero.exception;
 
 
 import fr.igred.omero.Annotatable;
-import fr.igred.omero.BasicTest;
+import fr.igred.omero.IntegrationTest;
 import fr.igred.omero.RemoteObject;
 import fr.igred.omero.annotations.MapAnnotation;
 import fr.igred.omero.annotations.MapAnnotationWrapper;
@@ -59,7 +59,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 
-class AccessExceptionTest extends BasicTest {
+class AccessExceptionTest extends IntegrationTest {
 
     protected Client client;
     protected Client sudo;

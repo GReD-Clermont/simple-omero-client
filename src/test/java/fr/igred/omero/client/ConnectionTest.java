@@ -18,7 +18,7 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.BasicTest;
+import fr.igred.omero.IntegrationTest;
 import fr.igred.omero.exception.ServiceException;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-class ConnectionTest extends BasicTest {
+class ConnectionTest extends IntegrationTest {
 
 
     @Test
