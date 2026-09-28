@@ -18,14 +18,18 @@
 package fr.igred.omero;
 
 
+import com.github.dockerjava.api.DockerClient;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.MountableFile;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -62,6 +66,7 @@ public abstract class IntegrationTest extends BasicTest {
 
     private static final boolean REUSE = TestcontainersConfiguration.getInstance().environmentSupportsReuse();
 
+    // Start and populate containers
     static {
         start();
         PORT = OMERO.getMappedPort(4064);
@@ -81,11 +86,19 @@ public abstract class IntegrationTest extends BasicTest {
         String postgresHost = "postgres";
         String omeroHost    = "omero";
 
+        Network network;
+        if (REUSE) {
+            network = new ReusableNetwork();
+        } else {
+            network = Network.newNetwork();
+        }
+
         //noinspection HardcodedFileSeparator
         String startupCheckCmd = "/opt/omero/server/OMERO.server/bin/omero admin status";
 
         logger.log(Level.INFO, "Starting Postgres container...");
         POSTGRES.withDatabaseName(dbName)
+                .withNetwork(network)
                 .withNetworkAliases(postgresHost)
                 .withUsername(dbUser)
                 .withPassword(dbPass)
@@ -97,6 +110,7 @@ public abstract class IntegrationTest extends BasicTest {
 
         logger.log(Level.INFO, "Starting OMERO container...");
         OMERO.dependsOn(POSTGRES)
+             .withNetwork(network)
              .withNetworkAliases(omeroHost)
              .withCopyFileToContainer(MountableFile.forClasspathResource(INIT_SCRIPT), INIT_PATH)
              .withEnv("CONFIG_omero_db_name", dbName)
@@ -106,7 +120,6 @@ public abstract class IntegrationTest extends BasicTest {
              .withExposedPorts(4064)
              .waitingFor(Wait.forSuccessfulCommand(startupCheckCmd))
              .withReuse(REUSE);
-        OMERO.addLink(POSTGRES, postgresHost);
         OMERO.start();
     }
 
@@ -137,6 +150,104 @@ public abstract class IntegrationTest extends BasicTest {
             logger.log(Level.SEVERE, "Init command failed!", e);
         }
         assumeTrue(populated, "Initialization failed!");
+    }
+
+
+    /**
+     * A network that can be reused across multiple test runs.
+     */
+    private static class ReusableNetwork implements Network {
+
+        /** The ID of the Docker network. */
+        private final String id;
+
+        /** The name of the Docker network. */
+        private final String name;
+
+
+        /**
+         * Creates a new reusable network with the default name.
+         */
+        ReusableNetwork() {
+            this("omero-test-network");
+        }
+
+
+        /**
+         * Creates a new reusable network with the given name.
+         */
+        ReusableNetwork(String name) {
+            this.name = name;
+            id        = findNetworkId().orElseGet(this::newNetwork);
+        }
+
+
+        /**
+         * Gets the Docker client instance.
+         *
+         * @return The Docker client instance.
+         */
+        private static DockerClient getDockerClient() {
+            return DockerClientFactory.instance().client();
+        }
+
+
+        /**
+         * Checks if the given network matches the name and labels of interest.
+         *
+         * @param network The Docker network to check.
+         *
+         * @return true if the network matches the name and labels, false otherwise.
+         */
+        private boolean matches(com.github.dockerjava.api.model.Network network) {
+            return network.getName().equals(name) &&
+                   network.getLabels().equals(DockerClientFactory.DEFAULT_LABELS);
+        }
+
+
+        /**
+         * Finds the ID of an existing Docker network with the given name.
+         *
+         * @return An Optional containing the network ID if found, or empty if not found.
+         */
+        private Optional<String> findNetworkId() {
+            var client = getDockerClient();
+            return client.listNetworksCmd()
+                         .exec()
+                         .stream()
+                         .filter(this::matches)
+                         .map(com.github.dockerjava.api.model.Network::getId)
+                         .findFirst();
+        }
+
+
+        /**
+         * Creates a new Docker network with the given name.
+         *
+         * @return The ID of the newly created network.
+         */
+        private String newNetwork() {
+            var client = getDockerClient();
+            return client.createNetworkCmd()
+                         .withName(name)
+                         .withCheckDuplicate(true)
+                         .withLabels(DockerClientFactory.DEFAULT_LABELS)
+                         .exec()
+                         .getId();
+        }
+
+
+        @Override
+        public String getId() {
+            return id;
+        }
+
+
+        @Override
+        public void close() {
+            // Do not remove the network, as it is reused across test runs.
+        }
+
     }
 
 }
