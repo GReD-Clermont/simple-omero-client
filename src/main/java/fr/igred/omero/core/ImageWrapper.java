@@ -364,7 +364,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
         }
         imp.setPosition(1);
         if (IJ.getVersion().compareTo("1.53a") >= 0) {
-            imp.setProp(IJ_ID_PROPERTY, getId());
+            imp.setProp(IJ_ID_PROPERTY, Long.toString(getId()));
         }
         return imp;
     }
