@@ -209,7 +209,7 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     private void logStatus(String methodName, String displayName, String status, String color, float time) {
         showOutputs();
         displayName = displayName.equals(methodName + "()") ? "" : displayName;
-        String name = format("%s %s", methodName, displayName);
+        String name = methodName + " " + displayName;
         logger.info(format(FORMAT, name, color, status, ANSI_RESET, time));
         logFile.printf("%9s: %s%n", status, name);
     }
