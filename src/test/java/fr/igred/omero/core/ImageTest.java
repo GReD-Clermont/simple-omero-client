@@ -53,13 +53,11 @@ import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -687,19 +685,25 @@ class ImageTest extends UserTest {
         LocalDate created = client.getImage(IMAGE1.id)
                                   .getCreated()
                                   .toLocalDateTime()
+                                  .atOffset(ZoneOffset.UTC)
                                   .toLocalDate();
-        LocalDate now = LocalDate.now();
+        LocalDate today = LocalDate.now();
 
-        assertEquals(now, created);
+        assertEquals(today, created);
     }
 
 
     @Test
     void testGetAcquisitionDate() throws Exception {
-        LocalDateTime     acq = client.getImage(IMAGE1.id).getAcquisitionDate().toLocalDateTime();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss", Locale.getDefault());
+        long acq = client.getImage(IMAGE1.id)
+                         .getAcquisitionDate()
+                         .toLocalDateTime()
+                         .atZone(ZoneOffset.UTC)
+                         .toEpochSecond();
 
-        assertEquals("2020-04-01_20-04-01", dtf.format(acq));
+        long expected = 1585778641L;
+
+        assertEquals(expected, acq);
     }
 
 
@@ -851,6 +855,5 @@ class ImageTest extends UserTest {
 
         assertThrows(NoSuchElementException.class, () -> client.getImage(id));
     }
-
 
 }
