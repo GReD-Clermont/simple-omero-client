@@ -42,9 +42,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
 
 
@@ -76,11 +76,39 @@ extends AnnotatableWrapper<T> implements RepositoryObject {
      *
      * @return The list of imported pixels.
      */
-    private static List<Pixels> importCandidates(DataObject target, ImportLibrary library, ImportConfig config,
+    private static List<Pixels> importCandidates(DataObject target,
+                                                 ImportLibrary library,
+                                                 ImportConfig config,
+                                                 ImportCandidates candidates) {
+        ExecutorService threadPool = newFixedThreadPool(config.parallelUpload.get());
+        try {
+            return importCandidates(threadPool, target, library, config, candidates);
+        } finally {
+            threadPool.shutdown();
+        }
+    }
+
+
+    /**
+     * Method used for importing a number of import candidates through a given thread pool.
+     *
+     * @param threadPool The thread pool to use for the import.
+     * @param target     The import target.
+     * @param library    The importer.
+     * @param config     The configuration information.
+     * @param candidates Hosts information about the files to import.
+     *
+     * @return The list of imported pixels.
+     */
+    private static List<Pixels> importCandidates(ExecutorService threadPool,
+                                                 DataObject target,
+                                                 ImportLibrary library,
+                                                 ImportConfig config,
                                                  ImportCandidates candidates) {
         List<Pixels> pixels = new ArrayList<>(0);
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(config.parallelUpload.get());
+        Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+        String msg    = "Error during image import for: %s%nError was: %s";
 
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
@@ -93,8 +121,8 @@ extends AnnotatableWrapper<T> implements RepositoryObject {
                     imported = library.importImage(container, threadPool, i);
                 } catch (Throwable e) {
                     String filename = container.getFile().getName();
-                    String error    = String.format("Error during image import for: %s", filename);
-                    Logger.getLogger(MethodHandles.lookup().lookupClass().getName()).severe(error);
+                    String error    = String.format(msg, filename, e.getMessage());
+                    logger.severe(error);
                     if (Boolean.FALSE.equals(config.contOnError.get())) {
                         return pixels;
                     }
@@ -121,7 +149,8 @@ extends AnnotatableWrapper<T> implements RepositoryObject {
      * @throws AccessException  Cannot access data.
      * @throws IOException      Cannot read file.
      */
-    protected static boolean importImages(ConnectionHandler conn, DataObject target, int threads, String... paths)
+    protected static boolean importImages(ConnectionHandler conn, DataObject target, int threads,
+                                          String... paths)
     throws ServiceException, AccessException, IOException {
         boolean success;
 
