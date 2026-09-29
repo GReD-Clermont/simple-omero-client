@@ -18,7 +18,7 @@
     <inceptionYear>2020</inceptionYear>
 
     <organization>
-        <name>GReD</name>
+        <name>iGReD</name>
         <url>https://www.igred.fr</url>
     </organization>
 
@@ -36,7 +36,7 @@
             <name>Pierre Pouchin</name>
             <email>pierre.pouchin@uca.fr</email>
             <url>https://www.igred.fr/en/member/pierre_pouchin/</url>
-            <organization>GReD (INSERM U1103 / CNRS UMR 6293 / UCA)</organization>
+            <organization>iGReD (INSERM U1103 / CNRS UMR 6293 / UCA)</organization>
             <organizationUrl>https://www.igred.fr</organizationUrl>
             <roles>
                 <role>lead</role>
