@@ -70,7 +70,7 @@ public interface RemoteObject {
      */
     static <U extends RemoteObject> List<U> distinct(Collection<? extends U> objects) {
         return objects.stream()
-                      .collect(toMap(U::getId, identity(), (a, b) -> a))
+                      .collect(toMap(U::getId, identity(), (o, ignored) -> o))
                       .values()
                       .stream()
                       .sorted(Comparator.comparing(U::getId))
@@ -90,7 +90,7 @@ public interface RemoteObject {
     List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
         return lists.stream()
                     .flatMap(Collection::stream)
-                    .collect(toMap(U::getId, identity(), (a, b) -> a))
+                    .collect(toMap(U::getId, identity(), (o, ignored) -> o))
                     .values()
                     .stream()
                     .sorted(Comparator.comparing(U::getId))
