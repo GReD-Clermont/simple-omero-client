@@ -41,12 +41,14 @@ public interface Table {
      */
     TableData getTableData();
 
+
     /**
      * Get the name of the table.
      *
      * @return See above
      */
     String getName();
+
 
     /**
      * Set the name of the table.
@@ -55,12 +57,14 @@ public interface Table {
      */
     void setName(String name);
 
+
     /**
      * Get the ID of the table.
      *
      * @return See above
      */
     long getId();
+
 
     /**
      * Set the ID of the table.
@@ -69,6 +73,7 @@ public interface Table {
      */
     void setId(long id);
 
+
     /**
      * @return The total number of rows in the original table (this doesn't have
      * to match data[x].length, depending on how many rows are loaded)
@@ -76,6 +81,7 @@ public interface Table {
     default long getNumberOfRows() {
         return getTableData().getNumberOfRows();
     }
+
 
     /**
      * Set the total number of rows in the original table.
@@ -86,6 +92,7 @@ public interface Table {
         getTableData().setNumberOfRows(numberOfRows);
     }
 
+
     /**
      * Manually set completed state (sets the {@code TableData#numberOfRows} to
      * the last row in the {@code TableData#data} array)
@@ -93,6 +100,7 @@ public interface Table {
     default void setCompleted() {
         getTableData().setCompleted();
     }
+
 
     /**
      * @return {@code true} if the last available row is contained,
@@ -103,6 +111,7 @@ public interface Table {
         return getTableData().isCompleted();
     }
 
+
     /**
      * @return {@code true} if this TableData object doesn't contain any
      * data, {@code false} if it does contain data.
@@ -110,6 +119,7 @@ public interface Table {
     default boolean isEmpty() {
         return getTableData().isEmpty();
     }
+
 
     /**
      * Get the original file id
@@ -120,6 +130,7 @@ public interface Table {
         return getTableData().getOriginalFileId();
     }
 
+
     /**
      * Set the originalfile id
      *
@@ -128,6 +139,7 @@ public interface Table {
     default void setOriginalFileId(long originalFileId) {
         getTableData().setOriginalFileId(originalFileId);
     }
+
 
     /**
      * Get the row offset (if this {@link TableData} represents only a subset of
@@ -139,6 +151,7 @@ public interface Table {
         return getTableData().getOffset();
     }
 
+
     /**
      * Set the row offset (if this {@link TableData} represents only a subset of
      * the original table)
@@ -149,6 +162,7 @@ public interface Table {
         getTableData().setOffset(offset);
     }
 
+
     /**
      * Get the data in form Object['column index']['row data']
      *
@@ -157,6 +171,7 @@ public interface Table {
     default Object[][] getData() {
         return getTableData().getData();
     }
+
 
     /**
      * Get the headers
@@ -183,10 +198,10 @@ public interface Table {
         formatter.setGroupingUsed(false);
 
         try (BufferedWriter writer = newBufferedWriter(Path.of(path), UTF_8)) {
-            var  data        = getData();
-            var  columns     = getColumns();
-            int  columnCount = columns.length;
-            long rowCount    = columnCount > 0 ? data[0].length : 0;
+            var data        = getData();
+            var columns     = getColumns();
+            int columnCount = columns.length;
+            int rowCount    = columnCount > 0 ? data[0].length : 0;
 
             String quote = "\"";
             String sep   = String.format("%s%c%s", quote, delimiter, quote);
