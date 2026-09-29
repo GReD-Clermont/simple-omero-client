@@ -183,13 +183,14 @@ class ImageJTableTest extends UserTest {
     void testCreateTableWithROIsFromIJResults2() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
         List<Roi> ijRois = rois.get(0).toImageJ();
+        double    dRoiId = rois.get(0).getId();
 
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, VOLUME1, UNIT1);
         results.setValue("Image", 0, label);
         results.setValue("Image_Name", 0, label);
-        results.setValue(ROI.IJ_PROPERTY, 0, rois.get(0).getId());
+        results.setValue(ROI.IJ_PROPERTY, 0, dRoiId);
 
         TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
@@ -218,11 +219,12 @@ class ImageJTableTest extends UserTest {
     void testCreateTableWithROIsFromIJResults3() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
         List<Roi> ijRois = rois.get(0).toImageJ();
+        double    dRoiId = rois.get(0).getId();
 
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, VOLUME1, UNIT1);
-        results.setValue(ROI.IJ_ID_PROPERTY, 0, rois.get(0).getId());
+        results.setValue(ROI.IJ_ID_PROPERTY, 0, dRoiId);
 
         TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
