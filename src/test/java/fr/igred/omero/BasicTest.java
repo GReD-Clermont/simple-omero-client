@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -24,13 +24,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.newOutputStream;
 import static java.util.logging.Logger.getLogger;
 
 
@@ -46,26 +47,6 @@ public abstract class BasicTest {
     protected static final Logger logger = getLogger(MethodHandles.lookup()
                                                                   .lookupClass()
                                                                   .getName());
-
-    protected static final String HOST = "omero";
-    protected static final int    PORT = 4064;
-
-    protected static final TestObject ROOT   = new TestObject(0L, "root", null);
-    protected static final TestObject USER1  = new TestObject(2L, "testUser", null);
-    protected static final TestObject GROUP1 = new TestObject(3L, "testGroup", null);
-    protected static final TestObject GROUP2 = new TestObject(4L, "testGroup1", null);
-
-    protected static final TestObject PROJECT1 = new TestObject(1L, "TestProject", "description");
-    protected static final TestObject DATASET1 = new TestObject(1L, "TestDataset", "description");
-    protected static final TestObject DATASET2 = new TestObject(2L, "TestDatasetImport", "");
-    protected static final TestObject IMAGE1   = new TestObject(1L, "image1.fake", "");
-    protected static final TestObject IMAGE2   = new TestObject(3L, "image2.fake", "");
-    protected static final TestObject SCREEN1  = new TestObject(1L, "TestScreen", "description");
-    protected static final TestObject SCREEN2  = new TestObject(2L, "TestScreen2", "");
-    protected static final TestObject PLATE1   = new TestObject(1L, "Plate Name 0", "Plate 0 of 1");
-    protected static final TestObject PLATE2   = new TestObject(2L, "Plate Name 0", "Plate 0 of 2");
-    protected static final TestObject TAG1     = new TestObject(1L, "tag1", "description");
-    protected static final TestObject TAG2     = new TestObject(2L, "tag2", "");
 
     protected static final double DOUBLE_PRECISION = 10.0e-15;
 
@@ -90,8 +71,8 @@ public abstract class BasicTest {
         File   file  = createFile(filename);
         byte[] array = new byte[size];
         SECURE_RANDOM.nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
-        try (PrintStream out = new PrintStream(Files.newOutputStream(file.toPath()), false, "UTF-8")) {
+        String generatedString = new String(array, UTF_8);
+        try (PrintStream out = new PrintStream(newOutputStream(file.toPath()), false, UTF_8)) {
             out.print(generatedString);
         }
         return file;

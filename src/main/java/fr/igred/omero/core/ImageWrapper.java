@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -364,7 +364,7 @@ public class ImageWrapper extends RepositoryObjectWrapper<ImageData> implements 
         }
         imp.setPosition(1);
         if (IJ.getVersion().compareTo("1.53a") >= 0) {
-            imp.setProp(IJ_ID_PROPERTY, getId());
+            imp.setProp(IJ_ID_PROPERTY, Long.toString(getId()));
         }
         return imp;
     }

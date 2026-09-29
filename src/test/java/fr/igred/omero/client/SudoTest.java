@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,7 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.BasicTest;
+import fr.igred.omero.IntegrationTest;
 import fr.igred.omero.annotations.TagAnnotation;
 import fr.igred.omero.annotations.TagAnnotationWrapper;
 import fr.igred.omero.containers.Dataset;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class SudoTest extends BasicTest {
+class SudoTest extends IntegrationTest {
 
 
     @Test

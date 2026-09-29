@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,7 @@
 package fr.igred.omero.client;
 
 
-import fr.igred.omero.BasicTest;
+import fr.igred.omero.IntegrationTest;
 import fr.igred.omero.exception.ServiceException;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-class ConnectionTest extends BasicTest {
+class ConnectionTest extends IntegrationTest {
 
 
     @Test

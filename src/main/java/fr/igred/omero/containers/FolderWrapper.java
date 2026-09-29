@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -51,10 +51,6 @@ import static java.util.stream.Collectors.toList;
  * <p> Wraps function calls to the FolderData contained.
  */
 public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implements fr.igred.omero.containers.Folder {
-
-    /** Empty ROI array for fast list conversion */
-    private static final ROI[] EMPTY_ROI_ARRAY = new ROI[0];
-
 
     /**
      * Constructor of the FolderWrapper class.
@@ -272,7 +268,7 @@ public class FolderWrapper extends RepositoryObjectWrapper<FolderData> implement
     public void unlinkAllROIs(DataManager dm)
     throws ServiceException, AccessException, ExecutionException {
         Collection<ROI> rois = wrap(data.copyROILinks(), ROIWrapper::new);
-        unlinkROIs(dm, rois.toArray(EMPTY_ROI_ARRAY));
+        unlinkROIs(dm, rois.toArray(ROI[]::new));
     }
 
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -419,7 +419,7 @@ public interface Dataset extends RepositoryObject {
     default List<Long> importAndReplaceImages(Client client, String path, ReplacePolicy policy)
     throws ServiceException, AccessException, IOException, ExecutionException, InterruptedException {
         List<Long> ids    = importImage(client, path);
-        Long[]     newIds = ids.toArray(new Long[0]);
+        Long[]     newIds = ids.toArray(Long[]::new);
 
         List<Image>       newImages = client.getImages(newIds);
         Collection<Image> toDelete  = new ArrayList<>(newImages.size());

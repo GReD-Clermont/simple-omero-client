@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -72,7 +72,7 @@ public interface Image extends RepositoryObject {
     /** Annotation link name for this type of object */
     String ANNOTATION_LINK = "ImageAnnotationLink";
 
-    /** Default IJ property to store image ID. */
+    /** IJ property to store image ID. */
     String IJ_ID_PROPERTY = "IMAGE_ID";
 
 
@@ -242,11 +242,9 @@ public interface Image extends RepositoryObject {
     throws AccessException, ServiceException, ExecutionException {
         List<WellSample> wellSamples = getWellSamples(browser);
 
-        Collection<PlateAcquisition> acqs = new ArrayList<>(wellSamples.size());
-        for (WellSample ws : wellSamples) {
-            acqs.add(ws.getPlateAcquisition());
-        }
-        return distinct(acqs);
+        return distinct(wellSamples.stream()
+                                   .map(WellSample::getPlateAcquisition)
+                                   .collect(Collectors.toList()));
     }
 
 

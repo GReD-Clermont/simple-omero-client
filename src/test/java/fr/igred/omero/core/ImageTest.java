@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -50,16 +50,15 @@ import org.junit.jupiter.api.Test;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -688,18 +687,22 @@ class ImageTest extends UserTest {
                                   .getCreated()
                                   .toLocalDateTime()
                                   .toLocalDate();
-        LocalDate now = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
-        assertEquals(now, created);
+        assertEquals(today, created);
     }
 
 
     @Test
     void testGetAcquisitionDate() throws Exception {
-        LocalDateTime     acq = client.getImage(IMAGE1.id).getAcquisitionDate().toLocalDateTime();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss", Locale.getDefault());
+        long acq = client.getImage(IMAGE1.id)
+                         .getAcquisitionDate()
+                         .toInstant()
+                         .getEpochSecond();
 
-        assertEquals("2020-04-01_20-04-01", dtf.format(acq));
+        long expected = 1585771441L;
+
+        assertEquals(expected, acq);
     }
 
 
@@ -825,12 +828,17 @@ class ImageTest extends UserTest {
 
     @Test
     void testDownload() throws Exception {
-        Image      image = client.getImage(IMAGE1.id);
-        List<File> files = image.download(client, ".");
+        Image      image  = client.getImage(IMAGE1.id);
+        Path       tmpDir = Files.createTempDirectory(null);
+        List<File> files  = image.download(client, tmpDir.toString());
         assertEquals(2, files.size());
         assertTrue(files.get(0).exists());
+        assertTrue(files.get(1).exists());
+        File parent = files.get(0).getParentFile();
         Files.deleteIfExists(files.get(0).toPath());
         Files.deleteIfExists(files.get(1).toPath());
+        Files.deleteIfExists(parent.toPath());
+        Files.deleteIfExists(tmpDir);
     }
 
 
@@ -851,6 +859,5 @@ class ImageTest extends UserTest {
 
         assertThrows(NoSuchElementException.class, () -> client.getImage(id));
     }
-
 
 }

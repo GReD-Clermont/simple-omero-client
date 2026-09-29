@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -91,7 +91,7 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
 
         logFile = new PrintStream(Files.newOutputStream(file.toPath()),
                                   false,
-                                  UTF_8.name());
+                                  UTF_8);
     }
 
 
@@ -209,7 +209,7 @@ public class LoggingExtension implements TestWatcher, BeforeTestExecutionCallbac
     private void logStatus(String methodName, String displayName, String status, String color, float time) {
         showOutputs();
         displayName = displayName.equals(methodName + "()") ? "" : displayName;
-        String name = format("%s %s", methodName, displayName);
+        String name = methodName + " " + displayName;
         logger.info(format(FORMAT, name, color, status, ANSI_RESET, time));
         logFile.printf("%9s: %s%n", status, name);
     }

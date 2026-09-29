@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -28,6 +28,7 @@ import omero.gateway.model.ShapeData;
 import omero.model.AffineTransform;
 import omero.model.ShapeAnnotationLink;
 import omero.model.ShapeAnnotationLinkI;
+import omero.model._ShapeAnnotationLinkOperationsNC;
 
 import java.awt.Color;
 import java.util.concurrent.ExecutionException;
@@ -43,7 +44,7 @@ public interface Shape extends Annotatable {
     /** Annotation link name for this type of object */
     String ANNOTATION_LINK = "ShapeAnnotationLink";
 
-    /** Default IJ property to store shape ID. */
+    /** IJ property to store shape ID. */
     String IJ_ID_PROPERTY = "SHAPE_ID";
 
 
@@ -283,7 +284,7 @@ public interface Shape extends Annotatable {
         ShapeAnnotationLink link = new ShapeAnnotationLinkI();
         link.setChild(annotation.asAnnotation());
         link.setParent((omero.model.Shape) asDataObject().asIObject());
-        long id = ((ShapeAnnotationLink) dm.save(link)).getChild().getId().getValue();
+        long id = ((_ShapeAnnotationLinkOperationsNC) dm.save(link)).getChild().getId().getValue();
         annotation.setId(id);
     }
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -20,25 +20,17 @@ package fr.igred.omero.annotations;
 
 import fr.igred.omero.client.Client;
 import fr.igred.omero.core.Image;
-import fr.igred.omero.core.ImageWrapper;
 import fr.igred.omero.exception.AccessException;
 import fr.igred.omero.exception.ServiceException;
 import fr.igred.omero.roi.ROI;
-import fr.igred.omero.roi.ROIWrapper;
 import ij.gui.Roi;
 import ij.macro.Variable;
 import ij.measure.ResultsTable;
-import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,12 +38,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static fr.igred.omero.annotations.ROIColumnHelper.createROIColumn;
+import static fr.igred.omero.annotations.DataColumnsHelper.createROIColumn;
 import static fr.igred.omero.annotations.ResultsTableHelper.IMAGE;
 import static fr.igred.omero.annotations.ResultsTableHelper.LABEL;
 import static fr.igred.omero.annotations.ResultsTableHelper.isColumnNumeric;
 import static fr.igred.omero.annotations.ResultsTableHelper.renameImageColumn;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 /**
@@ -126,46 +117,24 @@ public class TableBuilder {
      */
     public TableBuilder(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
-    }
-
-
-    /**
-     * Constructor of the class TableBuilder. Uses an ImageJ {@link ResultsTable} to create.
-     *
-     * @param client      The client handling the connection.
-     * @param results     An ImageJ results table.
-     * @param imageId     An image ID.
-     * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY} if
-     *                    null or empty.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public TableBuilder(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
-                        String roiProperty)
-    throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROI.checkProperty(roiProperty);
-
         ResultsTable rt = (ResultsTable) results.clone();
         this.name     = rt.getTitle();
         this.rowCount = rt.size();
 
         int offset = 0;
 
-        Image image = new ImageWrapper(null);
+        ImageData imgData = null;
 
         List<ROI> rois = new ArrayList<>(0);
 
         if (imageId != null) {
-            image = client.getImage(imageId);
-            rois  = image.getROIs(client);
+            Image image = client.getImage(imageId);
+            imgData = image.asDataObject();
+            rois    = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
         }
-        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois);
         if (roiColumn.length > 0) {
             offset++;
         }
@@ -181,10 +150,10 @@ public class TableBuilder {
         if (offset > 0) {
             createColumn(0, IMAGE, ImageData.class);
             data[0] = new ImageData[rowCount];
-            Arrays.fill(data[0], image.asDataObject());
+            Arrays.fill(data[0], imgData);
         }
         if (offset > 1) {
-            createColumn(1, roiProperty, ROIData.class);
+            createColumn(1, ROI.IJ_PROPERTY, ROIData.class);
             data[1] = roiColumn;
         }
         for (int i = 0; i < nColumns; i++) {
@@ -312,43 +281,21 @@ public class TableBuilder {
      */
     public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois)
     throws ServiceException, AccessException, ExecutionException {
-        this.addRows(client, results, imageId, ijRois, ROI.IJ_PROPERTY);
-    }
-
-
-    /**
-     * Adds rows from an ImageJ {@link ResultsTable}.
-     *
-     * @param client      The client handling the connection.
-     * @param results     An ImageJ results table.
-     * @param imageId     An image ID.
-     * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI index/label. Defaults to {@link ROIWrapper#IJ_PROPERTY}
-     *                    if null or empty.
-     *
-     * @throws ServiceException   Cannot connect to OMERO.
-     * @throws AccessException    Cannot access data.
-     * @throws ExecutionException A Facility can't be retrieved or instantiated.
-     */
-    public void addRows(Client client, ResultsTable results, Long imageId, Collection<? extends Roi> ijRois,
-                        String roiProperty)
-    throws ServiceException, AccessException, ExecutionException {
-        roiProperty = ROI.checkProperty(roiProperty);
-
         ResultsTable rt = (ResultsTable) results.clone();
 
-        Image image = new ImageWrapper(null);
+        ImageData imgData = null;
 
         List<ROI> rois = new ArrayList<>(0);
 
         int offset = 0;
         if (imageId != null) {
-            image = client.getImage(imageId);
-            rois  = image.getROIs(client);
+            Image image = client.getImage(imageId);
+            imgData = image.asDataObject();
+            rois    = image.getROIs(client);
             offset++;
             renameImageColumn(rt);
         }
-        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois, roiProperty);
+        ROIData[] roiColumn = createROIColumn(rt, rois, ijRois);
         if (roiColumn.length > 0) {
             offset++;
         }
@@ -365,7 +312,7 @@ public class TableBuilder {
         setRowCount(rowCount + n);
 
         if (offset > 0) {
-            Arrays.fill(data[0], row, row + n, image.asDataObject());
+            Arrays.fill(data[0], row, row + n, imgData);
         }
         if (offset > 1) {
             System.arraycopy(roiColumn, 0, data[1], row, n);
@@ -578,59 +525,6 @@ public class TableBuilder {
         emptyColumns.forEach(this::removeColumn);
 
         return new TableWrapper(new TableData(columns, data), name);
-    }
-
-
-    /**
-     * Saves the current table as a character-delimited text file.
-     *
-     * @param path      The path to the file where the table will be saved.
-     * @param delimiter The character used to specify the boundary between columns.
-     *
-     * @throws FileNotFoundException        The requested file cannot be written.
-     * @throws UnsupportedEncodingException If the UTF8 charset is not supported.
-     */
-    public void saveAs(String path, char delimiter)
-    throws FileNotFoundException, UnsupportedEncodingException {
-        NumberFormat formatter = NumberFormat.getInstance();
-        formatter.setMaximumFractionDigits(4);
-        formatter.setGroupingUsed(false);
-
-        StringBuilder sb = new StringBuilder(10 * columnCount * rowCount);
-
-        File file = new File(path);
-
-        String sol = "\"";
-        String sep = String.format("\"%c\"", delimiter);
-        String eol = String.format("\"%n");
-        try (PrintWriter stream = new PrintWriter(file, UTF_8.name())) {
-            sb.append(sol);
-            for (int j = 0; j < columnCount; j++) {
-                sb.append(columns[j].getName());
-                if (j != columnCount - 1) {
-                    sb.append(sep);
-                }
-            }
-            sb.append(eol);
-            for (int i = 0; i < rowCount; i++) {
-                sb.append(sol);
-                for (int j = 0; j < columnCount; j++) {
-                    Object value = data[j][i];
-                    if (DataObject.class.isAssignableFrom(columns[j].getType())) {
-                        value = ((DataObject) value).getId();
-                    }
-                    if (value instanceof Number) {
-                        value = formatter.format(value);
-                    }
-                    sb.append(value);
-                    if (j != columnCount - 1) {
-                        sb.append(sep);
-                    }
-                }
-                sb.append(eol);
-            }
-            stream.write(sb.toString());
-        }
     }
 
 }

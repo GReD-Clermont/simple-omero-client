@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -19,7 +19,6 @@ package fr.igred.omero.annotations;
 
 
 import fr.igred.omero.roi.ROI;
-import fr.igred.omero.roi.ROIWrapper;
 import ij.gui.Roi;
 import ij.macro.Variable;
 import ij.measure.ResultsTable;
@@ -40,7 +39,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  * Helper class to create a ROIData column from an ImageJ ResultsTable.
  */
-final class ROIColumnHelper {
+final class DataColumnsHelper {
 
     /** Empty ROI array */
     private static final ROIData[] EMPTY_ROI = new ROIData[0];
@@ -49,30 +48,29 @@ final class ROIColumnHelper {
     /**
      * Default constructor: private to prevent instantiation
      */
-    private ROIColumnHelper() {
+    private DataColumnsHelper() {
         // Prevent instantiation
     }
 
 
     /**
      * Creates a ROIData column.
-     * <p>A column named either {@code roiProperty} or {@link ROIWrapper#ijIDProperty(String roiProperty)} is
+     * <p>A column named either {@value  ROI#IJ_PROPERTY} or {@value ROI#IJ_ID_PROPERTY} is
      * expected. It will look for the ROI OMERO ID in the latter, or for the local label/index, the OMERO ID, the names
      * or the shape names in the former.
      * <p>If neither column is present, it will check the {@value ResultsTableHelper#LABEL} column for the ROI names inside.
      *
-     * @param results     An ImageJ results table.
-     * @param rois        A list of OMERO ROIs (each ROI (ID) should be present only once).
-     * @param ijRois      A list of ImageJ Rois.
-     * @param roiProperty The Roi property storing the local ROI label/index.
+     * @param results An ImageJ results table.
+     * @param rois    A list of OMERO ROIs (each ROI (ID) should be present only once).
+     * @param ijRois  A list of ImageJ Rois.
      */
     static ROIData[] createROIColumn(ResultsTable results,
                                      Collection<? extends ROI> rois,
-                                     Collection<? extends Roi> ijRois,
-                                     String roiProperty) {
-        String roiIdProperty = ROI.ijIDProperty(roiProperty);
-
+                                     Collection<? extends Roi> ijRois) {
         ROIData[] roiColumn = EMPTY_ROI;
+
+        String roiProperty   = ROI.IJ_PROPERTY;
+        String roiIdProperty = ROI.IJ_ID_PROPERTY;
 
         Map<Long, ROIData> id2roi = rois.stream()
                                         .collect(toMap(ROI::getId,
@@ -220,7 +218,8 @@ final class ROIColumnHelper {
         ROIData[] roiColumn = Arrays.stream(roiCol)
                                     .map(Variable::getValue)
                                     .map(Double::longValue)
-                                    .map(id2roi::get).toArray(ROIData[]::new);
+                                    .map(id2roi::get)
+                                    .toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
         if (Arrays.asList(roiColumn).contains(null)) {
             roiColumn = EMPTY_ROI;
@@ -241,7 +240,8 @@ final class ROIColumnHelper {
                                                       Map<String, ROIData> id2roi) {
         ROIData[] roiColumn = Arrays.stream(roiCol)
                                     .map(Variable::toString)
-                                    .map(id2roi::get).toArray(ROIData[]::new);
+                                    .map(id2roi::get)
+                                    .toArray(ROIData[]::new);
         // If roiColumn contains null, we return an empty array
         if (Arrays.asList(roiColumn).contains(null)) {
             roiColumn = EMPTY_ROI;

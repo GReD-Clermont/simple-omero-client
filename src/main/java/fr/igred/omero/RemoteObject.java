@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -69,7 +70,7 @@ public interface RemoteObject {
      */
     static <U extends RemoteObject> List<U> distinct(Collection<? extends U> objects) {
         return objects.stream()
-                      .collect(toMap(U::getId, o -> o, (o1, o2) -> o1))
+                      .collect(toMap(U::getId, identity(), (o, ignored) -> o))
                       .values()
                       .stream()
                       .sorted(Comparator.comparing(U::getId))
@@ -89,7 +90,7 @@ public interface RemoteObject {
     List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
         return lists.stream()
                     .flatMap(Collection::stream)
-                    .collect(toMap(U::getId, o -> o, (o1, o2) -> o1))
+                    .collect(toMap(U::getId, identity(), (o, ignored) -> o))
                     .values()
                     .stream()
                     .sorted(Comparator.comparing(U::getId))

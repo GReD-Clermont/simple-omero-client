@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -774,6 +774,7 @@ public class PixelsWrapper extends ObjectWrapper<PixelsData> implements Pixels {
      *
      * @throws AccessException    If an error occurs while retrieving the plane data from the pixels source.
      * @throws ExecutionException A Facility can't be retrieved or instantiated.
+     * @throws ServiceException   Cannot connect to OMERO.
      */
     @Override
     public ImagePlus toImagePlus(Client client, Bounds limits, int resLevel)

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -149,7 +149,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults1() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "ROI_1");
-        List<Roi> ijRois = ROI.toImageJ(rois, null, false);
+        List<Roi> ijRois = ROI.toImageJ(rois, false);
 
         String label = image.getName();
 
@@ -181,18 +181,18 @@ class ImageJTableTest extends UserTest {
 
     @Test
     void testCreateTableWithROIsFromIJResults2() throws Exception {
-        String    property = "Cell";
-        List<ROI> rois     = createAndSaveROI(client, image, "");
-        List<Roi> ijRois   = rois.get(0).toImageJ(property);
+        List<ROI> rois   = createAndSaveROI(client, image, "");
+        List<Roi> ijRois = rois.get(0).toImageJ();
+        double    dRoiId = rois.get(0).getId();
 
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, VOLUME1, UNIT1);
         results.setValue("Image", 0, label);
         results.setValue("Image_Name", 0, label);
-        results.setValue(property, 0, rois.get(0).getId());
+        results.setValue(ROI.IJ_PROPERTY, 0, dRoiId);
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, property);
+        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
         image.addTable(client, table);
 
@@ -218,12 +218,13 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithROIsFromIJResults3() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi> ijRois = rois.get(0).toImageJ("");
+        List<Roi> ijRois = rois.get(0).toImageJ();
+        double    dRoiId = rois.get(0).getId();
 
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, VOLUME1, UNIT1);
-        results.setValue(ROI.ijIDProperty(null), 0, rois.get(0).getId());
+        results.setValue(ROI.IJ_ID_PROPERTY, 0, dRoiId);
 
         TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
@@ -256,7 +257,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable("", VOLUME1, UNIT1);
         results.setValue("Image", 0, label);
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
         image.addTable(client, table);
 
@@ -284,7 +285,7 @@ class ImageJTableTest extends UserTest {
         String label = image.getName();
 
         ResultsTable results = createOneRowResultsTable(label, VOLUME1, UNIT1);
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
         image.addTable(client, table);
 
@@ -314,8 +315,8 @@ class ImageJTableTest extends UserTest {
         ResultsTable results1 = createOneRowResultsTable(label, VOLUME1, UNIT1);
         ResultsTable results2 = createOneRowResultsTable(label, VOLUME2, UNIT2);
 
-        TableBuilder builder = new TableBuilder(client, results1, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
-        builder.addRows(client, results2, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        TableBuilder builder = new TableBuilder(client, results1, IMAGE_ID, ijRois);
+        builder.addRows(client, results2, IMAGE_ID, ijRois);
         Table table = builder.createTable();
         image.addTable(client, table);
 
@@ -343,7 +344,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testAddRowsWithROIsFromIJResults() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi> ijRois = ROI.toImageJ(rois, "");
+        List<Roi> ijRois = ROI.toImageJ(rois);
 
         String label = image.getName();
 
@@ -396,7 +397,7 @@ class ImageJTableTest extends UserTest {
         results.setValue(ROI.IJ_PROPERTY, 0, local.getName());
         results.setValue(ROI.IJ_PROPERTY, 1, ijRois.get(0).getName());
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
         image.addTable(client, table);
 
@@ -424,7 +425,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testCreateTableWithLocalROIFromIJResults2() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi> ijRois = rois.get(0).toImageJ((String) null);
+        List<Roi> ijRois = rois.get(0).toImageJ();
 
         Roi local = new Roi(5, 5, 10, 10);
         local.setName("local");
@@ -436,7 +437,7 @@ class ImageJTableTest extends UserTest {
         ResultsTable results = createOneRowResultsTable(label1, VOLUME1, UNIT1);
         addRowToResultsTable(results, label2, VOLUME2, UNIT2);
 
-        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        TableBuilder builder = new TableBuilder(client, results, IMAGE_ID, ijRois);
         Table        table   = builder.createTable();
         image.addTable(client, table);
 
@@ -610,11 +611,11 @@ class ImageJTableTest extends UserTest {
     @Test
     void testNumberFormatException() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "");
-        List<Roi> ijRois = ROI.toImageJ(rois, null);
+        List<Roi> ijRois = ROI.toImageJ(rois);
         ijRois.get(0).setProperty(ROI.IJ_PROPERTY, "tutu");
         ijRois.get(1).setProperty(ROI.IJ_PROPERTY, "tutu");
         ijRois.get(2).setProperty(ROI.IJ_PROPERTY, "tutu");
-        ijRois.get(3).setProperty(ROI.ijIDProperty(ROI.IJ_PROPERTY), "tata");
+        ijRois.get(3).setProperty(ROI.IJ_ID_PROPERTY, "tata");
 
         String label = image.getName();
 
@@ -646,7 +647,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testNumericName() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "1");
-        List<Roi> ijRois = ROI.toImageJ(rois, null);
+        List<Roi> ijRois = ROI.toImageJ(rois);
 
         String label = image.getName();
 
@@ -689,9 +690,8 @@ class ImageJTableTest extends UserTest {
         results2.setValue("Volume Unit", 0, UNIT2);
         results2.setValue("Volume", 0, VOLUME2);
 
-        TableBuilder builder = new TableBuilder(client, results1, IMAGE_ID, ijRois,
-                                                ROI.IJ_PROPERTY);
-        builder.addRows(client, results2, IMAGE_ID, ijRois, ROI.IJ_PROPERTY);
+        TableBuilder builder = new TableBuilder(client, results1, IMAGE_ID, ijRois);
+        builder.addRows(client, results2, IMAGE_ID, ijRois);
         Table table = builder.createTable();
         image.addTable(client, table);
         Object[][] data = table.getData();
@@ -718,7 +718,7 @@ class ImageJTableTest extends UserTest {
     @Test
     void testSaveTableAs() throws Exception {
         List<ROI> rois   = createAndSaveROI(client, image, "1");
-        List<Roi> ijRois = ROI.toImageJ(rois, "");
+        List<Roi> ijRois = ROI.toImageJ(rois);
 
         String label = image.getName();
         long   roiId = rois.get(0).getId();
@@ -733,12 +733,12 @@ class ImageJTableTest extends UserTest {
 
         TableBuilder table = new TableBuilder(client, results1, IMAGE_ID, ijRois);
         table.addRows(client, results2, IMAGE_ID, ijRois);
-        table.createTable();
+        Table t = table.createTable();
 
         @SuppressWarnings("MagicCharacter")
         char delimiter = '\t';
         String filename = "file.csv";
-        table.saveAs(filename, delimiter);
+        t.saveAs(filename, delimiter);
 
         NumberFormat formatter = NumberFormat.getInstance();
         formatter.setMaximumFractionDigits(4);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2025 GReD
+ *  Copyright (C) 2020-2026 iGReD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,11 +21,12 @@ package fr.igred.omero.meta;
 import fr.igred.omero.RootTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import static fr.igred.omero.meta.Group.PERMISSIONS_GROUP_READ;
+import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -80,11 +81,10 @@ class GroupTest extends RootTest {
 
         List<Experimenter> experimenters = group.getExperimenters();
 
-        List<String> usernames = new ArrayList<>(2);
-        for (Experimenter experimenter : experimenters) {
-            usernames.add(experimenter.getUserName());
-        }
-        usernames.sort(String.CASE_INSENSITIVE_ORDER);
+        List<String> usernames = experimenters.stream()
+                                              .map(Experimenter::getUserName)
+                                              .sorted(CASE_INSENSITIVE_ORDER)
+                                              .collect(Collectors.toList());
 
         assertEquals(2, experimenters.size());
         assertEquals("testUser3", usernames.get(0));
