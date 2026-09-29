@@ -242,11 +242,9 @@ public interface Image extends RepositoryObject {
     throws AccessException, ServiceException, ExecutionException {
         List<WellSample> wellSamples = getWellSamples(browser);
 
-        Collection<PlateAcquisition> acqs = new ArrayList<>(wellSamples.size());
-        for (WellSample ws : wellSamples) {
-            acqs.add(ws.getPlateAcquisition());
-        }
-        return distinct(acqs);
+        return distinct(wellSamples.stream()
+                                   .map(WellSample::getPlateAcquisition)
+                                   .collect(Collectors.toList()));
     }
 
 
