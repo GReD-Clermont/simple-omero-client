@@ -685,9 +685,8 @@ class ImageTest extends UserTest {
         LocalDate created = client.getImage(IMAGE1.id)
                                   .getCreated()
                                   .toLocalDateTime()
-                                  .atOffset(ZoneOffset.UTC)
                                   .toLocalDate();
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
         assertEquals(today, created);
     }
@@ -697,11 +696,10 @@ class ImageTest extends UserTest {
     void testGetAcquisitionDate() throws Exception {
         long acq = client.getImage(IMAGE1.id)
                          .getAcquisitionDate()
-                         .toLocalDateTime()
-                         .atZone(ZoneOffset.UTC)
-                         .toEpochSecond();
+                         .toInstant()
+                         .getEpochSecond();
 
-        long expected = 1585778641L;
+        long expected = 1585771441L;
 
         assertEquals(expected, acq);
     }
