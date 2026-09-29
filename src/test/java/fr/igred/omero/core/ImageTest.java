@@ -50,6 +50,7 @@ import org.junit.jupiter.api.Test;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -827,12 +828,17 @@ class ImageTest extends UserTest {
 
     @Test
     void testDownload() throws Exception {
-        Image      image = client.getImage(IMAGE1.id);
-        List<File> files = image.download(client, ".");
+        Image      image  = client.getImage(IMAGE1.id);
+        Path       tmpDir = Files.createTempDirectory(null);
+        List<File> files  = image.download(client, tmpDir.toString());
         assertEquals(2, files.size());
         assertTrue(files.get(0).exists());
+        assertTrue(files.get(1).exists());
+        File parent = files.get(0).getParentFile();
         Files.deleteIfExists(files.get(0).toPath());
         Files.deleteIfExists(files.get(1).toPath());
+        Files.deleteIfExists(parent.toPath());
+        Files.deleteIfExists(tmpDir);
     }
 
 
