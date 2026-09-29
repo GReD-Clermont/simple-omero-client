@@ -91,6 +91,7 @@ extends AnnotatableWrapper<T> implements RepositoryObject {
 
     /**
      * Method used for importing a number of import candidates through a given thread pool.
+     * <p>The provided thread pool should be shut down after the import is complete.</p>
      *
      * @param threadPool The thread pool to use for the import.
      * @param target     The import target.
@@ -121,8 +122,7 @@ extends AnnotatableWrapper<T> implements RepositoryObject {
                     imported = library.importImage(container, threadPool, i);
                 } catch (Throwable e) {
                     String filename = container.getFile().getName();
-                    String error    = String.format(msg, filename, e.getMessage());
-                    logger.severe(error);
+                    logger.severe(String.format(msg, filename, e.getMessage()));
                     if (Boolean.FALSE.equals(config.contOnError.get())) {
                         return pixels;
                     }
@@ -130,7 +130,6 @@ extends AnnotatableWrapper<T> implements RepositoryObject {
                 pixels.addAll(imported);
             }
         }
-        threadPool.shutdown();
         return pixels;
     }
 
