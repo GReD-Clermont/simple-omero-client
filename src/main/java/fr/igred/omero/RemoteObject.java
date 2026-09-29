@@ -40,19 +40,6 @@ import static java.util.stream.Collectors.toMap;
  */
 public interface RemoteObject {
 
-    /**
-     * Keeps the first object and ignores the second one.
-     *
-     * @param first   The first object.
-     * @param ignored The second object.
-     * @param <U>     The objects type.
-     *
-     * @return The first object.
-     */
-    private static <U> U keepFirst(U first, U ignored) {
-        return first;
-    }
-
 
     /**
      * Gets a list of elements of the specified class from a collection of RemoteObjects.
@@ -83,7 +70,7 @@ public interface RemoteObject {
      */
     static <U extends RemoteObject> List<U> distinct(Collection<? extends U> objects) {
         return objects.stream()
-                      .collect(toMap(U::getId, identity(), RemoteObject::keepFirst))
+                      .collect(toMap(U::getId, identity(), (a, b) -> a))
                       .values()
                       .stream()
                       .sorted(Comparator.comparing(U::getId))
@@ -103,7 +90,7 @@ public interface RemoteObject {
     List<U> flatten(Collection<? extends Collection<? extends U>> lists) {
         return lists.stream()
                     .flatMap(Collection::stream)
-                    .collect(toMap(U::getId, identity(), RemoteObject::keepFirst))
+                    .collect(toMap(U::getId, identity(), (a, b) -> a))
                     .values()
                     .stream()
                     .sorted(Comparator.comparing(U::getId))
