@@ -32,9 +32,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 
 class LibraryCheckerTest extends BasicTest {
@@ -53,27 +51,34 @@ class LibraryCheckerTest extends BasicTest {
                             "ome-common",
                             "formats-api"})
     void checkUnavailableLibraries(String excluded) {
-        //noinspection ClassLoaderInstantiation
+        boolean unavailable = false;
+        String  message;
+        //noinspection ClassLoaderInstantiation since we want to test the class loading behavior
         try (URLClassLoader testClassLoader = new TestClassLoader(excluded)) {
             Class<?> checker = testClassLoader.loadClass(LibraryChecker.class.getName());
             Method   check   = checker.getMethod("areRequirementsAvailable");
-            assertFalse((Boolean) check.invoke(null), "Libraries are available");
+            unavailable = !(Boolean) check.invoke(null);
+            message     = "Libraries are available";
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            fail(String.format("Class or method not found: %s.", e.getMessage()));
+            message = String.format("Class or method not found: %s.", e.getMessage());
         } catch (InvocationTargetException | IllegalAccessException e) {
-            fail(String.format("Call to check method failed: %s.", e.getMessage()));
+            message = String.format("Call to check method failed: %s.", e.getMessage());
         } catch (IOException e) {
-            fail(String.format("Could not create TestClassLoader: %s.", e.getMessage()));
+            message = String.format("Could not create TestClassLoader: %s.", e.getMessage());
         }
+        assertTrue(unavailable, message);
     }
 
 
     @SuppressWarnings("CustomClassloader")
     private static class TestClassLoader extends URLClassLoader {
 
+        /** An empty array of URLs to pass to the superclass constructor. */
+        private static final URL[] EMPTY = new URL[0];
+
+
         TestClassLoader(CharSequence excluded) throws MalformedURLException {
-            //noinspection ZeroLengthArrayAllocation
-            super(new URL[0], getSystemClassLoader().getParent());
+            super(EMPTY, getSystemClassLoader().getParent());
             @SuppressWarnings("AccessOfSystemProperties")
             String classpath = System.getProperty("java.class.path");
             String[] entries = classpath.split(File.pathSeparator);
