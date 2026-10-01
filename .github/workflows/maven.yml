@@ -20,8 +20,8 @@ jobs:
       - name: Set up JDK 11
         uses: &setup_java_action actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6  # v6.0.1
         with:
-          java-version: '11'
-          distribution: 'temurin'
+          java-version: &java_version '11'
+          distribution: &java_distrib 'temurin'
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
       - name: Cache Maven packages
@@ -48,7 +48,7 @@ jobs:
       - name: Upload Test Results
         uses: &upload_action actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-results
+          name: &test-results test-results
           path: |
             target/classes
             target/test-classes
@@ -79,13 +79,13 @@ jobs:
         uses: *setup_java_action
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: *java_distrib
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
       - name: Download Test Results
         uses: &download_action actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: test-results
+          name: *test-results
           path: target
       - name: Cache SonarCloud packages
         uses: *cache_action
@@ -126,15 +126,15 @@ jobs:
       - name: Set up JDK 11
         uses: *setup_java_action
         with:
-          java-version: '11'
-          distribution: 'temurin'
+          java-version: *java_version
+          distribution: *java_distrib
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           gpg-private-key: ${{ secrets.GPG_KEY }} # Value of the GPG private key to import
           gpg-passphrase-env-var: GPG_PASSPHRASE # env variable for GPG private key passphrase
       - name: Download Test Results
         uses: *download_action
         with:
-          name: test-results
+          name: *test-results
           path: target
       - name: Cache Maven packages
         uses: *cache_action
