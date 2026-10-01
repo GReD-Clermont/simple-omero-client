@@ -5,6 +5,13 @@ name: Java CI with Maven
 
 on: [ push, pull_request ]
 
+env:
+  # VERSION_SUFFIX is:
+  #  - 'SNAPSHOT' if the push is on main
+  #  - the branch name if the push is on a non-main branch
+  #  - empty otherwise (tag or pull request)
+  VERSION_SUFFIX: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'SNAPSHOT' || github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,13 +34,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Append branch name to version if 'push' did not happen on 'main' or a tag
-        if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')}}
+      - &append_version_suffix
+        if: ${{ env.VERSION_SUFFIX != '' }}
+        name: Append suffix (${{ env.VERSION_SUFFIX }}) to version
         run: |
           mvn versions:set -DremoveSnapshot
-          mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
-          VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
-          mvn versions:set -DnewVersion=$VERSION-${GITHUB_REF##*/}
+          VERSION=$(mvn help:evaluate -N -Dexpression=project.version -q -DforceStdout)
+          mvn versions:set -DnewVersion="$VERSION-${VERSION_SUFFIX##*/}"
       - name: Test with Maven and Testcontainers
         run: mvn package
       - name: Upload Test Results
@@ -72,8 +79,9 @@ jobs:
           cache: *java_cache
           java-version: '21'
           distribution: *java_distrib
-      - name: Download Test Results
-        uses: &download_action actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - &download_test_results
+        name: Download Test Results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: *test-results
           path: target
@@ -83,13 +91,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - name: Append branch name to version if 'push' did not happen on 'main' or a tag
-        if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')}}
-        run: |
-          mvn versions:set -DremoveSnapshot
-          mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
-          VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
-          mvn versions:set -DnewVersion=$VERSION-${GITHUB_REF##*/}
+      - *append_version_suffix
       - name: Sonar analysis
         if: ${{ env.HAVE_SONAR_TOKEN == 'true' && env.HAVE_SONAR_DETAILS == 'true' }}
         run: mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=$SONAR_PROJECTKEY -Dsonar.organization=$SONAR_ORGANIZATION
@@ -120,18 +122,8 @@ jobs:
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           gpg-private-key: ${{ secrets.GPG_KEY }} # Value of the GPG private key to import
           gpg-passphrase-env-var: GPG_PASSPHRASE # env variable for GPG private key passphrase
-      - name: Download Test Results
-        uses: *download_action
-        with:
-          name: *test-results
-          path: target
-      - name: Make sure to append 'SNAPSHOT' to version if 'push' happened on 'main'
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        run: |
-          mvn versions:set -DremoveSnapshot
-          mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
-          VERSION=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
-          mvn versions:set -DnewVersion=$VERSION-SNAPSHOT
+      - *download_test_results
+      - *append_version_suffix
       - name: Publish to GitHub Packages Apache Maven
         run: mvn deploy -DskipTests
         env:
